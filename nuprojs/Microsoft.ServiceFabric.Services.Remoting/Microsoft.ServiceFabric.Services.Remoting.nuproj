@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="..\..\properties\service_fabric_nuproj.props" />
+    
+    <PropertyGroup>
+      <Id>Microsoft.ServiceFabric.Services.Remoting</Id>
+      <Title>Microsoft.ServiceFabric.Services.Remoting</Title>
+      <Description>This package contains Service Framework Remoting APIs for building and connecting to reliable services on Microsoft Service Fabric.</Description>
+      <Summary>This package contains Service Framework Remoting APIs for building and connecting to reliable services on Microsoft Service Fabric.</Summary>
+      <Tags>ServiceFabric Microsoft Azure Fabric</Tags>
+    </PropertyGroup>
+
+    <Import Project="$(NuProjPath)\NuProj.props" />
+    <Import Project="$(NuProjPath)\NuProj.targets" />
+
+    <ItemGroup>
+      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Services.Remoting.dll">
+        <TargetPath>lib\net45</TargetPath>
+      </File>
+      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Services.Remoting.xml">
+        <TargetPath>lib\net45</TargetPath>
+      </File>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Dependency Include="Microsoft.ServiceFabric.Services">
+        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+      </Dependency>
+      <Dependency Include="Microsoft.ServiceFabric.FabricTransport.Internal">
+        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
+      </Dependency>
+    </ItemGroup>
+  </Project>

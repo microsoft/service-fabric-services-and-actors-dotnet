@@ -2,8 +2,7 @@
 
 Reliable Services and Reliable Actors are Service Fabric application frameworks for building highly-scalable distributed cloud applications.
 
-Reliable Services is a light-weight framework for writing services that integrate with the Service Fabric platform and benefit from the full set of platform features. Built on top of Reliable Services, the Reliable Actor framework is an application framework that implements the Virtual Actor model, based on the actor design pattern.
-More information on Service Fabric programming models can be found in the [Service Fabric documentation](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-choose-framework)
+Reliable Services is a light-weight framework for writing services that integrate with the Service Fabric platform and benefit from the full set of platform features. Built on top of Reliable Services, the Reliable Actor framework is an application framework that implements the Virtual Actor model, based on the actor design pattern. More information on Service Fabric programming models can be found in the [Service Fabric documentation](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-choose-framework).
 
 This repo builds the following packages:
  - Microsoft.ServiceFabric.Services
@@ -13,6 +12,7 @@ This repo builds the following packages:
  - Microsoft.ServiceFabric.Actors.Wcf
 
 For more Service Fabric open source projects, visit the Service Fabric [home repo](https://github.com/azure/service-fabric).
+
 ## Getting Started
 
 ### Prerequesites

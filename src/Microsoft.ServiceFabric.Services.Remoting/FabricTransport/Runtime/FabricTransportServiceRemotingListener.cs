@@ -1,0 +1,223 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
+{
+    using System;
+    using System.Fabric;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.FabricTransport.Client;
+    using Microsoft.ServiceFabric.FabricTransport.Runtime;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+
+    /// <summary>
+    ///     An <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> that uses
+    ///     fabric TCP transport to provide interface remoting for stateless and stateful services.
+    /// </summary>
+    public class FabricTransportServiceRemotingListener : IServiceRemotingListener
+    {
+        private FabricTransportListener nativeListener;
+
+        /// <summary>
+        ///     Constructs a fabric transport based service remoting listener.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="serviceImplementation">
+        ///     The service implementation object.
+        /// </param>
+        public FabricTransportServiceRemotingListener(
+            ServiceContext serviceContext,
+            IService serviceImplementation)
+            : this(
+                serviceContext,
+                serviceImplementation,
+                listenerSettings: FabricTransportRemotingListenerSettings.GetDefault())
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a fabric Transport based service remoting listener.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="serviceImplementation">
+        ///     The service implementation object.
+        /// </param>
+        /// <param name="listenerSettingsConfigSectionName">
+        ///    The name of the configuration section in the configuration package named
+        ///    "Config" in the service manifest that defines the settings for the listener. 
+        /// </param>
+        public FabricTransportServiceRemotingListener(
+            ServiceContext serviceContext,
+            IService serviceImplementation,
+            string listenerSettingsConfigSectionName)
+            : this(
+                serviceContext,
+                new ServiceRemotingDispatcher(serviceContext, serviceImplementation),
+                FabricTransportRemotingListenerSettings.LoadFrom(listenerSettingsConfigSectionName))
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a fabric transport based service remoting listener that uses the specified settings.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="serviceImplementation">
+        ///     The service implementation object.
+        /// </param>
+        /// <param name="listenerSettings">
+        ///     The settings for the listener.
+        /// </param>
+        public FabricTransportServiceRemotingListener(
+            ServiceContext serviceContext,
+            IService serviceImplementation,
+            FabricTransportRemotingListenerSettings listenerSettings)
+            : this(
+                serviceContext,
+                new ServiceRemotingDispatcher(serviceContext, serviceImplementation),
+                listenerSettings)
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a fabric transport based service remoting listener.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="messageHandler">
+        ///     The handler for processing remoting messages. As the messages are received,
+        ///     the listener delivers them to this handler.
+        /// </param>
+        public FabricTransportServiceRemotingListener(
+            ServiceContext serviceContext,
+            IServiceRemotingMessageHandler messageHandler)
+            : this(serviceContext, messageHandler, FabricTransportRemotingListenerSettings.GetDefault())
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a fabric transport based service remoting listener.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="messageHandler">
+        ///     The handler for processing remoting messages. As the messages are received,
+        ///     the listener delivers them to this handler.
+        /// </param>
+        /// <param name="listenerSettingsConfigSectionName">
+        ///    The name of the configuration section in the configuration package named
+        ///    "Config" in the service manifest that defines the settings for the listener. 
+        /// </param>
+        public FabricTransportServiceRemotingListener(
+            ServiceContext serviceContext,
+            IServiceRemotingMessageHandler messageHandler,
+            string listenerSettingsConfigSectionName)
+            : this(
+                serviceContext,
+                messageHandler,
+                FabricTransportRemotingListenerSettings.LoadFrom(listenerSettingsConfigSectionName))
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a fabric transport based service remoting listener.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="messageHandler">
+        ///     The handler for processing remoting messages. As the messages are received,
+        ///     the listener delivers them to this handler.
+        /// </param>
+        /// <param name="listenerSettings">
+        ///     The settings to use for the listener.
+        /// </param>
+        public FabricTransportServiceRemotingListener(
+            ServiceContext serviceContext,
+            IServiceRemotingMessageHandler messageHandler,
+            FabricTransportRemotingListenerSettings listenerSettings)
+        {
+            this.nativeListener = this.CreateNativeListener(
+                listenerSettings,
+                messageHandler,
+                serviceContext);
+        }
+
+        /// <summary>
+        /// This method causes the communication listener to be opened. Once the Open
+        /// completes, the communication listener becomes usable - accepts and sends messages.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>
+        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// the endpoint string.
+        /// </returns>
+        Task<string> ICommunicationListener.OpenAsync(CancellationToken cancellationToken)
+        {
+            return this.nativeListener.OpenAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// This method causes the communication listener to close. Close is a terminal state and 
+        /// this method allows the communication listener to transition to this state in a
+        /// graceful manner.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>
+        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
+        /// </returns>
+        async Task ICommunicationListener.CloseAsync(CancellationToken cancellationToken)
+        {
+            await this.nativeListener.CloseAsync(cancellationToken);
+            this.Dispose();
+        }
+
+        /// <summary>
+        /// This method causes the communication listener to close. Close is a terminal state and
+        /// this method causes the transition to close ungracefully. Any outstanding operations
+        /// (including close) should be canceled when this method is called.
+        /// </summary>
+        void ICommunicationListener.Abort()
+        {
+            if (this.nativeListener != null)
+            {
+                this.nativeListener.Abort();
+                this.Dispose();
+            }
+        }
+
+        private FabricTransportListener CreateNativeListener(
+            FabricTransportRemotingListenerSettings listenerSettings,
+            IServiceRemotingMessageHandler messageHandler,
+            ServiceContext serviceContext)
+        {
+            var connectionHandler = new FabricTransportServiceRemotingConnectionHandler();
+            return new FabricTransportListener(
+                listenerSettings.GetInternalSettings(),
+                listenerSettings.GetInternalSettings().GetListenerAddress(serviceContext),
+                new FabricTransportMessagingHandler(messageHandler),
+                connectionHandler);
+        }
+
+        private void Dispose()
+        {
+            if (this.nativeListener != null)
+            {
+                this.nativeListener.Dispose();
+                this.nativeListener = null;
+            }
+        }
+    }
+
+   
+}

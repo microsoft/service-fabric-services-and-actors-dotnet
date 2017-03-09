@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\properties\service_fabric_managed_prod.props" />
+  <PropertyGroup>
+    <ProjectGuid>{F416C4C3-250D-48F3-822C-1C589E8F851C}</ProjectGuid>
+    <RootNamespace>Microsoft.ServiceFabric.Services</RootNamespace>
+    <AssemblyName>Microsoft.ServiceFabric.Services</AssemblyName>
+    <AssemblyTitle>Microsoft.ServiceFabric.Services</AssemblyTitle>
+    <OutputType>Library</OutputType>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <ResourcesFileName>SR</ResourcesFileName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.ServiceFabric.Data, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Data.2.5.216\lib\net45\Microsoft.ServiceFabric.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Data.Interfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Data.2.5.216\lib\net45\Microsoft.ServiceFabric.Data.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Internal, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\Microsoft.ServiceFabric.Internal.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Internal.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\Microsoft.ServiceFabric.Internal.Strings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Fabric, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Fabric.Management.ServiceModel, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.Management.ServiceModel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Fabric.Management.ServiceModel.XmlSerializers, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.Management.ServiceModel.XmlSerializers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Fabric.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.Strings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Communication\ServiceExceptionData.cs" />
+    <Compile Include="Friend.cs" />
+    <Compile Include="Communication\Client\CommunicationClientCache.cs" />
+    <Compile Include="Communication\Client\CommunicationClientCacheEntry.cs" />
+    <Compile Include="Communication\Client\CommunicationTargetSelector.cs" />
+    <Compile Include="Communication\Client\ExceptionInformation.cs" />
+    <Compile Include="Communication\Client\OperationRetrySettings.cs" />
+    <Compile Include="Communication\Client\Utility.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Communication\ServiceException.cs" />
+    <Compile Include="Runtime\ServiceHelper.cs" />
+    <Compile Include="ServiceNameFormat.cs" />
+    <Compile Include="ServiceTrace.cs" />
+    <Compile Include="Client\IServicePartitionResolver.cs" />
+    <Compile Include="Client\ServicePartitionKey.cs" />
+    <Compile Include="Client\ServicePartitionResolver.cs" />
+    <Compile Include="Common\DebugUtility.cs" />
+    <Compile Include="Common\ExclusiveFileStream.cs" />
+    <Compile Include="Common\IdUtil.cs" />
+    <Compile Include="Common\RwLock.cs" />
+    <Compile Include="Common\SerializationUtility.cs" />
+    <Compile Include="Common\TaskDone.cs" />
+    <Compile Include="Communication\ServiceEndpointCollection.cs" />
+    <Compile Include="Communication\Client\CommunicationClientEventArgs.cs" />
+    <Compile Include="Communication\Client\CommunicationClientFactoryBase.cs" />
+    <Compile Include="Communication\Client\ExceptionHandlingResult.cs" />
+    <Compile Include="Communication\Client\ExceptionHandlingRetryResult.cs" />
+    <Compile Include="Communication\Client\ExceptionHandlingThrowResult.cs" />
+    <Compile Include="Communication\Client\ICommunicationClient.cs" />
+    <Compile Include="Communication\Client\ICommunicationClientFactory.cs" />
+    <Compile Include="Communication\Client\IExceptionHandler.cs" />
+    <Compile Include="Communication\Client\IServicePartitionClient.cs" />
+    <Compile Include="Communication\Client\OperationRetryControl.cs" />
+    <Compile Include="Communication\Client\ResolvedServicePartitionClient.cs" />
+    <Compile Include="Communication\Client\ServicePartitionClient.cs" />
+    <Compile Include="Communication\Runtime\ICommunicationListener.cs" />
+    <Compile Include="Communication\Runtime\ServiceInstanceListener.cs" />
+    <Compile Include="Communication\Runtime\ServiceReplicaListener.cs" />
+    <Compile Include="Runtime\IStatefulUserServiceReplica.cs" />
+    <Compile Include="Runtime\IStatelessUserServiceInstance.cs" />
+    <Compile Include="Runtime\RuntimeContext.cs" />
+    <Compile Include="Runtime\ServiceFrameworkEventSource.cs" />
+    <Compile Include="Runtime\ServiceRuntime.cs" />
+    <Compile Include="Runtime\StatefulService.cs" />
+    <Compile Include="Runtime\StatefulServiceBase.cs" />
+    <Compile Include="Runtime\StatefulServiceReplicaAdapter.cs" />
+    <Compile Include="Runtime\StatefulServiceReplicaFactory.cs" />
+    <Compile Include="Runtime\StatelessService.cs" />
+    <Compile Include="Runtime\StatelessServiceInstanceAdapter.cs" />
+    <Compile Include="Runtime\StatelessServiceInstanceFactory.cs" />
+    <Compile Include="SR.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SR.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SR.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SR.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\properties\AssemblyVersioning.targets" />
+</Project>

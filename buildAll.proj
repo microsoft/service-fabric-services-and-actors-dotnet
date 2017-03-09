@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="RebuildAll" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="properties\service_fabric_managed_prod.props" />
+  
+  <PropertyGroup>
+    <CurrentDir>$(MSBuildThisFileDirectory)</CurrentDir>
+    <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(CurrentDir)\external\nuget.exe</NuGetExePath>
+    <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">normal</RequestedVerbosity>
+    <DropFolder>$(CurrentDir)drop\$(Configuration)</DropFolder>
+    <NugetPackageDropFolder>$(DropFolder)\packages</NugetPackageDropFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- List of .csproj to build -->
+    <ProjectsToBuild Include="src\FabActUtil\FabActUtil.csproj;
+                     src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj;
+                     src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
+                     src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
+                     src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
+                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj"/>
+
+    <!-- List of .nuproj to build to generate nuget packages -->
+    <NuprojsToBuild Include="nuprojs\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.nuproj;
+                     nuprojs\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.nuproj;
+                     nuprojs\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.nuproj;
+                     nuprojs\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.nuproj;
+                     nuprojs\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.nuproj"/>
+
+    <!-- List of packages.config to restore nuget packages -->
+    <PackagesConfigs Include="nuprojs\packages.config;
+                      src\Microsoft.ServiceFabric.Actors\packages.config;
+                      src\Microsoft.ServiceFabric.Actors.Wcf\packages.config;
+                      src\Microsoft.ServiceFabric.Services\packages.config;
+                      src\Microsoft.ServiceFabric.Services.Remoting\packages.config;
+                      src\Microsoft.ServiceFabric.Services.Wcf\packages.config"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <RebuildAllDependsOn>RestorePackages;CleanAll;BuildAll;CopyBinaries;GeneratePackages</RebuildAllDependsOn>
+  </PropertyGroup>
+
+  <Target Name="RebuildAll" DependsOnTargets="$(RebuildAllDependsOn)">
+    <Message Text="SUCCESS!  Generated binaries and nuget packages are dropped at $(DropFolder)" Importance="High"/>
+  </Target>
+
+  <Target Name="RestorePackages">
+    <Message Text="Restoring NuGet packages for projects ..." Importance="High"/>
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore %(PackagesConfigs.Identity) -NonInteractive -Verbosity quiet" />
+  </Target>
+
+  <Target Name="BuildAll" DependsOnTargets="RestorePackages">
+    <Message Text="Building all projects ..." Importance="High"/>
+    <MSBuild Projects ="@(ProjectsToBuild)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
+  </Target>
+
+  <Target Name="GeneratePackages" DependsOnTargets="CopyBinaries">
+    <Message Text="Generating NuGet packages ..." Importance="High"/>
+    <MSBuild Projects ="@(NuprojsToBuild)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
+
+    <Message Text="Copying NuGet packages to drop folder ..." Importance="High"/>
+    <ItemGroup>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors\$(OutputPath)\Microsoft.ServiceFabric.Actors.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Actors.Wcf.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*.nupkg"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(Nupkgs)" DestinationFiles="@(Nupkgs->'$(NugetPackageDropFolder)\%(Destination)\%(Filename)%(Extension)')" />
+  </Target>
+
+  <Target Name="CopyBinaries" DependsOnTargets="BuildAll">
+    <Message Text="Copying binaries to drop folder ..." Importance="High"/>
+    <ItemGroup>
+      <Binaires Include="src\FabActUtil\$(OutputPath)\FabActUtil.*"/>
+      <Binaires Include="src\FabActUtil\Microsoft.ServiceFabric.Actors.targets"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Actors\$(OutputPath)\Microsoft.ServiceFabric.Actors.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Actors.Wcf.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(Binaires)" DestinationFiles="@(Binaires->'$(DropFolder)\%(Destination)\%(Filename)%(Extension)')" />
+  </Target>
+
+  <!--
+  This target can be used to clean all of the projects before you build them.
+  It will also delete any dll & exe files located in the the DestinationFolder folder.
+  -->
+  <Target Name="CleanAll" DependsOnTargets="RestorePackages">
+    <Message Text="Cleaning all projects ..."/>
+    <!-- Delete any files this process may have created from a previous execution -->
+    <CreateItem Include="$(CurrentDir)\drop\**\*">
+      <Output ItemName="GeneratedFiles" TaskParameter="Include"/>
+    </CreateItem>
+    <Delete Files="@(GeneratedFiles)"/>
+    <RemoveDir Directories="$(CurrentDir)\drop"/>
+    <MSBuild Projects="@(ProjectsToBuild)" Targets="Clean" Properties="Configuration=$(Configuration);"/>
+  </Target>
+</Project>

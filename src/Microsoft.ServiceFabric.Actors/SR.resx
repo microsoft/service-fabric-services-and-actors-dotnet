@@ -1,0 +1,376 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActorDeletedExceptionMessage" xml:space="preserve">
+    <value>Actor id {0} was deleted using DeleteActorAsync while this call was in prgoress. This call should be retried.</value>
+  </data>
+  <data name="ActorGCSettingsNotValid" xml:space="preserve">
+    <value>idleTimeoutInSeconds must be greater than or equal to scanIntervalInSeconds</value>
+  </data>
+  <data name="ActorGCSettingsValueOutOfRange" xml:space="preserve">
+    <value>Specified value must be greater than 0.</value>
+  </data>
+  <data name="ActorNotIRemindable" xml:space="preserve">
+    <value>Reminders cannot be registered or unregistered on Actor {0} because it doesnt implement IRemindable</value>
+  </data>
+  <data name="ActorProxyOnlyMethod" xml:space="preserve">
+    <value>This method can only be called on ActorProxy.</value>
+  </data>
+  <data name="ActorStateAlreadyExists" xml:space="preserve">
+    <value>The actor state name '{0}' already exist.</value>
+  </data>
+  <data name="ActorStateAlreadyRemovedCurrentContext" xml:space="preserve">
+    <value>The Actor state '{0}' was already removed in current call context.</value>
+  </data>
+  <data name="ConcurrencyLockTimedOut" xml:space="preserve">
+    <value>Acquisition of turn based concurrency lock for actor '{0}' timed out after {1} seconds.</value>
+  </data>
+  <data name="DeleteActorConflictWithLoadReminders" xml:space="preserve">
+    <value>Delete request for Actor {0} cannot be processed now since the actor is loading reminders. Please try again later.</value>
+  </data>
+  <data name="ErrorAbstractActorRegistrationNotAllowed" xml:space="preserve">
+    <value>The actor type '{0}' is abstract. Abstract actors cannot be registered as they cannot be instantiated.</value>
+  </data>
+  <data name="ErrorActorMessageHeadersDeserializationFailed" xml:space="preserve">
+    <value>Failed to deserialize ActorMessageHeaders</value>
+  </data>
+  <data name="ErrorActorMethodDoesNotReturnTask" xml:space="preserve">
+    <value>Method '{0}' of actor interface '{1}' does not return Task or Task&lt;&gt;. The actor interface methods must be async and must return either Task or Task&lt;&gt;.</value>
+  </data>
+  <data name="ErrorActorMethodHasGenerics" xml:space="preserve">
+    <value>Method '{0}' of actor interface '{1}' is using generics. The actor interface methods cannot use generics.</value>
+  </data>
+  <data name="ErrorActorMethodHasOutRefOptionalParameter" xml:space="preserve">
+    <value>Method '{0}' of actor interface '{1}' has out/ref/optional parameter '{2}'. The actor interface methods must not have out, ref or optional parameters.</value>
+  </data>
+  <data name="ErrorActorMethodHasVaArgParameter" xml:space="preserve">
+    <value>Method '{0}' of actor interface '{1}' has variable length parameter '{2}'. The actor interface methods must not have variable length parameters.</value>
+  </data>
+  <data name="ErrorActorMethodHasVaArgs" xml:space="preserve">
+    <value>Method '{0}' of actor interface '{1}' is using a variable argument list. The actor interface methods cannot have a variable argument list.</value>
+  </data>
+  <data name="ErrorActorMethodsIsOverloaded" xml:space="preserve">
+    <value>Method '{0}' of actor interface '{1}' is overloaded. The actor interface methods cannot be overloaded.</value>
+  </data>
+  <data name="ErrorActorNotFound" xml:space="preserve">
+    <value>Actor {0} is not found in the input assembly. Ensure that it derives from either {1} or {2} and implements and {3} interface.</value>
+  </data>
+  <data name="ErrorActorStateNotSerializable" xml:space="preserve">
+    <value>"{0}&lt;{1}&gt;: Actor state must have a callable constructor and be serializable."</value>
+  </data>
+  <data name="ErrorApplicationName" xml:space="preserve">
+    <value>Failed to determine the current application, please provide application name.</value>
+  </data>
+  <data name="ErrorCasting" xml:space="preserve">
+    <value>Could not cast {0} to {1}.</value>
+  </data>
+  <data name="ErrorDeserializeRemoteException" xml:space="preserve">
+    <value>Failed to deserialize and get remote exception.</value>
+  </data>
+  <data name="ErrorDuplicateMessage" xml:space="preserve">
+    <value>Actor {0}  got same request more than once. This might happen for a request which takes more processing time than configured OperationTimeout 
+    on Client side as client retries on TimeoutException.</value>
+  </data>
+  <data name="ErrorEventInterface" xml:space="preserve">
+    <value>Cannot determine the event interface from the supplied generic type argument. Supply the event interface type.</value>
+  </data>
+  <data name="ErrorEventInterfaceMustBeIActorEvents" xml:space="preserve">
+    <value>The type '{0} is not an actor events interface. The actor event interface must only derive from '{1}'.</value>
+  </data>
+  <data name="ErrorEventMethodDoesNotReturnVoid" xml:space="preserve">
+    <value>Method '{0}' of actor interface '{1}' returns '{2}. The actor event interface methods must not return anything. The return type must be '{3}'.</value>
+  </data>
+  <data name="ErrorEventMethodHasGenerics" xml:space="preserve">
+    <value>Method '{0}' of actor event interface '{1}' is using generics. The actor event interface methods cannot use generics.</value>
+  </data>
+  <data name="ErrorEventMethodHasOutRefOptionalParameter" xml:space="preserve">
+    <value>Method '{0}' of actor event interface '{1}' has out/ref/optional parameter '{2}'. The actor event interface methods must not have out, ref or optional parameters.</value>
+  </data>
+  <data name="ErrorEventMethodHasVaArgParameter" xml:space="preserve">
+    <value>Method '{0}' of actor event interface '{1}' has variable length parameter '{2}'. The actor event interface methods must not have variable length parameters.</value>
+  </data>
+  <data name="ErrorEventMethodHasVaArgs" xml:space="preserve">
+    <value>Method '{0}' of actor event interface '{1}' is using a variable argument list. The actor event interface methods cannot have a variable argument list.</value>
+  </data>
+  <data name="ErrorEventMethodsIsOverloaded" xml:space="preserve">
+    <value>Method '{0}' of actor event interface '{1}' is overloaded. The actor event interface methods cannot be overloaded.</value>
+  </data>
+  <data name="ErrorEventNotSupportedByActor" xml:space="preserve">
+    <value>Event with eventId '{0}' is not supported by Actor with actorId '{1}' </value>
+  </data>
+  <data name="ErrorHighestSequenceNumberLessThanUpToSequenceNumber" xml:space="preserve">
+    <value>HighestSequenceNumber({0}) &lt; UpToSequenceNumber({1})</value>
+  </data>
+  <data name="ErrorInvalidMethodId" xml:space="preserve">
+    <value>Method Id '{0}' is not available for ActorEventSubscription</value>
+  </data>
+  <data name="ErrorInvalidReminderAttribute" xml:space="preserve">
+    <value>Invalid ReminderAttribute.</value>
+  </data>
+  <data name="ErrorMethodDispatcherNotFound" xml:space="preserve">
+    <value>No MethodDispatcher is found for interface id '{0}'</value>
+  </data>
+  <data name="ErrorMethodNotSupported" xml:space="preserve">
+    <value>'{0}' method is not supported for type '{1}'</value>
+  </data>
+  <data name="ErrorMoreThanOneActorInterfaceFound" xml:space="preserve">
+    <value>The type '{0}' must implement only one actor interface.</value>
+  </data>
+  <data name="ErrorNamedActorStateNotFound" xml:space="preserve">
+    <value>Actor State with name {0} was not found.</value>
+  </data>
+  <data name="ErrorNoActorInterfaceFound" xml:space="preserve">
+    <value>The actor type '{0}' does not implement any actor interfaces. An actor interface is the one that derives from '{1}' type.</value>
+  </data>
+  <data name="ErrorNoActorServiceNameMultipleImpl" xml:space="preserve">
+    <value>The actor interface {0} is implemented by actor types {1} and {2}. In order for the client to connect to the right actor, please add {3} attribute with valid Name on the both actor types. Please use this Name as serviceName parameter when creating ActorProxy. </value>
+  </data>
+  <data name="ErrorNoActorServiceNameMultipleImplDerivation" xml:space="preserve">
+    <value>The actor type {1} is inherited from actor type {2}. Therefore the actor interface {0} has multiple implementation. In order for the client to connect to the right actor, please add {3} attribute with valid Name on the both actor types. Please use this Name as serviceName parameter when creating ActorProxy. If the actor type {1} should not be instantiated, please make it abstract.</value>
+  </data>
+  <data name="ErrorNoActorServiceNameMultipleInterfaces" xml:space="preserve">
+    <value>The actor type {0} implements more than one actor interfaces. In order for the client to connect to the right actor, please add {1} attribute with valid Name on the actor type. Please use this Name as serviceName parameter when creating ActorProxy.</value>
+  </data>
+  <data name="ErrorNoActorStateCallableConstructors" xml:space="preserve">
+    <value>Actor state has no callable constructors with default argument values</value>
+  </data>
+  <data name="ErrorNoActorStateConstructors" xml:space="preserve">
+    <value>Actor state has no constructors</value>
+  </data>
+  <data name="ErrorNotAnActor" xml:space="preserve">
+    <value>The type '{0}' is not an Actor. An actor type must derive from '{1}'.</value>
+  </data>
+  <data name="ErrorNotAnActorInterface_DerivationCheck1" xml:space="preserve">
+    <value>The type '{0}' is not an actor interface as it does not derive from the interface '{1}'.</value>
+  </data>
+  <data name="ErrorNotAnActorInterface_DerivationCheck2" xml:space="preserve">
+    <value>The type '{0}' is not an actor interface as it derive from a non actor interface '{1}'. All actor interfaces must derive from '{2}'.</value>
+  </data>
+  <data name="ErrorNotAnActorInterface_InterfaceCheck" xml:space="preserve">
+    <value>The type '{0}' is not an Actor interface as it is not an interface. </value>
+  </data>
+  <data name="ErrorOnDataLossAsyncReset" xml:space="preserve">
+    <value>OnDataLossAsync can only be set once.</value>
+  </data>
+  <data name="ErrorReplicatorSettings" xml:space="preserve">
+    <value>Null {0} in replicator settings</value>
+  </data>
+  <data name="Error_InvalidContinuationToken" xml:space="preserve">
+    <value>Invalid value for Continuation token.</value>
+  </data>
+  <data name="event_ActorActivated" xml:space="preserve">
+    <value>Actor activated. Actor type: {0}, actor ID: {1}, replica/instance ID: {3}, partition ID: {4}.</value>
+  </data>
+  <data name="event_ActorDeactivated" xml:space="preserve">
+    <value>Actor deactivated. Actor type: {0}, actor ID: {1},  replica/instance ID: {3}, partition ID: {4}.</value>
+  </data>
+  <data name="event_ActorMethodCallsWaitingForLock" xml:space="preserve">
+    <value>Number of actor method calls waiting for the actor lock: {0}, actor type: {1}, actor ID: {2}.</value>
+  </data>
+  <data name="event_ActorMethodStart" xml:space="preserve">
+    <value>Actor method is being invoked. Method name: {0}, actor type: {2}, actor ID: {3}.</value>
+  </data>
+  <data name="event_ActorMethodStop" xml:space="preserve">
+    <value>Actor method has completed. Method name: {1}, actor type: {3}, actor ID: {4}.</value>
+  </data>
+  <data name="event_ActorMethodThrewException" xml:space="preserve">
+    <value>Actor's async method threw an exception. Method name: {2}, actor type: {4}, actor ID: {5}, exception: {0}.</value>
+  </data>
+  <data name="event_ActorSaveStateStart" xml:space="preserve">
+    <value>Starting to save actor state. Actor type: {0}, actor ID: {1}.</value>
+  </data>
+  <data name="event_ActorSaveStateStop" xml:space="preserve">
+    <value>Finished saving actor state. Actor type: {1}, actor ID: {2}.</value>
+  </data>
+  <data name="event_ActorTypeRegistered" xml:space="preserve">
+    <value>Actor type {0} registered.</value>
+  </data>
+  <data name="event_ActorTypeRegistrationFailed" xml:space="preserve">
+    <value>Failed to register actor type {1}. Exception: {0}.</value>
+  </data>
+  <data name="event_ReplicaChangeRoleFromPrimary" xml:space="preserve">
+    <value>Actor replica changed role to non-Primary. Replica ID: {0}, partition ID: {1}.</value>
+  </data>
+  <data name="event_ReplicaChangeRoleToPrimary" xml:space="preserve">
+    <value>Actor replica changed role to Primary. Replica ID: {0}, partition ID: {1}.</value>
+  </data>
+  <data name="InvalidActorKind" xml:space="preserve">
+    <value>The method '{0}' is not valid for '{1}' ActorId.</value>
+  </data>
+  <data name="InvalidCallContextReleased" xml:space="preserve">
+    <value>Call context does not match current call context</value>
+  </data>
+  <data name="InvalidIsReadOnlyNonExistingActorState" xml:space="preserve">
+    <value>Invalid value for argument IsReadOnly '{0}' for non-existing Actor state '{1}'.</value>
+  </data>
+  <data name="InvalidReentrancyConfiguration" xml:space="preserve">
+    <value>Actor {0} can be decorated with atmost one Reentrancy attribute</value>
+  </data>
+  <data name="InvalidReentrantCall" xml:space="preserve">
+    <value>A reentrant call has been made from actor while there are other outstanding actor calls. Atmost one reentrant call is allowed at a time.</value>
+  </data>
+  <data name="InvalidStateChangeKind" xml:space="preserve">
+    <value>StateChangeKind can  only  be add, update or remove.</value>
+  </data>
+  <data name="keyword_ActorMethod" xml:space="preserve">
+    <value>ActorMethod</value>
+  </data>
+  <data name="keyword_ActorState" xml:space="preserve">
+    <value>ActorState</value>
+  </data>
+  <data name="keyword_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="keyword_MetricActorMethodCallsWaitingForLock" xml:space="preserve">
+    <value>MetricActorMethodCallsWaitingForLock</value>
+  </data>
+  <data name="map_ActorIdKind.Guid" xml:space="preserve">
+    <value>Guid</value>
+  </data>
+  <data name="map_ActorIdKind.Long" xml:space="preserve">
+    <value>Long</value>
+  </data>
+  <data name="map_ActorIdKind.String" xml:space="preserve">
+    <value>String</value>
+  </data>
+  <data name="ReentrancyModeDisallowed" xml:space="preserve">
+    <value>Actor {0} does not allow reentrant calls. ReentrancyMode must be set to LogicalCallContext to allow reentrant calls</value>
+  </data>
+  <data name="ReentrantActorDirtyState" xml:space="preserve">
+    <value>A reentrant call to Actor {0} found its state to be dirty. This typically indicates programming error.</value>
+  </data>
+  <data name="ReminderNotFound" xml:space="preserve">
+    <value>Reminder {0} was not found for Actor {1}</value>
+  </data>
+  <data name="ReminderNotSupported" xml:space="preserve">
+    <value>Reminder cannot be registered for type {0} because the class does not implement {1}</value>
+  </data>
+  <data name="ScriptGeneratorInvalidContent" xml:space="preserve">
+    <value>Invalid Content.</value>
+  </data>
+  <data name="TimerArgumentOutOfRange" xml:space="preserve">
+    <value>TimeSpan TotalMilliseconds specified value must be between {0} and {1} </value>
+  </data>
+  <data name="UnexpectedCounterType" xml:space="preserve">
+    <value>The system has a counter with the same category and counter name, but its counter type is not what we expect.</value>
+  </data>
+  <data name="UnregisterReminderConflict" xml:space="preserve">
+    <value>Reminder {0} for Actor {1} cannot be registered or unregistered since the actor is loading reminders. Please try again later.</value>
+  </data>
+</root>

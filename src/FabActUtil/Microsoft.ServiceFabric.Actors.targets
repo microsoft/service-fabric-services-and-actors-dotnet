@@ -1,0 +1,30 @@
+<!--
+Copyright (C) Microsoft Corporation. All rights reserved.
+-->
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="FabActUtilGenerateManifestVS2013" AfterTargets="Build" Condition="'$(RunFabActUtil)' == 'true' and '$(VS2013ServiceFabricActorBuild)' == 'true'">
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)FabActUtil.exe&quot; /out:&quot;$(PackageRoot)&quot; /t:manifest /ap:$(ApplicationPrefix) /sp:$(ServicePackagePrefix) /in:&quot;$(OutDir)$(AssemblyName).$(OutputType)&quot; /arp:&quot;$(TargetDir)&quot; (FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+  <Target Name="FabActUtilGenerateScriptVS2013" AfterTargets="FabActUtilGenerateManifestVS2013" Condition="'$(RunFabActUtil)' == 'true' and '$(VS2013ServiceFabricActorBuild)' == 'true'">
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)FabActUtil.exe&quot; /out:&quot;$(PackageRoot)\..&quot; /t:script /ap:$(ApplicationPrefix) /sp:$(ServicePackagePrefix) /in:&quot;$(OutDir)$(AssemblyName).$(OutputType)&quot; /arp:&quot;$(TargetDir)\&quot; $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+  <Target Name="FabActUtilCopyCodeVS2013" AfterTargets="FabActUtilGenerateScriptVS2013" Condition="'$(RunFabActUtil)' == 'true' and '$(VS2013ServiceFabricActorBuild)' == 'true'">
+    <RemoveDir Directories="$(ServicePackagePath)\Code" />
+    <ItemGroup>
+      <CodeFiles Include="$(TargetDir)\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CodeFiles)" DestinationFolder="$(ServicePackagePath)\Code\%(RecursiveDir)" />
+  </Target>
+
+  <Target Name="_UpdateServiceFabricServiceManifest"  AfterTargets="Build" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' and '$(VS2013ServiceFabricActorBuild)' != 'true' ">
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)\FabActUtil.exe&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).$(OutputType)&quot; /arp:&quot;$(TargetDir)\&quot; $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+  <Target Name="_UpdateServiceFabricApplicationManifest" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' and '$(VS2013ServiceFabricActorBuild)' != 'true' ">
+    <PropertyGroup>
+      <Local5NodeAppParamFileArg Condition=" '$(Local5NodeAppParamFile)' != '' ">/local5nodeappparamfile:&quot;$(Local5NodeAppParamFile)&quot;</Local5NodeAppParamFileArg>
+      <Local1NodeAppParamFileArg Condition=" '$(Local1NodeAppParamFile)' != '' ">/local1nodeappparamfile:&quot;$(Local1NodeAppParamFile)&quot;</Local1NodeAppParamFileArg>
+    </PropertyGroup>
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)\FabActUtil.exe&quot; /app:&quot;$(ApplicationPackagePath)&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /ap:&quot;$(ApplicationPrefix)&quot; /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).$(OutputType)&quot; /arp:&quot;$(TargetDir)\&quot; $(Local5NodeAppParamFileArg) $(Local1NodeAppParamFileArg) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+</Project>

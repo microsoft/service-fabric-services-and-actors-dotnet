@@ -1,0 +1,168 @@
+﻿// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+namespace Microsoft.ServiceFabric.Services.Remoting
+{
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Text;
+    using Microsoft.ServiceFabric.Services.Common;
+    using Microsoft.ServiceFabric.Services.Communication;
+
+    /// <summary>
+    /// Fault type used by Service Remoting to transfer the exception details from the Service Replica to the client.
+    /// </summary>
+    [DataContract(Name = "RemoteExceptionInformation", Namespace = Constants.ServiceCommunicationNamespace)]
+    public class RemoteExceptionInformation
+    {
+        /// <summary>
+        /// Serialized exception or the exception message encoded as UTF8 if the exception cannot be serialized.
+        /// </summary>
+        /// <value>Data in the exception</value>
+        [DataMember(Name = "Data", Order = 0)]
+        public byte[] Data { get; private set; }
+
+        private static readonly DataContractSerializer serializer = new DataContractSerializer(typeof(ServiceExceptionData));
+
+        /// <summary>
+        /// Instantiates the RemoteExceptionInformation object with the data
+        /// </summary>
+        /// <param name="data"> Data to be sent to the client</param>
+        public RemoteExceptionInformation(byte[] data)
+        {
+            this.Data = data;
+        }
+
+
+        /// <summary>
+        /// Factory method that constructs the RemoteExceptionInformation from an exception.
+        /// </summary>
+        /// <param name="exception">Exception</param>
+        /// <returns>RemoteExceptionInformation</returns>
+        public static RemoteExceptionInformation FromException(Exception exception)
+        {
+            try
+            {
+                var serializer = new NetDataContractSerializer();
+                using (var stream = new MemoryStream())
+                {
+                    serializer.Serialize(stream, exception);
+                    stream.Flush();
+                    return new RemoteExceptionInformation(stream.ToArray());
+                }
+            }
+            catch (Exception)
+            {
+                // failed to serialize the exception, include the information about the exception in the data
+                return FromExceptionString(exception);
+            }
+        }
+
+        /// <summary>
+        /// Gets the exception from the RemoteExceptionInformation
+        /// </summary>
+        /// <param name="remoteExceptionInformation">RemoteExceptionInformation</param>
+        /// <param name="result">Exception from the remote side</param>
+        /// <returns>true if there was a valid exception, false otherwise</returns>
+        public static bool ToException(RemoteExceptionInformation remoteExceptionInformation, out Exception result)
+        {
+            // try to de-serialize the bytes in to the exception
+            if (TryDeserializeException(remoteExceptionInformation.Data, out result))
+            {
+                return true;
+            }
+
+            // try to de-serialize the bytes in to exception message and create service exception
+            if (TryDeserializeServiceException(remoteExceptionInformation.Data, out result))
+            {
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+
+        private static bool TryDeserializeException(byte[] data, out Exception result)
+        {
+            var serializer = new NetDataContractSerializer();
+            try
+            {
+                using (var stream = new MemoryStream(data))
+                {
+                    result = (Exception) serializer.Deserialize(stream);
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // no-op
+            }
+
+            result = null;
+            return false;
+        }
+
+        private static bool TryDeserializeServiceException(byte[] data, out Exception result)
+        {
+            try
+            {
+                ServiceExceptionData eData;
+                if (TryDeserializeExceptionData(data,out eData))
+                {
+                    result = new ServiceException(eData.Type, eData.Message);
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // no-op
+            }
+
+            result = null;
+            return false;
+        }
+
+        private static bool TryDeserializeExceptionData(byte[] data, out ServiceExceptionData result)
+        {
+            try
+            {
+                var exceptionData = (ServiceExceptionData) SerializationUtility.Deserialize(serializer, data);
+                result = exceptionData;
+                return true;
+            }
+            catch (Exception)
+            {
+                // no-op
+            }
+
+            result = null;
+            return false;
+        }
+
+
+        private static RemoteExceptionInformation FromExceptionString(Exception exception)
+        {
+            var exceptionStringBuilder = new StringBuilder();
+
+            exceptionStringBuilder.AppendFormat(
+                CultureInfo.CurrentCulture,
+                SR.ErrorExceptionSerializationFailed1,
+                exception.GetType().FullName);
+
+            exceptionStringBuilder.AppendLine();
+
+            exceptionStringBuilder.AppendFormat(
+                CultureInfo.CurrentCulture,
+                SR.ErrorExceptionSerializationFailed2,
+                exception);
+            var exceptionData = new ServiceExceptionData(exception.GetType().FullName, exceptionStringBuilder.ToString());
+
+            var exceptionBytes = SerializationUtility.Serialize(serializer, exceptionData);
+
+            return new RemoteExceptionInformation(exceptionBytes);
+        }
+    }
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="..\..\properties\service_fabric_nuproj.props" />
+    
+    <PropertyGroup>
+      <Id>Microsoft.ServiceFabric.Services.Wcf</Id>
+      <Title>Microsoft.ServiceFabric.Services.Wcf</Title>
+      <Description>This package provides Windows Communication Foundation (WCF) to be used as the communication mechanism for Service Fabric microservices.</Description>
+      <Summary>This package provides Windows Communication Foundation (WCF) to be used as the communication mechanism for Service Fabric microservices.</Summary>
+      <Tags>ServiceFabric Microsoft Azure Fabric</Tags>
+    </PropertyGroup>
+
+    <Import Project="$(NuProjPath)\NuProj.props" />
+    <Import Project="$(NuProjPath)\NuProj.targets" />
+
+    <ItemGroup>
+      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Services.Wcf.dll">
+        <TargetPath>lib\net45</TargetPath>
+      </File>
+      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Services.Wcf.xml">
+        <TargetPath>lib\net45</TargetPath>
+      </File>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Dependency Include="Microsoft.ServiceFabric.Services">
+        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+      </Dependency>
+      <Dependency Include="Microsoft.ServiceFabric.Services.Remoting">
+        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+      </Dependency>
+    </ItemGroup>
+  </Project>

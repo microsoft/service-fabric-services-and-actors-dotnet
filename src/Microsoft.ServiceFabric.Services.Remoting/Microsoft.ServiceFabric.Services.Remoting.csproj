@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\properties\service_fabric_managed_prod.props" />
+  <PropertyGroup>
+    <ProjectGuid>{A01358E6-D5E1-44B5-948A-45709D2421A5}</ProjectGuid>
+    <RootNamespace>Microsoft.ServiceFabric.Services.Remoting</RootNamespace>
+    <AssemblyName>Microsoft.ServiceFabric.Services.Remoting</AssemblyName>
+    <AssemblyTitle>Microsoft.ServiceFabric.Services.Remoting</AssemblyTitle>
+    <OutputType>Library</OutputType>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <ResourcesFileName>SR</ResourcesFileName>
+    <ResourcesClassName>$(ResourcesFileName)</ResourcesClassName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.ServiceFabric.FabricTransport, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.FabricTransport.Internal.2.5.216\lib\net45\Microsoft.ServiceFabric.FabricTransport.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Internal, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\Microsoft.ServiceFabric.Internal.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Internal.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\Microsoft.ServiceFabric.Internal.Strings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Fabric, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Fabric.Management.ServiceModel, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.Management.ServiceModel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Fabric.Management.ServiceModel.XmlSerializers, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.Management.ServiceModel.XmlSerializers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Fabric.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.5.216\lib\net45\System.Fabric.Strings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FabricTransport\Client\FabricTransportRemotingClientConnectionHandler.cs" />
+    <Compile Include="FabricTransport\Client\FabricTransportServiceRemotingClientFactoryImpl.cs" />
+    <Compile Include="FabricTransport\Client\FabricTransportRemotingCallbackMessageHandler.cs" />
+    <Compile Include="FabricTransport\FabricTransportRemotingSettings.cs" />
+    <Compile Include="FabricTransport\Runtime\FabricTransportMessagingHandler.cs" />
+    <Compile Include="FabricTransport\Runtime\FabricTransportRemotingListenerSettings.cs" />
+    <Compile Include="Friend.cs" />
+    <Compile Include="Builder\MethodDispatcherBaseWithSerializer.cs" />
+    <Compile Include="Builder\ProxyGeneratorSerializer.cs" />
+    <Compile Include="Builder\ServiceProxyGeneratorBuilder.cs" />
+    <Compile Include="Client\IServiceRemotingPartitionClient.cs" />
+    <Compile Include="Client\ServiceRemotingExceptionHandler.cs" />
+    <Compile Include="Description\TypeUtility.cs" />
+    <Compile Include="FabricTransport\FabricTransportServiceRemotingProviderAttribute.cs" />
+    <Compile Include="IMethodDispatcher.cs" />
+    <Compile Include="IService.cs" />
+    <Compile Include="IServiceRemotingCallbackClient.cs" />
+    <Compile Include="RemoteExceptionInformation.cs" />
+    <Compile Include="ServiceRemotingMessageBody.cs" />
+    <Compile Include="ServiceRemotingMessageHeaders.cs" />
+    <Compile Include="ServiceRemotingMessageSerializer.cs" />
+    <Compile Include="ServiceRemotingProviderAttribute.cs" />
+    <Compile Include="ServiceTypeExtensions.cs" />
+    <Compile Include="Builder\BuildResult.cs" />
+    <Compile Include="Builder\CodeBuilder.cs" />
+    <Compile Include="Builder\CodeBuilderAttribute.cs" />
+    <Compile Include="Builder\CodeBuilderContext.cs" />
+    <Compile Include="Builder\CodeBuilderModule.cs" />
+    <Compile Include="Builder\CodeBuilderNames.cs" />
+    <Compile Include="Builder\CodeBuilderUtils.cs" />
+    <Compile Include="Builder\ICodeBuilder.cs" />
+    <Compile Include="Builder\ICodeBuilderNames.cs" />
+    <Compile Include="Builder\IProxyActivator.cs" />
+    <Compile Include="Builder\MethodBodyTypes.cs" />
+    <Compile Include="Builder\MethodBodyTypesBuilder.cs" />
+    <Compile Include="Builder\MethodBodyTypesBuildResult.cs" />
+    <Compile Include="Builder\MethodDispatcherBase.cs" />
+    <Compile Include="Builder\MethodDispatcherBuilder.cs" />
+    <Compile Include="Builder\MethodDispatcherBuildResult.cs" />
+    <Compile Include="Builder\ProxyBase.cs" />
+    <Compile Include="Builder\ProxyGenerator.cs" />
+    <Compile Include="Builder\ProxyGeneratorBuilder.cs" />
+    <Compile Include="Builder\ProxyGeneratorBuildResult.cs" />
+    <Compile Include="Builder\ServiceCodeBuilder.cs" />
+    <Compile Include="Builder\ServiceCodeBuilderNames.cs" />
+    <Compile Include="Builder\ServiceMethodDispatcherBase.cs" />
+    <Compile Include="Builder\ServiceProxyGenerator.cs" />
+    <Compile Include="Client\IServiceProxy.cs" />
+    <Compile Include="Client\IServiceProxyFactory.cs" />
+    <Compile Include="Client\IServiceRemotingClient.cs" />
+    <Compile Include="Client\IServiceRemotingClientFactory.cs" />
+    <Compile Include="Client\ServiceProxy.cs" />
+    <Compile Include="Client\ServiceProxyFactory.cs" />
+    <Compile Include="Client\ServiceRemotingPartitionClient.cs" />
+    <Compile Include="Description\InterfaceDescription.cs" />
+    <Compile Include="Description\MethodArgumentDescription.cs" />
+    <Compile Include="Description\MethodDescription.cs" />
+    <Compile Include="Description\MethodReturnCheck.cs" />
+    <Compile Include="Description\ServiceInterfaceDescription.cs" />
+    <Compile Include="FabricTransport\Client\FabricTransportServiceRemotingClient.cs" />
+    <Compile Include="FabricTransport\Client\FabricTransportServiceRemotingClientFactory.cs" />
+    <Compile Include="FabricTransport\Runtime\FabricTransportCallbackNotFoundException.cs" />
+    <Compile Include="FabricTransport\Runtime\FabricTransportServiceRemotingCallback.cs" />
+    <Compile Include="FabricTransport\Runtime\FabricTransportServiceRemotingConnectionHandler.cs" />
+    <Compile Include="FabricTransport\Runtime\FabricTransportServiceRemotingListener.cs" />
+    <Compile Include="FabricTransport\Runtime\FabricTransportServiceRemotingRequestContext.cs" />
+    <Compile Include="Runtime\IServiceRemotingListener.cs" />
+    <Compile Include="Runtime\IServiceRemotingMessageHandler.cs" />
+    <Compile Include="Runtime\IServiceRemotingRequestContext.cs" />
+    <Compile Include="Runtime\ServiceRemotingCancellationHelper.cs" />
+    <Compile Include="Runtime\ServiceRemotingCancellationTracker.cs" />
+    <Compile Include="Runtime\ServiceRemotingDispatcher.cs" />
+    <Compile Include="Runtime\ServiceRemotingExtensions.cs" />
+    <Compile Include="Runtime\ServiceTypeInformation.cs" />
+    <Compile Include="SR.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SR.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SR.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SR.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj">
+      <Project>{f416c4c3-250d-48f3-822c-1c589e8f851c}</Project>
+      <Name>Microsoft.ServiceFabric.Services</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\properties\AssemblyVersioning.targets" />
+</Project>
