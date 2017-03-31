@@ -26,7 +26,7 @@ To build everything and generate NuGet packages, run the **build.ps1** script. N
 Each project can also be built individually directly through Visual Studio or by running the solution file through MSBuild.
 
 ## Development
-Please refer to [Readme.md](https://github.com/Azure/service-fabric/Readme.md) at the Service Fabric home repo to learn more about our development process.
+Please refer to [Readme.md](https://github.com/Azure/service-fabric/blob/master/README.md) at the Service Fabric home repo to learn more about our development process.
 
 ## Releases and Support
 Official releases from Microsoft of the NuGet packages in this repo are released directly to NuGet and Web Platform Installer. Get the latest official release [here](http://www.microsoft.com/web/handlers/webpi.ashx?command=getinstallerredirect&appid=MicrosoftAzure-ServiceFabric-VS2015).
@@ -34,13 +34,13 @@ Official releases from Microsoft of the NuGet packages in this repo are released
 **Only officially released NuGet packages from Microsoft are supported for use in production.** If you have a feature or bug fix that you would like to use in your application, please issue a pull request so we can get it into an official release. 
 
 ## Reporting issues and feedback
-Please refer to [Contributing.md](https://github.com/Azure/service-fabric/contributing.md) at the Service Fabric home repo for details on issue reporting and feedback.
+Please refer to [Contributing.md](https://github.com/Azure/service-fabric/blob/master/CONTRIBUTING.md) at the Service Fabric home repo for details on issue reporting and feedback.
 
 ## Contributing code
 If you would like to become an active contributor to this project please
 follow the instructions provided in [Microsoft Azure Projects Contribution Guidelines](http://azure.github.io/guidelines.html).
 
-For details on contributing to Service Fabric projects, please refer to [Contributing.md](https://github.com/Azure/service-fabric/contributing.md) at the Service Fabric home repo for details on contributing code.
+For details on contributing to Service Fabric projects, please refer to [Contributing.md](https://github.com/Azure/service-fabric/blob/master/CONTRIBUTING.md) at the Service Fabric home repo for details on contributing code.
 
 ## Documentation
 Service Fabric has a rich set of conceptual and reference documentation available at [https://docs.microsoft.com/azure/service-fabric](https://docs.microsoft.com/azure/service-fabric). 
