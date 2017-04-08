@@ -9,7 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting", "..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj", "{A01358E6-D5E1-44B5-948A-45709D2421A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.ActorsTests", "..\Microsoft.ServiceFabric.ActorsTests\Microsoft.ServiceFabric.ActorsTests.csproj", "{E3EB79DB-178E-45CF-B013-A89BB513A1C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Actors.Tests", "..\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj", "{E3EB79DB-178E-45CF-B013-A89BB513A1C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Tests", "..\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{3239A835-EAD0-42AE-8245-FD3397ECCF47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting.Tests", "..\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj", "{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,22 @@ Global
 		{E3EB79DB-178E-45CF-B013-A89BB513A1C1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3EB79DB-178E-45CF-B013-A89BB513A1C1}.Release|x64.ActiveCfg = Release|Any CPU
 		{E3EB79DB-178E-45CF-B013-A89BB513A1C1}.Release|x64.Build.0 = Release|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Debug|x64.Build.0 = Debug|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Release|x64.ActiveCfg = Release|Any CPU
+		{3239A835-EAD0-42AE-8245-FD3397ECCF47}.Release|x64.Build.0 = Release|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Debug|x64.Build.0 = Debug|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Release|x64.ActiveCfg = Release|Any CPU
+		{B52FB9DE-4B75-4CAB-BBE0-397D26A91D9A}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
