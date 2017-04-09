@@ -10,7 +10,7 @@ param
 	
     # target to build. 
 	#Options are: RebuildAll: Clean, Build all and Generate Nuget Packages. BuildAll: Build all csproj. GeneratePackages: Build all csproj and generate nuget packages.
-	[ValidateSet('Rebuildall', 'BuildAll', 'CleanAll', 'GeneratePackages')]
+	[ValidateSet('Rebuildall', 'BuildAll', 'CleanAll', 'GeneratePackages', 'BuildTests')]
 	[string]$target = "RebuildAll",
 
 	# msbuild verbosity level.

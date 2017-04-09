@@ -16,7 +16,17 @@
                      src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
                      src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
                      src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
-                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj"/>
+                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;" />
+
+    <ProjectsToBuildIncludingTests Include="src\FabActUtil\FabActUtil.csproj;
+                     src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj;
+                     src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
+                     src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
+                     src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
+                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;
+                     src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
+                     src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
+                     src\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj"  />                     
 
     <!-- List of .nuproj to build to generate nuget packages -->
     <NuprojsToBuild Include="nuprojs\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.nuproj;
@@ -31,7 +41,10 @@
                       src\Microsoft.ServiceFabric.Actors.Wcf\packages.config;
                       src\Microsoft.ServiceFabric.Services\packages.config;
                       src\Microsoft.ServiceFabric.Services.Remoting\packages.config;
-                      src\Microsoft.ServiceFabric.Services.Wcf\packages.config"/>
+                      src\Microsoft.ServiceFabric.Services.Wcf\packages.config;
+                      src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\packages.config;
+                      src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\packages.config;
+                      src\test\unittests\Microsoft.ServiceFabric.Services.Tests\packages.config"/>
   </ItemGroup>
 
   <PropertyGroup>
@@ -79,6 +92,21 @@
       <Binaires Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*"/>
     </ItemGroup>
     <Copy SourceFiles="@(Binaires)" DestinationFiles="@(Binaires->'$(DropFolder)\%(Destination)\%(Filename)%(Extension)')" />
+  </Target>
+
+ <!-- Build Unit Test assemblies -->
+
+ <PropertyGroup>
+    <BuildTestsAllDependsOn>RestorePackages;CleanAll;BuildAllTests;</BuildTestsAllDependsOn>
+  </PropertyGroup>
+
+ <Target Name="BuildTests" DependsOnTargets="$(BuildTestsAllDependsOn)">
+    <Message Text="SUCCESS!  Generated unit test binaries are dropped at $(CurrentDir)drop\tests" Importance="High"/>
+  </Target>
+
+  <Target Name="BuildAllTests" DependsOnTargets="RestorePackages">
+    <Message Text="Building all unit test projects ..." Importance="High"/>
+    <MSBuild Projects ="@(ProjectsToBuildIncludingTests)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
   </Target>
 
   <!--
