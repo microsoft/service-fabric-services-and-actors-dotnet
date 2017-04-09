@@ -72,3 +72,4 @@ bld/
 *.psess
 *.vsp
 *.vspx
+/drop
