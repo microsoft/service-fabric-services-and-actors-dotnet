@@ -4,6 +4,16 @@
   
   <Import Project="$(MSBuildThisFileDirectory)service_fabric_managed_common.props" />
 
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn></NoWarn>
+  </PropertyGroup>
+
   <!-- Add Properties specific to Test Product Code Projects here. --> 
   
 </Project>
