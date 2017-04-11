@@ -16,14 +16,9 @@
                      src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
                      src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
                      src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
-                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;" />
+                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj" />
 
-    <ProjectsToBuildIncludingTests Include="src\FabActUtil\FabActUtil.csproj;
-                     src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj;
-                     src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
-                     src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
-                     src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
-                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;
+    <ProjectsToBuildIncludingTests Include="@(ProjectsToBuild);
                      src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
                      src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
                      src\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj"  />                     
