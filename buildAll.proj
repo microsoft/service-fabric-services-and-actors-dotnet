@@ -38,12 +38,7 @@
                       src\Microsoft.ServiceFabric.Services.Remoting\packages.config;
                       src\Microsoft.ServiceFabric.Services.Wcf\packages.config"/>
  
-    <TestPackagesConfigs Include="nuprojs\packages.config;
-                      src\Microsoft.ServiceFabric.Actors\packages.config;
-                      src\Microsoft.ServiceFabric.Actors.Wcf\packages.config;
-                      src\Microsoft.ServiceFabric.Services\packages.config;
-                      src\Microsoft.ServiceFabric.Services.Remoting\packages.config;
-                      src\Microsoft.ServiceFabric.Services.Wcf\packages.config;
+    <TestPackagesConfigs Include="@(PackagesConfigs);
                       src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\packages.config;
                       src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\packages.config;
                       src\test\unittests\Microsoft.ServiceFabric.Services.Tests\packages.config"/>
