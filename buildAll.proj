@@ -109,7 +109,7 @@
   </PropertyGroup>
 
   <Target Name="RestoreTestPackages">
-    <Message Text="Restoring NuGet packages for projects ..." Importance="High"/>
+    <Message Text="Restoring NuGet packages for test projects ..." Importance="High"/>
     <Exec Command="&quot;$(NuGetExePath)&quot; restore %(TestPackagesConfigs.Identity) -NonInteractive -Verbosity quiet" />
   </Target>
 

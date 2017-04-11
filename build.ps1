@@ -20,8 +20,13 @@ param
 
 # Check msbuild exists
 $msbuildRelativePath = "MSBuild\14.0\bin\MSBuild.exe"
+$msbuildAltPath = "Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe";
 
 if (Test-Path "env:\ProgramFiles(x86)") 
+{
+    $msbuildPath = join-path ${env:ProgramFiles(x86)} $msbuildAltPath
+}
+elseif (Test-Path "env:\ProgramFiles(x86)") 
 {
     $msbuildPath = join-path ${env:ProgramFiles(x86)} $msbuildRelativePath
 }
