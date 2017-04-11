@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services", "Microsoft.ServiceFabric.Services.csproj", "{F416C4C3-250D-48F3-822C-1C589E8F851C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Tests", "..\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +17,10 @@ Global
 		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Debug|x64.Build.0 = Debug|x64
 		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Release|x64.ActiveCfg = Release|x64
 		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Release|x64.Build.0 = Release|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Debug|x64.ActiveCfg = Debug|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Debug|x64.Build.0 = Debug|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.ActiveCfg = Release|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

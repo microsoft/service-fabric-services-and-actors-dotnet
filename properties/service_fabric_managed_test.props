@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <Import Project="$(MSBuildThisFileDirectory)service_fabric_managed_common.props" />
+
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+  </PropertyGroup>
+
+  <!-- Add Properties specific to Test Product Code Projects here. --> 
+  
+</Project>
+
