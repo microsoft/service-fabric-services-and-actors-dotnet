@@ -41,10 +41,18 @@
                       src\Microsoft.ServiceFabric.Actors.Wcf\packages.config;
                       src\Microsoft.ServiceFabric.Services\packages.config;
                       src\Microsoft.ServiceFabric.Services.Remoting\packages.config;
+                      src\Microsoft.ServiceFabric.Services.Wcf\packages.config"/>
+ 
+    <TestPackagesConfigs Include="nuprojs\packages.config;
+                      src\Microsoft.ServiceFabric.Actors\packages.config;
+                      src\Microsoft.ServiceFabric.Actors.Wcf\packages.config;
+                      src\Microsoft.ServiceFabric.Services\packages.config;
+                      src\Microsoft.ServiceFabric.Services.Remoting\packages.config;
                       src\Microsoft.ServiceFabric.Services.Wcf\packages.config;
                       src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\packages.config;
                       src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\packages.config;
                       src\test\unittests\Microsoft.ServiceFabric.Services.Tests\packages.config"/>
+ 
   </ItemGroup>
 
   <PropertyGroup>
@@ -97,14 +105,19 @@
  <!-- Build Unit Test assemblies -->
 
  <PropertyGroup>
-    <BuildTestsAllDependsOn>RestorePackages;CleanAll;BuildAllTests;</BuildTestsAllDependsOn>
+    <BuildTestsAllDependsOn>RestoreTestPackages;CleanTestsAll;BuildAllTests;</BuildTestsAllDependsOn>
   </PropertyGroup>
+
+  <Target Name="RestoreTestPackages">
+    <Message Text="Restoring NuGet packages for projects ..." Importance="High"/>
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore %(TestPackagesConfigs.Identity) -NonInteractive -Verbosity quiet" />
+  </Target>
 
  <Target Name="BuildTests" DependsOnTargets="$(BuildTestsAllDependsOn)">
     <Message Text="SUCCESS!  Generated unit test binaries are dropped at $(CurrentDir)drop\tests" Importance="High"/>
   </Target>
 
-  <Target Name="BuildAllTests" DependsOnTargets="RestorePackages">
+  <Target Name="BuildAllTests" DependsOnTargets="RestoreTestPackages">
     <Message Text="Building all unit test projects ..." Importance="High"/>
     <MSBuild Projects ="@(ProjectsToBuildIncludingTests)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
   </Target>
@@ -122,5 +135,16 @@
     <Delete Files="@(GeneratedFiles)"/>
     <RemoveDir Directories="$(CurrentDir)\drop"/>
     <MSBuild Projects="@(ProjectsToBuild)" Targets="Clean" Properties="Configuration=$(Configuration);"/>
+  </Target>
+
+   <Target Name="CleanTestsAll" DependsOnTargets="RestoreTestPackages">
+    <Message Text="Cleaning all projects ..."/>
+    <!-- Delete any files this process may have created from a previous execution -->
+    <CreateItem Include="$(CurrentDir)\drop\**\*">
+      <Output ItemName="GeneratedFiles" TaskParameter="Include"/>
+    </CreateItem>
+    <Delete Files="@(GeneratedFiles)"/>
+    <RemoveDir Directories="$(CurrentDir)\drop"/>
+    <MSBuild Projects="@(ProjectsToBuildIncludingTests)" Targets="Clean" Properties="Configuration=$(Configuration);"/>
   </Target>
 </Project>
