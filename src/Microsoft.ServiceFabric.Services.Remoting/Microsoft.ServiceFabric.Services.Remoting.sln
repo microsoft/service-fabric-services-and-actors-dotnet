@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting.Tests", "..\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj", "{AE4034AC-27BC-43B8-9176-068B4794E25E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Tests", "..\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -29,10 +27,6 @@ Global
 		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Debug|x64.Build.0 = Debug|x64
 		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Release|x64.ActiveCfg = Release|x64
 		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Release|x64.Build.0 = Release|x64
-		{ECB3825D-B309-4C76-A20D-76544459F611}.Debug|x64.ActiveCfg = Debug|x64
-		{ECB3825D-B309-4C76-A20D-76544459F611}.Debug|x64.Build.0 = Debug|x64
-		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.ActiveCfg = Release|x64
-		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
