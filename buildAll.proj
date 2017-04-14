@@ -19,9 +19,9 @@
                      src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj" />
 
     <ProjectsToBuildIncludingTests Include="@(ProjectsToBuild);
-                     src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
-                     src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
-                     src\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj"  />                     
+                     test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
+                     test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
+                     test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj"  />                     
 
     <!-- List of .nuproj to build to generate nuget packages -->
     <NuprojsToBuild Include="nuprojs\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.nuproj;
@@ -39,9 +39,9 @@
                       src\Microsoft.ServiceFabric.Services.Wcf\packages.config"/>
  
     <TestPackagesConfigs Include="@(PackagesConfigs);
-                      src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\packages.config;
-                      src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\packages.config;
-                      src\test\unittests\Microsoft.ServiceFabric.Services.Tests\packages.config"/>
+                      test\unittests\Microsoft.ServiceFabric.Actors.Tests\packages.config;
+                      test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\packages.config;
+                      test\unittests\Microsoft.ServiceFabric.Services.Tests\packages.config"/>
  
   </ItemGroup>
 
@@ -132,9 +132,9 @@
       <Binaires Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*"/>
       <Binaires Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*"/>
       <Binaires Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*"/>
-      <Binaires Include="src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\$(OutputPath)\Microsoft.ServiceFabric.Actors.Tests.*"/>
-      <Binaires Include="src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.Tests.*"/>
-      <Binaires Include="src\test\unittests\Microsoft.ServiceFabric.Services.Tests\$(OutputPath)\Microsoft.ServiceFabric.Services.Tests.*"/>
+      <Binaires Include="test\unittests\Microsoft.ServiceFabric.Actors.Tests\$(OutputPath)\Microsoft.ServiceFabric.Actors.Tests.*"/>
+      <Binaires Include="test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.Tests.*"/>
+      <Binaires Include="test\unittests\Microsoft.ServiceFabric.Services.Tests\$(OutputPath)\Microsoft.ServiceFabric.Services.Tests.*"/>
     </ItemGroup>
     <Copy SourceFiles="@(Binaires)" DestinationFiles="@(Binaires->'$(DropFolder)\tests\%(Destination)\%(Filename)%(Extension)')" />
   </Target>
