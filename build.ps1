@@ -9,8 +9,13 @@ param
 	[string]$configuration = "Release",	 
 	
     # target to build. 
-	#Options are: RebuildAll: Clean, Build all and Generate Nuget Packages. BuildAll: Build all csproj. GeneratePackages: Build all csproj and generate nuget packages.
-	[ValidateSet('Rebuildall', 'BuildAll', 'CleanAll', 'GeneratePackages', 'BuildTests')]
+	#Options are:
+	#   RebuildAll: Clean, Build all .csproj and Generate Nuget Packages. This is the default option.
+	#   BuildAll: Build all .csproj and Generate Nuget Packages.
+	#   GeneratePackages: Build all product .csprojs and generate nuget packages.
+	#   BuildTests: Builds all test .csprojs.
+	#   BuildProduct: Builds all product .csprojs.
+	[ValidateSet('Rebuildall', 'BuildAll', 'GeneratePackages', 'BuildTests', 'BuildProduct')]
 	[string]$target = "RebuildAll",
 
 	# msbuild verbosity level.
@@ -18,27 +23,46 @@ param
 	[string]$verbosity = 'minimal'
 )
 
+
+
 # Check msbuild exists
-$msbuildRelativePath = "MSBuild\14.0\bin\MSBuild.exe"
-$msbuildAltPath = "Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe";
+$msbuildPath = "MSBuild\14.0\bin\MSBuild.exe"
 
 if (Test-Path "env:\ProgramFiles(x86)") 
 {
-    $msbuildPath = join-path ${env:ProgramFiles(x86)} $msbuildAltPath
-}
-elseif (Test-Path "env:\ProgramFiles(x86)") 
-{
-    $msbuildPath = join-path ${env:ProgramFiles(x86)} $msbuildRelativePath
+	$progFilesPath =  ${env:ProgramFiles(x86)}
 }
 elseif (Test-Path "env:\ProgramFiles") 
 {
-	$msbuildPath = join-path ${env:ProgramFiles(x86)} $msbuildRelativePath
+	$progFilesPath =  ${env:ProgramFiles(x86)}
 }
 
-if (!(Test-Path $msbuildPath))
+$msbuildFullPath = join-path $progFilesPath $msbuildPath
+
+if (!(Test-Path $msbuildFullPath))
 {
-    throw "Unable to find MSBuild v14 installed on this machine. Please install it (or install Visual Studio 2015.)"
+	# Find msbuild for VS2017
+	$VS2017InstallPath = join-path $progFilesPath "Microsoft Visual Studio\2017"
+	$versions = 'Community', 'Professional', 'Enterprise'
+
+    foreach ($version in $versions)
+	{
+		$VS2017VersionPath = join-path $VS2017InstallPath $version
+		$msbuildFullPath = join-path $VS2017VersionPath "MSBuild\15.0\Bin\MSBuild.exe"
+
+		if (Test-Path $msbuildFullPath)
+		{
+			break
+		}
+	}
+
+	if (!(Test-Path $msbuildFullPath))
+	{
+		throw "Unable to find MSBuild installed on this machine. Please install it (or install Visual Studio 2015/2017.)"
+	}
 }
+
+Write-Output "Using msbuild from $msbuildFullPath"
 
 $msbuildArgs = @("buildall.proj", "/nr:false", "/nologo", "/t:$target", "/verbosity:$verbosity", "/property:RequestedVerbosity=$verbosity", "/property:Configuration=$configuration", $args)
-& $msbuildPath $msbuildArgs
+& $msbuildFullPath $msbuildArgs

@@ -5,6 +5,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
     using System;
+    using FluentAssertions;
     using Xunit;
 
     public class RemoteExceptionInformationTests
@@ -20,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             var result = RemoteExceptionInformation.FromException(exception);
 
             // Assert
-            Assert.Equal(expectedLength, result.Data.Length);
+            result.Data.Length.Should().Be(expectedLength);
         }
     }
 }
