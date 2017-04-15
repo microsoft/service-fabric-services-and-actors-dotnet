@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services", "Microsoft.ServiceFabric.Services.csproj", "{F416C4C3-250D-48F3-822C-1C589E8F851C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Tests", "..\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Tests", "..\..\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
