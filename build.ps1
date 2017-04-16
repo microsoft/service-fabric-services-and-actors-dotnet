@@ -34,7 +34,7 @@ if (Test-Path "env:\ProgramFiles(x86)")
 }
 elseif (Test-Path "env:\ProgramFiles") 
 {
-	$progFilesPath =  ${env:ProgramFiles(x86)}
+	$progFilesPath =  ${env:ProgramFiles}
 }
 
 $msbuildFullPath = join-path $progFilesPath $msbuildPath
