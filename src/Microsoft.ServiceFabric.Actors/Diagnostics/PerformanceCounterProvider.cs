@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Text;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
 
     internal class PerformanceCounterProvider : IDisposable
     {
@@ -70,7 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 catch (Exception ex)
                 {
                     //Instance creation failed, Be done.
-                    AppTrace.TraceSource.WriteWarning(
+                    ActorTrace.Source.WriteWarning(
                         TraceType,
                         "Data for performance counter instance {0} of category {1} will not be provided because an exception occurred during its initialization. Exception info: {2}",
                         actorCounterInstanceName, ActorPerformanceCounters.ActorCategoryName, ex);
@@ -255,7 +256,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             // Compute the counter instance names for all the actor methods
             var percCounterInstanceNameBuilder = new PerformanceCounterInstanceNameBuilder(this.partitionId, this.counterInstanceDifferentiator);
-            var counterInstanceNames = percCounterInstanceNameBuilder.GetActorMethodCounterInstanceNames(methodInfoList);
+            var counterInstanceNames = percCounterInstanceNameBuilder.GetMethodCounterInstanceNames(methodInfoList);
             foreach (var kvp in counterInstanceNames)
             {
                 this.actorMethodCounterInstanceData[kvp.Key] = new CounterInstanceData { InstanceName = kvp.Value };
@@ -293,7 +294,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                         catch (Exception ex)
                         {
                             //Instance creation failed, Be done.
-                            AppTrace.TraceSource.WriteWarning(
+                            ActorTrace.Source.WriteWarning(
                                 TraceType,
                                 "Data for performance counter instance {0} of category {1} will not be provided because an exception occurred during its initialization. Exception info: {2}",
                                 instanceName, ActorPerformanceCounters.ActorMethodCategoryName, ex);

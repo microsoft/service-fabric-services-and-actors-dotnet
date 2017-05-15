@@ -6,6 +6,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client
 {
     using System;
     using System.Fabric;
+    using System.Globalization;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;
@@ -104,14 +105,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client
                         var isDeserialzied =
                             RemoteExceptionInformation.ToException(new RemoteExceptionInformation(retval.GetBody()),
                                 out e);
+                        
                         if (isDeserialzied)
                         {
                             throw new AggregateException(e);
                         }
                         else
                         {
-                            throw new ArgumentException(@"failed to deserialize and get remote exception",
-                                "remoteExceptionInformation");
+                            throw new ServiceException(e.GetType().FullName,string.Format(
+                                CultureInfo.InvariantCulture,
+                                Remoting.SR.ErrorDeserializationFailure,
+                                e.ToString()));
                         }
                     }
                     return retval.GetBody();

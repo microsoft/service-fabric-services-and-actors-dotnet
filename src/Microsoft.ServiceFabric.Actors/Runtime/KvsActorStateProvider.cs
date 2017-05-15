@@ -587,10 +587,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             await this.storeReplica.CloseAsync(cancellationToken).ConfigureAwait(false);
 
-            // KeyValueStoreReplica aborts any in-flight backup when it closes and backup callback
-            // is not invoked with actual ESE backup finishing with error. However, it does not wait
-            // for the backup callback to finish, if ESE backup has finished successfully and backup
-            // callback is in-flight.
+            // KeyValueStoreReplica aborts any in-flight backup when it closes and backup callback is not invoked
+            // with actual ESE backup finishing with error. However, if ESE backup has finished successfully and
+            // backup callback is in-flight, it does not wait for the backup callback to finish, .
             await this.CancelAndAwaitBackupCallbackIfAny();
         }
 
@@ -637,12 +636,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// KVSActorStateProvider Backup only support Full backup. KVS BackupInfo does not contain backup version.
         /// The Backup version is set to invalid.
         /// </remarks>
-        Task IStateProviderReplica.BackupAsync(
+        async Task IStateProviderReplica.BackupAsync(
             BackupOption option,
             TimeSpan timeout,
             CancellationToken cancellationToken,
             Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
+            this.EnsureReplicaIsPrimary();
+
             this.AcquireBackupLock();
             
             try
@@ -650,7 +651,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var backupDirectoryPath = this.GetLocalBackupFolderPath();
                 PrepareBackupFolder(backupDirectoryPath);
 
-                return this.storeReplica.BackupAsync(
+                await this.storeReplica.BackupAsync(
                     backupDirectoryPath,
                     option == BackupOption.Full ? StoreBackupOption.Full : StoreBackupOption.Incremental,
                     info => this.UserBackupCallbackHandler(info, backupCallback),
@@ -775,6 +776,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #region Private Helper Functions
 
+        private void EnsureReplicaIsPrimary()
+        {
+            if (this.replicaRole != ReplicaRole.Primary)
+            {
+                throw new FabricNotPrimaryException();
+            }
+        }
+
         private static void PrepareBackupFolder(string backupFolder)
         {
             try
@@ -789,8 +798,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             FabricDirectory.CreateDirectory(backupFolder);
         }
 
-        private async Task<bool> UserBackupCallbackHandler(StoreBackupInfo storeBackupInfo, Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
+        private async Task<bool> UserBackupCallbackHandler(
+            StoreBackupInfo storeBackupInfo, 
+            Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
+            this.EnsureReplicaIsPrimary();
+
             var backupInfo = new BackupInfo(
                 storeBackupInfo.BackupFolder,
                 storeBackupInfo.BackupOption == StoreBackupOption.Full ? BackupOption.Full : BackupOption.Incremental, 
@@ -897,6 +910,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             if (this.backupCallbackTask != null)
             {
+                ActorTrace.Source.WriteNoiseWithId(TraceType, this.traceId, "Awaiting backupCallbackTask started...");
+
                 while (true)
                 {
                     var delayTaskCts = new CancellationTokenSource();
@@ -918,12 +933,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     this.ReportBackupCallbackSlowCancellationHealth();
                 }
+
+                ActorTrace.Source.WriteNoiseWithId(TraceType, this.traceId, "Awaiting backupCallbackTask finished...");
             }
         }
 
         private void ReportBackupCallbackSlowCancellationHealth()
         {
-            string description = string.Format(
+            var description = string.Format(
                "BackupCallback is taking longer than expected time ({0}s) to cancel.",
                this.backupCallbackExpectedCancellationTimeSpan.TotalSeconds);
 

@@ -120,26 +120,17 @@
   <data name="ErrorClientCallbackChannelNotFound" xml:space="preserve">
     <value>CallBack Channel Not Found for this ClientId  : '{0}'</value>
   </data>
-  <data name="ErrorExceptionSerializationFailed1" xml:space="preserve">
-    <value>The exception {0} was unhandled on the service and could not be serialized for transferring to the client.</value>
-  </data>
-  <data name="ErrorExceptionSerializationFailed2" xml:space="preserve">
-    <value>Detailed Exception Information: {0}</value>
-  </data>
   <data name="ErrorHeaderAlreadyExists" xml:space="preserve">
     <value>Header with name '{0}' already exists</value>
   </data>
   <data name="ErrorInterfaceNotImplemented" xml:space="preserve">
     <value>Interface id '{0}' is not implemented by object '{1}'</value>
   </data>
-  <data name="ErrorInvalidAddress" xml:space="preserve">
-    <value>Client is trying to connect to invalid address {0}.</value>
-  </data>
   <data name="ErrorMethodNotImplemented" xml:space="preserve">
     <value>The object of type '{0}' does support the method '{1}'</value>
   </data>
   <data name="ErrorNoServiceInterfaceFound" xml:space="preserve">
-    <value>The service type '{0}' does not implement any service interfaces. A service interface is the one that derives from '{1}' type.</value>
+    <value>The service type '{0}' does not implement any service interfaces or one of the interfaces implemented is not a service interface. All interfaces(including its parent interface) implemented by service type must be service interface. A service interface is the one that ultimately derives from '{1}' type.</value>
   </data>
   <data name="ErrorNotAServiceInterface_DerivationCheck1" xml:space="preserve">
     <value>The type '{0}' is not an service interface as it does not derive from the interface '{1}'.</value>
@@ -149,9 +140,6 @@
   </data>
   <data name="ErrorNotAServiceInterface_InterfaceCheck" xml:space="preserve">
     <value>The type '{0}' is not a service interface as it is not an interface. </value>
-  </data>
-  <data name="ErrorRemotedInterfaceIsGeneric" xml:space="preserve">
-    <value>The  {0} interface '{1}' is using generics. Generic interfaces cannot be remoted.</value>
   </data>
   <data name="ErrorRemotedMethodCancellationTokenOutOfOrder" xml:space="preserve">
     <value>Method '{1}' of {0} interface '{2}' has '{4}' parameter '{3}', and it is not the last parameter. If a method of the {0} interface has parameter of type '{4}' it must be the last parameter.</value>
@@ -168,16 +156,31 @@
   <data name="ErrorRemotedMethodHasOutRefOptionalParameter" xml:space="preserve">
     <value>Method '{1}' of {0} interface '{2}' has out/ref/optional parameter '{3}'. The {0} interface methods must not have out, ref or optional parameters.</value>
   </data>
-  <data name="ErrorRemotedMethodHasVaArgParameter" xml:space="preserve">
-    <value>Method '{1}' of {0} interface '{2}' has variable length parameter '{3}'. The {0} interface methods must not have variable length parameters.</value>
-  </data>
   <data name="ErrorRemotedMethodHasVaArgs" xml:space="preserve">
     <value>Method '{1}' of {0} interface '{2}' is using a variable argument list. The {0} interface methods cannot have a variable argument list.</value>
   </data>
   <data name="ErrorRemotedMethodsIsOverloaded" xml:space="preserve">
     <value>Method '{1}' of {0} interface '{2}' is overloaded. The {0} interface methods cannot be overloaded.</value>
   </data>
+  <data name="ErrorRemotedInterfaceIsGeneric" xml:space="preserve">
+    <value>The  {0} interface '{1}' is using generics. Generic interfaces cannot be remoted.</value>
+  </data>
   <data name="Error_InvalidOperation" xml:space="preserve">
     <value>Invalid Client for remoting.</value>
+  </data>
+  <data name="ErrorRemotedMethodHasVaArgParameter" xml:space="preserve">
+    <value>Method '{1}' of {0} interface '{2}' has variable length parameter '{3}'. The {0} interface methods must not have variable length parameters.</value>
+  </data>
+  <data name="ErrorInvalidAddress" xml:space="preserve">
+    <value>Client is trying to connect to invalid address {0}.</value>
+  </data>
+  <data name="ErrorExceptionSerializationFailed1" xml:space="preserve">
+    <value>The exception {0} was unhandled on the service and could not be serialized for transferring to the client.</value>
+  </data>
+  <data name="ErrorExceptionSerializationFailed2" xml:space="preserve">
+    <value>Detailed Exception Information: {0}</value>
+  </data>
+  <data name="ErrorDeserializationFailure" xml:space="preserve">
+    <value>Failed to deserialize and get remote exception  {0}</value>
   </data>
 </root>

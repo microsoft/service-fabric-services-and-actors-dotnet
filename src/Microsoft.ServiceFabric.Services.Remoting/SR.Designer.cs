@@ -79,6 +79,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to deserialize and get remote exception  {0}.
+        /// </summary>
+        internal static string ErrorDeserializationFailure {
+            get {
+                return ResourceManager.GetString("ErrorDeserializationFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The exception {0} was unhandled on the service and could not be serialized for transferring to the client..
         /// </summary>
         internal static string ErrorExceptionSerializationFailed1 {
@@ -133,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The service type &apos;{0}&apos; does not implement any service interfaces. A service interface is the one that derives from &apos;{1}&apos; type..
+        ///   Looks up a localized string similar to The service type &apos;{0}&apos; does not implement any service interfaces or one of the interfaces implemented is not a service interface. All interfaces(including its parent interface) implemented by service type must be service interface. A service interface is the one that ultimately derives from &apos;{1}&apos; type..
         /// </summary>
         internal static string ErrorNoServiceInterfaceFound {
             get {

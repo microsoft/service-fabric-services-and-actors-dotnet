@@ -124,7 +124,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Acquisition of turn based concurrency lock for actor &apos;{0}&apos; timed out after {1} seconds..
+        ///   Looks up a localized string similar to Acquisition of turn based concurrency lock for actor &apos;{0}&apos; timed out after {1}..
         /// </summary>
         internal static string ConcurrencyLockTimedOut {
             get {
@@ -422,7 +422,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The actor type &apos;{0}&apos; does not implement any actor interfaces. An actor interface is the one that derives from &apos;{1}&apos; type..
+        ///   Looks up a localized string similar to The actor type &apos;{0}&apos; does not implement any actor interfaces or one of the interfaces implemented is not an actor interface. All interfaces(including its parent interface) implemented by actor type must be actor interface. An actor interface is the one that ultimately derives from &apos;{1}&apos; type..
         /// </summary>
         internal static string ErrorNoActorInterfaceFound {
             get {
@@ -724,33 +724,6 @@ namespace Microsoft.ServiceFabric.Actors {
         internal static string keyword_MetricActorMethodCallsWaitingForLock {
             get {
                 return ResourceManager.GetString("keyword_MetricActorMethodCallsWaitingForLock", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Guid.
-        /// </summary>
-        internal static string map_ActorIdKind_Guid {
-            get {
-                return ResourceManager.GetString("map_ActorIdKind.Guid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Long.
-        /// </summary>
-        internal static string map_ActorIdKind_Long {
-            get {
-                return ResourceManager.GetString("map_ActorIdKind.Long", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to String.
-        /// </summary>
-        internal static string map_ActorIdKind_String {
-            get {
-                return ResourceManager.GetString("map_ActorIdKind.String", resourceCulture);
             }
         }
         
