@@ -62,11 +62,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private Task stateProviderInitTask;
         private CancellationTokenSource stateProviderInitCts;
         private IReliableStateManagerReplica stateManager;
-        private IReliableDictionary<string, byte[]> actorPresenceDictionary;
-        private IReliableDictionary<string, byte[]> reminderCompletedDictionary;
-        private IReliableDictionary<string, byte[]> logicalTimeDictionary;
-        private IReliableDictionary<string, byte[]>[] actorStateDictionaries;
-        private IReliableDictionary<string, byte[]>[] reminderDictionaries;
+        private IReliableDictionary2<string, byte[]> actorPresenceDictionary;
+        private IReliableDictionary2<string, byte[]> reminderCompletedDictionary;
+        private IReliableDictionary2<string, byte[]> logicalTimeDictionary;
+        private IReliableDictionary2<string, byte[]>[] actorStateDictionaries;
+        private IReliableDictionary2<string, byte[]>[] reminderDictionaries;
 
         #endregion
 
@@ -103,10 +103,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// A <see cref="ReliableStateManagerConfiguration"/> that describes <see cref="IReliableStateManager"/> configuration.
         /// </param>
         /// <param name="actorStateDictionaryCount">
-        /// Number of <see cref="IReliableDictionary{TKey, TValue}"/> across which actor states will be partitioned and stored.
+        /// Number of <see cref="IReliableDictionary2{TKey, TValue}"/> across which actor states will be partitioned and stored.
         /// </param>
         /// <param name="reminderDictionaryCount">
-        /// Number of <see cref="IReliableDictionary{TKey, TValue}"/> across which reminders will be partitioned and stored.
+        /// Number of <see cref="IReliableDictionary2{TKey, TValue}"/> across which reminders will be partitioned and stored.
         /// </param>
         /// <remarks>
         /// Values for <paramref name="actorStateDictionaryCount"/> and <paramref name="reminderDictionaryCount"/> can be specified
@@ -627,11 +627,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return;
             }
 
-            IReliableDictionary<string, byte[]> presenceDict;
-            IReliableDictionary<string, byte[]> reminderCompletedDict;
-            IReliableDictionary<string, byte[]> logicalTimeDict;
-            Dictionary<int, IReliableDictionary<string, byte[]>> actorStateDicts;
-            Dictionary<int, IReliableDictionary<string, byte[]>> reminderDicts;
+            IReliableDictionary2<string, byte[]> presenceDict;
+            IReliableDictionary2<string, byte[]> reminderCompletedDict;
+            IReliableDictionary2<string, byte[]> logicalTimeDict;
+            Dictionary<int, IReliableDictionary2<string, byte[]>> actorStateDicts;
+            Dictionary<int, IReliableDictionary2<string, byte[]>> reminderDicts;
 
             using (var tx = this.stateManager.CreateTransaction())
             {
@@ -684,20 +684,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager SUCCEEDED.");
         }
 
-        private Task<IReliableDictionary<string, byte[]>> GetOrAddDictionaryAsync(ITransaction tx, string dictionaryName)
+        private Task<IReliableDictionary2<string, byte[]>> GetOrAddDictionaryAsync(ITransaction tx, string dictionaryName)
         {
-            return this.stateManager.GetOrAddAsync<IReliableDictionary<string, byte[]>>(tx, dictionaryName);
+            return this.stateManager.GetOrAddAsync<IReliableDictionary2<string, byte[]>>(tx, dictionaryName);
         }
 
-        private Task<ConditionalValue<IReliableDictionary<string, byte[]>>> TryGetDictionaryAsync(string dictionaryName)
+        private Task<ConditionalValue<IReliableDictionary2<string, byte[]>>> TryGetDictionaryAsync(string dictionaryName)
         {
-            return this.stateManager.TryGetAsync<IReliableDictionary<string, byte[]>>(dictionaryName);
+            return this.stateManager.TryGetAsync<IReliableDictionary2<string, byte[]>>(dictionaryName);
         }
 
-        private async Task<Dictionary<int, IReliableDictionary<string, byte[]>>> GetOrAddDictionariesAsync(
+        private async Task<Dictionary<int, IReliableDictionary2<string, byte[]>>> GetOrAddDictionariesAsync(
             ITransaction tx, string dictionaryNameFormat, int dictionaryCount)
         {
-            var dicts = new Dictionary<int, IReliableDictionary<string, byte[]>>();
+            var dicts = new Dictionary<int, IReliableDictionary2<string, byte[]>>();
 
             int storageIndex = 0;
             var dictName = string.Format(dictionaryNameFormat, storageIndex);

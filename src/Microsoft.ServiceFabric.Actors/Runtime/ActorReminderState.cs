@@ -65,9 +65,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 elapsedTime = currentLogicalTime - createdOrLastCompletedTime;
             }
 
+            // If reminder has negative DueTime or Period, it is not intended to fire again.
+            // Skip computing remaining time.
+            if (dueTimeOrPeriod < TimeSpan.Zero)
+            {
+                return dueTimeOrPeriod;
+            }
+
             var remainingTime = TimeSpan.Zero;
 
-            if(dueTimeOrPeriod > elapsedTime)
+            if (dueTimeOrPeriod > elapsedTime)
             {
                 remainingTime = dueTimeOrPeriod - elapsedTime;
             }

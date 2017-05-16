@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using Microsoft.ServiceFabric.Services.Remoting.Client;
 
     /// <summary>
-    /// Defines the interface for the client that communicate with a partition of an Actor Service.
+    /// Defines the interface for the client that communicate with an actor within a service partition.
     /// </summary>
     public interface IActorServicePartitionClient : IServiceRemotingPartitionClient
     {

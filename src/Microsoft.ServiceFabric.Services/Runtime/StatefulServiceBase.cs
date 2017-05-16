@@ -26,13 +26,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private IReadOnlyDictionary<string, string> addresses;
 
         /// <summary>
-        /// Creates a new StatefulService.
+        /// Creates a new stateful service.
         /// </summary>
         /// <param name="serviceContext">
-        /// A <see cref="StatefulServiceContext"/> that describes the service context.
+        /// A <see cref="StatefulServiceContext"/> describes the service context, which it provides information like replica ID, partition ID, and service name.
         /// </param>
         /// <param name="stateProviderReplica">
-        /// A <see cref="IStateProviderReplica"/> that represents a reliable state provider replica.
+        /// A <see cref="IStateProviderReplica"/> represents a reliable state provider replica.
         /// </param>
         protected StatefulServiceBase(
             StatefulServiceContext serviceContext,
@@ -51,11 +51,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Gets the service context that this stateful service is operating under. It provides
-        /// information like ReplicaId, PartitionId, ServiceName etc.
+        /// Gets the service context that this stateful service is operating under.
+        /// It provides information like replica ID, partition ID, service name etc.
         /// </summary>
         /// <value>
-        /// A <see cref="StatefulServiceContext"/> that describes the service context.
+        /// A <see cref="StatefulServiceContext"/> describes the service context, which it provides information like replica ID, partition ID, and service name.
         /// </value>
         public StatefulServiceContext Context
         {
@@ -85,19 +85,27 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         protected IStatefulServicePartition Partition { get; private set; }
 
         /// <summary>
-        /// Override this method to supply the communication listeners for the service replica. The endpoints returned by the communication listener's
+        /// Override this method to supply the communication listeners for the service replica. The endpoints returned by the communication listener
         /// are stored as a JSON string of ListenerName, Endpoint string pairs like 
-        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
+        /// <code>{"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}</code>
+        /// <para>
+        /// For information about Reliable Services life cycle please see
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// </para>
         /// </summary>
-        /// <returns>List of ServiceReplicaListeners</returns>
+        /// <returns>List of <see cref="ServiceReplicaListener"/> </returns>
         protected virtual IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
             return Enumerable.Empty<ServiceReplicaListener>();
         }
 
         /// <summary>
-        /// This method is called as the final step of opening the service.
+        /// This method is called when the replica is being opened and it is the final step of opening the service.
         /// Override this method to be notified that Open has completed for this replica's internal components.
+        /// <para>
+        /// For information about Reliable Services life cycle please see
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// </para>
         /// </summary>
         /// <param name="openMode"><see cref="ReplicaOpenMode"/> for this service replica.</param>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
@@ -110,8 +118,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// This method is called as the final step before completing <see cref="IStatefulServiceReplica.ChangeRoleAsync"/>.
+        /// This method is called when role of the replica is changing and it is the final step before completing <see cref="IStatefulServiceReplica.ChangeRoleAsync"/>.
         /// Override this method to be notified that ChangeRole has completed for this replica's internal components.
+        /// <para>
+        /// For information about Reliable Services life cycle please see
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// </para>
         /// </summary>
         /// <param name="newRole">New <see cref="ReplicaRole"/> for this service replica.</param>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
@@ -124,21 +136,83 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Services that want to implement a processing loop which runs when it is primary and has write status,
-        /// just override this method with their logic.
+        /// This method is implemented as a processing loop and will only be called when the replica is primary with write status.
+        /// Override this method with the application logic. 
+        /// <para>
+        /// For information about Reliable Services life cycle please see
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// </para>
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
         /// <returns>
         /// A <see cref="Task">Task</see> that represents outstanding operation.
         /// </returns>
+        /// <remarks>
+        /// Please ensure you follow these guidelines when overriding <see cref="RunAsync"/>:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <description>
+        ///         Make sure <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/> is honored and once 
+        ///         it has been signaled, <see cref="RunAsync"/> exits gracefully as soon as possible. Please note that
+        ///         if <see cref="RunAsync"/> has finished its intended work, it does not need to wait for 
+        ///         <paramref name="cancellationToken"/> to be signaled and can return gracefully.
+        ///         </description>
+        ///     </item>
+        ///     <item>
+        ///         <description>
+        ///         Service Fabric runtime does not handle all exception(s) escaping from <see cref="RunAsync"/>. If an unhandled
+        ///         exception escapes from <see cref="RunAsync"/>, then Service Fabric runtime takes following action(s):
+        ///         <list type="bullet">
+        ///             <item>
+        ///                 <description>
+        ///                 If a <see cref="FabricException"/> (or one of its derived exception) escapes from <see cref="RunAsync"/>, 
+        ///                 Service Fabric runtime will restart this service replica. A health warning will be appear in Service Fabric
+        ///                 Explorer containing details about unhandled exception.
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <description>
+        ///                 If an <see cref="OperationCanceledException"/> escapes from <see cref="RunAsync"/> and Service Fabric runtime
+        ///                 has requested cancellation by signaling <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/>,
+        ///                 Service Fabric runtime handles this exception and considers it as graceful completion of <see cref="RunAsync"/>.
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <description>
+        ///                 If an <see cref="OperationCanceledException"/> escapes from <see cref="RunAsync"/> and Service Fabric runtime
+        ///                 has NOT requested cancellation by signaling <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/>,
+        ///                 the process that is hosting this service replica is brought down. This will impact all other service replicas 
+        ///                 that are hosted by the same process. The details about unhandled exceptions can be viewed in Windows Event Viewer.
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <description>
+        ///                 If an exception of any other type escapes from <see cref="RunAsync"/> then the process that is hosting this
+        ///                 service replica is brought down. This will impact all other service replicas that are hosted by the
+        ///                 same process. The details about unhandled exceptions can be viewed in Windows Event Viewer.
+        ///                 </description>
+        ///             </item>
+        ///         </list>
+        ///         </description>
+        ///     </item>
+        /// </list>
+        /// <para>
+        /// Failing to conform to these guidelines can cause fail-over, reconfiguration or upgrade of your service to get stuck
+        /// and can impact availability of your service.
+        /// </para>
+        /// </remarks>
         protected virtual Task RunAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(true);
         }
 
         /// <summary>
-        /// This method is called as the final step of closing the service.
+        /// This method is called as the final step of closing the service gracefully.
         /// Override this method to be notified that Close has completed for this replica's internal components.
+        /// <para>
+        /// For information about Reliable Services life cycle please see
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// </para>
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
         /// <returns>
@@ -150,8 +224,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Notification that the service is being aborted.  RunAsync MAY be running concurrently
-        /// with the execution of this method, as cancellation is not awaited on the abort path.
+        /// Notification that the service is being aborted. RunAsync MAY be running concurrently
+        /// with the execution of this method, as cancellation is not awaited on the abort path. 
+        /// <para>
+        /// For information about Reliable Services life cycle please see
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// </para>
         /// </summary>
         protected virtual void OnAbort()
         {
@@ -245,7 +323,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// </summary>
         /// <param name="backupDescription">A <see cref="BackupDescription"/> describing the backup request.</param>
         /// <param name="timeout">The timeout for this operation.</param>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <param name="cancellationToken">The cancellation token is used to monitor for cancellation requests.</param>
         /// <returns>Task that represents the asynchronous backup operation.</returns>
         /// <remarks>
         /// Boolean returned by the backupCallback indicate whether the service was able to successfully move the backup folder to an external location.

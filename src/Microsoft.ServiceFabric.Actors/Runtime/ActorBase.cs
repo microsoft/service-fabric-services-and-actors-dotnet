@@ -215,6 +215,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>
         /// An <see cref="IActorReminder"/> that represents an actor reminder.
         /// </returns>
+        /// <exception cref="ReminderNotFoundException">Reminder not found for the actor.</exception>
         protected IActorReminder GetReminder(string reminderName)
         {
             this.CheckIfReminderOperationIsPossible(reminderName);

@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-namespace Microsoft.ServiceFabric.Actors.Diagnostics
+namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 {
     using System;
     using System.Collections.Generic;
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.maxMethodInfoLen = MaxInstanceNameVariablePartsLen - this.counterInstanceDifferentiator.Length - 1;
         }
 
-        internal IEnumerable<KeyValuePair<long, string>> GetActorMethodCounterInstanceNames(
+        internal IEnumerable<KeyValuePair<long, string>> GetMethodCounterInstanceNames(
             IEnumerable<KeyValuePair<long, MethodInfo>> actorMethodInfo)
         {
             // The method name will be part of the performance counter instance name so that it is 
