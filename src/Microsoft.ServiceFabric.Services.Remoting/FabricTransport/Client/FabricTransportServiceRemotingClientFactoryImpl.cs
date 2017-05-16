@@ -20,10 +20,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client
     {
         private readonly FabricTransportRemotingSettings settings;
         private readonly FabricTransportRemotingCallbackMessageHandler fabricTransportRemotingCallbackMessageHandler;
-       
         //We don't need implementation of ClientConnection handler provided in base class , hence creating new eventHandler here.Using FabricTransport Connectionhandler implementation.
         public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> FabricTransportClientConnected;
-        
         //We don't need impl of ClientConnection handler provided in base class , hence creating new eventHandler here.Using FabricTransport Connectionhandler implementation.
         public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>>
             FabricTransportClientDisconnected;

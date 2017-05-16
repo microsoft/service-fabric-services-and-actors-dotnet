@@ -10,11 +10,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
     using System.ServiceModel.Channels;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
-    using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Wcf;
     using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 
@@ -24,6 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
     /// </summary>
     public class WcfServiceRemotingListener : IServiceRemotingListener
     {
+        private readonly IServiceRemotingMessageHandler messageHandler;
         private ICommunicationListener wcfListener;
 
         /// <summary>
@@ -40,15 +38,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
         /// the default value "ServiceEndpoint" is used.
         /// </param>
         public WcfServiceRemotingListener(
-             ServiceContext serviceContext,
-             IService serviceImplementation,
-             Binding listenerBinding = null,
-             string endpointResourceName = "ServiceEndpoint")
+            ServiceContext serviceContext,
+            IService serviceImplementation,
+            Binding listenerBinding = null,
+            string endpointResourceName = "ServiceEndpoint")
         {
+            this.messageHandler = new ServiceRemotingDispatcher(serviceContext, serviceImplementation);
             this.wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
                 serviceContext,
                 new WcfRemotingService(
-                    new ServiceRemotingDispatcher(serviceContext, serviceImplementation)),
+                    this.messageHandler),
                 listenerBinding,
                 endpointResourceName);
         }
@@ -74,11 +73,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
             Binding listenerBinding = null,
             string endpointResourceName = "ServiceEndpoint")
         {
+            this.messageHandler = messageHandler;
             this.wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
-               serviceContext,
-               new WcfRemotingService(messageHandler),
-               listenerBinding,
-               endpointResourceName);
+                serviceContext,
+                new WcfRemotingService(this.messageHandler),
+                listenerBinding,
+                endpointResourceName);
         }
 
 
@@ -96,26 +96,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
         /// address is created using the default endpoint resource named "ServiceEndpoint" defined in the service manifest. 
         /// </param>
         public WcfServiceRemotingListener(
-           ServiceContext serviceContext,
-           IServiceRemotingMessageHandler messageHandler,
-           Binding listenerBinding = null,
-           EndpointAddress address = null)
+            ServiceContext serviceContext,
+            IServiceRemotingMessageHandler messageHandler,
+            Binding listenerBinding = null,
+            EndpointAddress address = null)
         {
+            this.messageHandler = messageHandler;
             if (address != null)
             {
                 this.wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
                     serviceContext,
-                    new WcfRemotingService(messageHandler),
+                    new WcfRemotingService(this.messageHandler),
                     listenerBinding,
                     address);
             }
             else
             {
                 this.wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
-                   serviceContext,
-                   new WcfRemotingService(messageHandler),
-                   listenerBinding,
-                   "ServiceEndpoint");
+                    serviceContext,
+                    new WcfRemotingService(this.messageHandler),
+                    listenerBinding,
+                    "ServiceEndpoint");
             }
         }
 
@@ -134,7 +135,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
         /// </remarks>
         public ServiceHost ServiceHost
         {
-            get { return ((WcfCommunicationListener<IServiceRemotingContract>)this.wcfListener).ServiceHost; }
+            get { return ((WcfCommunicationListener<IServiceRemotingContract>) this.wcfListener).ServiceHost; }
         }
 
         /// <summary>
@@ -162,6 +163,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
         /// </returns>
         Task ICommunicationListener.CloseAsync(CancellationToken cancellationToken)
         {
+            this.DisposeIfNeeded();
             return this.wcfListener.CloseAsync(cancellationToken);
         }
 
@@ -172,6 +174,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
         /// </summary>
         void ICommunicationListener.Abort()
         {
+            this.DisposeIfNeeded();
             this.wcfListener.Abort();
         }
 
@@ -210,6 +213,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Runtime
             public void OneWayMessage(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
             {
                 this.messageHandler.HandleOneWay(this.requestContext, messageHeaders, requestBody);
+            }
+        }
+
+        private void DisposeIfNeeded()
+        {
+            var disposableItem = this.messageHandler as IDisposable;
+            if (null != disposableItem)
+            {
+                disposableItem.Dispose();
             }
         }
     }

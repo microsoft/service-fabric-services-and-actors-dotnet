@@ -6,11 +6,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Client
 {
     using System;
     using System.Fabric;
+    using System.Globalization;
     using System.ServiceModel;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
-    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Wcf;
 
@@ -77,10 +77,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf.Client
                 Exception remoteException;
                 if (RemoteExceptionInformation.ToException(faultException.Detail, out remoteException))
                 {
-                    throw remoteException;
+                    throw new AggregateException(remoteException);
                 }
 
-                throw;
+                throw new ServiceException(remoteException.GetType().FullName,string.Format(
+                                CultureInfo.InvariantCulture,
+                                Microsoft.ServiceFabric.Services.Wcf.SR.ErrorDeserializationFailure,
+                                remoteException.ToString()));
             }
         }
 

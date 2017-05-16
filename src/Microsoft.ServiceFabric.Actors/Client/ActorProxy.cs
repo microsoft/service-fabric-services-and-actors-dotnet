@@ -15,7 +15,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
 
     /// <summary>
-    /// Provides the base implementation for the proxy to the remote actor objects implementing IActor interfaces.
+    /// Provides the base implementation for the proxy to the remote actor objects implementing <see cref="IActor"/> interfaces.
+    /// The proxy object can be used used for client-to-actor and actor-to-actor communication.
     /// </summary>
     public abstract class ActorProxy : ProxyBase, IActorProxy
     {
@@ -41,7 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         }
 
         /// <summary>
-        /// Gets <see cref="Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.
+        /// Gets the <see cref="Client.IActorServicePartitionClient"/> interface that this proxy is using to communicate with the actor.
         /// </summary>
         /// <value><see cref="Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
         IActorServicePartitionClient IActorProxy.ActorServicePartitionClient

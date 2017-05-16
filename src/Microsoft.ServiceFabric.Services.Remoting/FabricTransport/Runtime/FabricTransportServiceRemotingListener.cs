@@ -20,15 +20,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     public class FabricTransportServiceRemotingListener : IServiceRemotingListener
     {
         private FabricTransportListener nativeListener;
+        private IServiceRemotingMessageHandler messageHandler;
 
         /// <summary>
-        ///     Constructs a fabric transport based service remoting listener.
+        ///     Constructs a fabric transport based service remoting listener with default
+        ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>
         /// <param name="serviceContext">
-        ///     The context of the service for which the remoting listener is being constructed.
+        ///     The context of the service for which the remoting listener is being constructed. 
         /// </param>
         /// <param name="serviceImplementation">
-        ///     The service implementation object.
+        ///     The service implementation object used to construct <see cref="ServiceRemotingDispatcher"/>
+        ///     for message processing.
         /// </param>
         public FabricTransportServiceRemotingListener(
             ServiceContext serviceContext,
@@ -41,13 +44,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Constructs a fabric Transport based service remoting listener.
+        ///     Constructs a fabric transport based service remoting listener with <see cref="FabricTransportRemotingListenerSettings"/>
+        ///     loaded from configuration section.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
         /// </param>
         /// <param name="serviceImplementation">
-        ///     The service implementation object.
+        ///     The service implementation object used to construct <see cref="ServiceRemotingDispatcher"/>
+        ///     for message processing.
         /// </param>
         /// <param name="listenerSettingsConfigSectionName">
         ///    The name of the configuration section in the configuration package named
@@ -65,13 +70,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Constructs a fabric transport based service remoting listener that uses the specified settings.
+        ///     Constructs a fabric transport based service remoting listener with the specified
+        ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
         /// </param>
         /// <param name="serviceImplementation">
-        ///     The service implementation object.
+        ///     The service implementation object used to construct <see cref="ServiceRemotingDispatcher"/>
+        ///     for message processing.
         /// </param>
         /// <param name="listenerSettings">
         ///     The settings for the listener.
@@ -88,7 +95,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Constructs a fabric transport based service remoting listener.
+        ///     Constructs a fabric transport based service remoting listener with default
+        ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
@@ -105,7 +113,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Constructs a fabric transport based service remoting listener.
+        ///     Constructs a fabric transport based service remoting listener with <see cref="FabricTransportRemotingListenerSettings"/>
+        ///     loaded from configuration section.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
@@ -130,7 +139,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Constructs a fabric transport based service remoting listener.
+        ///     Constructs a fabric transport based service remoting listener with the specified
+        ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
@@ -147,9 +157,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             IServiceRemotingMessageHandler messageHandler,
             FabricTransportRemotingListenerSettings listenerSettings)
         {
+            this.messageHandler = messageHandler;
             this.nativeListener = this.CreateNativeListener(
                 listenerSettings,
-                messageHandler,
+                this.messageHandler,
                 serviceContext);
         }
 
@@ -194,6 +205,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 this.nativeListener.Abort();
                 this.Dispose();
             }
+ 
         }
 
         private FabricTransportListener CreateNativeListener(
@@ -215,6 +227,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             {
                 this.nativeListener.Dispose();
                 this.nativeListener = null;
+            }
+
+            var disposableItem = this.messageHandler as IDisposable;
+            if (null != disposableItem)
+            {
+                disposableItem.Dispose();
             }
         }
     }

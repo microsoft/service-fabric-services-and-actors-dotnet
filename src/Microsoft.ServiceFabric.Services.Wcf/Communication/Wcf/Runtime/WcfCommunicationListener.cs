@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         /// </param>
         /// <param name="endpointResourceName">
         ///     The name of the endpoint resource defined in the service manifest that should be used to create the address for the listener. 
-        ///     If the endpointResourceName is not specified or it is null, it's name is derived from the WCF service contract type using
+        ///     If the endpointResourceName is not specified or it is null, its name is derived from the WCF service contract type using
         ///     <see cref="Microsoft.ServiceFabric.Services.ServiceNameFormat.GetEndpointName"/> method.
         ///     If matching endpoint resource is not found in the service manifest, a default endpoint resource definition with port zero is used.
         /// </param>
@@ -94,7 +94,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         ///     created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method.
         /// </param>
         /// <param name="address">
-        ///     The listen address for the WCF endpoint. if the address is not specified or it is null, a default address is created by 
+        ///     The listen address for the WCF endpoint. If the address is not specified or it is null, a default address is created by 
         ///     looking up the endpoint resource from the service manifest. The endpoint resource name is derived from the WCF 
         ///     service contract type using <see cref="Microsoft.ServiceFabric.Services.ServiceNameFormat.GetEndpointName"/> method.
         ///     If matching endpoint resource is not found in the service manifest, a default endpoint resource definition with port zero is used.
@@ -141,7 +141,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         ///     WCF service implementation.
         /// </value>
         /// <remarks>
-        ///     The service host is created by the listener in it's constructor. Before this communication
+        ///     The service host is created by the listener in its constructor. Before this communication
         ///     listener is opened by the runtime via <see cref="ICommunicationListener.OpenAsync(CancellationToken)"/> method,
         ///     the service host can be customized by accessing it via this property.
         /// </remarks>

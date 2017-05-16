@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         void Initialize(ActorTypeInformation actorTypeInformation);
 
         /// <summary>
-        /// This method is invoked as part of the activation process of the actor with the specified actor ID.
+        /// Invoked as part of the activation process of the actor with the specified actor ID.
         /// </summary>
         /// <param name="actorId">ID of the actor that is activated.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task ActorActivatedAsync(ActorId actorId, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// This method is invoked when a reminder fires and finishes executing its callback 
+        /// Invoked when a reminder fires and finishes executing its callback 
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
         /// <param name="actorId">ID of the actor which own reminder</param>
