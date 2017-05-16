@@ -186,7 +186,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Overrides <see cref="StatefulServiceBase.RunAsync(CancellationToken)"/>.
         /// </summary>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation of loading reminders when the replica becomes primary.</returns>
+        /// <returns>
+        /// A task that represents the asynchronous operation of loading reminders when the replica becomes primary.
+        /// </returns>
+        /// <remarks>
+        /// If you need to override this method, please make sure to call this method from your overridden method.
+        /// Also make sure your implementation of overridden method conforms to the guideline specified for
+        /// <see cref="StatefulServiceBase.RunAsync(CancellationToken)"/>. 
+        /// <para>
+        /// Failing to do so can cause failover, reconfiguration or upgrade of your actor service to get stuck and 
+        /// can impact availibility of your service.
+        /// </para>
+        /// </remarks>
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
             return this.ActorManager.StartLoadingRemindersAsync(cancellationToken);

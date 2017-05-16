@@ -143,7 +143,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
             }
             else
-            {
+            {                
                 await this.CancelRunAsync();
                 
                 if (newRole == ReplicaRole.ActiveSecondary)
@@ -165,7 +165,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 TraceType,
                 this.traceId,
                 "ChangeRoleAsync : End UserServiceReplica change role");
-            
+
             await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
             
             return this.endpointCollection.ToString();
@@ -181,7 +181,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             await this.CloseCommunicationListenersAsync(cancellationToken);
             await this.CancelRunAsync();
             await this.userServiceReplica.OnCloseAsync(cancellationToken);
-            
+
             if (this.stateProviderReplica != null)
             {
                 await this.stateProviderReplica.CloseAsync(cancellationToken);
@@ -199,7 +199,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.AbortCommunicationListeners();
             this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
             this.userServiceReplica.OnAbort();
-            
+
             if (this.stateProviderReplica != null)
             {
                 this.stateProviderReplica.Abort();

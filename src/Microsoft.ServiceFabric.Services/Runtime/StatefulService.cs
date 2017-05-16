@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// Creates a new <see cref="StatefulService"/> with default <see cref="IReliableStateManager"/>: <see cref="ReliableStateManager"/>.
         /// </summary>
         /// <param name="serviceContext">
-        /// A <see cref="StatefulServiceContext"/> that describes the service context.
+        /// A <see cref="StatefulServiceContext"/> describes the stateful service context, which it provides information like replica ID, partition ID, and service name.
         /// </param>
         protected StatefulService(StatefulServiceContext serviceContext)
             : this(serviceContext, new ReliableStateManager(serviceContext))
@@ -37,14 +37,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Creates a new StatefulService. 
-        /// Override this to create a new StatefulService with non-default state manager replica.
+        /// Creates a new stateful service. 
+        /// Override this method to create a new stateful service with non-default state manager replica.
         /// </summary>
         /// <param name="serviceContext">
-        /// A <see cref="StatefulServiceContext"/> that describes the service context.
+        /// A <see cref="StatefulServiceContext"/> describes the stateful service context, which it provides information like replica ID, partition ID, and service name.
         /// </param>
         /// <param name="reliableStateManagerReplica">
-        /// A <see cref="IReliableStateManagerReplica"/> that represents a reliable state provider replica.
+        /// A <see cref="IReliableStateManagerReplica"/> represents a reliable state provider replica.
         /// </param>
         protected StatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
             : base(serviceContext, reliableStateManagerReplica)

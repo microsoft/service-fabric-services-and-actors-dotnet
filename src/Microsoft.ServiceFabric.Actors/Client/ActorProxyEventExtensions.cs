@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <typeparam name="TEvent">The type of the event interface.</typeparam>
         /// <param name="actorProxy">The actor that publishes the event.</param>
         /// <param name="subscriber">The subscriber that receives the events.</param>
-        /// <returns>A task that represents the asynchronous operation of subscribing to a published actor event.</returns>
+        /// <returns>A task that represents the asynchronous operation of subscribing to a published actor event..</returns>
         /// <exception cref="System.ArgumentException">
         /// <para>When actorProxy is not of type <see cref="ActorProxy"/></para>.
         /// </exception>
