@@ -26,8 +26,8 @@ namespace Microsoft.ServiceFabric.Services.Client
         private static ServicePartitionResolver DefaultResolver;
         private static readonly object StaticLock = new object();
         private static readonly Random Rand = new Random();
-        private readonly object thisLock = new object();
 
+        private readonly object thisLock = new object();
         private readonly CreateFabricClientDelegate createFabricClient;
         private readonly CreateFabricClientDelegate recreateFabricClient;
         private FabricClient fabricClient;
