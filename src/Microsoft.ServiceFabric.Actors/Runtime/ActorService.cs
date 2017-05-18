@@ -160,7 +160,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
-            return this.ActorManager.GetActorsFromStateProvider(
+            return this.ActorManager.GetActorsFromStateProviderAsync(
                 continuationToken,
                 cancellationToken);
         }

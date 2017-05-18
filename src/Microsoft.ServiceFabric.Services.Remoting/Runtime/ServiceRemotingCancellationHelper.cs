@@ -88,7 +88,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             return null;
         }
 
-        public async Task<byte[]> DispatchRequest(
+        public async Task<byte[]> DispatchRequestAsync(
             int interfaceId,
             int methodId,
             string callContext,

@@ -88,7 +88,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 byte[] retval = null;
                 try
                 {
-                    retval = await this.cancellationHelper.DispatchRequest(
+                    retval = await this.cancellationHelper.DispatchRequestAsync(
                         messageHeaders.InterfaceId,
                         messageHeaders.MethodId,
                         messageHeaders.InvocationId,

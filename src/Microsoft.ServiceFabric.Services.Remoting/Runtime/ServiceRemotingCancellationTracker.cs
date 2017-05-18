@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         {
             var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
 
-            return methodCallTracker.TryGetCancellationTokenSource(callId);
+            return methodCallTracker.TryGetCancellationTokenSourceAsync(callId);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         {
             var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
 
-            return methodCallTracker.TryRemoveCancellationToken(callId);
+            return methodCallTracker.TryRemoveCancellationTokenAsync(callId);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 return cancellationTokenSource;
             }
 
-            public async Task<CancellationTokenResult> TryGetCancellationTokenSource(string callId)
+            public async Task<CancellationTokenResult> TryGetCancellationTokenSourceAsync(string callId)
             {
                 var ret = false;
                 CancellationTokenSource cancellationToken = null;
@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             /// </summary>
             /// <param name="callId">method call identifier, for </param>
             /// <returns></returns>
-            public async Task TryRemoveCancellationToken(string callId)
+            public async Task TryRemoveCancellationTokenAsync(string callId)
             {
                 await this.callTrackerLock.WaitAsync();
 
