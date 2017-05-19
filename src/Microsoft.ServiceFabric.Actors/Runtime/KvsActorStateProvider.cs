@@ -429,7 +429,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken cancellationToken)
         {
             return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
-                () => this.GetStoredActorIds(numItemsToReturn, continuationToken, cancellationToken),
+                () => this.GetStoredActorIdsAsync(numItemsToReturn, continuationToken, cancellationToken),
                 "GetActorsAsync",
                 cancellationToken);
         }
@@ -590,7 +590,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // KeyValueStoreReplica aborts any in-flight backup when it closes and backup callback is not invoked
             // with actual ESE backup finishing with error. However, if ESE backup has finished successfully and
             // backup callback is in-flight, it does not wait for the backup callback to finish, .
-            await this.CancelAndAwaitBackupCallbackIfAny();
+            await this.CancelAndAwaitBackupCallbackIfAnyAsync();
         }
 
         /// <summary>
@@ -603,7 +603,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         void IStateProviderReplica.Abort()
         {
             this.storeReplica.Abort();
-            this.CancelAndAwaitBackupCallbackIfAny().ContinueWith(
+            this.CancelAndAwaitBackupCallbackIfAnyAsync().ContinueWith(
                 t => t.Exception, 
                 TaskContinuationOptions.OnlyOnFaulted);
         }
@@ -866,7 +866,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private async Task CancelAndAwaitBackupCallbackIfAny()
+        private async Task CancelAndAwaitBackupCallbackIfAnyAsync()
         {
             await this.backupCallbackLock.WaitAsync();
 
@@ -882,7 +882,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     this.backupCallbackCts.Cancel();
                 }
 
-                await this.AwaitBackupCallbackWithHealthReporting();
+                await this.AwaitBackupCallbackWithHealthReportingAsync();
             }
             finally
             {
@@ -906,7 +906,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Released backup lock.");
         }
 
-        private async Task AwaitBackupCallbackWithHealthReporting()
+        private async Task AwaitBackupCallbackWithHealthReportingAsync()
         {
             if (this.backupCallbackTask != null)
             {
@@ -1297,7 +1297,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private void RemoveKeysWithPrefix(Transaction tx, string keyPrefix)
+        private void RemoveKeysWithPrefixAsync(Transaction tx, string keyPrefix)
         {
             var stateMetadataEnumerator = this.storeReplica.EnumerateMetadata(tx, keyPrefix);
 
@@ -1322,9 +1322,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     using (var tx = this.storeReplica.CreateTransaction())
                     {
-                        this.RemoveKeysWithPrefix(tx, stateKeyPrefix + "_");
-                        this.RemoveKeysWithPrefix(tx, reminderKeyPrefix);
-                        this.RemoveKeysWithPrefix(tx, reminderCompletedKeyPrefix);
+                        this.RemoveKeysWithPrefixAsync(tx, stateKeyPrefix + "_");
+                        this.RemoveKeysWithPrefixAsync(tx, reminderKeyPrefix);
+                        this.RemoveKeysWithPrefixAsync(tx, reminderCompletedKeyPrefix);
 
                         // Remove old style actor key if any
                         this.storeReplica.TryRemove(tx, stateKeyPrefix);
@@ -1369,14 +1369,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// KVS enumerates its entries in alphabetical order. The implementation of this
         /// function takes this into account while doing continuation token based enumeration.
         /// </summary>
-        private Task<PagedResult<ActorId>> GetStoredActorIds(
+        private Task<PagedResult<ActorId>> GetStoredActorIdsAsync(
             int itemsCount,
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                return this.actorStateProviderHelper.GetStoredActorIds(
+                return this.actorStateProviderHelper.GetStoredActorIdsAsync(
                     itemsCount,
                     continuationToken,
                     () => this.storeReplica.EnumerateMetadata(tx, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix),

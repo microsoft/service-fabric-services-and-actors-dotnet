@@ -288,7 +288,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
 
             return await this.stateProviderHelper.ExecuteWithRetriesAsync(
-                () => this.GetStoredActorIds(itemsCount, continuationToken, cancellationToken),
+                () => this.GetStoredActorIdsAsync(itemsCount, continuationToken, cancellationToken),
                 "GetActorsAsync",
                 cancellationToken);
         }
@@ -867,7 +867,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private async Task<PagedResult<ActorId>> GetStoredActorIds(int itemsCount, ContinuationToken continuationToken, CancellationToken cancellationToken)
+        private async Task<PagedResult<ActorId>> GetStoredActorIdsAsync(int itemsCount, ContinuationToken continuationToken, CancellationToken cancellationToken)
         {
             using (var tx = this.stateManager.CreateTransaction())
             {
@@ -946,7 +946,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private static async Task RemoveKeysWithPrefix(
+        private static async Task RemoveKeysWithPrefixAsync(
             ITransaction tx,
             IReliableDictionary<string, byte[]> relDict,
             string keyPrefix,
@@ -973,14 +973,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // Remove actor states
 
                 var actorStateDict = this.GetActorStateDictionary(actorId);
-                await RemoveKeysWithPrefix(tx, actorStateDict, keyPrefix, cancellationToken);
+                await RemoveKeysWithPrefixAsync(tx, actorStateDict, keyPrefix, cancellationToken);
 
                 // Remove reminders
                 var reminderDict = this.GetReminderDictionary(actorId);
-                await RemoveKeysWithPrefix(tx, reminderDict, keyPrefix, cancellationToken);
+                await RemoveKeysWithPrefixAsync(tx, reminderDict, keyPrefix, cancellationToken);
 
                 // Remove reminder completed data
-                await RemoveKeysWithPrefix(
+                await RemoveKeysWithPrefixAsync(
                     tx,
                     this.reminderCompletedDictionary,
                     keyPrefix,

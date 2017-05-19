@@ -169,7 +169,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
         
-        internal Task<PagedResult<ActorId>> GetStoredActorIds<T>(
+        internal Task<PagedResult<ActorId>> GetStoredActorIdsAsync<T>(
             int itemsCount,
             ContinuationToken continuationToken,
             Func<IEnumerator<T>> getEnumeratorFunc,

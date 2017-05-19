@@ -61,18 +61,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
         {
             if (messageHeaders.InterfaceId == ActorMessageDispatch.InterfaceId)
             {
-                return this.HandleActorMethodDispatch(messageHeaders, requestBodyBytes);
+                return this.HandleActorMethodDispatchAsync(messageHeaders, requestBodyBytes);
             }
 
             if (messageHeaders.InterfaceId == ActorEventSubscription.InterfaceId)
             {
-                return this.HandleSubscriptionRequests(requestContext, messageHeaders, requestBodyBytes);
+                return this.HandleSubscriptionRequestsAsync(requestContext, messageHeaders, requestBodyBytes);
             }
 
             return base.RequestResponseAsync(requestContext, messageHeaders, requestBodyBytes);
         }
 
-        private async Task<byte[]> HandleSubscriptionRequests(
+        private async Task<byte[]> HandleSubscriptionRequestsAsync(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestMsgBodyBytes)
@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
             throw new MissingMethodException(string.Format(CultureInfo.CurrentCulture, Actors.SR.ErrorInvalidMethodId, actorMessageHeaders.MethodId));
         }
 
-        private async Task<byte[]> HandleActorMethodDispatch(
+        private async Task<byte[]> HandleActorMethodDispatchAsync(
             ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestMsgBodyBytes)
         {
