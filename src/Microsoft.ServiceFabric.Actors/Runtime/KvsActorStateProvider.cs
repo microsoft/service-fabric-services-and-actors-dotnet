@@ -590,7 +590,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // KeyValueStoreReplica aborts any in-flight backup when it closes and backup callback is not invoked
             // with actual ESE backup finishing with error. However, if ESE backup has finished successfully and
             // backup callback is in-flight, it does not wait for the backup callback to finish, .
-            await this.CancelAndAwaitBackupCallbackIfAnyAsync();
+            await this.CancelAndAwaitBackupCallbackIfAny();
         }
 
         /// <summary>
@@ -603,7 +603,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         void IStateProviderReplica.Abort()
         {
             this.storeReplica.Abort();
-            this.CancelAndAwaitBackupCallbackIfAnyAsync().ContinueWith(
+            this.CancelAndAwaitBackupCallbackIfAny().ContinueWith(
                 t => t.Exception, 
                 TaskContinuationOptions.OnlyOnFaulted);
         }
@@ -866,7 +866,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private async Task CancelAndAwaitBackupCallbackIfAnyAsync()
+        private async Task CancelAndAwaitBackupCallbackIfAny()
         {
             await this.backupCallbackLock.WaitAsync();
 
@@ -882,7 +882,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     this.backupCallbackCts.Cancel();
                 }
 
-                await this.AwaitBackupCallbackWithHealthReportingAsync();
+                await this.AwaitBackupCallbackWithHealthReporting();
             }
             finally
             {
@@ -906,7 +906,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Released backup lock.");
         }
 
-        private async Task AwaitBackupCallbackWithHealthReportingAsync()
+        private async Task AwaitBackupCallbackWithHealthReporting()
         {
             if (this.backupCallbackTask != null)
             {

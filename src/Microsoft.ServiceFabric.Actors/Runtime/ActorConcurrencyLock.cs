@@ -71,19 +71,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.currentCallCount; }
         }
 
-        public Task AcquireAsync(
+        public Task Acquire(
             string incomingCallContext,
             ActorDirtyStateHandler handler,
             CancellationToken cancellationToken)
         {
-            return this.AcquireAsync(
+            return this.Acquire(
                 incomingCallContext,
                 handler,
                 this.reentrancyMode,
                 cancellationToken);
         }
 
-        public async Task AcquireAsync(
+        public async Task Acquire(
             string incomingCallContext,
             ActorDirtyStateHandler handler,
             ActorReentrancyMode actorReentrancyMode,
@@ -207,14 +207,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             // release the reentrancy lock but continue to hold the turn lock and release 
-            // it through ReleaseContextAsync method after this call invocation on the actor is completed
+            // it through ReleaseContext method after this call invocation on the actor is completed
 
             // indicate that the turn based concurrency lock is acquired and proceed to 
             // call the method on the actor
 
         }
 
-        public async Task ReleaseContextAsync(string callContext)
+        public async Task ReleaseContext(string callContext)
         {
             // first acquire the reentrancy lock to reduce the call counts and 
             await this.reentrantLock.WaitAsync();

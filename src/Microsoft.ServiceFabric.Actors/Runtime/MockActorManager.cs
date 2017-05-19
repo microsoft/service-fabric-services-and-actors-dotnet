@@ -239,7 +239,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return TaskDone.Done;
         }
 
-        public Task<PagedResult<ActorInformation>> GetActorsFromStateProviderAsync(
+        public Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {

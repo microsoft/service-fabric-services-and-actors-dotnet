@@ -77,7 +77,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         Task DeleteActorAsync(string callContext, ActorId actorId, CancellationToken cancellationToken);
 
-        Task<PagedResult<ActorInformation>> GetActorsFromStateProviderAsync(ContinuationToken continuationToken, CancellationToken cancellationToken);
+        Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(ContinuationToken continuationToken, CancellationToken cancellationToken);
 
         #endregion
 

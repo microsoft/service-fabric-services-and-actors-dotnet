@@ -163,7 +163,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             while (true)
             {
                 Exception exception;
-                var client = await this.GetCommunicationClientAsync(cancellationToken);
+                var client = await this.GetCommunicationClient(cancellationToken);
 
                 try
                 {
@@ -227,7 +227,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
                 if (!exceptionReportResult.IsTransient)
                 {              
-                    await this.ResetCommunicationClientAsync();
+                    await this.ResetCommunicationClient();
                 }
 
                 await Task.Delay(exceptionReportResult.RetryDelay, cancellationToken);
@@ -320,7 +320,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 doNotRetryExceptionTypes);
         }
 
-        private async Task<TCommunicationClient> GetCommunicationClientAsync(CancellationToken cancellationToken)
+        private async Task<TCommunicationClient> GetCommunicationClient(CancellationToken cancellationToken)
         {
             TCommunicationClient client;
             await this.communicationClientLock.WaitAsync(cancellationToken);
@@ -366,7 +366,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return client;
         }
 
-        private async Task ResetCommunicationClientAsync()
+        private async Task ResetCommunicationClient()
         {
             await this.communicationClientLock.WaitAsync();
 

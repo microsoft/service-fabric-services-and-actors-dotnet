@@ -174,7 +174,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 DateTime? lockAcquireFinishTime = null;
                 try
                 {
-                    await actor.ConcurrencyLock.AcquireAsync(callContext, (async innerActor => await this.HandleDirtyStateAsync(innerActor)), cancellationToken);
+                    await actor.ConcurrencyLock.Acquire(callContext, (async innerActor => await this.HandleDirtyStateAsync(innerActor)), cancellationToken);
                 }
                 catch
                 {
@@ -211,7 +211,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 //
                 // signal that current execution is finished on this actor 
                 // since there is no call pending or this was the first actor call in the callContext
-                await actor.ConcurrencyLock.ReleaseContextAsync(callContext);
+                await actor.ConcurrencyLock.ReleaseContext(callContext);
 
                 // Emit diagnostic info - after releasing actor lock
                 this.DiagnosticsEventManager.ReleaseActorLock(lockAcquireFinishTime);
@@ -411,7 +411,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var actor = actorUseScope.Actor;
 
                 await
-                    actor.ConcurrencyLock.AcquireAsync(
+                    actor.ConcurrencyLock.Acquire(
                         callContext,
                         (async innerActor => await this.HandleDirtyStateAsync(innerActor)),
                         ActorReentrancyMode.Disallowed,
@@ -506,7 +506,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                 }
 
-                await actor.ConcurrencyLock.ReleaseContextAsync(callContext);
+                await actor.ConcurrencyLock.ReleaseContext(callContext);
 
                 if (exceptionInfo != null)
                 {
@@ -520,7 +520,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Returns Actors list by querying state provider for Actors.
         /// </summary>
-        public async Task<PagedResult<ActorInformation>> GetActorsFromStateProviderAsync(ContinuationToken continuationToken, CancellationToken cancellationToken)
+        public async Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(ContinuationToken continuationToken, CancellationToken cancellationToken)
         {
             // Get the Actors list from State provider and mark them Active or Inactive
             const int maxCount = PagedResult<ActorInformation>.MaxItemsToReturn;

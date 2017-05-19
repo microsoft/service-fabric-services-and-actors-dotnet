@@ -61,18 +61,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
         {
             if (messageHeaders.InterfaceId == ActorMessageDispatch.InterfaceId)
             {
-                return this.HandleActorMethodDispatchAsync(messageHeaders, requestBodyBytes);
+                return this.HandleActorMethodDispatch(messageHeaders, requestBodyBytes);
             }
 
             if (messageHeaders.InterfaceId == ActorEventSubscription.InterfaceId)
             {
-                return this.HandleSubscriptionRequestsAsync(requestContext, messageHeaders, requestBodyBytes);
+                return this.HandleSubscriptionRequests(requestContext, messageHeaders, requestBodyBytes);
             }
 
             return base.RequestResponseAsync(requestContext, messageHeaders, requestBodyBytes);
         }
 
-        private async Task<byte[]> HandleSubscriptionRequestsAsync(
+        private async Task<byte[]> HandleSubscriptionRequests(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestMsgBodyBytes)
@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
             throw new MissingMethodException(string.Format(CultureInfo.CurrentCulture, Actors.SR.ErrorInvalidMethodId, actorMessageHeaders.MethodId));
         }
 
-        private async Task<byte[]> HandleActorMethodDispatchAsync(
+        private async Task<byte[]> HandleActorMethodDispatch(
             ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestMsgBodyBytes)
         {
@@ -140,7 +140,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
                 this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingStart();
                 try
                 {
-                    retVal = await this.cancellationHelper.DispatchRequestAsync(
+                    retVal = await this.cancellationHelper.DispatchRequest(
                         actorMessageHeaders.InterfaceId,
                         actorMessageHeaders.MethodId,
                         messageHeaders.InvocationId,
