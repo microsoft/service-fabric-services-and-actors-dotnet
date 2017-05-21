@@ -14,16 +14,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         public static Type[] GetServiceInterfaces(this Type serviceType)
         {
             var list = new List<Type>(serviceType.GetInterfaces().Where(t => typeof(IService).IsAssignableFrom(t)));
-            list.RemoveAll(t => (t.GetNonServiceParentType() != null));
+            list.RemoveAll(t => (t.GetNonServiceParentInterface() != null));
 
             return list.ToArray();
         }
 
-        internal static Type GetNonServiceParentType(this Type type)
+        internal static Type GetNonServiceParentInterface(this Type type)
         {
             var list = new List<Type>(type.GetInterfaces());
 
             // must have IService as the parent, so removal of it should result in reduction in the count.
+            // if there is no IService interface on this type, return type.
             if (list.RemoveAll(t => (t == typeof(IService))) == 0)
             {
                 return type;
@@ -31,7 +32,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 
             foreach (var t in list)
             {
-                var nonServiceParent = GetNonServiceParentType(t);
+                // if parent interface did not inherit from IService (directly or indirectly), return that interface.
+                var nonServiceParent = GetNonServiceParentInterface(t);
                 if (nonServiceParent != null)
                 {
                     return nonServiceParent;
