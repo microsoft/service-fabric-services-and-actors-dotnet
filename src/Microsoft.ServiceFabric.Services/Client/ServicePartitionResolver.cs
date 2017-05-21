@@ -237,7 +237,7 @@ namespace Microsoft.ServiceFabric.Services.Client
             {
                 case ServicePartitionKind.Singleton:
                     {
-                        return this.ResolveAsyncHelperAsync(
+                        return this.ResolveHelperAsync(
                             (client, prevRsp, timeout, cancellation) => ResolveSingletonPartitionAsync(
                                 client,
                                 serviceUri,
@@ -251,7 +251,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                     }
                 case ServicePartitionKind.Named:
                     {
-                        return this.ResolveAsyncHelperAsync(
+                        return this.ResolveHelperAsync(
                             (client, prevRsp, timeout, cancellation) => ResolveNamedPartitionAsync(
                                 client,
                                 serviceUri,
@@ -266,7 +266,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                     }
                 case ServicePartitionKind.Int64Range:
                     {
-                        return this.ResolveAsyncHelperAsync(
+                        return this.ResolveHelperAsync(
                             (client, prevRsp, timeout, cancellation) => ResolveInt64PartitionAsync(
                                 client,
                                 serviceUri,
@@ -369,7 +369,7 @@ namespace Microsoft.ServiceFabric.Services.Client
             {
                 case ServicePartitionKind.Singleton:
                 {
-                    return this.ResolveAsyncHelperAsync(
+                    return this.ResolveHelperAsync(
                         (client, prevRsp, timeout, cancellation) => ResolveSingletonPartitionAsync(
                             client,
                             serviceName,
@@ -384,7 +384,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                 case ServicePartitionKind.Named:
                 {
                     var partitionName = ((NamedPartitionInformation) previousRsp.Info).Name;
-                    return this.ResolveAsyncHelperAsync(
+                    return this.ResolveHelperAsync(
                         (client, prevRsp, timeout, cancellation) => ResolveNamedPartitionAsync(
                             client,
                             serviceName,
@@ -400,7 +400,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                 case ServicePartitionKind.Int64Range:
                 {
                     var partitionKey = ((Int64RangePartitionInformation) previousRsp.Info).LowKey;
-                    return this.ResolveAsyncHelperAsync(
+                    return this.ResolveHelperAsync(
                         (client, prevRsp, timeout, cancellation) => ResolveInt64PartitionAsync(
                             client,
                             serviceName,
@@ -506,7 +506,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                 cancellationToken);
         }
 
-        private async Task<ResolvedServicePartition> ResolveAsyncHelperAsync(
+        private async Task<ResolvedServicePartition> ResolveHelperAsync(
             Func<FabricClient, ResolvedServicePartition, TimeSpan, CancellationToken, Task<ResolvedServicePartition>> resolveFunc,
             ResolvedServicePartition previousRsp,
             TimeSpan resolveTimeout,
