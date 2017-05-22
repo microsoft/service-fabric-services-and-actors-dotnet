@@ -34,10 +34,20 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <param name="stateProviderReplica">
         /// A <see cref="IStateProviderReplica"/> represents a reliable state provider replica.
         /// </param>
+        /// <exception cref="ArgumentNullException"></exception>
         protected StatefulServiceBase(
             StatefulServiceContext serviceContext,
             IStateProviderReplica stateProviderReplica)
         {
+            if (serviceContext == null)
+            {
+                throw new ArgumentNullException(nameof(serviceContext));
+            }
+            if (stateProviderReplica == null)
+            {
+                throw new ArgumentNullException(nameof(stateProviderReplica));
+            }
+
             this.stateProviderReplica = stateProviderReplica;
             this.stateProviderReplica.OnDataLossAsync = this.OnDataLossAsync;
             this.restoreContext = new RestoreContext(this.stateProviderReplica);
