@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
-            return this.actorStateProviderHelper.GetStoredActorIds(
+            return this.actorStateProviderHelper.GetStoredActorIdsAsync(
                 itemsCount,
                 continuationToken,
                 this.GetActorPresenceKeyEnumerator,

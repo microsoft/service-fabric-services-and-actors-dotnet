@@ -44,8 +44,8 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <param name="partitionKey">Value of the named partition key</param>
         public ServicePartitionKey(string partitionKey)
         {
-            this.value = partitionKey;
             this.servicePartitionKind = ServicePartitionKind.Named;
+            this.value = partitionKey;
         }
 
         /// <summary>

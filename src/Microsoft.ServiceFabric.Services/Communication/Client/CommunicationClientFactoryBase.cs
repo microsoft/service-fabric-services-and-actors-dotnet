@@ -377,7 +377,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     }
 
                     var endpoint = this.GetEndpoint(previousRsp, targetReplicaSelector);
-                    var cacheEntry = await this.GetAndLockClientCacheEntry(previousRsp.Info.Id, endpoint, listenerName, previousRsp, cancellationToken);
+                    var cacheEntry = await this.GetAndLockClientCacheEntryAsync(previousRsp.Info.Id, endpoint, listenerName, previousRsp, cancellationToken);
 
                     TCommunicationClient client;
                     try
@@ -627,7 +627,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return rand;
         }
 
-        private async Task<CommunicationClientCacheEntry<TCommunicationClient>> GetAndLockClientCacheEntry(
+        private async Task<CommunicationClientCacheEntry<TCommunicationClient>> GetAndLockClientCacheEntryAsync(
             Guid partitionId,
             ResolvedServiceEndpoint endpoint,
             string listenerName,
