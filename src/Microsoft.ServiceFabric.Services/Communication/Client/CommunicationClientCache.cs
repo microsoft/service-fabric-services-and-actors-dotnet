@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         public CommunicationClientCache(string traceId)
         {
-            ServiceTrace.Source.WriteNoise(TraceType, "{0} ctor", this.traceId);
+            ServiceTrace.Source.WriteNoise(TraceType, "{0} ctor", traceId);
 
             this.clientCache = new ConcurrentDictionary<Guid, PartitionClientCache>();
             this.traceId = traceId;
