@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Services.Common;
 
-    internal sealed class MockActorManager : IActorManager, IDisposable
+    internal sealed class MockActorManager : IActorManager
     {
         private readonly ActorService actorService;
         private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>> remindersByActorId;
@@ -261,15 +261,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #endregion
-
-        #endregion
-
-        #region IDisposable Implementation
-
-        public void Dispose()
-        {
-            diagnosticsManager?.Dispose();
-        }
 
         #endregion
     }
