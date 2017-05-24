@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using System;
     using System.Fabric;
 
-    internal class StatelessServiceInstanceFactory : IStatelessServiceFactory
+    internal class StatelessServiceInstanceFactory : IStatelessServiceFactory, IDisposable
     {
         private readonly Func<StatelessServiceContext, StatelessService> serviceFactory;
         private readonly RuntimeContext runtimeContext;
@@ -38,6 +38,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             var service = this.serviceFactory(instanceContext);
             return new StatelessServiceInstanceAdapter(service.Context, service);
+        }
+
+        public void Dispose()
+        {
+            runtimeContext?.Dispose();
         }
     }
 }
