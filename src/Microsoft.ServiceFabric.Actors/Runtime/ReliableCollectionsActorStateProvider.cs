@@ -699,6 +699,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var dicts = new Dictionary<int, IReliableDictionary2<string, byte[]>>();
 
+            //TODO: 1) Use notifications to get count of existing dictionaries
+            //TODO: 2) Issue health warning if user supplied count is different than exisitng count.
             int storageIndex = 0;
             var dictName = string.Format(dictionaryNameFormat, storageIndex);
             var condVal = await this.TryGetDictionaryAsync(dictName);
@@ -742,14 +744,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return arr;
         }
 
-        private IReliableDictionary<string, byte[]> GetActorStateDictionary(ActorId actorId)
+        private IReliableDictionary2<string, byte[]> GetActorStateDictionary(ActorId actorId)
         {
             var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
             var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.actorStateDictionaries.Length;
             return this.actorStateDictionaries[storageIdx];
         }
 
-        private IReliableDictionary<string, byte[]> GetReminderDictionary(ActorId actorId)
+        private IReliableDictionary2<string, byte[]> GetReminderDictionary(ActorId actorId)
         {
             var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
             var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.reminderDictionaries.Length;
@@ -781,7 +783,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         private async Task EnumerateRemindersAsync(
-            IReliableDictionary<string, byte[]> reminderDictionary,
+            IReliableDictionary2<string, byte[]> reminderDictionary,
             Dictionary<string, ReminderCompletedData> reminderCompletedDataDict,
             ActorReminderCollection reminderCollection,
             CancellationToken cancellationToken)
@@ -877,7 +879,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var actorIdList = new List<ActorId>();
                 var actorQueryResult = new PagedResult<ActorId>();
 
-                var enumerator = (await this.actorPresenceDictionary.CreateEnumerableAsync(tx)).GetAsyncEnumerator();
+                var enumerable = await this.actorPresenceDictionary.CreateKeyEnumerableAsync(tx, EnumerationMode.Ordered);
+                var enumerator = enumerable.GetAsyncEnumerator();
 
                 // Move the enumerator to point to first entry
                 var enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
@@ -907,7 +910,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var actorId = GetActorIdFromPresenceStorageKey(enumerator.Current.Key);
+                    var actorId = GetActorIdFromPresenceStorageKey(enumerator.Current);
 
                     if (actorId != null)
                     {
@@ -918,7 +921,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ActorTrace.Source.WriteWarningWithId(
                             TraceType,
                             this.traceId,
-                            string.Format("Failed to parse ActorId from storage key: {0}", enumerator.Current.Key));
+                            string.Format("Failed to parse ActorId from storage key: {0}", enumerator.Current));
                     }
 
                     enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
@@ -948,18 +951,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private static async Task RemoveKeysWithPrefix(
             ITransaction tx,
-            IReliableDictionary<string, byte[]> relDict,
+            IReliableDictionary2<string, byte[]> relDict,
             string keyPrefix,
             CancellationToken cancellationToken)
         {
-            var enumerable = await relDict.CreateEnumerableAsync(tx);
+            var enumerable = await relDict.CreateKeyEnumerableAsync(tx, EnumerationMode.Ordered);
             var enumerator = enumerable.GetAsyncEnumerator();
 
+            var canBreak = false;
             while (await enumerator.MoveNextAsync(cancellationToken))
             {
-                if (enumerator.Current.Key.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase))
+                if (enumerator.Current.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    await relDict.TryRemoveAsync(tx, enumerator.Current.Key);
+                    canBreak = true;
+                    await relDict.TryRemoveAsync(tx, enumerator.Current);
+                }
+                else
+                {
+                    if (canBreak)
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -971,7 +983,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var keyPrefix = CreateStorageKeyPrefix(actorId);
 
                 // Remove actor states
-
                 var actorStateDict = this.GetActorStateDictionary(actorId);
                 await RemoveKeysWithPrefix(tx, actorStateDict, keyPrefix, cancellationToken);
 
@@ -1000,15 +1011,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             using (var tx = this.stateManager.CreateTransaction())
             {
-                var enumerable = await actorStateDict.CreateEnumerableAsync(tx);
+                var enumerable = await actorStateDict.CreateKeyEnumerableAsync(tx, EnumerationMode.Ordered);
                 var enumerator = enumerable.GetAsyncEnumerator();
 
+                var canBreak = false;
                 var result = new List<string>();
                 while (await enumerator.MoveNextAsync(CancellationToken.None))
                 {
-                    if (enumerator.Current.Key.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase))
+                    if (enumerator.Current.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase))
                     {
-                        result.Add(GetStateNameFromStorageKey(actorId, enumerator.Current.Key));
+                        canBreak = true;
+                        result.Add(GetStateNameFromStorageKey(actorId, enumerator.Current));
+                    }
+                    else
+                    {
+                        if (canBreak)
+                        {
+                            break;
+                        }
                     }
                 }
 

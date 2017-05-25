@@ -552,6 +552,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.communicationListeners = null;
                 if (exceptions != null)
                 {
+                    // Trace the exception and continue. Do not bubble up exception as abort path
+                    // should do best effort cleanup and continue. This allows other component in
+                    // abort path to perform their best effort cleanup.
+
                     var aggregateException = new AggregateException(exceptions);
 
                     ServiceTrace.Source.WriteWarningWithId(
@@ -559,8 +563,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                         this.traceId,
                         "Got exception when aborting communication listeners : {0}",
                         aggregateException);
-
-                    throw aggregateException;
                 }
             }
         }
