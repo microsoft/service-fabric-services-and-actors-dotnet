@@ -48,9 +48,7 @@ namespace Microsoft.ServiceFabric.Actors
 
         /// <summary>
         /// Creates an <see cref="ActorProxy"/> that implements an actor interface for the actor using the 
-        ///     <see>
-        ///         <cref>ActorProxy.Create{TActorInterface}(Uri,Microsoft.ServiceFabric.Actors.ActorId,System.String)</cref>
-        ///     </see>
+        ///     <see cref="ActorProxy.Create{TActorInterface}(Uri,Microsoft.ServiceFabric.Actors.ActorId,System.String)"/>
         /// method.
         /// </summary>
         /// <param name="actorInterfaceType">Actor interface for the created <see cref="ActorProxy"/> to implement.</param>
