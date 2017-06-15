@@ -123,7 +123,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 callbacks(mtdEvtArgs);
             }
 
-            // Push the stopwatch to the stopwatch stack. Stack is needed for
+            // Pushes the stopwatch to the stopwatch stack. Stack is needed for
             // handling reentrancy.
             diagCtx.PushActorMethodStopwatch(methodStopwatch);
         }
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             var diagCtx = actor.DiagnosticsContext;
             var mtdEvtArgs = diagCtx.MethodData;
 
-            // Pop the stopwatch from the stopwatch stack.
+            // Pops the stopwatch from the stopwatch stack.
             var mtdStopwatch = diagCtx.PopActorMethodStopwatch();
 
             mtdStopwatch.Stop();
@@ -205,7 +205,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal DateTime AcquireActorLockStart(ActorBase actor)
         {
-            // Use DateTime instead of StopWatch to measure elapsed time. We do this in order to avoid allocating a
+            // Uses DateTime instead of StopWatch to measure elapsed time. We do this in order to avoid allocating a
             // StopWatch object for each operation that acquires the actor lock.
             var startTime = DateTime.UtcNow;
             Interlocked.Increment(ref actor.DiagnosticsContext.PendingActorMethodCalls);
@@ -219,10 +219,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal DateTime AcquireActorLockFinish(ActorBase actor, DateTime actorLockAcquireStartTime)
         {
-            // Record the current time
+            // Records the current time
             var currentTime = DateTime.UtcNow;
 
-            // Update number of pending actor method calls
+            // Updates number of pending actor method calls
             var diagCtx = actor.DiagnosticsContext;
             long pendingActorMethodCalls = Interlocked.Decrement(ref diagCtx.PendingActorMethodCalls);
             long delta = pendingActorMethodCalls - diagCtx.LastReportedPendingActorMethodCalls;
@@ -239,7 +239,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 callbacks1(pendingMtdEvtArgs);
             }
 
-            // Update time taken to acquire actor lock
+            // Updates time taken to acquire actor lock
             var lockAcquireTime = currentTime - actorLockAcquireStartTime;
             var callbacks2 = this.OnActorLockAcquired;
             if (null != callbacks2)
