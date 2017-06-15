@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric.Common;
 
     /// <summary>
-    /// Represents change to an actor state with a given state name.
+    /// Represents a change to an actor state with a given state name.
     /// </summary>
     public sealed class ActorStateChange
     {
@@ -20,10 +20,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Creates an instance of ActorStateChange class.
         /// </summary>
-        /// <param name="stateName">Name of the actor state</param>
-        /// <param name="type">Type of value associated with given actor state name.</param>
-        /// <param name="value">Value associated with given actor state name.</param>
-        /// <param name="changeKind">Kind of state change for given actor state name.</param>
+        /// <param name="stateName">The name of the actor state.</param>
+        /// <param name="type">The type of value associated with given actor state name.</param>
+        /// <param name="value">The value associated with given actor state name.</param>
+        /// <param name="changeKind">The kind of state change for given actor state name.</param>
         public ActorStateChange(string stateName, Type type, object value, StateChangeKind changeKind)
         {
             Requires.Argument("stateName", stateName).NotNull();
@@ -35,10 +35,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets name of the actor state.
+        /// Gets the name of the actor state.
         /// </summary>
         /// <value>
-        /// Name of the actor state.
+        /// The name of the actor state.
         /// </value>
         public string StateName
         {
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets the type of value associated with given actor state name.
         /// </summary>
         /// <value>
-        /// Type of value associated with given actor state name.
+        /// The type of value associated with given actor state name.
         /// </value>
         public Type Type
         {
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets the value associated with given actor state name.
         /// </summary>
         /// <value>
-        /// Value associated with given actor state name.
+        /// The value associated with given actor state name.
         /// </value>
         public object Value
         {
@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets the kind of state change for given actor state name.
         /// </summary>
         /// <value>
-        /// Kind of state change for given actor state name.
+        /// The kind of state change for given actor state name.
         /// </value>
         public StateChangeKind ChangeKind
         {
