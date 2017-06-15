@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// <summary>
         /// Initializes a new instance of the <see cref="Microsoft.ServiceFabric.Actors.Query.ContinuationToken"/> class.
         /// </summary>
-        /// <param name="marker">Marker used to retrieve the next set of available results.</param>
+        /// <param name="marker">A marker used to retrieve the next set of available results.</param>
         public ContinuationToken(object marker)
         {
             this.Marker = marker;
