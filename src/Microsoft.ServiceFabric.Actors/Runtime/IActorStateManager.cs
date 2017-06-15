@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     /// <summary>
     /// Represents an interface that exposes methods to manage state of an <see cref="Microsoft.ServiceFabric.Actors.Runtime.Actor" />.
-    /// This interface is implemented by<see cref="Microsoft.ServiceFabric.Actors.Runtime.Actor.StateManager"/>.
+    /// This interface is implemented by <see cref="Microsoft.ServiceFabric.Actors.Runtime.Actor.StateManager"/>.
     /// </summary>
     public interface IActorStateManager
     {
