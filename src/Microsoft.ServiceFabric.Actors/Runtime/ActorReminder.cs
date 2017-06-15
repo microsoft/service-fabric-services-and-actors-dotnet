@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private const string TraceType = "ActorReminder";
         private const int MinTimePeriod = -1;
-        private const UInt32 MaxTimePeriod = (uint)0xfffffffe;
+        private const UInt64 MaxTimePeriod = (ulong)0xffffffffffffffffL;
 
         private readonly ActorId ownerActorId;
         private readonly IActorManager actorManager;
@@ -139,7 +139,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private static void ValidateTimeSpan(string argName, TimeSpan value)
         {
-            var time = (long)value.TotalMilliseconds;
+            var time = value.TotalMilliseconds;
 
             if (time < MinTimePeriod || time > MaxTimePeriod)
             {
