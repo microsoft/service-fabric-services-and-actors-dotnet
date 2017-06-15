@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateProvider = (IActorStateProvider) this.StateProviderReplica;
             this.settings = ActorServiceSettings.DeepCopyFromOrDefaultOnNull(settings);
 
-            // Set internal components
+            // Sets internal components.
             this.actorActivator = new ActorActivator(actorFactory ?? this.DefaultActorFactory);
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
@@ -68,7 +68,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets ActorTypeInformation for actor service.
+        /// Gets the ActorTypeInformation for actor service.
         /// </summary>
         /// <value>
         /// <see cref="Runtime.ActorTypeInformation"/>
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets settings for the actor service. 
+        /// Gets the settings for the actor service. 
         /// </summary>
         /// <value>
         /// Settings for the actor service.
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Deletes an Actor from the Actor service.
         /// </summary>
-        /// <param name="actorId"><see cref="ActorId"/> of the actor to be deleted.</param>
+        /// <param name="actorId">The <see cref="ActorId"/> of the actor to be deleted.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>A task that represents the asynchronous operation of call to server.</returns>
         /// <remarks>
@@ -206,7 +206,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Overrides <see cref="StatefulServiceBase.OnChangeRoleAsync(ReplicaRole, CancellationToken)"/>.
         /// </summary>
-        /// <param name="newRole">New role for the replica.</param>
+        /// <param name="newRole">The new role for the replica.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation performed when the replica becomes primary.</returns>
         protected override async Task OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
