@@ -183,7 +183,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 var actorId = stateData.ActorId;
                 this.writer.ActorSaveStateStop(
-                    // ReSharper disable once PossibleInvalidOperationException
+                    // Disables the ReSharper once PossibleInvalidOperationException
                     stateData.OperationTime.Value.Ticks,
                     this.actorType,
                     actorId,
