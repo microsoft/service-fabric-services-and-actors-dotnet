@@ -72,7 +72,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             byte[] requestMsgBodyBytes,
             CancellationToken cancellationToken)
         {
-            // async methods are not supported for actor event interface
+            // Async methods are not supported for actor event interface.
             throw new NotImplementedException();
         }
 
