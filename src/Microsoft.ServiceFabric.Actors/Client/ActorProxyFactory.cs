@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using Microsoft.ServiceFabric.Services.Remoting.Client;
 
     /// <summary>
-    /// Factory class to create a proxy to the remote actor objects.
+    /// Represents a factory class to create a proxy to the remote actor objects.
     /// </summary>
     public class ActorProxyFactory : IActorProxyFactory
     {
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class.
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
-        /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
+        /// <param name="retrySettings">Retry settings for the remote object calls made by proxy.</param>
         public ActorProxyFactory(
             Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory>
             createServiceRemotingClientFactory = null,
