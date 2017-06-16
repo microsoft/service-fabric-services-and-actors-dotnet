@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var stateMetadata = this.stateChangeTracker[stateName];
 
-                // Check if the property was marked as remove in the cache
+                // Checks if the property was marked as remove in the cache.
                 if (stateMetadata.ChangeKind == StateChangeKind.Remove)
                 {
                     this.stateChangeTracker[stateName] = StateMetadata.Create(value, StateChangeKind.Update);
@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var stateMetadata = this.stateChangeTracker[stateName];
 
-                // Check if the property was marked as remove in the cache
+                // Checks if the property was marked as remove in the cache.
                 if (stateMetadata.ChangeKind == StateChangeKind.Remove)
                 {
                     return new ConditionalValue<T>(false, default(T));
@@ -173,7 +173,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var stateMetadata = this.stateChangeTracker[stateName];
 
-                // Check if the property was marked as remove in the cache
+                // Checks if the property was marked as remove in the cache.
                 return stateMetadata.ChangeKind != StateChangeKind.Remove;
             }
 
@@ -212,7 +212,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var stateMetadata = this.stateChangeTracker[stateName];
 
-                // Check if the property was marked as remove in the cache
+                // Checks if the property was marked as remove in the cache.
                 if (stateMetadata.ChangeKind == StateChangeKind.Remove)
                 {
                     this.stateChangeTracker[stateName] = StateMetadata.Create(addValue, StateChangeKind.Update);
