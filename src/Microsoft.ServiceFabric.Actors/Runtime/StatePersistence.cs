@@ -15,12 +15,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         None = 0,
 
         /// <summary>
-        /// Actor state is kept in-memory only using a volatile state provider.
+        /// The actor state is kept in-memory only using a volatile state provider.
         /// </summary>
         Volatile = 1,
 
         /// <summary>
-        /// Actor state is persisted to local disk using a persistent state provider.
+        /// The actor state is persisted to local disk using a persistent state provider.
         /// </summary>
         Persisted = 2
     }
