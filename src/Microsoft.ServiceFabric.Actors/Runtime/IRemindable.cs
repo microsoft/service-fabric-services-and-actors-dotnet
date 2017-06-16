@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         /// <param name="reminderName">The name of reminder provided during registration</param>
         /// <param name="state">The user state provided during registration.</param>
-        /// <param name="dueTime">The Invocation due time provided during registration.</param>
+        /// <param name="dueTime">The invocation due time provided during registration.</param>
         /// <param name="period">The invocation period provided during registration.</param>
         /// <returns>A task that represents the asynchronous operation performed by this callback.</returns>
         /// <remarks>
