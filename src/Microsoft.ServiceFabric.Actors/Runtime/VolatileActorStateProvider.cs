@@ -164,10 +164,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Loads the actor state associated with the specified state name.
         /// </summary>
         /// <typeparam name="T">Type of value of actor state associated with given state name.</typeparam>
-        /// <param name="actorId">ID of the actor for which to load the state.</param>
-        /// <param name="stateName">Name of the actor state to load.</param>
+        /// <param name="actorId">The ID of the actor for which to load the state.</param>
+        /// <param name="stateName">The name of the actor state to load.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <exception cref="KeyNotFoundException">Actor state associated with specified state name does not exist.</exception>
+        /// <exception cref="KeyNotFoundException">The actor state associated with specified state name does not exist.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <returns>
         /// A task that represents the asynchronous load operation. The value of TResult
@@ -193,8 +193,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Saves the specified set of actor state changes atomically.
         /// </summary>
-        /// <param name="actorId">ID of the actor for which to save the state changes.</param>
-        /// <param name="stateChanges">Collection of state changes to save.</param>
+        /// <param name="actorId">The ID of the actor for which to save the state changes.</param>
+        /// <param name="stateChanges">The collection of state changes to save.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <remarks>
@@ -243,8 +243,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Checks whether actor state provider contains an actor state with 
         /// specified state name.
         /// </summary>
-        /// <param name="actorId">ID of the actor for which to check state existence.</param>
-        /// <param name="stateName">Name of the actor state to check for existence.</param>
+        /// <param name="actorId">The ID of the actor for which to check state existence.</param>
+        /// <param name="stateName">The name of the actor state to check for existence.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
         /// A task that represents the asynchronous check operation. The value of TResult
@@ -337,7 +337,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// with reads and writes to the state provider. It represents a snapshot consistent
         /// view of the state provider.
         /// </remarks>
-        /// <param name="actorId">ID of the actor for which to create enumerable.</param>
+        /// <param name="actorId">The ID of the actor for which to create enumerable.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
         /// A task that represents the asynchronous enumeration operation. The value of TResult
@@ -403,8 +403,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// given name does not exist, it adds the actor reminder otherwise
         /// existing actor reminder with same name is updated. 
         /// </summary>
-        /// <param name="actorId">ID of the actor for which to save the reminder.</param>
-        /// <param name="reminder">Actor reminder to save.</param>
+        /// <param name="actorId">The ID of the actor for which to save the reminder.</param>
+        /// <param name="reminder">The actor reminder to save.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
@@ -435,8 +435,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Deletes the specified actor reminder if it exists.
         /// </summary>
-        /// <param name="actorId">ID of the actor for which to delete the reminder.</param>
-        /// <param name="reminderName">Name of the reminder to delete.</param>
+        /// <param name="actorId">The ID of the actor for which to delete the reminder.</param>
+        /// <param name="reminderName">The name of the reminder to delete.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous delete operation.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
@@ -466,7 +466,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Loads all the reminders contained in the actor state provider.
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token for asynchronous load operation.</param>
+        /// <param name="cancellationToken">The cancellation token for asynchronous load operation.</param>
         /// <returns>
         /// A task that represents the asynchronous load operation. The value of TResult
         /// parameter is a collection of all actor reminders contained in the actor state provider.
@@ -509,7 +509,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         #region IStateProviderReplica
 
         /// <summary>
-        /// Function called during suspected data-loss.
+        /// Get or sets the function called during suspected data-loss.
         /// </summary>
         /// <value>
         /// A function representing data-loss callback function.
@@ -652,10 +652,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Performs backup of state managed by this actor sate provider.
         /// </summary>
-        /// <param name="option">Option for the backup.</param>
-        /// <param name="timeout">Timeout for the backup.</param>
-        /// <param name="cancellationToken">Cancellation token for the backup.</param>
-        /// <param name="backupCallback">Callback to be called once the backup folder is ready.</param>
+        /// <param name="option">The option for the backup.</param>
+        /// <param name="timeout">The timeout for the backup.</param>
+        /// <param name="cancellationToken">The cancellation token for the backup.</param>
+        /// <param name="backupCallback">The callback to be called once the backup folder is ready.</param>
         /// <returns>Task that represents the asynchronous operation.</returns>
         /// <remarks>
         /// Backup/restore is not supported by <see cref="VolatileActorStateProvider"/>.
@@ -730,7 +730,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// <para>Obtains state on a Primary replica that is required to build a Secondary replica.</para>
+        /// <para>Obtains the state on a Primary replica that is required to build a Secondary replica.</para>
         /// </summary>
         /// <param name="upToSequenceNumber">
         /// <para>The maximum last sequence number (LSN) that should be placed in the copy stream via the <see cref="IStateReplicator.GetCopyStream" /> method.
