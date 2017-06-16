@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using Microsoft.ServiceFabric.Services.Remoting.Client;
 
     /// <summary>
-    /// Specifies the Service partition client for Actor communication
+    /// Specifies the Service partition client for Actor communication.
     /// </summary>
     internal class ActorServicePartitionClient : ServiceRemotingPartitionClient, IActorServicePartitionClient
     {
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         }
 
         /// <summary>
-        /// Actor id. Actor id is used to identify the partition of the service that this actor
+        /// Gets the Actor id used to identify the partition of the service that this actor
         /// belongs to.
         /// </summary>
         /// <value>actor id</value>
