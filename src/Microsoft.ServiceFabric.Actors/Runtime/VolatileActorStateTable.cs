@@ -293,7 +293,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         /// <summary>
         /// The use of read/write locks means that the process of creating shallow
-        /// copies will necessarily compete with replication operations. i.e.
+        /// copies will necessarily compete with the replication operations. i.e.
         /// The process of preparing for a copy will block replication.
         /// </summary>
         public ActorStateEnumerator GetShallowCopiesEnumerator(long maxSequenceNumber)
