@@ -15,9 +15,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public static class ActorTypeExtensions
     {
         /// <summary>
-        /// Gets actor interfaces implemented by the actor class.
+        /// Gets the actor interfaces implemented by the actor class.
         /// </summary>
-        /// <param name="type">Type of class implementing actor.</param>
+        /// <param name="type">The type of class implementing actor.</param>
         /// <returns>An array containing actor interface which the type implements.</returns>
         public static Type[] GetActorInterfaces(this Type type)
         {
@@ -28,9 +28,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets actor event interfaces implemented by the actor class.
+        /// Gets the actor event interfaces implemented by the actor class.
         /// </summary>
-        /// <param name="type">Type of class implementing actor.</param>
+        /// <param name="type">The type of class implementing actor.</param>
         /// <returns>An array containing actor event interface which the type implements.</returns>
         public static Type[] GetActorEventInterfaces(this Type type)
         {
@@ -59,21 +59,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Checks if an interface type is an actor interface.
+        /// Indicates a value whether the interface type is an actor interface.
         /// </summary>
-        /// <param name="actorInterfaceType">Interface type of the actor.</param>
-        /// <returns>true, if actorInterfaceType is an interface only implements <see cref="IActor"/>
-        /// or (<see cref="IActor"/> and <see cref="IActorEventPublisher"/>).</returns>
+        /// <param name="actorInterfaceType">The interface type of the actor.</param>
+        /// <returns>true, if the actorInterfaceType is an interface only implements <see cref="IActor"/>
+        /// or (<see cref="IActor"/> and <see cref="IActorEventPublisher"/>); otherwise, false.</returns>
         public static bool IsActorInterface(this Type actorInterfaceType)
         {
             return (actorInterfaceType.GetTypeInfo().IsInterface && (actorInterfaceType.GetNonActorParentType() == null));
         }
 
         /// <summary>
-        /// Checks if an actorType is an actor.
+        /// Indicates a value whether the actorType is an actor.
         /// </summary>
-        /// <param name="actorType">Type implementing actor.</param>
-        /// <returns>true, if <see cref="System.Type.BaseType"/> of actorType is <see cref="Actor"/>.</returns>
+        /// <param name="actorType">The type implementing actor.</param>
+        /// <returns>true, if the <see cref="System.Type.BaseType"/> of actorType is an <see cref="Actor"/>; otherwise, false.</returns>
         public static bool IsActor(this Type actorType)
         {
             var actorBaseType = actorType.GetTypeInfo().BaseType;
@@ -93,10 +93,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Checks if an actor type implements <see cref="IRemindable"/> interface.
+        /// Indicates a value whether an actor type implements <see cref="IRemindable"/> interface.
         /// </summary>
-        /// <param name="actorType">Type implementing actor.</param>
-        /// <returns>true, if <paramref name="actorType"/> implements <see cref="IRemindable"/> interface.</returns>
+        /// <param name="actorType">The type implementing actor.</param>
+        /// <returns>true, if the <paramref name="actorType"/> implements an <see cref="IRemindable"/> interface; otherwise, false.</returns>
         public static bool IsRemindableActor(this Type actorType)
         {
             return actorType.IsActor() && actorType.GetInterfaces().Contains(typeof(IRemindable));
@@ -106,13 +106,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var list = new List<Type>(type.GetInterfaces());
 
-            // must have IActor as the parent, so removal of it should result in reduction in the count.
+            // Must have IActor as the parent, so removal of it should result in reduction in the count.
             if (list.RemoveAll(t => (t == typeof(IActor))) == 0)
             {
                 return type;
             }
 
-            // remove event publisher interfaces
+            // Removes event publisher interfaces.
             list.RemoveAll(t => (t.GetTypeInfo().IsGenericType && (t.GetGenericTypeDefinition() == typeof(IActorEventPublisher<>))));
             list.RemoveAll(t => (t == typeof(IActorEventPublisher)));
 
