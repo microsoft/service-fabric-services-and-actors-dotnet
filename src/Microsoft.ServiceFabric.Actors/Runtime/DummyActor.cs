@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     /// <summary>
     /// DummyActor object is created in case of Deletion of inactive actor.
-    /// DummyActor object's ReentrantGuard is used for blocking other calls.
+    /// DummyActor object is ReentrantGuard is used for blocking other calls.
     /// </summary>
     internal sealed class DummyActor : ActorBase
     {
