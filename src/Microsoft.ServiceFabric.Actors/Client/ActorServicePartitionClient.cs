@@ -49,8 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         }
 
         /// <summary>
-        /// Gets the Actor id used to identify the partition of the service that this actor
-        /// belongs to.
+        /// Gets the Actor id. Actor id is used to identify the partition of the service that this actor belongs to.
         /// </summary>
         /// <value>actor id</value>
         public ActorId ActorId
