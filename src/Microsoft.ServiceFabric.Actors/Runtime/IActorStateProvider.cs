@@ -21,13 +21,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Initializes the actor state provider with type information
         /// of the actor type associated with it.
         /// </summary>
-        /// <param name="actorTypeInformation">The type information of the actor class</param>
+        /// <param name="actorTypeInformation">Type information of the actor class</param>
         void Initialize(ActorTypeInformation actorTypeInformation);
 
         /// <summary>
         /// Invoked as part of the activation process of the actor with the specified actor ID.
         /// </summary>
-        /// <param name="actorId">The ID of the actor that is activated.</param>
+        /// <param name="actorId">ID of the actor that is activated.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <returns>A task that represents the asynchronous actor activation notification processing.</returns>
@@ -37,8 +37,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Invoked when a reminder fires and finishes executing its callback 
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
-        /// <param name="actorId">The ID of the actor which own reminder</param>
-        /// <param name="reminder">The Actor reminder that completed successfully.</param>
+        /// <param name="actorId">ID of the actor which own reminder</param>
+        /// <param name="reminder">Actor reminder that completed successfully.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
         /// A task that represents the asynchronous reminder callback completed notification processing.
@@ -48,11 +48,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Loads the actor state associated with the specified state name for the specified actor ID.
         /// </summary>
-        /// <typeparam name="T">The type of value of actor state associated with given state name.</typeparam>
-        /// <param name="actorId">The ID of the actor for which to load the state.</param>
-        /// <param name="stateName">The Name of the actor state to load.</param>
+        /// <typeparam name="T">Type of value of actor state associated with given state name.</typeparam>
+        /// <param name="actorId">ID of the actor for which to load the state.</param>
+        /// <param name="stateName">Name of the actor state to load.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <exception cref="KeyNotFoundException">The Actor state associated with specified state name does not exist.</exception>
+        /// <exception cref="KeyNotFoundException">Actor state associated with specified state name does not exist.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <returns>
         /// A task that represents the asynchronous load operation. The value of TResult
@@ -63,8 +63,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Saves the specified set of actor state changes for the specified actor ID atomically.
         /// </summary>
-        /// <param name="actorId">The ID of the actor for which to save the state changes.</param>
-        /// <param name="stateChanges">The Collection of state changes to save.</param>
+        /// <param name="actorId">ID of the actor for which to save the state changes.</param>
+        /// <param name="stateChanges">Collection of state changes to save.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <remarks>
@@ -82,8 +82,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Checks whether actor state provider contains an actor state with 
         /// specified state name for the specified actor ID.
         /// </summary>
-        /// <param name="actorId">The ID of the actor for which to check state existence.</param>
-        /// <param name="stateName">The name of the actor state to check for existence.</param>
+        /// <param name="actorId">ID of the actor for which to check state existence.</param>
+        /// <param name="stateName">Name of the actor state to check for existence.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
         /// A task that represents the asynchronous check operation. The value of TResult
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Removes all the existing states and reminders associated with specified actor ID atomically.
         /// </summary>
-        /// <param name="actorId">The ID of the actor for which to remove state.</param>
+        /// <param name="actorId">ID of the actor for which to remove state.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous remove operation.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// with reads and writes to the state provider. It represents a snapshot consistent
         /// view of the state provider.
         /// </remarks>
-        /// <param name="actorId">The ID of the actor for which to create enumerable.</param>
+        /// <param name="actorId">ID of the actor for which to create enumerable.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
         /// A task that represents the asynchronous enumeration operation. The value of TResult
@@ -121,7 +121,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Gets the requested number of ActorID's from the state provider.
         /// </summary>
-        /// <param name="numItemsToReturn">The number of items requested to be returned.</param>
+        /// <param name="numItemsToReturn">Number of items requested to be returned.</param>
         /// <param name="continuationToken">
         /// A continuation token to start querying the results from.
         /// A null value of continuation token means start returning values form the beginning.
@@ -143,8 +143,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// given name does not exist, it adds the actor reminder otherwise
         /// existing actor reminder with same name is updated. 
         /// </summary>
-        /// <param name="actorId">The ID of the actor for which to save the reminder.</param>
-        /// <param name="reminder">The actor reminder to save.</param>
+        /// <param name="actorId">ID of the actor for which to save the reminder.</param>
+        /// <param name="reminder">Actor reminder to save.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
@@ -153,8 +153,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Deletes the actor reminder with the given reminder name if it exists
         /// </summary>
-        /// <param name="actorId">The ID of the actor for which to delete the reminder.</param>
-        /// <param name="reminderName">The name of the reminder to delete.</param>
+        /// <param name="actorId">ID of the actor for which to delete the reminder.</param>
+        /// <param name="reminderName">Name of the reminder to delete.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous delete operation.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
