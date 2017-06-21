@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private long idleTimeoutInSeconds = 3600;
 
         /// <summary>
-        /// Initializes a new instance of the ActorGarbageCollectionSettings class.
+        /// Initializes a new instance of the ActorGarbageCollectionSettings class with the values of the input argument.
         /// </summary>
         public ActorGarbageCollectionSettings()
         {
