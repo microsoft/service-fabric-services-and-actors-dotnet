@@ -316,7 +316,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Uses by Kvs and Volatile actor state provider.
+        /// Used by Kvs and Volatile actor state provider.
         /// </summary>
         /// <param name="codePackage">The code package.</param>
         /// <param name="actorImplType">The type of actor.</param>
