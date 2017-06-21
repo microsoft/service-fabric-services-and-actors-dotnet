@@ -59,7 +59,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Indicates a value whether the interface type is an actor interface.
+        /// Indicates whether the interface type is an actor interface.
         /// </summary>
         /// <param name="actorInterfaceType">The interface type of the actor.</param>
         /// <returns>true, if the actorInterfaceType is an interface only implements <see cref="IActor"/>
