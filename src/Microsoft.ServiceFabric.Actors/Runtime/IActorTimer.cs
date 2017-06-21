@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
 
     /// <summary>
-    /// Represents the timer set on an Actor
+    /// Represents the timer set on an Actor.
     /// </summary>
     public interface IActorTimer : IDisposable
     {
