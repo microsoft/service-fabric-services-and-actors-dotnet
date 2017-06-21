@@ -118,7 +118,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Overrides this method to initialize the members, initialize state or register timers. This method is called right after the actor is activated
+        /// Override this method to initialize the members, initialize state or register timers. This method is called right after the actor is activated
         /// and before any method call or reminders are dispatched on it.
         /// </summary>
         /// <returns>A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding OnActivateAsync operation.</returns>
@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        ///  Overrides this method to release any resources. This method is called when actor is deactivated (garbage collected by Actor Runtime).
+        ///  Override this method to release any resources. This method is called when actor is deactivated (garbage collected by Actor Runtime).
         ///  Actor operations like state changes should not be called from this method.
         /// </summary>
         /// <returns>A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding OnDeactivateAsync operation.</returns>
@@ -138,7 +138,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Overrides this method for performing any actions prior to an actor method is invoked.
+        /// Override this method for performing any actions prior to an actor method is invoked.
         /// This method is invoked by actor runtime just before invoking an actor method.
         /// </summary>
         /// <param name="actorMethodContext">
@@ -161,7 +161,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Overrides this method for performing any actions after an actor method has finished execution.
+        /// Override this method for performing any actions after an actor method has finished execution.
         /// This method is invoked by actor runtime an actor method has finished execution.
         /// </summary>
         /// <param name="actorMethodContext">
