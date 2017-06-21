@@ -509,7 +509,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         #region IStateProviderReplica
 
         /// <summary>
-        /// Get or sets the function called during suspected data-loss.
+        /// Gets or sets the function called during suspected data-loss.
         /// </summary>
         /// <value>
         /// A function representing data-loss callback function.
