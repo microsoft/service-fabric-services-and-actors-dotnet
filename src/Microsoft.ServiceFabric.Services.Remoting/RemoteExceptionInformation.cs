@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     using Microsoft.ServiceFabric.Services.Communication;
 
     /// <summary>
-    /// Fault type used by Service Remoting to transfer the exception details from the Service Replica to the client.
+    /// Represents the fault type used by Service Remoting to transfer the exception details from the Service Replica to the client.
     /// </summary>
     [DataContract(Name = "RemoteExceptionInformation", Namespace = Constants.ServiceCommunicationNamespace)]
     public class RemoteExceptionInformation
@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// Serialized exception or the exception message encoded as UTF8 if the exception cannot be serialized.
         /// </summary>
-        /// <value>Data in the exception</value>
+        /// <value>The data in the exception.</value>
         [DataMember(Name = "Data", Order = 0)]
         public byte[] Data { get; private set; }
 
@@ -29,9 +29,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             new DataContractSerializer(typeof(ServiceExceptionData));
 
         /// <summary>
-        /// Instantiates the RemoteExceptionInformation object with the data
+        /// Instantiates the RemoteExceptionInformation object with the data.
         /// </summary>
-        /// <param name="data"> Data to be sent to the client</param>
+        /// <param name="data">The data to be sent to the client.</param>
         public RemoteExceptionInformation(byte[] data)
         {
             this.Data = data;
@@ -39,10 +39,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 
 
         /// <summary>
-        /// Factory method that constructs the RemoteExceptionInformation from an exception.
+        /// Indicates a method that constructs the RemoteExceptionInformation from an exception.
         /// </summary>
-        /// <param name="exception">Exception</param>
-        /// <returns>RemoteExceptionInformation</returns>
+        /// <param name="exception">The exception.</param>
+        /// <returns>Returns the RemoteExceptionInformation.</returns>
         public static RemoteExceptionInformation FromException(Exception exception)
         {
             try
@@ -66,9 +66,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// Gets the exception from the RemoteExceptionInformation
         /// </summary>
-        /// <param name="remoteExceptionInformation">RemoteExceptionInformation</param>
-        /// <param name="result">Exception from the remote side</param>
-        /// <returns>true if there was a valid exception, false otherwise</returns>
+        /// <param name="remoteExceptionInformation">The RemoteExceptionInformation.</param>
+        /// <param name="result">The exception from the remote side.</param>
+        /// <returns>true if there was a valid exception; otherwise, false.</returns>
         public static bool ToException(RemoteExceptionInformation remoteExceptionInformation, out Exception result)
         {
             // try to de-serialize the bytes in to the exception
