@@ -58,19 +58,19 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.partitionId = partitionId;
             this.actorTypeInformation = actorTypeInformation;
 
-            // Creates counter writers for partition-wide counters.
+            // Create counter writers for partition-wide counters
             var actorCounterInstanceName = String.Concat(this.partitionId.ToString("D"), "_", this.counterInstanceDifferentiator);
 
             if (AvaiableFabricCounterSet.TryGetValue(ActorPerformanceCounters.ActorCategoryName, out ActorCounterSet))
             {
                 try
                 {
-                    //Creates ActorCounterSetInstance
+                    //Create ActorCounterSetInstance
                     this.actorCounterSetInstance = ActorCounterSet.CreateCounterSetInstance(actorCounterInstanceName);
                 }
                 catch (Exception ex)
                 {
-                    //Displays a warning when the creation of this instance failed.
+                    //Instance creation failed, Be done.
                     ActorTrace.Source.WriteWarning(
                         TraceType,
                         "Data for performance counter instance {0} of category {1} will not be provided because an exception occurred during its initialization. Exception info: {2}",
@@ -204,7 +204,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 FabricPerformanceCounterSet counterSet;
                 try
                 {
-                    //Creates CounterSet for this category.
+                    //Create CounterSet for this category.
                     counterSet = new FabricPerformanceCounterSet(category, requestedCounterSets[category]);
                 }
                 catch (Exception ex)
@@ -254,7 +254,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 }
             }
 
-            // Computes the counter instance names for all the actor methods.
+            // Compute the counter instance names for all the actor methods
             var percCounterInstanceNameBuilder = new PerformanceCounterInstanceNameBuilder(this.partitionId, this.counterInstanceDifferentiator);
             var counterInstanceNames = percCounterInstanceNameBuilder.GetMethodCounterInstanceNames(methodInfoList);
             foreach (var kvp in counterInstanceNames)
@@ -293,7 +293,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                         }
                         catch (Exception ex)
                         {
-                            //Displays a warning when the creation of this instance failed.
+                            //Instance creation failed, Be done.
                             ActorTrace.Source.WriteWarning(
                                 TraceType,
                                 "Data for performance counter instance {0} of category {1} will not be provided because an exception occurred during its initialization. Exception info: {2}",
@@ -344,7 +344,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 }
             }
 
-            // Calls the counter writers to update the counter values
+            // Call the counter writers to update the counter values
             if (null != counterWriters.ActorMethodFrequencyCounterWriter)
             {
                 counterWriters.ActorMethodFrequencyCounterWriter.UpdateCounterValue();
@@ -502,7 +502,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {           
             if (null != this.actorCounterSetInstance)
             {
-                //Removes Counter Instance.
+                //Remove Counter Instance.
                 this.actorCounterSetInstance.Dispose();
             }
             if (null != this.actorMethodCounterInstanceData)
@@ -513,7 +513,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     {
                         if (null != counterInstanceData.CounterWriters.ActorMethodCounterSetInstance)
                         {
-                            //Removes Counter Instance.
+                            //Remove Counter Instance.
                             counterInstanceData.CounterWriters.ActorMethodCounterSetInstance.Dispose();
                         }
                     }
