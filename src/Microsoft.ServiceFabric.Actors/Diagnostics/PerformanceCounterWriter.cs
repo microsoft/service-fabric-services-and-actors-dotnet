@@ -6,7 +6,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System.Fabric.Common;
 
-    // Specifies a class that modifies the value of the performance counter that represents the
+    // This class modifies the value of the performance counter that represents the
     // frequency at which a particular actor method is invoked.
     internal class ActorMethodFrequencyCounterWriter : FabricBaselessPerformanceCounterWriter
     {
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
     }
 
-    // Specifies a class that modifies the value of the performance counter that represents the
+    // This class modifies the value of the performance counter that represents the
     // frequency at which a particular actor method throws exceptions.
     internal class ActorMethodExceptionFrequencyCounterWriter : FabricBaselessPerformanceCounterWriter
     {
@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
     }
 
-    // Specifies a class that modifies the value of the performance counter that represents the
+    // This class modifies the value of the performance counter that represents the
     // time taken to execute a particular actor method.
     internal class ActorMethodExecTimeCounterWriter : FabricPerformanceCounterWriter
     {
@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
     }
 
-    // Specifies a class that modifies the value of the performance counter that represents the
+    // This class modifies the value of the performance counter that represents the
     // number of pending actor calls that are waiting for the actor lock.
     internal class ActorLockContentionCounterWriter : FabricBaselessPerformanceCounterWriter
     {
@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
     }
 
-    // Specifies a class that modifies the value of the performance counter that represents the
+    // This class modifies the value of the performance counter that represents the
     // time taken to save actor state.
     internal class ActorSaveStateTimeCounterWriter : FabricPerformanceCounterWriter
     {
