@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 
     /// <summary>
-    /// This is a base type for attribute that sets the default service remoting provider to use for 
+    /// Represents a base type for attribute that sets the default service remoting provider to use for 
     /// remoting the service interfaces defined and used in the assembly.
     /// </summary>
     /// <remarks>
@@ -69,7 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// Creates a service remoting client factory that can be used by the 
         /// <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
-        /// <param name="callbackClient">Client implementation where the callbacks should be dispatched.</param>
+        /// <param name="callbackClient">The client implementation where the callbacks should be dispatched.</param>
         /// <returns>An <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceRemotingClientFactory"/>.</returns>
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient);
