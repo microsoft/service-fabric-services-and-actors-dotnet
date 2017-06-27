@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Generic;
 
     /// <summary>
-    /// Captures ActorReminderState for Actors
+    /// Captures the ActorReminderState for Actors.
     /// </summary>
     public interface IActorReminderCollection : IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>
     {
