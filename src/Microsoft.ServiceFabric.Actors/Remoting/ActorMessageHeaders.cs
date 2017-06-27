@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     using Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
-    /// Header for the actor messages.
+    /// Represents the header for the actor messages.
     /// </summary>
     [DataContract(Name = "addr", Namespace = Remoting.Constants.Namespace)]
     internal class ActorMessageHeaders

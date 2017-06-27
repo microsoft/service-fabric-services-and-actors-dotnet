@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
         /// is cached in the ServiceProxyFactory.
         /// </param>
-        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory.</param>
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackClient,IServiceRemotingClientFactory> createServiceRemotingClientFactory = null,
             OperationRetrySettings retrySettings = null)
@@ -41,9 +41,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <summary>
         /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that 
         /// the service implements.
-        /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
-        /// <param name="serviceUri">Uri of the Service.</param>
-        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy</param>
+        /// <typeparam name="TServiceInterface">The interface that is being remoted.</typeparam>
+        /// <param name="serviceUri">The Uri of the Service.</param>
+        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy.</param>
         /// <param name="targetReplicaSelector">Determines which replica or instance of the service partition the client should connect to.</param>
         /// <param name="listenerName">This parameter is Optional if the service has a single communication listener. The endpoints from the service
         /// are of the form {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}. When the service exposes multiple endpoints, this parameter
@@ -87,8 +87,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <summary>
         /// Creates service remoting client factory.
         /// </summary>
-        /// <param name="callbackClient">Callback from the remoting listener to the client.</param>
-        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/></returns>
+        /// <param name="callbackClient">The callback from the remoting listener to the client.</param>
+        /// <returns>The created service remoting client factory as <see cref="IServiceRemotingClientFactory"/>.</returns>
         protected virtual IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient)
         {

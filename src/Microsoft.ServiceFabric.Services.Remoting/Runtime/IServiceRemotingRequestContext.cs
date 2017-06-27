@@ -12,9 +12,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     public interface IServiceRemotingRequestContext
     {
         /// <summary>
-        /// Gets the client channel interface to use in cases where service wants to initiate calls to the client.
+        /// Retrieves the client channel interface to use in cases where service wants to initiate calls to the client.
         /// </summary>
-        /// <returns>Remoting callback client</returns>
+        /// <returns>The remoting callback client.</returns>
         IServiceRemotingCallbackClient GetCallbackClient();
     }
 }

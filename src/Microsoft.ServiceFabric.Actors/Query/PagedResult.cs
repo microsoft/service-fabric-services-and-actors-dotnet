@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// <summary>
         /// Gets or sets Enumerator to iterate over the results.
         /// </summary>
-        /// <value>Enumerator, which supports a simple iteration over 
+        /// <value>An Enumerator, which supports a simple iteration over 
         /// the collection.</value>
         [DataMember(Name = "Items", IsRequired = true, Order = 0)]
         public IEnumerable<T> Items { get; set; }
@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         public ContinuationToken ContinuationToken { get; set; }
 
         /// <summary>
-        /// Max number of items to return in Query Result.
+        /// Gets or sets the max number of items to return in Query Result.
         /// Default MessageSize of 4 MB with DataContract serialization can include up to 85000 items when ActorInformation only includes ActorId.
         /// Its set to 10000 to allow for custom serialization and future changes in ActorInformation.
         /// </summary>
