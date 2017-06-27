@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         /// <summary>
-        ///     Gets or Sets the maximum size of the remoting message in bytes.
+        ///     Gets or sets the maximum size of the remoting message in bytes.
         ///     If value for this property is not specified or it is less than or equals to zero,
         ///     a default value of 4,194,304 bytes (4 MB) is used.
         /// </summary>
@@ -103,7 +103,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     Creates a service remoting client factory for connecting to the service over remoted service interfaces.
         /// </summary>
         /// <param name="callbackClient">
-        ///     Client implementation where the callbacks should be dispatched.
+        ///    The client implementation where the callbacks should be dispatched.
         /// </param>
         /// <returns>
         ///     A <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client.FabricTransportServiceRemotingClientFactory"/>
