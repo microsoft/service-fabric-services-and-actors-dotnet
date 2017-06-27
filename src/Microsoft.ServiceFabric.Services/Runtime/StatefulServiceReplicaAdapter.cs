@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// This is exposed only for testing use
+        /// This is exposed only for testing use.
         /// </summary>
         internal IList<ICommunicationListener> Test_CommunicationListeners
         {
