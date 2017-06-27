@@ -266,7 +266,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var existingServiceManifest = context.ExistingServiceManifestType;
 
             // basic properties of the service manifest
-            // uses new version, only when it doesn't exist.
+            // Use new version, only when it doesn't exist.
             if (string.IsNullOrEmpty(existingServiceManifest.Version))
             {
                 existingServiceManifest.Version = serviceManifest.Version;
