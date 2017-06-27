@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
     using System.Fabric.Management.ServiceModel;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
-    // Generates the service manifest for the actor implementations.
+    // generates the service manifest for the actor implementations
     internal class ManifestGenerator
     {
         private const string DefaultPartitionCount = "10";
@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var retval = new List<SettingsTypeSection>();
 
-            // Add section for the replicator settings.
+            // add section for the replicator settings
             var replicatorConfigSection = new SettingsTypeSection();
             retval.Add(replicatorConfigSection);
 
@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             };
             replicatorConfigSection.Parameter = replicatorConfigSectionParameters.ToArray();
 
-            // Add section for the replicator security settings.
+            // add section for the replicator security settings
             var replicatorSecurityConfigSection = new SettingsTypeSection();
             retval.Add(replicatorSecurityConfigSection);
             replicatorSecurityConfigSection.Name = GetFabricServiceReplicatorSecurityConfigSectionName(actorTypeInfo);
@@ -265,7 +265,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             var existingServiceManifest = context.ExistingServiceManifestType;
 
-            // Indicates whether the basic properties of the service manifest
+            // basic properties of the service manifest
             // uses new version, only when it doesn't exist.
             if (string.IsNullOrEmpty(existingServiceManifest.Version))
             {
@@ -274,7 +274,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             existingServiceManifest.Name = serviceManifest.Name;
 
-            // The service types.
+            // service types
             existingServiceManifest.ServiceTypes = MergeServiceTypes(
                 existingServiceManifest,
                 serviceManifest);
@@ -283,12 +283,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 existingServiceManifest.CodePackage,
                 serviceManifest.CodePackage);
 
-            //The config package
+            // config package
             existingServiceManifest.ConfigPackage = MergeConfigPackages(
                 existingServiceManifest.ConfigPackage,
                 serviceManifest.ConfigPackage);
 
-            //The endpoints
+            // endpoints
             if (existingServiceManifest.Resources == null)
             {
                 existingServiceManifest.Resources = serviceManifest.Resources;
@@ -479,7 +479,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             CodePackageType existingItem,
             CodePackageType newItem)
         {
-            // Indicates whether the item uses new version, only when it doesn't exist.
+            // Use new version, only when it doesn't exist.
             if (string.IsNullOrEmpty(existingItem.Version))
             {
                 existingItem.Version = newItem.Version;
@@ -531,7 +531,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             ConfigPackageType existingItem,
             ConfigPackageType newItem)
         {
-            // Indicates whether the item uses new version, only when it doesn't exist.
+            // Use new version, only when it doesn't exist.
             if (string.IsNullOrEmpty(existingItem.Version))
             {
                 existingItem.Version = newItem.Version;
@@ -612,7 +612,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static ApplicationManifestType CreateApplicationManifest(ServiceManifestType serviceManifest)
         {
-            // The application manifest properties.
+            // application manifest properties
             var applicationManifest = new ApplicationManifestType
             {
                 ApplicationTypeName = ActorNameFormat.GetFabricApplicationTypeName(context.Arguments.ApplicationPrefix),
@@ -620,7 +620,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 ServiceManifestImport = new ApplicationManifestTypeServiceManifestImport[1]
             };
 
-            // The service manifest import.
+            // service manifest import
             applicationManifest.ServiceManifestImport[0] = new ApplicationManifestTypeServiceManifestImport
             {
                 ServiceManifestRef = new ServiceManifestRefType
@@ -630,14 +630,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 }
             };
 
-            // Creates default parameters.
+            // default parameters 
             var defaultParameters = CreateDefaultParameter();
             if (defaultParameters != null && defaultParameters.Count > 0)
             {
                 applicationManifest.Parameters = defaultParameters.ToArray();
             }
 
-            // Creates default services.
+            // default services
             var defaultServices = CreateDefaultServices(serviceManifest);
             applicationManifest.DefaultServices = new DefaultServicesType
             {
@@ -657,7 +657,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             var existingApplicationManifest = context.ExistingApplicationManifestType;
 
-            // Indicates whether the application uses new version, only when it doesn't exist.
+            // Use new version, only when it doesn't exist.
             if (string.IsNullOrEmpty(existingApplicationManifest.ApplicationTypeVersion))
             {
                 existingApplicationManifest.ApplicationTypeVersion = applicationManifest.ApplicationTypeVersion;
@@ -763,7 +763,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             defaultService.Item.ServiceTypeName = serviceTypeName;
             defaultService.Item.UniformInt64Partition = partition;
 
-            // Gets GeneratedId from service manifest for the ServiceTypeName.
+            // Get GeneratedId from service manifest for the ServiceTypeName
             var serviceType = (ServiceTypeType)serviceManifest.ServiceTypes.First(x => ((ServiceTypeType)x).ServiceTypeName.Equals(serviceTypeName));
             var extension = serviceType.Extensions.First(x => x.Name.Equals(GeneratedServiceTypeExtensionName));
 
@@ -875,10 +875,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var existingService = existingItem.Item;
             var newService = newItem.Item;
 
-            //Specifies merge GeneratedIdRef.
+            // merge GeneratedIdRef
             existingItem.GeneratedIdRef = newItem.GeneratedIdRef;
 
-            // The merged type-agnostic values before (potentially) swapping the type.
+            // Merged type-agnostic values before (potentially) swapping the type
             //
             var mergedPartition = MergeDefaultServicePartition(
                 existingService.UniformInt64Partition,
@@ -893,7 +893,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 newService.ServiceCorrelations = existingService.ServiceCorrelations;
                 newService.ServicePlacementPolicies = existingService.ServicePlacementPolicies;
 
-                // The type-specific values are lost.
+                // Type-specific values are lost
                 existingService = newService;
                 existingItem.Item = existingService;
             }
@@ -926,7 +926,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             ApplicationManifestTypeServiceManifestImport existingItem,
             ApplicationManifestTypeServiceManifestImport newItem)
         {
-            // Indicates whether the service manifest uses new version, only when it doesn't exist.
+            // Use new version, only when it doesn't exist.
             if (string.IsNullOrEmpty(existingItem.ServiceManifestRef.ServiceManifestVersion))
             {
                 existingItem.ServiceManifestRef.ServiceManifestVersion = newItem.ServiceManifestRef.ServiceManifestVersion;
@@ -965,7 +965,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 if (existingItem.Name.Equals(string.Format(ParamNameFormat, name, MinReplicaSetSizeParamName)) ||
                     existingItem.Name.Equals(string.Format(ParamNameFormat, name, TargetReplicaSetSizeParamName)))
                 {
-                    // Gets GeneratedId Ref from the Default services for this actor.
+                    // Get GeneratedId Ref from the Default services for this actor.
                     string generatedIdRef;
                     if(context.TryGetGeneratedIdRefForActorService(name, out generatedIdRef))
                     {
@@ -1143,7 +1143,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             public void LoadExistingContents()
             {
-                // Loads AppManifest.
+                // Load AppManifest
                 if (this.ShouldGenerateApplicationManifest())
                 {
                     Utility.EnsureParentFolder(this.ApplicationManifestFilePath);
@@ -1153,7 +1153,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                         .Deserialize<ApplicationManifestType>(
                             this.ExistingApplicationManifestContents);
 
-                    // Creates ActorService name and GeneratedIdRef map to be used while merging parameters later.
+                    // Create ActorService name and GeneratedIdRef map to be used while merging parameters later.
                     if (this.ExistingApplicationManifestType != null
                         && this.ExistingApplicationManifestType.DefaultServices != null
                         && this.ExistingApplicationManifestType.DefaultServices.Items != null)
@@ -1166,14 +1166,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     }
                 }
 
-                // Loads Service Manifest.
+                // Load Service Manifest
                 Utility.EnsureParentFolder(this.ServiceManifestFilePath);
                 this.ExistingServiceManifestContents = Utility.LoadContents(this.ServiceManifestFilePath).Trim();
                 this.ExistingServiceManifestType = XmlSerializationUtility
                     .Deserialize<ServiceManifestType>(
                         this.ExistingServiceManifestContents);
 
-                // Loads Config.
+                // Load Config.
                 Utility.EnsureParentFolder(this.ConfigSettingsFilePath);
                 this.ExistingConfigSettingsContents = Utility.LoadContents(this.ConfigSettingsFilePath).Trim();
 
