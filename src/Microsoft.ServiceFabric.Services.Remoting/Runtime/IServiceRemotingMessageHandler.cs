@@ -16,10 +16,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <summary>
         /// Handles a message from the client that requires a response from the service.
         /// </summary>
-        /// <param name="requestContext">Request context - contains additional information about the request</param>
-        /// <param name="messageHeaders">Request message headers</param>
-        /// <param name="requestBody">Request message body</param>
-        /// <returns>Response body</returns>
+        /// <param name="requestContext">Contains additional information about the request.</param>
+        /// <param name="messageHeaders">The request message headers.</param>
+        /// <param name="requestBody">The request message body.</param>
+        /// <returns>The response body.</returns>
         Task<byte[]> RequestResponseAsync(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
@@ -28,9 +28,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <summary>
         /// Handles a one way message from the client.
         /// </summary>
-        /// <param name="requestContext">Request context - contains additional information about the request</param>
-        /// <param name="messageHeaders">Request message headers</param>
-        /// <param name="requestBody">Request message body</param>
+        /// <param name="requestContext">Contains additional information about the request.</param>
+        /// <param name="messageHeaders">The request message headers.</param>
+        /// <param name="requestBody">The request message body.</param>
         void HandleOneWay(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
