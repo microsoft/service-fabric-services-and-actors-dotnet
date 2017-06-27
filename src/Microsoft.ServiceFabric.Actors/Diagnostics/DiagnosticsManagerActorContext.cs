@@ -63,10 +63,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         internal long LastReportedPendingActorMethodCalls;
         internal readonly PendingActorMethodDiagnosticData PendingMethodDiagnosticData;
 
-        // Specifies Preallocated stopwatches
+        // Preallocated stopwatches
         private readonly Stack<Stopwatch> preallocatedStopwatches;
 
-        // Provides stack of active stopwatches to handle reentrancy. We push a new stopwatch
+        // Stack of active stopwatches to handle reentrancy. We push a new stopwatch
         // to the stack for each level of reentrancy.
         private readonly Stack<Stopwatch> stopwatchStack;
     }
