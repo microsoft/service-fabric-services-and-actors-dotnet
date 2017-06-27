@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     {
         private readonly DiagnosticsEventManager diagnosticsEventManager;
         private readonly PerformanceCounterProvider perfCounterProvider;
-        // Disables the ReSharper once PrivateFieldCanBeConvertedToLocalVariable
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         // to allow following references easily in the dumps.
         private readonly EventSourceProvider eventSourceProvider;
 
