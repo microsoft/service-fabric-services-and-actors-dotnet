@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     using Microsoft.ServiceFabric.FabricTransport;
 
     /// <summary>
-    /// Represetns a settings that configures the  FabricTransport communication.
+    /// Represents a settings that configures the  FabricTransport communication.
     /// </summary>
     public class FabricTransportRemotingSettings
     {
