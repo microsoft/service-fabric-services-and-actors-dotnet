@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                         };
                     });
 
-            // Creates new parameters for Actor Types and merge it with existing Parameters.
+            // Create new parameters for Actor Types and merge it with existing Parameters.
             appInstanceDefinition.Parameters = MergeAppParams(appInstanceDefinition.Parameters, newAppParams);
 
             string newContent = XmlSerializationUtility.InsertXmlComments(appParamFileContents, appInstanceDefinition);
@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var appInstanceDefinition = XmlSerializationUtility.Deserialize<AppInstanceDefinitionType>(appParamFileContents);
             var newAppParams = new List<AppInstanceDefinitionTypeParameter>();
 
-            // Creates new parameters for Actor Types and merge it with existing Parameters.
+            // Create new parameters for Actor Types and merge it with existing Parameters.
             foreach (var actorTypeInfo in arguments.ActorTypes)
             {
                 var serviceName = ActorNameFormat.GetFabricServiceName(actorTypeInfo.InterfaceTypes.First(), actorTypeInfo.ServiceName);
@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         internal static AppInstanceDefinitionTypeParameter[] MergeAppParams(IEnumerable<AppInstanceDefinitionTypeParameter> existingItems,
             IEnumerable<AppInstanceDefinitionTypeParameter> newItems)
         {
-            // Adds new parameters if not already exist in the app instance definition file.
+            // Add new parameters if not already exist in the app instance definition file.
             if (existingItems == null)
             {
                 return newItems.ToArray();
