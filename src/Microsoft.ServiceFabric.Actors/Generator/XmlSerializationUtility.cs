@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var commentNodes = XDocument.Parse(contentWithComments).DescendantNodes().OfType<XComment>();
             var xdoc = XDocument.Parse(contentWithoutComments);
 
-            // If there are no comments to insert, just return the contentsWithoutComments.
+            // if there are no comments to insert, just return the contentsWithoutComments
             if (!commentNodes.Any())
             {
                 return contentWithoutComments;
@@ -102,16 +102,16 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             {
                 XComment newComment = new XComment(commentNode.Value);
 
-                // Handles comments at beginning and end of xml.
+                // Handle comments at beginning and end of xml
                 if (commentNode.Parent == null)
                 {
-                    // Handles comments at beginning of xml.
+                    // Handle comments at beginning of xml
                     if (commentNode.PreviousNode == null && commentNode.NextNode != null)
                     {
                         xdoc.Root.AddBeforeSelf(newComment);
                     }
 
-                    // Handles comments at end of xml.
+                    // Handle comments at end of xml
                     if (commentNode.NextNode == null && commentNode.PreviousNode != null)
                     {
                         xdoc.Root.AddAfterSelf(newComment);
@@ -180,7 +180,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static XElement FindNodeInXDocument(XDocument xdoc, XElement nodeToFind)
         {
-            // Finds the correct node in xDoc, it must match attributes as well.
+            // Find the correct node in xDoc, it must match attributes as well.
             return xdoc.Descendants(nodeToFind.Name).Where(
                 node =>
                 {
