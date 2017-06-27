@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
-    /// Proxy used by clients to interact with the actor service running in a Service Fabric cluster
+    /// Provides a Proxy used by clients to interact with the actor service running in a Service Fabric cluster
     /// and perform actor service level operations.
     /// </summary>
     public sealed class ActorServiceProxy

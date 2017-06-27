@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Actor id {0} was deleted using DeleteActorAsync while this call was in prgoress. This call should be retried..
+        ///   Looks up a localized string similar to Actor id {0} was deleted using DeleteActorAsync while this call was in prgoress. This call should be retried.
         /// </summary>
         internal static string ActorDeletedExceptionMessage {
             get {
@@ -323,7 +323,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Method &apos;{0}&apos; of actor event interface &apos;{1}&apos; has variable length parameter &apos;{2}&apos;. The actor event interface methods must not have variable length parameters..
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; of actor event interface &apos;{1}&apos; has variable length parameter &apos;{2}&apos;. The actor event interface methods must not have variable length parameters.
         /// </summary>
         internal static string ErrorEventMethodHasVaArgParameter {
             get {
@@ -350,7 +350,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Event with eventId &apos;{0}&apos; is not supported by Actor with actorId &apos;{1}&apos; .
+        ///   Looks up a localized string similar to Event with eventId &apos;{0}&apos; is not supported by Actor with actorId &apos;{1}&apos;.
         /// </summary>
         internal static string ErrorEventNotSupportedByActor {
             get {
@@ -431,7 +431,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The actor interface {0} is implemented by actor types {1} and {2}. In order for the client to connect to the right actor, please add {3} attribute with valid Name on the both actor types. Please use this Name as serviceName parameter when creating ActorProxy. .
+        ///   Looks up a localized string similar to The actor interface {0} is implemented by actor types {1} and {2}. In order for the client to connect to the right actor, please add {3} attribute with valid Name on the both actor types. Please use this Name as serviceName parameter when creating ActorProxy..
         /// </summary>
         internal static string ErrorNoActorServiceNameMultipleImpl {
             get {
@@ -494,7 +494,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type &apos;{0}&apos; is not an actor interface as it derive from a non actor interface &apos;{1}&apos;. All actor interfaces must derive from &apos;{2}&apos;..
+        ///   Looks up a localized string similar to The type &apos;{0}&apos; is not an actor interface as it derive from a non actor interface &apos;{1}&apos;. All actor interfaces must derive from &apos;{2}&apos;.
         /// </summary>
         internal static string ErrorNotAnActorInterface_DerivationCheck2 {
             get {
@@ -503,7 +503,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type &apos;{0}&apos; is not an Actor interface as it is not an interface. .
+        ///   Looks up a localized string similar to The type &apos;{0}&apos; is not an Actor interface as it is not an interface..
         /// </summary>
         internal static string ErrorNotAnActorInterface_InterfaceCheck {
             get {
@@ -548,7 +548,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Number of actor method calls waiting for the actor lock: {0}, actor type: {1}, actor ID: {2}..
+        ///   Looks up a localized string similar to Number of actor method calls waiting for the actor lock: {0}, actor type: {1}, actor ID: {2}.
         /// </summary>
         internal static string event_ActorMethodCallsWaitingForLock {
             get {
@@ -647,7 +647,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Call context does not match current call context.
+        ///   Gets a localized string similar to Call context does not match current call context.
         /// </summary>
         internal static string InvalidCallContextReleased {
             get {
@@ -683,7 +683,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to StateChangeKind can  only  be add, update or remove..
+        ///   Looks up a localized string similar to StateChangeKind can only be add, update or remove..
         /// </summary>
         internal static string InvalidStateChangeKind {
             get {
@@ -719,7 +719,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MetricActorMethodCallsWaitingForLock.
+        ///   Gets a localized string similar to MetricActorMethodCallsWaitingForLock.
         /// </summary>
         internal static string keyword_MetricActorMethodCallsWaitingForLock {
             get {
@@ -728,7 +728,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Actor {0} does not allow reentrant calls. ReentrancyMode must be set to LogicalCallContext to allow reentrant calls.
+        ///   Looks up a localized string similar to Actor {0} does not allow reentrant calls. ReentrancyMode must be set to LogicalCallContext to allow reentrant calls..
         /// </summary>
         internal static string ReentrancyModeDisallowed {
             get {
@@ -746,7 +746,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reminder {0} was not found for Actor {1}.
+        ///   Looks up a localized string similar to Reminder {0} was not found for Actor {1}..
         /// </summary>
         internal static string ReminderNotFound {
             get {
@@ -755,7 +755,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reminder cannot be registered for type {0} because the class does not implement {1}.
+        ///   Looks up a localized string similar to Reminder cannot be registered for type {0} because the class does not implement {1}..
         /// </summary>
         internal static string ReminderNotSupported {
             get {
@@ -773,7 +773,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TimeSpan TotalMilliseconds specified value must be between {0} and {1} .
+        ///   Looks up a localized string similar to TimeSpan TotalMilliseconds specified value must be between {0} and {1}..
         /// </summary>
         internal static string TimerArgumentOutOfRange {
             get {
