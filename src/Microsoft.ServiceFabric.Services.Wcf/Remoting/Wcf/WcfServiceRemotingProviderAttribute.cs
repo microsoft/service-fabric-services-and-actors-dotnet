@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         ///     Gets or Sets the max message size that can be transferred over remoting.
         /// </summary>
         /// <value>
-        ///     The max message size that can be transferred over remoting
+        ///     The max message size that can be transferred over remoting.
         /// </value>
         public long MaxMessageSize
         {
