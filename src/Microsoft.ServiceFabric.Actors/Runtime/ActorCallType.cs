@@ -14,17 +14,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public enum ActorCallType
     {
         /// <summary>
-        /// The method invoked is an actor interface method for a given client request.
+        /// Specifies that the method invoked is an actor interface method for a given client request.
         /// </summary>
         ActorInterfaceMethod = 0,
 
         /// <summary>
-        /// The method invoked is a timer callback method.
+        /// Specifies that the method invoked is a timer callback method.
         /// </summary>
         TimerMethod = 1,
 
         /// <summary>
-        /// The method invoked on <see cref="IRemindable"/> interface when a reminder fires.
+        /// Specifies that the method invoked on <see cref="IRemindable"/> interface when a reminder fires.
         /// </summary>
         ReminderMethod = 2
     }

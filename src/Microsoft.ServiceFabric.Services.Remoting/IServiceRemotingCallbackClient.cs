@@ -14,8 +14,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// Sends a message to the client and gets the response.
         /// </summary>
-        /// <param name="messageHeaders">Message headers</param>
-        /// <param name="requestBody">Message body</param>
+        /// <param name="messageHeaders">The message headers.</param>
+        /// <param name="requestBody">The message body.</param>
         /// <returns>Response body</returns>
         Task<byte[]> RequestResponseAsync(
             ServiceRemotingMessageHeaders messageHeaders,
@@ -24,8 +24,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// Sends a one way message to the client.
         /// </summary>
-        /// <param name="messageHeaders">Message headers</param>
-        /// <param name="requestBody">Message body</param>
+        /// <param name="messageHeaders">The message headers.</param>
+        /// <param name="requestBody">The message body.</param>
         void OneWayMessage(
             ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestBody);

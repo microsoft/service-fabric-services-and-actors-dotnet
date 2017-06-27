@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Actor reminder collection.
+    /// Represents the actor reminder collection.
     /// </summary>
     internal class ActorReminderCollection : IActorReminderCollection
     {

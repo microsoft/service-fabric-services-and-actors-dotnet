@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
 
     /// <summary>
-    /// This class provides the settings to configure the turn based concurrency lock for actors. See https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-actors-introduction for a description of concurrency in actors.
+    /// Provides the settings to configure the turn based concurrency lock for actors. See https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-actors-introduction for a description of concurrency in actors.
     /// </summary>
     public sealed class ActorConcurrencySettings
     {
@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets or sets timeout for the turn based concurrency lock. If the runtime cannot acquire the lock to dispatch the method
+        /// Gets or sets the timeout for the turn based concurrency lock. If the runtime cannot acquire the lock to dispatch the method
         /// call, it will throw the <see cref="Microsoft.ServiceFabric.Actors.ActorConcurrencyLockTimeoutException"/> exception. 
         /// This exception will unwind the logical call chain and the call will retried up to a configured maximum amount of times.
         /// </summary>

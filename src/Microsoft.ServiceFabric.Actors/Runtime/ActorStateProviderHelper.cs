@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Query;
 
     /// <summary>
-    /// The code  in this class is shared by the different actor state providers (Kvs, RD, Volatile and Null).
+    /// Represents the code shared by the different actor state providers (Kvs, RD, Volatile and Null).
     /// If you are adding any code/behavior that is common to different actor state provider(s), please add
     /// it to this class.
     /// </summary>
@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 catch (FabricException ex)
                 {
-                    // KVS aborts all active transaction(s) when changing role from primary to secondary
+                    // Aborts all active transaction(s) when changing role from primary to secondary
                     // or if replica is primary and is closing.
                     if (this.owner is KvsActorStateProvider && 
                         ex.ErrorCode == FabricErrorCode.TransactionAborted)
@@ -164,7 +164,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 await Task.Delay(effectiveRetryDelay, userCancellationToken);
 
-                // Reset effective retry delay to orginal value.
+                // Resets effective retry delay to orginal value.
                 effectiveRetryDelay = this.owner.TransientErrorRetryDelay;
             }
         }
@@ -182,10 +182,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorIdList = new List<ActorId>();
             var actorQueryResult = new PagedResult<ActorId>();
 
-            // KVS enumerates its entries in alphabetical order.
+            // Enumerates its entries in alphabetical order.
             var enumerator = getEnumeratorFunc();
 
-            // Move the enumerator to point to first entry
+            // Moves the enumerator to point to first entry.
             var enumHasMoreEntries = enumerator.MoveNext();
 
             if (!enumHasMoreEntries)
@@ -193,7 +193,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return Task.FromResult(actorQueryResult);
             }
 
-            // Skip the previous returned entries
+            // Skips the previous returned entries.
             while (currentActorCount < previousActorCount)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -235,7 +235,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     actorQueryResult.Items = actorIdList.AsReadOnly();
 
-                    // If enumerator has more elements, then set the continuation token
+                    // If enumerator has more elements, then set the continuation token.
                     if (enumHasMoreEntries)
                     {
                         actorQueryResult.ContinuationToken = new ContinuationToken(currentActorCount.ToString());
@@ -274,7 +274,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 stateProvider = new VolatileActorStateProvider();
             }
 
-            // Get state provider override from settings if specified, used by tests to override state providers.
+            // Gets the state provider override from settings if specified, used by tests to override state providers.
             var stateProviderOverride = GetActorStateProviderOverride();
 
             if (stateProviderOverride != null)
@@ -295,7 +295,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var stateProviderOverrideSectionName = ActorNameFormat.GetActorStateProviderOverrideSectionName();
                 var attributeTypeKey = ActorNameFormat.GetActorStateProviderOverrideKeyName();
 
-                // Load the ActorStateProviderAttribute Type from the Configuration settings
+                // Loads the ActorStateProviderAttribute Type from the Configuration settings.
                 var context = FabricRuntime.GetActivationContext();
                 var config = context.GetConfigurationPackageObject(configurationPackageName);
 
@@ -316,10 +316,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This is used by Kvs and Volatile actor state provider.
+        /// Used by Kvs and Volatile actor state provider.
         /// </summary>
-        /// <param name="codePackage"></param>
-        /// <param name="actorImplType"></param>
+        /// <param name="codePackage">The code package.</param>
+        /// <param name="actorImplType">The type of actor.</param>
         /// <returns></returns>
         internal static ReplicatorSettings GetActorReplicatorSettings(CodePackageActivationContext codePackage, Type actorImplType)
         {
