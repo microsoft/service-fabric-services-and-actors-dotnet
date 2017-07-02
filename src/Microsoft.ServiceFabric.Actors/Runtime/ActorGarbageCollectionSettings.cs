@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </exception>
         public ActorGarbageCollectionSettings(long idleTimeoutInSeconds, long scanIntervalInSeconds)
         {
-            // Verifies that values are within acceptable range.
+            // Verify that values are within acceptable range.
             if (idleTimeoutInSeconds <= 0)
             {
                 throw new ArgumentOutOfRangeException("idleTimeoutInSeconds)", SR.ActorGCSettingsValueOutOfRange);
