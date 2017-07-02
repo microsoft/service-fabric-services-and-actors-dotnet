@@ -403,7 +403,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "DeleteActorAsync: Delete call received for actor {0}", actorId);
 
 
-            // Uses ActorConcurrencyLock to synchronize with other actor calls.
+            // Use ActorConcurrencyLock to synchronize with other actor calls.
             // If the Actor is active, its ActorConcurrencyLock is used for synchronization.
             // If the actor is inactive, a Dummy Actor instance is created and its ActorConcurrencyLock is used for synchronization.
             using (var actorUseScope = this.GetActor(actorId: actorId, createIfRequired: true, timerCall: false, createDummyActor: true))
@@ -436,7 +436,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         cancellationToken.ThrowIfCancellationRequested();
                         actor.MarkedForDeletion = true;
 
-                        // Removes actor state (and reminders) first and then unregister reminders as RemoveActorState can throw
+                        // Remove actor state(and reminders) first and then unregister reminders as RemoveActorState can throw
                         // and in this case reminders should not be unregistered.
                         ActorTrace.Source.WriteInfoWithId(
                             TraceType,
@@ -522,7 +522,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         public async Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(ContinuationToken continuationToken, CancellationToken cancellationToken)
         {
-            // Gets the Actors list from State provider and mark them Active or Inactive.
+            // Get the Actors list from State provider and mark them Active or Inactive
             const int maxCount = PagedResult<ActorInformation>.MaxItemsToReturn;
             var queryResult = await this.StateProvider.GetActorsAsync(maxCount, continuationToken, cancellationToken);
 
@@ -618,19 +618,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             this.ThrowIfClosed();
 
-            // Sets the incoming callContext as the new logical call context, before
+            // set the incoming callContext as the new logical call context, before
             // making calls to the actor, so that when the actor makes call this context
             // flows through.
             ActorLogicalCallContext.Set(callContext);
 
-            // Initializes the actor if needed.
+            // initialize the actor if needed
             if (ShouldInitialize(actor))
             {
                 await this.InitializeAsync(actor);
             }
             try
             {
-                // Invokes the function of the actor.
+                // invoke the function of the actor
                 await this.OnPreInvokeAsync(actor, actorMethodContext);
                 retval = await actorFunc.Invoke(actor, cancellationToken);
                 await this.OnPostInvokeAsync(actor, actorMethodContext);
@@ -782,7 +782,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             if (this.gcTimer != null)
             {
-                // Marks active actors for early collection rather than waiting till idleTimeout if the host is closed.
+                // if the host is closed, mark active actors for early collection rather than waiting till idleTimeout.
                 if (this.isClosed)
                 {
                     foreach (var activeActor in this.activeActors)
@@ -800,7 +800,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 else
                 {
-                    // Adds some randomness to gcTimer firing to handle scenarios in which a Timer firing at exact same interval as
+                    // Add some randomness to gcTimer firing to handle scenarios in which a Timer firing at exact same interval as
                     // gcTimer can potentially keep the Actor alive forever.
                     double scanIntervalInMilliseconds = 1000 * this.actorService.Settings.ActorGarbageCollectionSettings.ScanIntervalInSeconds;
                     scanIntervalInMilliseconds += (scanIntervalInMilliseconds * this.random.Next(0, 10)) / 100;
@@ -828,8 +828,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (deactivatedActors.Count > 0)
             {
 #pragma warning disable 4014
-                // Lets the thread continue and deactivate the actors 
-                // in asynchronous manner and then reset the GC timer.
+                // let the thread continue and deactivate the actors 
+                // in asynchronous manner and then reset the GC timer
                 this.DeactivateActorsAsync(deactivatedActors);
 #pragma warning restore 4014
             }
@@ -837,7 +837,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.ArmGcTimer();
         }
 
-        // Disables the ReSharper once UnusedMethodReturnValue.Local.
+        // ReSharper disable once UnusedMethodReturnValue.Local
         private Task DeactivateActorsAsync(IEnumerable<ActorBase> deactivatedActors)
         {
             var deactivateTasks = new List<Task>();
