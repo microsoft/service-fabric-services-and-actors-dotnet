@@ -125,10 +125,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorServiceName = actorServiceAttr.Name;
             }
 
-            // Gets all actor interfaces.
+            // get all actor interfaces
             var actorInterfaces = actorType.GetActorInterfaces();
 
-            // Ensures if the actor type is not abstract, it implements at least one actor interface.
+            // ensure that the if the actor type is not abstract it implements at least one actor interface
             if ((actorInterfaces.Length == 0) && (!actorType.GetTypeInfo().IsAbstract))
             {
                 throw new ArgumentException(
@@ -140,7 +140,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     "actorType");
             }
 
-            // Ensures that all actor interfaces can be remoted.
+            // ensure that all actor interfaces can be remoted
             foreach (var actorInterface in actorInterfaces)
             {
                 ActorInterfaceDescription.Create(actorInterface);
@@ -158,10 +158,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     "actorType");
             }
 
-            // Gets actor event interfaces.
+            // get actor event interfaces
             var eventInterfaces = actorType.GetActorEventInterfaces();
 
-            // Ensures that all of the event interfaces can be remoted.
+            // ensure that all of the event interfaces can be remoted
             if (eventInterfaces != null)
             {
                 foreach (var eventInterface in eventInterfaces)
