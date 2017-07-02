@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 catch (FabricException ex)
                 {
-                    // Aborts all active transaction(s) when changing role from primary to secondary
+                    // KVS aborts all active transaction(s) when changing role from primary to secondary
                     // or if replica is primary and is closing.
                     if (this.owner is KvsActorStateProvider && 
                         ex.ErrorCode == FabricErrorCode.TransactionAborted)
@@ -164,7 +164,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 await Task.Delay(effectiveRetryDelay, userCancellationToken);
 
-                // Resets effective retry delay to orginal value.
+                // Reset effective retry delay to orginal value.
                 effectiveRetryDelay = this.owner.TransientErrorRetryDelay;
             }
         }
@@ -182,10 +182,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorIdList = new List<ActorId>();
             var actorQueryResult = new PagedResult<ActorId>();
 
-            // Enumerates its entries in alphabetical order.
+            // KVS enumerates its entries in alphabetical order.
             var enumerator = getEnumeratorFunc();
 
-            // Moves the enumerator to point to first entry.
+            // Move the enumerator to point to first entry
             var enumHasMoreEntries = enumerator.MoveNext();
 
             if (!enumHasMoreEntries)
@@ -193,7 +193,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return Task.FromResult(actorQueryResult);
             }
 
-            // Skips the previous returned entries.
+            // Skip the previous returned entries
             while (currentActorCount < previousActorCount)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -274,7 +274,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 stateProvider = new VolatileActorStateProvider();
             }
 
-            // Gets the state provider override from settings if specified, used by tests to override state providers.
+            // Get state provider override from settings if specified, used by tests to override state providers.
             var stateProviderOverride = GetActorStateProviderOverride();
 
             if (stateProviderOverride != null)
@@ -295,7 +295,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var stateProviderOverrideSectionName = ActorNameFormat.GetActorStateProviderOverrideSectionName();
                 var attributeTypeKey = ActorNameFormat.GetActorStateProviderOverrideKeyName();
 
-                // Loads the ActorStateProviderAttribute Type from the Configuration settings.
+                // Load the ActorStateProviderAttribute Type from the Configuration settings
                 var context = FabricRuntime.GetActivationContext();
                 var config = context.GetConfigurationPackageObject(configurationPackageName);
 
