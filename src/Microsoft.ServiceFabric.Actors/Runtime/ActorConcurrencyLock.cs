@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             await this.reentrantLock.WaitAsync(cancellationToken);
             try
             {
-                // Specifies a new logical call context is appended to every outgoing method call.
+                // A new logical call context is appended to every outgoing method call.
                 // The received callContext is of form callContext1callContext2callContext3... 
                 // thus to check if incoming call was made from the current calls in progress
                 // we need to check if the incoming call context starts with the currentCallContext.
@@ -101,7 +101,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 if (startsWith)
                 {
-                    // Indicates the incoming call is a part of the current call chain.
+                    // the incoming call is part of the current call chain
 
                     // The messaging layer may deliver duplicate messages, therefore if the 
                     // incomingCallContext is same as currentCallContext it is a duplicate message
@@ -117,7 +117,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     // This is a reentrant call.
                     //
 
-                    // Disallows actors to be reentrant. In this case if an actor sends a reentrant message to another actor an exception will be thrown.
+                    // if the reentrancy is disallowed, throw and exception
                     if (actorReentrancyMode == ActorReentrancyMode.Disallowed)
                     {
                         throw new ReentrancyModeDisallowedException(String.Format(SR.ReentrancyModeDisallowed, this.GetType()));
@@ -177,15 +177,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // The caller has the turn lock. 
             try
             {
-                // Checks  if the owner is dirty.
+                // check  if the owner is dirty
                 if (this.owner.IsDirty && handler != null)
                 {
-                    // Calls dirty state handler to handle it.
+                    // call dirty state handler to handle it
                     await handler(this.owner);
                 }
 
-                // Gets the reentrancy lock and initialize it with the current call information
-                // so that if this call were to generate reentrant calls they are allowed.
+                // get the reentrancy lock and initialize it with the current call information
+                // so that if this call were to generate reentrant calls they are allowed
                 await this.reentrantLock.WaitAsync(cancellationToken);
                 try
                 {
@@ -206,11 +206,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw;
             }
 
-            // Releases the reentrancy lock but continue to hold the turn lock and release 
-            // it through ReleaseContext method after this call invocation on the actor is completed.
+            // release the reentrancy lock but continue to hold the turn lock and release 
+            // it through ReleaseContext method after this call invocation on the actor is completed
 
-            // Indicates that the turn based concurrency lock is acquired and proceed to 
-            // call the method on the actor.
+            // indicate that the turn based concurrency lock is acquired and proceed to 
+            // call the method on the actor
 
         }
 
@@ -225,7 +225,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     if (this.currentCallCount > 0)
                     {
-                        // Reduces the current call count as this call is finishing.
+                        // reduce the current call count as this call is finishing
                         --this.currentCallCount;
                         if (this.currentCallCount == 0)
                         {
