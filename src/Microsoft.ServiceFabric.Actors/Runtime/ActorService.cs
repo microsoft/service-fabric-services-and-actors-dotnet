@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateProvider = (IActorStateProvider) this.StateProviderReplica;
             this.settings = ActorServiceSettings.DeepCopyFromOrDefaultOnNull(settings);
 
-            // Sets internal components.
+            // Set internal components
             this.actorActivator = new ActorActivator(actorFactory ?? this.DefaultActorFactory);
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
