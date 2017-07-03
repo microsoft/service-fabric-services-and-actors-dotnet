@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         }
 
         /// <summary>
-        /// Gets or Sets the ActualExceptionType is the type of actual exception thrown.
+        /// Gets the ActualExceptionType is the type of actual exception thrown.
         /// </summary>
         public string ActualExceptionType { get; private set; }
 
