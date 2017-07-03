@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         public ActorId ActorId { get; private set; }
 
         /// <summary>
-        /// Gets a value that indicates whether the actor is active.
+        /// Gets a value indicating whether the actor is active.
         /// </summary>
         /// <value><see cref="System.Boolean"/> indicating if the Actor is active.</value>
         [DataMember(Order = 1, Name = "IsActive", IsRequired = true)]
