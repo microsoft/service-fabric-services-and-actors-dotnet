@@ -81,7 +81,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <summary>
         /// Gets or sets the maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting. 
         /// </summary>
-        /// <value>The max size for a Queue that recieves messages from the channel. 
+        /// <value>The maximum size for a Queue that recieves messages from the channel. 
         /// </value>
         /// <remarks>
         /// Default value is 10,000 messages</remarks>
