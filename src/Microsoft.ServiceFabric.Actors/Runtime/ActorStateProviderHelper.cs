@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     if (ex.ErrorCode == FabricErrorCode.ReplicationQueueFull)
                     {
-                        effectiveRetryDelay = new TimeSpan(this.owner.TransientErrorRetryDelay.Seconds * 2);
+                        effectiveRetryDelay = TimeSpan.FromTicks(this.owner.TransientErrorRetryDelay.Ticks * 2);
 
                         ActorTrace.Source.WriteWarningWithId(
                             this.owner.TraceType,
@@ -169,7 +169,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
         
-        internal Task<PagedResult<ActorId>> GetStoredActorIds<T>(
+        internal Task<PagedResult<ActorId>> GetStoredActorIdsAsync<T>(
             int itemsCount,
             ContinuationToken continuationToken,
             Func<IEnumerator<T>> getEnumeratorFunc,
@@ -335,7 +335,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var nodeContext = FabricRuntime.GetNodeContext();
             var endpoint = codePackage.GetEndpoint(ActorNameFormat.GetFabricServiceReplicatorEndpointName(actorImplType));
-
+            
             settings.ReplicatorAddress = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}:{1}",

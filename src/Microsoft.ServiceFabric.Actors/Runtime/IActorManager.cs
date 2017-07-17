@@ -6,7 +6,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using System.Fabric;
-    using System.Fabric.Common.Tracing;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
@@ -85,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         string GetActorTraceId(ActorId actorId);
 
-        FabricEvents.ExtensionsEvents TraceSource { get; }
+        ActorEventSource TraceSource { get; }
 
         #endregion
     }

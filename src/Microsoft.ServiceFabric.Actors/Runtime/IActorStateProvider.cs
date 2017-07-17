@@ -161,6 +161,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task DeleteReminderAsync(ActorId actorId, string reminderName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
+        /// Deletes the specified set of reminders.
+        /// </summary>
+        /// <param name="reminderNames">The set of reminders to delete.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous delete operation.</returns>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+        Task DeleteRemindersAsync(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>>  reminderNames, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
         /// Loads all the reminders contained in the actor state provider.
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for asynchronous load operation.</param>

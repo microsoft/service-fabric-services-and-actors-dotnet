@@ -5,6 +5,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     using System;
+    using System.Fabric.Common;
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
@@ -71,6 +72,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <returns>true if there was a valid exception, false otherwise</returns>
         public static bool ToException(RemoteExceptionInformation remoteExceptionInformation, out Exception result)
         {
+            Requires.ThrowIfNull(remoteExceptionInformation, "RemoteExceptionInformation");
+
             // try to de-serialize the bytes in to the exception
             Exception res;
             if (TryDeserializeException(remoteExceptionInformation.Data, out res))

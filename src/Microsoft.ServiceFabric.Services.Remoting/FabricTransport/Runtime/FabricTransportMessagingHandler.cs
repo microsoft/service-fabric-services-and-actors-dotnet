@@ -5,6 +5,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 {
     using System;
+    using System.Fabric.Common;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;
@@ -27,7 +28,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             FabricTransportRequestContext requestContext, byte[] headers, byte[] requestBody)
         {
             // We have Cancellation Token for Remoting layer , hence timeout is not used here.
-            var messageHeaders = ServiceRemotingMessageHeaders.Deserialize(this.serializer, headers);
+            ServiceRemotingMessageHeaders messageHeaders = null;
+            try
+            {
+                 messageHeaders = ServiceRemotingMessageHeaders.Deserialize(this.serializer, headers);
+            }
+            catch (Exception e)
+            {  
+                //This can only happen if there is issue in our product code like Message Corruption or changing headers format.
+                ReleaseAssert.Failfast("DeSerialization failed  for RemotingMessageHeaders with reason {0} for the headers with length {1}",e,headers.Length);
+            }
+
             var context = new FabricTransportServiceRemotingRequestContext(requestContext);
             byte[] replybody;
             try

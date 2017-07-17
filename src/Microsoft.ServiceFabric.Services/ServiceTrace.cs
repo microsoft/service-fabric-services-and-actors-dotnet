@@ -7,16 +7,14 @@ namespace Microsoft.ServiceFabric.Services
     //extern alias Internal;
     using System;
     using System.Globalization;
-    using System.Fabric.Common.Tracing;
 
     internal static class ServiceTrace
     {
-        internal static FabricEvents.ExtensionsEvents Source;
+        internal static ServiceEventSource Source;
 
         static ServiceTrace()
         {
-            TraceConfig.InitializeFromConfigStore();
-            Source = new FabricEvents.ExtensionsEvents(FabricEvents.Tasks.ServiceFramework);
+            Source = ServiceEventSource.Instance;
         }
 
         internal static string GetTraceIdForReplica(Guid partitionId, long replicaId)

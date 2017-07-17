@@ -29,5 +29,8 @@
       <Dependency Include="Microsoft.ServiceFabric.FabricTransport.Internal">
         <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
       </Dependency>
+      <Dependency Include="Microsoft.ServiceFabric.Diagnostics.Internal">
+        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
+      </Dependency>
     </ItemGroup>
   </Project>

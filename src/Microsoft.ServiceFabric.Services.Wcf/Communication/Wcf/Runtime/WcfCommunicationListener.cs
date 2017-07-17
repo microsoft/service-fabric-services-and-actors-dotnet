@@ -23,6 +23,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
     {
         private readonly ServiceEndpoint endpoint;
         private readonly ServiceHost host;
+        private readonly string listenAddress;
+        private readonly string publishAddress;
 
         /// <summary>
         ///     Constructs a WCF based communication listener that uses default binding and default endpoint address.
@@ -120,12 +122,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                 listenerBinding = WcfUtility.DefaultTcpListenerBinding;
             }
 
+            this.listenAddress = string.Empty;
+            this.publishAddress = string.Empty;
+
             if (address == null)
             {
                 address = GetEndpointAddress(
                     serviceContext,
                     listenerBinding,
                     endpointResourceName);
+
+                this.listenAddress = serviceContext.ListenAddress;
+                this.publishAddress = serviceContext.PublishAddress;                
             }
 
             this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), listenerBinding, address);
@@ -166,8 +174,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
               ar =>
               {
                   this.host.EndOpen(ar);
-                  var listenUri = this.endpoint.Behaviors.Find<ListenUriEndpointBehavior>().ListenUri;
-                  return listenUri.ToString();
+                  var listenUri = this.endpoint.Behaviors.Find<ListenUriEndpointBehavior>().ListenUri.ToString();
+                  var publishUri = string.IsNullOrWhiteSpace(this.listenAddress) && string.IsNullOrWhiteSpace(this.publishAddress) ? listenUri : listenUri.Replace(this.listenAddress, this.publishAddress);
+
+                  System.Fabric.Common.AppTrace.TraceSource.WriteInfo("WcfCommunicationListener.OpenAsync", "ListenURI = {0} PublishURI = {1}", listenUri, publishUri);
+
+                  return publishUri;
               });
         }
 
@@ -318,7 +330,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                     CultureInfo.InvariantCulture,
                     "{0}://{1}:{2}/{5}/{3}-{4}",
                     scheme,
-                    serviceContext.NodeContext.IPAddressOrFQDN,
+                    serviceContext.ListenAddress,
                     port,
                     serviceContext.PartitionId,
                     serviceContext.ReplicaOrInstanceId,

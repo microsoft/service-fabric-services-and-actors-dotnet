@@ -388,7 +388,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
-            return this.actorStateProviderHelper.GetStoredActorIds(
+            return this.actorStateProviderHelper.GetStoredActorIdsAsync(
                 itemsCount,
                 continuationToken,
                 () => this.stateTable.GetSortedStorageKeyEnumerator(
@@ -460,6 +460,34 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     return this.ReplicateStateChangesAsync(actorStateDataWrapperList);
                 },
                 string.Format("DeleteReminderAsync[{0}]", actorId),
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes the specified set of reminders.
+        /// </summary>
+        /// <param name="reminderNames">The set of reminders to delete.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous delete operation.</returns>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+        Task IActorStateProvider.DeleteRemindersAsync(
+            IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames, 
+            CancellationToken cancellationToken)
+        {
+            var actorStateDataWrapperList = this.GetReminderDataWrapperList(reminderNames);
+
+            if (actorStateDataWrapperList.Count == 0)
+            {
+                return Task.FromResult(true);
+            }
+
+            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+                () =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return this.ReplicateStateChangesAsync(actorStateDataWrapperList);
+                },
+                $"DeleteRemindersAsync[{actorStateDataWrapperList.Count/2}]",
                 cancellationToken);
         }
 
@@ -910,6 +938,31 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #region Helper methods
         
+        private List<ActorStateDataWrapper> GetReminderDataWrapperList(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames)
+        {
+            var actorStateDataWrapperList = new List<ActorStateDataWrapper>();
+
+            foreach (var reminderNamesPerActor in reminderNames)
+            {
+                var actorId = reminderNamesPerActor.Key;
+
+                foreach (var reminderName in reminderNamesPerActor.Value)
+                {
+                    actorStateDataWrapperList.Add(
+                        ActorStateDataWrapper.CreateForDelete(
+                            ActorStateType.Reminder,
+                            CreateReminderStorageKey(actorId, reminderName)));
+
+                    actorStateDataWrapperList.Add(
+                        ActorStateDataWrapper.CreateForDelete(
+                            ActorStateType.Actor,
+                            ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminderName)));
+                }
+            }
+
+            return actorStateDataWrapperList;
+        }
+
         internal static DataContractSerializer CreateCopyOrReplicationOperationSerializer()
         {
             return new DataContractSerializer(typeof(CopyOrReplicationOperation));

@@ -61,10 +61,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
      
         internal static MethodDescription Create(string remotedInterfaceKindName, MethodInfo methodInfo)
         {
-            var argumentList = new List<MethodArgumentDescription>();
+            var parameters = methodInfo.GetParameters();
+            var argumentList = new List<MethodArgumentDescription>(parameters.Length);
             var hasCancellationToken = false;
 
-            foreach (var param in methodInfo.GetParameters())
+            foreach (var param in parameters)
             {
                 if (hasCancellationToken)
                 {

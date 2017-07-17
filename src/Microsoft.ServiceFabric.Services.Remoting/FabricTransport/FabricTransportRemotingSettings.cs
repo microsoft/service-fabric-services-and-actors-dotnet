@@ -147,6 +147,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     4. SecurityCredentials - <see cref="SecurityCredentials"/> value.
         ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
         ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
+        ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
         /// </remarks>
         public static FabricTransportRemotingSettings LoadFrom(string sectionName, string filepath = null,
             string configPackageName = null)
@@ -176,6 +177,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     4. SecurityCredentials - <see cref="SecurityCredentials"/> value.
         ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
         ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
+        ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
         /// </remarks>
         public static bool TryLoadFrom(string sectionName, out FabricTransportRemotingSettings settings,
             string filepath = null,
