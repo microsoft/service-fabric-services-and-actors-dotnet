@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting", "..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj", "{A01358E6-D5E1-44B5-948A-45709D2421A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Actors.Tests", "..\test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj", "{63B58D31-66BB-4879-B4F1-0969FA3F4464}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Actors.Tests", "..\..\test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj", "{63B58D31-66BB-4879-B4F1-0969FA3F4464}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

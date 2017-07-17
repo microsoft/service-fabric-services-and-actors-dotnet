@@ -2,9 +2,11 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Tests.Generator
 {
-    using Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Generator;
+    using FluentAssertions;
     using Xunit;
 
     public class ActorNameFormatTests
@@ -19,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
             var result = ActorNameFormat.GetFabricServiceName(typeof(object));
 
             // Assert
-            Assert.Equal(serviceName, result);
+            result.Should().Be(serviceName);
         }
 
         [Fact]
@@ -32,7 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
             var result = ActorNameFormat.GetFabricServiceName(typeof(object), serviceName);
 
             // Assert
-            Assert.Equal(serviceName, result);
+            result.Should().Be(serviceName);
         }
     }
 }
