@@ -10,7 +10,7 @@ param
 	
     # target to build. 
 	#Options are: RebuildAll: Clean, Build all and Generate Nuget Packages. BuildAll: Build all csproj. GeneratePackages: Build all csproj and generate nuget packages.
-	[ValidateSet('Rebuildall', 'BuildAll', 'CleanAll', 'GeneratePackages')]
+	[ValidateSet('Rebuildall', 'BuildAll', 'CleanAll', 'GeneratePackages', 'BuildTests')]
 	[string]$target = "RebuildAll",
 
 	# msbuild verbosity level.
@@ -20,8 +20,13 @@ param
 
 # Check msbuild exists
 $msbuildRelativePath = "MSBuild\14.0\bin\MSBuild.exe"
+$msbuildAltPath = "Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe";
 
 if (Test-Path "env:\ProgramFiles(x86)") 
+{
+    $msbuildPath = join-path ${env:ProgramFiles(x86)} $msbuildAltPath
+}
+elseif (Test-Path "env:\ProgramFiles(x86)") 
 {
     $msbuildPath = join-path ${env:ProgramFiles(x86)} $msbuildRelativePath
 }

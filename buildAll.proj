@@ -16,7 +16,12 @@
                      src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
                      src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
                      src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
-                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj"/>
+                     src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj" />
+
+    <ProjectsToBuildIncludingTests Include="@(ProjectsToBuild);
+                     src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
+                     src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
+                     src\test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj"  />                     
 
     <!-- List of .nuproj to build to generate nuget packages -->
     <NuprojsToBuild Include="nuprojs\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.nuproj;
@@ -32,6 +37,12 @@
                       src\Microsoft.ServiceFabric.Services\packages.config;
                       src\Microsoft.ServiceFabric.Services.Remoting\packages.config;
                       src\Microsoft.ServiceFabric.Services.Wcf\packages.config"/>
+ 
+    <TestPackagesConfigs Include="@(PackagesConfigs);
+                      src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\packages.config;
+                      src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\packages.config;
+                      src\test\unittests\Microsoft.ServiceFabric.Services.Tests\packages.config"/>
+ 
   </ItemGroup>
 
   <PropertyGroup>
@@ -81,6 +92,42 @@
     <Copy SourceFiles="@(Binaires)" DestinationFiles="@(Binaires->'$(DropFolder)\%(Destination)\%(Filename)%(Extension)')" />
   </Target>
 
+ <!-- Build Unit Test assemblies -->
+
+ <PropertyGroup>
+    <BuildTestsAllDependsOn>RestoreTestPackages;CleanTestsAll;BuildAllTests;CopyTestBinaries</BuildTestsAllDependsOn>
+  </PropertyGroup>
+
+  <Target Name="RestoreTestPackages">
+    <Message Text="Restoring NuGet packages for test projects ..." Importance="High"/>
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore %(TestPackagesConfigs.Identity) -NonInteractive -Verbosity quiet" />
+  </Target>
+
+ <Target Name="BuildTests" DependsOnTargets="$(BuildTestsAllDependsOn)">
+    <Message Text="SUCCESS!  Generated unit test binaries are dropped at $(CurrentDir)drop\tests" Importance="High"/>
+  </Target>
+
+  <Target Name="BuildAllTests" DependsOnTargets="RestoreTestPackages">
+    <Message Text="Building all unit test projects ..." Importance="High"/>
+    <MSBuild Projects ="@(ProjectsToBuildIncludingTests)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
+  </Target>
+
+ <Target Name="CopyTestBinaries" DependsOnTargets="BuildAllTests">
+    <Message Text="Copying test binaries to drop folder ..." Importance="High"/>
+    <ItemGroup>
+      <Binaires Include="src\FabActUtil\$(OutputPath)\FabActUtil.*"/>
+      <Binaires Include="src\FabActUtil\Microsoft.ServiceFabric.Actors.targets"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Actors\$(OutputPath)\Microsoft.ServiceFabric.Actors.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Actors.Wcf.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <Binaires Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*"/>
+       <Binaires Include="src\test\unittests\Microsoft.ServiceFabric.Actors.Tests\$(OutputPath)\Microsoft.ServiceFabric.Actors.Tests.*"/>
+        <Binaires Include="src\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.Tests.*"/>
+         <Binaires Include="src\test\unittests\Microsoft.ServiceFabric.Services.Tests\$(OutputPath)\Microsoft.ServiceFabric.Services.Tests.*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(Binaires)" DestinationFiles="@(Binaires->'$(DropFolder)\tests\%(Destination)\%(Filename)%(Extension)')" />
+  </Target>
   <!--
   This target can be used to clean all of the projects before you build them.
   It will also delete any dll & exe files located in the the DestinationFolder folder.
@@ -94,5 +141,16 @@
     <Delete Files="@(GeneratedFiles)"/>
     <RemoveDir Directories="$(CurrentDir)\drop"/>
     <MSBuild Projects="@(ProjectsToBuild)" Targets="Clean" Properties="Configuration=$(Configuration);"/>
+  </Target>
+
+   <Target Name="CleanTestsAll" DependsOnTargets="RestoreTestPackages">
+    <Message Text="Cleaning all projects ..."/>
+    <!-- Delete any files this process may have created from a previous execution -->
+    <CreateItem Include="$(CurrentDir)\drop\**\*">
+      <Output ItemName="GeneratedFiles" TaskParameter="Include"/>
+    </CreateItem>
+    <Delete Files="@(GeneratedFiles)"/>
+    <RemoveDir Directories="$(CurrentDir)\drop"/>
+    <MSBuild Projects="@(ProjectsToBuildIncludingTests)" Targets="Clean" Properties="Configuration=$(Configuration);"/>
   </Target>
 </Project>
