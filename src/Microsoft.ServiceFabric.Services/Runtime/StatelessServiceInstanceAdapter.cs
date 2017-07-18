@@ -32,6 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private ServiceEndpointCollection endpointCollection;
 
         private CancellationTokenSource runAsynCancellationTokenSource;
+        private readonly ContextPropagationManager contextPropagationManager;
 
         /// <summary>
         /// This task wraps the actual RunAsync task. All the exceptions
@@ -57,6 +58,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.userServiceInstance = userServiceInstance;
             this.userServiceInstance.Addresses = this.endpointCollection.ToReadOnlyDictionary();
+
+            this.contextPropagationManager = new ContextPropagationManager(serviceContext);
         }
 
         #region Implementation of IStatelessServiceInstance
@@ -97,6 +100,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.runAsynCancellationTokenSource = new CancellationTokenSource();
             this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
+
+            this.contextPropagationManager.PropagateContext();
 
             await this.userServiceInstance.OnOpenAsync(cancellationToken);
 
@@ -151,6 +156,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             ServiceFrameworkEventSource.Writer.StatelessRunAsyncInvocation(this.serviceContext);
 
             ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Calling RunAsync");
+
+            this.contextPropagationManager.PropagateContext();
 
             try
             {
@@ -283,6 +290,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             if (this.instanceListeners == null)
             {
+                this.contextPropagationManager.PropagateContext();
                 this.instanceListeners = this.userServiceInstance.CreateServiceInstanceListeners();
             }
 

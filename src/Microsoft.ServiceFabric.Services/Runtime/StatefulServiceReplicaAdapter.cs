@@ -34,6 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private ServiceEndpointCollection endpointCollection;
 
         private CancellationTokenSource runAsynCancellationTokenSource;
+        private readonly ContextPropagationManager contextPropagationManager;
 
         /// <summary>
         /// This task wraps the actual RunAsync task. All the exceptions
@@ -59,6 +60,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.userServiceReplica = userServiceReplica;
             this.userServiceReplica.Addresses = this.endpointCollection.ToReadOnlyDictionary();
+
+            this.contextPropagationManager = new ContextPropagationManager(serviceContext);
 
             // The state provider replica should ideally be initialized 
             // here (this.stateProviderReplica.Initialize()) with ServiceContext.
@@ -98,6 +101,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.userServiceReplica.Partition = partition;
 
             var replicator = await this.stateProviderReplica.OpenAsync(openMode, partition, cancellationToken);
+
+            this.contextPropagationManager.PropagateContext();
 
             Exception userReplicaEx = null;
             try
@@ -158,6 +163,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "ChangeRoleAsync : Begin UserServiceReplica change role to {0}",
                 newRole);
+
+            this.contextPropagationManager.PropagateContext();
 
             await this.userServiceReplica.OnChangeRoleAsync(newRole, cancellationToken);
 
@@ -253,6 +260,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             ServiceFrameworkEventSource.Writer.StatefulRunAsyncInvocation(this.serviceContext);
             ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Calling RunAsync");
 
+            this.contextPropagationManager.PropagateContext();
+            
             try
             {
                 await this.userServiceReplica.RunAsync(runAsyncCancellationToken);
@@ -459,6 +468,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             if (this.replicaListeners == null)
             {
+                this.contextPropagationManager.PropagateContext();
                 this.replicaListeners = this.userServiceReplica.CreateServiceReplicaListeners();
             }
 

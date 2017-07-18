@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
         private readonly Dictionary<int, ServiceMethodDispatcherBase> methodDispatcherMap;
         private readonly ServicePerformanceCounterProvider servicePerformanceCounterProvider;
+        private readonly ContextPropagationManager contextPropagationManager;
 
         /// <summary>
         /// Instantiates the ServiceRemotingDispatcher that uses the given service context and
@@ -56,6 +57,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         serviceContext.ReplicaOrInstanceId,
                         serviceTypeInformation);
             }
+
+            this.contextPropagationManager = new ContextPropagationManager(serviceContext);
         }
 
         /// <summary>
@@ -146,6 +149,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         stopwatch.ElapsedMilliseconds);
             }
             stopwatch.Restart();
+
+            // Make sure the context is propogated before doing the dispatch call so any downstream telemetry code that requires context is able to retrieve it.
+            this.contextPropagationManager.PropagateContext();
+
             try
             {
                 dispatchTask = methodDispatcher.DispatchAsync(this.service, headers.MethodId, requestBody,
