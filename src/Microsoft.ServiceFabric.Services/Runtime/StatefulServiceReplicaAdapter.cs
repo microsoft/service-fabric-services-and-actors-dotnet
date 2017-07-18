@@ -97,36 +97,43 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "OpenAsync");
 
-            this.servicePartition = partition;
-            this.userServiceReplica.Partition = partition;
-
-            var replicator = await this.stateProviderReplica.OpenAsync(openMode, partition, cancellationToken);
-
-            this.contextPropagationManager.PropagateContext();
-
-            Exception userReplicaEx = null;
             try
             {
-                await this.userServiceReplica.OnOpenAsync(openMode, cancellationToken);
+                this.contextPropagationManager.PropagateContext();
+
+                this.servicePartition = partition;
+                this.userServiceReplica.Partition = partition;
+
+                var replicator = await this.stateProviderReplica.OpenAsync(openMode, partition, cancellationToken);
+
+                Exception userReplicaEx = null;
+                try
+                {
+                    await this.userServiceReplica.OnOpenAsync(openMode, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    userReplicaEx = ex;
+
+                    ServiceTrace.Source.WriteWarningWithId(
+                        TraceType,
+                        this.traceId,
+                        "Unhandled exception from userServiceReplica.OnOpenAsync() - {0}",
+                        ex);
+                }
+
+                if (userReplicaEx != null)
+                {
+                    await this.stateProviderReplica.CloseAsync(cancellationToken);
+                    throw userReplicaEx;
+                }
+
+                return replicator;
             }
-            catch (Exception ex)
+            finally
             {
-                userReplicaEx = ex;
-
-                ServiceTrace.Source.WriteWarningWithId(
-                    TraceType,
-                    this.traceId,
-                    "Unhandled exception from userServiceReplica.OnOpenAsync() - {0}",
-                    ex);
+                this.contextPropagationManager.StopContextPropagation();
             }
-
-            if (userReplicaEx != null)
-            {
-                await this.stateProviderReplica.CloseAsync(cancellationToken);
-                throw userReplicaEx;
-            }
-
-            return replicator;
         }
 
         async Task<string> IStatefulServiceReplica.ChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
@@ -137,45 +144,52 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 "ChangeRoleAsync : new role {0}",
                 newRole);
 
-            await this.CloseCommunicationListenersAsync(cancellationToken);
-
-            if (newRole == ReplicaRole.Primary)
+            try
             {
-                this.endpointCollection = await this.OpenCommunicationListenersAsync(newRole, cancellationToken);
-                this.userServiceReplica.Addresses = this.endpointCollection.ToReadOnlyDictionary();
+                this.contextPropagationManager.PropagateContext();
 
-                this.runAsynCancellationTokenSource = new CancellationTokenSource();
-                this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
-            }
-            else
-            {                
-                await this.CancelRunAsync();
-                
-                if (newRole == ReplicaRole.ActiveSecondary)
+                await this.CloseCommunicationListenersAsync(cancellationToken);
+
+                if (newRole == ReplicaRole.Primary)
                 {
                     this.endpointCollection = await this.OpenCommunicationListenersAsync(newRole, cancellationToken);
                     this.userServiceReplica.Addresses = this.endpointCollection.ToReadOnlyDictionary();
+
+                    this.runAsynCancellationTokenSource = new CancellationTokenSource();
+                    this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
                 }
+                else
+                {
+                    await this.CancelRunAsync();
+
+                    if (newRole == ReplicaRole.ActiveSecondary)
+                    {
+                        this.endpointCollection = await this.OpenCommunicationListenersAsync(newRole, cancellationToken);
+                        this.userServiceReplica.Addresses = this.endpointCollection.ToReadOnlyDictionary();
+                    }
+                }
+
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "ChangeRoleAsync : Begin UserServiceReplica change role to {0}",
+                    newRole);
+
+                await this.userServiceReplica.OnChangeRoleAsync(newRole, cancellationToken);
+
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "ChangeRoleAsync : End UserServiceReplica change role");
+
+                await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
+
+                return this.endpointCollection.ToString();
             }
-
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "ChangeRoleAsync : Begin UserServiceReplica change role to {0}",
-                newRole);
-
-            this.contextPropagationManager.PropagateContext();
-
-            await this.userServiceReplica.OnChangeRoleAsync(newRole, cancellationToken);
-
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "ChangeRoleAsync : End UserServiceReplica change role");
-
-            await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
-            
-            return this.endpointCollection.ToString();
+            finally
+            {
+                this.contextPropagationManager.StopContextPropagation();
+            }
         }
 
         async Task IStatefulServiceReplica.CloseAsync(CancellationToken cancellationToken)
@@ -185,14 +199,23 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "CloseAsync");
 
-            await this.CloseCommunicationListenersAsync(cancellationToken);
-            await this.CancelRunAsync();
-            await this.userServiceReplica.OnCloseAsync(cancellationToken);
-
-            if (this.stateProviderReplica != null)
+            try
             {
-                await this.stateProviderReplica.CloseAsync(cancellationToken);
-                this.stateProviderReplica = null;
+                this.contextPropagationManager.PropagateContext();
+
+                await this.CloseCommunicationListenersAsync(cancellationToken);
+                await this.CancelRunAsync();
+                await this.userServiceReplica.OnCloseAsync(cancellationToken);
+
+                if (this.stateProviderReplica != null)
+                {
+                    await this.stateProviderReplica.CloseAsync(cancellationToken);
+                    this.stateProviderReplica = null;
+                }
+            }
+            finally
+            {
+                this.contextPropagationManager.StopContextPropagation();
             }
         }
 
@@ -202,15 +225,24 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 TraceType,
                 this.traceId,
                 "Abort");
-            
-            this.AbortCommunicationListeners();
-            this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
-            this.userServiceReplica.OnAbort();
 
-            if (this.stateProviderReplica != null)
+            try
             {
-                this.stateProviderReplica.Abort();
-                this.stateProviderReplica = null;
+                this.contextPropagationManager.PropagateContext();
+
+                this.AbortCommunicationListeners();
+                this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+                this.userServiceReplica.OnAbort();
+
+                if (this.stateProviderReplica != null)
+                {
+                    this.stateProviderReplica.Abort();
+                    this.stateProviderReplica = null;
+                }
+            }
+            finally
+            {
+                this.contextPropagationManager.StopContextPropagation();
             }
         }
 
@@ -260,56 +292,63 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             ServiceFrameworkEventSource.Writer.StatefulRunAsyncInvocation(this.serviceContext);
             ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Calling RunAsync");
 
-            this.contextPropagationManager.PropagateContext();
-            
             try
             {
-                await this.userServiceReplica.RunAsync(runAsyncCancellationToken);
-            }
-            catch (OperationCanceledException e)
-            {
-                if (!runAsyncCancellationToken.IsCancellationRequested)
+                this.contextPropagationManager.PropagateContext();
+
+                try
+                {
+                    await this.userServiceReplica.RunAsync(runAsyncCancellationToken);
+                }
+                catch (OperationCanceledException e)
+                {
+                    if (!runAsyncCancellationToken.IsCancellationRequested)
+                    {
+                        ServiceFrameworkEventSource.Writer.StatefulRunAsyncFailure(
+                            this.serviceContext,
+                            runAsyncCancellationToken.IsCancellationRequested,
+                            e);
+
+                        this.serviceHelper.HandleRunAsyncUnexpectedException(this.servicePartition, e);
+                        return;
+                    }
+
+                    ServiceTrace.Source.WriteInfoWithId(
+                            TraceType + ServiceHelper.ApiFinishTraceTypeSuffix,
+                            this.traceId,
+                            "RunAsync successfully canceled by throwing OperationCanceledException: {0}",
+                            e.ToString());
+                }
+                catch (FabricException e)
                 {
                     ServiceFrameworkEventSource.Writer.StatefulRunAsyncFailure(
-                        this.serviceContext,
-                        runAsyncCancellationToken.IsCancellationRequested,
-                        e);
+                            this.serviceContext,
+                            runAsyncCancellationToken.IsCancellationRequested,
+                            e);
+
+                    this.serviceHelper.HandleRunAsyncUnexpectedFabricException(this.servicePartition, e);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    ServiceFrameworkEventSource.Writer.StatefulRunAsyncFailure(
+                            this.serviceContext,
+                            runAsyncCancellationToken.IsCancellationRequested,
+                            e);
 
                     this.serviceHelper.HandleRunAsyncUnexpectedException(this.servicePartition, e);
                     return;
                 }
 
-                ServiceTrace.Source.WriteInfoWithId(
-                        TraceType + ServiceHelper.ApiFinishTraceTypeSuffix,
-                        this.traceId,
-                        "RunAsync successfully canceled by throwing OperationCanceledException: {0}",
-                        e.ToString());
+                ServiceFrameworkEventSource.Writer.StatefulRunAsyncCompletion(
+                    this.serviceContext,
+                    runAsyncCancellationToken.IsCancellationRequested);
+                ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "RunAsync completed");
             }
-            catch (FabricException e)
+            finally
             {
-                ServiceFrameworkEventSource.Writer.StatefulRunAsyncFailure(
-                        this.serviceContext,
-                        runAsyncCancellationToken.IsCancellationRequested,
-                        e);
-
-                this.serviceHelper.HandleRunAsyncUnexpectedFabricException(this.servicePartition, e);
-                return;
+                this.contextPropagationManager.StopContextPropagation();
             }
-            catch (Exception e)
-            {
-                ServiceFrameworkEventSource.Writer.StatefulRunAsyncFailure(
-                        this.serviceContext,
-                        runAsyncCancellationToken.IsCancellationRequested,
-                        e);
-
-                this.serviceHelper.HandleRunAsyncUnexpectedException(this.servicePartition, e);
-                return;
-            }
-
-            ServiceFrameworkEventSource.Writer.StatefulRunAsyncCompletion(
-                this.serviceContext,
-                runAsyncCancellationToken.IsCancellationRequested);
-            ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "RunAsync completed");
         }
 
         /// <summary>
@@ -466,33 +505,41 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 "Opening communication listeners - New role : {0}",
                 replicaRole);
 
-            if (this.replicaListeners == null)
+            try
             {
                 this.contextPropagationManager.PropagateContext();
-                this.replicaListeners = this.userServiceReplica.CreateServiceReplicaListeners();
-            }
 
-            var endpointsCollection = new ServiceEndpointCollection();
-            foreach (var entry in this.replicaListeners)
-            {
-                if (replicaRole == ReplicaRole.Primary ||
-                    (replicaRole == ReplicaRole.ActiveSecondary && entry.ListenOnSecondary))
+                if (this.replicaListeners == null)
                 {
-
-                    var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
-                    this.AddCommunicationListener(communicationListener);
-                    var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
-                    endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
+                    this.replicaListeners = this.userServiceReplica.CreateServiceReplicaListeners();
                 }
+
+                var endpointsCollection = new ServiceEndpointCollection();
+                foreach (var entry in this.replicaListeners)
+                {
+                    if (replicaRole == ReplicaRole.Primary ||
+                        (replicaRole == ReplicaRole.ActiveSecondary && entry.ListenOnSecondary))
+                    {
+
+                        var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
+                        this.AddCommunicationListener(communicationListener);
+                        var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
+                        endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
+                    }
+                }
+
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Opened {0} communication listeners",
+                    (this.replicaListeners != null) ? this.replicaListeners.Count() : 0);
+
+                return endpointsCollection;
             }
-
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "Opened {0} communication listeners",
-                (this.replicaListeners != null) ? this.replicaListeners.Count() : 0);
-
-            return endpointsCollection;
+            finally
+            {
+                this.contextPropagationManager.StopContextPropagation();
+            }
         }
 
         private async Task CloseCommunicationListenersAsync(CancellationToken cancellationToken)

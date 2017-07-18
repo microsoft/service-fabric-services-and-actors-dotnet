@@ -82,47 +82,71 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             try
             {
-                this.endpointCollection = await this.OpenCommunicationListenersAsync(cancellationToken);
+                this.contextPropagationManager.PropagateContext();
+
+                try
+                {
+                    this.endpointCollection = await this.OpenCommunicationListenersAsync(cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    ServiceTrace.Source.WriteWarningWithId(
+                        TraceType,
+                        this.traceId,
+                        "Got exception when opening communication listeners - {0}",
+                        exception);
+
+                    this.AbortCommunicationListeners();
+
+                    throw;
+                }
+                this.userServiceInstance.Addresses = this.endpointCollection.ToReadOnlyDictionary();
+
+                this.runAsynCancellationTokenSource = new CancellationTokenSource();
+                this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
+
+                await this.userServiceInstance.OnOpenAsync(cancellationToken);
+                return this.endpointCollection.ToString();
             }
-            catch (Exception exception)
+            finally
             {
-                ServiceTrace.Source.WriteWarningWithId(
-                    TraceType,
-                    this.traceId,
-                    "Got exception when opening communication listeners - {0}",
-                    exception);
-
-                this.AbortCommunicationListeners();
-
-                throw;
+                this.contextPropagationManager.StopContextPropagation();
             }
-            this.userServiceInstance.Addresses = this.endpointCollection.ToReadOnlyDictionary();
-
-            this.runAsynCancellationTokenSource = new CancellationTokenSource();
-            this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
-
-            this.contextPropagationManager.PropagateContext();
-
-            await this.userServiceInstance.OnOpenAsync(cancellationToken);
-
-            return this.endpointCollection.ToString();
         }
 
         async Task IStatelessServiceInstance.CloseAsync(CancellationToken cancellationToken)
         {
-            await this.CloseCommunicationListenersAsync(cancellationToken);
-            await this.CancelRunAsync();
+            try
+            {
+                this.contextPropagationManager.PropagateContext();
 
-            await this.userServiceInstance.OnCloseAsync(cancellationToken);
+                await this.CloseCommunicationListenersAsync(cancellationToken);
+                await this.CancelRunAsync();
+
+                await this.userServiceInstance.OnCloseAsync(cancellationToken);
+            }
+            finally
+            {
+                this.contextPropagationManager.StopContextPropagation();
+            }
         }
 
         void IStatelessServiceInstance.Abort()
         {
-            this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+            try
+            {
+                this.contextPropagationManager.PropagateContext();
 
-            this.AbortCommunicationListeners();
+                this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
 
-            this.userServiceInstance.OnAbort();
+                this.AbortCommunicationListeners();
+
+                this.userServiceInstance.OnAbort();
+            }
+            finally
+            {
+                this.contextPropagationManager.StopContextPropagation();
+            }
         }
 
         #endregion
@@ -157,57 +181,64 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Calling RunAsync");
 
-            this.contextPropagationManager.PropagateContext();
-
             try
             {
-                await this.userServiceInstance.RunAsync(runAsyncCancellationToken);
-            }
-            catch (OperationCanceledException e)
-            {
-                if (!runAsyncCancellationToken.IsCancellationRequested)
+                this.contextPropagationManager.PropagateContext();
+
+                try
+                {
+                    await this.userServiceInstance.RunAsync(runAsyncCancellationToken);
+                }
+                catch (OperationCanceledException e)
+                {
+                    if (!runAsyncCancellationToken.IsCancellationRequested)
+                    {
+                        ServiceFrameworkEventSource.Writer.StatelessRunAsyncFailure(
+                            this.serviceContext,
+                            runAsyncCancellationToken.IsCancellationRequested,
+                            e);
+
+                        this.serviceHelper.HandleRunAsyncUnexpectedException(this.servicePartition, e);
+                        return;
+                    }
+
+                    ServiceTrace.Source.WriteInfoWithId(
+                            TraceType,
+                            this.traceId,
+                            "RunAsync successfully canceled by throwing OperationCanceledException: {0}",
+                            e.ToString());
+                }
+                catch (FabricException e)
                 {
                     ServiceFrameworkEventSource.Writer.StatelessRunAsyncFailure(
-                        this.serviceContext,
-                        runAsyncCancellationToken.IsCancellationRequested,
-                        e);
+                            this.serviceContext,
+                            runAsyncCancellationToken.IsCancellationRequested,
+                            e);
+
+                    this.serviceHelper.HandleRunAsyncUnexpectedFabricException(this.servicePartition, e);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    ServiceFrameworkEventSource.Writer.StatelessRunAsyncFailure(
+                            this.serviceContext,
+                            runAsyncCancellationToken.IsCancellationRequested,
+                            e);
 
                     this.serviceHelper.HandleRunAsyncUnexpectedException(this.servicePartition, e);
                     return;
                 }
 
-                ServiceTrace.Source.WriteInfoWithId(
-                        TraceType,
-                        this.traceId,
-                        "RunAsync successfully canceled by throwing OperationCanceledException: {0}",
-                        e.ToString());
+                ServiceFrameworkEventSource.Writer.StatelessRunAsyncCompletion(
+                    this.serviceContext,
+                    runAsyncCancellationToken.IsCancellationRequested);
+
+                ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "RunAsync completed");
             }
-            catch (FabricException e)
+            finally
             {
-                ServiceFrameworkEventSource.Writer.StatelessRunAsyncFailure(
-                        this.serviceContext,
-                        runAsyncCancellationToken.IsCancellationRequested,
-                        e);
-
-                this.serviceHelper.HandleRunAsyncUnexpectedFabricException(this.servicePartition, e);
-                return;
+                this.contextPropagationManager.StopContextPropagation();
             }
-            catch (Exception e)
-            {
-                ServiceFrameworkEventSource.Writer.StatelessRunAsyncFailure(
-                        this.serviceContext,
-                        runAsyncCancellationToken.IsCancellationRequested,
-                        e);
-
-                this.serviceHelper.HandleRunAsyncUnexpectedException(this.servicePartition, e);
-                return;
-            }
-
-            ServiceFrameworkEventSource.Writer.StatelessRunAsyncCompletion(
-                this.serviceContext,
-                runAsyncCancellationToken.IsCancellationRequested);
-
-            ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "RunAsync completed");
         }
 
         /// <summary>
@@ -288,28 +319,36 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "Opening communication listeners");
 
-            if (this.instanceListeners == null)
+            try
             {
                 this.contextPropagationManager.PropagateContext();
-                this.instanceListeners = this.userServiceInstance.CreateServiceInstanceListeners();
-            }
 
-            var endpointsCollection = new ServiceEndpointCollection();
-            foreach (var entry in this.instanceListeners)
+                if (this.instanceListeners == null)
+                {
+                    this.instanceListeners = this.userServiceInstance.CreateServiceInstanceListeners();
+                }
+
+                var endpointsCollection = new ServiceEndpointCollection();
+                foreach (var entry in this.instanceListeners)
+                {
+                    var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
+                    this.AddCommunicationListener(communicationListener);
+                    var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
+                    endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
+                }
+
+                ServiceTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Opened {0} communication listeners",
+                (this.instanceListeners != null) ? this.instanceListeners.Count() : 0);
+
+                return endpointsCollection;
+            }
+            finally
             {
-                var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
-                this.AddCommunicationListener(communicationListener);
-                var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
-                endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
+                this.contextPropagationManager.StopContextPropagation();
             }
-
-            ServiceTrace.Source.WriteInfoWithId(
-            TraceType,
-            this.traceId,
-            "Opened {0} communication listeners",
-            (this.instanceListeners != null) ? this.instanceListeners.Count() : 0);
-
-            return endpointsCollection;
         }
 
         private async Task CloseCommunicationListenersAsync(CancellationToken cancellationToken)

@@ -10,6 +10,9 @@ namespace Microsoft.ServiceFabric.Services
     using System.Globalization;
     using System.Runtime.Remoting.Messaging;
 
+    /// <summary>
+    /// Manages context propogation for consumption by telemetry systems.
+    /// </summary>
     internal class ContextPropagationManager
     {
         private const string PackageActivationIdEnvVariableName = "Fabric_ServicePackageActivationId";
@@ -24,6 +27,10 @@ namespace Microsoft.ServiceFabric.Services
 
         private readonly bool disableContextPropogation = false;
 
+        /// <summary>
+        /// Creates and instance given the service context.
+        /// </summary>
+        /// <param name="serviceContext">Service Context that is to be propagated.</param>
         public ContextPropagationManager(ServiceContext serviceContext)
         {
             try
@@ -49,6 +56,9 @@ namespace Microsoft.ServiceFabric.Services
             }
         }
 
+        /// <summary>
+        /// Ensures context is propagated through logical call context, when the service is running in shared mode.
+        /// </summary>
         public void PropagateContext()
         {
             try
@@ -69,6 +79,26 @@ namespace Microsoft.ServiceFabric.Services
             catch (Exception ex)
             {
                 // Context propogation is important but non essential. If something goes wrong in here, we don't want the service to crash.
+                ServiceTrace.Source.WriteExceptionAsWarning(TraceType, ex);
+            }
+        }
+
+        /// <summary>
+        /// Ensures the context added on logical call context is removed.
+        /// </summary>
+        public void StopContextPropagation()
+        {
+            try
+            {
+                if (this.isExclusiveMode || this.disableContextPropogation)
+                {
+                    return;
+                }
+
+                CallContext.FreeNamedDataSlot(ServiceContextKeyName);
+            }
+            catch(Exception ex)
+            {
                 ServiceTrace.Source.WriteExceptionAsWarning(TraceType, ex);
             }
         }

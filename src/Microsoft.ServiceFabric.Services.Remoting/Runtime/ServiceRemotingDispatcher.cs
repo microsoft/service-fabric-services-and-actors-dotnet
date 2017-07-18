@@ -150,11 +150,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             }
             stopwatch.Restart();
 
-            // Make sure the context is propogated before doing the dispatch call so any downstream telemetry code that requires context is able to retrieve it.
-            this.contextPropagationManager.PropagateContext();
-
             try
             {
+                // Make sure the context is propogated before doing the dispatch call so any downstream telemetry code that requires context is able to retrieve it.
+                this.contextPropagationManager.PropagateContext();
+
                 dispatchTask = methodDispatcher.DispatchAsync(this.service, headers.MethodId, requestBody,
                     cancellationToken);
             }
@@ -166,6 +166,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         headers.MethodId,
                         stopwatch.Elapsed, e);
                 info.Throw();
+            }
+            finally
+            {
+                this.contextPropagationManager.StopContextPropagation();
             }
 
             return dispatchTask.ContinueWith(
