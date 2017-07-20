@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class SR {
@@ -129,6 +129,15 @@ namespace Microsoft.ServiceFabric.Services {
         internal static string ErrorInvalidPartitionEndpointAddress {
             get {
                 return ResourceManager.GetString("ErrorInvalidPartitionEndpointAddress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid value for IncludeServiceContext parameter under ServiceTelemetry section. Only valid values are &apos;true&apos; and &apos;false&apos;..
+        /// </summary>
+        internal static string ErrorInvalidValueForIncludeServiceContext {
+            get {
+                return ResourceManager.GetString("ErrorInvalidValueForIncludeServiceContext", resourceCulture);
             }
         }
         

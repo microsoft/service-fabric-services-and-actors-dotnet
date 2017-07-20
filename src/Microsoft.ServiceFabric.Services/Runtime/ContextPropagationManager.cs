@@ -22,6 +22,9 @@ namespace Microsoft.ServiceFabric.Services
 
         private const string TraceType = "StatefulServiceReplicaAdapter";
 
+        private const string ServiceTelemetryConfigSection = "ServiceTelemetry";
+        private const string IncludeContextParamter = "IncludeServiceContext";
+
         private readonly Dictionary<string, string> contextDictionary;
         private readonly bool isExclusiveMode;
 
@@ -38,7 +41,32 @@ namespace Microsoft.ServiceFabric.Services
                 string packageActivationId = Environment.GetEnvironmentVariable(PackageActivationIdEnvVariableName);
                 this.isExclusiveMode = !string.IsNullOrEmpty(packageActivationId);
 
-                // Todo (nizarq): Have some setting that enables customers to say - no - I don't want auto context propogation. Load that here and set this.disableContextPropagation.
+                // Fetch the settings that allows you to turn off context propagation.
+                var config = serviceContext.CodePackageActivationContext.GetConfigurationPackageObject("config");
+                if (config.Settings.Sections.Contains(ServiceTelemetryConfigSection))
+                {
+                    if (config.Settings.Sections[ServiceTelemetryConfigSection].Parameters.Contains(IncludeContextParamter))
+                    {
+                        string includeContext = config.Settings.Sections[ServiceTelemetryConfigSection].Parameters[IncludeContextParamter].Value;
+
+                        if (string.Compare(includeContext, "true", StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            disableContextPropogation = false;
+                        }
+                        else if (string.Compare(includeContext, "false", StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            disableContextPropogation = true;
+
+                            // I am assuming when the user says IncludeContext = false, I would respect it even in exclusive mode, so let's just return without even setting the environment even if the service is running in exclusive mode.
+                            return;
+                        }
+                        else
+                        {
+                            // Invalid value - pretent not configured, but let's log warning.
+                            ServiceTrace.Source.WriteWarning(TraceType, SR.ErrorInvalidValueForIncludeServiceContext);
+                        }
+                    }
+                }
 
                 if (this.isExclusiveMode)
                 {

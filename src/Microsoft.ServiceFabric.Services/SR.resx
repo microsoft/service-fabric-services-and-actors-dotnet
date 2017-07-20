@@ -138,6 +138,9 @@
   <data name="ErrorInvalidPartitionEndpointAddress" xml:space="preserve">
     <value>The EndpointAddress '{0}' for partition '{1}' is not in a format understood by the client</value>
   </data>
+  <data name="ErrorInvalidValueForIncludeServiceContext" xml:space="preserve">
+    <value>Invalid value for IncludeServiceContext parameter under ServiceTelemetry section. Only valid values are 'true' and 'false'.</value>
+  </data>
   <data name="ErrorListenerAlreadyExists" xml:space="preserve">
     <value>Listener with Name '{0}' already exists. When multiple communication listeners are used, a unique name should be specified for each listener.</value>
   </data>
