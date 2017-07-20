@@ -66,6 +66,7 @@
     <Compile Include="Communication\Client\Utility.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Communication\ServiceException.cs" />
+    <Compile Include="Runtime\ContextPropagationManager.cs" />
     <Compile Include="Runtime\ServiceHelper.cs" />
     <Compile Include="ServiceNameFormat.cs" />
     <Compile Include="ServiceTrace.cs" />
