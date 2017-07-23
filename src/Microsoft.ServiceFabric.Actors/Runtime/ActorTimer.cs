@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             catch (ObjectDisposedException)
             {
-                // The actor is disposed, do not reschedule the timer.
+                // the actor is disposed, do not reschedule the timer
                 reschedule = false;
             }
             catch
