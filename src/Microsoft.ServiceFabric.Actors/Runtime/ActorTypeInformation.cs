@@ -146,7 +146,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 ActorInterfaceDescription.Create(actorInterface);
             }
 
-            // If the actor implements more than one actor interfaces make sure that it has actorServiceName.
+            // if the actor implements more than one actor interfaces make sure that it has actorServiceName
             if ((actorInterfaces.Length > 1) && string.IsNullOrEmpty(actorServiceName))
             {
                 throw new ArgumentException(
