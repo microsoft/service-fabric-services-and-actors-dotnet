@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
 
     /// <summary>
-    /// Represents a kind of state change for an actor state when 
+    /// Represents the kind of state change for an actor state when 
     /// <see cref="IActorStateProvider.SaveStateAsync(ActorId, IReadOnlyCollection{ActorStateChange}, CancellationToken)"/>
     /// saves changes to a set of actor states.
     /// </summary>
