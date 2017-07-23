@@ -106,13 +106,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var list = new List<Type>(type.GetInterfaces());
 
-            // Must have IActor as the parent, so removal of it should result in reduction in the count.
+            // must have IActor as the parent, so removal of it should result in reduction in the count.
             if (list.RemoveAll(t => (t == typeof(IActor))) == 0)
             {
                 return type;
             }
 
-            // Removes event publisher interfaces.
+            // remove event publisher interfaces
             list.RemoveAll(t => (t.GetTypeInfo().IsGenericType && (t.GetGenericTypeDefinition() == typeof(IActorEventPublisher<>))));
             list.RemoveAll(t => (t == typeof(IActorEventPublisher)));
 
