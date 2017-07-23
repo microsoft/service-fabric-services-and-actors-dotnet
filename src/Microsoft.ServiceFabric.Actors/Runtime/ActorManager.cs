@@ -209,8 +209,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // WARNING: DO NOT PUT ANY CODE BELOW BEFORE THE LOCK IS RELEASED
                 // BECAUSE WE ARE NOT INSIDE A TRY-CATCH BLOCK
                 //
-                // Signal that current execution is finished on this actor 
-                // since there is no call pending or this was the first actor call in the callContext.
+                // signal that current execution is finished on this actor 
+                // since there is no call pending or this was the first actor call in the callContext
                 await actor.ConcurrencyLock.ReleaseContext(callContext);
 
                 // Emit diagnostic info - after releasing actor lock
@@ -336,7 +336,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     var actorBase = actorScope.Actor;
 
-                    // If Actor is deleted, reminder should not be fired or armed again.
+                    // if Actor is deleted, reminder should not be fired or armed again.
                     // Its an optimization so that we don't fire the reminder if the actor
                     // is marked for deletion.
                     if (actorBase.MarkedForDeletion)
@@ -478,7 +478,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     try
                     {
-                        // Deactivate must happen outside of above try catch to avoid scenarios
+                        // deactivate must happen outside of above try catch to avoid scenarios
                         // in which Remove actor state and reminder from state provider throws.
 
                         ActorBase removedActor;
@@ -609,7 +609,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             byte[] retval = null;
 
-            // If this actor has been deleted or is a dummy actor, then calls must be made on new object.
+            // if this actor has been deleted or is a dummy actor, then calls must be made on new object.
             if (actor.MarkedForDeletion || actor.IsDummy)
             {
                 // Deleted Actor, Method calls will be retried by Actor Proxy.
@@ -620,7 +620,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             // set the incoming callContext as the new logical call context, before
             // making calls to the actor, so that when the actor makes call this context
-            // flows through.
+            // flows through
             ActorLogicalCallContext.Set(callContext);
 
             // initialize the actor if needed
@@ -793,7 +793,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 if (this.isClosed && (this.activeActors.Count == 0))
                 {
-                    // All actors are garbaged collected and we are closed
+                    // all actors are garbaged collected and we are closed
                     // no need to schedule the timer again.
                     this.gcTimer.Dispose();
                     this.gcTimer = null;
