@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Services.Runtime;
 
     /// <summary>
-    /// This class contains methods to register actor and actor service types with Service Fabric runtime. Registering the types allows the runtime to create instances of the actor and the actor service. See https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-actors-lifecycle for more information on the lifecycle of an actor.
+    /// Contains methods to register actor and actor service types with Service Fabric runtime. Registering the types allows the runtime to create instances of the actor and the actor service. See https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-actors-lifecycle for more information on the lifecycle of an actor.
     /// </summary>
     public static class ActorRuntime
     {
@@ -45,10 +45,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Registers an actor type with Service Fabric runtime. This allows the runtime to create instances of this actor.
         /// </summary>
-        /// <typeparam name="TActor">Type implementing the actor.</typeparam>
+        /// <typeparam name="TActor">The Type implementing the actor.</typeparam>
         /// <param name="timeout">A timeout period after which the registration operation will be canceled.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation to register actor type with Service Fabric runtime.</returns>
+        /// <returns>Returns a task that represents the asynchronous operation to register actor type with Service Fabric runtime.</returns>
         public static async Task RegisterActorAsync<TActor>(
             TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
@@ -63,8 +63,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Registers an actor service with Service Fabric runtime. This allows the runtime to create instances of the replicas for the actor service.
         /// </summary>
-        /// <typeparam name="TActor">Type implementing actor.</typeparam>
-        /// <param name="actorServiceFactory">Delegate that create new actor service.</param>
+        /// <typeparam name="TActor">The Type implementing actor.</typeparam>
+        /// <param name="actorServiceFactory">The delegate that creates new actor service.</param>
         /// <param name="timeout">A timeout period after which the registration operation will be canceled.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation to register actor service with Service Fabric runtime.</returns>        

@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Globalization;
 
     /// <summary>
-    /// Provides a turn based concurrency that supports logical call based reentrancy for actor calls
+    /// Provides a turn based concurrency that supports logical call based reentrancy for actor calls.
     /// </summary>
     internal class ActorConcurrencyLock
     {
@@ -103,7 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     // the incoming call is part of the current call chain
 
-                    // the messaging layer may deliver duplicate messages, therefore if the 
+                    // The messaging layer may deliver duplicate messages, therefore if the 
                     // incomingCallContext is same as currentCallContext it is a duplicate message
                     // this is because every outgoing call from actors has a new callContext appended
                     // to the currentCallContext

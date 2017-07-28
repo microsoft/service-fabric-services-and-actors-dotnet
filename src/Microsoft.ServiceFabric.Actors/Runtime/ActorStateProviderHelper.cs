@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Query;
 
     /// <summary>
-    /// The code  in this class is shared by the different actor state providers (Kvs, RD, Volatile and Null).
+    /// Represents the code shared by the different actor state providers (Kvs, RD, Volatile and Null).
     /// If you are adding any code/behavior that is common to different actor state provider(s), please add
     /// it to this class.
     /// </summary>
@@ -235,7 +235,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     actorQueryResult.Items = actorIdList.AsReadOnly();
 
-                    // If enumerator has more elements, then set the continuation token
+                    // If enumerator has more elements, then set the continuation token.
                     if (enumHasMoreEntries)
                     {
                         actorQueryResult.ContinuationToken = new ContinuationToken(currentActorCount.ToString());
@@ -316,10 +316,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This is used by Kvs and Volatile actor state provider.
+        /// Used by Kvs and Volatile actor state provider.
         /// </summary>
-        /// <param name="codePackage"></param>
-        /// <param name="actorImplType"></param>
+        /// <param name="codePackage">The code package.</param>
+        /// <param name="actorImplType">The type of actor.</param>
         /// <returns></returns>
         internal static ReplicatorSettings GetActorReplicatorSettings(CodePackageActivationContext codePackage, Type actorImplType)
         {

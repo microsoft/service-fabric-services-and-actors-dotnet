@@ -22,27 +22,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         [DataMember(Name = "Headers", IsRequired = true, Order = 2)] private Dictionary<string, byte[]> headers;
 
         /// <summary>
-        /// The methodId of the remote method
+        /// Gets or sets the methodId of the remote method.
         /// </summary>
-        /// <value>Method id</value>
+        /// <value>The method id.</value>
         [DataMember(Name = "MethodId", IsRequired = true, Order = 0)]
         public int MethodId { get; set; }
 
         /// <summary>
-        /// The interface id of the remote interface.
+        /// Gets or sets the interface id of the remote interface.
         /// </summary>
-        /// <value>Interface id</value>
+        /// <value>The interface id.</value>
         [DataMember(Name = "InterfaceId", IsRequired = true, Order = 1)]
         public int InterfaceId { get; set; }
 
         /// <summary>
-        /// Identifier for the remote method invocation
+        /// Gets or sets the identifier for the remote method invocation.
         /// </summary>
         [DataMember(Name = "InvocationId", IsRequired = false, Order = 3, EmitDefaultValue = false)]
         public string InvocationId { get; set; }
 
         /// <summary>
-        /// Instantiates a new instance of the ServiceRemotingMessageHeaders
+        /// Initializes a new instance of the ServiceRemotingMessageHeaders class.
         /// </summary>
         public ServiceRemotingMessageHeaders()
         {
@@ -54,8 +54,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// Adds a new header with the specified name and value.
         /// Throws FabricElementAlreadyExistsException if a header with the same name already exists.
         /// </summary>
-        /// <param name="headerName">Header Name</param>
-        /// <param name="headerValue">header value</param>
+        /// <param name="headerName">The header Name.</param>
+        /// <param name="headerValue">The header value.</param>
         public void AddHeader(string headerName, byte[] headerValue)
         {
             if (this.headers.ContainsKey(headerName))
@@ -71,11 +71,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         }
 
         /// <summary>
-        /// Gets the header with the specified name
+        /// Gets the header with the specified name.
         /// </summary>
-        /// <param name="headerName">Header Name</param>
-        /// <param name="headerValue">Header value</param>
-        /// <returns>true if a header with that name exists, false otherwise</returns>
+        /// <param name="headerName">The header Name.</param>
+        /// <param name="headerValue">The header value.</param>
+        /// <returns>true if a header with that name exists; otherwise, false.</returns>
         public bool TryGetHeaderValue(string headerName, out byte[] headerValue)
         {
             headerValue = null;
@@ -89,11 +89,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         }
 
         /// <summary>
-        /// Serializes the headers to a byte array
+        /// Serializes the headers to a byte array.
         /// </summary>
-        /// <param name="serializer">Serializer</param>
-        /// <param name="msg">Headers</param>
-        /// <returns>The serialized byte array</returns>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="msg">The headers.</param>
+        /// <returns>The serialized byte array.</returns>
         public static byte[] Serialize(DataContractSerializer serializer, ServiceRemotingMessageHeaders msg)
         {
             if (msg == null)
@@ -113,11 +113,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         }
 
         /// <summary>
-        /// De-serializes the byte array to a ServiceRemotingMessageHeaders object
+        /// De-serializes the byte array to a ServiceRemotingMessageHeaders object.
         /// </summary>
-        /// <param name="serializer">Deserializer</param>
-        /// <param name="buffer">buffer</param>
-        /// <returns>De-serialized headers</returns>
+        /// <param name="serializer">The deserializer.</param>
+        /// <param name="buffer">The buffer.</param>
+        /// <returns>De-serialized headers.</returns>
         public static ServiceRemotingMessageHeaders Deserialize(DataContractSerializer serializer, byte[] buffer)
         {
             if ((buffer == null) || (buffer.Length == 0))

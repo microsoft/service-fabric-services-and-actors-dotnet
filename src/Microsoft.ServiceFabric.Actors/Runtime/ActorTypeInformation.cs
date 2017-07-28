@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Remoting.Description;
 
     /// <summary>
-    /// Contains information about the type implementing an actor.
+    /// Contains the information about the type implementing an actor.
     /// </summary>
     public sealed class ActorTypeInformation
     {
@@ -23,9 +23,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets type of the class implementing the actor.
+        /// Gets the type of the class implementing the actor.
         /// </summary>
-        /// <value><see cref="System.Type"/> of the class implementing the actor.</value>
+        /// <value>The <see cref="System.Type"/> of the class implementing the actor.</value>
         public Type ImplementationType { get; private set; }
 
         /// <summary>
@@ -35,39 +35,39 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public IEnumerable<Type> InterfaceTypes { get; private set; }
 
         /// <summary>
-        /// Gets actor event interface which the actor class implements.
+        /// Gets the actor event interface which the actor class implements.
         /// </summary>
-        /// <value>An enumerator hat can be used to iterate through the actor event interface which the actor class implements.</value>
+        /// <value>An enumerator that can be used to iterate through the actor event interface which the actor class implements.</value>
         public IEnumerable<Type> EventInterfaceTypes { get; private set;  }
 
         /// <summary>
-        /// Gets service name if specified using <see cref="ActorServiceAttribute"/> for actor class.
+        /// Gets the service name if specified using <see cref="ActorServiceAttribute"/> for actor class.
         /// </summary>
-        /// <value>Service name if specified using <see cref="ActorServiceAttribute"/> for actor class, null if attribute is not used.</value>
+        /// <value>The service name if specified using <see cref="ActorServiceAttribute"/> for actor class, null if attribute is not used.</value>
         public string ServiceName { get; private set; }
 
         /// <summary>
-        /// Gets if class implementing actor is abstract.
+        /// Gets a value whether the class implementing actor is abstract.
         /// </summary>
-        /// <value>true if class implementing actor is abstract, otherwise false.</value>
+        /// <value>true if the class implementing actor is abstract, otherwise false.</value>
         public bool IsAbstract { get; private set; }
 
         /// <summary>
-        /// Gets if the actor class implements <see cref="IRemindable"/>.
+        /// Gets a value whether the actor class implements <see cref="IRemindable"/>.
         /// </summary>
-        /// <value>true if actor class implements <see cref="IRemindable"/>, otherwise false.</value>
+        /// <value>true if the actor class implements <see cref="IRemindable"/>, otherwise false.</value>
         public bool IsRemindable { get; private set; }
 
         /// <summary>
-        /// Get the <see cref="Microsoft.ServiceFabric.Actors.Runtime.StatePersistence"/> enum representing type of state persistence for the actor.
+        /// Gets the <see cref="Microsoft.ServiceFabric.Actors.Runtime.StatePersistence"/> enum representing type of state persistence for the actor.
         /// </summary>
-        /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.StatePersistence"/> representing type of state persistence for the actor.</value>
+        /// <value>The <see cref="Microsoft.ServiceFabric.Actors.Runtime.StatePersistence"/> representing type of state persistence for the actor.</value>
         public StatePersistence StatePersistence { get; private set; }
 
         /// <summary>
-        /// Creates <see cref="ActorTypeInformation"/> from actorType.
+        /// Creates the <see cref="ActorTypeInformation"/> from actorType.
         /// </summary>
-        /// <param name="actorType">Type of class implementing the actor to create ActorTypeInforamtion for.</param>
+        /// <param name="actorType">The type of class implementing the actor to create ActorTypeInforamtion for.</param>
         /// <param name="actorTypeInformation">When this method returns, contains ActorTypeInformation, if the creation of
         /// ActorTypeInformation from actorType succeeded, or null if the creation failed.
         /// The creation fails if the actorType parameter is null or it does not implement an actor.</param>
@@ -94,9 +94,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates <see cref="ActorTypeInformation"/> from actorType.
+        /// Creates an <see cref="ActorTypeInformation"/> from actorType.
         /// </summary>
-        /// <param name="actorType">Type of class implementing the actor to create ActorTypeInforamtion for.</param>
+        /// <param name="actorType">The type of class implementing the actor to create ActorTypeInforamtion for.</param>
         /// <returns><see cref="ActorTypeInformation"/> created from actorType.</returns>
         /// <exception cref="System.ArgumentException">
         /// <para>When <see cref="System.Type.BaseType"/> for actorType is not of type <see cref="Actor"/>.</para>
