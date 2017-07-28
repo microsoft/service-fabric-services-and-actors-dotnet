@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         /// </summary>
         /// <param name="messageHeaders">Message Headers contains the information needed to deserialize request and to dispatch message to the client.</param>
         /// <param name="requestBody"> Message Body contains a request in a serialized form.</param>
-        /// <returns>Response Body is a serialized response recived by the service</returns>
+        /// <returns>Response Body is a serialized response received by the service.</returns>
         #pragma warning disable 108
         [OperationContract]
         [FaultContract(typeof(RemoteExceptionInformation))]
