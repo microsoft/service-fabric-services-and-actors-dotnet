@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     public abstract class ActorRemotingProviderAttribute : Attribute
     {
         /// <summary>
-        ///     Instantiates a new <see cref="ActorRemotingProviderAttribute"/>.
+        ///     Initializes a new instance of the <see cref="ActorRemotingProviderAttribute"/> class.
         /// </summary>
         protected ActorRemotingProviderAttribute()
         {

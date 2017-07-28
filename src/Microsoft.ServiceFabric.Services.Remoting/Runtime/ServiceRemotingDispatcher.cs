@@ -28,11 +28,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         private readonly ServicePerformanceCounterProvider servicePerformanceCounterProvider;
 
         /// <summary>
-        /// Instantiates the ServiceRemotingDispatcher that uses the given service context and
+        /// Initializes a new instance of the ServiceRemotingDispatcher class that uses the given service context and
         /// dispatches messages to the given service implementation.
         /// </summary>
-        /// <param name="serviceContext">Service context</param>
-        /// <param name="service">Service implementation that implements interfaces of type <see cref="IService"/></param>
+        /// <param name="serviceContext">The service context.</param>
+        /// <param name="service">The service implementation that implements interfaces of type <see cref="IService"/>.</param>
         public ServiceRemotingDispatcher(ServiceContext serviceContext, IService service)
         {
             Requires.ThrowIfNull(serviceContext, "serviceContext");
@@ -61,10 +61,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <summary>
         /// Handles a message from the client that requires a response from the service.
         /// </summary>
-        /// <param name="requestContext">Request context - contains additional information about the request</param>
-        /// <param name="messageHeaders">Request message headers</param>
-        /// <param name="requestBody">Request message body</param>
-        /// <returns>Response body</returns>
+        /// <param name="requestContext">Contains additional information about the request.</param>
+        /// <param name="messageHeaders">The request message headers.</param>
+        /// <param name="requestBody">The request message body.</param>
+        /// <returns>The response body.</returns>
         public virtual async Task<byte[]> RequestResponseAsync(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
@@ -116,9 +116,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <summary>
         /// Handles a one way message from the client.
         /// </summary>
-        /// <param name="requestContext">Request context - contains additional information about the request</param>
-        /// <param name="messageHeaders">Request message headers</param>
-        /// <param name="requestBody">Request message body</param>
+        /// <param name="requestContext">Contains additional information about the request.</param>
+        /// <param name="messageHeaders">The request message headers.</param>
+        /// <param name="requestBody">The request message body.</param>
         public virtual void HandleOneWay(IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
         {

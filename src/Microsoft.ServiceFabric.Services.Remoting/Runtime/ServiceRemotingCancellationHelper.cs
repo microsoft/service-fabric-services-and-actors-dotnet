@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     using Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
-    /// Helper class that provides cancellation support for remote method dispatching
+    /// Provides cancellation support for remote method dispatching.
     /// </summary>
     internal sealed class ServiceRemotingCancellationHelper
     {

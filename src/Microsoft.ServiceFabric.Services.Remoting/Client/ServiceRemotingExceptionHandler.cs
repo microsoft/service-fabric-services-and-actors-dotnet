@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
-    /// This class provide handling of exceptions encountered in communicating with 
+    /// Provides handling of exceptions encountered in communicating with 
     /// a service fabric service over remoted interfaces. 
     /// </summary>
     /// <remarks>
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private readonly string traceId;
 
         /// <summary>
-        /// Constructs a ServiceRemotingExceptionHandler with a default trace id.
+        /// Constructs a ServiceRemotingExceptionHandler with a default trace ID.
         /// </summary>
         public ServiceRemotingExceptionHandler()
             : this(null)
@@ -56,10 +56,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
         /// <summary>
-        /// Constructs a ServiceRemotingExceptionHandler with a specified trace id.
+        /// Constructs a ServiceRemotingExceptionHandler with a specified trace ID.
         /// </summary>
         /// <param name="traceId">
-        ///     Id to use in diagnostics traces from this component.
+        ///     The ID to use in diagnostics traces from this component.
         /// </param>
         public ServiceRemotingExceptionHandler(string traceId)
         {
@@ -67,12 +67,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
         /// <summary>
-        /// Method that examines the exception and determines how that exception can be handled. 
+        /// Examines the exception and determines how that exception can be handled. 
         /// </summary>
-        /// <param name="exceptionInformation">Information about the exception</param>
+        /// <param name="exceptionInformation">The information about the exception.</param>
         /// <param name="retrySettings">The operation retry preferences.</param>
-        /// <param name="result">Result of the exception handling</param>
-        /// <returns>true if the exception is handled, false otherwise</returns>
+        /// <param name="result">The result of the exception handling.</param>
+        /// <returns>true if the exception is handled; otherwise, false.</returns>
         bool IExceptionHandler.TryHandleException(
             ExceptionInformation exceptionInformation,
             OperationRetrySettings retrySettings,

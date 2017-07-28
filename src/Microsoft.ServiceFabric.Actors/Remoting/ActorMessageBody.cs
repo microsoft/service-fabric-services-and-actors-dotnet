@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     using System.Runtime.Serialization;
 
     /// <summary>
-    ///  Body of the actor messages.
+    ///  Represents the body of the actor messages.
     /// </summary>
     [DataContract(Name = "msgBody", Namespace = Constants.Namespace)]
     internal class ActorMessageBody
