@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Data;
 
     /// <summary>
-    /// Represents base class for Microsoft Service Fabric based stateful reliable service
+    /// Represents the base class for Microsoft Service Fabric based stateful reliable service
     /// which provides an <see cref="IReliableStateManager"/> to manage service's state. 
     /// Derive from this class to implement a Microsoft Service Fabric based stateful reliable service.
     /// </summary>

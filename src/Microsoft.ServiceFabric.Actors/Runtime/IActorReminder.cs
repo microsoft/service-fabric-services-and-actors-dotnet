@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Gets the time when the reminder is first due to be invoked.
         /// </summary>
-        /// <value>The due time when the reminder is first due to be invoked.</value>
+        /// <value>The time when the reminder is first due to be invoked.</value>
         /// <remarks>
         /// A value of negative one (-1) milliseconds means the reminder is not invoked. A value of zero (0) means the reminder is invoked immediately after registration.
         /// </remarks>

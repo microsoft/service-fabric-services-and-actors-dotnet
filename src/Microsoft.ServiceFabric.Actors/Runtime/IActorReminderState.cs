@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
 
     /// <summary>
-    /// Represents internal state of Actor Reminder
+    /// Represents internal state of Actor Reminder.
     /// </summary>
     public interface IActorReminderState : IActorReminder
     {

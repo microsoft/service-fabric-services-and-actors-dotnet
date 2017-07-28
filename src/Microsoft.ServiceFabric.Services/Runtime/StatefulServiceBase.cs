@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
     /// <summary>
-    /// Represents base class for Microsoft Service Fabric based stateful reliable service.
+    /// Represents the base class for Microsoft Service Fabric based stateful reliable service.
     /// </summary>
     public abstract class StatefulServiceBase : IStatefulUserServiceReplica
     {
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
         
         /// <summary>
-        /// Gets list of all the addresses for this service replica
+        /// Gets the list of all the addresses for this service replica
         /// as (ListenerName, Endpoint) key-value pair.
         /// </summary>
         /// <returns>
@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Service partition to which current service replica belongs. 
+        /// The service partition to which current service replica belongs. 
         /// </summary>
         /// <value>
         /// An <see cref="IStatefulServicePartition"/> that represents the 
@@ -234,7 +234,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Notification that the service is being aborted. RunAsync MAY be running concurrently
+        /// The notification that the service is being aborted. RunAsync MAY be running concurrently
         /// with the execution of this method, as cancellation is not awaited on the abort path. 
         /// <para>
         /// For information about Reliable Services life cycle please see

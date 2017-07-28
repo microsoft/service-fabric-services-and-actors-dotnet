@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
     /// <summary>
-    /// Represents Microsoft Service Fabric based stateless reliable service base class. 
+    /// Represents the Microsoft Service Fabric based stateless reliable service base class. 
     /// Derive from this class to implement a Microsoft Service Fabric based stateless reliable service.
     /// </summary>
     public abstract class StatelessService : IStatelessUserServiceInstance
@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Gets list of all the addresses for this service instance
+        /// Gets the list of all the addresses for this service instance
         /// as (ListenerName, Endpoint) key-value pair.
         /// </summary>
         /// <returns>

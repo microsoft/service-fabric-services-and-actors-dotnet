@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Reflection;
 
     /// <summary>
-    /// Indicates whether actor state should be volatile (in-memory only), persisted, or not stored at all.
+    /// Indicates whether the actor state should be volatile (in-memory only), persisted, or not stored at all.
     /// The store type given to this attribute must match the type of state provider used in the actor service.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
