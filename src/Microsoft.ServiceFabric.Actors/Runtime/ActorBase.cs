@@ -277,6 +277,26 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
+        /// Registers any ITimer object for the actor.
+        /// </summary>
+        /// <param name="timer">
+        /// ITimer to register
+        /// </param>
+        protected void RegisterTimer(IActorTimer timer)
+        {   
+            if (this.GcHandler.IsGarbageCollected)
+            {
+                throw new ObjectDisposedException("actor");
+            }
+
+            if (this.timers == null)
+            {
+                this.timers = new List<IActorTimer>();
+            }
+            this.timers.Add(timer);
+        }
+
+        /// <summary>
         /// Registers a reminder with the actor.
         /// </summary>
         /// <param name="reminderName">The name of the reminder to register. The name must be unique per actor.</param>
