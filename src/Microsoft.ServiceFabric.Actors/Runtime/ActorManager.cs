@@ -8,12 +8,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common.Tracing;
     using System.Globalization;
     using System.Linq;
     using System.Runtime.ExceptionServices;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Text;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
@@ -380,10 +380,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     e.ToString());
             }
 
-            if (rearmTimer)
+            // User may delete or update reminder during ReceiveReminderAsync() call.
+            // Rearm only if it is still valid.
+            if (reminder.IsValid() && rearmTimer)
             {
-                await this.UpdateReminderLastCompletedTimeAsync(reminder);
-                reminder.ArmTimer(reminder.Period);
+                if(this.ActorService.Settings.ReminderSettings.AutoDeleteOneTimeReminders && this.IsOneTimeReminder(reminder))
+                {
+                    await this.UnregisterOneTimeReminderAsync(reminder);
+                }
+                else
+                {
+                    await this.UpdateReminderLastCompletedTimeAsync(reminder);
+                    reminder.ArmTimer(reminder.Period);
+                }                
             }
         }
 
@@ -542,10 +551,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return ActorTrace.GetTraceIdForActor(this.actorService.Context.PartitionId, this.actorService.Context.ReplicaId, actorId);
         }
 
-        public FabricEvents.ExtensionsEvents TraceSource
-        {
-            get { return ActorTrace.Source; }
-        }
+        public ActorEventSource TraceSource => ActorTrace.Source;
 
         #endregion
 
@@ -932,27 +938,36 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return;
             }
 
-            if (this.actorService.ActorTypeInformation.IsRemindable)
+            foreach (var actorReminders in reminders)
             {
-                foreach (var actorReminders in reminders)
+                var actorId = actorReminders.Key;
+                
+                try
                 {
-                    var actorId = actorReminders.Key;
+                    List<string> remindersToDelete = new List<string>();
 
-                    try
+                    foreach (var reminderState in actorReminders.Value)
                     {
-                        foreach (var reminderState in actorReminders.Value)
+                        if(this.ActorService.Settings.ReminderSettings.AutoDeleteOneTimeReminders && 
+                           reminderState.RemainingDueTime < TimeSpan.Zero && 
+                           this.IsOneTimeReminder(reminderState))
                         {
-                            await this.RegisterOrUpdateReminderAsync(actorId, reminderState, false);
+                            remindersToDelete.Add(reminderState.Name);
+                            continue;
                         }
+
+                        await this.RegisterOrUpdateReminderAsync(actorId, reminderState, false);
                     }
-                    catch
-                    {
-                        ActorTrace.Source.WriteInfoWithId(
-                            TraceType,
-                            this.traceId,
-                            "Exception encountered while configuring reminder for ActorID {0}.",
-                            actorId.ToString());
-                    }
+
+                    await this.DeleteRemindersSafeAsync(actorId, remindersToDelete, cancellationToken);
+                }
+                catch
+                {
+                    ActorTrace.Source.WriteWarningWithId(
+                        TraceType,
+                        this.traceId,
+                        "Exception encountered while configuring reminder for ActorID {0}.",
+                        actorId.ToString());
                 }
             }
         }
@@ -1027,6 +1042,69 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     reminder.Name,
                     ex.ToString());
             }
+        }
+
+        private bool IsOneTimeReminder(IActorReminder reminder)
+        {
+            return (reminder.DueTime > TimeSpan.Zero && reminder.Period < TimeSpan.Zero);
+        }
+
+        private async Task UnregisterOneTimeReminderAsync(ActorReminder reminder)
+        {
+            try
+            {
+                await this.UnregisterReminderAsync(reminder.Name, reminder.OwnerActorId, true);
+            }
+            catch(ReminderNotFoundException)
+            {
+                // User already unregistered the reminder.
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "UnregisterOneTimeReminderAsync(): Failed to unregister reminder for ActorId:[{0}], ReminderName:[{1}]. Exception: {2}",
+                    reminder.OwnerActorId,
+                    reminder.Name,
+                    ex.ToString());
+            }
+        }
+
+        private async Task DeleteRemindersSafeAsync(ActorId actorId, List<string> remindersToDelete, CancellationToken cancellationToken)
+        {
+            if (remindersToDelete.Count == 0)
+            {
+                return;
+            }
+
+            var deleteIndividually = false;
+
+            try
+            {
+                var reminderNames = new Dictionary<ActorId, IReadOnlyCollection<string>>();
+                reminderNames.Add(actorId, remindersToDelete);
+
+                await this.StateProvider.DeleteRemindersAsync(reminderNames, cancellationToken);
+            }
+            catch(FabricMessageTooLargeException)
+            {
+                deleteIndividually = true;
+            }
+
+            if(deleteIndividually)
+            {
+                var msg = new StringBuilder();
+                msg.Append($"DeleteRemindersSafeAsync(): FabricMessageTooLargeException exception while deleting reminders.");
+                msg.Append($"ActorId:{actorId}, ReminderCount={remindersToDelete.Count}. Switching to individual delete.");
+
+                ActorTrace.Source.WriteWarningWithId(TraceType, this.traceId, msg.ToString());
+
+                foreach (var reminderName in remindersToDelete)
+                {
+                    await this.StateProvider.DeleteReminderAsync(actorId, reminderName, cancellationToken);
+                }
+            }            
         }
 
         #endregion

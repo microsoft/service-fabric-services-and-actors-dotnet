@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric.Health;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -475,14 +476,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var reminderKey = CreateReminderStorageKey(actorId, reminderName);
             var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminderName);
 
-            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
-                () =>
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return this.DeleteReminderAsync(reminderKey, reminderCompletedKey);
-                },
-                string.Format("DeleteReminderAsync[{0}]", actorId),
-                cancellationToken);
+            var reminderKeyInfo = new List<ReminderKeyInfo>
+            {
+                new ReminderKeyInfo(reminderKey, reminderCompletedKey)
+            };
+
+            return this.DeleteRemindersInternalAsync(reminderKeyInfo, $"DeleteReminderAsync[{actorId}]", cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes the specified set of reminders.
+        /// </summary>
+        /// <param name="reminderNames">The set of reminders to delete.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous delete operation.</returns>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+        Task IActorStateProvider.DeleteRemindersAsync(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames, CancellationToken cancellationToken)
+        {
+            var reminderKeyInfoList = this.GetReminderKeyInfoList(reminderNames);
+            
+            return this.DeleteRemindersInternalAsync(
+                reminderKeyInfoList, $"DeleteRemindersAsync[{reminderNames.Count}]", cancellationToken);            
         }
 
         /// <summary>
@@ -1185,15 +1199,55 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private async Task DeleteReminderAsync(string reminderKey, string reminderCompletedKey)
+        private Task DeleteRemindersInternalAsync(List<ReminderKeyInfo> reminderKeyInfoList, string functionNameTag, CancellationToken cancellationToken)
+        {
+            if (reminderKeyInfoList.Count == 0)
+            {
+                return Task.FromResult(true);
+            }
+
+            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+            () =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return this.DeleteReminderAsync(reminderKeyInfoList);
+            },
+            functionNameTag,
+            cancellationToken);
+        }
+
+        private async Task DeleteReminderAsync(IEnumerable<ReminderKeyInfo> reminderKeyInfoList)
         {
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                this.storeReplica.TryRemove(tx, reminderKey);
-                this.storeReplica.TryRemove(tx, reminderCompletedKey);
+                foreach(var reminderKeyInfo in reminderKeyInfoList)
+                {
+                    this.storeReplica.TryRemove(tx, reminderKeyInfo.ReminderKey);
+                    this.storeReplica.TryRemove(tx, reminderKeyInfo.ReminderCompletedKey);
+                }
 
                 await tx.CommitAsync();
             }
+        }
+
+        private List<ReminderKeyInfo> GetReminderKeyInfoList(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames)
+        {
+            var reminderKeyInfoList = new List<ReminderKeyInfo>();
+
+            foreach (var reminderNamesPerActor in reminderNames)
+            {
+                var actorId = reminderNamesPerActor.Key;
+
+                foreach (var reminderName in reminderNamesPerActor.Value)
+                {
+                    var reminderKey = CreateReminderStorageKey(actorId, reminderName);
+                    var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminderName);
+
+                    reminderKeyInfoList.Add(new ReminderKeyInfo(reminderKey, reminderCompletedKey));
+                }
+            }
+
+            return reminderKeyInfoList;
         }
 
         private async Task UpdateOrAddAsync(string key, byte[] state)
@@ -1429,6 +1483,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 return this.onDataLossCallback.Invoke(cancellationToken);
             }
+        }
+
+        private class ReminderKeyInfo
+        {
+            public ReminderKeyInfo(string reminderKey, string reminderCompletedKey)
+            {
+                this.ReminderKey = reminderKey;
+                this.ReminderCompletedKey = reminderCompletedKey;
+            }
+
+            public string ReminderKey { get; private set; }
+
+            public string ReminderCompletedKey { get; private set; }
         }
 
         #endregion

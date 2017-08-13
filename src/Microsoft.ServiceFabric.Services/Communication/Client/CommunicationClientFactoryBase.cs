@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
@@ -19,7 +20,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// clients and attempts to reuse the clients for requests to the same service endpoint.
     /// </summary>
     /// <typeparam name="TCommunicationClient">The type of communication client</typeparam>
-    public abstract class CommunicationClientFactoryBase<TCommunicationClient> : ICommunicationClientFactory<TCommunicationClient>
+    public abstract class CommunicationClientFactoryBase<TCommunicationClient> :
+        ICommunicationClientFactory<TCommunicationClient>
         where TCommunicationClient : ICommunicationClient
     {
         private const string TraceType = "CommunicationClientFactoryBase";
@@ -28,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private readonly CommunicationClientCache<TCommunicationClient> cache;
         private readonly string traceId;
         private readonly Random random;
-        private object randomLock;
+        private readonly object randomLock;
 
         /// <summary>
         /// Gets the ServicePartitionResolver used by the client factory for resolving the service endpoint.
@@ -87,7 +89,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 "{0} constructor",
                 this.traceId);
         }
-        
+
         /// <summary>
         /// Event handler that is fired when the Communication client connects to the service endpoint.
         /// </summary>
@@ -129,11 +131,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 retrySettings.MaxRetryBackoffIntervalOnTransientErrors,
                 cancellationToken);
 
-            return await this.GetClientAsync(
+            return await this.CreateClientWithRetriesAsync(
                 previousRsp,
                 targetReplicaSelector,
                 listenerName,
                 retrySettings,
+                false,
                 cancellationToken);
         }
 
@@ -156,71 +159,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             OperationRetrySettings retrySettings,
             CancellationToken cancellationToken)
         {
-            bool doResolve = false;
-            var endpoint = this.GetEndpoint(previousRsp, targetReplica);
-            CommunicationClientCacheEntry<TCommunicationClient> cacheEntry;
-            if (this.cache.TryGetClientCacheEntry(
-                previousRsp.Info.Id,
-                endpoint,
-                listenerName,
-                out cacheEntry))
-            {
-                await cacheEntry.Semaphore.WaitAsync(cancellationToken);
-
-                try
-                {
-                    TCommunicationClient validClient;
-                    var clientValid = this.ValidateLockedClientCacheEntry(
-                        cacheEntry,
-                        previousRsp,
-                        out validClient);
-
-                    if (clientValid)
-                    {
-                        return validClient;
-                    }
-                    else
-                    {
-                        ServiceTrace.Source.WriteInfo(
-                            TraceType,
-                            "{0} Client not valid in Cached entry for ListenerName : {1} Address : {2} Role : {3}",
-                            this.traceId,
-                            listenerName,
-                            endpoint.Address,
-                            endpoint.Role);
-                    }
-                }
-                finally
-                {
-                    cacheEntry.Semaphore.Release();
-                }
-
-                //
-                // There was a cache hit, but the communication client in the cache is invalid. 
-                // This could happen for these 2 cases,
-                // 1. The endpoint and RSP information is valid, but there are no active users for the 
-                //    communication client so the last reference to the client was GC'd.
-                // 2. There was an exception during communication to the endpoint, and the ReportOperationException
-                //    code path and the communication client was invalidated.
-                //
-                doResolve = true;
-            }
-
-            //
-            // We did not find a cache entry or a valid client in our cache, so attempt to create a new client.
-            //
+            
             var newClient = await this.CreateClientWithRetriesAsync(
                 previousRsp,
                 targetReplica,
                 listenerName,
                 retrySettings,
-                doResolve,
+                true,
                 cancellationToken);
-
-            if (newClient != null)
-            {
-                this.OnClientConnected(newClient);
-            }
 
             return newClient;
         }
@@ -364,6 +310,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             {
                 ExceptionHandlingResult result;
                 Exception actualException;
+                bool newClient = false;
                 try
                 {
                     if (doResolve)
@@ -376,18 +323,23 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         previousRsp = rsp;
                     }
 
+
                     var endpoint = this.GetEndpoint(previousRsp, targetReplicaSelector);
-                    var cacheEntry = await this.GetAndLockClientCacheEntryAsync(previousRsp.Info.Id, endpoint, listenerName, previousRsp, cancellationToken);
+                    var cacheEntry =
+                        await
+                            this.GetAndLockClientCacheEntryAsync(previousRsp.Info.Id, endpoint, listenerName, previousRsp,
+                                cancellationToken);
 
                     TCommunicationClient client;
                     try
                     {
-                        var clientValid = this.ValidateLockedClientCacheEntry(
-                            cacheEntry,
-                            previousRsp,
-                            out client);
-
-                        if (!clientValid)
+                        // The communication client in the cache is invalid. 
+                        // This could happen for these 2 cases,
+                        // 1. The endpoint and RSP information is valid, but there are no active users for the 
+                        //    communication client so the last reference to the client was GC'd.
+                        //2.There was an exception during communication to the endpoint, and the ReportOperationException
+                        //code path and the communication client was invalidated.
+                        if (cacheEntry.Client == null)
                         {
                             ServiceTrace.Source.WriteInfo(
                                 TraceType,
@@ -403,22 +355,49 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             client.ResolvedServicePartition = cacheEntry.Rsp;
                             client.ListenerName = cacheEntry.ListenerName;
                             client.Endpoint = cacheEntry.Endpoint;
+                            newClient = true;
                         }
+
                         else
                         {
-                            ServiceTrace.Source.WriteInfo(
-                                TraceType,
-                                "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
-                                this.traceId,
-                                listenerName,
-                                endpoint.Address,
-                                endpoint.Role);
+                            var clientValid = this.ValidateLockedClientCacheEntry(
+                                cacheEntry,
+                                previousRsp,
+                                out client);
+                            if (!clientValid)
+                            {
+                                ServiceTrace.Source.WriteInfo(
+                                    TraceType,
+                                    "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
+                                    this.traceId,
+                                    listenerName,
+                                    cacheEntry.GetEndpoint(),
+                                    cacheEntry.Endpoint.Role);
+                                doResolve = true;
+                                continue;
+                            }
+                            else
+                            {
+                                ServiceTrace.Source.WriteInfo(
+                                    TraceType,
+                                    "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
+                                    this.traceId,
+                                    listenerName,
+                                    endpoint.Address,
+                                    endpoint.Role);
+                            }
                         }
                     }
                     finally
                     {
                         cacheEntry.Semaphore.Release();
                     }
+
+                    if (client != null && newClient)
+                    {
+                        this.OnClientConnected(client);
+                    }
+
 
                     return client;
                 }
@@ -593,7 +572,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
             if (targetReplica == TargetReplicaSelector.RandomSecondaryReplica)
             {
-                var secondaryEndpoints = rsp.Endpoints.Where(rsEndpoint => rsEndpoint.Role != ServiceEndpointRole.StatefulPrimary);
+                var secondaryEndpoints =
+                    rsp.Endpoints.Where(rsEndpoint => rsEndpoint.Role != ServiceEndpointRole.StatefulPrimary);
                 if (!secondaryEndpoints.Any())
                 {
                     // This can happen if the stateful service partition has the min and target replica set size as 1.
@@ -618,8 +598,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private int NextRandom(int upperBound)
         {
-            int rand = 0;
-            lock(this.randomLock)
+            var rand = 0;
+            lock (this.randomLock)
             {
                 rand = this.random.Next(upperBound);
             }

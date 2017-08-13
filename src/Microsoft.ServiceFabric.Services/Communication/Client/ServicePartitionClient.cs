@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private readonly ICommunicationClientFactory<TCommunicationClient> communicationClientFactory;
         private readonly SemaphoreSlim communicationClientLock;
         private TCommunicationClient communicationClient;
-
+        private readonly string traceId;
         private readonly Uri serviceUri;
         private readonly ServicePartitionKey partitionKey;
         private readonly TargetReplicaSelector targetReplicaSelector;
@@ -54,13 +54,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.communicationClientFactory = communicationClientFactory;
             this.communicationClientLock = new SemaphoreSlim(1);
             this.communicationClient = default(TCommunicationClient);
-
+            this.traceId = Guid.NewGuid().ToString();
             this.serviceUri = serviceUri;
             this.partitionKey = partitionKey ?? ServicePartitionKey.Singleton;
             this.listenerName = listenerName;
             this.targetReplicaSelector = targetReplicaSelector;
             this.lastRsp = null;
-
             this.retrySettings = retrySettings ?? new OperationRetrySettings();
         }
        
@@ -177,8 +176,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
                 catch (AggregateException ae)
                 {
-                    ServiceTrace.Source.WriteNoise(
+                    ServiceTrace.Source.WriteNoiseWithId(
                         TraceType, 
+                        this.traceId,
                         "AggregateException While Invoking API {0}", 
                         ae);
 
@@ -187,8 +187,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
                 catch (Exception e)
                 {
-                    ServiceTrace.Source.WriteNoise(
+                    ServiceTrace.Source.WriteNoiseWithId(
                         TraceType, 
+                        this.traceId,
                         "Exception While Invoking API {0}", 
                         e);
 
@@ -218,8 +219,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     throw exceptionReportResult.Exception ?? exception;
                 }
 
-                ServiceTrace.Source.WriteInfo(
+                ServiceTrace.Source.WriteInfoWithId(
                     TraceType,
+                    this.traceId,
                     "Exception report result Id: {0}  IsTransient : {1} Delay : {2}",
                     exceptionReportResult.ExceptionId,
                     exceptionReportResult.IsTransient,

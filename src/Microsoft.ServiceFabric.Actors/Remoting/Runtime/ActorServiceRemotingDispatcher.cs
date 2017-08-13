@@ -79,8 +79,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
         {
             ActorMessageHeaders actorMessageHeaders;
             if (!ActorMessageHeaders.TryFromServiceMessageHeaders(messageHeaders, out actorMessageHeaders))
-            {
-                throw new SerializationException(Actors.SR.ErrorActorMessageHeadersDeserializationFailed);
+           {
+                //This can only happen if there is issue in our product code like Message Corruption or changing headers format.
+                ReleaseAssert.Failfast("ActorMessageHeaders Deserialization failed");
             }
 
             if (actorMessageHeaders.MethodId == ActorEventSubscription.SubscribeMethodId)

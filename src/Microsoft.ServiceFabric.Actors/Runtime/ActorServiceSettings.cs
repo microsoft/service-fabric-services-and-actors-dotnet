@@ -12,7 +12,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class ActorServiceSettings
     {
         private ActorGarbageCollectionSettings actorGarbageCollectionSettings = new ActorGarbageCollectionSettings();
-        private ActorConcurrencySettings actorConcurrencySettings = new ActorConcurrencySettings(); 
+        private ActorConcurrencySettings actorConcurrencySettings = new ActorConcurrencySettings();
+        private ReminderSettings reminderSettings = new ReminderSettings();
 
         /// <summary>
         /// Initializes a new instance of the ActorServiceSettings class.
@@ -30,6 +31,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // deep copy settings.
             actorServiceSettings.actorGarbageCollectionSettings = new ActorGarbageCollectionSettings(other.actorGarbageCollectionSettings);
             actorServiceSettings.actorConcurrencySettings = new ActorConcurrencySettings(other.actorConcurrencySettings);
+            actorServiceSettings.reminderSettings = new ReminderSettings(other.reminderSettings);
 
             return actorServiceSettings;
         }
@@ -69,6 +71,25 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
 
                 this.actorConcurrencySettings = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets settings to configure behavior of reminders.
+        /// </summary>
+        /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.ReminderSettings"/> for the Actor Service.</value>
+        public ReminderSettings ReminderSettings
+        {
+            get { return this.reminderSettings; }
+
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("value");
+                }
+
+                this.reminderSettings = value;
             }
         }
     }

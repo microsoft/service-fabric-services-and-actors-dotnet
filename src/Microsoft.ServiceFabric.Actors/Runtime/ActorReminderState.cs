@@ -7,6 +7,7 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Threading;
 
     internal class ActorReminderState : IActorReminderState
     {
@@ -69,7 +70,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // Skip computing remaining time.
             if (dueTimeOrPeriod < TimeSpan.Zero)
             {
-                return dueTimeOrPeriod;
+                return Timeout.InfiniteTimeSpan;
             }
 
             var remainingTime = TimeSpan.Zero;

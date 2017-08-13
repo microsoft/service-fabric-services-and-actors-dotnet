@@ -330,21 +330,25 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
 
-            var key = CreateStorageKey(actorId, reminderName);
+            var reminderkey = CreateStorageKey(actorId, reminderName);
 
-            await this.stateProviderHelper.ExecuteWithRetriesAsync(
-                async () =>
-                {
-                    using (var tx = this.stateManager.CreateTransaction())
-                    {
-                        await this.GetReminderDictionary(actorId).TryRemoveAsync(tx, key);
-                        await this.reminderCompletedDictionary.TryRemoveAsync(tx, key);
+            var reminderKeys = new Dictionary<ActorId, IReadOnlyCollection<string>>()
+            {
+                { actorId, new List<string>() { reminderkey } }
+            };
 
-                        await tx.CommitAsync();
-                    }
-                },
-                string.Format("DeleteReminderAsync[{0}]", actorId),
-                cancellationToken);
+            await this.DeleteRemindersInternalAsync(reminderKeys, $"DeleteReminderAsync[{actorId}]", cancellationToken);
+        }
+
+        async Task IActorStateProvider.DeleteRemindersAsync(
+            IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames, CancellationToken cancellationToken)
+        {
+            await this.EnsureStateProviderInitializedAsync(cancellationToken);
+
+            int totalCount = 0;
+            var reminderKeys = this.GetReminderKeys(reminderNames, out totalCount);
+
+            await this.DeleteRemindersInternalAsync(reminderKeys, $"DeleteRemindersAsync[{totalCount}]", cancellationToken);
         }
 
         #endregion
@@ -494,6 +498,68 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         #endregion
 
         #region Helper Functions
+
+        Task DeleteRemindersInternalAsync(
+            IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderKeys,
+            string functionNameTag,
+            CancellationToken cancellationToken)
+        {
+            if (reminderKeys.Count == 0)
+            {
+                return Task.FromResult(true);
+            }
+
+            return this.stateProviderHelper.ExecuteWithRetriesAsync(
+                async () =>
+                {
+                    using (var tx = this.stateManager.CreateTransaction())
+                    {
+                        foreach (var reminderKeysPerActor in reminderKeys)
+                        {
+                            var actorId = reminderKeysPerActor.Key;
+
+                            foreach (var reminderKey in reminderKeysPerActor.Value)
+                            {
+                                await this.GetReminderDictionary(actorId).TryRemoveAsync(tx, reminderKey);
+                                await this.reminderCompletedDictionary.TryRemoveAsync(tx, reminderKey);
+                            }
+                        }
+
+                        await tx.CommitAsync();
+                    }
+                },
+                functionNameTag,
+                cancellationToken);
+        }
+
+        private IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> GetReminderKeys(
+            IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames,
+            out int totalCount)
+        {
+            var reminderKeyInfoList = new Dictionary<ActorId, IReadOnlyCollection<string>>();
+            totalCount = 0;
+
+            foreach (var reminderNamesPerActor in reminderNames)
+            {
+                if(reminderNamesPerActor.Value.Count > 0)
+                {
+                    var actorId = reminderNamesPerActor.Key;
+                    var reminderKeys = new List<string>();
+
+                    foreach (var reminderName in reminderNamesPerActor.Value)
+                    {
+                        var reminderKey = CreateStorageKey(actorId, reminderName);
+
+                        reminderKeys.Add(reminderKey);
+                        totalCount++;
+                    }
+
+                    reminderKeyInfoList.Add(actorId, reminderKeys);
+                }                
+            }
+
+            return reminderKeyInfoList;
+        }
 
         private async Task EnsureStateProviderInitializedAsync(CancellationToken cancellationToken)
         {
@@ -699,8 +765,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var dicts = new Dictionary<int, IReliableDictionary2<string, byte[]>>();
 
-            //TODO: 1) Use notifications to get count of existing dictionaries
-            //TODO: 2) Issue health warning if user supplied count is different than exisitng count.
             int storageIndex = 0;
             var dictName = string.Format(dictionaryNameFormat, storageIndex);
             var condVal = await this.TryGetDictionaryAsync(dictName);

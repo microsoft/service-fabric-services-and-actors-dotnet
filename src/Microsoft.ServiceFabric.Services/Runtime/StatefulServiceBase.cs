@@ -43,6 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 throw new ArgumentNullException(nameof(serviceContext));
             }
+
             if (stateProviderReplica == null)
             {
                 throw new ArgumentNullException(nameof(stateProviderReplica));

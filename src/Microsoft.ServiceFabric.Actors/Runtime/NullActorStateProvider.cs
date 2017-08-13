@@ -176,6 +176,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return Task.FromResult(true);
         }
 
+        Task IActorStateProvider.DeleteRemindersAsync(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames, CancellationToken cancellationToken)
+        {
+            foreach (var reminderNamesPerActor in reminderNames)
+            {
+                var actorId = reminderNamesPerActor.Key;
+
+                foreach (var reminderName in reminderNamesPerActor.Value)
+                {
+                    var reminderKey = CreateReminderStorageKey(actorId, reminderName);
+
+                    object value;
+                    this.stateDictionary.TryRemove(reminderKey, out value);
+                }
+            }
+
+            return Task.FromResult(true);
+        }
+
         Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
         {
             var reminderCollection = new ActorReminderCollection();

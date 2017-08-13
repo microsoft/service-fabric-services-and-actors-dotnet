@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Concurrent;
     using System.Fabric;
-    using System.Fabric.Common.Tracing;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
@@ -18,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private readonly ActorService actorService;
         private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>> remindersByActorId;
-        private readonly FabricEvents.ExtensionsEvents traceSource;
+        private readonly ActorEventSource traceSource;
 
         private IDiagnosticsManager diagnosticsManager;
         private IActorEventManager eventManager;
@@ -34,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.diagnosticsManager = new MockDiagnosticsManager(actorService);
             this.eventManager = new MockActorEventManager(actorService.ActorTypeInformation);
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
-            this.traceSource = new FabricEvents.ExtensionsEvents(FabricEvents.Tasks.ActorFramework);
+            this.traceSource = ActorEventSource.Instance;
         }
 
         #region IActorManager Implementation
@@ -255,10 +254,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return string.Empty;
         }
 
-        public FabricEvents.ExtensionsEvents TraceSource
-        {
-            get { return this.traceSource; }
-        }
+        public ActorEventSource TraceSource => this.traceSource;
 
         #endregion
 
