@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return new ConditionalValue<T>(true, (T) stateMetadata.Value);
             }
 
-            var conditionalResult = await this.TryGetStateFromStateProvider<T>(stateName, cancellationToken);
+            var conditionalResult = await this.TryGetStateFromStateProviderAsync<T>(stateName, cancellationToken);
             if (conditionalResult.HasValue)
             {
                 this.stateChangeTracker.Add(stateName, StateMetadata.Create(conditionalResult.Value, StateChangeKind.None));
@@ -230,7 +230,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return newValue;
             }
 
-            var conditionalResult = await this.TryGetStateFromStateProvider<T>(stateName, cancellationToken);
+            var conditionalResult = await this.TryGetStateFromStateProviderAsync<T>(stateName, cancellationToken);
             if (conditionalResult.HasValue)
             {
                 var newValue = updateValueFactory.Invoke(stateName, conditionalResult.Value);
@@ -326,7 +326,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return false;
         }
 
-        private async Task<ConditionalValue<T>> TryGetStateFromStateProvider<T>(string stateName, CancellationToken cancellationToken)
+        private async Task<ConditionalValue<T>> TryGetStateFromStateProviderAsync<T>(string stateName, CancellationToken cancellationToken)
         {
             ConditionalValue<T> result;
 

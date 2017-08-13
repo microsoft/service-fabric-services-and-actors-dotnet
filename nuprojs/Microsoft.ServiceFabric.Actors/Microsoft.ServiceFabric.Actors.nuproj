@@ -29,17 +29,11 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Dependency Include="Microsoft.ServiceFabric">
-        <Version>[$(FabricRuntimeNuGetPackageVersionOfficial)]</Version>
-      </Dependency>
-      <Dependency Include="Microsoft.ServiceFabric.Data">
-        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
-      </Dependency>
-      <Dependency Include="Microsoft.ServiceFabric.Services">
-        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
-      </Dependency>
       <Dependency Include="Microsoft.ServiceFabric.Services.Remoting">
         <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+      </Dependency>
+      <Dependency Include="Microsoft.ServiceFabric.Diagnostics.Internal">
+        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
       </Dependency>
     </ItemGroup>
   </Project>

@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             // if the actor implements more than one actor interfaces make sure that it has actorServiceName
-            if ((actorInterfaces.Length > 1) && string.IsNullOrEmpty(actorServiceName))
+            if ((actorInterfaces.Length > 1) && string.IsNullOrEmpty(actorServiceName) && (!actorType.GetTypeInfo().IsAbstract))
             {
                 throw new ArgumentException(
                     string.Format(

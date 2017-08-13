@@ -59,51 +59,56 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             //
             // Create a TaskCompletionSource that completes with false on cancellation.
             //
+           
             var tcs = new TaskCompletionSource<bool>();
-            cancellationToken.Register(() => tcs.TrySetResult(false));
 
-            var innerTask = this.InvokeWithRetryAsync(
-                client => client.RequestResponseAsync(headers, requestMsgBody),
-                cancellationToken);
+            // Using statement will make sure that we dispose registerationtoken which in turn  un-register cancellationtoken.
 
-            var completedTask = await Task.WhenAny(innerTask, tcs.Task);
-
-            if (completedTask != innerTask)
+            using (cancellationToken.Register(() => tcs.TrySetResult(false)))
             {
-                // Task has been canceled.
-                if (cancellationToken.IsCancellationRequested)
+                var innerTask = this.InvokeWithRetryAsync(
+                    client => client.RequestResponseAsync(headers, requestMsgBody),
+                    cancellationToken);
+
+                var completedTask = await Task.WhenAny(innerTask, tcs.Task);
+
+                if (completedTask != innerTask)
                 {
-                    //
-                    // Invoke the cancellation logic.
-                    // Adding a cancellation header indicates that the request that was sent with
-                    // for the interface, method and identified by the call-context should be canceled.
-                    //
-                    ServiceTrace.Source.WriteInfo(
-                        TraceType,
-                        "Cancellation requested for CallContext : {0}, MethodId : {1}, InterfaceId : {2}",
-                        headers.InvocationId,
-                        headers.MethodId,
-                        headers.InterfaceId);
+                    // Task has been canceled.
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        //
+                        // Invoke the cancellation logic.
+                        // Adding a cancellation header indicates that the request that was sent with
+                        // for the interface, method and identified by the call-context should be canceled.
+                        //
+                        ServiceTrace.Source.WriteInfo(
+                            TraceType,
+                            "Cancellation requested for CallContext : {0}, MethodId : {1}, InterfaceId : {2}",
+                            headers.InvocationId,
+                            headers.MethodId,
+                            headers.InterfaceId);
 
-                    headers.AddHeader(ServiceRemotingMessageHeaders.CancellationHeaderName, new byte[0]);
+                        headers.AddHeader(ServiceRemotingMessageHeaders.CancellationHeaderName, new byte[0]);
 
-                    // Cancellation token is not sent in this call that means that cancellation *will* be 
-                    // delivered.
-                    await this.InvokeWithRetryAsync(
-                        client => client.RequestResponseAsync(headers, requestMsgBody),
-                        CancellationToken.None);
+                        // Cancellation token is not sent in this call that means that cancellation *will* be 
+                        // delivered.
+                        await this.InvokeWithRetryAsync(
+                            client => client.RequestResponseAsync(headers, requestMsgBody),
+                            CancellationToken.None);
 
-                    ServiceTrace.Source.WriteInfo(
-                        TraceType,
-                        "Cancellation delivered for CallContext : {0}, MethodId : {1}, InterfaceId : {2}",
-                        headers.InvocationId,
-                        headers.MethodId,
-                        headers.InterfaceId);
+                        ServiceTrace.Source.WriteInfo(
+                            TraceType,
+                            "Cancellation delivered for CallContext : {0}, MethodId : {1}, InterfaceId : {2}",
+                            headers.InvocationId,
+                            headers.MethodId,
+                            headers.InterfaceId);
+                    }
                 }
-            }
 
-            tcs.TrySetResult(true);
-            return await innerTask;
+                tcs.TrySetResult(true);
+                return await innerTask;
+            }
         }
     }
 }

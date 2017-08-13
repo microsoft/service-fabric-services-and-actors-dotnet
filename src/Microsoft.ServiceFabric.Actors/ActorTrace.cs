@@ -5,17 +5,16 @@
 namespace Microsoft.ServiceFabric.Actors
 {
     using System;
-    using System.Fabric.Common.Tracing;
     using Microsoft.ServiceFabric.Services;
+    using Microsoft.ServiceFabric.Actors.Diagnostics;
 
     internal static class ActorTrace
     {
-        internal static FabricEvents.ExtensionsEvents Source;
+        internal static ActorEventSource Source;
 
         static ActorTrace()
         {
-            TraceConfig.InitializeFromConfigStore();
-            Source = new FabricEvents.ExtensionsEvents(FabricEvents.Tasks.ActorFramework);
+            Source = ActorEventSource.Instance;
         }
 
         internal static string GetTraceIdForActor(Guid partitionId, long replicaId, ActorId actorId)

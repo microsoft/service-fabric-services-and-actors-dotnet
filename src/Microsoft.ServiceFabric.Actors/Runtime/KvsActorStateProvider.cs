@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric.Health;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -429,7 +430,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken cancellationToken)
         {
             return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
-                () => this.GetStoredActorIds(numItemsToReturn, continuationToken, cancellationToken),
+                () => this.GetStoredActorIdsAsync(numItemsToReturn, continuationToken, cancellationToken),
                 "GetActorsAsync",
                 cancellationToken);
         }
@@ -475,14 +476,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var reminderKey = CreateReminderStorageKey(actorId, reminderName);
             var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminderName);
 
-            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
-                () =>
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return this.DeleteReminderAsync(reminderKey, reminderCompletedKey);
-                },
-                string.Format("DeleteReminderAsync[{0}]", actorId),
-                cancellationToken);
+            var reminderKeyInfo = new List<ReminderKeyInfo>
+            {
+                new ReminderKeyInfo(reminderKey, reminderCompletedKey)
+            };
+
+            return this.DeleteRemindersInternalAsync(reminderKeyInfo, $"DeleteReminderAsync[{actorId}]", cancellationToken);
+        }
+
+        /// <summary>
+        /// Deletes the specified set of reminders.
+        /// </summary>
+        /// <param name="reminderNames">The set of reminders to delete.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous delete operation.</returns>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+        Task IActorStateProvider.DeleteRemindersAsync(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames, CancellationToken cancellationToken)
+        {
+            var reminderKeyInfoList = this.GetReminderKeyInfoList(reminderNames);
+            
+            return this.DeleteRemindersInternalAsync(
+                reminderKeyInfoList, $"DeleteRemindersAsync[{reminderNames.Count}]", cancellationToken);            
         }
 
         /// <summary>
@@ -590,7 +604,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // KeyValueStoreReplica aborts any in-flight backup when it closes and backup callback is not invoked
             // with actual ESE backup finishing with error. However, if ESE backup has finished successfully and
             // backup callback is in-flight, it does not wait for the backup callback to finish, .
-            await this.CancelAndAwaitBackupCallbackIfAny();
+            await this.CancelAndAwaitBackupCallbackIfAnyAsync();
         }
 
         /// <summary>
@@ -603,7 +617,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         void IStateProviderReplica.Abort()
         {
             this.storeReplica.Abort();
-            this.CancelAndAwaitBackupCallbackIfAny().ContinueWith(
+            this.CancelAndAwaitBackupCallbackIfAnyAsync().ContinueWith(
                 t => t.Exception, 
                 TaskContinuationOptions.OnlyOnFaulted);
         }
@@ -866,7 +880,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private async Task CancelAndAwaitBackupCallbackIfAny()
+        private async Task CancelAndAwaitBackupCallbackIfAnyAsync()
         {
             await this.backupCallbackLock.WaitAsync();
 
@@ -882,7 +896,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     this.backupCallbackCts.Cancel();
                 }
 
-                await this.AwaitBackupCallbackWithHealthReporting();
+                await this.AwaitBackupCallbackWithHealthReportingAsync();
             }
             finally
             {
@@ -906,7 +920,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Released backup lock.");
         }
 
-        private async Task AwaitBackupCallbackWithHealthReporting()
+        private async Task AwaitBackupCallbackWithHealthReportingAsync()
         {
             if (this.backupCallbackTask != null)
             {
@@ -1185,15 +1199,55 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private async Task DeleteReminderAsync(string reminderKey, string reminderCompletedKey)
+        private Task DeleteRemindersInternalAsync(List<ReminderKeyInfo> reminderKeyInfoList, string functionNameTag, CancellationToken cancellationToken)
+        {
+            if (reminderKeyInfoList.Count == 0)
+            {
+                return Task.FromResult(true);
+            }
+
+            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+            () =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return this.DeleteReminderAsync(reminderKeyInfoList);
+            },
+            functionNameTag,
+            cancellationToken);
+        }
+
+        private async Task DeleteReminderAsync(IEnumerable<ReminderKeyInfo> reminderKeyInfoList)
         {
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                this.storeReplica.TryRemove(tx, reminderKey);
-                this.storeReplica.TryRemove(tx, reminderCompletedKey);
+                foreach(var reminderKeyInfo in reminderKeyInfoList)
+                {
+                    this.storeReplica.TryRemove(tx, reminderKeyInfo.ReminderKey);
+                    this.storeReplica.TryRemove(tx, reminderKeyInfo.ReminderCompletedKey);
+                }
 
                 await tx.CommitAsync();
             }
+        }
+
+        private List<ReminderKeyInfo> GetReminderKeyInfoList(IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames)
+        {
+            var reminderKeyInfoList = new List<ReminderKeyInfo>();
+
+            foreach (var reminderNamesPerActor in reminderNames)
+            {
+                var actorId = reminderNamesPerActor.Key;
+
+                foreach (var reminderName in reminderNamesPerActor.Value)
+                {
+                    var reminderKey = CreateReminderStorageKey(actorId, reminderName);
+                    var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminderName);
+
+                    reminderKeyInfoList.Add(new ReminderKeyInfo(reminderKey, reminderCompletedKey));
+                }
+            }
+
+            return reminderKeyInfoList;
         }
 
         private async Task UpdateOrAddAsync(string key, byte[] state)
@@ -1297,7 +1351,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private void RemoveKeysWithPrefix(Transaction tx, string keyPrefix)
+        private void RemoveKeysWithPrefixAsync(Transaction tx, string keyPrefix)
         {
             var stateMetadataEnumerator = this.storeReplica.EnumerateMetadata(tx, keyPrefix);
 
@@ -1322,9 +1376,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     using (var tx = this.storeReplica.CreateTransaction())
                     {
-                        this.RemoveKeysWithPrefix(tx, stateKeyPrefix + "_");
-                        this.RemoveKeysWithPrefix(tx, reminderKeyPrefix);
-                        this.RemoveKeysWithPrefix(tx, reminderCompletedKeyPrefix);
+                        this.RemoveKeysWithPrefixAsync(tx, stateKeyPrefix + "_");
+                        this.RemoveKeysWithPrefixAsync(tx, reminderKeyPrefix);
+                        this.RemoveKeysWithPrefixAsync(tx, reminderCompletedKeyPrefix);
 
                         // Remove old style actor key if any
                         this.storeReplica.TryRemove(tx, stateKeyPrefix);
@@ -1369,14 +1423,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// KVS enumerates its entries in alphabetical order. The implementation of this
         /// function takes this into account while doing continuation token based enumeration.
         /// </summary>
-        private Task<PagedResult<ActorId>> GetStoredActorIds(
+        private Task<PagedResult<ActorId>> GetStoredActorIdsAsync(
             int itemsCount,
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                return this.actorStateProviderHelper.GetStoredActorIds(
+                return this.actorStateProviderHelper.GetStoredActorIdsAsync(
                     itemsCount,
                     continuationToken,
                     () => this.storeReplica.EnumerateMetadata(tx, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix),
@@ -1429,6 +1483,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 return this.onDataLossCallback.Invoke(cancellationToken);
             }
+        }
+
+        private class ReminderKeyInfo
+        {
+            public ReminderKeyInfo(string reminderKey, string reminderCompletedKey)
+            {
+                this.ReminderKey = reminderKey;
+                this.ReminderCompletedKey = reminderCompletedKey;
+            }
+
+            public string ReminderKey { get; private set; }
+
+            public string ReminderCompletedKey { get; private set; }
         }
 
         #endregion

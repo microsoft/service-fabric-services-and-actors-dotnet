@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Actors.Remoting.Client
 {
+    using System;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
@@ -92,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Client
             out ExceptionHandlingResult result)
         {
             var e = exceptionInformation.Exception;
-   
+
             if (e is ActorConcurrencyLockTimeoutException)
             {
                 if (ActorLogicalCallContext.IsPresent())
@@ -112,6 +113,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Client
                 return true;
             }
 
+            // The messaging layer may deliver duplicate messages during the connection failures. 
+            //E.g when client connection is disconnected but service is still processing the message. We retry on client connection failures.
+            //This results to service receiving duplicate message.
+            //And Actor Reentrancy throws DuplicateMessageException exception when it sees a duplicate Message (message with same callContext).
+            if (e is DuplicateMessageException)
+            {
+                result = new ExceptionHandlingRetryResult(
+                e,
+                true,
+                retrySettings,
+                int.MaxValue);
+
+                return true;
+            }
+            
             result = null;
             return false;
         }

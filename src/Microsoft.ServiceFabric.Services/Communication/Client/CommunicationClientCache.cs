@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         public CommunicationClientCache(string traceId)
         {
-            ServiceTrace.Source.WriteNoise(TraceType, "{0} ctor", this.traceId);
+            ServiceTrace.Source.WriteNoise(TraceType, "{0} ctor", traceId);
 
             this.clientCache = new ConcurrentDictionary<Guid, PartitionClientCache>();
             this.traceId = traceId;
@@ -82,7 +82,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private void CacheCleanupTimerCallback()
         {
-            ServiceTrace.Source.WriteInfo(TraceType, "{0} CacheCleanupTimerCallback", this.traceId);
             var totalItemsInCache = 0;
             var totalItemsCleaned = 0;
             foreach (var item in this.clientCache)
@@ -106,13 +105,15 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 totalItemsInCache += totalItemsPerEntry;
             }
 
-            ServiceTrace.Source.WriteInfo(
-                TraceType,
-                "{0} CacheCleanupTimer: {1} items out of {2} cleaned",
-                this.traceId,
-                totalItemsCleaned,
-                totalItemsInCache);
-
+            if (totalItemsCleaned != 0)
+            {
+                ServiceTrace.Source.WriteInfo(
+                    TraceType,
+                    "{0} CacheCleanupTimer: {1} items out of {2} cleaned",
+                    this.traceId,
+                    totalItemsCleaned,
+                    totalItemsInCache);
+            }
             // Re-arm the clean-up timer.
             this.cacheCleanupTimer.Change(this.GetNextCleanupTimerDueTimeSeconds(), TimeSpan.FromMilliseconds(-1));
         }

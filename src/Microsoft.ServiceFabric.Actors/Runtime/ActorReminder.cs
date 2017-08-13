@@ -12,9 +12,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     internal class ActorReminder : IActorReminder
     {
         private const string TraceType = "ActorReminder";
-        private const int MinTimePeriod = -1;
-        private const UInt32 MaxTimePeriod = (uint)0xfffffffe;
 
+        private readonly TimeSpan MinTimePeriod = Timeout.InfiniteTimeSpan;
         private readonly ActorId ownerActorId;
         private readonly IActorManager actorManager;
         private readonly string name;
@@ -43,8 +42,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             TimeSpan reminderDueTime,
             TimeSpan reminderPeriod)
         {
-            ValidateTimeSpan("DueTime", reminderDueTime);
-            ValidateTimeSpan("Period", reminderPeriod);
+            ValidateDueTime("DueTime", reminderDueTime);
+            ValidatePeriod("Period", reminderPeriod);
 
             this.actorManager = actorManager;
             this.ownerActorId = actorId;
@@ -59,6 +58,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal ActorId OwnerActorId
         {
             get { return this.ownerActorId; }
+        }
+
+        internal bool IsValid()
+        {
+            return (this.timer != null);
         }
 
         #region IActorReminder Members
@@ -137,15 +141,31 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private static void ValidateTimeSpan(string argName, TimeSpan value)
+        private void ValidateDueTime(string argName, TimeSpan value)
         {
-            var time = (long)value.TotalMilliseconds;
-
-            if (time < MinTimePeriod || time > MaxTimePeriod)
+            if (value < TimeSpan.Zero)
             {
                 throw new ArgumentOutOfRangeException(
                     argName,
-                    string.Format(CultureInfo.CurrentCulture, SR.TimerArgumentOutOfRange, MinTimePeriod, MaxTimePeriod));
+                    string.Format(
+                        CultureInfo.CurrentCulture, 
+                        SR.TimerArgumentOutOfRange, 
+                        MinTimePeriod.TotalMilliseconds, 
+                        TimeSpan.MaxValue.TotalMilliseconds));
+            }
+        }
+
+        private void ValidatePeriod(string argName, TimeSpan value)
+        {
+            if (value < MinTimePeriod)
+            {
+                throw new ArgumentOutOfRangeException(
+                    argName,
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        SR.TimerArgumentOutOfRange,
+                        MinTimePeriod.TotalMilliseconds,
+                        TimeSpan.MaxValue.TotalMilliseconds));
             }
         }
     }

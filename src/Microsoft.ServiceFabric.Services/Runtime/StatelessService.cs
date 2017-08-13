@@ -29,8 +29,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <param name="serviceContext">
         /// A <see cref="StatelessServiceContext"/> that describes the service context.
         /// </param>
+        /// <exception cref="ArgumentNullException"></exception>
         protected StatelessService(StatelessServiceContext serviceContext)
         {
+            if (serviceContext == null)
+            {
+                throw new ArgumentNullException(nameof(serviceContext));
+            }
+
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
         }

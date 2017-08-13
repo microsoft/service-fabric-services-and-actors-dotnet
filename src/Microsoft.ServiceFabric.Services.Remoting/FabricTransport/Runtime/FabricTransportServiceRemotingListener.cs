@@ -21,6 +21,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     {
         private FabricTransportListener nativeListener;
         private IServiceRemotingMessageHandler messageHandler;
+        private string listenAddress;
+        private string publishAddress;
 
         /// <summary>
         ///     Constructs a fabric transport based service remoting listener with default
@@ -162,6 +164,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 listenerSettings,
                 this.messageHandler,
                 serviceContext);
+            this.listenAddress = serviceContext.ListenAddress;
+            this.publishAddress = serviceContext.PublishAddress;
         }
 
         /// <summary>
@@ -175,7 +179,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// </returns>
         Task<string> ICommunicationListener.OpenAsync(CancellationToken cancellationToken)
         {
-            return this.nativeListener.OpenAsync(cancellationToken);
+            return Task.Run(async () =>
+            {
+                var listenUri = await this.nativeListener.OpenAsync(cancellationToken);
+                var publishUri = listenUri.Replace(this.listenAddress, this.publishAddress);
+
+                System.Fabric.Common.AppTrace.TraceSource.WriteInfo("FabricTransportServiceRemotingListener.OpenAsync", "ListenURI = {0} PublishURI = {1}", listenUri, publishUri);
+
+                return publishUri;
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -205,7 +217,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 this.nativeListener.Abort();
                 this.Dispose();
             }
- 
+
         }
 
         private FabricTransportListener CreateNativeListener(
@@ -236,6 +248,4 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             }
         }
     }
-
-   
 }

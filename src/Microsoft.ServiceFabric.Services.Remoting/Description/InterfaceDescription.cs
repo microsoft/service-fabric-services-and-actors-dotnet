@@ -67,10 +67,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             MethodReturnCheck methodReturnCheck)
         {
             EnsureValidMethods(remotedInterfaceKindName, remotedInterfaceType, methodReturnCheck);
-            var methods = remotedInterfaceType.GetMethods().Select(
-                methodInfo => MethodDescription.Create(remotedInterfaceKindName, methodInfo)).ToList();
-
-            return methods.ToArray();
+            var methods = remotedInterfaceType.GetMethods();
+            var methodDescriptions = new MethodDescription[methods.Length];
+            for (int i = 0; i < methods.Length; i++)
+            {
+                methodDescriptions[i] = MethodDescription.Create(remotedInterfaceKindName, methods[i]);
+            }
+            return methodDescriptions;
         }
 
         private static void EnsureValidMethods(
