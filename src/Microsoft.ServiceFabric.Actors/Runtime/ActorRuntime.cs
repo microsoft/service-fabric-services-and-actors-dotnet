@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             where TActor : ActorBase
         {
             await RegisterActorAsync<TActor>(
-                (context, actorTypeInfo) => new ActorService(context, actorTypeInfo),
+                (context, actorTypeInfo, activatorFactory) => new ActorService(context, actorTypeInfo,null),
                 timeout,
                 cancellationToken);
         }
@@ -69,7 +69,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation to register actor service with Service Fabric runtime.</returns>        
         public static async Task RegisterActorAsync<TActor>(
-            Func<StatefulServiceContext, ActorTypeInformation, ActorService> actorServiceFactory,
+            Func<StatefulServiceContext, 
+                 ActorTypeInformation, 
+                 Func<Func<ActorService,ActorId,ActorBase>,IActorActivator>,
+                 ActorService> actorServiceFactory,
             TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
             where TActor : ActorBase

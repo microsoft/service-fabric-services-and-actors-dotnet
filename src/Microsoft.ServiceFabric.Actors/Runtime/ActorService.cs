@@ -45,13 +45,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="stateManagerFactory">The factory method to create <see cref="IActorStateManager"/></param>
         /// <param name="stateProvider">The state provider to store and access the state of the Actor objects.</param>
         /// <param name="settings">The settings used to configure the behavior of the Actor service.</param>
+        /// <param name="actorActivatorFactory">The factory method to create the Actor Activator service.</param>
         public ActorService(
             StatefulServiceContext context,
             ActorTypeInformation actorTypeInfo,
             Func<ActorService, ActorId, ActorBase> actorFactory = null,
             Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null,
             IActorStateProvider stateProvider = null,
-            ActorServiceSettings settings = null)
+            ActorServiceSettings settings = null,
+            Func<Func<ActorService,ActorId,ActorBase>,IActorActivator> actorActivatorFactory = null)
             : base(
                 context,
                 stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo))
@@ -60,8 +62,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateProvider = (IActorStateProvider) this.StateProviderReplica;
             this.settings = ActorServiceSettings.DeepCopyFromOrDefaultOnNull(settings);
 
+            this.actorActivator = (actorActivatorFactory ?? this.DefaultActorActivatorFactory)
+                .Invoke(actorFactory ?? this.DefaultActorFactory);
+
             // Set internal components
-            this.actorActivator = new ActorActivator(actorFactory ?? this.DefaultActorFactory);
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
@@ -273,6 +277,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorService,
                 actorId);
         }
+
+        private IActorActivator DefaultActorActivatorFactory(Func<ActorService,ActorId,ActorBase> factory)
+        {
+            return (IActorActivator) 
+                new ActorActivator(factory);
+        }
+
 
         private static IActorStateManager DefaultActorStateManagerFactory(ActorBase actorBase, IActorStateProvider actorStateProvider)
         {
