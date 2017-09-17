@@ -165,9 +165,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <para>An in-active actor's state will be deleted from state provider.</para>
         /// <para>If this method is called for a non-existent actor id in the system, it will be a no-op.</para>
         /// </remarks>
-        async Task IActorService.DeleteActorAsync(ActorId actorId, CancellationToken cancellationToken)
+        Task IActorService.DeleteActorAsync(ActorId actorId, CancellationToken cancellationToken)
         {
-            await this.ActorManager.DeleteActorAsync(
+            return this.ActorManager.DeleteActorAsync(
                 Guid.NewGuid().ToString(),
                 actorId,
                 cancellationToken);

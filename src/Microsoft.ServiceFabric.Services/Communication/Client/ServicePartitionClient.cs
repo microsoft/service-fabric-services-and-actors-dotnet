@@ -131,11 +131,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
         /// </returns>
-        public async Task<TResult> InvokeWithRetryAsync<TResult>(
+        public Task<TResult> InvokeWithRetryAsync<TResult>(
             Func<TCommunicationClient, Task<TResult>> func,
             params Type[] doNotRetryExceptionTypes)
         {
-            return await this.InvokeWithRetryAsync(func, CancellationToken.None, doNotRetryExceptionTypes);
+            return this.InvokeWithRetryAsync(func, CancellationToken.None, doNotRetryExceptionTypes);
         }
 
         /// <summary>

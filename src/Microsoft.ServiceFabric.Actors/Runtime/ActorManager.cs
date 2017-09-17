@@ -894,10 +894,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return new DummyActor(this.actorService, actorId);
         }
 
-        internal async Task OnPreInvokeAsync(ActorBase actor, ActorMethodContext actorMethodContext)
+        internal Task OnPreInvokeAsync(ActorBase actor, ActorMethodContext actorMethodContext)
         {
             this.ThrowIfClosed();
-            await actor.OnPreActorMethodAsyncInternal(actorMethodContext);
+            return actor.OnPreActorMethodAsyncInternal(actorMethodContext);
         }
 
         internal async Task OnPostInvokeAsync(ActorBase actor, ActorMethodContext actorMethodContext)

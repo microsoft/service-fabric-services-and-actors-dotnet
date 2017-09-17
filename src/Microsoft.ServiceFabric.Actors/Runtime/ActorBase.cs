@@ -232,10 +232,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="System.Fabric.FabricException">
         /// The specified reminder is not registered.
         /// </exception>
-        protected async Task UnregisterReminderAsync(IActorReminder reminder)
+        protected Task UnregisterReminderAsync(IActorReminder reminder)
         {
             this.CheckIfReminderOperationIsPossible(reminder.Name);
-            await this.Manager.UnregisterReminderAsync(reminder.Name, this.Id, removeFromStateProvider: true);
+            return this.Manager.UnregisterReminderAsync(reminder.Name, this.Id, removeFromStateProvider: true);
         }
 
         /// <summary>
@@ -294,14 +294,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// The class deriving from <see cref="Microsoft.ServiceFabric.Actors.Runtime.ActorBase" /> must implement <see cref="Microsoft.ServiceFabric.Actors.Runtime.IRemindable" /> to consume reminder invocations. Multiple reminders can be registered at any time, uniquely identified by <paramref name="reminderName" />. Existing reminders can also be updated by calling this method again. Reminder invocations are synchronized both with other reminders and other actor method callbacks.
         /// </para>
         /// </remarks>
-        protected async Task<IActorReminder> RegisterReminderAsync(
+        protected Task<IActorReminder> RegisterReminderAsync(
             string reminderName,
             byte[] state,
             TimeSpan dueTime,
             TimeSpan period)
         {
             this.CheckIfReminderOperationIsPossible(reminderName);
-            return await this.Manager.RegisterOrUpdateReminderAsync(this.Id, reminderName, state, dueTime, period);
+            return this.Manager.RegisterOrUpdateReminderAsync(this.Id, reminderName, state, dueTime, period);
         }
 
         private void CheckIfReminderOperationIsPossible(string reminderName)

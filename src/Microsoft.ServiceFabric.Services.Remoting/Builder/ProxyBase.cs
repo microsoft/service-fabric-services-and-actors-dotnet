@@ -134,9 +134,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// </summary>
         /// <param name="task">A task that represents the asynchronous operation for remote method call.</param>
         /// <returns>A task that represents the asynchronous operation for remote method call.</returns>
-        protected async Task ContinueWith(Task<object> task)
+        protected Task ContinueWith(Task<object> task)
         {
-            await task;
+            return task;
         }
 
         //V2 Stack Api

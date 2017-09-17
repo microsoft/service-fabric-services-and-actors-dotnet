@@ -307,7 +307,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         /// <summary>
         /// This function verifies snapshot when the replication units are uniform
         /// i.e. they either contain update entries or delete entries.
-        /// </summary
+        /// </summary>
         internal static void VerifyStateTableSnapshot(
             ActorStateTable stateTable,
             Dictionary<ActorStateType, int> statesPerReplication,
