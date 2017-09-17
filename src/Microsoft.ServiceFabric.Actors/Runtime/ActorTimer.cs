@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Task.Factory.StartNew(this.FireTimerAsync);
         }
 
-        private async void FireTimerAsync()
+        private async Task FireTimerAsync()
         {
             var reschedule = true;
 

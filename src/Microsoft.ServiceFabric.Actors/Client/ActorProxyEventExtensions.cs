@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <exception cref="System.ArgumentException">
         /// <para>When actorProxy is not of type <see cref="ActorProxy"/></para>.
         /// </exception>
-        public static async Task SubscribeAsync<TEvent>(
+        public static Task SubscribeAsync<TEvent>(
             this IActorEventPublisher actorProxy,
             TEvent subscriber,
             TimeSpan resubscriptionInterval) where TEvent : IActorEvents
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 throw new ArgumentException(SR.ErrorEventInterface);
             }
-            await proxy.SubscribeAsync(eventInterfaceType, subscriber, resubscriptionInterval);
+            return proxy.SubscribeAsync(eventInterfaceType, subscriber, resubscriptionInterval);
         }
 
         /// <summary>

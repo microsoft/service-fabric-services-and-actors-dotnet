@@ -37,12 +37,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="timeout">A timeout period after which the registration operation will be canceled.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>returns a task that represents the asynchronous operation to register actor type with Service Fabric runtime.</returns>
-        public static async Task RegisterActorAsync<TActor>(
+        public static Task RegisterActorAsync<TActor>(
             TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
             where TActor : ActorBase
         {
-            await RegisterActorAsync<TActor>(
+            return RegisterActorAsync<TActor>(
                 (context, actorTypeInfo) => new ActorService(context, actorTypeInfo),
                 timeout,
                 cancellationToken);

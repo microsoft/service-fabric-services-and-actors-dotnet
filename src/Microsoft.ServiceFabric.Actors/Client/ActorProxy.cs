@@ -325,7 +325,6 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 await this.SubscribeAsyncV2(eventType, subscriber, resubscriptionInterval);
                 return;
-                ;
             }
 
 #if !DotNetCoreClr

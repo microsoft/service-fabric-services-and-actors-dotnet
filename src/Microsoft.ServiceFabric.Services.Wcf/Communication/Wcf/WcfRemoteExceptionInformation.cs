@@ -114,7 +114,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
 
                     result = stringWriter.ToString();
                     return true;
-                    ;
                 }
             }
             catch (Exception)

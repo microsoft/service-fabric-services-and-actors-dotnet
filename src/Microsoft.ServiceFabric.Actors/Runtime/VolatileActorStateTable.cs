@@ -644,9 +644,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            public async Task WaitForCompletionAsync()
+            public Task WaitForCompletionAsync()
             {
-                await this.pendingCommitTaskSource.Task;
+                return this.pendingCommitTaskSource.Task;
             }
         }
 

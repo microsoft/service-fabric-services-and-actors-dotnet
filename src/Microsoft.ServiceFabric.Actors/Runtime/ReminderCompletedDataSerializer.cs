@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         return null;
                     }
 
-                    return new ReminderCompletedData(reader.ReadTimeSpan(), reader.ReadDateTime()); ;
+                    return new ReminderCompletedData(reader.ReadTimeSpan(), reader.ReadDateTime());
                 }
             }
         }
