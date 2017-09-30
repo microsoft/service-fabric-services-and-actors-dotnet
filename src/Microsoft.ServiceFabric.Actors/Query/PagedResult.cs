@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// <summary>
         /// Gets or sets Enumerator to iterate over the results.
         /// </summary>
-        /// <value>Enumerator, which supports a simple iteration over 
+        /// <value>An Enumerator, which supports a simple iteration over 
         /// the collection.</value>
         [DataMember(Name = "Items", IsRequired = true, Order = 0)]
         public IEnumerable<T> Items { get; set; }

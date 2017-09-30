@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         private object endpointsLock;
 
         /// <summary>
-        /// Instantiates an empty ServiceEndpointsCollection
+        /// Instantiates an empty ServiceEndpointsCollection.
         /// </summary>
         public ServiceEndpointCollection()
         {
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         }
 
         /// <summary>
-        /// Adds an endpoint to the EndpointsCollection
+        /// Adds an endpoint to the EndpointsCollection.
         /// </summary>
         /// <param name="listenerName">Listener name of the endpoint</param>
         /// <param name="endpointAddress">Address of the endpoint</param>
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         }
 
         /// <summary>
-        /// Gets the first endpoint address in the EndpointsCollection
+        /// Gets the first endpoint address in the EndpointsCollection.
         /// </summary>
         /// <param name="endpointAddress">First endpoint in the EndpointsCollection</param>
         /// <returns>True if there is at-least one endpoint in the EndpointsCollection, false otherwise</returns>

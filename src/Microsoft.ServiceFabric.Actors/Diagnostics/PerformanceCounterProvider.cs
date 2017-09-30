@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Reflection;
     using System.Text;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
     using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
 
@@ -18,7 +19,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         private const string TraceType = "PerformanceCounterProvider";
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        private static FabricPerformanceCounterSet ActorCounterSet;        
+        private static FabricPerformanceCounterSet ActorCounterSet;
+
         private readonly FabricPerformanceCounterSetInstance actorCounterSetInstance;
         private ActorLockContentionCounterWriter actorLockContentionCounterWriter;
         private ActorSaveStateTimeCounterWriter actorSaveStateTimeCounterWriter;
@@ -31,13 +33,27 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         private FabricAverageCount64PerformanceCounterWriter actorLoadStateTimeCounterWriter;
         private FabricNumberOfItems64PerformanceCounterWriter actorOutstandingRequestsCounterWriter;
 
-        private readonly Guid partitionId;                
-        private static FabricPerformanceCounterSet ActorMethodCounterSet;
+        internal readonly Guid partitionId;
         private Dictionary<long, CounterInstanceData> actorMethodCounterInstanceData;
         private readonly string counterInstanceDifferentiator;
-        private readonly ActorTypeInformation actorTypeInformation;
+        internal readonly ActorTypeInformation actorTypeInformation;
 
         private static Dictionary<string, FabricPerformanceCounterSet> AvaiableFabricCounterSet;
+
+        static PerformanceCounterProvider()
+        {
+            try
+            {
+                InitializeAvailableCounterTypes();
+            }
+            catch (Exception e)
+            {
+                ActorTrace.Source.WriteWarning(
+                    "ActorRegistration",
+                    "Performance Counter Initialization failed with {0}",
+                    e.ToString());
+            }
+        }
 
         internal PerformanceCounterProvider(Guid partitionId, ActorTypeInformation actorTypeInformation)
         {
@@ -59,7 +75,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.actorTypeInformation = actorTypeInformation;
 
             // Create counter writers for partition-wide counters
-            var actorCounterInstanceName = String.Concat(this.partitionId.ToString("D"), "_", this.counterInstanceDifferentiator);
+            var actorCounterInstanceName = String.Concat(this.partitionId.ToString("D"), "_",
+                this.counterInstanceDifferentiator);
 
             if (AvaiableFabricCounterSet.TryGetValue(ActorPerformanceCounters.ActorCategoryName, out ActorCounterSet))
             {
@@ -95,49 +112,49 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorCounterInstanceName,
                     typeof(FabricAverageCount64PerformanceCounterWriter),
                     () => new FabricAverageCount64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorRequestProcessingTimeMillisecCounterName,
-                                ActorPerformanceCounters.ActorRequestProcessingTimeMillisecBaseCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorRequestProcessingTimeMillisecCounterName,
+                        ActorPerformanceCounters.ActorRequestProcessingTimeMillisecBaseCounterName));
 
                 this.actorLockAcquireWaitTimeCounterWriter = this.CreateCounterWriter(
                     actorCounterInstanceName,
                     typeof(FabricAverageCount64PerformanceCounterWriter),
                     () => new FabricAverageCount64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorLockAcquireWaitTimeMillisecCounterName,
-                                ActorPerformanceCounters.ActorLockAcquireWaitTimeMillisecBaseCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorLockAcquireWaitTimeMillisecCounterName,
+                        ActorPerformanceCounters.ActorLockAcquireWaitTimeMillisecBaseCounterName));
 
                 this.actorLockHoldTimeCounterWriter = this.CreateCounterWriter(
                     actorCounterInstanceName,
                     typeof(FabricAverageCount64PerformanceCounterWriter),
                     () => new FabricAverageCount64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorLockHoldTimeMillisecCounterName,
-                                ActorPerformanceCounters.ActorLockHoldTimeMillisecBaseCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorLockHoldTimeMillisecCounterName,
+                        ActorPerformanceCounters.ActorLockHoldTimeMillisecBaseCounterName));
 
                 this.actorRequestDeserializationTimeCounterWriter = this.CreateCounterWriter(
                     actorCounterInstanceName,
                     typeof(FabricAverageCount64PerformanceCounterWriter),
                     () => new FabricAverageCount64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorRequestDeserializationTimeMillisecCounterName,
-                                ActorPerformanceCounters.ActorRequestDeserializationTimeMillisecBaseCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorRequestDeserializationTimeMillisecCounterName,
+                        ActorPerformanceCounters.ActorRequestDeserializationTimeMillisecBaseCounterName));
 
                 this.actorResponseSerializationTimeCounterWriter = this.CreateCounterWriter(
                     actorCounterInstanceName,
                     typeof(FabricAverageCount64PerformanceCounterWriter),
                     () => new FabricAverageCount64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorResponseSerializationTimeMillisecCounterName,
-                                ActorPerformanceCounters.ActorResponseSerializationTimeMillisecBaseCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorResponseSerializationTimeMillisecCounterName,
+                        ActorPerformanceCounters.ActorResponseSerializationTimeMillisecBaseCounterName));
 
                 this.actorOnActivateAsyncTimeCounterWriter = this.CreateCounterWriter(
                     actorCounterInstanceName,
                     typeof(FabricAverageCount64PerformanceCounterWriter),
                     () => new FabricAverageCount64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorOnActivateAsyncTimeMillisecCounterName,
-                                ActorPerformanceCounters.ActorOnActivateAsyncTimeMillisecBaseCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorOnActivateAsyncTimeMillisecCounterName,
+                        ActorPerformanceCounters.ActorOnActivateAsyncTimeMillisecBaseCounterName));
 
                 this.actorSaveStateTimeCounterWriter = this.CreateCounterWriter(
                     actorCounterInstanceName,
@@ -148,22 +165,23 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorCounterInstanceName,
                     typeof(FabricAverageCount64PerformanceCounterWriter),
                     () => new FabricAverageCount64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorLoadStateTimeMillisecCounterName,
-                                ActorPerformanceCounters.ActorLoadStateTimeMillisecBaseCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorLoadStateTimeMillisecCounterName,
+                        ActorPerformanceCounters.ActorLoadStateTimeMillisecBaseCounterName));
 
                 this.actorOutstandingRequestsCounterWriter = this.CreateCounterWriter(
                     actorCounterInstanceName,
                     typeof(FabricNumberOfItems64PerformanceCounterWriter),
                     () => new FabricNumberOfItems64PerformanceCounterWriter(
-                                this.actorCounterSetInstance,
-                                ActorPerformanceCounters.ActorOutstandingRequestsCounterName));
+                        this.actorCounterSetInstance,
+                        ActorPerformanceCounters.ActorOutstandingRequestsCounterName));
             }
         }
 
-        private T CreateCounterWriter<T>(string actorCounterInstanceName, Type writerType, Func<T> writerCreationCallback)
+        private T CreateCounterWriter<T>(string actorCounterInstanceName, Type writerType,
+            Func<T> writerCreationCallback)
         {
-            T result = default(T);
+            var result = default(T);
             Exception ex = null;
             try
             {
@@ -178,13 +196,15 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return result;
         }
 
-        private static void DumpCounterSetInfo(FabricPerformanceCounterSet counterSet, IEnumerable<FabricPerformanceCounterDefinition> activeCounters)
+        private static void DumpCounterSetInfo(FabricPerformanceCounterSet counterSet,
+            IEnumerable<FabricPerformanceCounterDefinition> activeCounters)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-            sb.Append(String.Format("Created performance counter category {0} with following counters.", counterSet.CounterSetDefinition.Name));
+            sb.Append(String.Format("Created performance counter category {0} with following counters.",
+                counterSet.CounterSetDefinition.Name));
             sb.AppendLine();
-            foreach(var counter in activeCounters)
+            foreach (var counter in activeCounters)
             {
                 sb.Append(String.Format("CounterName : {0}", counter.Name));
                 sb.AppendLine();
@@ -194,12 +214,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal static void InitializeAvailableCounterTypes()
         {
-            ActorPerformanceCounters actorPerformanceCounters = new ActorPerformanceCounters();
+            var actorPerformanceCounters = new ActorPerformanceCounters();
             var requestedCounterSets = actorPerformanceCounters.GetCounterSets();
 
             AvaiableFabricCounterSet = new Dictionary<string, FabricPerformanceCounterSet>();
 
-            foreach(FabricPerformanceCounterSetDefinition category in requestedCounterSets.Keys)
+            foreach (var category in requestedCounterSets.Keys)
             {
                 FabricPerformanceCounterSet counterSet;
                 try
@@ -236,7 +256,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagnosticsEventManager.OnLoadActorStateFinish += this.OnLoadActorStateFinish;
         }
 
-        private void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        internal virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
             this.actorMethodCounterInstanceData = new Dictionary<long, CounterInstanceData>();
             var methodInfoList = new List<KeyValuePair<long, MethodInfo>>();
@@ -244,105 +264,25 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 int interfaceId;
                 MethodDescription[] actorInterfaceMethodDescriptions;
-                diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(actorInterfaceType, out interfaceId, out actorInterfaceMethodDescriptions);
-                foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
-                {
-                    var kvp = new KeyValuePair<long, MethodInfo>(
-                        DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id),
-                        actorInterfaceMethodDescription.MethodInfo);
-                    methodInfoList.Add(kvp);
-                }
+                diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
+                    actorInterfaceType, out interfaceId, out actorInterfaceMethodDescriptions);
+                methodInfoList.AddRange(this.GetMethodInfo(actorInterfaceMethodDescriptions, interfaceId));
             }
 
             // Compute the counter instance names for all the actor methods
-            var percCounterInstanceNameBuilder = new PerformanceCounterInstanceNameBuilder(this.partitionId, this.counterInstanceDifferentiator);
-            var counterInstanceNames = percCounterInstanceNameBuilder.GetMethodCounterInstanceNames(methodInfoList);
-            foreach (var kvp in counterInstanceNames)
-            {
-                this.actorMethodCounterInstanceData[kvp.Key] = new CounterInstanceData { InstanceName = kvp.Value };
-            }
+            var percCounterInstanceNameBuilder =
+                new PerformanceCounterInstanceNameBuilder(this.partitionId, this.counterInstanceDifferentiator);
+
+            this.actorMethodCounterInstanceData =
+                this.CreateActorMethodCounterInstanceData(methodInfoList, percCounterInstanceNameBuilder);
         }
 
         private void OnActorMethodFinish(ActorMethodDiagnosticData methodData)
         {
-            long interfaceMethodKey = methodData.InterfaceMethodKey;
-            MethodSpecificCounterWriters counterWriters = this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
+            var interfaceMethodKey = methodData.InterfaceMethodKey;
 
-            if (!AvaiableFabricCounterSet.TryGetValue(ActorPerformanceCounters.ActorMethodCategoryName, out ActorMethodCounterSet))
-            {
-                return;
-            }
-            
-            if (counterWriters == null )
-            {
-                bool logCounterWriterCreation = false;
-                lock (this.actorMethodCounterInstanceData[interfaceMethodKey])
-                {
-                    if (this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters == null)
-                    {
-                        // We have not yet created the objects that write the counter values. So build
-                        // up the list of counter writers now.
-                        string instanceName = this.actorMethodCounterInstanceData[interfaceMethodKey].InstanceName;
+            var counterWriters = this.GetMethodSpecificCounterWriters(interfaceMethodKey,methodData.RemotingListener);
 
-                        var tempCounterWriters = new MethodSpecificCounterWriters();
-
-                        try
-                        {
-                            tempCounterWriters.ActorMethodCounterSetInstance =
-                                ActorMethodCounterSet.CreateCounterSetInstance(instanceName);
-                        }
-                        catch (Exception ex)
-                        {
-                            //Instance creation failed, Be done.
-                            ActorTrace.Source.WriteWarning(
-                                TraceType,
-                                "Data for performance counter instance {0} of category {1} will not be provided because an exception occurred during its initialization. Exception info: {2}",
-                                instanceName, ActorPerformanceCounters.ActorMethodCategoryName, ex);
-                            return;
-                        }
-
-                        tempCounterWriters.ActorMethodFrequencyCounterWriter = this.CreateMethodCounterWriter(
-                            instanceName,
-                            typeof(ActorMethodFrequencyCounterWriter),
-                            tempCounterWriters.ActorMethodCounterSetInstance,
-                            inst => new ActorMethodFrequencyCounterWriter(inst));
-                        tempCounterWriters.ActorMethodExceptionFrequencyCounterWriter = this.CreateMethodCounterWriter(
-                            instanceName,
-                            typeof(ActorMethodExceptionFrequencyCounterWriter),
-                            tempCounterWriters.ActorMethodCounterSetInstance,
-                            inst => new ActorMethodExceptionFrequencyCounterWriter(inst));
-                        tempCounterWriters.ActorMethodExecTimeCounterWriter = this.CreateMethodCounterWriter(
-                            instanceName,
-                            typeof(ActorMethodExecTimeCounterWriter),
-                            tempCounterWriters.ActorMethodCounterSetInstance,
-                            inst => new ActorMethodExecTimeCounterWriter(inst));
-                        logCounterWriterCreation = true;
-
-                        this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters = tempCounterWriters;
-                    }
-                }
-                counterWriters = this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
-
-                if (logCounterWriterCreation)
-                {
-                    object[] newlyCreatedCounterWriters =
-                    {
-                        counterWriters.ActorMethodFrequencyCounterWriter,
-                        counterWriters.ActorMethodExceptionFrequencyCounterWriter,
-                        counterWriters.ActorMethodExecTimeCounterWriter
-                    };
-                    foreach (var newlyCreatedCounterWriter in newlyCreatedCounterWriters)
-                    {
-                        if (null != newlyCreatedCounterWriter)
-                        {
-                            this.LogCounterInstanceCreationResult(
-                                newlyCreatedCounterWriter.GetType(),
-                                this.actorMethodCounterInstanceData[interfaceMethodKey].InstanceName,
-                                null);
-                        }
-                    }
-                }
-            }
 
             // Call the counter writers to update the counter values
             if (null != counterWriters.ActorMethodFrequencyCounterWriter)
@@ -359,9 +299,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        private T CreateMethodCounterWriter<T>(string instanceName, Type counterWriterType, FabricPerformanceCounterSetInstance instance, Func<FabricPerformanceCounterSetInstance, T> counterWriterCreationCallback)
+
+        internal virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey,RemotingListener remotingListener)
         {
-            T retVal = default(T);
+            return this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
+        }
+
+        private T CreateMethodCounterWriter<T>(string instanceName, Type counterWriterType,
+            FabricPerformanceCounterSetInstance instance,
+            Func<FabricPerformanceCounterSetInstance, T> counterWriterCreationCallback)
+        {
+            var retVal = default(T);
             try
             {
                 retVal = counterWriterCreationCallback(instance);
@@ -408,7 +356,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
             if (null != this.actorRequestProcessingTimeCounterWriter)
             {
-                this.actorRequestProcessingTimeCounterWriter.UpdateCounterValue((long) processingTime.TotalMilliseconds);
+                this.actorRequestProcessingTimeCounterWriter.UpdateCounterValue((long) processingTime
+                    .TotalMilliseconds);
             }
         }
 
@@ -416,7 +365,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorLockAcquireWaitTimeCounterWriter)
             {
-                this.actorLockAcquireWaitTimeCounterWriter.UpdateCounterValue((long) lockAcquireWaitTime.TotalMilliseconds);
+                this.actorLockAcquireWaitTimeCounterWriter.UpdateCounterValue((long) lockAcquireWaitTime
+                    .TotalMilliseconds);
             }
         }
 
@@ -432,7 +382,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorRequestDeserializationTimeCounterWriter)
             {
-                this.actorRequestDeserializationTimeCounterWriter.UpdateCounterValue((long)deserializationTime.TotalMilliseconds);
+                this.actorRequestDeserializationTimeCounterWriter.UpdateCounterValue((long) deserializationTime
+                    .TotalMilliseconds);
             }
         }
 
@@ -440,7 +391,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorResponseSerializationTimeCounterWriter)
             {
-                this.actorResponseSerializationTimeCounterWriter.UpdateCounterValue((long)serializationTime.TotalMilliseconds);
+                this.actorResponseSerializationTimeCounterWriter.UpdateCounterValue((long) serializationTime
+                    .TotalMilliseconds);
             }
         }
 
@@ -448,7 +400,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorOnActivateAsyncTimeCounterWriter)
             {
-                this.actorOnActivateAsyncTimeCounterWriter.UpdateCounterValue((long)onActivateAsyncTime.TotalMilliseconds);
+                this.actorOnActivateAsyncTimeCounterWriter.UpdateCounterValue((long) onActivateAsyncTime
+                    .TotalMilliseconds);
             }
         }
 
@@ -456,17 +409,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorLoadStateTimeCounterWriter)
             {
-                this.actorLoadStateTimeCounterWriter.UpdateCounterValue((long)loadStateTime.TotalMilliseconds);
+                this.actorLoadStateTimeCounterWriter.UpdateCounterValue((long) loadStateTime.TotalMilliseconds);
             }
         }
 
-        private class CounterInstanceData
+        internal class CounterInstanceData
         {
             internal MethodSpecificCounterWriters CounterWriters;
             internal string InstanceName;
         }
 
-        private class MethodSpecificCounterWriters
+        internal class MethodSpecificCounterWriters
         {
             internal FabricPerformanceCounterSetInstance ActorMethodCounterSetInstance;
             internal ActorMethodFrequencyCounterWriter ActorMethodFrequencyCounterWriter;
@@ -495,11 +448,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     instanceName,
                     e);
             }
-
         }
 
-        public void Dispose()
-        {           
+        public virtual void Dispose()
+        {
             if (null != this.actorCounterSetInstance)
             {
                 //Remove Counter Instance.
@@ -519,6 +471,122 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     }
                 }
             }
+        }
+
+        private MethodSpecificCounterWriters CreateCounterWriters(
+            CounterInstanceData counterInstanceData,
+            FabricPerformanceCounterSet ActorMethodCounterSet)
+        {
+            var logCounterWriterCreation = false;
+
+            // We have not yet created the objects that write the counter values. So build
+            // up the list of counter writers now.
+            var instanceName = counterInstanceData.InstanceName;
+            var tempCounterWriters = new MethodSpecificCounterWriters();
+
+            try
+            {
+                tempCounterWriters.ActorMethodCounterSetInstance =
+                    ActorMethodCounterSet.CreateCounterSetInstance(instanceName);
+            }
+            catch (Exception ex)
+            {
+                //Instance creation failed, Be done.
+                ActorTrace.Source.WriteWarning(
+                    TraceType,
+                    "Data for performance counter instance {0} of category {1} will not be provided because an exception occurred during its initialization. Exception info: {2}",
+                    instanceName, ActorPerformanceCounters.ActorMethodCategoryName, ex);
+                return null;
+            }
+
+            tempCounterWriters.ActorMethodFrequencyCounterWriter = this.CreateMethodCounterWriter(
+                instanceName,
+                typeof(ActorMethodFrequencyCounterWriter),
+                tempCounterWriters.ActorMethodCounterSetInstance,
+                inst => new ActorMethodFrequencyCounterWriter(inst));
+            tempCounterWriters.ActorMethodExceptionFrequencyCounterWriter = this.CreateMethodCounterWriter(
+                instanceName,
+                typeof(ActorMethodExceptionFrequencyCounterWriter),
+                tempCounterWriters.ActorMethodCounterSetInstance,
+                inst => new ActorMethodExceptionFrequencyCounterWriter(inst));
+            tempCounterWriters.ActorMethodExecTimeCounterWriter = this.CreateMethodCounterWriter(
+                instanceName,
+                typeof(ActorMethodExecTimeCounterWriter),
+                tempCounterWriters.ActorMethodCounterSetInstance,
+                inst => new ActorMethodExecTimeCounterWriter(inst));
+            logCounterWriterCreation = true;
+
+
+            if (logCounterWriterCreation)
+            {
+                object[] newlyCreatedCounterWriters =
+                {
+                    tempCounterWriters.ActorMethodFrequencyCounterWriter,
+                    tempCounterWriters.ActorMethodExceptionFrequencyCounterWriter,
+                    tempCounterWriters.ActorMethodExecTimeCounterWriter
+                };
+                foreach (var newlyCreatedCounterWriter in newlyCreatedCounterWriters)
+                {
+                    if (null != newlyCreatedCounterWriter)
+                    {
+                        this.LogCounterInstanceCreationResult(
+                            newlyCreatedCounterWriter.GetType(),
+                            counterInstanceData.InstanceName,
+                            null);
+                    }
+                }
+            }
+
+            return tempCounterWriters;
+        }
+
+        internal Dictionary<long, CounterInstanceData> CreateActorMethodCounterInstanceData(
+            List<KeyValuePair<long, MethodInfo>> methodInfoList,
+            PerformanceCounterInstanceNameBuilder percCounterInstanceNameBuilder)
+        {
+            var actorMethodCounterInstanceData = new Dictionary<long, CounterInstanceData>();
+
+
+            // Compute the counter instance names for all the actor methods
+            var counterInstanceNames = percCounterInstanceNameBuilder.GetMethodCounterInstanceNames(methodInfoList);
+            FabricPerformanceCounterSet actorMethodCounterSet;
+
+            if (!AvaiableFabricCounterSet.TryGetValue(ActorPerformanceCounters.ActorMethodCategoryName,
+                out actorMethodCounterSet))
+            {
+                ActorTrace.Source.WriteWarning(
+                    TraceType,
+                    "PerformanceCounterSet not generated yet for category {0}",
+                    ActorPerformanceCounters.ActorMethodCategoryName);
+                return null;
+            }
+
+            foreach (var kvp in counterInstanceNames)
+            {
+                var data = new CounterInstanceData {InstanceName = kvp.Value};
+                data.CounterWriters = this.CreateCounterWriters(data, actorMethodCounterSet);
+                actorMethodCounterInstanceData[kvp.Key] = data;
+            }
+            return
+                actorMethodCounterInstanceData;
+        }
+
+        internal List<KeyValuePair<long, MethodInfo>> GetMethodInfo(
+            MethodDescription[] actorInterfaceMethodDescriptions, int interfaceId)
+
+        {
+            var methodInfoList = new List<KeyValuePair<long, MethodInfo>>();
+
+            foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
+            {
+                var kvp = new KeyValuePair<long, MethodInfo>(
+                    DiagnosticsEventManager.GetInterfaceMethodKey((uint) interfaceId,
+                        (uint) actorInterfaceMethodDescription.Id),
+                    actorInterfaceMethodDescription.MethodInfo);
+                methodInfoList.Add(kvp);
+                //For V2 InterfaceId Support
+            }
+            return methodInfoList;
         }
     }
 }

@@ -23,25 +23,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
         /// <summary>
-        /// The interface types implemented
+        /// Gets or sets the interface types implemented.
         /// </summary>
         /// <value>List of interface types</value>
         public IEnumerable<Type> InterfaceTypes { get; private set; }
 
         /// <summary>
-        /// Gets type of the class implementing the service interface.
+        /// Gets or sets the type of the class implementing the service interface.
         /// </summary>
         /// <value><see cref="System.Type"/> of the class implementing the service interface.</value>
         public Type ImplementationType { get; private set; }
 
         /// <summary>
-        /// Gets if class implementing service interface is abstract.
+        /// Gets or sets if class implementing service interface is abstract.
         /// </summary>
         /// <value>true if class implementing service interface is abstract, otherwise false.</value>
         public bool IsAbstract { get; private set; }
 
         /// <summary>
-        /// Factory method that constructs a ServiceTypeInformation object from the given type
+        /// Gets the Factory method that constructs a ServiceTypeInformation object from the given type.
         /// </summary>
         /// <param name="serviceType">Type to examine</param>
         /// <param name="serviceTypeInformation">The constructed ServiceTypeInformation</param>

@@ -6,6 +6,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -13,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
     using System.Xml;
     using System.Fabric.Management.ServiceModel;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting;
 
     // generates the service manifest for the actor implementations
     internal class ManifestGenerator
@@ -34,6 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private const string GeneratedDefaultServiceName = "DefaultService";
         private const string GeneratedServiceEndpointName = "ServiceEndpoint";
+        private const string GeneratedServiceEndpointV2Name = "ServiceEndpointV2";
         private const string GeneratedReplicatorEndpointName = "ReplicatorEndpoint";
         private const string GeneratedReplicatorConfigSectionName = "ReplicatorConfigSection";
         private const string GeneratedReplicatorSecurityConfigSectionName = "ReplicatorSecurityConfigSection";
@@ -56,7 +59,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             <string, Func<ActorTypeInformation, string>>
         {
             {GeneratedDefaultServiceName, GetFabricServiceName},
-            {GeneratedServiceEndpointName, GetFabricServiceEndpointName},
             {GeneratedReplicatorEndpointName, GetFabricServiceReplicatorEndpointName},
             {GeneratedReplicatorConfigSectionName, GetFabricServiceReplicatorConfigSectionName},
             {GeneratedReplicatorSecurityConfigSectionName, GetFabricServiceReplicatorSecurityConfigSectionName},
@@ -67,7 +69,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             context = new Context(arguments);
             context.LoadExistingContents();
-
             var serviceManifest = CreateServiceManifest();
             var configSettings = CreateConfigSettings();
             var mergedServiceManifest = MergeServiceManifest(serviceManifest);
@@ -397,7 +398,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             // HasPersistedState flag in service manifest is set to true only when 
             //    1. Actor [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
-
             return new StatefulServiceTypeType
             {
                 HasPersistedState = actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted),
@@ -406,22 +406,85 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             };
         }
 
+        private static Dictionary<string,Func<ActorTypeInformation,string>> GetGeneratedNameFunctionForServiceEndpoint(ActorTypeInformation actorTypeInfo)
+        {
+            var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
+#if !DotNetCoreClr
+            switch (actorTypeInfo.RemotingListener)
+            {
+                case RemotingListener.V2Listener:
+                    generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
+                    break;
+                case RemotingListener.CompatListener:
+                    generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
+                    generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
+                    break;
+                default:
+                {
+                    generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
+                    break;
+                }
+            }
+#else
+            generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
+#endif
+            return generatedNameFunctions;
+        }
+
+        private static List<EndpointType> CreateEndpointResourceBasedOnRemotingServer(ActorTypeInformation actorTypeInfo)
+        {
+            var endpoints = new List<EndpointType>();
+#if !DotNetCoreClr
+            switch (actorTypeInfo.RemotingListener)
+            {
+                case RemotingListener.V2Listener:
+                    endpoints.Add(
+                        new EndpointType()
+                        {
+                            Name = GetFabricServiceV2EndpointName(actorTypeInfo)
+                        }
+                    );
+                    break;
+                case RemotingListener.CompatListener:
+                    endpoints.Add(
+                        new EndpointType()
+                        {
+                            Name = GetFabricServiceV2EndpointName(actorTypeInfo)
+                        });
+                    endpoints.Add(new EndpointType()
+                    {
+                        Name = GetFabricServiceEndpointName(actorTypeInfo)
+                    });
+                    
+                    break;
+                default:
+                {
+                    endpoints.Add(
+                        new EndpointType()
+                        {
+                            Name = GetFabricServiceEndpointName(actorTypeInfo)
+                        }
+                    );
+                    break;
+                    }
+            }
+#else
+            endpoints.Add(
+                      new EndpointType()
+                      {
+                          Name = GetFabricServiceV2EndpointName(actorTypeInfo)
+                      }
+                  );
+#endif
+            return endpoints;
+        }
+
         private static ExtensionsTypeExtension[] CreateServiceTypeExtensions(ActorTypeInformation actorTypeInfo)
         {
-            var xml = new XmlDocument();
-            xml.XmlResolver = null;
 
-            xml.AppendChild(xml.CreateElement(GeneratedNamesRootElementName, ExtensionSchemaNamespace));
+            var generatedNameFunctions = GeneratedNameFunctions.Concat(GetGeneratedNameFunctionForServiceEndpoint(actorTypeInfo)).ToDictionary(d => d.Key, d => d.Value);
 
-            foreach (var pair in GeneratedNameFunctions)
-            {
-                var elementName = pair.Key;
-                var attributeValue = pair.Value(actorTypeInfo);
-
-                var elem = xml.CreateElement(elementName, ExtensionSchemaNamespace);
-                elem.SetAttribute(GeneratedNamesAttributeName, attributeValue);
-                xml.DocumentElement.AppendChild(elem);
-            }
+            var xml = CreateServiceTypeExtension(actorTypeInfo, generatedNameFunctions);
 
             var extension = new ExtensionsTypeExtension
             {
@@ -438,7 +501,27 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             return new List<ExtensionsTypeExtension> {extension}.ToArray();
         }
 
-        #region CodePackage Create and Merge
+        private static XmlDocument CreateServiceTypeExtension(ActorTypeInformation actorTypeInfo,  Dictionary<string, Func<ActorTypeInformation, string>> generatedNameFunctions)
+        {
+            var xml = new XmlDocument();
+            xml.XmlResolver = null;
+
+            xml.AppendChild(xml.CreateElement(GeneratedNamesRootElementName, ExtensionSchemaNamespace));
+
+            foreach (var pair in generatedNameFunctions)
+            {
+                var elementName = pair.Key;
+                var attributeValue = pair.Value(actorTypeInfo);
+
+                var elem = xml.CreateElement(elementName, ExtensionSchemaNamespace);
+                elem.SetAttribute(GeneratedNamesAttributeName, attributeValue);
+                xml.DocumentElement.AppendChild(elem);
+            }
+
+            return xml;
+        }
+
+#region CodePackage Create and Merge
 
         private static CodePackageType CreateCodePackage()
         {
@@ -512,9 +595,9 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 MergeCodePackage);
         }
 
-        #endregion
+#endregion
 
-        #region ConfigPackage Create and Merge
+#region ConfigPackage Create and Merge
 
         private static ConfigPackageType CreateConfigPackage()
         {
@@ -551,20 +634,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 MergeConfigPackage);
         }
 
-        #endregion
+#endregion
 
-        #region EndpointResource Create and Merge
+#region EndpointResource Create and Merge
 
         private static IEnumerable<EndpointType> CreateEndpointResources(
             ActorTypeInformation actorTypeInfo)
         {
-            var endpoints = new List<EndpointType>
-            {
-                new EndpointType
-                {
-                    Name = GetFabricServiceEndpointName(actorTypeInfo)
-                }
-            };
+            var endpoints = CreateEndpointResourceBasedOnRemotingServer(actorTypeInfo);
 
             endpoints.Add(
                 new EndpointType
@@ -585,6 +662,13 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             return ActorNameFormat.GetFabricServiceEndpointName(actorTypeInfo.ImplementationType);
         }
 
+
+        private static string GetFabricServiceV2EndpointName(ActorTypeInformation actorTypeInfo)
+        {
+            return ActorNameFormat.GetFabricServiceV2EndpointName(actorTypeInfo.ImplementationType);
+        }
+
+
         private static EndpointType MergeEndpointResource(
             EndpointType existingItem,
             EndpointType newItem)
@@ -604,11 +688,11 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 i1 => context.ShouldKeepEndpointResource(i1.Name));
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Create And Merge Application Manifest
+#region Create And Merge Application Manifest
 
         private static ApplicationManifestType CreateApplicationManifest(ServiceManifestType serviceManifest)
         {
@@ -1005,7 +1089,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 MergeParameters);
         }
 
-        #endregion
+#endregion
 
         private static T[] MergeItems<T>(
             IEnumerable<T> existingItems,

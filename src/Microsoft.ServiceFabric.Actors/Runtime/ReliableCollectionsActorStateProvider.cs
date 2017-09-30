@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
-
+    using Microsoft.ServiceFabric.Services;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>
@@ -30,11 +30,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         #region Private Data members
 
-        private const int DefaultTransientErrorRetryDelaySeconds = 1;
         private const int StateProviderInitRetryDelayMilliseconds = 500;
         private const int DefaultActorStateDictionaryCount = 32;
         private const int DefaultReminderDictionaryCount = 8;
-        private const string TraceType = "ReliableDictionaryActorStateProvider";
+        private const string TraceType = "ReliableCollectionsActorStateProvider";
         private const string LogicalTimestampKey = "VLTM";
         private const string ActorStateDictionaryNameFormat = "Store://ActorStateDictionary//{0}";
         private const string ReminderDictionaryNameFormat = "Store://reminderDictionary//{0}";
@@ -46,7 +45,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ReliableStateManagerConfiguration userDefinedStateManagerConfig;
         private readonly int userDefinedActorStateDictionaryCount;
         private readonly int userDefinedReminderDictionaryCount;
-        private readonly TimeSpan transientErrorRetryDelay;
         private readonly ActorStateProviderHelper stateProviderHelper;
         private readonly VolatileLogicalTimeManager logicalTimeManager;
         private readonly ActorStateProviderSerializer actorStateSerializer;
@@ -56,17 +54,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private IStatefulServicePartition servicePartition;
         private ActorTypeInformation actorTypeInformation;
         private Func<CancellationToken, Task<bool>> onDataLossAsyncFunc;
-        private StatefulServiceInitializationParameters initiParams;
+        private Func<CancellationToken, Task> onRestoreCompletedAsyncFunc;
+        private StatefulServiceInitializationParameters initParams;
         private bool isLogicalTimeManagerInitialized;
         private bool isDictionariesInitialized;
         private Task stateProviderInitTask;
         private CancellationTokenSource stateProviderInitCts;
-        private IReliableStateManagerReplica stateManager;
+        private IReliableStateManagerReplica2 stateManager;
         private IReliableDictionary2<string, byte[]> actorPresenceDictionary;
         private IReliableDictionary2<string, byte[]> reminderCompletedDictionary;
         private IReliableDictionary2<string, byte[]> logicalTimeDictionary;
         private IReliableDictionary2<string, byte[]>[] actorStateDictionaries;
         private IReliableDictionary2<string, byte[]>[] reminderDictionaries;
+
+        private ReliableCollectionsActorStateProviderSettings stateProviderSettings;
+        private long roleChangeTracker;
 
         #endregion
 
@@ -118,6 +120,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             int actorStateDictionaryCount,
             int reminderDictionaryCount)
         {
+#if DotNetCoreClrLinux
+            // Initializing variables to suppress uninitialized_variables build_warnings.
+            this.userDefinedActorStateDictionaryCount = actorStateDictionaryCount;
+            this.userDefinedReminderDictionaryCount = reminderDictionaryCount;
+            this.userDefinedStateManagerConfig = null;
+            this.logicalTimeManager = null;
+            this.actorStateSerializer = null;
+            this.stateProviderHelper = null;
+            throw new PlatformNotSupportedException("ReliableCollectionsActorStateProvider is not supported on Unix platform.");
+#else
             if (actorStateDictionaryCount < 1)
             {
                 throw new ArgumentException("Value for actorStateDictionaryCount cannot be less than 1.");
@@ -132,13 +144,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isLogicalTimeManagerInitialized = false;
             this.isDictionariesInitialized = false;
             this.replicaRole = ReplicaRole.Unknown;
-            this.transientErrorRetryDelay = TimeSpan.FromSeconds(DefaultTransientErrorRetryDelaySeconds);
+            this.roleChangeTracker = DateTime.UtcNow.Ticks;
             this.userDefinedStateManagerConfig = stateManagerConfig;
             this.userDefinedActorStateDictionaryCount = actorStateDictionaryCount;
             this.userDefinedReminderDictionaryCount = reminderDictionaryCount;
             this.logicalTimeManager = new VolatileLogicalTimeManager(this);
             this.actorStateSerializer = new ActorStateProviderSerializer();
             this.stateProviderHelper = new ActorStateProviderHelper(this);
+#endif
         }
 
         #endregion
@@ -358,7 +371,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         async Task VolatileLogicalTimeManager.ISnapshotHandler.OnSnapshotAsync(TimeSpan currentLogicalTime)
         {
             var logicalTimedata = new LogicalTimestamp(currentLogicalTime);
-            var data = LogicalTimestampSerializer.Serialize(logicalTimedata); 
+            var data = LogicalTimestampSerializer.Serialize(logicalTimedata);
 
             try
             {
@@ -396,21 +409,23 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         void IStateProviderReplica.Initialize(StatefulServiceInitializationParameters initializationParameters)
         {
-            this.initiParams = initializationParameters;
-            this.traceId = ActorTrace.GetTraceIdForReplica(this.initiParams.PartitionId, this.initiParams.ReplicaId);
+            this.initParams = initializationParameters;
+            this.traceId = ActorTrace.GetTraceIdForReplica(this.initParams.PartitionId, this.initParams.ReplicaId);
+
+            this.LoadActorStateProviderSettings();
 
             var statefulServiceContext = new StatefulServiceContext(
                 FabricRuntime.GetNodeContext(),
-                this.initiParams.CodePackageActivationContext,
-                this.initiParams.ServiceTypeName,
-                this.initiParams.ServiceName,
-                this.initiParams.InitializationData,
-                this.initiParams.PartitionId,
-                this.initiParams.ReplicaId);
+                this.initParams.CodePackageActivationContext,
+                this.initParams.ServiceTypeName,
+                this.initParams.ServiceName,
+                this.initParams.InitializationData,
+                this.initParams.PartitionId,
+                this.initParams.ReplicaId);
 
             var stateManagerConfig = this.userDefinedStateManagerConfig;
 
-            if(stateManagerConfig == null)
+            if (stateManagerConfig == null)
             {
                 var actorImplType = this.actorTypeInformation.ImplementationType;
 
@@ -419,13 +434,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     ActorNameFormat.GetFabricServiceReplicatorSecurityConfigSectionName(actorImplType),
                     ActorNameFormat.GetFabricServiceReplicatorConfigSectionName(actorImplType));
             }
-            
+
             this.stateManager = new ReliableStateManager(statefulServiceContext, stateManagerConfig);
 
             ReleaseAssert.AssertIfNull(this.onDataLossAsyncFunc, "onDataLossAsync event handler cannot be null.");
             this.stateManager.OnDataLossAsync = this.onDataLossAsyncFunc;
 
-            this.stateManager.Initialize(this.initiParams);
+            ReleaseAssert.AssertIfNull(this.onRestoreCompletedAsyncFunc, "onRestoreCompletedAsync event handler cannot be null.");
+            this.stateManager.OnRestoreCompletedAsync = this.onRestoreCompletedAsyncFunc;
+
+            this.stateManager.Initialize(this.initParams);
         }
 
         Task<IReplicator> IStateProviderReplica.OpenAsync(
@@ -441,6 +459,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ReplicaRole newRole,
             CancellationToken cancellationToken)
         {
+            Interlocked.Increment(ref this.roleChangeTracker);
+
             await this.stateManager.ChangeRoleAsync(newRole, cancellationToken);
 
             // Set replica role for other components to use (logical time manager initialization, client call etc.).
@@ -497,7 +517,34 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion
 
+        #region IStateProviderReplica2 Members
+
+        Func<CancellationToken, Task> IStateProviderReplica2.OnRestoreCompletedAsync
+        {
+            set
+            {
+                ReleaseAssert.AssertIfNot(this.onRestoreCompletedAsyncFunc == null, "onrestorecompleted event handler can only be set once.");
+                this.onRestoreCompletedAsyncFunc = value;
+            }
+        }
+
+        #endregion
+
         #region Helper Functions
+
+        private void LoadActorStateProviderSettings()
+        {
+            var configPackageName = ActorNameFormat.GetConfigPackageName(this.actorTypeInformation.ImplementationType);
+            var sectionName = ActorNameFormat.GetActorStateProviderSettingsSectionName(this.actorTypeInformation.ImplementationType);
+
+            this.stateProviderSettings = ReliableCollectionsActorStateProviderSettings.LoadFrom(
+                this.initParams.CodePackageActivationContext,
+                configPackageName,
+                sectionName);
+
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType, this.traceId, "ReliableCollectionsActorStateProviderSettings: {0}", this.stateProviderSettings);
+        }
 
         Task DeleteRemindersInternalAsync(
             IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderKeys,
@@ -541,7 +588,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             foreach (var reminderNamesPerActor in reminderNames)
             {
-                if(reminderNamesPerActor.Value.Count > 0)
+                if (reminderNamesPerActor.Value.Count > 0)
                 {
                     var actorId = reminderNamesPerActor.Key;
                     var reminderKeys = new List<string>();
@@ -555,7 +602,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
 
                     reminderKeyInfoList.Add(actorId, reminderKeys);
-                }                
+                }
             }
 
             return reminderKeyInfoList;
@@ -674,7 +721,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             int retryCount = 0;
 
             while (!cancellationToken.IsCancellationRequested &&
-                          this.servicePartition.WriteStatus != PartitionAccessStatus.Granted)
+                   this.servicePartition.WriteStatus != PartitionAccessStatus.Granted)
             {
                 retryCount++;
                 await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
@@ -1148,12 +1195,25 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         TimeSpan IActorStateProviderInternal.TransientErrorRetryDelay
         {
-            get { return this.transientErrorRetryDelay; }
+            get { return this.stateProviderSettings.TransientErrorRetryDelay; }
         }
 
         TimeSpan IActorStateProviderInternal.CurrentLogicalTime
         {
             get { return this.logicalTimeManager.CurrentLogicalTime; }
+        }
+
+        TimeSpan IActorStateProviderInternal.OperationTimeout
+        {
+            get { return this.stateProviderSettings.OperationTimeout; }
+        }
+
+        long IActorStateProviderInternal.RoleChangeTracker
+        {
+            get
+            {
+                return Interlocked.Read(ref this.roleChangeTracker);
+            }
         }
 
         #endregion

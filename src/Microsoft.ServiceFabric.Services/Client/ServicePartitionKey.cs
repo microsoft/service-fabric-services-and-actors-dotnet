@@ -44,12 +44,12 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <param name="partitionKey">Value of the named partition key</param>
         public ServicePartitionKey(string partitionKey)
         {
-            this.value = partitionKey;
             this.servicePartitionKind = ServicePartitionKind.Named;
+            this.value = partitionKey;
         }
 
         /// <summary>
-        /// Kind of the partition this key applies to.
+        /// Gets the Kind of the partition key applies to.
         /// </summary>
         /// <value>Partition kind</value>
         public ServicePartitionKind Kind
@@ -58,7 +58,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// The value of the partition key. This value can be casted to the right type based on the value of the Kind property.
+        /// Gets the value of the partition key. This value can be casted to the right type based on the value of the Kind property.
         /// </summary>
         /// <value>Partition key</value>
         public object Value

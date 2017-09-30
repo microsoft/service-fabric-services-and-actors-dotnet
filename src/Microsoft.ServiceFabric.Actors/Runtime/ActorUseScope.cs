@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public ActorBase Actor { get; private set; }
 
         /// <summary>
-        /// Signifies if the use is for a timer call.
+        /// Indicates a value whether the use is for a timer call.
         /// </summary>
         private readonly bool timerUse;
 

@@ -13,12 +13,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public interface IRemindable
     {
         /// <summary>
-        /// Reminder call back invoked when an actor reminder is triggered.
+        /// The reminder call back invoked when an actor reminder is triggered.
         /// </summary>
-        /// <param name="reminderName">Name of reminder provided during registration</param>
-        /// <param name="state">User state provided during registration.</param>
-        /// <param name="dueTime">Invocation due time provided during registration.</param>
-        /// <param name="period">Invocation period provided during registration.</param>
+        /// <param name="reminderName">The name of reminder provided during registration</param>
+        /// <param name="state">The user state provided during registration.</param>
+        /// <param name="dueTime">The invocation due time provided during registration.</param>
+        /// <param name="period">The invocation period provided during registration.</param>
         /// <returns>A task that represents the asynchronous operation performed by this callback.</returns>
         /// <remarks>
         /// <para>The state of this actor is saved by the actor runtime upon completion of the task returned by this method. If an error occurs while saving the state, then all state cached by this actor's <see cref="Microsoft.ServiceFabric.Actors.Runtime.Actor.StateManager" /> will be discarded and reloaded from previously saved state when the next actor method or reminder invocation occurs.

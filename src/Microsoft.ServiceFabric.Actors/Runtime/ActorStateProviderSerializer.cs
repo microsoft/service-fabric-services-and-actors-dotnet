@@ -64,7 +64,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new DataContractSerializerSettings
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
+#if !DotNetCoreClr
                     DataContractSurrogate = ActorDataContractSurrogate.Singleton,
+#endif
                     KnownTypes = new[] { typeof(ActorReference) }
                 });
         }

@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Globalization;
 
     /// <summary>
-    /// The base class for actors.
+    /// Represents the base class for actors.
     /// </summary>
     /// <remarks>
     /// The base type for actors, that provides the common functionality
@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets the stateful service replica that is hosting the actor.
         /// </summary>
         /// <value>
-        /// The <see cref="Runtime.ActorService"/> that represents the stateful service replica hosting the actor.
+        /// The <see cref="ActorService"/> that represents the stateful service replica hosting the actor.
         /// </value>
         public ActorService ActorService
         {
@@ -138,14 +138,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This method is invoked by actor runtime just before invoking an actor method. Override this method
-        /// for performing any actions prior to an actor method is invoked.
+        /// Override this method for performing any actions prior to an actor method is invoked.
+        /// This method is invoked by actor runtime just before invoking an actor method.
         /// </summary>
         /// <param name="actorMethodContext">
         /// An <see cref="ActorMethodContext"/> describing the method that will be invoked by actor runtime after this method finishes.
         /// </param>
         /// <returns>
-        /// A <see cref="Task">Task</see> representing pre-actor-method operation.
+        /// Returns a <see cref="Task">Task</see> representing pre-actor-method operation.
         /// </returns>
         /// <remarks>
         /// This method is invoked by actor runtime prior to:
@@ -161,14 +161,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This method is invoked by actor runtime an actor method has finished execution. Override this method
-        /// for performing any actions after an actor method has finished execution. 
+        /// Override this method for performing any actions after an actor method has finished execution.
+        /// This method is invoked by actor runtime an actor method has finished execution.
         /// </summary>
         /// <param name="actorMethodContext">
         /// An <see cref="ActorMethodContext"/> describing the method that was invoked by actor runtime prior to this method.
         /// </param>
         /// <returns>
-        /// A <see cref="Task">Task</see> representing post-actor-method operation.
+        /// Returns a <see cref="Task">Task</see> representing post-actor-method operation.
         /// </returns>
         /// /// <remarks>
         /// This method is invoked by actor runtime prior to:
@@ -186,7 +186,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Unregisters a Timer previously set on this actor.
         /// </summary>
-        /// <param name="timer">IActorTimer representing timer that needs to be unregistered..</param>
+        /// <param name="timer">An IActorTimer representing timer that needs to be unregistered.</param>
         protected void UnregisterTimer(IActorTimer timer)
         {
             if ((timer != null) && (this.timers != null))
@@ -201,8 +201,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Gets the event for the specified event interface.
         /// </summary>
-        /// <typeparam name="TEvent">Event interface type.</typeparam>
-        /// <returns>Returns Event that represents the specified interface.</returns>
+        /// <typeparam name="TEvent">The Event interface type.</typeparam>
+        /// <returns>Returns an Event that represents the specified interface.</returns>
         protected TEvent GetEvent<TEvent>()
         {
             return this.Manager.GetEvent<TEvent>(this.Id);
@@ -211,7 +211,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Gets the actor reminder with specified reminder name.
         /// </summary>
-        /// <param name="reminderName">Name of the reminder to get.</param>
+        /// <param name="reminderName">The Name of the reminder to get.</param>
         /// <returns>
         /// An <see cref="IActorReminder"/> that represents an actor reminder.
         /// </returns>
@@ -227,7 +227,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         /// <param name="reminder">The actor reminder to unregister.</param>
         /// <returns>
-        /// A task that represents the asynchronous unregistration operation.
+        /// Returns a task that represents the asynchronous unregistration operation.
         /// </returns>
         /// <exception cref="System.Fabric.FabricException">
         /// The specified reminder is not registered.
@@ -279,7 +279,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Registers a reminder with the actor.
         /// </summary>
-        /// <param name="reminderName">Name of the reminder to register. The name must be unique per actor.</param>
+        /// <param name="reminderName">The name of the reminder to register. The name must be unique per actor.</param>
         /// <param name="state">User state passed to the reminder invocation.</param>
         /// <param name="dueTime">The amount of time to delay before invoking the reminder for the first time. Specify negative one (-1) milliseconds to disable invocation. Specify zero (0) to invoke the reminder immediately after registration.
         /// </param>

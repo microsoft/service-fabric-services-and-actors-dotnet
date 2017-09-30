@@ -198,6 +198,17 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 GetActorServiceName(actorImplementationType));
         }
 
+
+        /// <summary>
+        /// Gets the service endpoint for the actor type which is specified in service manifest for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Service endpoint name.</returns>
+        public static string GetFabricServiceV2EndpointName(Type actorImplementationType)
+        {
+            return String.Format(CultureInfo.InvariantCulture, "{0}EndpointV2",
+                GetActorServiceName(actorImplementationType));
+        }
         /// <summary>
         /// Gets the replicator endpoint which is specified in service manifest for the actor service.
         /// </summary>
@@ -233,6 +244,27 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         public static string GetFabricServiceTransportSettingsSectionName(Type actorImplementationType)
         {
             return String.Format(CultureInfo.InvariantCulture, "{0}TransportSettings",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
+        /// Gets the <see cref="Microsoft.ServiceFabric.Actors.Runtime.IActorStateProvider"/> configuration section name
+        /// specified in configuration package for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">
+        /// Type of class implementing the actor.
+        /// </param>
+        /// <returns>
+        /// ActorStateProvider configuration section name.
+        /// </returns>
+        /// <remarks>
+        /// Values specified in ActorStateProvider configuration section are used to configure <see cref="Microsoft.ServiceFabric.Actors.Runtime.IActorStateProvider"/>
+        /// </remarks>
+        public static string GetActorStateProviderSettingsSectionName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture, 
+                "{0}ActorStateProviderSettings",
                 GetActorServiceName(actorImplementationType));
         }
 

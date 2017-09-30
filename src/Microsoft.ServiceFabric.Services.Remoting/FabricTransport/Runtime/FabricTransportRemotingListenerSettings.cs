@@ -6,15 +6,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 {
     using System;
     using System.Fabric;
+    using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
-
+    using Microsoft.ServiceFabric.Services.Remoting.V2;
     /// <summary>
     ///Settings that configures the  FabricTransport Listener.
     /// </summary>
     public class FabricTransportRemotingListenerSettings
     {
         private readonly FabricTransportListenerSettings listenerSettings;
+        private int headerBufferSize;
+        private int headerMaxBufferCount;
+        
+        private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
 
         /// <summary>
         /// Creates a new instance of FabricTransportRemotingListenerSettings and initializes properties with default Values.
@@ -22,9 +27,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         public FabricTransportRemotingListenerSettings()
         {
             this.listenerSettings = new FabricTransportListenerSettings();
+            this.headerBufferSize = Constants.DefaultHeaderBufferSize;
+            this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
+            :this()
         {
             this.listenerSettings = listenerSettings;
         }
@@ -91,14 +99,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <summary>
         /// The maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting. 
         /// </summary>
-        /// <value> Max Size for a Queue that recieves messages from the channel 
+        /// <value> Max Size for a Queue that receives messages from the channel 
         /// </value>
         /// <remarks>
         /// Default value is 10,000 messages</remarks>
         public long MaxQueueSize
         {
             get { return this.listenerSettings.MaxQueueSize; }
-            set { this.listenerSettings.MaxMessageSize = value; }
+            set { this.listenerSettings.MaxQueueSize = value; }
         }
 
         ///<summary>
@@ -116,6 +124,31 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             set { this.listenerSettings.MaxConcurrentCalls = value; }
         }
 
+        ///<summary>
+        ///HeaderBufferSize represents size of each header buffer in the bufferPool .
+        /// </summary>
+        /// <remarks>
+        ///    Defaults  value for the HeaderBufferSize is 1024 bytes.
+        /// </remarks>
+        public int HeaderBufferSize
+        {
+            get { return this.headerBufferSize; }
+            set { this.headerBufferSize = value; }
+        }
+
+        ///<summary>
+        ///HeaderMaxBufferCount represents the maximum number of header buffers assigned  to the BufferPool.
+        /// </summary>
+        /// <remarks>
+        ///    Defaults  value for the HeaderMaxBufferCount is 1000.
+        /// </remarks>
+        public int HeaderMaxBufferCount
+        {
+            get { return this.headerMaxBufferCount; }
+            set { this.headerMaxBufferCount = value; }
+        }
+
+   
         /// <summary>
         /// Security credentials for securing the communication 
         /// </summary>
@@ -147,12 +180,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
         ///     
-        ///     1. MaxQueueSize - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.SecurityCredentials"/> value.
-        ///     5. OperationTimeoutInSeconds - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.KeepAliveTimeout"/> value in seconds.
+        ///     1. MaxQueueSize - <see cref="FabricTransportRemotingSettings.MaxQueueSize"/>value in long.
+        ///     2. MaxMessageSize - <see cref="FabricTransportRemotingSettings.MaxMessageSize"/>value in bytes.
+        ///     3. MaxConcurrentCalls - <see cref="FabricTransportRemotingSettings.MaxConcurrentCalls"/>value in long.
+        ///     4. SecurityCredentials - <see cref="FabricTransportRemotingSettings.SecurityCredentials"/> value.
+        ///     5. OperationTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.OperationTimeout"/> value in seconds.
+        ///     6. KeepAliveTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.KeepAliveTimeout"/> value in seconds.
         /// </remarks>
         public static FabricTransportRemotingListenerSettings LoadFrom(string sectionName,
             string configPackageName = null)
@@ -174,12 +207,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
         ///     
-        ///     1. MaxQueueSize - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.SecurityCredentials"/> value.
-        ///     5. OperationTimeoutInSeconds - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.FabricTransportRemotingSettings.KeepAliveTimeout"/> value in seconds.
+        ///     1. MaxQueueSize - <see cref="FabricTransportRemotingSettings.MaxQueueSize"/>value in long.
+        ///     2. MaxMessageSize - <see cref="FabricTransportRemotingSettings.MaxMessageSize"/>value in bytes.
+        ///     3. MaxConcurrentCalls - <see cref="FabricTransportRemotingSettings.MaxConcurrentCalls"/>value in long.
+        ///     4. SecurityCredentials - <see cref="FabricTransportRemotingSettings.SecurityCredentials"/> value.
+        ///     5. OperationTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.OperationTimeout"/> value in seconds.
+        ///     6. KeepAliveTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.KeepAliveTimeout"/> value in seconds.
         /// </remarks>
         public static bool TryLoadFrom(string sectionName,
             out FabricTransportRemotingListenerSettings remotingListenerSettings,
@@ -207,7 +240,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         {
             var listenerinternalSettings = FabricTransportListenerSettings.GetDefault(sectionName);
 
-            return new FabricTransportRemotingListenerSettings(listenerinternalSettings);
+            var settings = new FabricTransportRemotingListenerSettings(listenerinternalSettings);
+
+            AppTrace.TraceSource.WriteInfo(
+                Tracetype,
+                "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," +
+                "HeaderBufferCount {7} ",
+                settings.MaxMessageSize,
+                settings.MaxConcurrentCalls,
+                settings.MaxQueueSize,
+                settings.OperationTimeout.TotalSeconds,
+                settings.KeepAliveTimeout.TotalSeconds,
+                settings.SecurityCredentials.CredentialType,
+                settings.HeaderBufferSize,
+                settings.HeaderMaxBufferCount);
+             
+
+            return settings;
         }
     }
 }

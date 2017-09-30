@@ -8,19 +8,29 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
     using System.Globalization;
     using System.Reflection;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     internal class ActorInterfaceDescription : InterfaceDescription
     {
-        private ActorInterfaceDescription(Type actorInterfaceType)
-            : base("actor", actorInterfaceType, MethodReturnCheck.EnsureReturnsTask)
+     
+        private ActorInterfaceDescription(Type actorInterfaceType,bool useCRCIdGeneration)
+            : base("actor", actorInterfaceType, useCRCIdGeneration,MethodReturnCheck.EnsureReturnsTask)
         {
         }
+
 
         public static ActorInterfaceDescription Create(Type actorInterfaceType)
         {
             EnsureActorInterface(actorInterfaceType);
-            return new ActorInterfaceDescription(actorInterfaceType);
+            return new ActorInterfaceDescription(actorInterfaceType,false);
+        }
+
+        public static ActorInterfaceDescription CreateUsingCRCId(Type actorInterfaceType)
+        {
+            EnsureActorInterface(actorInterfaceType);
+
+            return new ActorInterfaceDescription(actorInterfaceType, true);
         }
 
         private static void EnsureActorInterface(Type actorInterfaceType)

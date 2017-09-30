@@ -15,13 +15,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
     /// <summary>
-    /// Represents base class for Microsoft Service Fabric based stateful reliable service.
+    /// Represents the base class for Microsoft Service Fabric based stateful reliable service.
     /// </summary>
     public abstract class StatefulServiceBase : IStatefulUserServiceReplica
     {
         private readonly RestoreContext restoreContext;
         private readonly StatefulServiceContext serviceContext;
-        private readonly IStateProviderReplica stateProviderReplica;
+        private readonly IStateProviderReplica2 stateProviderReplica;
 
         private IReadOnlyDictionary<string, string> addresses;
 
@@ -32,12 +32,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// A <see cref="StatefulServiceContext"/> describes the service context, which it provides information like replica ID, partition ID, and service name.
         /// </param>
         /// <param name="stateProviderReplica">
-        /// A <see cref="IStateProviderReplica"/> represents a reliable state provider replica.
+        /// A <see cref="IStateProviderReplica2"/> represents a reliable state provider replica.
         /// </param>
         /// <exception cref="ArgumentNullException"></exception>
         protected StatefulServiceBase(
             StatefulServiceContext serviceContext,
-            IStateProviderReplica stateProviderReplica)
+            IStateProviderReplica2 stateProviderReplica)
         {
             if (serviceContext == null)
             {
@@ -51,12 +51,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.stateProviderReplica = stateProviderReplica;
             this.stateProviderReplica.OnDataLossAsync = this.OnDataLossAsync;
+            this.stateProviderReplica.OnRestoreCompletedAsync = this.OnRestoreCompletedAsync;
             this.restoreContext = new RestoreContext(this.stateProviderReplica);
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
         }
 
-        internal IStateProviderReplica StateProviderReplica
+        internal IStateProviderReplica2 StateProviderReplica
         {
             get { return this.stateProviderReplica; }
         }
@@ -74,7 +75,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
         
         /// <summary>
-        /// Gets list of all the addresses for this service replica
+        /// Gets the list of all the addresses for this service replica
         /// as (ListenerName, Endpoint) key-value pair.
         /// </summary>
         /// <returns>
@@ -87,7 +88,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Service partition to which current service replica belongs. 
+        /// The service partition to which current service replica belongs. 
         /// </summary>
         /// <value>
         /// An <see cref="IStatefulServicePartition"/> that represents the 
@@ -235,7 +236,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Notification that the service is being aborted. RunAsync MAY be running concurrently
+        /// The notification that the service is being aborted. RunAsync MAY be running concurrently
         /// with the execution of this method, as cancellation is not awaited on the abort path. 
         /// <para>
         /// For information about Reliable Services life cycle please see
@@ -256,7 +257,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             set { this.Partition = value; }
         }
 
-        IStateProviderReplica IStatefulUserServiceReplica.CreateStateProviderReplica()
+        IStateProviderReplica2 IStatefulUserServiceReplica.CreateStateProviderReplica()
         {
             return this.StateProviderReplica;
         }
@@ -309,6 +310,20 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         protected virtual Task<bool> OnDataLossAsync(RestoreContext restoreCtx, CancellationToken cancellationToken)
         {
             return Task.FromResult(false);
+        }
+
+        /// <summary>
+        /// This method is called when replica's state has been restored successfully via the Backup Restore service
+        /// </summary>
+        /// <param name="cancellationToken">
+        /// <see cref="CancellationToken"/> to monitor for cancellation requests.
+        /// </param>
+        /// <returns>
+        /// A Task that represents the asynchronous operation.
+        /// </returns>
+        protected virtual Task OnRestoreCompletedAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(0);
         }
 
         #region Backup and Restore APIs

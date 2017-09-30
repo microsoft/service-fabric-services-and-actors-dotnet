@@ -2,15 +2,21 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
 {
     using System;
-    using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport.Runtime;
+    using System.Fabric;
+    using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
+    using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+
     /// <summary>
     ///     Sets fabric TCP transport as the default remoting provider for the actors.
     /// </summary>
@@ -39,7 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         /// <summary>
         ///     Gets or Sets the operation timeout in seconds. If the operation is not completed in the specified
         ///     time, it will be timed out. By default, exception handler of 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client.FabricTransportServiceRemotingClientFactory"/>
+        ///    FabricTransportServiceRemotingClientFactory />
         ///     retries the timed out exception. It is recommended to not change the operation timeout from it's default value. 
         /// </summary>
         /// <value>
@@ -68,6 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         /// </value>
         /// <remarks>Default Value for ConnectTimeout Timeout is 5 seconds.</remarks>
         public long ConnectTimeoutInMilliseconds { get; set; }
+#if !DotNetCoreClr
 
         /// <summary>
         ///     Creates a service remoting listener for remoting the actor interfaces.
@@ -77,41 +84,75 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         ///     needs to be remoted.
         /// </param>
         /// <returns>
-        ///     A <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime.FabricTransportServiceRemotingListener"/>
-        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> 
+        ///     A <see cref=" V1.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener"/>
+        ///     as <see cref="IServiceRemotingListener"/> 
         ///     for the specified actor service.
         /// </returns>
         public override IServiceRemotingListener CreateServiceRemotingListener(ActorService actorService)
         {
-            var listenerSettings = FabricTransportActorServiceRemotingListener.GetActorListenerSettings(actorService);
+            var listenerSettings = GetActorListenerSettings(actorService);
             listenerSettings.MaxMessageSize = this.GetAndValidateMaxMessageSize(listenerSettings.MaxMessageSize);
             listenerSettings.OperationTimeout = this.GetandValidateOperationTimeout(listenerSettings.OperationTimeout);
             listenerSettings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(listenerSettings.KeepAliveTimeout);
-            return new FabricTransportActorServiceRemotingListener(actorService, listenerSettings);
+            return new V1.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(actorService, listenerSettings);
         }
 
-        /// <summary>
+           /// <summary>
         ///     Creates a service remoting client factory to connect to the remoted actor interfaces.
         /// </summary>
         /// <param name="callbackClient">
         ///     Client implementation where the callbacks should be dispatched.
         /// </param>
         /// <returns>
-        ///     A <see cref="Microsoft.ServiceFabric.Actors.Remoting.FabricTransport.FabricTransportActorRemotingClientFactory "/>
-        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceRemotingClientFactory"/>
-        ///     that can be used with <see cref="Microsoft.ServiceFabric.Actors.Client.ActorProxyFactory"/> to 
+        ///     A <see cref="V1.FabricTransport.Client.FabricTransportActorRemotingClientFactory "/>
+        ///     as <see cref="IServiceRemotingClientFactory"/>
+        ///     that can be used with <see cref="ActorProxyFactory"/> to 
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
-        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            IServiceRemotingCallbackClient callbackClient)
+        public override Services.Remoting.V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
+            Services.Remoting.V1.IServiceRemotingCallbackClient callbackClient)
         {
             var settings = FabricTransportRemotingSettings.GetDefault();
             settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
             settings.OperationTimeout = this.GetandValidateOperationTimeout(settings.OperationTimeout);
             settings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(settings.KeepAliveTimeout);
             settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
-            return new FabricTransportActorRemotingClientFactory(settings, callbackClient);
+            return new V1.FabricTransport.Client.FabricTransportActorRemotingClientFactory(settings, callbackClient);
         }
+
+#endif
+        /// <summary>
+        ///     Creates a service remoting listener for remoting the actor interfaces.
+        /// </summary>
+        /// <param name="actorService">
+        ///     The implementation of the actor service that hosts the actors whose interfaces
+        ///     needs to be remoted.
+        /// </param>
+        /// <returns>
+        ///     A <see cref="V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener"/>
+        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> 
+        ///     for the specified actor service.
+        /// </returns>
+        public override IServiceRemotingListener CreateServiceRemotingListenerV2(ActorService actorService)
+        {
+            var listenerSettings = GetActorListenerSettings(actorService);
+            listenerSettings.MaxMessageSize = this.GetAndValidateMaxMessageSize(listenerSettings.MaxMessageSize);
+            listenerSettings.OperationTimeout = this.GetandValidateOperationTimeout(listenerSettings.OperationTimeout);
+            listenerSettings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(listenerSettings.KeepAliveTimeout);
+            return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(actorService, listenerSettings);
+        }
+
+        /// <inheritdoc />
+        public override Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+            Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler)
+        {
+            var settings = FabricTransportRemotingSettings.GetDefault();
+            settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
+            settings.OperationTimeout = this.GetandValidateOperationTimeout(settings.OperationTimeout);
+            settings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(settings.KeepAliveTimeout);
+            settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
+            return new FabricTransportActorRemotingClientFactory(settings, callbackMessageHandler);
+        }     
 
         private long GetAndValidateMaxMessageSize(long maxMessageSize)
         {
@@ -137,6 +178,20 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
             return (this.ConnectTimeoutInMilliseconds > 0)
                 ? TimeSpan.FromMilliseconds(this.ConnectTimeoutInMilliseconds)
                 : connectTimeout;
+        }
+
+        internal static FabricTransportRemotingListenerSettings GetActorListenerSettings(ActorService actorService)
+        {
+            var sectionName = ActorNameFormat.GetFabricServiceTransportSettingsSectionName(
+                actorService.ActorTypeInformation.ImplementationType);
+            FabricTransportRemotingListenerSettings listenerSettings;
+            var isSucceded = FabricTransportRemotingListenerSettings.TryLoadFrom(sectionName, out listenerSettings);
+            if (!isSucceded)
+            {
+                listenerSettings = FabricTransportRemotingListenerSettings.GetDefault();
+            }
+
+            return listenerSettings;
         }
     }
 }

@@ -5,6 +5,7 @@
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System;
+    using Microsoft.ServiceFabric.Services.Remoting;
 
     internal struct ActorMethodDiagnosticData
     {
@@ -12,5 +13,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         internal long InterfaceMethodKey;
         internal TimeSpan? MethodExecutionTime;
         internal Exception Exception;
+        internal RemotingListener RemotingListener;
     }
 }

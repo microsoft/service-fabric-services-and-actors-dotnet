@@ -2,25 +2,29 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Fabric;
     using System.Globalization;
+    using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Fabric.Description;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
+    using Microsoft.ServiceFabric.Actors.Remoting;
 
     /// <summary>
-    /// The code  in this class is shared by the different actor state providers (Kvs, RD, Volatile and Null).
+    /// Represents the code shared by the different actor state providers (Kvs, RD, Volatile and Null).
     /// If you are adding any code/behavior that is common to different actor state provider(s), please add
     /// it to this class.
     /// </summary>
     internal sealed class ActorStateProviderHelper
     {
-        private const int RetryCountThreshold = 3;
         private const long DefaultMaxPrimaryReplicationQueueSize = 8192;
         private const long DefaultMaxSecondaryReplicationQueueSize = 16384;
 
@@ -34,7 +38,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal const string ActorPresenceStorageKeyPrefix = "@@";
         internal const string ReminderCompletedStorageKeyPrefix = "RC@@";
 
-        
         internal Task ExecuteWithRetriesAsync(
             Func<Task> func,
             string functionNameTag, 
@@ -55,22 +58,43 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             string functionNameTag,
             CancellationToken userCancellationToken)
         {
-            int retryCount = 0;
-            var effectiveRetryDelay = this.owner.TransientErrorRetryDelay;
+            var retryCount = 0;
+            var useLinearBackoff = false;
+            var lastExceptionTag = string.Empty;
+            var roleChangeTracker = this.owner.RoleChangeTracker;
+            var operationId = Guid.NewGuid();
+            var timeoutHelper = new TimeoutHelper(this.owner.OperationTimeout);
 
             while (true)
             {
                 try
                 {
+                    //
+                    // Actor operations only happen on a primary replica and are required not to span role 
+                    // change boundaries. This is required to ensure that for a given ActorId on a primary 
+                    // replica only one thread can make any state change. Any operation active for this ActorId
+                    // when current replica was primary previously should fail to make any state change.
+                    // 
+                    // When primary replica becomes secondary, all in-flight operations fail as replica do not 
+                    // have write status. However, in rare cases, it may happen that replica undergoes a P -> S -> P
+                    // role change very quickly while an in-flight operation was undergoing back-off before next retry. 
+                    // 
+                    // Fail the operation if primary replica of partition has changed.
+                    //
+                    this.EnsureSamePrimary(roleChangeTracker);
+
+                    useLinearBackoff = false;
+
                     var res = await func.Invoke();
 
-                    if (retryCount > RetryCountThreshold)
+                    if (retryCount > 0)
                     {
                         ActorTrace.Source.WriteInfoWithId(
                             this.owner.TraceType,
                             this.owner.TraceId,
-                            "ExecuteWithRetriesAsync: FunctionNameTag={0} completed with RetryCount={1}.",
+                            "ExecuteWithRetriesAsync: FunctionNameTag={0}, OperationId={1} completed with RetryCount={2}.",
                             functionNameTag,
+                            operationId,
                             retryCount);
                     }
 
@@ -78,26 +102,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 catch (FabricTransientException ex)
                 {
-                    if (ex.ErrorCode == FabricErrorCode.ReplicationQueueFull)
-                    {
-                        effectiveRetryDelay = TimeSpan.FromTicks(this.owner.TransientErrorRetryDelay.Ticks * 2);
-
-                        ActorTrace.Source.WriteWarningWithId(
-                            this.owner.TraceType,
-                            this.owner.TraceId,
-                            "ExecuteWithRetriesAsync: FunctionNameTag={0} encountered ReplicationQueueFull NewRetryDelay={1}s.",
-                            functionNameTag,
-                            effectiveRetryDelay.Seconds);
-                    }
+                    useLinearBackoff = (ex.ErrorCode == FabricErrorCode.ReplicationQueueFull);
+                    lastExceptionTag = ex.ErrorCode.ToString();
 
                     // fall-through and retry
                 }
                 catch (FabricNotPrimaryException)
                 {
-                    if (this.owner.CurrentReplicaRole != ReplicaRole.Primary)
+                    if (timeoutHelper.HasTimedOut || this.CurrentReplicaRoleNotPrimary)
                     {
                         throw;
                     }
+
+                    lastExceptionTag = "FabricNotPrimary";
 
                     // fall-through and retry
                 }
@@ -117,7 +134,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     // KVS aborts all active transaction(s) when changing role from primary to secondary
                     // or if replica is primary and is closing.
-                    if (this.owner is KvsActorStateProvider && 
+                    if (this.owner is KvsActorStateProvider &&
                         ex.ErrorCode == FabricErrorCode.TransactionAborted)
                     {
                         throw new FabricNotPrimaryException();
@@ -132,40 +149,49 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         throw;
                     }
 
-                    if (this.owner.CurrentReplicaRole != ReplicaRole.Primary)
+                    if (this.CurrentReplicaRoleNotPrimary)
                     {
                         throw new FabricNotPrimaryException();
                     }
 
-                    // fall-through and retry
-                }
-                catch(InvalidOperationException)
-                {
-                    if(!(this.owner is ReliableCollectionsActorStateProvider))
+                    if (timeoutHelper.HasTimedOut)
                     {
                         throw;
                     }
+
+                    lastExceptionTag = "OperationCanceled";
+
+                    // fall-through and retry
+                }
+                catch (InvalidOperationException)
+                {
+                    if (timeoutHelper.HasTimedOut || !(this.owner is ReliableCollectionsActorStateProvider))
+                    {
+                        throw;
+                    }
+
+                    lastExceptionTag = "InvalidOperation";
 
                     // fall-through and retry
                 }
 
                 retryCount++;
 
-                if (retryCount > RetryCountThreshold) 
-                {
-                    ActorTrace.Source.WriteWarningWithId(
-                        this.owner.TraceType,
-                        this.owner.TraceId,
-                        "ExecuteWithRetriesAsync: FunctionNameTag={0}, RetryCount={1}, NextRetryDelay={2}s.",
-                        functionNameTag,
-                        retryCount,
-                        effectiveRetryDelay.Seconds);
-                }
+                var effectiveRetryDelay = useLinearBackoff ?
+                    TimeSpan.FromTicks(retryCount * this.owner.TransientErrorRetryDelay.Ticks) :
+                    this.owner.TransientErrorRetryDelay;
+
+                ActorTrace.Source.WriteInfoWithId(
+                    this.owner.TraceType,
+                    this.owner.TraceId,
+                    "ExecuteWithRetriesAsync: FunctionNameTag={0}, OperationId={1}, RetryCount={2}, LastExceptionTag={3}, NextRetryDelay={4}s.",
+                    functionNameTag,
+                    operationId,
+                    retryCount,
+                    lastExceptionTag,
+                    effectiveRetryDelay.Seconds);
 
                 await Task.Delay(effectiveRetryDelay, userCancellationToken);
-
-                // Reset effective retry delay to orginal value.
-                effectiveRetryDelay = this.owner.TransientErrorRetryDelay;
             }
         }
         
@@ -176,7 +202,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<T, string> getStorageKeyFunc,
             CancellationToken cancellationToken)
         {
-            var previousActorCount = continuationToken == null ? 0 : long.Parse((string) continuationToken.Marker);
+            var previousActorCount = continuationToken == null ? 0 : Int64.Parse((string) continuationToken.Marker);
 
             long currentActorCount = 0;
             var actorIdList = new List<ActorId>();
@@ -225,7 +251,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     ActorTrace.Source.WriteWarningWithId(
                         this.owner.TraceType,
                         this.owner.TraceId,
-                        string.Format("Failed to parse ActorId from storage key: {0}", storageKey));
+                        String.Format("Failed to parse ActorId from storage key: {0}", storageKey));
                 }
 
                 enumHasMoreEntries = enumerator.MoveNext();
@@ -235,7 +261,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     actorQueryResult.Items = actorIdList.AsReadOnly();
 
-                    // If enumerator has more elements, then set the continuation token
+                    // If enumerator has more elements, then set the continuation token.
                     if (enumHasMoreEntries)
                     {
                         actorQueryResult.ContinuationToken = new ContinuationToken(currentActorCount.ToString());
@@ -253,37 +279,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
         
         #region Static Methods
-
-        internal static IActorStateProvider CreateDefaultStateProvider(ActorTypeInformation actorTypeInfo)
-        {
-            // KvsActorStateProvider is used only when: 
-            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
-            // VolatileActorStateProvider is used when:
-            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Volatile
-            // NullActorStateProvider is used when:
-            //    2. Actor's [StatePersistenceAttribute] attribute has StatePersistence.None OR
-            //    3. Actor doesn't have [StatePersistenceAttribute] attribute.
-
-            IActorStateProvider stateProvider = new NullActorStateProvider();
-            if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
-            {
-                stateProvider = new KvsActorStateProvider();
-            }
-            else if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Volatile))
-            {
-                stateProvider = new VolatileActorStateProvider();
-            }
-
-            // Get state provider override from settings if specified, used by tests to override state providers.
-            var stateProviderOverride = GetActorStateProviderOverride();
-
-            if (stateProviderOverride != null)
-            {
-                stateProvider = stateProviderOverride;
-            }
-
-            return stateProvider;
-        }
 
         internal static IActorStateProvider GetActorStateProviderOverride()
         {
@@ -316,10 +311,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This is used by Kvs and Volatile actor state provider.
+        /// Used by Kvs and Volatile actor state provider.
         /// </summary>
-        /// <param name="codePackage"></param>
-        /// <param name="actorImplType"></param>
+        /// <param name="codePackage">The code package.</param>
+        /// <param name="actorImplType">The type of actor.</param>
         /// <returns></returns>
         internal static ReplicatorSettings GetActorReplicatorSettings(CodePackageActivationContext codePackage, Type actorImplType)
         {
@@ -335,8 +330,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var nodeContext = FabricRuntime.GetNodeContext();
             var endpoint = codePackage.GetEndpoint(ActorNameFormat.GetFabricServiceReplicatorEndpointName(actorImplType));
-            
-            settings.ReplicatorAddress = string.Format(
+
+            settings.ReplicatorAddress = String.Format(
                 CultureInfo.InvariantCulture,
                 "{0}:{1}",
                 nodeContext.IPAddressOrFQDN,
@@ -357,7 +352,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static string CreateActorPresenceStorageKey(ActorId actorId)
         {
-            return string.Format(
+            return String.Format(
                 CultureInfo.InvariantCulture,
                 "{0}_{1}",
                 ActorPresenceStorageKeyPrefix,
@@ -366,7 +361,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static string CreateReminderCompletedStorageKey(ActorId actorId, string reminderName)
         {
-            return string.Format(
+            return String.Format(
                 CultureInfo.InvariantCulture,
                 "{0}_{1}_{2}",
                 ReminderCompletedStorageKeyPrefix,
@@ -376,7 +371,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static string CreateReminderCompletedStorageKeyPrefix(ActorId actorId)
         {
-            return string.Format(
+            return String.Format(
                 CultureInfo.InvariantCulture,
                 "{0}_{1}_",
                 ReminderCompletedStorageKeyPrefix,
@@ -394,6 +389,138 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return ActorId.TryGetActorIdFromStorageKey(storageKey);
         }
 
+        internal static DataContractSerializer CreateDataContractSerializer(Type actorStateType)
+        {
+            var dataContractSerializer =  new DataContractSerializer(
+                actorStateType,
+                new DataContractSerializerSettings
+                {
+                    MaxItemsInObjectGraph = Int32.MaxValue,
+#if !DotNetCoreClr					
+                    DataContractSurrogate = ActorDataContractSurrogate.Singleton,
+#endif
+                    KnownTypes = new[]
+                    {
+                        typeof(ActorReference) ,
+                    }
+                });
+#if DotNetCoreClr					
+			dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Singleton);
+#endif			
+			return dataContractSerializer;
+        }
+
+        internal static IActorStateProvider CreateDefaultStateProvider(ActorTypeInformation actorTypeInfo)
+        {
+            // KvsActorStateProvider is used only when: 
+            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
+            // VolatileActorStateProvider is used when:
+            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Volatile
+            // NullActorStateProvider is used when:
+            //    2. Actor's [StatePersistenceAttribute] attribute has StatePersistence.None OR
+            //    3. Actor doesn't have [StatePersistenceAttribute] attribute.
+
+            IActorStateProvider stateProvider = new NullActorStateProvider();
+            if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
+            {
+                stateProvider = new KvsActorStateProvider();
+            }
+            else if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Volatile))
+            {
+                stateProvider = new VolatileActorStateProvider();
+            }
+
+            // Get state provider override from settings if specified, used by tests to override state providers.
+            var stateProviderOverride = Runtime.ActorStateProviderHelper.GetActorStateProviderOverride();
+
+            if (stateProviderOverride != null)
+            {
+                stateProvider = stateProviderOverride;
+            }
+
+            return stateProvider;
+        }
+
+        internal static bool TryGetConfigSection(
+            ICodePackageActivationContext activationContext,
+            string configPackageName,
+            string sectionName,
+            out ConfigurationSection section)
+        {
+            section = null;
+
+            var config = activationContext.GetConfigurationPackageObject(configPackageName);
+
+            if ((config.Settings.Sections == null) || (!config.Settings.Sections.Contains(sectionName)))
+            {
+                return false;
+            }
+
+            section = config.Settings.Sections[sectionName];
+
+            return true;
+        }
+
+        internal static TimeSpan GetTimeConfigInSecondsAsTimeSpan(ConfigurationSection section, string parameterName, TimeSpan defaultValue)
+        {
+            if (section.Parameters.Contains(parameterName) &&
+               !string.IsNullOrWhiteSpace(section.Parameters[parameterName].Value))
+            {
+                var timeInSeconds = double.Parse(section.Parameters[parameterName].Value);
+                return TimeSpan.FromSeconds(timeInSeconds);
+            }
+
+            return defaultValue;
+        }
+
         #endregion Static Methods
+
+        #region Private Helpers
+
+        private void EnsureSamePrimary(long roleChangeTracker)
+        {
+            if (roleChangeTracker != this.owner.RoleChangeTracker)
+            {
+                throw new FabricNotPrimaryException();
+            }
+        }
+
+        private bool CurrentReplicaRoleNotPrimary
+        {
+            get
+            {
+                return (this.owner.CurrentReplicaRole != ReplicaRole.Primary);
+            }
+        }
+
+        #endregion
+    }
+
+    internal struct TimeoutHelper
+    {
+        private readonly Stopwatch stopWatch;
+        private readonly TimeSpan originalTimeout;
+
+        public TimeoutHelper(TimeSpan timeout)
+        {
+            this.originalTimeout = timeout;
+            this.stopWatch = Stopwatch.StartNew();
+        }
+
+        public bool HasRemainingTime
+        {
+            get
+            {
+                return (this.stopWatch.Elapsed < this.originalTimeout); 
+            }
+        }
+
+        public bool HasTimedOut 
+        {
+            get
+            {
+                return !this.HasRemainingTime;
+            }
+        }
     }
 }

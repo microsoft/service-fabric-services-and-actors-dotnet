@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Represents a actor that can have multiple reliable 'named' states associated with it.
+    /// Represents an actor that can have multiple reliable 'named' states associated with it.
     /// </summary>
     /// <remarks>
     /// The state is preserved across actor garbage collections and fail-overs. The storage and retrieval of the state is
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private IActorStateManager stateManager;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="Actor"/>
+        /// Initializes a new instance of the <see cref="Actor"/> class.
         /// </summary>
         /// <param name="actorService">
         /// The <see cref="ActorService"/> that will host this actor instance.

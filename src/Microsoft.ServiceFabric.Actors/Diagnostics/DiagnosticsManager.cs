@@ -11,10 +11,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     internal sealed class DiagnosticsManager : IDiagnosticsManager
     {
         private readonly DiagnosticsEventManager diagnosticsEventManager;
-        private readonly PerformanceCounterProvider perfCounterProvider;
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         // to allow following references easily in the dumps
-        private readonly EventSourceProvider eventSourceProvider;
+
+        private PerformanceCounterProviderV2 perfCounterProviderV2;
+        private EventSourceProvider eventSourceProviderV2;
 
         DiagnosticsEventManager IDiagnosticsManager.DiagnosticsEventManager
         {
@@ -27,17 +28,19 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         internal DiagnosticsManager(ActorService actorService)
         {
             this.diagnosticsEventManager = new DiagnosticsEventManager(actorService.MethodFriendlyNameBuilder);
-            this.perfCounterProvider = new PerformanceCounterProvider(actorService.Context.PartitionId, actorService.ActorTypeInformation);
-            this.perfCounterProvider.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
-            this.eventSourceProvider = new EventSourceProvider(actorService.Context, actorService.ActorTypeInformation);
-            this.eventSourceProvider.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
+            //V2 providers are compatible with V1 provider
+            this.perfCounterProviderV2 = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
+            this.eventSourceProviderV2 = new EventSourceProviderV2(actorService.Context, actorService.ActorTypeInformation);
+            this.perfCounterProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
+            this.eventSourceProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
+            
         }
 
         void IDisposable.Dispose()
         {
-            if (null != this.perfCounterProvider)
+            if (null != this.perfCounterProviderV2)
             {
-                this.perfCounterProvider.Dispose();
+                this.perfCounterProviderV2.Dispose();
             }
         }
     }

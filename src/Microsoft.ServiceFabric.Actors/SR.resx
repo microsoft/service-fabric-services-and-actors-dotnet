@@ -355,6 +355,9 @@
   <data name="ErrorOnDataLossAsyncReset" xml:space="preserve">
     <value>OnDataLossAsync can only be set once.</value>
   </data>
+  <data name="ErrorOnRestoreCompletedAsyncReset" xml:space="preserve">
+    <value>OnRestoreCompletedAsync can only be set once.</value>
+  </data>
   <data name="ErrorMethodNotSupported" xml:space="preserve">
     <value>'{0}' method is not supported for type '{1}'</value>
   </data>

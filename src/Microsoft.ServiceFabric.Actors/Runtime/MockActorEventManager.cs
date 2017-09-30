@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -10,17 +11,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Remoting.Builder;
+    using Microsoft.ServiceFabric.Actors.Remoting.V2.Builder;
     using Microsoft.ServiceFabric.Services.Common;
 
     internal class MockActorEventManager : IActorEventManager
     {
         private readonly IDictionary<int, Type> eventIdToEventTypeMap;
-        private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<Type, ActorEventProxy>> actorIdToEventProxyMap;
+
+        private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<Type, ActorEventProxy>>
+            actorIdToEventProxyMap;
 
         internal MockActorEventManager(ActorTypeInformation actorTypeInformation)
         {
-            this.eventIdToEventTypeMap = actorTypeInformation.EventInterfaceTypes.ToDictionary(IdUtil.ComputeId, t => t);
-            this.actorIdToEventProxyMap = new ConcurrentDictionary<ActorId, ConcurrentDictionary<Type, ActorEventProxy>>();
+            this.eventIdToEventTypeMap =
+                actorTypeInformation.EventInterfaceTypes.ToDictionary(IdUtil.ComputeId, t => t);
+            this.actorIdToEventProxyMap =
+                new ConcurrentDictionary<ActorId, ConcurrentDictionary<Type, ActorEventProxy>>();
         }
 
         public Task SubscribeAsync(ActorId actorId, int eventInterfaceId, IActorEventSubscriberProxy subscriber)

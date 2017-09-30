@@ -2,10 +2,12 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Fabric;
     using System.Fabric.Common;
     using System.Threading;
     using System.Threading.Tasks;
@@ -39,6 +41,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task<bool> TryAddStateAsync<T>(string stateName, T value, CancellationToken cancellationToken)
         {
+            this.ThrowIfClosed();
+
             Requires.Argument("stateName", stateName).NotNull();
 
             if (this.stateChangeTracker.ContainsKey(stateName))
@@ -78,6 +82,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task<ConditionalValue<T>> TryGetStateAsync<T>(string stateName, CancellationToken cancellationToken)
         {
+            this.ThrowIfClosed();
+
             Requires.Argument("stateName", stateName).NotNull();
 
             if (this.stateChangeTracker.ContainsKey(stateName))
@@ -104,6 +110,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task SetStateAsync<T>(string stateName, T value, CancellationToken cancellationToken)
         {
+            this.ThrowIfClosed();
+
             Requires.Argument("stateName", stateName).NotNull();
 
             if (this.stateChangeTracker.ContainsKey(stateName))
@@ -137,6 +145,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task<bool> TryRemoveStateAsync(string stateName, CancellationToken cancellationToken)
         {
+            this.ThrowIfClosed();
+
             Requires.Argument("stateName", stateName).NotNull();
 
             if (this.stateChangeTracker.ContainsKey(stateName))
@@ -167,6 +177,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task<bool> ContainsStateAsync(string stateName, CancellationToken cancellationToken)
         {
+            this.ThrowIfClosed();
+
             Requires.Argument("stateName", stateName).NotNull();
 
             if (this.stateChangeTracker.ContainsKey(stateName))
@@ -206,6 +218,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<string, T, T> updateValueFactory,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            this.ThrowIfClosed();
+
             Requires.Argument("stateName", stateName).NotNull();
 
             if (this.stateChangeTracker.ContainsKey(stateName))
@@ -245,6 +259,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task<IEnumerable<string>> GetStateNamesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            this.ThrowIfClosed();
+
             var namesFromStateProvider = await this.stateProvider.EnumerateStateNamesAsync(this.actor.Id, cancellationToken);
             var stateNameList = new List<string>(namesFromStateProvider);
 
@@ -274,6 +290,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         
         public async Task SaveStateAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
+            this.ThrowIfClosed();
+
             if (this.stateChangeTracker.Count > 0)
             {
                 var stateChangeList = new List<ActorStateChange>();
@@ -344,6 +362,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             this.actor.Manager.DiagnosticsEventManager.LoadActorStateFinish(this.actor);
             return result;
+        }
+
+        /// <summary>
+        /// Once ActorManager is closed, StateManager should not allow any new operation.
+        /// </summary>
+        private void ThrowIfClosed()
+        {
+            if (this.actor.Manager.IsClosed)
+            {
+                throw new FabricNotPrimaryException();
+            }
         }
 
         #region Helper Classes

@@ -17,21 +17,40 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
         private readonly int methodId;
         private readonly MethodArgumentDescription[] arguments;
         private readonly bool hasCancellationToken;
+        private readonly bool useCRCIdGeneration;
+        private int methodIdV1;
 
         private MethodDescription(
             MethodInfo methodInfo,
             MethodArgumentDescription[] arguments,
-            bool hasCancellationToken)
+            bool hasCancellationToken,bool useCRCIdGeneration)
         {
             this.methodInfo = methodInfo;
-            this.methodId = IdUtil.ComputeId(methodInfo);
+            this.useCRCIdGeneration = useCRCIdGeneration;
+            if (this.useCRCIdGeneration)
+            {
+                this.methodId = IdUtil.ComputeIdWithCRC(methodInfo);
+                //This is needed for backward compatibility support to V1 Stack like ActorEventproxy where Code-gen happens only once.
+                this.methodIdV1 = IdUtil.ComputeId(methodInfo);
+            }
+            else
+            {
+                this.methodId = IdUtil.ComputeId(methodInfo);
+            }
+            
             this.arguments = arguments;
             this.hasCancellationToken = hasCancellationToken;
+            
         }
 
         public int Id
         {
             get { return this.methodId; }
+        }
+
+        public int V1Id
+        {
+            get { return this.methodIdV1; }
         }
 
         public string Name
@@ -59,7 +78,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             get { return this.methodInfo; }
         }
      
-        internal static MethodDescription Create(string remotedInterfaceKindName, MethodInfo methodInfo)
+        internal static MethodDescription Create(string remotedInterfaceKindName, MethodInfo methodInfo,bool useCRCIdGeneration)
         {
             var parameters = methodInfo.GetParameters();
             var argumentList = new List<MethodArgumentDescription>(parameters.Length);
@@ -97,7 +116,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             return new MethodDescription(
                 methodInfo, 
                 argumentList.ToArray(),
-                hasCancellationToken);
+                hasCancellationToken,
+                useCRCIdGeneration);
         }
     }
 }

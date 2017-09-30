@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Services.Common;
+    using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     internal sealed class MockActorManager : IActorManager
     {
@@ -21,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private IDiagnosticsManager diagnosticsManager;
         private IActorEventManager eventManager;
-        
+
         private IActorStateProvider StateProvider
         {
             get { return this.actorService.StateProvider; }
@@ -34,6 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.eventManager = new MockActorEventManager(actorService.ActorTypeInformation);
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.traceSource = ActorEventSource.Instance;
+            this.IsClosed = false;
         }
 
         #region IActorManager Implementation
@@ -61,13 +63,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public Task CloseAsync(CancellationToken cancellationToken)
         {
+            this.IsClosed = true;
+
             return TaskDone.Done;
         }
 
         public void Abort()
         {
-            // no-op
+            this.IsClosed = true;
         }
+
+        public bool IsClosed { get; private set; }
 
         #endregion
 
@@ -84,16 +90,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return TaskDone<byte[]>.Done;
         }
 
-        public Task<byte[]> DispatchToActorAsync(
+        
+        public Task<IServiceRemotingResponseMessageBody> InvokeAsync(ActorId actorId, int interfaceId, int methodId, string callContext,
+            IServiceRemotingRequestMessageBody requestMsgBody, IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
+            CancellationToken cancellationToken)
+        {
+            return TaskDone<IServiceRemotingResponseMessageBody>.Done;
+        }
+
+        public Task<T> DispatchToActorAsync<T>(
             ActorId actorId,
             ActorMethodContext actorMethodContext,
             bool createIfRequired,
-            Func<ActorBase, CancellationToken, Task<byte[]>> actorFunc,
+            Func<ActorBase, CancellationToken, Task<T>> actorFunc,
             string callContext,
             bool timerCall,
             CancellationToken cancellationToken)
         {
-            return TaskDone<byte[]>.Done;
+            return TaskDone<T>.Done;
         }
 
         #endregion

@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Generator;
 
     /// <summary>
-    /// This attributes allows configuring the properties of the actor service. 
+    /// Represents the attributes that allows configuring the properties of the actor service. 
     /// The attribute is applied on the actor type.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// The relative name of the actor service. This name will be combined with the application name to provide the full name of the 
+        /// Gets or sets the relative name of the actor service. This name will be combined with the application name to provide the full name of the 
         /// actor service. 
         /// </summary>
         /// <remarks>
