@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private const int MaxHealthDescriptionLength = 4*1024 - 1;
         
         private static readonly TimeSpan HealthInformationTimeToLive = TimeSpan.FromMinutes(5);
-        private static readonly TimeSpan RunAsyncExpectedCancellationTimeSpan = TimeSpan.FromSeconds(15);
+        internal static readonly TimeSpan RunAsyncExpectedCancellationTimeSpan = TimeSpan.FromSeconds(15);
 
         private readonly string traceType;
         private readonly string traceId;
@@ -112,14 +112,21 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         internal void HandleRunAsyncUnexpectedException(IServicePartition partition, Exception ex)
         {
             // ReSharper disable once UseStringInterpolation
-            var msg = string.Format(
-                "RunAsync failed due to an unhandled exception causing the host process to crash: {0}",
-                ex);
+            var msg = $"RunAsync failed due to an unhandled exception causing the host process to crash: {ex}";
 
             ServiceTrace.Source.WriteErrorWithId(this.traceType + ApiErrorTraceTypeSuffix, this.traceId, msg);
 
             this.ReportRunAsyncUnexpectedExceptionHealth(partition, ex);
-            Environment.FailFast(msg);
+
+            // In LRC test we have observed that sometimes FailFast takes time to write error
+            // details to WER and bring down the service host. This causes delays in failover
+            // and availibility loss to service.
+            //
+            // Report fault transient and post FailFast on another thread to unblock ChangeRole.
+            // Service host will come down once FailFast completes.
+            //
+            partition.ReportFault(FaultType.Transient);
+            Task.Run(() => Environment.FailFast(msg));
         }
 
         internal async Task AwaitRunAsyncWithHealthReporting(IServicePartition partition, Task runAsyncTask)
@@ -134,24 +141,32 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 if (finishedTask == runAsyncTask)
                 {
                     delayTaskCts.Cancel();
-
-#pragma warning disable 4014
-                    // Observe OperationCancelledException if any asynchronously.
-                    delayTask.ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
-#pragma warning restore 4014
+                    ObserveExceptionIfAny(delayTask);
 
                     await runAsyncTask;
                     break;
                 }
 
-                // ReSharper disable once UseStringInterpolation
-                var msg = string.Format(
-                    "RunAsync is taking longer then expected time ({0}s) to cancel.",
-                    RunAsyncExpectedCancellationTimeSpan.TotalSeconds);
+                var msg = $"RunAsync is taking longer then expected time ({RunAsyncExpectedCancellationTimeSpan.TotalSeconds}s) to cancel.";
 
                 ServiceTrace.Source.WriteWarningWithId(this.traceType + ApiSlowTraceTypeSuffix, this.traceId, msg);
                 this.ReportRunAsyncSlowCancellationHealth(partition, msg);
             }
         }
+
+        internal static void ObserveExceptionIfAny(Task tsk)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await tsk.ConfigureAwait(false);
+                }
+                catch
+                {
+                    // ignored
+                }
+            });
+        } 
     }
 }

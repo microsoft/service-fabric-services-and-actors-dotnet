@@ -20,12 +20,12 @@ namespace Microsoft.ServiceFabric.Services.Communication
         }
 
         /// <summary>
-        ///The ActualExceptionType is the type of actual exception thrown
+        /// Gets the ActualExceptionType is the type of actual exception thrown.
         /// </summary>
         public string ActualExceptionType { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceException" /> class with appropriate message
+        /// Initializes a new instance of the <see cref="ServiceException" /> class with appropriate message.
         /// </summary>
         /// <param name="actualExceptionType">the ActualExceptionType of exception thrown</param>
         /// <param name="message">The error message that explains the reason for this exception

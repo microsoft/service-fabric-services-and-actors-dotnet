@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         /// <summary>
         /// Disallows actors to be reentrant. In this case if an actor sends a reentrant message to another 
-        /// actor an exception of type <see cref="System.Fabric.FabricException"/> will be thrown.
+        /// actor, an exception of type <see cref="System.Fabric.FabricException"/> will be thrown.
         /// </summary>
         Disallowed = 2
     }

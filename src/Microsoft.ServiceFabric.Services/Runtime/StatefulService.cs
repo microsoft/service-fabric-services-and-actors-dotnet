@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Data;
 
     /// <summary>
-    /// Represents base class for Microsoft Service Fabric based stateful reliable service
+    /// Represents the base class for Microsoft Service Fabric based stateful reliable service
     /// which provides an <see cref="IReliableStateManager"/> to manage service's state. 
     /// Derive from this class to implement a Microsoft Service Fabric based stateful reliable service.
     /// </summary>
@@ -44,9 +44,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// A <see cref="StatefulServiceContext"/> describes the stateful service context, which it provides information like replica ID, partition ID, and service name.
         /// </param>
         /// <param name="reliableStateManagerReplica">
-        /// A <see cref="IReliableStateManagerReplica"/> represents a reliable state provider replica.
+        /// A <see cref="IReliableStateManagerReplica2"/> represents a reliable state provider replica.
         /// </param>
-        protected StatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
+        protected StatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica2 reliableStateManagerReplica)
             : base(serviceContext, reliableStateManagerReplica)
         {
             this.stateManager = reliableStateManagerReplica;

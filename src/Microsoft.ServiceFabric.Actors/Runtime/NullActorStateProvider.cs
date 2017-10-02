@@ -32,6 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private IStatefulServicePartition servicePartition;
         private ActorTypeInformation actorTypeInformation;
         private Func<CancellationToken, Task<bool>> onDataLoFunc;
+        private Func<CancellationToken, Task> onRestoreCompFunc;
 
         public NullActorStateProvider()
         {
@@ -319,6 +320,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion IStateProviderReplica
 
+        #region IStateProviderReplica2
+
+        Func<CancellationToken, Task> IStateProviderReplica2.OnRestoreCompletedAsync
+        {
+            set { this.onRestoreCompFunc = value; }
+        }
+
+        #endregion
+
         #region IStateProvider
 
         IOperationDataStream IStateProvider.GetCopyContext()
@@ -519,7 +529,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             get { return TimeSpan.Zero; }
         }
-        
+
+        TimeSpan IActorStateProviderInternal.OperationTimeout
+        {
+            get { return TimeSpan.Zero; }
+        }
+
+        long IActorStateProviderInternal.RoleChangeTracker
+        {
+            get { return 0; }
+        }
+
         #endregion
     }
 }

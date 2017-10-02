@@ -178,7 +178,7 @@
     <value>The exception {0} was unhandled on the service and could not be serialized for transferring to the client.</value>
   </data>
   <data name="ErrorExceptionSerializationFailed2" xml:space="preserve">
-    <value>Detailed Exception Information: {0}</value>
+    <value>Detailed Remote Exception Information: {0}</value>
   </data>
   <data name="ErrorDeserializationFailure" xml:space="preserve">
     <value>Failed to deserialize and get remote exception  {0}</value>

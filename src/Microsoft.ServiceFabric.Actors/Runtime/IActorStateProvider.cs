@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// Represents the interface that an actor state provider needs to implement for 
     /// actor runtime to communicate with it. 
     /// </summary>
-    public interface IActorStateProvider : IStateProviderReplica
+    public interface IActorStateProvider : IStateProviderReplica2
     {
         /// <summary>
         /// Initializes the actor state provider with type information

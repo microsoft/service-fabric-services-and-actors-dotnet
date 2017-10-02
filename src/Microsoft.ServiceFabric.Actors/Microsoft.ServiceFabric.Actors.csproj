@@ -12,50 +12,54 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.ServiceFabric.Data, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Data.2.7.198\lib\net45\Microsoft.ServiceFabric.Data.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.Data, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Data.2.8.211\lib\net45\Microsoft.ServiceFabric.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.ServiceFabric.Data.Interfaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Data.2.7.198\lib\net45\Microsoft.ServiceFabric.Data.Interfaces.dll</HintPath>
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Data.2.8.211\lib\net45\Microsoft.ServiceFabric.Data.Interfaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ServiceFabric.Diagnostics, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Diagnostics.Internal.2.7.198\lib\net45\Microsoft.ServiceFabric.Diagnostics.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.Diagnostics, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.Diagnostics.Internal.2.8.211\lib\net45\Microsoft.ServiceFabric.Diagnostics.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ServiceFabric.FabricTransport, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.FabricTransport.Internal.2.7.198\lib\net45\Microsoft.ServiceFabric.FabricTransport.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.FabricTransport, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.FabricTransport.Internal.2.8.211\lib\net45\Microsoft.ServiceFabric.FabricTransport.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ServiceFabric.Internal, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\Microsoft.ServiceFabric.Internal.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.FabricTransport.V2, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.FabricTransport.Internal.2.8.211\lib\net45\Microsoft.ServiceFabric.FabricTransport.V2.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ServiceFabric.Internal.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\Microsoft.ServiceFabric.Internal.Strings.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.Internal, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\Microsoft.ServiceFabric.Internal.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ServiceFabric.Preview, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\Microsoft.ServiceFabric.Preview.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.Internal.Strings, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\Microsoft.ServiceFabric.Internal.Strings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.Preview, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\Microsoft.ServiceFabric.Preview.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Fabric, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.dll</HintPath>
+    <Reference Include="System.Fabric, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Fabric.Management.ServiceModel, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.Management.ServiceModel.dll</HintPath>
+    <Reference Include="System.Fabric.Management.ServiceModel, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.Management.ServiceModel.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Fabric.Management.ServiceModel.XmlSerializers, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.Management.ServiceModel.XmlSerializers.dll</HintPath>
+    <Reference Include="System.Fabric.Management.ServiceModel.XmlSerializers, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.Management.ServiceModel.XmlSerializers.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Fabric.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.Strings.dll</HintPath>
+    <Reference Include="System.Fabric.Strings, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.Strings.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Numerics" />
@@ -74,15 +78,25 @@
     <Compile Include="ActorExtensions.cs" />
     <Compile Include="ActorId.cs" />
     <Compile Include="ActorIdKind.cs" />
+    <Compile Include="Client\ActorProxyEventExtensions.cs" />
+    <Compile Include="Client\ActorProxyFactory.cs" />
+    <Compile Include="Client\ActorServiceProxy.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Client\ActorProxy.cs" />
+    <Compile Include="Client\IActorProxy.cs" />
+    <Compile Include="Remoting\V1\Client\ActorProxyFactory.cs" />
+    <Compile Include="Remoting\V1\Client\ActorEventSubscriberManager.cs" />
+    <Compile Include="Remoting\V1\Client\ActorServicePartitionClient.cs" />
+    <Compile Include="Remoting\V1\Client\IActorServicePartitionClient.cs" />
+    <Compile Include="Runtime\ActorEventManager.cs" />
+    <Compile Include="Diagnostics\EventSourceProviderV2.cs" />
+    <Compile Include="Diagnostics\PerformanceCounterProviderV2.cs" />
     <Compile Include="ActorEventSource.cs" />
-    <Compile Include="Client\IActorServicePartitionClient.cs" />
     <Compile Include="Diagnostics\IDiagnosticsManager.cs" />
     <Compile Include="Diagnostics\MockDiagnosticsManager.cs" />
     <Compile Include="Friend.cs" />
     <Compile Include="Generator\ActorNameFormat.cs" />
-    <Compile Include="ActorReference.cs" />
     <Compile Include="ActorTrace.cs" />
-    <Compile Include="CRC64.cs" />
     <Compile Include="IActor.cs" />
     <Compile Include="IActorEventPublisher.cs" />
     <Compile Include="IActorEvents.cs" />
@@ -92,13 +106,6 @@
     <Compile Include="ReentrancyModeDisallowedException.cs" />
     <Compile Include="ReentrantActorInvalidStateException.cs" />
     <Compile Include="ReminderLoadInProgressException.cs" />
-    <Compile Include="Client\ActorEventSubscriberManager.cs" />
-    <Compile Include="Client\ActorProxy.cs" />
-    <Compile Include="Client\ActorProxyEventExtensions.cs" />
-    <Compile Include="Client\ActorProxyFactory.cs" />
-    <Compile Include="Client\ActorServicePartitionClient.cs" />
-    <Compile Include="Client\ActorServiceProxy.cs" />
-    <Compile Include="Client\IActorProxy.cs" />
     <Compile Include="Client\IActorProxyFactory.cs" />
     <Compile Include="Diagnostics\ActivationDiagnosticData.cs" />
     <Compile Include="Diagnostics\ActorFrameworkEventSource.cs" />
@@ -122,54 +129,33 @@
     <Compile Include="Query\ContinuationToken.cs" />
     <Compile Include="Query\PagedResult.cs" />
     <Compile Include="ReminderNotFoundException.cs" />
-    <Compile Include="Remoting\ActorDataContractSurrogate.cs" />
-    <Compile Include="Remoting\ActorEventSubscription.cs" />
-    <Compile Include="Remoting\ActorMessageBody.cs" />
-    <Compile Include="Remoting\ActorMessageBodySerializer.cs" />
     <Compile Include="Remoting\ActorMessageDispatch.cs" />
-    <Compile Include="Remoting\ActorMessageHeaders.cs" />
     <Compile Include="Remoting\ActorLogicalCallContext.cs" />
-    <Compile Include="Remoting\ActorRemotingProviderAttribute.cs" />
     <Compile Include="Remoting\Constants.cs" />
-    <Compile Include="Remoting\EventSubscriptionRequestBody.cs" />
-    <Compile Include="Remoting\Builder\ActorCodeBuilder.cs" />
     <Compile Include="Remoting\Builder\ActorCodeBuilderNames.cs" />
     <Compile Include="Remoting\Builder\ActorEventCodeBuilderNames.cs" />
-    <Compile Include="Remoting\Builder\ActorEventProxyGenerator.cs" />
-    <Compile Include="Remoting\Builder\ActorEventProxyGeneratorBuilder.cs" />
-    <Compile Include="Remoting\Builder\ActorMethodDispatcherBase.cs" />
-    <Compile Include="Remoting\Builder\ActorProxyGenerator.cs" />
-    <Compile Include="Remoting\Builder\ActorProxyGeneratorBuilder.cs" />
     <Compile Include="Remoting\Description\ActorEventInterfaceDescription.cs" />
     <Compile Include="Remoting\Description\ActorInterfaceDescription.cs" />
-    <Compile Include="Remoting\FabricTransport\FabricTransportActorRemotingProviderAttribute.cs" />
-    <Compile Include="Remoting\FabricTransport\Runtime\FabricTransportActorServiceRemotingListener.cs" />
-    <Compile Include="Remoting\Runtime\ActorMethodDispatcherMap.cs" />
-    <Compile Include="Remoting\Runtime\ActorServiceRemotingDispatcher.cs" />
-    <Compile Include="Remoting\Runtime\ActorServiceRemotingListener.cs" />
     <Compile Include="Runtime\ActorCallType.cs" />
     <Compile Include="Runtime\ActorMethodContext.cs" />
     <Compile Include="Runtime\ActorReminderDataSerializer.cs" />
     <Compile Include="Runtime\ActorReminderState.cs" />
+    <Compile Include="Runtime\ActorStateProviderSettings.cs" />
+    <Compile Include="Runtime\KvsActorStateProviderSettings.cs" />
+    <Compile Include="Runtime\ReliableCollectionsActorStateProviderSettings.cs" />
+    <Compile Include="Runtime\VolatileActorStateProviderSettings.cs" />
     <Compile Include="Runtime\DuplicateMessageException.cs" />
     <Compile Include="Remoting\Client\ActorRemotingExceptionHandler.cs" />
-    <Compile Include="Remoting\FabricTransport\Client\FabricTransportActorRemotingClientFactory.cs" />
     <Compile Include="Runtime\Actor.cs" />
     <Compile Include="Runtime\ActorActivator.cs" />
     <Compile Include="Runtime\ActorBase.cs" />
-    <Compile Include="Runtime\ActorEventManager.cs" />
-    <Compile Include="Runtime\ActorEventProxy.cs" />
-    <Compile Include="Runtime\ActorEventSubscriberProxy.cs" />
     <Compile Include="Runtime\ActorGarbageCollectionSettings.cs" />
-    <Compile Include="Runtime\ActorManager.cs" />
     <Compile Include="Runtime\ActorManagerAdapter.cs" />
-    <Compile Include="Runtime\ActorRuntime.cs" />
     <Compile Include="Runtime\ActorReminder.cs" />
     <Compile Include="Runtime\ActorReminderCollection.cs" />
     <Compile Include="Runtime\ActorReminderData.cs" />
-    <Compile Include="Runtime\ActorService.cs" />
+    <Compile Include="Runtime\ReminderSettings.cs" />
     <Compile Include="Runtime\ActorServiceAttribute.cs" />
-    <Compile Include="Runtime\ActorServiceFactory.cs" />
     <Compile Include="Runtime\ActorServiceSettings.cs" />
     <Compile Include="Runtime\ActorStateChange.cs" />
     <Compile Include="Runtime\ActorStateManager.cs" />
@@ -181,9 +167,6 @@
     <Compile Include="Runtime\DummyActor.cs" />
     <Compile Include="Runtime\BinaryReaderWriterExtensions.cs" />
     <Compile Include="Runtime\IActorActivator.cs" />
-    <Compile Include="Runtime\IActorEventManager.cs" />
-    <Compile Include="Runtime\IActorEventSubscriberProxy.cs" />
-    <Compile Include="Runtime\IActorManager.cs" />
     <Compile Include="Runtime\IActorReminder.cs" />
     <Compile Include="Runtime\IActorReminderCollection.cs" />
     <Compile Include="Runtime\IActorReminderState.cs" />
@@ -193,17 +176,12 @@
     <Compile Include="Runtime\IActorTimer.cs" />
     <Compile Include="Runtime\IdleObjectGcHandle.cs" />
     <Compile Include="Runtime\IRemindable.cs" />
-    <Compile Include="Runtime\KvsActorStateProvider.cs" />
     <Compile Include="Runtime\LogicalTimestampSerializer.cs" />
     <Compile Include="Runtime\LogicalTimestamp.cs" />
-    <Compile Include="Runtime\MockActorEventManager.cs" />
-    <Compile Include="Runtime\MockActorManager.cs" />
     <Compile Include="Runtime\NullActorStateProvider.cs" />
     <Compile Include="Runtime\ActorConcurrencyLock.cs" />
     <Compile Include="Runtime\ActorConcurrencySettings.cs" />
-    <Compile Include="Runtime\ReminderSettings.cs" />
     <Compile Include="Runtime\ActorReentrancyMode.cs" />
-    <Compile Include="Runtime\ReliableCollectionsActorStateProvider.cs" />
     <Compile Include="Runtime\ReminderCompletedData.cs" />
     <Compile Include="Runtime\ReminderCompletedDataSerializer.cs" />
     <Compile Include="Runtime\SerializedStateChange.cs" />
@@ -211,14 +189,70 @@
     <Compile Include="Runtime\StatePersistence.cs" />
     <Compile Include="Runtime\StatePersistenceAttribute.cs" />
     <Compile Include="Runtime\ActorStateProviderHelper.cs" />
-    <Compile Include="Runtime\VolatileActorStateProvider.cs" />
     <Compile Include="Runtime\VolatileActorStateTable.cs" />
     <Compile Include="Runtime\VolatileLogicalTimeManager.cs" />
+    <Compile Include="Runtime\IActorEventManager.cs" />
+    <Compile Include="Runtime\IActorEventSubscriberProxy.cs" />
+    <Compile Include="Runtime\ActorEventSubscriberProxy.cs" />
+    <Compile Include="Runtime\IActorManager.cs" />
+    <Compile Include="Runtime\MockActorEventManager.cs" />
+    <Compile Include="Runtime\MockActorManager.cs" />
+    <Compile Include="ActorReference.cs" />
+    <Compile Include="Runtime\ActorRuntime.cs" />
+    <Compile Include="Runtime\ActorServiceFactory.cs" />
+    <Compile Include="Runtime\ActorManager.cs" />
+    <Compile Include="Runtime\ActorService.cs" />
+    <Compile Include="Runtime\ActorEventProxy.cs" />
+    <Compile Include="Client\Subscriber.cs" />
+    <Compile Include="Client\SubscriptionInfo.cs" />
+    <Compile Include="Remoting\ActorRemotingProviderAttribute.cs" />
+    <Compile Include="Remoting\V1\ActorMessageHeaders.cs" />
+    <Compile Include="Remoting\V1\Builder\ActorEventProxyGenerator.cs" />
+    <Compile Include="Remoting\V1\Builder\ActorEventProxyGeneratorBuilder.cs" />
+    <Compile Include="Remoting\V1\Builder\ActorMethodDispatcherBase.cs" />
+    <Compile Include="Remoting\V1\Builder\ActorProxyGenerator.cs" />
+    <Compile Include="Remoting\V1\Builder\ActorProxyGeneratorBuilder.cs" />
+    <Compile Include="Remoting\ActorDataContractSurrogate.cs" />
+    <Compile Include="Remoting\V1\ActorEventSubscription.cs" />
+    <Compile Include="Remoting\V1\ActorMessageBody.cs" />
+    <Compile Include="Remoting\V1\ActorMessageBodySerializer.cs" />
+    <Compile Include="Remoting\EventSubscriptionRequestBody.cs" />
+    <Compile Include="Remoting\V1\Builder\ActorCodeBuilder.cs" />
+    <Compile Include="Remoting\FabricTransport\FabricTransportActorRemotingProviderAttribute.cs" />
+    <Compile Include="Remoting\V1\FabricTransport\Runtime\FabricTransportActorServiceRemotingListener.cs" />
+    <Compile Include="Remoting\V1\Runtime\ActorMethodDispatcherMap.cs" />
+    <Compile Include="Remoting\V1\Runtime\ActorServiceRemotingDispatcher.cs" />
+    <Compile Include="Remoting\Runtime\ActorServiceRemotingListener.cs" />
+    <Compile Include="Remoting\V1\FabricTransport\Client\FabricTransportActorRemotingClientFactory.cs" />
+    <Compile Include="Runtime\KvsActorStateProvider.cs" />
+    <Compile Include="Runtime\ReliableCollectionsActorStateProvider.cs" />
+    <Compile Include="Runtime\VolatileActorStateProvider.cs" />
     <Compile Include="SR.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SR.resx</DependentUpon>
     </Compile>
+    <Compile Include="Remoting\V2\Client\ActorProxyFactory.cs" />
+    <Compile Include="Remoting\V2\ActorRemotingDispatchHeaders.cs" />
+    <Compile Include="Remoting\V2\ActorRemotingMessageHeaderSerializer.cs" />
+    <Compile Include="Remoting\V2\ActorRemotingSerializationManager.cs" />
+    <Compile Include="Remoting\V2\BasicDataContractActorHeaderSerializer.cs" />
+    <Compile Include="Remoting\V2\FabricTransport\Client\FabricTransportActorRemotingClientFactory.cs" />
+    <Compile Include="Remoting\V2\Runtime\ActorEventSubscription.cs" />
+    <Compile Include="Remoting\V2\Runtime\ActorServiceRemotingDispatcher.cs" />
+    <Compile Include="Remoting\V2\FabricTransport\Runtime\FabricTransportActorServiceRemotingListener.cs" />
+    <Compile Include="Remoting\V2\Runtime\ActorMethodDispatcherMap.cs" />
+    <Compile Include="Remoting\V2\ActorRemotingMessageHeaders.cs" />
+    <Compile Include="Remoting\V2\Builder\ActorCodeBuilder.cs" />
+    <Compile Include="Remoting\V2\Builder\ActorEventProxyGeneratorBuilder.cs" />
+    <Compile Include="Remoting\V2\Builder\ActorEventProxyGenerator.cs" />
+    <Compile Include="Remoting\V2\Client\ActorEventSubscriberManager.cs" />
+    <Compile Include="Remoting\V2\Builder\ActorMethodDispatcherBase.cs" />
+    <Compile Include="Remoting\V2\Builder\ActorProxyGeneratorBuilder.cs" />
+    <Compile Include="Remoting\V2\Builder\ActorProxyGenerator.cs" />
+    <Compile Include="Remoting\V2\Client\ActorServicePartitionClient.cs" />
+    <Compile Include="Remoting\V2\Client\IActorServicePartitionClient.cs" />
+    <Compile Include="Remoting\V2\IActorRemotingMessageHeaders.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SR.resx">

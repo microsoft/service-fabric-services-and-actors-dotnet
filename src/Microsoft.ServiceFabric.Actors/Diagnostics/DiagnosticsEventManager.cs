@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Threading;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting;
 
     internal class DiagnosticsEventManager
     {
@@ -40,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.ActorMethodFriendlyNameBuilder = methodFriendlyNameBuilder;
         }
 
-        internal static long GetInterfaceMethodKey(uint interfaceId, uint methodId)
+        public static long GetInterfaceMethodKey(uint interfaceId, uint methodId)
         {
             var key = (ulong)methodId;
             key = key | (((ulong)interfaceId) << 32);
@@ -107,13 +108,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             onActivateAsyncStopwatch.Reset();
         }
 
-        internal void ActorMethodStart(long interfaceMethodKey, ActorBase actor)
+        internal void ActorMethodStart(long interfaceMethodKey, ActorBase actor,RemotingListener remotingListener)
         {
             var diagCtx = actor.DiagnosticsContext;
             var mtdEvtArgs = diagCtx.MethodData;
             mtdEvtArgs.ActorId = actor.Id;
             mtdEvtArgs.InterfaceMethodKey = interfaceMethodKey;
             mtdEvtArgs.MethodExecutionTime = null;
+            mtdEvtArgs.RemotingListener = remotingListener;
             var methodStopwatch = diagCtx.GetOrCreateActorMethodStopwatch();
             methodStopwatch.Restart();
 
@@ -128,7 +130,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagCtx.PushActorMethodStopwatch(methodStopwatch);
         }
 
-        internal void ActorMethodFinish(long interfaceMethodKey, ActorBase actor, Exception e)
+        internal void ActorMethodFinish(long interfaceMethodKey, ActorBase actor, Exception e,RemotingListener remotingListener)
         {
             var diagCtx = actor.DiagnosticsContext;
             var mtdEvtArgs = diagCtx.MethodData;
@@ -141,6 +143,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             mtdEvtArgs.InterfaceMethodKey = interfaceMethodKey;
             mtdEvtArgs.MethodExecutionTime = mtdStopwatch.Elapsed;
             mtdEvtArgs.Exception = e;
+            mtdEvtArgs.RemotingListener = remotingListener;
             mtdStopwatch.Reset();
 
             var callbacks = this.OnActorMethodFinish;

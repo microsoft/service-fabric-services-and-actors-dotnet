@@ -17,6 +17,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         TimeSpan TransientErrorRetryDelay { get; }
 
+        TimeSpan OperationTimeout { get; }
+
         TimeSpan CurrentLogicalTime { get; }
+
+        long RoleChangeTracker { get; }
     }
 }

@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Helper class for maintaining cancellation tokens associated with the method calls being dispatched.
+    /// Maintains cancellation tokens associated with the method calls being dispatched.
     /// </summary>
     internal class ServiceRemotingCancellationTracker
     {
@@ -28,9 +28,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// Returns the cancellation token associated with the specified callId. A new token one is created if the
         /// callId is not tracked already.
         /// </summary>
-        /// <param name="methodId"></param>
-        /// <param name="callId"></param>
-        /// <returns></returns>
+        /// <param name="methodId">The method ID.</param>
+        /// <param name="callId">The call ID.</param>
+        /// <returns>The cancellation token.</returns>
         public Task<CancellationTokenSource> GetOrAddCancellationTokenSource(int methodId, string callId)
         {
             var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
@@ -39,11 +39,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
         /// <summary>
-        /// Gets a cancellation token if it exists for the specified callId
+        /// Gets a cancellation token if it exists for the specified callId.
         /// </summary>
-        /// <param name="methodId"></param>
-        /// <param name="callId"></param>
-        /// <returns></returns>
+        /// <param name="methodId">The method ID.</param>
+        /// <param name="callId">The call ID.</param>
+        /// <returns>The cancellation token.</returns>
         public Task<CancellationTokenResult> TryGetCancellationTokenSource(int methodId, string callId)
         {
             var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
@@ -52,10 +52,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
         /// <summary>
-        /// Removes the cancellation token associated with the callId specified
+        /// Removes the cancellation token associated with the callId specified.
         /// </summary>
-        /// <param name="methodId"></param>
-        /// <param name="callId"></param>
+        /// <param name="methodId">The method ID.</param>
+        /// <param name="callId">The call ID.</param>
         public Task TryRemoveCancellationTokenSource(int methodId, string callId)
         {
             var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
@@ -131,10 +131,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             }
 
             /// <summary>
-            /// 
+            /// Removes the cancellation token with a specified callID..
             /// </summary>
-            /// <param name="callId">method call identifier, for </param>
-            /// <returns></returns>
+            /// <param name="callId">The method call identifier.</param>
+            /// <returns>The cancellation token.</returns>
             public async Task TryRemoveCancellationToken(string callId)
             {
                 await this.callTrackerLock.WaitAsync();
@@ -170,8 +170,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     }
 
     /// <summary>
-    /// This wrapper object is used to get the result of querying the cancellation token for a
-    /// particular method call via Async api's
+    /// Represents wrapper object that is used to get the result of querying the cancellation token for a
+    /// particular method call via Async api's.
     /// </summary>
     internal class CancellationTokenResult
     {

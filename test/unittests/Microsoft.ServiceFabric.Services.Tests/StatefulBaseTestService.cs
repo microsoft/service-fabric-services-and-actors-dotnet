@@ -21,16 +21,16 @@ namespace Microsoft.ServiceFabric.Services.Tests
         public List<Mock<ICommunicationListener>> Listeners { get; private set; }
         public Mock<ICommunicationListener> CurrentListener { get; private set; }
 
-        public Mock<IStateProviderReplica> Replica { get; private set; }
+        public Mock<IStateProviderReplica2> Replica { get; private set; }
         public bool ListenOnSecondary { get; set; }
         public bool EnableListenerExceptionOnAbort { get; set; }
 
         public StatefulBaseTestService(StatefulServiceContext context)
-            : this(context, new Mock<IStateProviderReplica>())
+            : this(context, new Mock<IStateProviderReplica2>())
         {
         }
 
-        public StatefulBaseTestService(StatefulServiceContext context, Mock<IStateProviderReplica> mockStateProviderReplica)
+        public StatefulBaseTestService(StatefulServiceContext context, Mock<IStateProviderReplica2> mockStateProviderReplica)
             :base(context, mockStateProviderReplica.Object)
         {
             this.Replica = mockStateProviderReplica;

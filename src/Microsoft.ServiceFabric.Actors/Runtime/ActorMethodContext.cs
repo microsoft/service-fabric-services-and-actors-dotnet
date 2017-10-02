@@ -5,7 +5,7 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     /// <summary>
-    /// An <see cref="ActorMethodContext"/> contains information about the method that is invoked by actor runtime and
+    /// Contains information about the method that is invoked by actor runtime and
     /// is passed as an argument to <see cref="ActorBase.OnPreActorMethodAsync"/> and <see cref="ActorBase.OnPostActorMethodAsync"/>.
     /// </summary>
     public struct ActorMethodContext
@@ -35,16 +35,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Name of the method invoked by actor runtime.
+        /// Gets the name of the method invoked by actor runtime.
         /// </summary>
-        /// <value>A string representing the name of method.</value>
+        /// <value>The name of method.</value>
         public string MethodName
         {
             get { return this.actorMethodName; }
         }
 
         /// <summary>
-        /// Type of call by actor runtime (e.g. actor interface method, timer callback etc.).
+        /// Gets the type of call by actor runtime (e.g. actor interface method, timer callback etc.).
         /// </summary>
         /// <value>
         /// An <see cref="ActorCallType"/> representing the call type.

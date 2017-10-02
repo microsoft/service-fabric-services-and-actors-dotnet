@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             try
             {
-                await this.owner.Manager.DispatchToActorAsync(
+                await this.owner.Manager.DispatchToActorAsync<byte[]>(
                     this.owner.Id,
                     this.callbackMethodContext,
                     false,

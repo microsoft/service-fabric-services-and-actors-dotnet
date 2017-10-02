@@ -14,34 +14,34 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.ServiceFabric.Internal, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\Microsoft.ServiceFabric.Internal.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.Internal, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\Microsoft.ServiceFabric.Internal.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ServiceFabric.Internal.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\Microsoft.ServiceFabric.Internal.Strings.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.Internal.Strings, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\Microsoft.ServiceFabric.Internal.Strings.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ServiceFabric.Preview, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\Microsoft.ServiceFabric.Preview.dll</HintPath>
+    <Reference Include="Microsoft.ServiceFabric.Preview, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\Microsoft.ServiceFabric.Preview.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Fabric, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.dll</HintPath>
+    <Reference Include="System.Fabric, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Fabric.Management.ServiceModel, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.Management.ServiceModel.dll</HintPath>
+    <Reference Include="System.Fabric.Management.ServiceModel, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.Management.ServiceModel.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Fabric.Management.ServiceModel.XmlSerializers, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.Management.ServiceModel.XmlSerializers.dll</HintPath>
+    <Reference Include="System.Fabric.Management.ServiceModel.XmlSerializers, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.Management.ServiceModel.XmlSerializers.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Fabric.Strings, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
-      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.5.7.198\lib\net45\System.Fabric.Strings.dll</HintPath>
+    <Reference Include="System.Fabric.Strings, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=AMD64">
+      <HintPath>..\..\external\packages\Microsoft.ServiceFabric.6.0.211\lib\net45\System.Fabric.Strings.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
@@ -54,15 +54,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Remoting\V2\Wcf\Client\WcfActorRemotingClientFactory.cs" />
+    <Compile Include="Remoting\V2\Wcf\Runtime\WcfActorServiceRemotingListener.cs" />
     <Compile Include="SR.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SR.resx</DependentUpon>
     </Compile>
     <Compile Include="_friend.cs" />
-    <Compile Include="Remoting\Wcf\WcfActorRemotingProviderAttribute.cs" />
-    <Compile Include="Remoting\Wcf\Runtime\WcfActorServiceRemotingListener.cs" />
-    <Compile Include="Remoting\Wcf\Client\WcfActorRemotingClientFactory.cs" />
+    <Compile Include="WcfActorRemotingProviderAttribute.cs" />
+    <Compile Include="Remoting\V1\Wcf\Runtime\WcfActorServiceRemotingListener.cs" />
+    <Compile Include="Remoting\V1\Wcf\Client\WcfActorRemotingClientFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj">

@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// specified in the key should match the partitioning scheme used to create the service instance.
         /// </para>
         /// </param>
-        /// <param name="resolveTimeoutPerTry">The time out per resolve try.</param>
+        /// <param name="resolveTimeoutPerTry">The timeout per resolve try.</param>
         /// <param name="maxRetryBackoffInterval">
         /// The interval to back-off before retrying the resolution after a failure due to retry-able exception.
         /// </param>
@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// </para>
         /// </summary>
         /// <param name="previousRsp">The resolved service partition that the client got from the earlier invocation of the ResolveAsync() method.</param>
-        /// <param name="resolveTimeoutPerTry">The time out per resolve try.</param>
+        /// <param name="resolveTimeoutPerTry">The timeout per resolve try.</param>
         /// <param name="maxRetryBackoffInterval">
         /// The interval to back-off before retrying the resolution after a failure due to retry-able exception.
         /// </param>

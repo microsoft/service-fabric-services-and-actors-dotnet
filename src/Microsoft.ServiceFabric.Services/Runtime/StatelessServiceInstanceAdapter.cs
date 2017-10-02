@@ -20,8 +20,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private const string TraceType = "StatelessServiceInstanceAdapter";
         private readonly string traceId;
 
-        private static readonly TimeSpan DefaultSlowCancellationTimeSpan = TimeSpan.FromSeconds(4);
-
         private readonly ServiceHelper serviceHelper;
         private readonly StatelessServiceContext serviceContext;
         private readonly IStatelessUserServiceInstance userServiceInstance;
@@ -217,8 +215,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 ServiceFrameworkEventSource.Writer.StatelessRunAsyncCancellation(
                     this.serviceContext,
-                    DefaultSlowCancellationTimeSpan);
-                ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Canceling RunAsync");
+                    ServiceHelper.RunAsyncExpectedCancellationTimeSpan);
+
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType + ServiceHelper.ApiStartTraceTypeSuffix,
+                    this.traceId,
+                    "Canceling RunAsync");
 
                 var cancellationStopwatch = new Stopwatch();
                 cancellationStopwatch.Start();
@@ -259,13 +261,18 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     cancellationStopwatch.Stop();
                 }
 
-                if (cancellationStopwatch.Elapsed > DefaultSlowCancellationTimeSpan)
+                if (cancellationStopwatch.Elapsed > ServiceHelper.RunAsyncExpectedCancellationTimeSpan)
                 {
                     ServiceFrameworkEventSource.Writer.StatelessRunAsyncSlowCancellation(
                         this.serviceContext,
                         cancellationStopwatch.Elapsed,
-                        DefaultSlowCancellationTimeSpan);
-                    ServiceTrace.Source.WriteWarningWithId(TraceType, this.traceId, "RunAsync slow cancellation");
+                        ServiceHelper.RunAsyncExpectedCancellationTimeSpan);
+
+                    ServiceTrace.Source.WriteWarningWithId(
+                        TraceType + ServiceHelper.ApiSlowTraceTypeSuffix,
+                        this.traceId,
+                        "RunAsync slow cancellation: Time: {0}s",
+                        cancellationStopwatch.Elapsed.TotalSeconds);
                 }
             }
         }

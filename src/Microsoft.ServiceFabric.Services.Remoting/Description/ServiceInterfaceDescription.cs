@@ -7,18 +7,32 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
     using System;
     using System.Globalization;
     using System.Reflection;
+    using Microsoft.ServiceFabric.Services.Common;
 
     internal sealed class ServiceInterfaceDescription : InterfaceDescription
     {
-        private ServiceInterfaceDescription(Type serviceInterfaceType) : 
-            base("service", serviceInterfaceType)
+      
+        private ServiceInterfaceDescription(
+            Type serviceInterfaceType,
+            bool useCRCIdGeneration) :
+            base("service", serviceInterfaceType,useCRCIdGeneration)
         {
         }
 
         public static ServiceInterfaceDescription Create(Type serviceInterfaceType)
         {
             EnsureServiceInterface(serviceInterfaceType);
-            return new ServiceInterfaceDescription(serviceInterfaceType);
+            return new ServiceInterfaceDescription(serviceInterfaceType,false);
+        }
+
+        public static ServiceInterfaceDescription CreateUsingCRCId(Type serviceInterfaceType,bool checkForServiceInterface)
+        {
+            if (checkForServiceInterface)
+            {
+                EnsureServiceInterface(serviceInterfaceType);
+            }
+
+            return new ServiceInterfaceDescription(serviceInterfaceType, true);
         }
 
         private static void EnsureServiceInterface(Type serviceInterfaceType)

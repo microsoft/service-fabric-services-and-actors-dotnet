@@ -8,12 +8,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Fabric;
+    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     class EventSourceProvider
     {
-        private class ActorMethodInfo
+        internal class ActorMethodInfo
         {
             internal string MethodName;
             internal string MethodSignature;
@@ -24,7 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         private Dictionary<long, ActorMethodInfo> actorMethodInfo;
         private readonly ActorFrameworkEventSource writer;
-        private readonly ActorTypeInformation actorTypeInformation;
+        internal readonly ActorTypeInformation actorTypeInformation;
 
         internal EventSourceProvider(ServiceContext serviceContext, ActorTypeInformation actorTypeInformation)
         {
@@ -49,28 +51,38 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagnosticsEventManager.OnPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
         }
 
-        private void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        internal virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
             this.actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
+
             foreach (var actorInterfaceType in this.actorTypeInformation.InterfaceTypes)
             {
                 int interfaceId;
                 MethodDescription[] actorInterfaceMethodDescriptions;
                 diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
                     actorInterfaceType, out interfaceId, out actorInterfaceMethodDescriptions);
+                this.InitializeActorMethodInfo(actorInterfaceMethodDescriptions, interfaceId, this.actorMethodInfo);
 
-                foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
+            }
+        }
+
+        internal void InitializeActorMethodInfo(MethodDescription[] actorInterfaceMethodDescriptions, int interfaceId,
+            Dictionary<long, ActorMethodInfo> actorMethodInfos)
+        {
+
+            foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
+            {
+                var methodInfo = actorInterfaceMethodDescription.MethodInfo;
+                var ami = new ActorMethodInfo()
                 {
-                    var methodInfo = actorInterfaceMethodDescription.MethodInfo;
-                    var ami = new ActorMethodInfo()
-                    {
-                        MethodName = String.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
-                        MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString()
-                    };
+                    MethodName = String.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
+                    MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString()
+                };
 
-                    var key = DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id);
-                    this.actorMethodInfo[key] = ami;
-                }
+                var key =
+                    DiagnosticsEventManager.GetInterfaceMethodKey((uint) interfaceId,
+                        (uint) actorInterfaceMethodDescription.Id);
+                actorMethodInfos[key] = ami;
             }
         }
 
@@ -109,7 +121,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             if (this.writer.IsActorMethodStartEventEnabled())
             {
                 var actorId = methodData.ActorId;
-                var methodInfo = this.actorMethodInfo[methodData.InterfaceMethodKey];
+                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey,methodData.RemotingListener);
                 this.writer.ActorMethodStart(
                     methodInfo.MethodName,
                     methodInfo.MethodSignature,
@@ -117,6 +129,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorId,
                     this.serviceContext);
             }
+        }
+
+        internal virtual ActorMethodInfo GetActorMethodInfo(long key,RemotingListener remotingListener)
+        {
+            var methodInfo = this.actorMethodInfo[key];
+            return methodInfo;
         }
 
         [SuppressMessage("ReSharper", "PossibleInvalidOperationException")]
@@ -127,7 +145,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 if (this.writer.IsActorMethodStopEventEnabled())
                 {
                     var actorId = methodData.ActorId;
-                    var methodInfo = this.actorMethodInfo[methodData.InterfaceMethodKey];
+                    var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey,methodData.RemotingListener);
                     this.writer.ActorMethodStop(
                         methodData.MethodExecutionTime.Value.Ticks,
                         methodInfo.MethodName,
@@ -140,7 +158,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             else
             {
                 var actorId = methodData.ActorId;
-                var methodInfo = this.actorMethodInfo[methodData.InterfaceMethodKey];
+                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey,methodData.RemotingListener);
                 this.writer.ActorMethodThrewException(
                     methodData.Exception.ToString(),
                     methodData.MethodExecutionTime.Value.Ticks,
@@ -192,3 +210,5 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
     }
 }
+
+    

@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private bool collected;
 
         /// <summary>
-        /// Signals that object can be collected early rather than waiting until idleCount ==maxIdleCount
+        /// Signals that object can be collected early rather than waiting until idleCount == maxIdleCount
         /// </summary>
         private bool collectEarly;        
 
@@ -103,7 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public void MarkForEarlyCollection()
         {
-            // Mark for early collection, so that TryCollect can return true for early collection rather than waiting until idleCount ==maxIdleCount.
+            // Mark for early collection, so that TryCollect can return true for early collection rather than waiting until idleCount == maxIdleCount.
             this.collectEarly = true;
         }
 

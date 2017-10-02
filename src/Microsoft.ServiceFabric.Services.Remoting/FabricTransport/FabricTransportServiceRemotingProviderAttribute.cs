@@ -2,16 +2,21 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 {
     using System;
     using System.Fabric;
-    using Microsoft.ServiceFabric.FabricTransport;
-    using Microsoft.ServiceFabric.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+
+#if !DotNetCoreClr
+    using Microsoft.ServiceFabric.Services.Remoting.V1;
+    using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime;
+#endif
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+
 
     /// <summary>
     ///  Sets Fabric TCP transport as the default service remoting transport provider in the assembly.
@@ -41,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <summary>
         ///     Gets or Sets the operation timeout in seconds. If the operation is not completed in the specified
         ///     time, it will be timed out. By default, exception handler of 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client.FabricTransportServiceRemotingClientFactory"/>
+        ///     <see cref="FabricTransportServiceRemotingClientFactory"/>
         ///     retries the timed out exception. It is recommended to not change the operation timeout from it's default value. 
         /// </summary>
         /// <value>
@@ -74,6 +79,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         public long ConnectTimeoutInMilliseconds { get; set; }
 
 
+#if !DotNetCoreClr
+
         /// <summary>
         ///     Creates a service remoting listener for remoting the service interface.
         /// </summary>
@@ -84,8 +91,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     The service implementation object.
         /// </param>
         /// <returns>
-        ///     A <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime.FabricTransportServiceRemotingListener"/>
-        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> 
+        ///     A <see cref="FabricTransportServiceRemotingListener"/>
+        ///     as <see cref="IServiceRemotingListener"/> 
         ///     for the specified service implementation.
         /// </returns>
         public override IServiceRemotingListener CreateServiceRemotingListener(
@@ -100,18 +107,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         /// <summary>
-        ///     Creates a service remoting client factory for connecting to the service over remoted service interfaces.
+        ///     Creates a  V1 service remoting client factory for connecting to the service over remoted service interfaces.
         /// </summary>
         /// <param name="callbackClient">
-        ///     Client implementation where the callbacks should be dispatched.
+        ///    The client implementation where the callbacks should be dispatched.
         /// </param>
         /// <returns>
-        ///     A <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Client.FabricTransportServiceRemotingClientFactory"/>
-        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceRemotingClientFactory"/>
-        ///     that can be used with <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/> to 
+        ///     A <see cref="FabricTransportServiceRemotingClientFactory"/>
+        ///     as <see cref="V1.Client.IServiceRemotingClientFactory"/>
+        ///     that can be used with <see cref="Remoting.Client.ServiceProxyFactory"/> to 
         ///     generate service proxy to talk to a stateless or stateful service over remoted actor interface.
         /// </returns>
-        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
+        public override V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient)
         {
             var settings = FabricTransportRemotingSettings.GetDefault();
@@ -120,6 +127,56 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
             settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
             return new FabricTransportServiceRemotingClientFactory(settings, callbackClient);
+        }
+
+#endif
+        /// <summary>
+        ///     Creates a V2 service remoting listener for remoting the service interface.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="serviceImplementation">
+        ///     The service implementation object.
+        /// </param>
+        /// <returns>
+        ///     A <see cref="FabricTransportServiceRemotingListener"/>
+        ///     as <see cref="IServiceRemotingListener"/> 
+        ///     for the specified service implementation.
+        /// </returns>
+        public override IServiceRemotingListener CreateServiceRemotingListenerV2(ServiceContext serviceContext, IService serviceImplementation)
+        {
+            var settings = FabricTransportRemotingListenerSettings.GetDefault();
+            settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
+            settings.OperationTimeout = this.GetAndValidateOperationTimeout(settings.OperationTimeout);
+            settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
+            return new V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener(serviceContext: serviceContext,
+                serviceImplementation: serviceImplementation, remotingListenerSettings: settings);
+        }
+
+        /// <summary>
+        ///     Creates a  V2 service remoting client factory for connecting to the service over remoted service interfaces.
+        /// </summary>
+        /// <param name="callbackMessageHandler">
+        ///    The client implementation where the callbacks should be dispatched.
+        /// </param>
+        /// <returns>
+        ///     A <see cref="FabricTransportServiceRemotingClientFactory"/>
+        ///     as <see cref="V2.Client.IServiceRemotingClientFactory"/>
+        ///     that can be used with <see cref="Remoting.Client.ServiceProxyFactory"/> to 
+        ///     generate service proxy to talk to a stateless or stateful service over remoted actor interface.
+        /// </returns>
+
+        public override V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+            IServiceRemotingCallbackMessageHandler callbackMessageHandler)
+        {
+            var settings = FabricTransportRemotingSettings.GetDefault();
+            settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
+            settings.OperationTimeout = this.GetAndValidateOperationTimeout(settings.OperationTimeout);
+            settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
+            settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
+            return new V2.FabricTransport.Client.FabricTransportServiceRemotingClientFactory(remotingSettings: settings,
+                remotingCallbackMessageHandler: callbackMessageHandler);
         }
 
         private long GetAndValidateMaxMessageSize(long maxMessageSize)
