@@ -7,9 +7,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Fabric;
     using System.Fabric.Common;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Reflection;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Remoting.Runtime;
@@ -28,27 +28,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         static ActorRuntime()
         {
             NodeName = FabricRuntime.GetNodeContext().NodeName;
-
-            try
-            {
-                PerformanceCounterProvider.InitializeAvailableCounterTypes();
-            }
-            catch (Exception e)
-            {
-                ActorTrace.Source.WriteWarning(
-                    "ActorRegistration",
-                    "Performance Counter Initialization failed with {0}",
-                    e.ToString());
-            }
         }
 
         /// <summary>
         /// Registers an actor type with Service Fabric runtime. This allows the runtime to create instances of this actor.
         /// </summary>
-        /// <typeparam name="TActor">The Type implementing the actor.</typeparam>
+        /// <typeparam name="TActor">The type implementing the actor.</typeparam>
         /// <param name="timeout">A timeout period after which the registration operation will be canceled.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>Returns a task that represents the asynchronous operation to register actor type with Service Fabric runtime.</returns>
+        /// <returns>returns a task that represents the asynchronous operation to register actor type with Service Fabric runtime.</returns>
         public static async Task RegisterActorAsync<TActor>(
             TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
@@ -67,7 +55,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="actorServiceFactory">The delegate that creates new actor service.</param>
         /// <param name="timeout">A timeout period after which the registration operation will be canceled.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation to register actor service with Service Fabric runtime.</returns>        
+        /// <returns>A task that repre
+        /// sents the asynchronous operation to register actor service with Service Fabric runtime.</returns>        
         public static async Task RegisterActorAsync<TActor>(
             Func<StatefulServiceContext, ActorTypeInformation, ActorService> actorServiceFactory,
             TimeSpan timeout = default(TimeSpan),
@@ -86,8 +75,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var customActorServiceFactory = new ActorServiceFactory(
                     actorTypeInformation,
                     new ActorMethodFriendlyNameBuilder(actorTypeInformation),
-                    actorServiceFactory,
-                    new ActorMethodDispatcherMap(actorTypeInformation));
+                    actorServiceFactory);
 
                 await ServiceRuntime.RegisterServiceAsync(
                     serviceTypeName,

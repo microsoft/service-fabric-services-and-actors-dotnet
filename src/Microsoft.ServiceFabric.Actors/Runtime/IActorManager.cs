@@ -1,7 +1,7 @@
 ﻿// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
+    using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     internal interface IActorManager
     {
@@ -18,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         #region Actor Diagnostics
 
         DiagnosticsEventManager DiagnosticsEventManager { get; }
-        
+
         #endregion
 
         #region Actor Manager Life Cycle
@@ -29,19 +30,31 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         void Abort();
 
+        bool IsClosed { get; }
+
         #endregion
 
         #region Actor Method Dispatch
 
-        Task<byte[]> InvokeAsync(ActorId actorId, int interfaceId, int methodId, string callContext, byte[] requestMsgBody, CancellationToken cancellationToken);
+#if !DotNetCoreClr
+        Task<byte[]> InvokeAsync(ActorId actorId, int interfaceId, int methodId, string callContext,
+            byte[] requestMsgBody, CancellationToken cancellationToken);
+#endif
 
-        Task<byte[]> DispatchToActorAsync(
+        Task<T> DispatchToActorAsync<T>(
             ActorId actorId,
             ActorMethodContext actorMethodContext,
             bool createIfRequired,
-            Func<ActorBase, CancellationToken, Task<byte[]>> actorFunc,
+            Func<ActorBase, CancellationToken, Task<T>> actorFunc,
             string callContext,
             bool timerCall,
+            CancellationToken cancellationToken);
+
+        //V2 Stack Apis
+        Task<IServiceRemotingResponseMessageBody> InvokeAsync(ActorId actorId, int interfaceId, int methodId,
+            string callContext,
+            IServiceRemotingRequestMessageBody requestMsgBody,
+            IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
             CancellationToken cancellationToken);
 
         #endregion
@@ -60,7 +73,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         bool HasRemindersLoaded { get; }
 
-        Task<IActorReminder> RegisterOrUpdateReminderAsync(ActorId actorId, string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period, bool saveState = true);
+        Task<IActorReminder> RegisterOrUpdateReminderAsync(ActorId actorId, string reminderName, byte[] state,
+            TimeSpan dueTime, TimeSpan period, bool saveState = true);
 
         IActorReminder GetReminder(string reminderName, ActorId actorId);
 
@@ -76,7 +90,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         Task DeleteActorAsync(string callContext, ActorId actorId, CancellationToken cancellationToken);
 
-        Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(ContinuationToken continuationToken, CancellationToken cancellationToken);
+        Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(ContinuationToken continuationToken,
+            CancellationToken cancellationToken);
 
         #endregion
 

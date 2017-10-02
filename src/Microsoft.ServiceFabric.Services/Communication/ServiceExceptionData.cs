@@ -15,9 +15,6 @@ namespace Microsoft.ServiceFabric.Services.Communication
         [DataMember]
         public string Message { get; private set; }
 
-        private static readonly DataContractSerializer serializer =
-            new DataContractSerializer(typeof(ServiceExceptionData));
-
         public ServiceExceptionData(string type, string message)
         {
             this.Type = type;

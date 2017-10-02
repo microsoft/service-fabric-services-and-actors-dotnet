@@ -6,7 +6,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 {
     using System;
     using System.Fabric;
+    using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
+    using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>
     /// Represents a settings that configures the  FabricTransport communication.
@@ -15,6 +17,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     {
         internal const string DefaultSectionName = "TransportSettings";
         private readonly FabricTransportSettings fabricTransportSettings;
+        private int headerBufferSize;
+        private int headerMaxBufferCount;
+        private static readonly string Tracetype = "FabricTransportRemotingSettings";
 
         /// <summary>
         /// Creates a new FabricTransportRemotingSettings with default Values.
@@ -22,9 +27,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         public FabricTransportRemotingSettings()
         {
             this.fabricTransportSettings = new FabricTransportSettings();
+            this.headerBufferSize = Constants.DefaultHeaderBufferSize;
+            this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
         }
 
         internal FabricTransportRemotingSettings(FabricTransportSettings fabricTransportSettings)
+            : this()
         {
             this.fabricTransportSettings = fabricTransportSettings;
         }
@@ -81,14 +89,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <summary>
         /// Gets or sets the maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting. 
         /// </summary>
-        /// <value>The maximum size for a Queue that recieves messages from the channel. 
+        /// <value>The maximum size for a Queue that receives messages from the channel. 
         /// </value>
         /// <remarks>
         /// Default value is 10,000 messages</remarks>
         public long MaxQueueSize
         {
             get { return this.fabricTransportSettings.MaxQueueSize; }
-            set { this.fabricTransportSettings.MaxMessageSize = value; }
+            set { this.fabricTransportSettings.MaxQueueSize = value; }
         }
 
         ///<summary>
@@ -104,6 +112,32 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         {
             get { return this.fabricTransportSettings.MaxConcurrentCalls; }
             set { this.fabricTransportSettings.MaxConcurrentCalls = value; }
+        }
+
+
+
+        ///<summary>
+        ///HeaderBufferSize represents size of each header buffer in the bufferPool .
+        /// </summary>
+        /// <remarks>
+        ///    Defaults  value for the HeaderBufferSize is 1024 bytes.
+        /// </remarks>
+        public int HeaderBufferSize
+        {
+            get { return this.headerBufferSize; }
+            set { this.headerBufferSize = value; }
+        }
+
+        ///<summary>
+        ///HeaderMaxBufferCount represents the maximum number of header buffers assigned  to the BufferPool.
+        /// </summary>
+        /// <remarks>
+        ///    Defaults  value for the HeaderMaxBufferCount is 1000.
+        /// </remarks>
+        public int HeaderMaxBufferCount
+        {
+            get { return this.headerMaxBufferCount; }
+            set { this.headerMaxBufferCount = value; }
         }
 
         /// <summary>
@@ -205,7 +239,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         {
             FabricTransportSettings transportSettings;
             transportSettings = FabricTransportSettings.GetDefault(sectionName);
-            return new FabricTransportRemotingSettings(transportSettings);
+            var settings = new FabricTransportRemotingSettings(transportSettings);
+
+            AppTrace.TraceSource.WriteInfo(
+              Tracetype,
+              "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," +
+              "HeaderBufferCount {7}",
+              settings.MaxMessageSize,
+              settings.MaxConcurrentCalls,
+              settings.MaxQueueSize,
+              settings.OperationTimeout.TotalSeconds,
+              settings.KeepAliveTimeout.TotalSeconds,
+              settings.SecurityCredentials.CredentialType,
+              settings.HeaderBufferSize,
+              settings.HeaderMaxBufferCount);
+            return settings;
         }
     }
 }

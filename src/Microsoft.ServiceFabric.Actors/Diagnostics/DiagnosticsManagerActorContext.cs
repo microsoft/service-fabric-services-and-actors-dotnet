@@ -23,6 +23,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.StateStopwatch = new Stopwatch();
 
             this.OnActivateAsyncStopwatch = new Stopwatch();
+
+            this.MethodData = new ActorMethodDiagnosticData();
+            this.StateData = new ActorStateDiagnosticData();
+            this.ActivationDiagnosticData = new ActivationDiagnosticData();
+            this.PendingMethodDiagnosticData = new PendingActorMethodDiagnosticData();
         }
 
         internal Stopwatch GetOrCreateActorMethodStopwatch()

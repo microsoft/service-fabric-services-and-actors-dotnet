@@ -9,10 +9,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     internal static class ActorMessageDispatch
     {
         public static readonly int InterfaceId;
+        public static readonly int InterfaceIdV2;
 
         static ActorMessageDispatch()
         {
             InterfaceId = IdUtil.ComputeId("IActorCommunication", "Microsoft.ServiceFabric.Actors.Communication");
+            InterfaceIdV2 = IdUtil.ComputeIdWithCRC("Microsoft.ServiceFabric.Actors.Communication.IActorCommunication");
         }
+
+
     }
 }

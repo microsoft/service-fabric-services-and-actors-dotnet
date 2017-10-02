@@ -4,6 +4,11 @@
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using Microsoft.ServiceFabric.Services.Remoting.Description;
+
     internal abstract class CodeBuilderModule
     {
         private readonly ICodeBuilder codeBuilder;
@@ -16,6 +21,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         protected ICodeBuilder CodeBuilder
         {
             get { return this.codeBuilder; }
+        }
+
+        protected static IReadOnlyDictionary<int, string> GetMethodNameMap(InterfaceDescription interfaceDescription)
+        {
+            var methodNameMap = interfaceDescription.Methods.ToDictionary(
+                methodDescription => methodDescription.Id,
+                methodDescription => methodDescription.Name);
+
+            return new ReadOnlyDictionary<int, string>(methodNameMap);
         }
     }
 }

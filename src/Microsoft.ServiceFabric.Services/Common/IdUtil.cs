@@ -6,6 +6,7 @@ namespace Microsoft.ServiceFabric.Services.Common
 {
     using System;
     using System.Reflection;
+    using System.Text;
 
     internal static class IdUtil
     {
@@ -37,6 +38,39 @@ namespace Microsoft.ServiceFabric.Services.Common
             return hash;
         }
 
+        internal static int ComputeIdWithCRC(Type type)
+        {
+            var name = type.Name;
+                
+            if (type.Namespace != null)
+            {
+                name = String.Concat(type.Namespace,name);
+            }
+            return ComputeIdWithCRC(name);
+        }
+
+        internal static int ComputeIdWithCRC(MethodInfo methodInfo)
+        {
+            var name = methodInfo.Name;
+
+            if (methodInfo.DeclaringType != null)
+            {
+                if (methodInfo.DeclaringType.Namespace != null)
+                {
+                    name = String.Concat(methodInfo.DeclaringType.Namespace, name);
+                }
+
+                name = String.Concat(methodInfo.DeclaringType.Name, name);
+            }
+            
+            return ComputeIdWithCRC(name);
+        }
+
+        internal static int ComputeIdWithCRC(string typeName)
+        {
+            return (int)CRC64.ToCRC64(Encoding.UTF8.GetBytes(typeName));
+        }
+
         internal static int ComputeId(string typeName, string typeNamespace)
         {
             var hash = typeName.GetHashCode();
@@ -53,7 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Common
         /// </summary>
         internal static int HashCombine(int newKey, int currentKey)
         {
-            return unchecked((currentKey*(int) 0xA5555529) + newKey);
+            return unchecked((currentKey * (int)0xA5555529) + newKey);
         }
     }
 }

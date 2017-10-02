@@ -35,16 +35,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         public static AssemblyBuilder CreateAssemblyBuilder(string assemblyName, bool saveOnDisk = false)
         {
             return AssemblyBuilder.DefineDynamicAssembly(
+#if !DotNetCoreClr
                 new AssemblyName(assemblyName),
                 saveOnDisk ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.RunAndCollect
+#else
+                new AssemblyName(assemblyName), AssemblyBuilderAccess.RunAndCollect
+#endif
                 );
         }
 
         public static ModuleBuilder CreateModuleBuilder(AssemblyBuilder assemblyBuilder, string moduleName,
             bool saveOnDisk = false)
         {
+#if !DotNetCoreClr
             return saveOnDisk ? assemblyBuilder.DefineDynamicModule(moduleName, string.Concat(moduleName, ".dll"), true)
                 : assemblyBuilder.DefineDynamicModule(moduleName);
+#else
+            return assemblyBuilder.DefineDynamicModule(moduleName);
+#endif
         }
 
         public static TypeBuilder CreateClassBuilder(

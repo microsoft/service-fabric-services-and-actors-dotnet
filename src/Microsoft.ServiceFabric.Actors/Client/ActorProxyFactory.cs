@@ -2,74 +2,63 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Client
 {
     using System;
-    using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Remoting;
-    using Microsoft.ServiceFabric.Actors.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Client;
 
     /// <summary>
     /// Represents a factory class to create a proxy to the remote actor objects.
     /// </summary>
     public class ActorProxyFactory : IActorProxyFactory
     {
-        private readonly object thisLock;
-        private readonly Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory> createServiceRemotingClientFactory;
-        private volatile IServiceRemotingClientFactory remotingClientFactory;
-        private readonly OperationRetrySettings retrySettings;
+       #if !DotNetCoreClr
+        private Remoting.V1.Client.ActorProxyFactory proxyFactoryV1;
+       #endif
+        private Remoting.V2.Client.ActorProxyFactory proxyFactoryV2;
+        private bool overrideListenerName = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class.
         /// </summary>
+        /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
+        public ActorProxyFactory(OperationRetrySettings retrySettings = null)
+        {
+        }
+
+        #if !DotNetCoreClr
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class using V1 remoting Client Factory.
+        /// </summary>
+        /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
+        /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
+        public ActorProxyFactory(
+            Func<Services.Remoting.V1.IServiceRemotingCallbackClient,
+                    Services.Remoting.V1.Client.IServiceRemotingClientFactory>
+                createServiceRemotingClientFactory,
+            OperationRetrySettings retrySettings = null)
+        {
+            this.proxyFactoryV1 =
+                new Remoting.V1.Client.ActorProxyFactory(createServiceRemotingClientFactory, retrySettings);
+        }
+        #endif
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class using V2 Remoting Client Factory.
+        /// </summary>
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
         /// <param name="retrySettings">Retry settings for the remote object calls made by proxy.</param>
         public ActorProxyFactory(
-            Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory>
-            createServiceRemotingClientFactory = null,
+            Func<Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler,
+                    Services.Remoting.V2.Client.IServiceRemotingClientFactory>
+                createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null)
         {
-            this.thisLock = new object();
-            this.remotingClientFactory = null;
-            this.createServiceRemotingClientFactory = createServiceRemotingClientFactory;
-            this.retrySettings = retrySettings;
-        }
-
-        /// <summary>
-        /// Creates a proxy to the actor object that implements an actor interface.
-        /// </summary>
-        /// <typeparam name="TActorInterface">
-        /// The actor interface implemented by the remote actor object. 
-        /// The returned proxy object will implement this interface.
-        /// </typeparam>
-        /// <param name="serviceUri">Uri of the actor service.</param>
-        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests 
-        /// being sent to the actor with this id.</param>
-        /// <param name="listenerName">
-        /// By default an actor service has only one listener for clients to connect to and communicate with.
-        /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
-        /// </param>
-        /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
-        public TActorInterface CreateActorProxy<TActorInterface>(
-            Uri serviceUri, 
-            ActorId actorId, 
-            string listenerName = null) where TActorInterface : IActor
-        {
-            var actorInterfaceType = typeof(TActorInterface);
-            var proxyGenerator = ActorCodeBuilder.GetOrCreateProxyGenerator(actorInterfaceType);
-            var actorServicePartitionClient = new ActorServicePartitionClient(
-               this.GetOrCreateServiceRemotingClientFactory(actorInterfaceType),
-               serviceUri,
-               actorId,
-               listenerName,
-               this.retrySettings);
-
-            return (TActorInterface) (object)proxyGenerator.CreateActorProxy(actorServicePartitionClient);
+            this.proxyFactoryV2 =
+                new Remoting.V2.Client.ActorProxyFactory(createServiceRemotingClientFactory, retrySettings);
         }
 
         /// <summary>
@@ -97,18 +86,44 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// </param>
         /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
         public TActorInterface CreateActorProxy<TActorInterface>(
-            ActorId actorId,
+            ActorId actorId, 
             string applicationName = null,
-            string serviceName = null,
+            string serviceName = null, 
             string listenerName = null) where TActorInterface : IActor
         {
-            if (string.IsNullOrEmpty(applicationName))
-            {
-                applicationName = ActorNameFormat.GetCurrentFabricApplicationName();
-            }
             var actorInterfaceType = typeof(TActorInterface);
-            var serviceUri = ActorNameFormat.GetFabricServiceUri(actorInterfaceType, applicationName, serviceName);
-            return this.CreateActorProxy<TActorInterface>(serviceUri, actorId, listenerName);
+
+            var proxyFactory = this.GetOrSetProxyFactory(actorInterfaceType);
+            return proxyFactory.CreateActorProxy<TActorInterface>(actorId,
+                applicationName,
+                serviceName,
+                this.OverrideListenerNameIfConditionMet(listenerName));
+        }
+
+        /// <summary>
+        /// Creates a proxy to the actor object that implements an actor interface.
+        /// </summary>
+        /// <typeparam name="TActorInterface">
+        /// The actor interface implemented by the remote actor object. 
+        /// The returned proxy object will implement this interface.
+        /// </typeparam>
+        /// <param name="serviceUri">Uri of the actor service.</param>
+        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests 
+        /// being sent to the actor with this id.</param>
+        /// <param name="listenerName">
+        /// By default an actor service has only one listener for clients to connect to and communicate with.
+        /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
+        /// </param>
+        /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
+        public TActorInterface CreateActorProxy<TActorInterface>(Uri serviceUri, ActorId actorId,
+            string listenerName = null) where TActorInterface : IActor
+        {
+            var actorInterfaceType = typeof(TActorInterface);
+            var proxyFactory = this.GetOrSetProxyFactory(actorInterfaceType);
+            return proxyFactory.CreateActorProxy<TActorInterface>(
+                serviceUri,
+                actorId,
+                this.OverrideListenerNameIfConditionMet(listenerName));
         }
 
         /// <summary>
@@ -122,15 +137,15 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
         /// <returns>A service proxy object that implements <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> and TServiceInterface.</returns>
-        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(
-            Uri serviceUri,
-            ActorId actorId,
+        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(Uri serviceUri, ActorId actorId,
             string listenerName = null) where TServiceInterface : IService
         {
-            return this.CreateActorServiceProxy<TServiceInterface>(
-                serviceUri, 
-                actorId.GetPartitionKey(), 
-                listenerName);
+            var serviceInterfaceType = typeof(TServiceInterface);
+            var proxyFactory = this.GetOrSetProxyFactory(serviceInterfaceType);
+
+            return proxyFactory.CreateActorServiceProxy<TServiceInterface>(
+                serviceUri,
+                actorId, this.OverrideListenerNameIfConditionMet(listenerName));
         }
 
 
@@ -145,24 +160,16 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
         /// <returns>A service proxy object that implements <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> and TServiceInterface.</returns>
-        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(
-            Uri serviceUri,
-            long partitionKey,
+        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(Uri serviceUri, long partitionKey,
             string listenerName = null) where TServiceInterface : IService
         {
             var serviceInterfaceType = typeof(TServiceInterface);
-            var proxyGenerator = ServiceCodeBuilder.GetOrCreateProxyGenerator(serviceInterfaceType);
-            var serviceRemotingPartitionClient = new ServiceRemotingPartitionClient(
-               this.GetOrCreateServiceRemotingClientFactory(serviceInterfaceType),
-               serviceUri,
-               new ServicePartitionKey(partitionKey),
-               TargetReplicaSelector.Default,
-               listenerName,
-               this.retrySettings);
-
-            return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient);
+            var proxyFactory = this.GetOrSetProxyFactory(serviceInterfaceType);
+            return proxyFactory.CreateActorServiceProxy<TServiceInterface>(
+                serviceUri,
+                partitionKey,
+                this.OverrideListenerNameIfConditionMet(listenerName));
         }
-
 
         internal object CreateActorProxy(
             Type actorInterfaceType,
@@ -170,61 +177,78 @@ namespace Microsoft.ServiceFabric.Actors.Client
             ActorId actorId,
             string listenerName = null)
         {
-            var proxyGenerator = ActorCodeBuilder.GetOrCreateProxyGenerator(actorInterfaceType);
-            var actorServicePartitionClient = new ActorServicePartitionClient(
-               this.GetOrCreateServiceRemotingClientFactory(actorInterfaceType),
-               serviceUri,
-               actorId,
-               listenerName,
-               this.retrySettings);
+            this.GetOrSetProxyFactory(actorInterfaceType);
+            #if !DotNetCoreClr
+            if (this.proxyFactoryV1 != null)
+            {
+                return this.proxyFactoryV1.CreateActorProxy(
+                    actorInterfaceType,
+                    serviceUri,
+                    actorId,
+                    listenerName);
+            }
+            #endif
 
-            return proxyGenerator.CreateActorProxy(actorServicePartitionClient);
+            return this.proxyFactoryV2.CreateActorProxy(
+                actorInterfaceType,
+                serviceUri,
+                actorId,
+                this.OverrideListenerNameIfConditionMet(listenerName));
         }
 
-        private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type actorInterfaceType)
+        private ActorRemotingProviderAttribute GetProviderAttribute(Type actorInterfaceType)
         {
-            var factory = this.CreateServiceRemotingClientFactory(ActorEventSubscriberManager.Singleton);
-            if (factory == null)
-            {
-                var provider = ActorRemotingProviderAttribute.GetProvider(new[] { actorInterfaceType });
-                factory = provider.CreateServiceRemotingClientFactory(ActorEventSubscriberManager.Singleton);
-            }
-
-            return factory;
+            return ActorRemotingProviderAttribute.GetProvider(new[] {actorInterfaceType});
         }
 
-        /// <summary>
-        /// Creates service remoting client factory.
-        /// </summary>
-        /// <param name="callbackClient">Callback from the remoting listener to the client.</param>
-        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/></returns>
-        protected virtual IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            IServiceRemotingCallbackClient callbackClient)
+        private IActorProxyFactory GetOrSetProxyFactory(Type actorInterfaceType)
         {
-            if (this.createServiceRemotingClientFactory != null)
+#if !DotNetCoreClr
+            //Use provider to find the stack
+            if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
-                return this.createServiceRemotingClientFactory(callbackClient);
-            }
-
-            return null;
-        }
-
-        private IServiceRemotingClientFactory GetOrCreateServiceRemotingClientFactory(Type actorInterfaceType)
-        {
-            if (this.remotingClientFactory != null)
-            {
-                return this.remotingClientFactory;
-            }
-
-            lock (this.thisLock)
-            {
-                if (this.remotingClientFactory == null)
+                var provider = this.GetProviderAttribute(actorInterfaceType);
+                if (provider.RemotingClient.Equals(RemotingClient.V2Client))
                 {
-                    this.remotingClientFactory = this.CreateServiceRemotingClientFactory(actorInterfaceType);
+                    //We are overriding listenerName since using provider service can have multiple listener configured(Compat Mode).
+                    this.overrideListenerName = true;
+                    this.proxyFactoryV2 =
+                        new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactoryV2);
+                    return this.proxyFactoryV2;
                 }
+                this.proxyFactoryV1 =
+                    new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory);
+                return this.proxyFactoryV1;
             }
 
-            return this.remotingClientFactory;
+            if (this.proxyFactoryV2 != null)
+            {
+                return this.proxyFactoryV2;
+            }
+            return this.proxyFactoryV1;
+
+            
+#else
+            if (this.proxyFactoryV2 == null)
+            {
+                var provider = this.GetProviderAttribute(actorInterfaceType);
+                this.overrideListenerName = true;
+                this.proxyFactoryV2 =
+                    new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactoryV2);            
+            }
+
+            return this.proxyFactoryV2;
+#endif
+
+        }
+
+        private string OverrideListenerNameIfConditionMet(string listenerName)
+        {
+            if (this.overrideListenerName && listenerName == null)
+            {
+                return ServiceRemotingProviderAttribute.DefaultV2listenerName;
+            }
+            return listenerName;
         }
     }
 }

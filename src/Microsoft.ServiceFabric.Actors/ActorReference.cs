@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
     /// Encapsulation of a reference to an actor for serialization.
@@ -81,14 +81,26 @@ namespace Microsoft.ServiceFabric.Actors
                 throw new ArgumentNullException("actor");
             }
 
-            var actorProxy = actor as IActorProxy;
+            var actorProxy = actor as ActorProxy;   
             if (actorProxy != null)
             {
+#if !DotNetCoreClr
+                if (actorProxy.RemotingClient.Equals(RemotingClient.V1Client))
+                {
+
+                    return new ActorReference()
+                    {
+                        ActorId = actorProxy.ActorId,
+                        ServiceUri = actorProxy.ActorServicePartitionClient.ServiceUri,
+                        ListenerName = actorProxy.ActorServicePartitionClient.ListenerName
+                    };
+                }
+#endif
                 return new ActorReference()
                 {
                     ActorId = actorProxy.ActorId,
-                    ServiceUri = actorProxy.ActorServicePartitionClient.ServiceUri,
-                    ListenerName = actorProxy.ActorServicePartitionClient.ListenerName
+                    ServiceUri = actorProxy.ActorServicePartitionClientV2.ServiceUri,
+                    ListenerName = actorProxy.ActorServicePartitionClientV2.ListenerName
                 };
             }
 

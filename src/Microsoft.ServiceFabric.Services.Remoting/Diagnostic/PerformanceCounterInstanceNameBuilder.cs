@@ -15,14 +15,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 
         // The counter instance name for a method contains the substring "_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX".
         // So compute the number of characters remaining for the rest of the instance name.
-        private static readonly int MaxInstanceNameVariablePartsLen = MaxCounterInstanceNameLen - Guid.Empty.ToString().Length - 1;
+        internal  static int DefaultMaxInstanceNameVariablePartsLen = MaxCounterInstanceNameLen - Guid.Empty.ToString().Length - 1;
 
         private Guid partitionId;
         private readonly string counterInstanceDifferentiator;
         private readonly int maxMethodInfoLen;
 
-        internal PerformanceCounterInstanceNameBuilder(Guid partitionId, string counterInstanceDifferentiator)
+        internal PerformanceCounterInstanceNameBuilder(Guid partitionId, string counterInstanceDifferentiator,
+            int MaxInstanceNameVariablePartsLen = 0)
         {
+            if (MaxInstanceNameVariablePartsLen == 0)
+            {
+                MaxInstanceNameVariablePartsLen = DefaultMaxInstanceNameVariablePartsLen;
+            }
             this.partitionId = partitionId;
 
             this.counterInstanceDifferentiator = counterInstanceDifferentiator;
@@ -31,6 +36,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
             // counterInstanceDifferentiator that is appended at the end.
             this.maxMethodInfoLen = MaxInstanceNameVariablePartsLen - this.counterInstanceDifferentiator.Length - 1;
         }
+
+
 
         internal IEnumerable<KeyValuePair<long, string>> GetMethodCounterInstanceNames(
             IEnumerable<KeyValuePair<long, MethodInfo>> actorMethodInfo)

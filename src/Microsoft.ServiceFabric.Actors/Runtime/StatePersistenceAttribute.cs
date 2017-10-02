@@ -11,7 +11,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// Indicates whether the actor state should be volatile (in-memory only), persisted, or not stored at all.
     /// The store type given to this attribute must match the type of state provider used in the actor service.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class)]
+    /// <remarks>
+    /// The StatePersistence attribute is not inherited by derived class, each Actor type must provide its StatePersistence level,
+    /// If an Actor type doesn't specify a StatePersistence attribute, actor state is not replicated or written to disk.
+    /// </remarks>
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
     public sealed class StatePersistenceAttribute : Attribute
     {
         /// <summary>

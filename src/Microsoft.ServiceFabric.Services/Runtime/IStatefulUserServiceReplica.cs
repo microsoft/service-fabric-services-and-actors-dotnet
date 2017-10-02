@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         IStatefulServicePartition Partition { set; }
 
-        IStateProviderReplica CreateStateProviderReplica();
+        IStateProviderReplica2 CreateStateProviderReplica();
 
         IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners();
 

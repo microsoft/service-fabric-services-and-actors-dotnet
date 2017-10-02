@@ -8,7 +8,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Generic;
     using System.Globalization;
     using System.Reflection;
+    using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting;
+    using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>
     /// Contains the information about the type implementing an actor.
@@ -63,6 +66,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         /// <value>The <see cref="Microsoft.ServiceFabric.Actors.Runtime.StatePersistence"/> representing type of state persistence for the actor.</value>
         public StatePersistence StatePersistence { get; private set; }
+
+        internal RemotingListener RemotingListener { get; private set; }
 
         /// <summary>
         /// Creates the <see cref="ActorTypeInformation"/> from actorType.
@@ -170,6 +175,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
+            var types = new List<Type> { actorType };
+            types.AddRange(actorInterfaces);
+#if !DotNetCoreClr
+            var remotingserver = Services.Remoting.RemotingListener.V1Listener;
+#else
+            var remotingserver = Services.Remoting.RemotingListener.V2Listener;
+#endif
+            var remotingserverAttribuite = ActorRemotingProviderAttribute.GetProvider( types);
+            if (remotingserverAttribuite != null)
+            {
+                remotingserver = remotingserverAttribuite.RemotingListener;
+            }
+
+
             return new ActorTypeInformation()
             {
                 InterfaceTypes = actorInterfaces,
@@ -178,7 +197,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 IsAbstract = actorType.GetTypeInfo().IsAbstract,
                 IsRemindable = actorType.IsRemindableActor(),
                 EventInterfaceTypes = eventInterfaces,
-                StatePersistence = StatePersistenceAttribute.Get(actorType).StatePersistence
+                StatePersistence = StatePersistenceAttribute.Get(actorType).StatePersistence,
+                RemotingListener = remotingserver
             };
         }
 

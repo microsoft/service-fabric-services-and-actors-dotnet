@@ -20,7 +20,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private const string TraceType = "StatefulServiceReplicaAdapter";
         private readonly string traceId;
 
-        private static readonly TimeSpan DefaultSlowCancellationTimeSpan = TimeSpan.FromSeconds(4);
         private const int PrimaryStatusCheckRetryIntervalInMillis = 512;
 
         private readonly ServiceHelper serviceHelper;
@@ -318,7 +317,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 ServiceFrameworkEventSource.Writer.StatefulRunAsyncCancellation(
                     this.serviceContext,
-                    DefaultSlowCancellationTimeSpan);
+                    ServiceHelper.RunAsyncExpectedCancellationTimeSpan);
 
                 ServiceTrace.Source.WriteInfoWithId(
                     TraceType + ServiceHelper.ApiStartTraceTypeSuffix, 
@@ -380,17 +379,18 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     cancellationStopwatch.Stop();
                 }
 
-                if (cancellationStopwatch.Elapsed > DefaultSlowCancellationTimeSpan)
+                if (cancellationStopwatch.Elapsed > ServiceHelper.RunAsyncExpectedCancellationTimeSpan)
                 {
                     ServiceFrameworkEventSource.Writer.StatefulRunAsyncSlowCancellation(
                         this.serviceContext,
                         cancellationStopwatch.Elapsed,
-                        DefaultSlowCancellationTimeSpan);
+                        ServiceHelper.RunAsyncExpectedCancellationTimeSpan);
 
                     ServiceTrace.Source.WriteWarningWithId(
                         TraceType + ServiceHelper.ApiSlowTraceTypeSuffix, 
                         this.traceId, 
-                        "RunAsync slow cancellation");
+                        "RunAsync slow cancellation: Time: {0}s",
+                        cancellationStopwatch.Elapsed.TotalSeconds);
                 }
             }
         }

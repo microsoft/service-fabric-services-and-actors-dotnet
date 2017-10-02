@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
-        /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
+        /// <returns>An actor proxy object that implements IActorProxy and TActorInterface.</returns>
         TActorInterface CreateActorProxy<TActorInterface>(
             ActorId actorId,
             string applicationName = null,
@@ -59,7 +59,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
-        /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
+        /// <returns>An actor proxy object that implements IActorProxy and TActorInterface.</returns>
         TActorInterface CreateActorProxy<TActorInterface>(
             Uri serviceUri,
             ActorId actorId,
@@ -76,7 +76,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
-        /// <returns>A service proxy object that implements <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> and TServiceInterface.</returns>
+        /// <returns>A service proxy object that implements IServiceProxy and TServiceInterface.</returns>
         TServiceInterface CreateActorServiceProxy<TServiceInterface>(
             Uri serviceUri,
             ActorId actorId,
@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
-        /// <returns>A service proxy object that implements <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> and TServiceInterface.</returns>
+        /// <returns>A service proxy object that implements IServiceProxy and TServiceInterface.</returns>
         TServiceInterface CreateActorServiceProxy<TServiceInterface>(
             Uri serviceUri,
             long partitionKey,

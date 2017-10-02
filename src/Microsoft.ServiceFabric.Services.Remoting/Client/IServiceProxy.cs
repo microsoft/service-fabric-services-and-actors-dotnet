@@ -7,22 +7,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     using System;
 
     /// <summary>
-    /// Represents the base Client side interface for Remoting. The framework provides the
+    /// This is the base Client side interface for Remoting. The framework provides the
     /// Remoting infrastructure for all the service contracts inheriting from IService through
     /// ServiceRemotingListener and ServiceProxy.
     /// </summary>
     public interface IServiceProxy
     {
         /// <summary>
-        /// Gets the interface type that is being remoted.
+        /// The interface type that is being remoted.
         /// </summary>
-        /// <value>The Service interface type.</value>
+        /// <value>Service interface type</value>
         Type ServiceInterfaceType { get; }
 
+#if !DotNetCoreClr
         /// <summary>
-        /// Gets the service partition client used to send requests to the service.
+        /// The service partition client used to send requests to the service.
         /// </summary>
-        /// <value>The ServicePartitionClient used by the ServiceProxy.</value>
-         IServiceRemotingPartitionClient ServicePartitionClient { get; }
+        /// <value>ServicePartitionClient used by the ServiceProxy</value>
+        Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingPartitionClient ServicePartitionClient { get; }
+#endif
+        /// <summary>
+        /// The service partition client used to send requests to the service.
+        /// </summary>
+        /// <value>ServicePartitionClient used by the ServiceProxy</value>
+
+        Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingPartitionClient ServicePartitionClient2 { get; }
     }
 }

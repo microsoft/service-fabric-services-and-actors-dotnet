@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -11,8 +12,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
-    using Microsoft.ServiceFabric.Actors.Remoting.Runtime;
+    using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Runtime;
 
     /// <summary>
@@ -31,10 +33,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly IActorActivator actorActivator;
         private readonly ActorManagerAdapter actorManagerAdapter;
         private readonly Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory;
-
-        private ActorMethodDispatcherMap methodDispatcherMap;
+#if !DotNetCoreClr
+        private Remoting.V1.Runtime.ActorMethodDispatcherMap methodDispatcherMapV1;
+#endif
         private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
         private ReplicaRole replicaRole;
+        private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -63,7 +67,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // Set internal components
             this.actorActivator = new ActorActivator(actorFactory ?? this.DefaultActorFactory);
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
-            this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
+            this.actorManagerAdapter = new ActorManagerAdapter {ActorManager = new MockActorManager(this)};
             this.replicaRole = ReplicaRole.Unknown;
         }
 
@@ -78,6 +82,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             get { return this.actorTypeInformation; }
         }
+
+        /// <summary>
+        /// This determines which version(V1,V2or Compact) of actor service listener is being used.
+        /// </summary>
+        public RemotingListener RemotingListener { get; private set; }
 
         /// <summary>
         /// Gets a <see cref="IActorStateProvider"/> that represents the state provider for the actor service.
@@ -106,10 +115,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             get { return this.actorActivator; }
         }
-        
-        internal ActorMethodDispatcherMap MethodDispatcherMap
+
+#if !DotNetCoreClr
+
+        internal Remoting.V1.Runtime.ActorMethodDispatcherMap MethodDispatcherMapV1
         {
-            get { return this.methodDispatcherMap; }
+            get { return this.methodDispatcherMapV1; }
+            set { this.methodDispatcherMapV1 = value; }
+        }
+#endif
+
+        internal Remoting.V2.Runtime.ActorMethodDispatcherMap MethodDispatcherMapV2
+        {
+            get { return this.methodDispatcherMapV2; }
+            set { this.methodDispatcherMapV2 = value; }
         }
 
         internal ActorMethodFriendlyNameBuilder MethodFriendlyNameBuilder
@@ -122,10 +141,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
-        internal void InitializeInternal(ActorMethodDispatcherMap map, ActorMethodFriendlyNameBuilder methodNameBuilder)
+        internal void InitializeInternal(ActorMethodFriendlyNameBuilder methodNameBuilder)
         {
-            this.methodDispatcherMap = map;
             this.methodFriendlyNameBuilder = methodNameBuilder;
+#if !DotNetCoreClr
+            this.MethodDispatcherMapV1 =
+                new Actors.Remoting.V1.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
+#endif
+            this.MethodDispatcherMapV2 =
+                new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
         #region IActorService Members        
@@ -176,10 +200,48 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}</returns>
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-            return new[]
+            var types = new List<Type> {this.ActorTypeInformation.ImplementationType};
+            types.AddRange(this.ActorTypeInformation.InterfaceTypes);
+
+            var provider = ActorRemotingProviderAttribute.GetProvider(types);
+
+#if !DotNetCoreClr
+            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
             {
-                new ServiceReplicaListener(this.CreateCommunicationListener)
-            };
+                return new[]
+                {
+                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListenerV2(this); },
+                        ServiceRemotingProviderAttribute.DefaultV2listenerName
+                        )
+                };
+            }
+            if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
+            {
+                return new[]
+                {
+                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
+                        ),
+                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListenerV2(this); },
+                        ServiceRemotingProviderAttribute.DefaultV2listenerName
+                        )
+                };
+            }
+            else
+            {
+                return new[]
+                {
+                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
+                        )
+                };
+            }
+#else
+            return new[] {
+                    new ServiceReplicaListener((t) =>
+                    {
+                        return provider.CreateServiceRemotingListenerV2(this);
+                    }, ServiceRemotingProviderAttribute.DefaultV2listenerName
+                )};
+#endif
         }
 
         /// <summary>
@@ -211,7 +273,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>A task that represents the asynchronous operation performed when the replica becomes primary.</returns>
         protected override async Task OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "Begin change role. New role: {0}.", newRole);
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "Begin change role. New role: {0}.",
+                newRole);
 
             if (newRole == ReplicaRole.Primary)
             {
@@ -230,7 +293,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             this.replicaRole = newRole;
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End change role. New role: {0}.", newRole);
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End change role. New role: {0}.",
+                newRole);
         }
 
         /// <summary>
@@ -260,21 +324,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         #endregion
 
         #region Helper Functions
-        
-        private ICommunicationListener CreateCommunicationListener(StatefulServiceContext serviceContext)
-        {
-            return ActorServiceRemotingListener.CreateActorServiceRemotingListener(this);
-        }
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)
         {
-            return (ActorBase)Activator.CreateInstance(
+            return (ActorBase) Activator.CreateInstance(
                 this.ActorTypeInformation.ImplementationType,
                 actorService,
                 actorId);
         }
 
-        private static IActorStateManager DefaultActorStateManagerFactory(ActorBase actorBase, IActorStateProvider actorStateProvider)
+        private static IActorStateManager DefaultActorStateManagerFactory(ActorBase actorBase,
+            IActorStateProvider actorStateProvider)
         {
             return new ActorStateManager(actorBase, actorStateProvider);
         }

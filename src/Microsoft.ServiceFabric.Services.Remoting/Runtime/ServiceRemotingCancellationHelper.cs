@@ -26,19 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             this.requestCancellationTracker = new ConcurrentDictionary<int, ServiceRemotingCancellationTracker>();
         }
 
-        public bool IsCancellationRequest(ServiceRemotingMessageHeaders messageHeaders)
-        {
-            byte[] headerValue;
-            if (messageHeaders.InvocationId != null &&
-                messageHeaders.TryGetHeaderValue(ServiceRemotingMessageHeaders.CancellationHeaderName, out headerValue))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public async Task<byte[]> CancelRequestAsync(
+        public async Task CancelRequestAsync(
             int interfaceId,
             int methodId,
             string callContext)
@@ -85,14 +73,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                     methodId);
             }
 
-            return null;
         }
 
-        public async Task<byte[]> DispatchRequest(
+        public async Task<T> DispatchRequest<T>(
             int interfaceId,
             int methodId,
             string callContext,
-            Func<CancellationToken, Task<byte[]>> dispatchFunc)
+            Func<CancellationToken, Task<T>> dispatchFunc)
         {
             var cancellationToken = CancellationToken.None;
             if (callContext != null)
@@ -110,7 +97,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             }
 
             ExceptionDispatchInfo exceptionToThrow = null;
-            byte[] result = null;
+            T result = default(T);
             try
             {
                 result = await dispatchFunc(cancellationToken);

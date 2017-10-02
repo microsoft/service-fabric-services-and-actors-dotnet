@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
     using System;
@@ -32,15 +33,32 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         MethodDispatcherBuildResult ICodeBuilder.GetOrBuilderMethodDispatcher(Type interfaceType)
         {
             MethodDispatcherBuildResult result;
-            if (this.methodDispatcherBuildResultMap.TryGetValue(interfaceType, out result))
-            {
-                return result;
-            }
+            if (this.TryGetMethodDispatcher(interfaceType, out result)) return result;
 
             result = this.BuildMethodDispatcher(interfaceType);
-            this.methodDispatcherBuildResultMap.Add(interfaceType, result);
+            this.UpdateMethodDispatcherBuildMap(interfaceType, result);
 
             return result;
+        }
+
+        protected void UpdateMethodDispatcherBuildMap(Type interfaceType, MethodDispatcherBuildResult result)
+        {
+            this.methodDispatcherBuildResultMap.Add(interfaceType, result);
+        }
+
+        protected bool TryGetMethodDispatcher(Type interfaceType,
+            out MethodDispatcherBuildResult builderMethodDispatcher)
+        {
+            MethodDispatcherBuildResult result;
+            if (this.methodDispatcherBuildResultMap.TryGetValue(interfaceType, out result))
+            {
+                {
+                    builderMethodDispatcher = result;
+                    return true;
+                }
+            }
+            builderMethodDispatcher = null;
+            return false;
         }
 
         MethodBodyTypesBuildResult ICodeBuilder.GetOrBuildMethodBodyTypes(Type interfaceType)
@@ -60,15 +78,31 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         ProxyGeneratorBuildResult ICodeBuilder.GetOrBuildProxyGenerator(Type interfaceType)
         {
             ProxyGeneratorBuildResult result;
-            if (this.proxyGeneratorBuildResultMap.TryGetValue(interfaceType, out result))
-            {
-                return result;
-            }
+            if (this.TryGetProxyGenerator(interfaceType, out result)) return result;
 
             result = this.BuildProxyGenerator(interfaceType);
-            this.proxyGeneratorBuildResultMap.Add(interfaceType, result);
+            this.UpdateProxyGeneratorMap(interfaceType, result);
 
             return result;
+        }
+
+        protected void UpdateProxyGeneratorMap(Type interfaceType, ProxyGeneratorBuildResult result)
+        {
+            this.proxyGeneratorBuildResultMap.Add(interfaceType, result);
+        }
+
+        protected bool TryGetProxyGenerator(Type interfaceType, out ProxyGeneratorBuildResult orBuildProxyGenerator)
+        {
+            ProxyGeneratorBuildResult result;
+            if (this.proxyGeneratorBuildResultMap.TryGetValue(interfaceType, out result))
+            {
+                {
+                    orBuildProxyGenerator = result;
+                    return true;
+                }
+            }
+            orBuildProxyGenerator = null;
+            return false;
         }
 
         protected abstract MethodDispatcherBuildResult BuildMethodDispatcher(Type interfaceType);

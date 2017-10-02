@@ -521,6 +521,15 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OnRestoreCompletedAsync can only be set once..
+        /// </summary>
+        internal static string ErrorOnRestoreCompletedAsyncReset {
+            get {
+                return ResourceManager.GetString("ErrorOnRestoreCompletedAsyncReset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Null {0} in replicator settings.
         /// </summary>
         internal static string ErrorReplicatorSettings {

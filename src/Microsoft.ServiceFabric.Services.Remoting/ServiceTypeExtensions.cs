@@ -19,6 +19,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             return list.ToArray();
         }
 
+        public static Type[] GetAllBaseInterfaces(this Type serviceType)
+        {
+            var list = new List<Type>(serviceType.GetInterfaces());
+            list.Add(serviceType);
+            return list.ToArray();
+        }
+
         internal static Type GetNonServiceParentInterface(this Type type)
         {
             var list = new List<Type>(type.GetInterfaces());

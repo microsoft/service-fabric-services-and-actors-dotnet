@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets the stateful service replica that is hosting the actor.
         /// </summary>
         /// <value>
-        /// The <see cref="Runtime.ActorService"/> that represents the stateful service replica hosting the actor.
+        /// The <see cref="ActorService"/> that represents the stateful service replica hosting the actor.
         /// </value>
         public ActorService ActorService
         {

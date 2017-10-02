@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// are of the form {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}. When the service exposes multiple endpoints, this parameter
         /// identifies which of those endpoints to use for the remoting communication.
         /// </param>
-        /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> interface.</returns>
+        /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement IServiceProxy interface.</returns>
         /// </summary>
         TServiceInterface CreateServiceProxy<TServiceInterface>(
             Uri serviceUri,

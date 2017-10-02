@@ -31,6 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private readonly string traceId;
         private readonly Random random;
         private readonly object randomLock;
+        private readonly bool fireConnectEvents;
 
         /// <summary>
         /// Gets the ServicePartitionResolver used by the client factory for resolving the service endpoint.
@@ -68,8 +69,22 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         protected CommunicationClientFactoryBase(
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            string traceId = null)
+            string traceId = null)            
+        :this(false,
+        servicePartitionResolver,
+        exceptionHandlers,
+        traceId)
         {
+        }
+        
+        internal CommunicationClientFactoryBase(
+            bool fireConnectEvents,
+            IServicePartitionResolver servicePartitionResolver = null,
+            IEnumerable<IExceptionHandler> exceptionHandlers = null,
+            string traceId = null
+        )
+        {
+            this.fireConnectEvents = fireConnectEvents;
             this.random = new Random();
             this.randomLock = new object();
             this.traceId = traceId ?? Guid.NewGuid().ToString();
@@ -159,7 +174,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             OperationRetrySettings retrySettings,
             CancellationToken cancellationToken)
         {
-            
+
             var newClient = await this.CreateClientWithRetriesAsync(
                 previousRsp,
                 targetReplica,
@@ -209,7 +224,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     out exceptionHandlingResult);
                 if (handled && (exceptionHandlingResult is ExceptionHandlingRetryResult))
                 {
-                    var retryResult = (ExceptionHandlingRetryResult) exceptionHandlingResult;
+                    var retryResult = (ExceptionHandlingRetryResult)exceptionHandlingResult;
 
                     if (!retryResult.IsTransient && (ReferenceEquals(client, entry.Client)))
                     {
@@ -251,7 +266,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 entry.Semaphore.Release();
             }
 
-            if (faultedClient != null)
+            if (faultedClient != null && this.fireConnectEvents)
             {
                 this.OnClientDisconnected(faultedClient);
             }
@@ -393,7 +408,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         cacheEntry.Semaphore.Release();
                     }
 
-                    if (client != null && newClient)
+                    if (client != null && newClient && this.fireConnectEvents)
                     {
                         this.OnClientConnected(client);
                     }
@@ -428,7 +443,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     actualException = e;
                 }
 
-                var retryResult = (ExceptionHandlingRetryResult) result;
+                var retryResult = (ExceptionHandlingRetryResult)result;
                 if (!Utility.ShouldRetryOperation(
                     retryResult.ExceptionId,
                     retryResult.MaxRetryCount,
@@ -500,7 +515,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return false;
         }
 
-        private void OnClientDisconnected(TCommunicationClient faultedClient)
+        internal void OnClientDisconnected(TCommunicationClient faultedClient)
         {
             var clientDisconnectedEvent = this.ClientDisconnected;
             if (clientDisconnectedEvent != null)
@@ -514,7 +529,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             }
         }
 
-        private void OnClientConnected(TCommunicationClient newClient)
+        internal void OnClientConnected(TCommunicationClient newClient)
         {
             var clientCreatedEvent = this.ClientConnected;
             if (clientCreatedEvent != null)
@@ -694,7 +709,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
             }
 
-            if (faultedClient != null)
+            if (faultedClient != null && this.fireConnectEvents)
             {
                 this.OnClientDisconnected(faultedClient);
             }
