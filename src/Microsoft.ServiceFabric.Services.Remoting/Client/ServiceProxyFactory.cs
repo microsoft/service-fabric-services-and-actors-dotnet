@@ -91,65 +91,45 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         {
             var serviceInterfaceType = typeof(TServiceInterface);
 
-#if !DotNetCoreClr
-
             //Use provider to find the stack
-            if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
-            {
-                var provider = this.GetProviderAttribute(serviceInterfaceType);
-                if (provider.RemotingClient.Equals(RemotingClient.V2Client))
-                {
-                    //We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
-                    this.overrideListenerName = true;
-                    this.proxyFactoryV2 =
-                        new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2,this.retrySettings);
-                }
-                else
-                {
-                    this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory,this.retrySettings);
-                }
-                
-           }
+            var provider = this.GetProviderAttribute(serviceInterfaceType);
 
-            if (this.proxyFactoryV1 != null)
+#if !DotNetCoreClr
+            if (provider.RemotingClient.Equals(RemotingClient.V1Client))
             {
+                // Create V1 proxyFactory
+                if (this.proxyFactoryV1 == null)
+                {
+                    this.proxyFactoryV1 =
+                        new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+                }
+
                 return this.proxyFactoryV1.CreateServiceProxy<TServiceInterface>(serviceUri,
                     partitionKey,
                     targetReplicaSelector,
                     listenerName);
             }
-            if (this.overrideListenerName && listenerName==null)
+#endif
+
+            // Create V2 proxyFactory
+            if (this.proxyFactoryV2 == null)
+            {
+                this.proxyFactoryV2 =
+                    new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
+            }
+
+            if (listenerName == null)
             {
                 return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
                     partitionKey,
                     targetReplicaSelector,
                     ServiceRemotingProviderAttribute.DefaultV2listenerName);
             }
+
             return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
                 partitionKey,
                 targetReplicaSelector,
                 listenerName);
-#else
-            if (proxyFactoryV2==null)
-            {
-                var provider = this.GetProviderAttribute(serviceInterfaceType);
-                //We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
-                this.overrideListenerName = true;
-                this.proxyFactoryV2 =
-                    new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2);
-            }
-            if (this.overrideListenerName && listenerName == null)
-            {
-                return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
-                    partitionKey,
-                    targetReplicaSelector,
-                    ServiceRemotingProviderAttribute.DefaultV2listenerName);
-            }
-            return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
-              partitionKey,
-              targetReplicaSelector,
-              listenerName);
-#endif
         }
 
 
