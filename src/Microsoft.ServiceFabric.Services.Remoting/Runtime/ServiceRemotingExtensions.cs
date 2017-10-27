@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
         /// <summary>
         /// An extension method that creates an <see cref="IServiceRemotingListener"/>
-        /// for a stateless service implementation.This is deprecated implementation. Use CreateServiceRemotingInstanceListeners Api instead.
+        /// for a stateless service implementation. This is deprecated implementation. Use CreateServiceRemotingInstanceListeners Api instead.
         /// </summary>
         /// <typeparam name="TStatelessService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="System.Fabric.Query.StatelessService"/> and implement one or more

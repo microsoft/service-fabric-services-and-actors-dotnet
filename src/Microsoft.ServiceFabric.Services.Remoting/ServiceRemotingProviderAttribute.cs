@@ -149,7 +149,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     {
 #if !DotNetCoreClr
         /// <summary>
-        /// This is selected to create V1 Client.V2 is a old(soon to be deprecated) Remoting Stack.
+        /// This is selected to create V1 Client.V1 is an old (soon to be deprecated) Remoting Stack.
         /// </summary>
         V1Client,
 #endif
@@ -167,7 +167,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 #if !DotNetCoreClr
 
         /// <summary>
-        /// This is selected to create V1 Listener.V2 is a old(soon to be deprecated) Remoting Stack.
+        /// This is selected to create V1 Listener.V1 is an old (soon to be deprecated) Remoting Stack.
         /// </summary>
         V1Listener,
 
