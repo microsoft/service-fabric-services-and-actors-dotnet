@@ -136,7 +136,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 //We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
                 this.overrideListenerName = true;
                 this.proxyFactoryV2 =
-                    new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2);
+                    new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2,this.retrySettings);
             }
             if (this.overrideListenerName && listenerName == null)
             {
