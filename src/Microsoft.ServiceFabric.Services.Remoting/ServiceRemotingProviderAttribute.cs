@@ -149,12 +149,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     {
 #if !DotNetCoreClr
         /// <summary>
-        /// This is selected to create V1 Client.V1 is an old (soon to be deprecated) Remoting Stack.
+        /// This is selected to create V1 Client. V1 is an old(soon to be deprecated) Remoting Stack.
         /// </summary>
         V1Client,
 #endif
         /// <summary>
-        /// This is selected to create V2 Client.V2 is a new Remoting Stack.
+        /// This is selected to create V2 Client. V2 is a new Remoting Stack.
         /// </summary>
         V2Client
     }

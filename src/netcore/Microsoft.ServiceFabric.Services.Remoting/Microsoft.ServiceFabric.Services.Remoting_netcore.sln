@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting_netcore", "Microsoft.ServiceFabric.Services.Remoting_netcore.csproj", "{44B48A3A-EBDF-4529-8FED-B44B3A19DFAD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services_netcore", "..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netcore.csproj", "{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44B48A3A-EBDF-4529-8FED-B44B3A19DFAD}.Debug|x64.ActiveCfg = Debug|x64
+		{44B48A3A-EBDF-4529-8FED-B44B3A19DFAD}.Debug|x64.Build.0 = Debug|x64
+		{44B48A3A-EBDF-4529-8FED-B44B3A19DFAD}.Release|x64.ActiveCfg = Release|x64
+		{44B48A3A-EBDF-4529-8FED-B44B3A19DFAD}.Release|x64.Build.0 = Release|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Debug|x64.ActiveCfg = Debug|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Debug|x64.Build.0 = Debug|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Release|x64.ActiveCfg = Release|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88B289FF-A93B-4447-B125-A637ECC2B0FB}
+	EndGlobalSection
+EndGlobal

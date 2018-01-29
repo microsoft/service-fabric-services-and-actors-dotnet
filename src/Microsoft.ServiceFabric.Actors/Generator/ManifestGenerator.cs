@@ -542,20 +542,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private static EntryPointDescriptionTypeExeHost CreateExeHostEntryPoint(
             Assembly assembly)
         {
-            var exeHostEntryPoint = new EntryPointDescriptionTypeExeHost();
-
-            if (
-                string.Compare(Path.GetExtension(assembly.Location).ToLower(), ".exe",
-                    StringComparison.OrdinalIgnoreCase) == 0)
+            return new EntryPointDescriptionTypeExeHost
             {
-                exeHostEntryPoint.Program = Path.GetFileName(assembly.Location);
-            }
-            else
-            {
-                exeHostEntryPoint.Program = "{ExeName}";
-            }
-
-            return exeHostEntryPoint;
+                Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe"
+            };
         }
 
         private static CodePackageType MergeCodePackage(

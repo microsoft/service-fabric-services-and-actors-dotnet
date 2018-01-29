@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
     /// This class dispatches requests from the client to the interface/method of the remoted object.
     /// This class is used by remoting code generator.
     /// </summary>
-    public abstract class MethodDispatcherBase : IMethodDispatcher
+    public abstract class MethodDispatcherBase
     {
         private int interfaceId;
         private IReadOnlyDictionary<int, string> methodNameMap;

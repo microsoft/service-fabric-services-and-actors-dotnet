@@ -136,8 +136,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
            var msgBodySerializer =
                 this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
             stopwatch.Restart();
-            var deserializedMsg = msgBodySerializer.Deserialize(
-                new IncomingMessageBody(fabricTransportMessage.GetBody().GetRecievedStream()));
+            IServiceRemotingRequestMessageBody deserializedMsg;
+            if (fabricTransportMessage.GetBody() != null)
+            {
+                 deserializedMsg = msgBodySerializer.Deserialize(
+                    new IncomingMessageBody(fabricTransportMessage.GetBody().GetRecievedStream()));
+            }
+            else
+            {
+                deserializedMsg = null;
+            }
+            
             if (this.serviceRemotingPerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter != null)
             {
                 this.serviceRemotingPerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter.UpdateCounterValue

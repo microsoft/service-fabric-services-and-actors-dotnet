@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         Task StartLoadingRemindersAsync(CancellationToken cancellationToken);
 
-        void FireReminder(ActorReminder reminder);
+        Task FireReminderAsync(ActorReminder reminder);
 
         #endregion
 

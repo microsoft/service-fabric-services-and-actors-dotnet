@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FabActUtil_netcore", "FabActUtil_netcore.csproj", "{03D5D262-11E7-41A4-A479-BE05A5A5682A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors_netcore", "..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netcore.csproj", "{4CE97677-D2F7-4B74-9265-E7F415D97A48}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services_netcore", "..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netcore.csproj", "{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting_netcore", "..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netcore.csproj", "{3A86515C-47D2-49B1-B68D-498FBB47D9C9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{03D5D262-11E7-41A4-A479-BE05A5A5682A}.Debug|x64.ActiveCfg = Debug|x64
+		{03D5D262-11E7-41A4-A479-BE05A5A5682A}.Debug|x64.Build.0 = Debug|x64
+		{03D5D262-11E7-41A4-A479-BE05A5A5682A}.Release|x64.ActiveCfg = Release|x64
+		{03D5D262-11E7-41A4-A479-BE05A5A5682A}.Release|x64.Build.0 = Release|x64
+		{4CE97677-D2F7-4B74-9265-E7F415D97A48}.Debug|x64.ActiveCfg = Debug|x64
+		{4CE97677-D2F7-4B74-9265-E7F415D97A48}.Debug|x64.Build.0 = Debug|x64
+		{4CE97677-D2F7-4B74-9265-E7F415D97A48}.Release|x64.ActiveCfg = Release|x64
+		{4CE97677-D2F7-4B74-9265-E7F415D97A48}.Release|x64.Build.0 = Release|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Debug|x64.ActiveCfg = Debug|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Debug|x64.Build.0 = Debug|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Release|x64.ActiveCfg = Release|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Release|x64.Build.0 = Release|x64
+		{3A86515C-47D2-49B1-B68D-498FBB47D9C9}.Debug|x64.ActiveCfg = Debug|x64
+		{3A86515C-47D2-49B1-B68D-498FBB47D9C9}.Debug|x64.Build.0 = Debug|x64
+		{3A86515C-47D2-49B1-B68D-498FBB47D9C9}.Release|x64.ActiveCfg = Release|x64
+		{3A86515C-47D2-49B1-B68D-498FBB47D9C9}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8CC7D7F7-CBD9-428B-A190-7A4D56C920FE}
+	EndGlobalSection
+EndGlobal

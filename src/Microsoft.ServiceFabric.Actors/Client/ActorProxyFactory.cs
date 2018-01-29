@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class using V2 Remoting Client Factory.
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
-        /// <param name="retrySettings">Retry settings for the remote object calls made by proxy.</param>
+        /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
         public ActorProxyFactory(
             Func<Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler,
                     Services.Remoting.V2.Client.IServiceRemotingClientFactory>

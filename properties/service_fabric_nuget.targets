@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <!-- List of .nuproj to build to generate nuget packages -->
+    <NuprojsToBuild Include="$(RepoRoot)nuprojs\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.nuproj;
+                     $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.nuproj;
+                     $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.nuproj;
+                     $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.nuproj;
+                     $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.nuproj"/>
+    
+    <!-- List of packages.config to restore nuget packages -->
+        <PackagesConfigs Include="nuprojs\packages.config"/>
+    </ItemGroup>
+
+  <!--Targets for generating Nuget packages -->
+  <Target Name="GenerateNugetPackages_Prod">
+    <!-- Restore nuproj -->
+    <Exec Command="&quot;$(NuGetExePath)&quot; restore %(PackagesConfigs.Identity) -NonInteractive -Verbosity quiet" />
+    <Message Text="Generating NuGet packages ..." Importance="High"/>
+    <MSBuild Projects ="@(NuprojsToBuild)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
+
+    <Message Text="Copying NuGet packages to drop folder ..." Importance="High"/>
+    <ItemGroup>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors\$(OutputPath)\Microsoft.ServiceFabric.Actors.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Actors.Wcf.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*.nupkg"/>
+      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*.nupkg"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(Nupkgs)" DestinationFiles="@(Nupkgs->'$(NugetPackageDropFolder)\%(Destination)\%(Filename)%(Extension)')" />
+  </Target>
+</Project>

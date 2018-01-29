@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Set Paths -->
+  <PropertyGroup>
+    <RepoRoot>$(MSBuildThisFileDirectory)..\</RepoRoot>
+    <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">minimal</RequestedVerbosity>
+    
+    <!-- Set Output Paths-->
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <OutputPath_win>bin\$(Configuration)\win\</OutputPath_win>
+    <OutputPath_linux>bin\$(Configuration)\linux\</OutputPath_linux>
+    
+    <!-- Set Drop folders -->
+    <DropFolder>$(RepoRoot)drop\$(Configuration)\</DropFolder>
+    <DropFolderNetFramework>$(RepoRoot)drop\$(Configuration)\netframework\</DropFolderNetFramework>
+    <DropFolderNetCore>$(RepoRoot)drop\$(Configuration)\netcore\</DropFolderNetCore>
+    <DropFolderNetCore_win>$(DropFolderNetCore)win\</DropFolderNetCore_win>
+    <DropFolderNetCore_linux>$(DropFolderNetCore)linux\</DropFolderNetCore_linux>
+    <NugetPackageDropFolder>$(DropFolder)\packages</NugetPackageDropFolder>
+    
+    <!-- Set Nuget exe path -->
+    <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(RepoRoot)\external\nuget.exe</NuGetExePath>
+  </PropertyGroup>
+</Project>

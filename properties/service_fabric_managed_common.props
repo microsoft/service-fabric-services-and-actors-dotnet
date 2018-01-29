@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <!-- Generic Properties -->
+  <Import Project="service_fabric_common.props" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <Platform>x64</Platform>
     <PlatformTarget>x64</PlatformTarget>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
     <NoWarn></NoWarn>
+    <!-- Don't append TargetFramework to output path. -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <!-- Cls Compliant -->
@@ -18,19 +18,9 @@
     <AssemblyClsCompliant>true</AssemblyClsCompliant>
   </PropertyGroup>
 
-  <!-- debug and release switches -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <OutputPath>bin\Debug\</OutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <OutputPath>bin\Release\</OutputPath>
+  <!-- AllowUnsafeBlocks -->
+  <PropertyGroup>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <!-- Enable signing with Key.snk -->
@@ -41,10 +31,14 @@
   
   <!-- Set Version numbers. These are used for generating Assemblies and Nuget packages. -->
   <PropertyGroup>
-    <MajorVersion>2</MajorVersion>
-    <MinorVersion>8</MinorVersion>
+    <MajorVersion>3</MajorVersion>
+    <MinorVersion>0</MinorVersion>
     <BuildVersion>0</BuildVersion>
     <Revision>0</Revision>
+
+    <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <AssemblyFileVersion>$(Version)</AssemblyFileVersion>
   </PropertyGroup>
   
   <!-- Setting Paths -->

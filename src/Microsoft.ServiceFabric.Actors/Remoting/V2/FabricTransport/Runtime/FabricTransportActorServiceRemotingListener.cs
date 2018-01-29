@@ -47,6 +47,30 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         /// <summary>
         ///     Construct a fabric TCP transport based service remoting listener for the specified actor service.
         /// </summary>
+        /// <param name="actorService">
+        ///     The implementation of the actor service.
+        /// </param>
+        /// <param name="serializationProvider">
+        /// It is used to serialize deserialize request and response body.
+        /// </param>
+        /// <param name="listenerSettings">
+        ///     The settings to use for the listener.
+        /// </param>
+        public FabricTransportActorServiceRemotingListener(
+            ActorService actorService,
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            FabricTransportRemotingListenerSettings listenerSettings = null)
+            : this(
+                GetContext(actorService),
+                new ActorServiceRemotingDispatcher(actorService, serializationProvider.CreateMessageBodyFactory()),
+                SetEndPointResourceName(listenerSettings, actorService),
+                serializationProvider)
+        {
+        }
+
+        /// <summary>
+        ///     Construct a fabric TCP transport based service remoting listener for the specified actor service.
+        /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
         /// </param>

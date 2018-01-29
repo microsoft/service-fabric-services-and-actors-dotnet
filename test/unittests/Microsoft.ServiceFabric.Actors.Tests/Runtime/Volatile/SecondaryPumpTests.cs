@@ -28,6 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     using Moq;
     using Xunit;
 
+    #pragma warning disable xUnit1024
     public class SecondaryPumpTests : VolatileStateProviderTestBase
     {  
         [Fact]

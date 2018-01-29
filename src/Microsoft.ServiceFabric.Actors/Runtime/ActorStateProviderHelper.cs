@@ -299,6 +299,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     var section = config.Settings.Sections[stateProviderOverrideSectionName];
                     var stateProviderType = section.Parameters[attributeTypeKey].Value;
+
+                    ActorTrace.Source.WriteInfo(
+                        "ActorStateProviderHelper",
+                        "Overridding actor state provider: '{0}'",
+                        stateProviderType);
+
                     stateProvider = Activator.CreateInstance(Type.GetType(stateProviderType)) as IActorStateProvider;
                 }
             }

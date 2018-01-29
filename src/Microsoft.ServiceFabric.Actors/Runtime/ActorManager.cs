@@ -100,6 +100,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public async Task CloseAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Closing ...");
+
             this.isClosed = true;
 
             await this.CleanupRemindersAsync();
@@ -110,10 +111,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public void Abort()
         {
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Abort.");
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Aborting...");
 
             this.isClosed = true;
+
+            this.CleanupRemindersAsync().ContinueWith(t => t.Exception);
             this.DisposeDiagnosticsManager();
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Aborted.");
         }
 
         public bool IsClosed
@@ -328,6 +333,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public IActorReminder GetReminder(string reminderName, ActorId actorId)
         {
+            this.ThrowIfClosed();
+
             ConcurrentDictionary<string, ActorReminder> actorReminders;
             if (this.remindersByActorId.TryGetValue(actorId, out actorReminders))
             {
@@ -380,7 +387,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.loadRemindersTask;
         }
 
-        public async void FireReminder(ActorReminder reminder)
+        public async Task FireReminderAsync(ActorReminder reminder)
         {
             var rearmTimer = true;
 
@@ -1036,22 +1043,50 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 if (this.loadRemindersTask != null)
                 {
+
+                    ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId,
+                        "CleanupRemindersAsync: Waiting for Load reminder task to be finished.");
+
                     await this.loadRemindersTask;
+
+                    ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId,
+                        "CleanupRemindersAsync: Load reminder task has finished.");
                 }
             }
             catch (Exception e)
             {
                 ActorTrace.Source.WriteErrorWithId(TraceType, this.traceId,
-                    "Wait for loadRemindersTask failed, exception {0}", e.ToString());
+                    "CleanupRemindersAsync: Wait for loadRemindersTask failed, exception {0}", e.ToString());
             }
+
+            var remindersForActor = this.remindersByActorId.Values;
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId,
+                    "CleanupRemindersAsync: Disposing reminders for {0} actors.", remindersForActor.Count);
 
             foreach (var reminders in this.remindersByActorId.Values)
             {
-                foreach (var reminder in reminders.Values)
+                var allReminders = reminders.Values;
+
+                if (allReminders.Count > 0)
                 {
-                    reminder.Dispose();
+                    var actorId = allReminders.First().OwnerActorId;
+                    ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId,
+                    "CleanupRemindersAsync: Disposing {0} reminders for actor with Id {1}", allReminders.Count, actorId.ToString());
+
+                    foreach (var reminder in allReminders)
+                    {
+                        reminder.Dispose();
+                    }
+
+                    ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId,
+                        "CleanupRemindersAsync: Disposed {0} reminders for actor with id {1}", allReminders.Count, actorId.ToString());
                 }
             }
+
+            this.remindersByActorId.Clear();
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId,
+                    "CleanupRemindersAsync: Disposing of reminders completed for all actors.");
         }
 
         private async Task LoadRemindersAsync(CancellationToken cancellationToken)
@@ -1092,13 +1127,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     await this.DeleteRemindersSafeAsync(actorId, remindersToDelete, cancellationToken);
                 }
-                catch
+                catch(Exception ex)
                 {
                     ActorTrace.Source.WriteWarningWithId(
                         TraceType,
                         this.traceId,
-                        "Exception encountered while configuring reminder for ActorID {0}.",
-                        actorId.ToString());
+                        "Exception encountered while configuring reminder for ActorId={0}. Exception={1}.",
+                        actorId.ToString(),
+                        ex.ToString());
                 }
             }
         }
@@ -1168,13 +1204,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task UpdateReminderLastCompletedTimeAsync(ActorReminder reminder)
         {
-            this.ThrowIfClosed();
-
             try
             {
+                this.ThrowIfClosed();
+
                 await
                     this.StateProvider.ReminderCallbackCompletedAsync(reminder.OwnerActorId, reminder,
                         CancellationToken.None);
+            }
+            catch(FabricNotPrimaryException)
+            {
+                // Ignore.
             }
             catch (Exception ex)
             {
@@ -1195,8 +1235,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task UnregisterOneTimeReminderAsync(ActorReminder reminder)
         {
-            this.ThrowIfClosed();
-
             try
             {
                 await this.UnregisterReminderAsync(reminder.Name, reminder.OwnerActorId, true);
@@ -1204,6 +1242,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             catch (ReminderNotFoundException)
             {
                 // User already unregistered the reminder.
+            }
+            catch(FabricNotPrimaryException)
+            {
+                // Ignore.
             }
             catch (Exception ex)
             {
@@ -1254,6 +1296,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     await this.StateProvider.DeleteReminderAsync(actorId, reminderName, cancellationToken);
                 }
             }
+        }
+
+        #endregion
+
+        #region Test Helpers
+
+        internal bool Test_HasAnyReminders()
+        {
+            return !(this.remindersByActorId.IsEmpty);
         }
 
         #endregion

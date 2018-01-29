@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
   <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="..\..\properties\service_fabric_nuproj.props" />
+    <Import Project="..\..\properties\service_fabric_nuget.props" />
     
     <PropertyGroup>
       <Id>Microsoft.ServiceFabric.Actors.Wcf</Id>
@@ -14,10 +14,10 @@
     <Import Project="$(NuProjPath)\NuProj.targets" />
 
     <ItemGroup>
-      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Actors.Wcf.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Wcf.dll">
         <TargetPath>lib\net45</TargetPath>
       </File>
-      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Actors.Wcf.xml">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Wcf.xml">
         <TargetPath>lib\net45</TargetPath>
       </File>
     </ItemGroup>

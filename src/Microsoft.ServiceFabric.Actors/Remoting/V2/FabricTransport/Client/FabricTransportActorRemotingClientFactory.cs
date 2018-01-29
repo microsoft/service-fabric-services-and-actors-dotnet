@@ -59,7 +59,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
         /// <param name="serializationProvider"></param>
         public FabricTransportActorRemotingClientFactory(
             FabricTransportRemotingSettings fabricTransportRemotingSettings,
-            IServiceRemotingCallbackMessageHandler callbackMessageHandler,
+            IServiceRemotingCallbackMessageHandler callbackMessageHandler = null,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             string traceId = null,

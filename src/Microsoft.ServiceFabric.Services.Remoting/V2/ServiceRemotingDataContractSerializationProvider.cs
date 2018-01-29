@@ -126,6 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     return null;
                 }
 
+                //Binary Reader Dispose also call stream dispose. Hence no need to call stream dispose.
                 using (var reader = XmlDictionaryReader.CreateBinaryReader(
                     messageBody.GetReceivedBuffer(),
                     XmlDictionaryReaderQuotas.Max))
