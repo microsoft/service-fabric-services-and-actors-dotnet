@@ -16,9 +16,9 @@ For more Service Fabric open source projects, visit the Service Fabric [home rep
 ## Getting Started
 
 ### Prerequesites
-Each project is a normal C# Visual Studio 2015 project. At minimum, you need [MSBuild 14](https://www.microsoft.com/download/details.aspx?id=48159), [PowerShell](https://msdn.microsoft.com/powershell/mt173057.aspx), and [.NET Framework 4.5.2](https://www.microsoft.com/download/details.aspx?id=42643) to build and generate NuGet packages. 
+Each project is a normal C# Visual Studio 2017 project. At minimum, you need [MSBuild 15](https://docs.microsoft.com/en-us/visualstudio/msbuild/what-s-new-in-msbuild-15-0), [PowerShell](https://msdn.microsoft.com/powershell/mt173057.aspx), [.NET Core SDK](https://www.microsoft.com/net/download/windows) and [.NET Framework 4.6](https://www.microsoft.com/en-US/download/details.aspx?id=48130) to build and generate NuGet packages.
 
-We recommend installing [Visual Studio 2015 or Visual Studio 2017](https://www.visualstudio.com/vs/) which will set you up with all the .NET build tools and allow you to open the solution files. Community Edition is free and can be used to build everything here.
+We recommend installing [Visual Studio 2017](https://www.visualstudio.com/vs/) which will set you up with all the .NET build tools and allow you to open the solution files. Community Edition is free and can be used to build everything here.
 
 ### Build
 To build everything and generate NuGet packages, run the **build.ps1** script. NuGet packages will be dropped in a *drop* directory at the repo root.
@@ -31,7 +31,7 @@ Please refer to [Readme.md](https://github.com/Azure/service-fabric/blob/master/
 ## Releases and Support
 Official releases from Microsoft of the NuGet packages in this repo are released directly to NuGet and Web Platform Installer. Get the latest official release [here](http://www.microsoft.com/web/handlers/webpi.ashx?command=getinstallerredirect&appid=MicrosoftAzure-ServiceFabric-VS2015).
 
-**Only officially released NuGet packages from Microsoft are supported for use in production.** If you have a feature or bug fix that you would like to use in your application, please issue a pull request so we can get it into an official release. 
+**Only officially released NuGet packages from Microsoft are supported for use in production.** If you have a feature or bug fix that you would like to use in your application, please issue a pull request so we can get it into an official release.
 
 ## Reporting issues and feedback
 Please refer to [Contributing.md](https://github.com/Azure/service-fabric/blob/master/CONTRIBUTING.md) at the Service Fabric home repo for details on issue reporting and feedback.
@@ -43,10 +43,10 @@ follow the instructions provided in [Microsoft Azure Projects Contribution Guide
 For details on contributing to Service Fabric projects, please refer to [Contributing.md](https://github.com/Azure/service-fabric/blob/master/CONTRIBUTING.md) at the Service Fabric home repo for details on contributing code.
 
 ## Documentation
-Service Fabric has a rich set of conceptual and reference documentation available at [https://docs.microsoft.com/azure/service-fabric](https://docs.microsoft.com/azure/service-fabric). 
+Service Fabric has a rich set of conceptual and reference documentation available at [https://docs.microsoft.com/azure/service-fabric](https://docs.microsoft.com/azure/service-fabric).
 
 These articles will help get you started with Reliable Services and Reliable Actors:
- 
+
   - [Reliable Services overview](https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-introduction)
   - [Reliable Actors overview](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-reliable-actors-introduction)
 

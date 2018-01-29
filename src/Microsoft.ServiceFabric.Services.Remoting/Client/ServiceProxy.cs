@@ -112,7 +112,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
-            return ((ServiceRemotingMessageBody)responseMessageBody).Value;
+            return ((ServiceRemotingMessageBody) responseMessageBody).Value;
         }
 
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
@@ -124,9 +124,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
         internal override Task<byte[]> InvokeAsync(
-            int interfaceId,
-            int methodId,
-            byte[] requestMsgBodyBytes,
+            int interfaceId, 
+            int methodId, 
+            byte[] requestMsgBodyBytes, 
             CancellationToken cancellationToken)
         {
             var headers = new ServiceRemotingMessageHeaders()

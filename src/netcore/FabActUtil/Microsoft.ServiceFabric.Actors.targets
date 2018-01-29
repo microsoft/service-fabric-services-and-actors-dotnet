@@ -1,0 +1,31 @@
+<!--
+Copyright (C) Microsoft Corporation. All rights reserved.
+-->
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FabActUtilWorkingDir Condition=" '$(FabActUtilWorkingDir)' == '' ">$(BaseIntermediateOutputPath)\FabActUtilTemp</FabActUtilWorkingDir>
+  </PropertyGroup>
+  
+  <Target Name="_CopyAssembliesToFabActUtilWorkingDir">
+    <ItemGroup>
+      <ActorServiceAssemblies Include="$(TargetDir)\*.dll" />
+      <ActorServiceAssemblies Include="$(TargetDir)\*.exe" />
+      <FabActUtilAssemblies Include="$(MSBuildThisFileDirectory)\*" />
+    </ItemGroup>
+    <Copy SourceFiles="$(TargetDir)\$(MSBuildProjectName).runtimeconfig.dev.json" DestinationFiles="$(FabActUtilWorkingDir)\FabActUtil.runtimeconfig.dev.json" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)\$(MSBuildProjectName).deps.json" DestinationFiles="$(FabActUtilWorkingDir)\FabActUtil.deps.json" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ActorServiceAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(FabActUtilAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="_UpdateServiceFabricServiceManifest" AfterTargets="Build" DependsOnTargets="_CopyAssembliesToFabActUtilWorkingDir" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
+    <Exec Command="dotnet &quot;$(FabActUtilWorkingDir)\FabActUtil.dll&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).dll&quot; /arp:&quot;$(TargetDir)\&quot; $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+  <Target Name="_UpdateServiceFabricApplicationManifest" DependsOnTargets="_CopyAssembliesToFabActUtilWorkingDir" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
+    <PropertyGroup>
+      <Local5NodeAppParamFileArg Condition=" '$(Local5NodeAppParamFile)' != '' ">/local5nodeappparamfile:&quot;$(Local5NodeAppParamFile)&quot;</Local5NodeAppParamFileArg>
+      <Local1NodeAppParamFileArg Condition=" '$(Local1NodeAppParamFile)' != '' ">/local1nodeappparamfile:&quot;$(Local1NodeAppParamFile)&quot;</Local1NodeAppParamFileArg>
+    </PropertyGroup>
+    <Exec Command="dotnet &quot;$(FabActUtilWorkingDir)\FabActUtil.dll&quot; /app:&quot;$(ApplicationPackagePath)&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /ap:&quot;$(ApplicationPrefix)&quot; /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).dll&quot; /arp:&quot;$(TargetDir)\&quot; $(Local5NodeAppParamFileArg) $(Local1NodeAppParamFileArg) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+</Project>

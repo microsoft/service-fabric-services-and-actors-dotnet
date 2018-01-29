@@ -26,7 +26,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             var headerSerializer = this.manager.GetHeaderSerializer();
             var deserializerHeaders = headerSerializer.DeserializeRequestHeaders(new IncomingMessageHeader(message.GetHeader().GetRecievedStream()));
             var msgBodySerializer = this.manager.GetRequestBodySerializer(deserializerHeaders.InterfaceId);
-            var deserializedMsgBody = msgBodySerializer.Deserialize(new IncomingMessageBody(message.GetBody().GetRecievedStream()));
+            IServiceRemotingRequestMessageBody deserializedMsgBody;
+            if (message.GetBody() != null)
+            {
+                deserializedMsgBody =
+                    msgBodySerializer.Deserialize(new IncomingMessageBody(message.GetBody().GetRecievedStream()));
+            }
+            else
+            {
+                deserializedMsgBody = null;
+            }
+            
             this.remotingCallbackClient.HandleOneWayMessage(new ServiceRemotingRequestMessage(deserializerHeaders,deserializedMsgBody));
         }
     }

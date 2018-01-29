@@ -1,28 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <Import Project="..\..\properties\service_fabric_managed_prod.props" />
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <Import Project="..\..\properties\service_fabric_managed_dotnetframework.props" />
   <PropertyGroup>
     <ProjectGuid>{F6E091C3-9136-4058-91CF-57CDF383DF74}</ProjectGuid>
     <RootNamespace>FabActUtil</RootNamespace>
-    <AssemblyName>FabActUtil</AssemblyName>
-    <AssemblyTitle>FabActUtil</AssemblyTitle>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+    <TargetFramework>net45</TargetFramework>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CommandLineParser\CommandLineArguments.cs" />
-    <Compile Include="CommandLineParser\CommandLineUtility.cs" />
-    <Compile Include="CommandLineParser\IndentedWriter.cs" />
-    <Compile Include="Tool.cs" />
-    <Compile Include="ToolContext.cs" />
-    <Compile Include="ToolArguments.cs" />
-    <Compile Include="Program.cs" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Microsoft.ServiceFabric.Actors.targets">
@@ -30,13 +16,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj">
-      <Name>Microsoft.ServiceFabric.Services</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj">
-      <Name>Microsoft.ServiceFabric.Actors</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\properties\AssemblyVersioning.targets" />
 </Project>

@@ -152,6 +152,26 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 }
             }
 
+            await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
+
+            //
+            // ChangeRole (CR) on user service replica should be invoked after CR has been invoked
+            //  on StateProvider (SP) to ensure consistent experience for user service replica
+            // accross out-of-box SPs (ReliableCollection, KVS etc.) provided by Service Fabric
+            // and custom SPs provided by users.
+            // 
+            // SF's out-of-box SPs are based on local state and use SF's replicator to replicate state changes
+            // to secondary replicas. A custom state provider may be based on some external store
+            // (e.g. custom implementation of IActorStateProvider) and may not use replicator for replication.
+            //
+            // When a CR is initiated, ReliabilitySubsystem first invokes CR on the replicator and revokes its write status
+            // (for a P->S CR) before invoking CR on service replica (i.e IStatefulServiceReplica.ChangeRoleAsync).
+            // Hence, even if CR has not been invoked on SP, it will not be able to replicate and effectively has
+            // write permission revoked.
+            // 
+            // However, a custom SP which does not uses replication, needs to be notified of CR (P->S) so that 
+            // it does not allow further writes when CR is invoked for user service replica.
+            //
             ServiceTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.traceId,
@@ -165,8 +185,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "ChangeRoleAsync : End UserServiceReplica change role");
 
-            await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
-            
             return this.endpointCollection.ToString();
         }
 
@@ -449,7 +467,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.communicationListeners.Add(communicationListener);
         }
 
-        private async Task<ServiceEndpointCollection> OpenCommunicationListenersAsync(ReplicaRole replicaRole, CancellationToken cancellationToken)
+        private async Task<ServiceEndpointCollection> OpenCommunicationListenersAsync(ReplicaRole replicaRole,
+            CancellationToken cancellationToken)
         {
             ServiceTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -463,25 +482,28 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
 
             var endpointsCollection = new ServiceEndpointCollection();
+            var listenerOpenedCount = 0;
+
             foreach (var entry in this.replicaListeners)
             {
                 if (replicaRole == ReplicaRole.Primary ||
                     (replicaRole == ReplicaRole.ActiveSecondary && entry.ListenOnSecondary))
                 {
-
                     var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
                     this.AddCommunicationListener(communicationListener);
                     var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
                     endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
+                    listenerOpenedCount++;
+
+                    var traceMsg = entry.Name.Equals(ServiceReplicaListener.DefaultName)
+                        ? "Opened communication listener with default name."
+                        : $"Opened {entry.Name} communication listener with name {entry.Name}.";
+
+                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
                 }
             }
 
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "Opened {0} communication listeners",
-                (this.replicaListeners != null) ? this.replicaListeners.Count() : 0);
-
+            ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Opened {listenerOpenedCount} communication listeners.");
             return endpointsCollection;
         }
 

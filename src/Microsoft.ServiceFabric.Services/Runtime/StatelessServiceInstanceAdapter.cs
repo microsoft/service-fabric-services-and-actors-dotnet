@@ -294,20 +294,24 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
 
             var endpointsCollection = new ServiceEndpointCollection();
+            var listenerOpenedCount = 0;
+
             foreach (var entry in this.instanceListeners)
             {
                 var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
                 this.AddCommunicationListener(communicationListener);
                 var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
                 endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
+                listenerOpenedCount++;
+
+                var traceMsg = entry.Name.Equals(ServiceInstanceListener.DefaultName)
+                    ? "Opened communication listener with default name."
+                    : $"Opened communication listener with name {entry.Name}.";
+
+                ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
             }
 
-            ServiceTrace.Source.WriteInfoWithId(
-            TraceType,
-            this.traceId,
-            "Opened {0} communication listeners",
-            (this.instanceListeners != null) ? this.instanceListeners.Count() : 0);
-
+            ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Opened {listenerOpenedCount} communication listeners.");
             return endpointsCollection;
         }
 

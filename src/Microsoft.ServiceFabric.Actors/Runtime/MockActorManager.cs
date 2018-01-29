@@ -234,10 +234,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return TaskDone.Done;
         }
 
-        public void FireReminder(ActorReminder reminder)
+        public Task FireReminderAsync(ActorReminder reminder)
         {
             // no-op. 
             // Reminders don't fire in mock version.
+
+            return Task.FromResult(true);
         }
 
         #endregion

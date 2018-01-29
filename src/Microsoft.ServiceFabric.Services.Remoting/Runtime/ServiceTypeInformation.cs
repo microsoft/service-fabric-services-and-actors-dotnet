@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
         /// <summary>
-        /// Gets the Factory method that constructs a ServiceTypeInformation object from the given type.
+        /// Factory method that constructs a ServiceTypeInformation object from the given type
         /// </summary>
         /// <param name="serviceType">Type to examine</param>
         /// <returns>ServiceTypeInformation</returns>

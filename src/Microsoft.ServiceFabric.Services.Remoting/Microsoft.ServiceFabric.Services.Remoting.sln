@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting", "Microsoft.ServiceFabric.Services.Remoting.csproj", "{A01358E6-D5E1-44B5-948A-45709D2421A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting", "Microsoft.ServiceFabric.Services.Remoting.csproj", "{A01358E6-D5E1-44B5-948A-45709D2421A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services", "..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj", "{F416C4C3-250D-48F3-822C-1C589E8F851C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting.Tests", "..\..\test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj", "{AE4034AC-27BC-43B8-9176-068B4794E25E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services", "..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj", "{F416C4C3-250D-48F3-822C-1C589E8F851C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +21,11 @@ Global
 		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Debug|x64.Build.0 = Debug|x64
 		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Release|x64.ActiveCfg = Release|x64
 		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Release|x64.Build.0 = Release|x64
-		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Debug|x64.ActiveCfg = Debug|x64
-		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Debug|x64.Build.0 = Debug|x64
-		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Release|x64.ActiveCfg = Release|x64
-		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A24E1A6C-0837-474A-9217-C1DC616F6B77}
 	EndGlobalSection
 EndGlobal

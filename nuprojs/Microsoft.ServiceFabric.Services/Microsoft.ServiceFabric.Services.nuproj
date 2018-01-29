@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
   <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="..\..\properties\service_fabric_nuproj.props" />
+    <Import Project="..\..\properties\service_fabric_nuget.props" />
     
     <PropertyGroup>
       <Id>Microsoft.ServiceFabric.Services</Id>
@@ -14,11 +14,32 @@
     <Import Project="$(NuProjPath)\NuProj.targets" />
 
     <ItemGroup>
-      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Services.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>lib\net45</TargetPath>
       </File>
-      <File Include="$(DropFolder)\Microsoft.ServiceFabric.Services.xml">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.xml">
         <TargetPath>lib\net45</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.dll">
+        <TargetPath>ref\netstandard2.0</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
+        <TargetPath>runtimes\win\lib\net461</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
+        <TargetPath>runtimes\win\lib\net462</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
+        <TargetPath>runtimes\win\lib\net47</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
+        <TargetPath>runtimes\win\lib\net471</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.dll">
+        <TargetPath>runtimes\win\lib\netstandard2.0</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetCore_linux)Microsoft.ServiceFabric.Services.dll">
+        <TargetPath>runtimes\linux\lib\netstandard2.0</TargetPath>
       </File>
     </ItemGroup>
     

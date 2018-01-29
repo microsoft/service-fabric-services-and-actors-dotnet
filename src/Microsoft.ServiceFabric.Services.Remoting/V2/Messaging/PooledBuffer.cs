@@ -41,12 +41,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
                  return   this.manager.ReturnBuffer(this);
                 }
             }
+
             return false;
         }
-
-        ~PooledBuffer()
-        {
-            Debug.Assert(this.isRelease, "Pooled Buffer has not been released ");
-        }
+        
     }
 }

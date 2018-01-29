@@ -97,12 +97,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     }
                 }
                 var responseSerializer = this.serializersManager.GetResponseBodySerializer(interfaceId);
-                var incomingMsgBody = (retval != null && retval.GetBody() != null)
-                    ? new IncomingMessageBody(retval.GetBody().GetRecievedStream())
-                    : null;
-                var msgBody =
-                    responseSerializer.Deserialize(incomingMsgBody);
-                return (IServiceRemotingResponseMessage) new ServiceRemotingResponseMessage(header, msgBody);
+                IServiceRemotingResponseMessageBody responseMessageBody =null;
+                if (retval != null && retval.GetBody() != null)
+                {
+                    responseMessageBody =
+                        responseSerializer.Deserialize(new IncomingMessageBody(retval.GetBody().GetRecievedStream()));
+                }
+                    
+                return (IServiceRemotingResponseMessage) new ServiceRemotingResponseMessage(header, responseMessageBody);
             }
 
         }

@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors
 {
     /// <summary>
@@ -10,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors
     public static class ActorExtensions
     {
         /// <summary>
-        /// Gets <see cref="ActorId"/> for the actor.
+        /// Gets <see cref="ActorId"/> for the actor./>
         /// </summary>
         /// <typeparam name="TIActor">Actor interface type.</typeparam>
         /// <param name="actor">Actor object to get ActorId for.</param>

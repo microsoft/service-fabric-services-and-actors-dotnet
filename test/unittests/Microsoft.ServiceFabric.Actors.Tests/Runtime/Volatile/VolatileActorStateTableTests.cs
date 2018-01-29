@@ -19,6 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     using ActorStateType = VolatileActorStateProvider.ActorStateType;
     using Xunit;
 
+    #pragma warning disable xUnit1024
     public class VolatileActorStateTableTests : VolatileStateProviderTestBase
     {
         [Fact]
