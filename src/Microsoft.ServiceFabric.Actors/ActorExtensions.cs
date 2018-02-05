@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors
     public static class ActorExtensions
     {
         /// <summary>
-        /// Gets <see cref="ActorId"/> for the actor./>
+        /// Gets <see cref="ActorId"/> for the actor.
         /// </summary>
         /// <typeparam name="TIActor">Actor interface type.</typeparam>
         /// <param name="actor">Actor object to get ActorId for.</param>

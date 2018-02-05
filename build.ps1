@@ -23,11 +23,7 @@ param
 	[string]$verbosity = 'minimal'
 )
 
-
-
 # Check msbuild exists. Find msbuild for VS2017
-$msbuildPath = "MSBuild\14.0\bin\MSBuild.exe"
-
 if (Test-Path "env:\ProgramFiles(x86)") 
 {
 	$progFilesPath =  ${env:ProgramFiles(x86)}
