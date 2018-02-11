@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <returns>
         /// A task that represents the asynchronous register operation.
         /// </returns>
-        public async static Task RegisterServiceAsync(
+        public static async Task RegisterServiceAsync(
             string serviceTypeName,
             Func<StatelessServiceContext, StatelessService> serviceFactory,
             TimeSpan timeout = default(TimeSpan),
@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <returns>
         /// A task that represents the asynchronous register operation.
         /// </returns>
-        public async static Task RegisterServiceAsync(
+        public static async Task RegisterServiceAsync(
             string serviceTypeName,
             Func<StatefulServiceContext, StatefulServiceBase> serviceFactory,
             TimeSpan timeout = default(TimeSpan),
