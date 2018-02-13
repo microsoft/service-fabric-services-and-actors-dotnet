@@ -83,6 +83,35 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
 
         /// <summary>
         ///     Constructs a WCF based communication listener that uses specified listener binding and 
+        ///     endpoint address derived from the specified endpoint resource name.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which this communication listener is being constructed.
+        /// </param>
+        /// <param name="wcfServiceType">
+        ///     Type of WCF service implementing the specified WCF service contract.
+        /// </param>
+        /// <param name="listenerBinding">
+        ///     The binding to use for the WCF endpoint. If the listenerBinding is not specified or it is null, a default listener binding is 
+        ///     created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method.
+        /// </param>
+        /// <param name="endpointResourceName">
+        ///     The name of the endpoint resource defined in the service manifest that should be used to create the address for the listener. 
+        ///     If the endpointResourceName is not specified or it is null, its name is derived from the WCF service contract type using
+        ///     <see cref="Microsoft.ServiceFabric.Services.ServiceNameFormat.GetEndpointName"/> method.
+        ///     If matching endpoint resource is not found in the service manifest, a default endpoint resource definition with port zero is used.
+        /// </param>
+        public WcfCommunicationListener(
+            ServiceContext serviceContext,
+            Type wcfServiceType,
+            Binding listenerBinding = null,
+            string endpointResourceName = null)
+            : this(serviceContext, wcfServiceType, listenerBinding, null, endpointResourceName)
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a WCF based communication listener that uses specified listener binding and 
         ///     endpoint address derived from the specified endpoint address.
         /// </summary>
         /// <param name="serviceContext">
@@ -107,6 +136,35 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
             Binding listenerBinding = null,
             EndpointAddress address = null)
             : this(serviceContext, wcfServiceObject, listenerBinding, address, null)
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a WCF based communication listener that uses specified listener binding and 
+        ///     endpoint address derived from the specified endpoint address.
+        /// </summary>
+        /// <param name="serviceContext">
+        ///     The context of the service for which this communication listener is being constructed.
+        /// </param>
+        /// <param name="wcfServiceType">
+        ///     Type of WCF service implementing the specified WCF service contract.
+        /// </param>
+        /// <param name="listenerBinding">
+        ///     The binding to use for the WCF endpoint. If the listenerBinding is not specified or it is null, a default listener binding is 
+        ///     created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method.
+        /// </param>
+        /// <param name="address">
+        ///     The listen address for the WCF endpoint. If the address is not specified or it is null, a default address is created by 
+        ///     looking up the endpoint resource from the service manifest. The endpoint resource name is derived from the WCF 
+        ///     service contract type using <see cref="Microsoft.ServiceFabric.Services.ServiceNameFormat.GetEndpointName"/> method.
+        ///     If matching endpoint resource is not found in the service manifest, a default endpoint resource definition with port zero is used.
+        /// </param>
+        public WcfCommunicationListener(
+            ServiceContext serviceContext,
+            Type wcfServiceType,
+            Binding listenerBinding = null,
+            EndpointAddress address = null)
+            : this(serviceContext, wcfServiceType, listenerBinding, address, null)
         {
         }
 
@@ -138,6 +196,30 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
 
             this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), listenerBinding, address);
             this.host = CreateServiceHost(wcfServiceObject, this.endpoint);
+        }
+
+        private WcfCommunicationListener(
+            ServiceContext serviceContext,
+            Type wcfServiceType,
+            Binding listenerBinding,
+            EndpointAddress address,
+            string endpointResourceName)
+        {
+            if (listenerBinding == null)
+            {
+                listenerBinding = WcfUtility.DefaultTcpListenerBinding;
+            }
+
+            if (address == null)
+            {
+                address = GetEndpointAddress(
+                    serviceContext,
+                    listenerBinding,
+                    endpointResourceName);
+            }
+
+            this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), listenerBinding, address);
+            this.host = CreateServiceHost(wcfServiceType, this.endpoint);
         }
 
         /// <summary>
@@ -231,17 +313,29 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
             object wcfServiceObject,
             ServiceEndpoint endpoint)
         {
-            var host = new ServiceHost(wcfServiceObject);
+            return ConfigureHost(new ServiceHost(wcfServiceObject), endpoint, true);
+        }
 
-            // set singleton
+        private static ServiceHost CreateServiceHost(
+            Type wcfServiceType,
+            ServiceEndpoint endpoint)
+        {
+            return ConfigureHost(new ServiceHost(wcfServiceType), endpoint, false);
+        }
+
+        private static ServiceHost ConfigureHost(ServiceHost host, ServiceEndpoint endpoint, bool singleton)
+        {
             var serviceBehavior = host.Description.Behaviors.Find<ServiceBehaviorAttribute>();
             if (serviceBehavior == null)
             {
                 serviceBehavior = new ServiceBehaviorAttribute();
                 host.Description.Behaviors.Add(serviceBehavior);
             }
-            serviceBehavior.InstanceContextMode = InstanceContextMode.Single;
-            serviceBehavior.ConcurrencyMode = ConcurrencyMode.Multiple;
+            if (singleton)
+            {
+                serviceBehavior.InstanceContextMode = InstanceContextMode.Single;
+                serviceBehavior.ConcurrencyMode = ConcurrencyMode.Multiple;
+            }
 
             // set global error handler behavior
             var globalErrorHandlerBehavior = new WcfGlobalErrorHandlerBehaviorAttribute();
