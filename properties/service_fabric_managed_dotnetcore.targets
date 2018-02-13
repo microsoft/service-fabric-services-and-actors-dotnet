@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <!-- Target to build dotnet core projects for supported runtime identifiers.-->
+  <ItemGroup>
+    <Projects_Prod_dotnetcore Include="$(RepoRoot)src\netcore\FabActUtil\FabActUtil_netcore.csproj;
+                              $(RepoRoot)src\netcore\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netcore.csproj;
+                            $(RepoRoot)src\netcore\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netcore.csproj;
+                            $(RepoRoot)src\netcore\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netcore.csproj" />
+
+    <SupportedRunTimeIdentifiers Include="win10-x64;ubuntu.16.04-x64" />
+  </ItemGroup>
+  
+
+
+  <Target Name="RestoreProd_dotnetcore">
+    <!-- Restores nuget packages and project specific tools -->
+    <MSBuild Projects ="@(Projects_Prod_dotnetcore)" ContinueOnError ="false" Targets="restore"/>
+  </Target>
+
+  
+  <Target Name="BuildProd_dotnetcore" DependsOnTargets="RestoreProd_dotnetcore">
+    <!-- Build for Windows -->
+    <MSBuild Projects ="@(Projects_Prod_dotnetcore)" ContinueOnError ="false" Properties="Configuration=$(Configuration);CurrentRuntimeIdentifier=win10-x64" BuildInParallel="true"/>
+    <!-- Build for Linux -->
+    <MSBuild Projects ="@(Projects_Prod_dotnetcore)" ContinueOnError ="false" Properties="Configuration=$(Configuration);CurrentRuntimeIdentifier=ubuntu.16.04-x64" BuildInParallel="true"/>
+  </Target>
+
+  <!-- Copy prod  binaries for dotnet core-->
+  <Target Name="CopyProdBinaries_dotnetcore">
+    <!-- Publish FabActUtil so that all binaries from referenced nuget package are available for creation of nuget package-->
+    <Exec Command="dotnet publish &quot;src\netcore\FabActUtil\FabActUtil_netcore.csproj&quot; -o &quot;$(OutputPath)Package&quot; --no-restore --verbosity $(RequestedVerbosity)" />
+
+    <!-- Copy binaries for dotnet core for windows and linux -->
+    <ItemGroup>
+      <BinairesNetCore_win Include="src\netcore\FabActUtil\$(OutputPath_win)FabActUtil.*"/>
+      <BinairesNetCore_Win Include="src\netcore\FabActUtil\$(OutputPath_win)Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetCore_win Include="src\netcore\Microsoft.ServiceFabric.Actors\$(OutputPath_win)Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetCore_win Include="src\netcore\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath_win)Microsoft.ServiceFabric.Actors.Wcf.*"/>
+      <BinairesNetCore_win Include="src\netcore\Microsoft.ServiceFabric.Services\$(OutputPath_win)Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetCore_win Include="src\netcore\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath_win)Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetCore_win Include="src\netcore\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath_win)Microsoft.ServiceFabric.Services.Wcf.*"/>
+
+      <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
+      <BinairesNetCore_win Include="src\netcore\FabActUtil\$(OutputPath)Package\runtimes\win\lib\netstandard2.0\*.dll"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <BinairesNetCore_linux Include="src\netcore\FabActUtil\$(OutputPath_linux)FabActUtil.*"/>
+      <BinairesNetCore_linux Include="src\netcore\FabActUtil\$(OutputPath_linux)Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetCore_linux Include="src\netcore\Microsoft.ServiceFabric.Actors\$(OutputPath_linux)Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetCore_linux Include="src\netcore\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath_linux)Microsoft.ServiceFabric.Actors.Wcf.*"/>
+      <BinairesNetCore_linux Include="src\netcore\Microsoft.ServiceFabric.Services\$(OutputPath_linux)Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetCore_linux Include="src\netcore\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath_linux)Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetCore_linux Include="src\netcore\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath_linux)Microsoft.ServiceFabric.Services.Wcf.*"/>
+    </ItemGroup>
+
+    <Copy SourceFiles="@(BinairesNetCore_win)" DestinationFiles="@(BinairesNetCore_win->'$(DropFolderNetCore_win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetCore_linux)" DestinationFiles="@(BinairesNetCore_linux->'$(DropFolderNetCore_linux)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         internal FabricTransportRemotingSettings(FabricTransportSettings fabricTransportSettings)
-            : this()
+            :this()
         {
             this.fabricTransportSettings = fabricTransportSettings;
         }

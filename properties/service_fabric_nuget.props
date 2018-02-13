@@ -12,8 +12,8 @@
     <Tags>ServiceFabric Microsoft Azure Fabric</Tags>
     <Language>en-US</Language>
     <NupkgOutputDir>$(OutputRoot)\packages</NupkgOutputDir>
-    <FabricRuntimeNuGetPackageVersionOfficial>6.0.211</FabricRuntimeNuGetPackageVersionOfficial>
-    <FabricSdkNuGetPackageVersionOfficial>2.8.211</FabricSdkNuGetPackageVersionOfficial>
+    <FabricRuntimeNuGetPackageVersionOfficial>6.1.456</FabricRuntimeNuGetPackageVersionOfficial>
+    <FabricSdkNuGetPackageVersionOfficial>3.0.456</FabricSdkNuGetPackageVersionOfficial>
     <FabricSdkNuGetPackageVersionOSS>$(MajorVersion).$(MinorVersion).$(BuildVersion)</FabricSdkNuGetPackageVersionOSS>
 
     <!-- override version for nuget package-->
@@ -23,8 +23,6 @@
 
   <!-- Setting Paths -->
   <PropertyGroup>
-    <SrcRoot>$(MSBuildThisFileDirectory)\..\</SrcRoot>
-    <DropFolder>$(SrcRoot)\drop\$(Configuration)</DropFolder>
     <NuProjPath>$(SrcRoot)\external\packages\NuProj.0.11.14-beta\tools</NuProjPath>
   </PropertyGroup>
 </Project>

@@ -81,11 +81,12 @@ namespace Microsoft.ServiceFabric.Actors
                 throw new ArgumentNullException("actor");
             }
 
-            var actorProxy = actor as ActorProxy;   
+            // try as IActorProxy for backward compatibility as customers's mock framework may rely on it before V2 remoting stack.
+            var actorProxy = actor as IActorProxy;
             if (actorProxy != null)
             {
 #if !DotNetCoreClr
-                if (actorProxy.RemotingClient.Equals(RemotingClient.V1Client))
+                if (actorProxy.ActorServicePartitionClient != null)
                 {
 
                     return new ActorReference()

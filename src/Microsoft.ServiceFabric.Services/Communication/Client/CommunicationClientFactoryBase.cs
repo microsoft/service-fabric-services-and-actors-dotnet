@@ -76,8 +76,15 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         traceId)
         {
         }
-        
-        internal CommunicationClientFactoryBase(
+
+        /// <summary>
+        /// Initializes a new instance of the communication client factory.
+        /// </summary>
+        /// <param name="fireConnectEvents">Indicates that this factory should fire ClientConnected/ClientDisconnected events</param>
+        /// <param name="servicePartitionResolver">Optional ServicePartitionResolver</param>
+        /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel</param>
+        /// <param name="traceId">Identifier to use in diagnostics traces from this component </param>
+        protected CommunicationClientFactoryBase(
             bool fireConnectEvents,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,

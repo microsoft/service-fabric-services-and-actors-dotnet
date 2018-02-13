@@ -100,7 +100,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         protected abstract void OnDispatch(int methodId, object remotedObject, IServiceRemotingRequestMessageBody requestBody);
 
 
-        //Needed as this class inheriting from IMethodDispatcher
+        //Needed as this class inheriting from MethodDispatcherBase
         /// <inheritdoc />
         public override Task<object> DispatchAsync(object objectImplementation, int methodId, object requestBody,
             CancellationToken cancellationToken)
@@ -108,7 +108,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             throw new NotImplementedException();
         }
 
-        //Needed as this class inheriting from IMethodDispatcher
+        //Needed as this class inheriting from MethodDispatcherBase
         /// <inheritdoc />
         public override void Dispatch(object objectImplementation, int methodId, object messageBody)
         {

@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
     using Microsoft.ServiceFabric.Actors;
     using Xunit;
 
+    #pragma warning disable xUnit1024
     public class ActorIdTest
     {
 

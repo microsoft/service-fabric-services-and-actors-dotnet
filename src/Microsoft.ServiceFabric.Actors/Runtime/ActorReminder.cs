@@ -117,7 +117,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void OnReminderCallback(object reminderState)
         {
-            Task.Factory.StartNew(() => { this.actorManager.FireReminder(this); });
+            Task.Run(() => { this.actorManager.FireReminderAsync(this); });
         }
 
         internal void ArmTimer(TimeSpan newDueTime)
