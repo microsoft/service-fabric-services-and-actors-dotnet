@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication
 {
     using System;
@@ -124,7 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <returns>True if the string can be parsed to a valid EndpointsCollection, False otherwise</returns>
         public static bool TryParseEndpointsString(string endpointsString, out ServiceEndpointCollection serviceEndpoints)
         {
-            if (endpointsString == String.Empty)
+            if (endpointsString == string.Empty)
             {
                 serviceEndpoints = new ServiceEndpointCollection();
                 return true;
@@ -133,11 +134,11 @@ namespace Microsoft.ServiceFabric.Services.Communication
             serviceEndpoints = null;
             var deserializer = new DataContractJsonSerializer(
                 typeof(ServiceEndpointCollection),
-                new DataContractJsonSerializerSettings() {UseSimpleDictionaryFormat = true});
+                new DataContractJsonSerializerSettings() { UseSimpleDictionaryFormat = true });
             try
             {
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes(endpointsString));
-                serviceEndpoints = (ServiceEndpointCollection) deserializer.ReadObject(stream);
+                serviceEndpoints = (ServiceEndpointCollection)deserializer.ReadObject(stream);
                 return true;
             }
             catch (Exception)
@@ -159,7 +160,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
             {
                 var serializer = new DataContractJsonSerializer(
                     typeof(ServiceEndpointCollection),
-                    new DataContractJsonSerializerSettings() {UseSimpleDictionaryFormat = true});
+                    new DataContractJsonSerializerSettings() { UseSimpleDictionaryFormat = true });
 
                 var stream = new MemoryStream();
                 serializer.WriteObject(stream, this);

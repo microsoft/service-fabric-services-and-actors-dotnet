@@ -1,12 +1,11 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
     using System;
-    using System.Collections.Generic;
-    using System.Reflection;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
@@ -35,8 +34,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory>
-                createServiceRemotingClientFactory ,
-                
+                createServiceRemotingClientFactory,
+
             OperationRetrySettings retrySettings = null)
         {
             this.thisLock = new object();
@@ -108,7 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                 this.retrySettings);
 
 
-            return (TServiceInterface) (object) proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient,
+            return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient,
                 clientFactory.GetRemotingMessageBodyFactory()
             );
         }
@@ -120,7 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             var factory = this.CreateServiceRemotingClientFactory(callbackClient);
             if (factory == null)
             {
-               throw  new NotSupportedException("ClientFactory can't be null");
+                throw new NotSupportedException("ClientFactory can't be null");
             }
 
             return factory;

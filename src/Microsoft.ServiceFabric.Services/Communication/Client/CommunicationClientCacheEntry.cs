@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
@@ -31,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         //
         private TCommunicationClient client;
         private WeakReference clientWRef;
-        
+
         /// <summary>
         /// This lock protects the members of the cache entry. Users of the this object
         /// should acquire this lock before accessing the properties of the object.
@@ -146,9 +147,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private string GetEndpointAddressForNamedEndpoint()
         {
-            ServiceEndpointCollection endpointCollection;
 
-            if (!ServiceEndpointCollection.TryParseEndpointsString(this.Endpoint.Address, out endpointCollection))
+            if (!ServiceEndpointCollection.TryParseEndpointsString(this.Endpoint.Address, out var endpointCollection))
             {
                 // Client has not specified an explicit name for the endpoint, so parse failure is ok.
                 // return the endpoint address.

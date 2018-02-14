@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     /// <summary>
@@ -18,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <returns>true if the exception is handled, false otherwise</returns>
         bool TryHandleException(
             ExceptionInformation exceptionInformation,
-            OperationRetrySettings retrySettings, 
+            OperationRetrySettings retrySettings,
             out ExceptionHandlingResult result);
     }
 }

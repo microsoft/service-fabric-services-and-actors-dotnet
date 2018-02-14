@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -7,11 +7,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Fabric;
     using System.Fabric.Health;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Threading;
     using Microsoft.ServiceFabric.Services.Runtime;
@@ -22,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
     public class StatelessServiceLifeCycleTests
     {
-        class RunAsyncBlockingCallTestService : StatelessService
+        private class RunAsyncBlockingCallTestService : StatelessService
         {
             public RunAsyncBlockingCallTestService(StatelessServiceContext context)
                 : base(context)
@@ -60,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             var openTask = testServiceReplica.OpenAsync(partition.Object, CancellationToken.None);
 
-            CancellationTokenSource source = new CancellationTokenSource(10000);
+            var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
@@ -72,7 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        class RunAsyncCancellationTestService : StatelessService
+        private class RunAsyncCancellationTestService : StatelessService
         {
             private const int ToWait = 100;
 
@@ -107,7 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatelessServicePartition>();
             testServiceReplica.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
 
-            CancellationTokenSource source = new CancellationTokenSource(10000);
+            var source = new CancellationTokenSource(10000);
             while (!testService.StartedWaiting)
             {
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
@@ -120,7 +117,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        class RunAsyncSlowCancellationTestService : StatelessService
+        private class RunAsyncSlowCancellationTestService : StatelessService
         {
             public RunAsyncSlowCancellationTestService(StatelessServiceContext context)
                 : base(context)
@@ -152,7 +149,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             testServiceReplica.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
 
-            CancellationTokenSource source = new CancellationTokenSource(10000);
+            var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
@@ -164,7 +161,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncSlowCancellationHealthInformation(hinfo))), Times.AtLeastOnce);
         }
 
-        class RunAsyncFailTestService : StatelessService
+        private class RunAsyncFailTestService : StatelessService
         {
             public RunAsyncFailTestService(StatelessServiceContext context)
                 : base(context)
@@ -215,7 +212,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncUnhandledExceptionHealthInformation(hinfo))), Times.Once());
         }
 
-        class ListenerExceptionOnAbortService : StatelessService
+        private class ListenerExceptionOnAbortService : StatelessService
         {
             public ListenerExceptionOnAbortService(StatelessServiceContext context)
                 : base(context)

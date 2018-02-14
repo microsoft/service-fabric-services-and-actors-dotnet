@@ -1,15 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Services.Tests
 {
     using System;
     using System.Fabric;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Collections.Generic;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Runtime;
@@ -31,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         }
 
         public StatefulBaseTestService(StatefulServiceContext context, Mock<IStateProviderReplica2> mockStateProviderReplica)
-            :base(context, mockStateProviderReplica.Object)
+            : base(context, mockStateProviderReplica.Object)
         {
             this.Replica = mockStateProviderReplica;
             this.Listeners = new List<Mock<ICommunicationListener>>();
@@ -45,14 +44,14 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 new ServiceReplicaListener(this.CreateCommunicationListener, listenOnSecondary:this.ListenOnSecondary),
             };
         }
-        
+
         private ICommunicationListener CreateCommunicationListener(ServiceContext context)
         {
             Console.WriteLine("Creating listener");
             var mockListener = new Mock<ICommunicationListener>();
-            mockListener.Setup(x=>x.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("Address"));
+            mockListener.Setup(x => x.OpenAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult("Address"));
 
-            if(this.EnableListenerExceptionOnAbort)
+            if (this.EnableListenerExceptionOnAbort)
             {
                 mockListener.Setup(x => x.Abort()).Throws(new Exception("Listener Abort exception."));
             }

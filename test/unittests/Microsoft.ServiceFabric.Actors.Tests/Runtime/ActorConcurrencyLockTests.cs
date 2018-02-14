@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -15,12 +15,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
     using FluentAssertions;
     using Moq;
     using Xunit;
-    
-    interface IDummyActor : IActor
+
+    internal interface IDummyActor : IActor
     {
         Task<string> Greetings();
     }
-    
+
     public class DummyActor : Actor, IDummyActor
     {
         private static ActorService GetMockActorService()
@@ -37,10 +37,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 Guid.Empty,
                 long.MinValue);
 
-            return new ActorService(serviceContext, 
+            return new ActorService(serviceContext,
                 ActorTypeInformation.Get(typeof(DummyActor)));
         }
-        
+
         public DummyActor() : base(GetMockActorService(), null)
         {
         }
@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         private delegate Task<bool> DirtyCallback(Actor actor);
 
         private static string _currentContext = Guid.Empty.ToString();
-        
+
         /// <summary>
         /// Verifies usage of ReentrancyGuard.
         /// </summary>
@@ -67,7 +67,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             var guard = CreateAndInitializeReentrancyGuard(a, ActorReentrancyMode.LogicalCallContext);
 
             var tasks = new Task[1];
-            for (int i = 0; i < 1; ++i)
+            for (var i = 0; i < 1; ++i)
             {
                 tasks[i] = Task.Run(() =>
                 {
@@ -103,14 +103,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             var actor = new DummyActor();
             var guard = CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.LogicalCallContext);
             actor.IsDirty = true;
-            string callContext = Guid.NewGuid().ToString();
+            var callContext = Guid.NewGuid().ToString();
             var result = guard.Acquire(callContext, @base => ReplacementHandler(actor), CancellationToken.None);
             try
             {
                 result.Wait();
                 actor.IsDirty.Should().BeFalse("ReentrancyGuard IsDirty should be set to false");
             }
-            finally 
+            finally
             {
                 guard.ReleaseContext(callContext).Wait();
             }

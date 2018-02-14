@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 {
     using System.Collections.Concurrent;
@@ -33,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <returns>The cancellation token.</returns>
         public Task<CancellationTokenSource> GetOrAddCancellationTokenSource(int methodId, string callId)
         {
-            var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
+            var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) { });
 
             return methodCallTracker.GetOrAddCancellationTokenSourceAsync(callId);
         }
@@ -46,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <returns>The cancellation token.</returns>
         public Task<CancellationTokenResult> TryGetCancellationTokenSource(int methodId, string callId)
         {
-            var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
+            var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) { });
 
             return methodCallTracker.TryGetCancellationTokenSource(callId);
         }
@@ -58,7 +59,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <param name="callId">The call ID.</param>
         public Task TryRemoveCancellationTokenSource(int methodId, string callId)
         {
-            var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) {});
+            var methodCallTracker = this.methodCallTrackerDictionary.GetOrAdd(methodId, obj => new MethodCallTracker(methodId) { });
 
             return methodCallTracker.TryRemoveCancellationToken(callId);
         }
@@ -86,8 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 {
                     await this.callTrackerLock.WaitAsync();
 
-                    MethodCallTrackerEntry callTrackerEntry;
-                    if (this.callTracker.TryGetValue(callId, out callTrackerEntry))
+                    if (this.callTracker.TryGetValue(callId, out var callTrackerEntry))
                     {
                         ++callTrackerEntry.NumberOfInflightCalls;
                         cancellationTokenSource = callTrackerEntry.CancellationTknSource;
@@ -113,8 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 {
                     await this.callTrackerLock.WaitAsync();
 
-                    MethodCallTrackerEntry callTrackerEntry;
-                    ret = this.callTracker.TryGetValue(callId, out callTrackerEntry);
+                    ret = this.callTracker.TryGetValue(callId, out var callTrackerEntry);
                     if (ret)
                     {
                         cancellationToken = callTrackerEntry.CancellationTknSource;
@@ -139,8 +138,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             {
                 await this.callTrackerLock.WaitAsync();
 
-                MethodCallTrackerEntry callTrackerEntry;
-                if (this.callTracker.TryGetValue(callId, out callTrackerEntry))
+                if (this.callTracker.TryGetValue(callId, out var callTrackerEntry))
                 {
                     if (--callTrackerEntry.NumberOfInflightCalls == 0)
                     {

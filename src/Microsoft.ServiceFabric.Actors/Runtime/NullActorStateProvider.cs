@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -55,7 +56,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             return Task.FromResult(true);
         }
-        
+
         Task IActorStateProvider.ReminderCallbackCompletedAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
             return Task.FromResult(true);
@@ -67,10 +68,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var key = CreateActorStorageKey(actorId, stateName);
 
-            object value;
-            if (this.stateDictionary.TryGetValue(key, out value))
+            if (this.stateDictionary.TryGetValue(key, out var value))
             {
-                return Task.FromResult((T) value);
+                return Task.FromResult((T)value);
             }
 
             throw new KeyNotFoundException(string.Format(SR.ErrorNamedActorStateNotFound, stateName));
@@ -141,7 +141,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            return Task.FromResult((IEnumerable<string>) stateNameList);
+            return Task.FromResult((IEnumerable<string>)stateNameList);
         }
 
         Task<PagedResult<ActorId>> IActorStateProvider.GetActorsAsync(
@@ -171,8 +171,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var key = CreateReminderStorageKey(actorId, reminderName);
 
-            object value;
-            this.stateDictionary.TryRemove(key, out value);
+            this.stateDictionary.TryRemove(key, out var value);
 
             return Task.FromResult(true);
         }
@@ -187,8 +186,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     var reminderKey = CreateReminderStorageKey(actorId, reminderName);
 
-                    object value;
-                    this.stateDictionary.TryRemove(reminderKey, out value);
+                    this.stateDictionary.TryRemove(reminderKey, out var value);
                 }
             }
 
@@ -212,7 +210,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #endregion
-        
+
         #region IStateProviderReplica
 
         Func<CancellationToken, Task<bool>> IStateProviderReplica.OnDataLossAsync

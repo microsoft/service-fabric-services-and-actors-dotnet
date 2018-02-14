@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
-            var impl = (IService) serviceImplementation;
+            var impl = (IService)serviceImplementation;
             var provider = ServiceRemotingProviderAttribute.GetProvider(interfaceTypes);
 #if !DotNetCoreClr
             if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
-            var impl = (IService) serviceImplementation;
+            var impl = (IService)serviceImplementation;
             var provider = ServiceRemotingProviderAttribute.GetProvider(interfaceTypes);
 #if !DotNetCoreClr
             if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
@@ -217,7 +217,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 throw new NotSupportedException(
                     "This extension method doesnt support V2Listener or CompatListener. Use CreateServiceRemotingReplicaListeners for using V2Stack ");
             }
-            return provider.CreateServiceRemotingListener(serviceContext, (IService) serviceImplementation);
+            return provider.CreateServiceRemotingListener(serviceContext, (IService)serviceImplementation);
         }
 #endif
     }

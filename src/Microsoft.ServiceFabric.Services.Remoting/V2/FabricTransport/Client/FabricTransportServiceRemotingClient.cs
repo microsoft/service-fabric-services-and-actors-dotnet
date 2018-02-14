@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
-    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2;
@@ -77,13 +76,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                         .DeserializeResponseHeaders(
                             incomingHeader);
 
-                byte[] headerValue;
-                if (header != null && header.TryGetHeaderValue("HasRemoteException", out headerValue))
+                if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
-                    Exception e;
                     var isDeserialzied =
                         RemoteException.ToException(retval.GetBody().GetRecievedStream(),
-                            out e);
+                            out var e);
                     if (isDeserialzied)
                     {
                         throw new AggregateException(e);
@@ -97,14 +94,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     }
                 }
                 var responseSerializer = this.serializersManager.GetResponseBodySerializer(interfaceId);
-                IServiceRemotingResponseMessageBody responseMessageBody =null;
+                IServiceRemotingResponseMessageBody responseMessageBody = null;
                 if (retval != null && retval.GetBody() != null)
                 {
                     responseMessageBody =
                         responseSerializer.Deserialize(new IncomingMessageBody(retval.GetBody().GetRecievedStream()));
                 }
-                    
-                return (IServiceRemotingResponseMessage) new ServiceRemotingResponseMessage(header, responseMessageBody);
+
+                return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(header, responseMessageBody);
             }
 
         }

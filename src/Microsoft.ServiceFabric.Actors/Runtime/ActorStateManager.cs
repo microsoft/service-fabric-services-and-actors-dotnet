@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -96,7 +96,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     return new ConditionalValue<T>(false, default(T));
                 }
 
-                return new ConditionalValue<T>(true, (T) stateMetadata.Value);
+                return new ConditionalValue<T>(true, (T)stateMetadata.Value);
             }
 
             var conditionalResult = await this.TryGetStateFromStateProviderAsync<T>(stateName, cancellationToken);
@@ -233,7 +233,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     return addValue;
                 }
 
-                var newValue = updateValueFactory.Invoke(stateName, (T) stateMetadata.Value);
+                var newValue = updateValueFactory.Invoke(stateName, (T)stateMetadata.Value);
                 stateMetadata.Value = newValue;
 
                 if (stateMetadata.ChangeKind == StateChangeKind.None)
@@ -287,7 +287,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateChangeTracker.Clear();
             return TaskDone.Done;
         }
-        
+
         public async Task SaveStateAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             this.ThrowIfClosed();

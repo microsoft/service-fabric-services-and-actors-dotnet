@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -25,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             foreach (var data in GetActorReminderList())
             {
-                var deserializedData = 
+                var deserializedData =
                     ActorReminderDataSerializer.Deserialize(ActorReminderDataSerializer.Serialize(data));
 
                 deserializedData.ActorId.Should().Be(data.ActorId);
@@ -76,7 +75,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             deserializedData.Timestamp.Should().Be(data.Timestamp, "LogicalTimestamp.Timestamp serialization.");
         }
 
-        static List<ActorReminderData> GetActorReminderList()
+        private static List<ActorReminderData> GetActorReminderList()
         {
             var actorIds = new List<ActorId> { null, new ActorId(Guid.NewGuid()), ActorId.CreateRandom(), new ActorId(Guid.NewGuid().ToString()) };
             var reminderNames = new List<string> { null, string.Empty, Guid.NewGuid().ToString() };
@@ -97,6 +96,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             }
 
             return actorReminderDataList;
-        } 
+        }
     }
 }

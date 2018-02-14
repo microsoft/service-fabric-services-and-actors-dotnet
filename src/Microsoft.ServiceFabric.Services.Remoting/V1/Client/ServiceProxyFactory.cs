@@ -1,14 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
 {
     using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
         /// </param>
         /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
         public ServiceProxyFactory(
-            Func<IServiceRemotingCallbackClient,IServiceRemotingClientFactory> createServiceRemotingClientFactory ,
+            Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory> createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null)
         {
             this.thisLock = new object();
@@ -79,7 +79,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             var factory = this.CreateServiceRemotingClientFactory(callbackClient);
             if (factory == null)
             {
-               throw new NotSupportedException("ClientFactory cannot be null");
+                throw new NotSupportedException("ClientFactory cannot be null");
             }
 
             return factory;
@@ -122,7 +122,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
         private class DummyServiceRemotingCallbackClient : IServiceRemotingCallbackClient
         {
             public Task<byte[]> RequestResponseAsync(
-                ServiceRemotingMessageHeaders messageHeaders, 
+                ServiceRemotingMessageHeaders messageHeaders,
                 byte[] requestBody)
             {
                 // no op
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             }
 
             public void OneWayMessage(
-                ServiceRemotingMessageHeaders messageHeaders, 
+                ServiceRemotingMessageHeaders messageHeaders,
                 byte[] requestBody)
             {
                 // no op

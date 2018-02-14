@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -20,10 +21,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly TimeSpan dueTime;
         private readonly TimeSpan period;
         private readonly byte[] state;
-        
+
         private Timer timer;
 
-        public ActorReminder(ActorId actorId, IActorManager actorManager, IActorReminder reminder) 
+        public ActorReminder(ActorId actorId, IActorManager actorManager, IActorReminder reminder)
             : this(
                   actorId,
                   actorManager,
@@ -35,8 +36,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         public ActorReminder(
-            ActorId actorId, 
-            IActorManager actorManager, 
+            ActorId actorId,
+            IActorManager actorManager,
             string reminderName,
             byte[] reminderState,
             TimeSpan reminderDueTime,
@@ -102,7 +103,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void Dispose(bool disposing)
         {
-            if (!disposing) return;
+            if (!disposing)
+            {
+                return;
+            }
+
             this.CancelTimer();
         }
 
@@ -148,23 +153,23 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw new ArgumentOutOfRangeException(
                     argName,
                     string.Format(
-                        CultureInfo.CurrentCulture, 
-                        SR.TimerArgumentOutOfRange, 
-                        MinTimePeriod.TotalMilliseconds, 
+                        CultureInfo.CurrentCulture,
+                        SR.TimerArgumentOutOfRange,
+                        this.MinTimePeriod.TotalMilliseconds,
                         TimeSpan.MaxValue.TotalMilliseconds));
             }
         }
 
         private void ValidatePeriod(string argName, TimeSpan value)
         {
-            if (value < MinTimePeriod)
+            if (value < this.MinTimePeriod)
             {
                 throw new ArgumentOutOfRangeException(
                     argName,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         SR.TimerArgumentOutOfRange,
-                        MinTimePeriod.TotalMilliseconds,
+                        this.MinTimePeriod.TotalMilliseconds,
                         TimeSpan.MaxValue.TotalMilliseconds));
             }
         }

@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System;
@@ -75,7 +76,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.actorTypeInformation = actorTypeInformation;
 
             // Create counter writers for partition-wide counters
-            var actorCounterInstanceName = String.Concat(this.partitionId.ToString("D"), "_",
+            var actorCounterInstanceName = string.Concat(this.partitionId.ToString("D"), "_",
                 this.counterInstanceDifferentiator);
 
             if (AvaiableFabricCounterSet.TryGetValue(ActorPerformanceCounters.ActorCategoryName, out ActorCounterSet))
@@ -201,12 +202,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var sb = new StringBuilder();
 
-            sb.Append(String.Format("Created performance counter category {0} with following counters.",
+            sb.Append(string.Format("Created performance counter category {0} with following counters.",
                 counterSet.CounterSetDefinition.Name));
             sb.AppendLine();
             foreach (var counter in activeCounters)
             {
-                sb.Append(String.Format("CounterName : {0}", counter.Name));
+                sb.Append(string.Format("CounterName : {0}", counter.Name));
                 sb.AppendLine();
             }
             ActorTrace.Source.WriteInfo(TraceType, sb.ToString());
@@ -243,17 +244,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             this.InitializeActorMethodInfo(diagnosticsEventManager);
 
-            diagnosticsEventManager.OnActorMethodFinish += this.OnActorMethodFinish;
-            diagnosticsEventManager.OnPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
-            diagnosticsEventManager.OnSaveActorStateFinish += this.OnSaveActorStateFinish;
-            diagnosticsEventManager.OnActorRequestProcessingStart += this.OnActorRequestProcessingStart;
-            diagnosticsEventManager.OnActorRequestProcessingFinish += this.OnActorRequestProcessingFinish;
-            diagnosticsEventManager.OnActorLockAcquired += this.OnActorLockAcquired;
-            diagnosticsEventManager.OnActorLockReleased += this.OnActorLockReleased;
-            diagnosticsEventManager.OnActorRequestDeserializationFinish += this.OnActorRequestDeserializationFinish;
-            diagnosticsEventManager.OnActorResponseSerializationFinish += this.OnActorResponseSerializationFinish;
-            diagnosticsEventManager.OnActorOnActivateAsyncFinish += this.OnActorOnActivateAsyncFinish;
-            diagnosticsEventManager.OnLoadActorStateFinish += this.OnLoadActorStateFinish;
+            diagnosticsEventManager.onActorMethodFinish += this.OnActorMethodFinish;
+            diagnosticsEventManager.onPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
+            diagnosticsEventManager.onSaveActorStateFinish += this.OnSaveActorStateFinish;
+            diagnosticsEventManager.onActorRequestProcessingStart += this.OnActorRequestProcessingStart;
+            diagnosticsEventManager.onActorRequestProcessingFinish += this.OnActorRequestProcessingFinish;
+            diagnosticsEventManager.onActorLockAcquired += this.OnActorLockAcquired;
+            diagnosticsEventManager.onActorLockReleased += this.OnActorLockReleased;
+            diagnosticsEventManager.onActorRequestDeserializationFinish += this.OnActorRequestDeserializationFinish;
+            diagnosticsEventManager.onActorResponseSerializationFinish += this.OnActorResponseSerializationFinish;
+            diagnosticsEventManager.onActorOnActivateAsyncFinish += this.OnActorOnActivateAsyncFinish;
+            diagnosticsEventManager.onLoadActorStateFinish += this.OnLoadActorStateFinish;
         }
 
         internal virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
@@ -262,10 +263,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             var methodInfoList = new List<KeyValuePair<long, MethodInfo>>();
             foreach (var actorInterfaceType in this.actorTypeInformation.InterfaceTypes)
             {
-                int interfaceId;
-                MethodDescription[] actorInterfaceMethodDescriptions;
                 diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
-                    actorInterfaceType, out interfaceId, out actorInterfaceMethodDescriptions);
+                    actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 methodInfoList.AddRange(this.GetMethodInfo(actorInterfaceMethodDescriptions, interfaceId));
             }
 
@@ -281,7 +280,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var interfaceMethodKey = methodData.InterfaceMethodKey;
 
-            var counterWriters = this.GetMethodSpecificCounterWriters(interfaceMethodKey,methodData.RemotingListener);
+            var counterWriters = this.GetMethodSpecificCounterWriters(interfaceMethodKey, methodData.RemotingListener);
 
 
             // Call the counter writers to update the counter values
@@ -300,7 +299,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
 
-        internal virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey,RemotingListener remotingListener)
+        internal virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListener remotingListener)
         {
             return this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
         }
@@ -356,7 +355,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
             if (null != this.actorRequestProcessingTimeCounterWriter)
             {
-                this.actorRequestProcessingTimeCounterWriter.UpdateCounterValue((long) processingTime
+                this.actorRequestProcessingTimeCounterWriter.UpdateCounterValue((long)processingTime
                     .TotalMilliseconds);
             }
         }
@@ -365,7 +364,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorLockAcquireWaitTimeCounterWriter)
             {
-                this.actorLockAcquireWaitTimeCounterWriter.UpdateCounterValue((long) lockAcquireWaitTime
+                this.actorLockAcquireWaitTimeCounterWriter.UpdateCounterValue((long)lockAcquireWaitTime
                     .TotalMilliseconds);
             }
         }
@@ -374,7 +373,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorLockHoldTimeCounterWriter)
             {
-                this.actorLockHoldTimeCounterWriter.UpdateCounterValue((long) lockHoldTime.TotalMilliseconds);
+                this.actorLockHoldTimeCounterWriter.UpdateCounterValue((long)lockHoldTime.TotalMilliseconds);
             }
         }
 
@@ -382,7 +381,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorRequestDeserializationTimeCounterWriter)
             {
-                this.actorRequestDeserializationTimeCounterWriter.UpdateCounterValue((long) deserializationTime
+                this.actorRequestDeserializationTimeCounterWriter.UpdateCounterValue((long)deserializationTime
                     .TotalMilliseconds);
             }
         }
@@ -391,7 +390,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorResponseSerializationTimeCounterWriter)
             {
-                this.actorResponseSerializationTimeCounterWriter.UpdateCounterValue((long) serializationTime
+                this.actorResponseSerializationTimeCounterWriter.UpdateCounterValue((long)serializationTime
                     .TotalMilliseconds);
             }
         }
@@ -400,7 +399,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorOnActivateAsyncTimeCounterWriter)
             {
-                this.actorOnActivateAsyncTimeCounterWriter.UpdateCounterValue((long) onActivateAsyncTime
+                this.actorOnActivateAsyncTimeCounterWriter.UpdateCounterValue((long)onActivateAsyncTime
                     .TotalMilliseconds);
             }
         }
@@ -409,7 +408,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (null != this.actorLoadStateTimeCounterWriter)
             {
-                this.actorLoadStateTimeCounterWriter.UpdateCounterValue((long) loadStateTime.TotalMilliseconds);
+                this.actorLoadStateTimeCounterWriter.UpdateCounterValue((long)loadStateTime.TotalMilliseconds);
             }
         }
 
@@ -549,10 +548,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             // Compute the counter instance names for all the actor methods
             var counterInstanceNames = percCounterInstanceNameBuilder.GetMethodCounterInstanceNames(methodInfoList);
-            FabricPerformanceCounterSet actorMethodCounterSet;
 
             if (!AvaiableFabricCounterSet.TryGetValue(ActorPerformanceCounters.ActorMethodCategoryName,
-                out actorMethodCounterSet))
+                out var actorMethodCounterSet))
             {
                 ActorTrace.Source.WriteWarning(
                     TraceType,
@@ -563,7 +561,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             foreach (var kvp in counterInstanceNames)
             {
-                var data = new CounterInstanceData {InstanceName = kvp.Value};
+                var data = new CounterInstanceData { InstanceName = kvp.Value };
                 data.CounterWriters = this.CreateCounterWriters(data, actorMethodCounterSet);
                 actorMethodCounterInstanceData[kvp.Key] = data;
             }
@@ -580,8 +578,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
             {
                 var kvp = new KeyValuePair<long, MethodInfo>(
-                    DiagnosticsEventManager.GetInterfaceMethodKey((uint) interfaceId,
-                        (uint) actorInterfaceMethodDescription.Id),
+                    DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId,
+                        (uint)actorInterfaceMethodDescription.Id),
                     actorInterfaceMethodDescription.MethodInfo);
                 methodInfoList.Add(kvp);
                 //For V2 InterfaceId Support

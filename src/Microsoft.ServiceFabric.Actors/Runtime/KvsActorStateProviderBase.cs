@@ -12,7 +12,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric.Health;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -47,7 +46,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string BackupRootFolderPrefix = "kvsasp_";
         private const string KvsHealthSourceId = "KvsActorStateProvider";
         private const string BackupCallbackSlowCancellationHealthProperty = "BackupCallbackSlowCancellation";
-        private static readonly byte[] ActorPresenceValue = {byte.MinValue};
+        private static readonly byte[] ActorPresenceValue = { byte.MinValue };
 
         private readonly DataContractSerializer reminderSerializer;
         private readonly DataContractSerializer reminderCompletedDataSerializer;
@@ -771,7 +770,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.partition.ReportFault(FaultType.Transient);
             }
         }
-        
+
         #endregion
 
         #region Private Helper Functions
@@ -974,7 +973,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 return this.userDefinedReplicatorSettings;
             }
-            
+
             return this.LoadReplicatorSettings();
         }
 
@@ -1233,8 +1232,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         var reminderCompletedKey =
                             ActorStateProviderHelper.CreateReminderCompletedStorageKey(reminderData.ActorId, reminderData.Name);
 
-                        ReminderCompletedData reminderCompletedData;
-                        reminderCompletedDataMap.TryGetValue(reminderCompletedKey, out reminderCompletedData);
+                        reminderCompletedDataMap.TryGetValue(reminderCompletedKey, out var reminderCompletedData);
 
                         reminderCollection.Add(
                             reminderData.ActorId,

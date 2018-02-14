@@ -1,13 +1,12 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System.Text;
-
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Text;
     using System.Fabric;
     using System.Fabric.Description;
 
@@ -40,13 +39,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             string configPackageName,
             string sectionName)
         {
-            ConfigurationSection section;
-            if (ActorStateProviderHelper.TryGetConfigSection(activationContext, configPackageName, sectionName, out section))
+            if (ActorStateProviderHelper.TryGetConfigSection(activationContext, configPackageName, sectionName, out var section))
             {
                 this.LoadFromSection(section);
             }
         }
-        
+
         public TimeSpan TransientErrorRetryDelay { get; set; }
 
         public TimeSpan OperationTimeout { get; set; }

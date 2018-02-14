@@ -2,23 +2,21 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
-    using System.Threading;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 
     internal sealed class ServiceProxyGeneratorBuilder : ProxyGeneratorBuilder<ServiceProxyGeneratorWith, ServiceProxy>
     {
         public ServiceProxyGeneratorBuilder(ICodeBuilder codeBuilder)
             : base(codeBuilder)
-        {}
+        { }
 
         protected override ServiceProxyGeneratorWith CreateProxyGenerator(
             Type proxyInterfaceType,
@@ -35,7 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 
             return new ServiceProxyGeneratorWith(
                 proxyInterfaceType,
-                (IProxyActivator) Activator.CreateInstance(proxyActivatorType),
+                (IProxyActivator)Activator.CreateInstance(proxyActivatorType),
                 requestBodyTypes,
                 responseBodyTypes);
         }

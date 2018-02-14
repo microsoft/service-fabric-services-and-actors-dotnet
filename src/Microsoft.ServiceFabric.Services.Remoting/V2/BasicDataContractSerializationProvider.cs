@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Xml;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
-    class BasicDataContractSerializationProvider : IServiceRemotingMessageSerializationProvider
+    internal class BasicDataContractSerializationProvider : IServiceRemotingMessageSerializationProvider
     {
         public IServiceRemotingMessageBodyFactory CreateMessageBodyFactory()
         {
@@ -21,7 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         public IServiceRemotingRequestMessageBodySerializer CreateRequestMessageSerializer(Type serviceInterfaceType,
             IEnumerable<Type> requestBodyTypes)
         {
-           return  new BasicDataRequestMessageBodySerializer(requestBodyTypes);
+            return new BasicDataRequestMessageBodySerializer(requestBodyTypes);
         }
 
         public IServiceRemotingResponseMessageBodySerializer CreateResponseMessageSerializer(Type serviceInterfaceType,
@@ -31,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         }
     }
 
-    class BasicDataRequestMessageBodySerializer : IServiceRemotingRequestMessageBodySerializer
+    internal class BasicDataRequestMessageBodySerializer : IServiceRemotingRequestMessageBodySerializer
     {
         private readonly DataContractSerializer serializer;
 
@@ -48,7 +49,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         }
         public OutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
         {
-            if (serviceRemotingRequestMessageBody == null )
+            if (serviceRemotingRequestMessageBody == null)
             {
                 return null;
             }
@@ -57,19 +58,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
                 {
-                    serializer.WriteObject(writer, serviceRemotingRequestMessageBody);
+                    this.serializer.WriteObject(writer, serviceRemotingRequestMessageBody);
                     writer.Flush();
                     var bytes = stream.ToArray();
-                    var segments = new List<ArraySegment<byte>>();
-                    segments.Add(new ArraySegment<byte>(bytes));
-                    return  new OutgoingMessageBody(segments);
+                    var segments = new List<ArraySegment<byte>>
+                    {
+                        new ArraySegment<byte>(bytes)
+                    };
+                    return new OutgoingMessageBody(segments);
                 }
             }
         }
 
         public IServiceRemotingRequestMessageBody Deserialize(IncomingMessageBody messageBody)
         {
-            if ((messageBody == null) || (messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length==0))
+            if ((messageBody == null) || (messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0))
             {
                 return null;
             }
@@ -82,9 +85,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
             }
         }
-        }
+    }
 
-    class BasicDataResponsetMessageBodySerializer : IServiceRemotingResponseMessageBodySerializer
+    internal class BasicDataResponsetMessageBodySerializer : IServiceRemotingResponseMessageBodySerializer
     {
         private readonly DataContractSerializer serializer;
 
@@ -110,11 +113,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
                 {
-                    serializer.WriteObject(writer, serviceRemotingRequestMessageBody);
+                    this.serializer.WriteObject(writer, serviceRemotingRequestMessageBody);
                     writer.Flush();
                     var bytes = stream.ToArray();
-                    var segments = new List<ArraySegment<byte>>();
-                    segments.Add(new ArraySegment<byte>(bytes));
+                    var segments = new List<ArraySegment<byte>>
+                    {
+                        new ArraySegment<byte>(bytes)
+                    };
                     return new OutgoingMessageBody(segments);
                 }
             }

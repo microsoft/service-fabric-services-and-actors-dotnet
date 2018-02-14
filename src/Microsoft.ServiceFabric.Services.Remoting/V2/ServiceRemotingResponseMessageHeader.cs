@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System.Collections.Generic;
@@ -11,10 +12,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
     [DataContract(Name = "ServiceResponseMessageHeaders", Namespace = Constants.ServiceCommunicationNamespace)]
 
-    internal class ServiceRemotingResponseMessageHeader  : IServiceRemotingResponseMessageHeader
+    internal class ServiceRemotingResponseMessageHeader : IServiceRemotingResponseMessageHeader
     {
         [DataMember(Name = "Headers", IsRequired = true, Order = 2)]
-       private Dictionary<string, byte[]> headers;
+        private Dictionary<string, byte[]> headers;
 
         /// <summary>
         /// Instantiates a new instance of the ServiceRemotingResponseMessageHeader

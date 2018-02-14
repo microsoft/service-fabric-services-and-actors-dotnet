@@ -1,11 +1,11 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
@@ -23,8 +23,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             (ServiceRemotingPartitionClient remotingPartitionClient,
             IServiceRemotingMessageBodyFactory remotingMessageBodyFactory)
         {
-            var serviceProxy = (ServiceProxy) this.proxyActivator.CreateInstance();
-            serviceProxy.Initialize(this, remotingPartitionClient,remotingMessageBodyFactory);
+            var serviceProxy = (ServiceProxy)this.proxyActivator.CreateInstance();
+            serviceProxy.Initialize(this, remotingPartitionClient, remotingMessageBodyFactory);
             return serviceProxy;
         }
     }

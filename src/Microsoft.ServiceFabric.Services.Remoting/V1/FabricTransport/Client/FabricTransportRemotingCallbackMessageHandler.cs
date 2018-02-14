@@ -2,13 +2,14 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 {
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.Client;
 
-    class FabricTransportRemotingCallbackMessageHandler : IFabricTransportCallbackMessageHandler
+    internal class FabricTransportRemotingCallbackMessageHandler : IFabricTransportCallbackMessageHandler
     {
         private IServiceRemotingCallbackClient remotingCallbackClient;
         private DataContractSerializer serializer;

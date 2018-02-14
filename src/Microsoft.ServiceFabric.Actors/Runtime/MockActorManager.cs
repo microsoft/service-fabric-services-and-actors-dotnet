@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -90,7 +91,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return TaskDone<byte[]>.Done;
         }
 
-        
+
         public Task<IServiceRemotingResponseMessageBody> InvokeAsync(ActorId actorId, int interfaceId, int methodId, string callContext,
             IServiceRemotingRequestMessageBody requestMsgBody, IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
             CancellationToken cancellationToken)
@@ -184,12 +185,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public IActorReminder GetReminder(string reminderName, ActorId actorId)
         {
-            ConcurrentDictionary<string, ActorReminder> actorReminders;
 
-            if (this.remindersByActorId.TryGetValue(actorId, out actorReminders))
+            if (this.remindersByActorId.TryGetValue(actorId, out var actorReminders))
             {
-                ActorReminder reminder;
-                if (actorReminders.TryGetValue(reminderName, out reminder))
+                if (actorReminders.TryGetValue(reminderName, out var reminder))
                 {
                     return reminder;
                 }
@@ -209,12 +208,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 await this.StateProvider.DeleteReminderAsync(actorId, reminderName);
             }
 
-            ConcurrentDictionary<string, ActorReminder> actorReminders;
 
-            if (this.remindersByActorId.TryGetValue(actorId, out actorReminders))
+            if (this.remindersByActorId.TryGetValue(actorId, out var actorReminders))
             {
-                ActorReminder reminder;
-                if (actorReminders.TryRemove(reminderName, out reminder))
+                if (actorReminders.TryRemove(reminderName, out var reminder))
                 {
                     reminder.Dispose();
                 }

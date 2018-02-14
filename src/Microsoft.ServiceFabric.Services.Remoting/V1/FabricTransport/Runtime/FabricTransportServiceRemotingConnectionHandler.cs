@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 {
     using System;
@@ -33,8 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 
         FabricTransportCallbackClient IFabricTransportConnectionHandler.GetCallBack(string clientId)
         {
-            FabricTransportCallbackClient nativeCallback;
-            this.clientCallbackConnection.TryGetValue(clientId, out nativeCallback);
+            this.clientCallbackConnection.TryGetValue(clientId, out var nativeCallback);
             return nativeCallback;
         }
 
@@ -45,8 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 
         private void RemoveCallBackConnection(string clientId)
         {
-            FabricTransportCallbackClient fabricTransportCallbackClient;
-            this.clientCallbackConnection.TryRemove(clientId, out fabricTransportCallbackClient);
+            this.clientCallbackConnection.TryRemove(clientId, out var fabricTransportCallbackClient);
             if (fabricTransportCallbackClient != null)
             {
                 fabricTransportCallbackClient.Dispose();

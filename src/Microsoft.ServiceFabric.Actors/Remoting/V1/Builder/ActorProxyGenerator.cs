@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
 
         public ActorProxy CreateActorProxy(ActorServicePartitionClient actorServicePartitionClient)
         {
-            var actorProxy = (ActorProxy) this.proxyActivator.CreateInstance();
+            var actorProxy = (ActorProxy)this.proxyActivator.CreateInstance();
             actorProxy.Initialize(this, actorServicePartitionClient);
 
             return actorProxy;

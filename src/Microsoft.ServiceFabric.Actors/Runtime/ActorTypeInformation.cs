@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -41,7 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets the actor event interface which the actor class implements.
         /// </summary>
         /// <value>An enumerator that can be used to iterate through the actor event interface which the actor class implements.</value>
-        public IEnumerable<Type> EventInterfaceTypes { get; private set;  }
+        public IEnumerable<Type> EventInterfaceTypes { get; private set; }
 
         /// <summary>
         /// Gets the service name if specified using <see cref="ActorServiceAttribute"/> for actor class.
@@ -91,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorTypeInformation = Get(actorType);
                 return true;
             }
-            catch(ArgumentException)
+            catch (ArgumentException)
             {
                 actorTypeInformation = null;
                 return false;
@@ -119,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         CultureInfo.CurrentCulture,
                         SR.ErrorNotAnActor,
                         actorType.FullName,
-                        typeof (Actor).FullName),
+                        typeof(Actor).FullName),
                     "actorType");
             }
 
@@ -182,7 +183,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #else
             var remotingserver = Services.Remoting.RemotingListener.V2Listener;
 #endif
-            var remotingserverAttribuite = ActorRemotingProviderAttribute.GetProvider( types);
+            var remotingserverAttribuite = ActorRemotingProviderAttribute.GetProvider(types);
             if (remotingserverAttribuite != null)
             {
                 remotingserver = remotingserverAttribuite.RemotingListener;

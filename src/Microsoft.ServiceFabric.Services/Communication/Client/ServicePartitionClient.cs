@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
@@ -62,7 +63,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.lastRsp = null;
             this.retrySettings = retrySettings ?? new OperationRetrySettings();
         }
-       
+
         /// <summary>
         /// Gets the communication client factory
         /// </summary>
@@ -177,9 +178,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 catch (AggregateException ae)
                 {
                     ServiceTrace.Source.WriteNoiseWithId(
-                        TraceType, 
+                        TraceType,
                         this.traceId,
-                        "AggregateException While Invoking API {0}", 
+                        "AggregateException While Invoking API {0}",
                         ae);
 
                     ae.Handle(x => !doNotRetryExceptionTypes.Contains(x.GetType()));
@@ -188,9 +189,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 catch (Exception e)
                 {
                     ServiceTrace.Source.WriteNoiseWithId(
-                        TraceType, 
+                        TraceType,
                         this.traceId,
-                        "Exception While Invoking API {0}", 
+                        "Exception While Invoking API {0}",
                         e);
 
                     if (doNotRetryExceptionTypes.Contains(e.GetType()))
@@ -205,15 +206,15 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 // to not let the regular exception processing be interrupted.
                 var exceptionReportResult = await this.communicationClientFactory.ReportOperationExceptionAsync(
                         client,
-                        new ExceptionInformation(exception, this.targetReplicaSelector), 
+                        new ExceptionInformation(exception, this.targetReplicaSelector),
                         this.retrySettings,
                         CancellationToken.None);
 
-                if (!exceptionReportResult.ShouldRetry || 
+                if (!exceptionReportResult.ShouldRetry ||
                     !Utility.ShouldRetryOperation(
                         exceptionReportResult.ExceptionId,
                         exceptionReportResult.MaxRetryCount,
-                        ref currentExceptionId, 
+                        ref currentExceptionId,
                         ref currentRetryCount))
                 {
                     throw exceptionReportResult.Exception ?? exception;
@@ -228,7 +229,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     exceptionReportResult.RetryDelay);
 
                 if (!exceptionReportResult.IsTransient)
-                {              
+                {
                     await this.ResetCommunicationClientAsync();
                 }
 

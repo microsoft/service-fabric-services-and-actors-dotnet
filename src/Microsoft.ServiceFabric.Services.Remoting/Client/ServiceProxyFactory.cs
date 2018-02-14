@@ -1,13 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
 {
     using System;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-   using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     /// <summary>
     /// Specifies the factory that creates proxies for remote communication to the specified service.
@@ -102,14 +103,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                     //We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
                     this.overrideListenerName = true;
                     this.proxyFactoryV2 =
-                        new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2,this.retrySettings);
+                        new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
                 }
                 else
                 {
-                    this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory,this.retrySettings);
+                    this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
                 }
-                
-           }
+
+            }
 
             if (this.proxyFactoryV1 != null)
             {
@@ -118,7 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                     targetReplicaSelector,
                     listenerName);
             }
-            if (this.overrideListenerName && listenerName==null)
+            if (this.overrideListenerName && listenerName == null)
             {
                 return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
                     partitionKey,
@@ -176,7 +177,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
 
-                this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, retrySettings);
+                this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
             }
             return this.proxyFactoryV2.CreateNonIServiceProxy<TServiceInterface>(serviceUri,
                 partitionKey,
@@ -186,7 +187,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
         private ServiceRemotingProviderAttribute GetProviderAttribute(Type serviceInterfaceType)
         {
-            return ServiceRemotingProviderAttribute.GetProvider(new[] {serviceInterfaceType});
+            return ServiceRemotingProviderAttribute.GetProvider(new[] { serviceInterfaceType });
 
         }
 

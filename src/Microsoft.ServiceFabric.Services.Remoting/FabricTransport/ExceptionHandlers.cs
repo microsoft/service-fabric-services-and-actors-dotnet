@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 {
     using System.Fabric;
@@ -14,8 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             OperationRetrySettings retrySettings,
             out ExceptionHandlingResult result)
         {
-            var fabricException = exceptionInformation.Exception as FabricException;
-            if (fabricException != null)
+            if (exceptionInformation.Exception is FabricException fabricException)
             {
                 return TryHandleFabricException(
                     fabricException,

@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System;
@@ -20,12 +21,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     [DataContract(Name = "RemoteException", Namespace = Constants.ServiceCommunicationNamespace)]
     internal class RemoteException
     {
-        private static BinaryFormatter binaryFormatter;
-        private static readonly DataContractSerializer serviceExceptionDataSerializer = new DataContractSerializer(typeof(ServiceExceptionData));
+        private static BinaryFormatter BinaryFormatter;
+        private static readonly DataContractSerializer ServiceExceptionDataSerializer = new DataContractSerializer(typeof(ServiceExceptionData));
         static RemoteException()
         {
-            binaryFormatter = new BinaryFormatter();
-            binaryFormatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
+            BinaryFormatter = new BinaryFormatter();
+            BinaryFormatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
         }
 
         public RemoteException(List<ArraySegment<byte>> buffers)
@@ -49,13 +50,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         {
             try
             {
-            
-               using (var stream = new MemoryStream())
+
+                using (var stream = new MemoryStream())
                 {
-                    binaryFormatter.Serialize(stream, exception);
+                    BinaryFormatter.Serialize(stream, exception);
                     stream.Flush();
-                    var buffers = new List<ArraySegment<byte>>();
-                    buffers.Add(new ArraySegment<byte>(stream.ToArray()));
+                    var buffers = new List<ArraySegment<byte>>
+                    {
+                        new ArraySegment<byte>(stream.ToArray())
+                    };
                     return new RemoteException(buffers);
                 }
 
@@ -79,8 +82,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         public static bool ToException(Stream messageBuffer, out Exception result)
         {
             // try to de-serialize the bytes in to the exception
-            Exception res;
-            if (TryDeserializeException(messageBuffer, out res))
+            if (TryDeserializeException(messageBuffer, out var res))
             {
                 result = res;
                 return true;
@@ -104,8 +106,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         {
             try
             {
-                    result = (Exception)binaryFormatter.Deserialize(data);
-                    return true;
+                result = (Exception)BinaryFormatter.Deserialize(data);
+                return true;
             }
             catch (Exception ex)
             {
@@ -119,9 +121,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         {
             try
             {
-                ServiceExceptionData eData;
                 data.Seek(0, SeekOrigin.Begin);
-                if (TryDeserializeExceptionData(data, out eData))
+                if (TryDeserializeExceptionData(data, out var eData))
                 {
                     result = new ServiceException(eData.Type, eData.Message);
                     return true;
@@ -175,8 +176,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             var exceptionData = new ServiceExceptionData(exception.GetType().FullName, exceptionStringBuilder.ToString());
 
             var exceptionBytes = SerializeServiceExceptionData(exceptionData);
-            var buffers = new List<ArraySegment<byte>>();
-            buffers.Add(new ArraySegment<byte>(exceptionBytes));
+            var buffers = new List<ArraySegment<byte>>
+            {
+                new ArraySegment<byte>(exceptionBytes)
+            };
             return buffers;
         }
 
@@ -190,7 +193,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
             using (var reader = XmlDictionaryReader.CreateBinaryReader(buffer, XmlDictionaryReaderQuotas.Max))
             {
-                return serviceExceptionDataSerializer.ReadObject(reader);
+                return ServiceExceptionDataSerializer.ReadObject(reader);
             }
         }
 
@@ -205,7 +208,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
                 {
-                    serviceExceptionDataSerializer.WriteObject(writer, msg);
+                    ServiceExceptionDataSerializer.WriteObject(writer, msg);
                     writer.Flush();
                     return stream.ToArray();
                 }

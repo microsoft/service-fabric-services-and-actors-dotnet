@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
 {
     using System;
@@ -110,7 +111,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 actorId,
                 listenerName,
                 this.retrySettings);
-            return (TActorInterface) (object) proxyGenerator.CreateActorProxy(actorServicePartitionClient,
+            return (TActorInterface)(object)proxyGenerator.CreateActorProxy(actorServicePartitionClient,
                 factory.GetRemotingMessageBodyFactory());
         }
 
@@ -181,7 +182,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 listenerName,
                 this.retrySettings);
 
-            return (TServiceInterface) (object) proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient,
+            return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient,
                 factory.GetRemotingMessageBodyFactory());
         }
 

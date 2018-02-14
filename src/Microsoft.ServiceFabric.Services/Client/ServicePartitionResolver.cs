@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Client
 {
     using System;
@@ -55,7 +56,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <param name="createFabricClient">Delegate to create the fabric client.</param>
         /// <param name="recreateFabricClient">Delegate to re-create the fabric client.</param>
         public ServicePartitionResolver(
-            CreateFabricClientDelegate createFabricClient, 
+            CreateFabricClientDelegate createFabricClient,
             CreateFabricClientDelegate recreateFabricClient)
         {
             this.createFabricClient = createFabricClient;
@@ -88,7 +89,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <param name="settings">Fabric client Settings.</param>
         /// <param name="connectionEndpoints">Array of management endpoints of the cluster.</param>
         public ServicePartitionResolver(
-            FabricClientSettings settings, 
+            FabricClientSettings settings,
             params string[] connectionEndpoints)
             : this(() => new FabricClient(settings, connectionEndpoints))
         {
@@ -101,7 +102,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <param name="credential">Security credentials for the fabric client.</param>
         /// <param name="connectionEndpoints">Array of management endpoints of the cluster.</param>
         public ServicePartitionResolver(
-            SecurityCredentials credential, 
+            SecurityCredentials credential,
             params string[] connectionEndpoints)
             : this(() => new FabricClient(credential, connectionEndpoints))
         {
@@ -368,51 +369,51 @@ namespace Microsoft.ServiceFabric.Services.Client
             switch (previousRsp.Info.Kind)
             {
                 case ServicePartitionKind.Singleton:
-                {
-                    return this.ResolveHelperAsync(
-                        (client, prevRsp, timeout, cancellation) => ResolveSingletonPartitionAsync(
-                            client,
-                            serviceName,
-                            prevRsp,
-                            timeout,
-                            cancellation),
-                        previousRsp,
-                        resolveTimeoutPerTry,
-                        maxRetryBackoffInterval,
-                        cancellationToken);
-                }
+                    {
+                        return this.ResolveHelperAsync(
+                            (client, prevRsp, timeout, cancellation) => ResolveSingletonPartitionAsync(
+                                client,
+                                serviceName,
+                                prevRsp,
+                                timeout,
+                                cancellation),
+                            previousRsp,
+                            resolveTimeoutPerTry,
+                            maxRetryBackoffInterval,
+                            cancellationToken);
+                    }
                 case ServicePartitionKind.Named:
-                {
-                    var partitionName = ((NamedPartitionInformation) previousRsp.Info).Name;
-                    return this.ResolveHelperAsync(
-                        (client, prevRsp, timeout, cancellation) => ResolveNamedPartitionAsync(
-                            client,
-                            serviceName,
-                            partitionName,
-                            prevRsp,
-                            timeout,
-                            cancellation),
-                        previousRsp,
-                        resolveTimeoutPerTry,
-                        maxRetryBackoffInterval,
-                        cancellationToken);
-                }
+                    {
+                        var partitionName = ((NamedPartitionInformation)previousRsp.Info).Name;
+                        return this.ResolveHelperAsync(
+                            (client, prevRsp, timeout, cancellation) => ResolveNamedPartitionAsync(
+                                client,
+                                serviceName,
+                                partitionName,
+                                prevRsp,
+                                timeout,
+                                cancellation),
+                            previousRsp,
+                            resolveTimeoutPerTry,
+                            maxRetryBackoffInterval,
+                            cancellationToken);
+                    }
                 case ServicePartitionKind.Int64Range:
-                {
-                    var partitionKey = ((Int64RangePartitionInformation) previousRsp.Info).LowKey;
-                    return this.ResolveHelperAsync(
-                        (client, prevRsp, timeout, cancellation) => ResolveInt64PartitionAsync(
-                            client,
-                            serviceName,
-                            partitionKey,
-                            prevRsp,
-                            timeout,
-                            cancellation),
-                        previousRsp,
-                        resolveTimeoutPerTry,
-                        maxRetryBackoffInterval,
-                        cancellationToken);
-                }
+                    {
+                        var partitionKey = ((Int64RangePartitionInformation)previousRsp.Info).LowKey;
+                        return this.ResolveHelperAsync(
+                            (client, prevRsp, timeout, cancellation) => ResolveInt64PartitionAsync(
+                                client,
+                                serviceName,
+                                partitionKey,
+                                prevRsp,
+                                timeout,
+                                cancellation),
+                            previousRsp,
+                            resolveTimeoutPerTry,
+                            maxRetryBackoffInterval,
+                            cancellationToken);
+                    }
                 default:
                     throw new ArgumentOutOfRangeException("previousRsp");
             }
@@ -580,7 +581,7 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                 // wait before retry
                 await Task.Delay(
-                    new TimeSpan((long) (Rand.NextDouble() * maxRetryInterval.Ticks)), 
+                    new TimeSpan((long)(Rand.NextDouble() * maxRetryInterval.Ticks)),
                     cancellationToken);
             }
         }

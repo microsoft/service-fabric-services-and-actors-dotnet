@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
-    class FabricTransportMessageHandler : IFabricTransportMessageHandler
+    internal class FabricTransportMessageHandler : IFabricTransportMessageHandler
     {
         private readonly IServiceRemotingMessageHandler remotingMessageHandler;
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
-            Guid partitionId, 
+            Guid partitionId,
             long replicaOrInstanceId)
         {
             this.remotingMessageHandler = remotingMessageHandler;
@@ -54,34 +54,34 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 var remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch
                     );
-                
+
                 var retval = await
                     this.remotingMessageHandler.HandleRequestResponseAsync(
                         new FabricTransportServiceRemotingRequestContext(requestContext, this.serializersManager),
                         remotingRequestMessage);
-                return this.CreateFabricTransportMessage(retval,remotingRequestMessage.GetHeader().InterfaceId, requestResponseSerializationStopwatch);
+                return this.CreateFabricTransportMessage(retval, remotingRequestMessage.GetHeader().InterfaceId, requestResponseSerializationStopwatch);
             }
             catch (Exception ex)
             {
                 ServiceTrace.Source.WriteInfo("FabricTransportMessageHandler", "Remote Exception occured {0}", ex);
-               return this.CreateFabricTransportExceptionMessage(ex);
+                return this.CreateFabricTransportExceptionMessage(ex);
             }
             finally
             {
                 fabricTransportMessage.Dispose();
-                    if (null != this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
-                    {
-                        this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
-                            .UpdateCounterValue(-1);
-                    }
+                if (null != this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
+                {
+                    this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
+                        .UpdateCounterValue(-1);
+                }
 
-                    if (null != this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter)
-                    {
-                        this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter
-                            .UpdateCounterValue(
-                                requestStopWatch.ElapsedMilliseconds);
-                    }
-                
+                if (null != this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter)
+                {
+                    this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter
+                        .UpdateCounterValue(
+                            requestStopWatch.ElapsedMilliseconds);
+                }
+
             }
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             return msg;
         }
 
-        private FabricTransportMessage CreateFabricTransportMessage(IServiceRemotingResponseMessage retval,int interfaceId,Stopwatch stopwatch)
+        private FabricTransportMessage CreateFabricTransportMessage(IServiceRemotingResponseMessage retval, int interfaceId, Stopwatch stopwatch)
         {
             if (retval == null)
             {
@@ -129,31 +129,31 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         }
 
         private IServiceRemotingRequestMessage CreateRemotingRequestMessage(
-            FabricTransportMessage fabricTransportMessage,Stopwatch stopwatch)
+            FabricTransportMessage fabricTransportMessage, Stopwatch stopwatch)
         {
             var deSerializedHeader = this.headerSerializer.DeserializeRequestHeaders(
                 new IncomingMessageHeader(fabricTransportMessage.GetHeader().GetRecievedStream()));
-           var msgBodySerializer =
-                this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
+            var msgBodySerializer =
+                 this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
             stopwatch.Restart();
             IServiceRemotingRequestMessageBody deserializedMsg;
             if (fabricTransportMessage.GetBody() != null)
             {
-                 deserializedMsg = msgBodySerializer.Deserialize(
-                    new IncomingMessageBody(fabricTransportMessage.GetBody().GetRecievedStream()));
+                deserializedMsg = msgBodySerializer.Deserialize(
+                   new IncomingMessageBody(fabricTransportMessage.GetBody().GetRecievedStream()));
             }
             else
             {
                 deserializedMsg = null;
             }
-            
+
             if (this.serviceRemotingPerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter != null)
             {
                 this.serviceRemotingPerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter.UpdateCounterValue
                 (
                     stopwatch.ElapsedMilliseconds);
             }
-            return new ServiceRemotingRequestMessage(deSerializedHeader,deserializedMsg);
+            return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
         }
 
         public void HandleOneWay(FabricTransportRequestContext requestContext,
@@ -168,8 +168,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 this.serviceRemotingPerformanceCounterProvider.Dispose();
             }
-            var disposableItem = this.remotingMessageHandler as IDisposable;
-            if (null != disposableItem)
+            if (this.remotingMessageHandler is IDisposable disposableItem)
             {
                 disposableItem.Dispose();
             }

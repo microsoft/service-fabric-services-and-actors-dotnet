@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -14,7 +14,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     /// <summary>
     /// An <see cref="IServiceRemotingClientFactory"/> that uses
@@ -64,7 +63,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             string traceId = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null) :
-            base(IntializeSerializationManager(serializationProvider,fabricTransportRemotingSettings),
+            base(IntializeSerializationManager(serializationProvider, fabricTransportRemotingSettings),
                 fabricTransportRemotingSettings,
                 callbackMessageHandler,
                 servicePartitionResolver,
@@ -89,7 +88,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
         private static ActorRemotingSerializationManager IntializeSerializationManager(IServiceRemotingMessageSerializationProvider serializationProvider, FabricTransportRemotingSettings settings)
         {
             settings = settings ?? FabricTransportRemotingSettings.GetDefault();
-         
+
             return new ActorRemotingSerializationManager(serializationProvider,
                 new ActorRemotingMessageHeaderSerializer(settings.HeaderBufferSize, settings.HeaderMaxBufferCount));
 

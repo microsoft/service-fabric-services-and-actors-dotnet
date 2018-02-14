@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
 {
     using System;
@@ -196,7 +197,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
             CancellationToken cancellationToken)
         {
             return this.wcfFactory.ReportOperationExceptionAsync(
-                ((WcfServiceRemotingClient) client).WcfClient,
+                ((WcfServiceRemotingClient)client).WcfClient,
                 exceptionInformation,
                 retrySettings,
                 cancellationToken);

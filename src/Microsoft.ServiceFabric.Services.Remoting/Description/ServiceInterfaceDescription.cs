@@ -2,30 +2,30 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Description
 {
     using System;
     using System.Globalization;
     using System.Reflection;
-    using Microsoft.ServiceFabric.Services.Common;
 
     internal sealed class ServiceInterfaceDescription : InterfaceDescription
     {
-      
+
         private ServiceInterfaceDescription(
             Type serviceInterfaceType,
             bool useCRCIdGeneration) :
-            base("service", serviceInterfaceType,useCRCIdGeneration)
+            base("service", serviceInterfaceType, useCRCIdGeneration)
         {
         }
 
         public static ServiceInterfaceDescription Create(Type serviceInterfaceType)
         {
             EnsureServiceInterface(serviceInterfaceType);
-            return new ServiceInterfaceDescription(serviceInterfaceType,false);
+            return new ServiceInterfaceDescription(serviceInterfaceType, false);
         }
 
-        public static ServiceInterfaceDescription CreateUsingCRCId(Type serviceInterfaceType,bool checkForServiceInterface)
+        public static ServiceInterfaceDescription CreateUsingCRCId(Type serviceInterfaceType, bool checkForServiceInterface)
         {
             if (checkForServiceInterface)
             {

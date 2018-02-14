@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 {
     using System;
@@ -37,16 +38,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
         }
 
         public ServicePerformanceCounterProvider(Guid partitionId, long replicaOrInstanceId,
-            List<ServiceInterfaceDescription> interfaceDescriptions,bool generateCounterforServiceCategory=true)
+            List<ServiceInterfaceDescription> interfaceDescriptions, bool generateCounterforServiceCategory = true)
         {
             this.partitionId = partitionId;
             this.serviceInterfaceDescriptions = interfaceDescriptions;
             this.generateCounterforServiceCategory = generateCounterforServiceCategory;
             var ticks = (long)((DateTime.UtcNow.Ticks) % Math.Pow(10, MaxDigits));
-            this.counterInstanceDifferentiator = String.Concat(replicaOrInstanceId,
+            this.counterInstanceDifferentiator = string.Concat(replicaOrInstanceId,
                 "_",
                 ticks.ToString("D"));
-            var serviceCounterInstanceName = String.Concat(this.partitionId.ToString("D"), "_",
+            var serviceCounterInstanceName = string.Concat(this.partitionId.ToString("D"), "_",
                 this.counterInstanceDifferentiator);
             try
             {
@@ -57,7 +58,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
                         ServiceCounterSet.CreateCounterSetInstance(serviceCounterInstanceName);
                     this.CreateserviceCounterWriters(serviceCounterInstanceName);
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -145,12 +146,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
         {
             var sb = new StringBuilder();
 
-            sb.Append(String.Format("Created performance counter category {0} with following counters.",
+            sb.Append(string.Format("Created performance counter category {0} with following counters.",
                 counterSet.CounterSetDefinition.Name));
             sb.AppendLine();
             foreach (var counter in activeCounters)
             {
-                sb.Append(String.Format("CounterName : {0}", counter.Name));
+                sb.Append(string.Format("CounterName : {0}", counter.Name));
                 sb.AppendLine();
             }
             ServiceTrace.Source.WriteInfo(TraceType, sb.ToString());

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -109,9 +109,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
             if (headerSerializer == null)
             {
-                headerSerializer = new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(remotingSettings.HeaderBufferSize,remotingSettings.HeaderMaxBufferCount));
+                headerSerializer = new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(remotingSettings.HeaderBufferSize, remotingSettings.HeaderMaxBufferCount));
             }
-            
+
             var serializersManager = new ServiceRemotingMessageSerializersManager(serializationProvider,
                 headerSerializer);
 
@@ -230,7 +230,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             ExceptionInformation exceptionInformation,
             OperationRetrySettings retrySettings, CancellationToken cancellationToken)
         {
-            return this.clientFactoryImpl.ReportOperationExceptionAsync((FabricTransportServiceRemotingClient) client,
+            return this.clientFactoryImpl.ReportOperationExceptionAsync((FabricTransportServiceRemotingClient)client,
                 exceptionInformation,
                 retrySettings,
                 cancellationToken);

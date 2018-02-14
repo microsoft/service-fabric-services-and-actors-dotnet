@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Description
 {
     using System;
@@ -23,7 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
         private MethodDescription(
             MethodInfo methodInfo,
             MethodArgumentDescription[] arguments,
-            bool hasCancellationToken,bool useCRCIdGeneration)
+            bool hasCancellationToken, bool useCRCIdGeneration)
         {
             this.methodInfo = methodInfo;
             this.useCRCIdGeneration = useCRCIdGeneration;
@@ -37,10 +38,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             {
                 this.methodId = IdUtil.ComputeId(methodInfo);
             }
-            
+
             this.arguments = arguments;
             this.hasCancellationToken = hasCancellationToken;
-            
+
         }
 
         public int Id
@@ -65,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
 
         public bool HasCancellationToken
         {
-            get { return this.hasCancellationToken;  }
+            get { return this.hasCancellationToken; }
         }
 
         public MethodArgumentDescription[] Arguments
@@ -77,8 +78,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
         {
             get { return this.methodInfo; }
         }
-     
-        internal static MethodDescription Create(string remotedInterfaceKindName, MethodInfo methodInfo,bool useCRCIdGeneration)
+
+        internal static MethodDescription Create(string remotedInterfaceKindName, MethodInfo methodInfo, bool useCRCIdGeneration)
         {
             var parameters = methodInfo.GetParameters();
             var argumentList = new List<MethodArgumentDescription>(parameters.Length);
@@ -114,7 +115,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             }
 
             return new MethodDescription(
-                methodInfo, 
+                methodInfo,
                 argumentList.ToArray(),
                 hasCancellationToken,
                 useCRCIdGeneration);

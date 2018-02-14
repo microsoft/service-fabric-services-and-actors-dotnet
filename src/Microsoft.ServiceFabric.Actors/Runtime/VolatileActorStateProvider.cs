@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -117,9 +117,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var key = ActorStateProviderHelper.CreateActorPresenceStorageKey(actorId);
 
-            ActorStateData data;
 
-            if (!this.stateTable.TryGetValue(ActorStateType.Actor, key, out data))
+            if (!this.stateTable.TryGetValue(ActorStateType.Actor, key, out var data))
             {
                 await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                     () =>
@@ -177,9 +176,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var key = CreateActorStorageKey(actorId, stateName);
 
-            ActorStateData data;
 
-            if (this.stateTable.TryGetValue(ActorStateType.Actor, key, out data))
+            if (this.stateTable.TryGetValue(ActorStateType.Actor, key, out var data))
             {
                 var result = this.actorStateSerializer.Deserialize<T>(data.ActorState);
                 return Task.FromResult(result);
@@ -253,10 +251,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             Requires.Argument("stateName", stateName).NotNull();
 
-            ActorStateData data;
             var key = CreateActorStorageKey(actorId, stateName);
 
-            if (this.stateTable.TryGetValue(ActorStateType.Actor, key, out data))
+            if (this.stateTable.TryGetValue(ActorStateType.Actor, key, out var data))
             {
                 return Task.FromResult(true);
             }
@@ -515,9 +512,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var reminderCompletedKey =
                     ActorStateProviderHelper.CreateReminderCompletedStorageKey(reminderData.ActorId, reminderData.Name);
 
-                ActorStateData data = null;
                 ReminderCompletedData reminderCompletedData = null;
-                if (this.stateTable.TryGetValue(ActorStateType.Actor, reminderCompletedKey, out data))
+                if (this.stateTable.TryGetValue(ActorStateType.Actor, reminderCompletedKey, out var data))
                 {
                     reminderCompletedData = data.ReminderLastCompletedData;
                 }
@@ -746,7 +742,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public Func<CancellationToken, Task> OnRestoreCompletedAsync { private get; set; }
 
         #endregion
-        
+
         #region IStateProvider
 
         /// <summary>
@@ -1469,8 +1465,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 bool isCopy)
             {
                 var deserialized = this.copyOrReplicationOperationSerializer.ReadObject(binaryReader);
-                var result = deserialized as CopyOrReplicationOperation;
-                if (result != null)
+                if (deserialized is CopyOrReplicationOperation result)
                 {
                     var dataWrapperList = result.ActorStateDataWrapperList;
 

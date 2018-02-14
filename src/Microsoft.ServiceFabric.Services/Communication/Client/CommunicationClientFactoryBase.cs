@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -69,8 +69,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         protected CommunicationClientFactoryBase(
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            string traceId = null)            
-        :this(false,
+            string traceId = null)
+        : this(false,
         servicePartitionResolver,
         exceptionHandlers,
         traceId)
@@ -224,11 +224,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             await entry.Semaphore.WaitAsync(cancellationToken);
             try
             {
-                ExceptionHandlingResult exceptionHandlingResult;
                 var handled = this.HandleReportedException(
                     exceptionInformation,
                     retrySettings,
-                    out exceptionHandlingResult);
+                    out var exceptionHandlingResult);
                 if (handled && (exceptionHandlingResult is ExceptionHandlingRetryResult))
                 {
                     var retryResult = (ExceptionHandlingRetryResult)exceptionHandlingResult;
@@ -261,8 +260,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         Exception = exceptionInformation.Exception
                     };
 
-                    var throwResult = exceptionHandlingResult as ExceptionHandlingThrowResult;
-                    if ((throwResult != null) && (throwResult.ExceptionToThrow != null))
+                    if ((exceptionHandlingResult is ExceptionHandlingThrowResult throwResult) && (throwResult.ExceptionToThrow != null))
                     {
                         retval.Exception = throwResult.ExceptionToThrow;
                     }
@@ -332,7 +330,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             {
                 ExceptionHandlingResult result;
                 Exception actualException;
-                bool newClient = false;
+                var newClient = false;
                 try
                 {
                     if (doResolve)
@@ -439,10 +437,13 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         throw;
                     }
 
-                    var throwResult = result as ExceptionHandlingThrowResult;
-                    if (throwResult != null)
+                    if (result is ExceptionHandlingThrowResult throwResult)
                     {
-                        if (ReferenceEquals(e, throwResult.ExceptionToThrow)) throw;
+                        if (ReferenceEquals(e, throwResult.ExceptionToThrow))
+                        {
+                            throw;
+                        }
+
                         throw throwResult.ExceptionToThrow;
                     }
 
@@ -524,16 +525,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         internal void OnClientDisconnected(TCommunicationClient faultedClient)
         {
-            var clientDisconnectedEvent = this.ClientDisconnected;
-            if (clientDisconnectedEvent != null)
-            {
-                clientDisconnectedEvent(
+            this.ClientDisconnected?.Invoke(
                     this,
                     new CommunicationClientEventArgs<TCommunicationClient>()
                     {
                         Client = faultedClient
                     });
-            }
         }
 
         internal void OnClientConnected(TCommunicationClient newClient)

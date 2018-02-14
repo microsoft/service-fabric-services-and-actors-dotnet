@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -6,12 +6,10 @@
 namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
 {
     using System;
-    using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -97,7 +95,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
             return new V1.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(actorService, listenerSettings);
         }
 
-           /// <summary>
+        /// <summary>
         ///     Creates a service remoting client factory to connect to the remoted actor interfaces.
         /// </summary>
         /// <param name="callbackClient">
@@ -152,7 +150,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
             settings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(settings.KeepAliveTimeout);
             settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
             return new FabricTransportActorRemotingClientFactory(settings, callbackMessageHandler);
-        }     
+        }
 
         private long GetAndValidateMaxMessageSize(long maxMessageSize)
         {
@@ -184,8 +182,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         {
             var sectionName = ActorNameFormat.GetFabricServiceTransportSettingsSectionName(
                 actorService.ActorTypeInformation.ImplementationType);
-            FabricTransportRemotingListenerSettings listenerSettings;
-            var isSucceded = FabricTransportRemotingListenerSettings.TryLoadFrom(sectionName, out listenerSettings);
+            var isSucceded = FabricTransportRemotingListenerSettings.TryLoadFrom(sectionName, out var listenerSettings);
             if (!isSucceded)
             {
                 listenerSettings = FabricTransportRemotingListenerSettings.GetDefault();

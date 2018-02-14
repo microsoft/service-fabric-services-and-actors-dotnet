@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
 {
     using System;
@@ -37,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
             : base(
                 GetContext(actorService),
                 new ActorServiceRemotingDispatcher(actorService, new DataContractRemotingMessageFactory()),
-                new ActorRemotingSerializationManager(new BasicDataContractSerializationProvider(), 
+                new ActorRemotingSerializationManager(new BasicDataContractSerializationProvider(),
                     new BasicDataContractActorHeaderSerializer()),
                 listenerBinding,
                 ActorNameFormat.GetFabricServiceEndpointName(actorService.ActorTypeInformation.ImplementationType))

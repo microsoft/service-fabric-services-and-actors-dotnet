@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -22,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// </summary>
     public sealed class KvsActorStateProvider : KvsActorStateProviderBase
     {
-        private readonly LocalStoreSettings userDefinedLocalStoreSettings; 
+        private readonly LocalStoreSettings userDefinedLocalStoreSettings;
         private readonly bool userDefinedEnableIncrementalBackup;
         private readonly int? userDefinedLogTruncationInterval;
 
@@ -119,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             return kvs;
         }
-        
+
         private LocalStoreSettings GetLocalStoreSettings()
         {
             // check if user provided the settings
@@ -146,13 +147,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 settings = new LocalEseStoreSettings()
                 {
                     MaxAsyncCommitDelay = TimeSpan.FromMilliseconds(100),
-                    MaxVerPages = 8192*4,
+                    MaxVerPages = 8192 * 4,
                     EnableIncrementalBackup = this.userDefinedEnableIncrementalBackup
                 };
             }
 
-            var eseLocalStoreSettings = settings as LocalEseStoreSettings;
-            if (eseLocalStoreSettings != null)
+            if (settings is LocalEseStoreSettings eseLocalStoreSettings)
             {
                 if (string.IsNullOrEmpty(eseLocalStoreSettings.DbFolderPath))
                 {

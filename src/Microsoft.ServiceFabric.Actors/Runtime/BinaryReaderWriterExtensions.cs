@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -16,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public const byte NullPrefixByte = 0;
         public const byte NotNullPrefixByte = 1;
-        
+
         public static void Write(this BinaryWriter writer, Guid guid)
         {
             var gb = new GuidBytes(guid);
@@ -148,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             writer.Write(NotNullPrefixByte);
         }
     }
-    
+
     [StructLayout(LayoutKind.Explicit)]
     internal struct GuidBytes
     {
@@ -160,7 +161,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         [FieldOffset(8)]
         public readonly ulong Second64Bits;
-        
+
         public GuidBytes(Guid guid) : this()
         {
             this.Guid = guid;

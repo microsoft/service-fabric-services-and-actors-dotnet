@@ -1,10 +1,10 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
-    using System;
     using System.Fabric;
     using System.Fabric.Common;
     using System.Threading;
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 new ServiceRemotingMessageDispatcher(
                     serviceContext,
                     serviceImplementation,
-                    serializationProvider!=null?serializationProvider.CreateMessageBodyFactory():
+                    serializationProvider != null ? serializationProvider.CreateMessageBodyFactory() :
                     new DataContractRemotingMessageFactory()),
                 remotingListenerSettings,
                 serializationProvider
@@ -76,9 +76,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null
-            ):this(serviceContext,
+            ) : this(serviceContext,
                 serviceRemotingMessageHandler,
-                InitializeSerializersManager(serializationProvider,remotingListenerSettings),
+                InitializeSerializersManager(serializationProvider, remotingListenerSettings),
                 remotingListenerSettings)
         {
         }
@@ -86,10 +86,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private static ServiceRemotingMessageSerializersManager InitializeSerializersManager(IServiceRemotingMessageSerializationProvider serializationProvider,
             FabricTransportRemotingListenerSettings listenerSettings)
         {
-            listenerSettings = listenerSettings??
+            listenerSettings = listenerSettings ??
                 FabricTransportRemotingListenerSettings.GetDefault();
-           
-            return new ServiceRemotingMessageSerializersManager(serializationProvider,new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(listenerSettings.HeaderBufferSize,
+
+            return new ServiceRemotingMessageSerializersManager(serializationProvider, new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(listenerSettings.HeaderBufferSize,
                 listenerSettings.HeaderMaxBufferCount)));
         }
 
@@ -106,9 +106,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.listenAddress = serviceContext.ListenAddress;
             this.publishAddress = serviceContext.PublishAddress;
 
-            var remotingSettings = remotingListenerSettings != null
-                ? remotingListenerSettings
-                : FabricTransportRemotingListenerSettings.GetDefault();
+            var remotingSettings = remotingListenerSettings ?? FabricTransportRemotingListenerSettings.GetDefault();
 
             if (remotingSettings.EndpointResourceName.Equals(FabricTransportRemotingListenerSettings
                 .DefaultEndpointResourceName))
@@ -159,7 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>
-        public async Task  CloseAsync(CancellationToken cancellationToken)
+        public async Task CloseAsync(CancellationToken cancellationToken)
         {
             await this.fabricTransportlistener.CloseAsync(
                 cancellationToken);

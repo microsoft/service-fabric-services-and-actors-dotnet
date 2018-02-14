@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Common
 {
     using System;
@@ -41,10 +42,10 @@ namespace Microsoft.ServiceFabric.Services.Common
         internal static int ComputeIdWithCRC(Type type)
         {
             var name = type.Name;
-                
+
             if (type.Namespace != null)
             {
-                name = String.Concat(type.Namespace,name);
+                name = string.Concat(type.Namespace, name);
             }
             return ComputeIdWithCRC(name);
         }
@@ -57,12 +58,12 @@ namespace Microsoft.ServiceFabric.Services.Common
             {
                 if (methodInfo.DeclaringType.Namespace != null)
                 {
-                    name = String.Concat(methodInfo.DeclaringType.Namespace, name);
+                    name = string.Concat(methodInfo.DeclaringType.Namespace, name);
                 }
 
-                name = String.Concat(methodInfo.DeclaringType.Name, name);
+                name = string.Concat(methodInfo.DeclaringType.Name, name);
             }
-            
+
             return ComputeIdWithCRC(name);
         }
 

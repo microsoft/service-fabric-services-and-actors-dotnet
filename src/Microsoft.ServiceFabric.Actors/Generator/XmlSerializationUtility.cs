@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System;
@@ -50,7 +51,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
                 using (var xmlReader = XmlReader.Create(stringReader, settings))
                 {
-                    return (T) serializer.Deserialize(xmlReader);
+                    return (T)serializer.Deserialize(xmlReader);
                 }
             }
         }
@@ -100,7 +101,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             foreach (var commentNode in commentNodes)
             {
-                XComment newComment = new XComment(commentNode.Value);
+                var newComment = new XComment(commentNode.Value);
 
                 // Handle comments at beginning and end of xml
                 if (commentNode.Parent == null)
@@ -123,8 +124,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     var parent = xdoc.Descendants(commentNode.Parent.Name).FirstOrDefault();
                     if (parent != null)
                     {
-                        bool hadPrevious = commentNode.ElementsBeforeSelf().Any();
-                        bool hadNext = commentNode.ElementsAfterSelf().Any();
+                        var hadPrevious = commentNode.ElementsBeforeSelf().Any();
+                        var hadNext = commentNode.ElementsAfterSelf().Any();
 
                         if (!hadNext)
                         {
@@ -165,7 +166,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             }
 
             // Use XmlWriterSettings same as used in serialization to keep changes to existing files to minimal.
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             using (var memoryStream = new MemoryStream())
             {
                 using (var xmlWriter = XmlWriter.Create(memoryStream, XmlSerializationUtility.GetXmlWriterSettings()))

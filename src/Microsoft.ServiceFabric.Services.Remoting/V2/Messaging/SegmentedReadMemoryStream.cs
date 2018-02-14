@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 {
     using System;
@@ -32,15 +33,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
         public SegmentedReadMemoryStream(ArraySegment<byte> readbuffer)
         {
-            var tempBuffers = new List<ArraySegment<byte>>();
-            tempBuffers.Add(readbuffer);
+            var tempBuffers = new List<ArraySegment<byte>>
+            {
+                readbuffer
+            };
             this.length = 0;
             this.readbuffers = tempBuffers;
             this.Initialize();
             this.SetLength();
         }
 
-        void Initialize()
+        private void Initialize()
         {
             this.canWrite = false;
             this.canSeek = false;
@@ -88,7 +91,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
                 case SeekOrigin.Begin:
                     this.Initialize();
                     return this.Position;
-                    
+
             }
             throw new NotImplementedException();
 
@@ -102,20 +105,31 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
+            {
                 throw new ArgumentNullException("buffer");
-            if ((offset + count) > buffer.Length)
-                throw new ArgumentException("buffer too small", "buffer");
-            if (offset < 0)
-                throw new ArgumentException("offset must be >= 0", "offset");
-            if (count < 0)
-                throw new ArgumentException("count must be >= 0", "count");
+            }
 
+            if ((offset + count) > buffer.Length)
+            {
+                throw new ArgumentException("buffer too small", "buffer");
+            }
+
+            if (offset < 0)
+            {
+                throw new ArgumentException("offset must be >= 0", "offset");
+            }
+
+            if (count < 0)
+            {
+                throw new ArgumentException("count must be >= 0", "count");
+            }
 
             if (this.Position >= this.Length || count == 0)
+            {
                 return 0;
+            }
 
-
-            var bytesToRead = Math.Min(count, (int) (this.Length - this.Position));
+            var bytesToRead = Math.Min(count, (int)(this.Length - this.Position));
             var bytesRead = 0;
             var bytesLeft = bytesToRead - bytesRead;
 
@@ -158,7 +172,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             {
                 this.bufferNum++;
                 this.bufferOffset = 0;
-                 currentBuffer = this.readbuffers.ElementAt((this.bufferNum));
+                currentBuffer = this.readbuffers.ElementAt((this.bufferNum));
             }
 
             var byteread = currentBuffer.Array[this.bufferOffset];

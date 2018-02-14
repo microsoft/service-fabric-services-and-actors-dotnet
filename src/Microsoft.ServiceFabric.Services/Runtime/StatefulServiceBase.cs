@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
     using System;
@@ -73,7 +74,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             get { return this.serviceContext; }
         }
-        
+
         /// <summary>
         /// Gets the list of all the addresses for this service replica
         /// as (ListenerName, Endpoint) key-value pair.
@@ -246,7 +247,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         protected virtual void OnAbort()
         {
         }
-        
+
         IReadOnlyDictionary<string, string> IStatefulUserServiceReplica.Addresses
         {
             set { Volatile.Write(ref this.addresses, value); }

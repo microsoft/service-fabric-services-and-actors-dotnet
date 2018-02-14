@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
@@ -86,9 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             var totalItemsCleaned = 0;
             foreach (var item in this.clientCache)
             {
-                var itemsCleanedPerEntry = 0;
-                var totalItemsPerEntry = 0;
-                item.Value.CleanupCacheEntries(out totalItemsPerEntry, out itemsCleanedPerEntry);
+                item.Value.CleanupCacheEntries(out var totalItemsPerEntry, out var itemsCleanedPerEntry);
                 if (itemsCleanedPerEntry > 0)
                 {
                     ServiceTrace.Source.WriteNoise(
@@ -195,8 +194,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
                         entry.Value.IsInCache = false;
 
-                        CommunicationClientCacheEntry<TCommunicationClient> removedValue;
-                        this.cache.TryRemove(entry.Key, out removedValue);
+                        this.cache.TryRemove(entry.Key, out var removedValue);
                         ++numberOfEntriesCleaned;
                     }
                     entry.Value.Semaphore.Release();
@@ -218,7 +216,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             public override bool Equals(object obj)
             {
                 var other = obj as PartitionClientCacheKey;
-                
+
                 return (other != null)
                     && (this.Endpoint.Role == other.Endpoint.Role)
                     && (CultureInfo.InvariantCulture.CompareInfo.Compare(this.ListenerName, other.ListenerName, CompareOptions.IgnoreCase) == 0)

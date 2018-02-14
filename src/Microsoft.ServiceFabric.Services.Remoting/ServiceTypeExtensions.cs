@@ -2,12 +2,12 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 
     internal static class ServiceTypeExtensions
     {
@@ -21,8 +21,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 
         public static Type[] GetAllBaseInterfaces(this Type serviceType)
         {
-            var list = new List<Type>(serviceType.GetInterfaces());
-            list.Add(serviceType);
+            var list = new List<Type>(serviceType.GetInterfaces())
+            {
+                serviceType
+            };
             return list.ToArray();
         }
 

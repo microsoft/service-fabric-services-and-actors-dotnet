@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace FabActUtil
 {
     using System;
@@ -23,7 +24,7 @@ namespace FabActUtil
             try
             {
                 AssemblyResolvePath = parsedArguments.AssemblyResolvePath;
-                AppDomain currentDomain = AppDomain.CurrentDomain;
+                var currentDomain = AppDomain.CurrentDomain;
                 currentDomain.AssemblyResolve += new ResolveEventHandler(ResolveHandler);
 
                 Tool.Run(parsedArguments);
@@ -47,8 +48,8 @@ namespace FabActUtil
                 if (Directory.Exists(AssemblyResolvePath))
                 {
                     // try to load dll and then exe
-                    string assemblyName = new AssemblyName(args.Name).Name;
-                    string assemblyPath = Path.Combine(AssemblyResolvePath, assemblyName + ".dll");
+                    var assemblyName = new AssemblyName(args.Name).Name;
+                    var assemblyPath = Path.Combine(AssemblyResolvePath, assemblyName + ".dll");
 
                     if (File.Exists(assemblyPath))
                     {

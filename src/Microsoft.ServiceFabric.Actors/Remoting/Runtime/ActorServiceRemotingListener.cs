@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
 {
     using System;
@@ -10,10 +11,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
 
-  
-    internal static class ActorServiceRemotingListener 
+
+    internal static class ActorServiceRemotingListener
     {
-      #if !DotNetCoreClr
+#if !DotNetCoreClr
         public static ICommunicationListener CreateActorServiceRemotingListener(
             ActorService actorService)
         {
@@ -29,7 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
             return provider.CreateServiceRemotingListener(actorService);
         }
 
-#endif        
-      
+#endif
+
     }
 }

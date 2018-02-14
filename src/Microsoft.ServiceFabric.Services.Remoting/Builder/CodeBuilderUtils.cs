@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
     using System;
@@ -18,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         private static readonly PropertyInfo DcAttrNamespacePropInfo;
         private static readonly ConstructorInfo DmAttrCtorInfo;
         private static readonly PropertyInfo DmAttrIsRequiredPropInfo;
-        private static readonly object[] EmptyObjectArray = {};
+        private static readonly object[] EmptyObjectArray = { };
 
         static CodeBuilderUtils()
         {
@@ -172,7 +173,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return methodBuilder;
         }
 
-#region Data Contract Type Generation Utilities
+        #region Data Contract Type Generation Utilities
 
         public static TypeBuilder CreateDataContractTypeBuilder(
             ModuleBuilder moduleBuilder,
@@ -210,8 +211,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 return new CustomAttributeBuilder(
                     DcAttrCtorInfo,
                     EmptyObjectArray,
-                    new[] {DcAttrNamespacePropInfo},
-                    new object[] {dcNamespace});
+                    new[] { DcAttrNamespacePropInfo },
+                    new object[] { dcNamespace });
             }
 
             if (string.IsNullOrEmpty(dcNamespace))
@@ -219,15 +220,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 return new CustomAttributeBuilder(
                     DcAttrCtorInfo,
                     EmptyObjectArray,
-                    new[] {DcAttrNamePropInfo},
-                    new object[] {dcName});
+                    new[] { DcAttrNamePropInfo },
+                    new object[] { dcName });
             }
 
             return new CustomAttributeBuilder(
                 DcAttrCtorInfo,
                 EmptyObjectArray,
-                new[] {DcAttrNamespacePropInfo, DcAttrNamePropInfo},
-                new object[] {dcNamespace, dcName});
+                new[] { DcAttrNamespacePropInfo, DcAttrNamePropInfo },
+                new object[] { dcNamespace, dcName });
         }
 
         private static CustomAttributeBuilder CreateCustomDataMemberAttributeBuilder()
@@ -235,10 +236,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return new CustomAttributeBuilder(
                 DmAttrCtorInfo,
                 EmptyObjectArray,
-                new[] {DmAttrIsRequiredPropInfo},
-                new object[] {false});
+                new[] { DmAttrIsRequiredPropInfo },
+                new object[] { false });
         }
 
-#endregion
+        #endregion
     }
 }

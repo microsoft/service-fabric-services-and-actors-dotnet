@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
     using ActorEventSubscription = Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime.ActorEventSubscription;
 
-    class ActorRemotingSerializationManager : ServiceRemotingMessageSerializersManager
+    internal class ActorRemotingSerializationManager : ServiceRemotingMessageSerializersManager
     {
         public ActorRemotingSerializationManager(IServiceRemotingMessageSerializationProvider serializationProvider,
             IServiceRemotingMessageHeaderSerializer headerSerializer) : base(serializationProvider, headerSerializer)
@@ -28,13 +28,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
                         new[]
                         {
                             typeof(EventSubscriptionRequestBody)
-                        }), 
+                        }),
                     new BasicDataResponsetMessageBodySerializer(
                         new[]
                         {
                             typeof(EventSubscriptionRequestBody)
                         }));
-                
+
             }
 
             return base.CreateSerializers(interfaceId);
@@ -42,8 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 
         internal override InterfaceDetails GetInterfaceDetails(int interfaceId)
         {
-            InterfaceDetails interfaceDetails;
-            if (ActorCodeBuilder.TryGetKnownTypes(interfaceId, out interfaceDetails))
+            if (ActorCodeBuilder.TryGetKnownTypes(interfaceId, out var interfaceDetails))
             {
                 return interfaceDetails;
             }

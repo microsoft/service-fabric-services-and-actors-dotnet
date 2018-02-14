@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -214,9 +214,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
         internal async Task UnsubscribeAsyncV2(Type eventType, object subscriber)
         {
             var actorId = this.servicePartitionClientV2.ActorId;
-            SubscriptionInfo info;
             if (Remoting.V2.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(actorId, eventType,
-                subscriber, out info))
+                subscriber, out var info))
             {
                 await this.servicePartitionClientV2.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
             }
@@ -273,12 +272,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
-            return ((Remoting.V1.ActorMessageBody) responseMessageBody).Value;
+            return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
         }
 
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
-            return new Remoting.V1.ActorMessageBody() {Value = requestMessageBodyValue};
+            return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
         }
 
         internal override Task<byte[]> InvokeAsync(
@@ -370,9 +369,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
-            SubscriptionInfo info;
             if (Remoting.V1.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(actorId, eventType,
-                subscriber, out info))
+                subscriber, out var info))
             {
                 await this.servicePartitionClient.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
             }

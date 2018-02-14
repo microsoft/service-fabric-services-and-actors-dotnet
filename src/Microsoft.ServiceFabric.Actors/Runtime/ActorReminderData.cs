@@ -1,9 +1,10 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
-{                                      
+{
     using System;
     using System.Runtime.Serialization;
 
@@ -54,10 +55,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public long EstimateDataLength()
         {
             return this.ActorId.EstimateDataLength()
-                   + (this.Name.Length*sizeof(char))
+                   + (this.Name.Length * sizeof(char))
                    + sizeof(long) // DueTime
                    + sizeof(long) // Period
-                   + this.State.Length*sizeof(byte)
+                   + this.State.Length * sizeof(byte)
                    + sizeof(long) // Attributes
                    + sizeof(long); // LogicalCreationTime
         }

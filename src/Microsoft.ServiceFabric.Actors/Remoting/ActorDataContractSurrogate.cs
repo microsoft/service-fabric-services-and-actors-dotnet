@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
             else if (obj is IActorReference && typeof(IActor).IsAssignableFrom(targetType) &&
                      !typeof(IActorReference).IsAssignableFrom(targetType))
             {
-                return ((IActorReference) obj).Bind(targetType);
+                return ((IActorReference)obj).Bind(targetType);
             }
 
 

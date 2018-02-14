@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 {
     using System.Collections.Generic;
@@ -26,8 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 
         public ActorMethodDispatcherBase GetDispatcher(int interfaceId, int methodId)
         {
-            ActorMethodDispatcherBase methodDispatcher;
-            if (!this.map.TryGetValue(interfaceId, out methodDispatcher))
+            if (!this.map.TryGetValue(interfaceId, out var methodDispatcher))
             {
                 throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture,
                     SR.ErrorMethodDispatcherNotFound, interfaceId));

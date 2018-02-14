@@ -1,11 +1,10 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
-    using System;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
@@ -40,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         public string InvocationId { get; set; }
 
 
-        
+
         /// <summary>
         /// Instantiates a new instance of the ServiceRemotingRequestMessageHeader
         /// </summary>
@@ -50,7 +49,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             this.InvocationId = null;
         }
 
-       
+
         public void AddHeader(string headerName, byte[] headerValue)
         {
             if (this.headers.ContainsKey(headerName))
@@ -77,7 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             return this.headers.TryGetValue(headerName, out headerValue);
         }
 
-     
+
 
 
     }

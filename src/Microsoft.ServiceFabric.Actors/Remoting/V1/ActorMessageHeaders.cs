@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1
 {
     using System.IO;
@@ -15,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
     [DataContract(Name = "addr", Namespace = Actors.Remoting.Constants.Namespace)]
     internal class ActorMessageHeaders
     {
-        private static readonly DataContractSerializer Serializer = 
+        private static readonly DataContractSerializer Serializer =
             new DataContractSerializer(typeof(ActorMessageHeaders));
         private const string ActorMessageHeaderName = "ActorMessageHeader";
         [DataMember(IsRequired = true, Order = 0)] public int InterfaceId;
@@ -34,8 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
         public static bool TryFromServiceMessageHeaders(ServiceRemotingMessageHeaders headers, out ActorMessageHeaders actorHeaders)
         {
             actorHeaders = null;
-            byte[] headerValue;
-            if (!headers.TryGetHeaderValue(ActorMessageHeaderName, out headerValue))
+            if (!headers.TryGetHeaderValue(ActorMessageHeaderName, out var headerValue))
             {
                 return false;
             }

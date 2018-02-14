@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
 
             return new ActorEventProxyGeneratorWith(
                 proxyInterfaceType,
-                (IProxyActivator) Activator.CreateInstance(proxyActivatorType),
+                (IProxyActivator)Activator.CreateInstance(proxyActivatorType),
                 requestBodyTypes,
                 responseBodyTypes);
         }

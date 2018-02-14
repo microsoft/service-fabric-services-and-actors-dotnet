@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
         static ActorEventSubscription()
         {
             Serializer =
-                ActorMessageBodySerializer.GetActorMessageSerializer(new[] {typeof(EventSubscriptionRequestBody)});
+                ActorMessageBodySerializer.GetActorMessageSerializer(new[] { typeof(EventSubscriptionRequestBody) });
             InterfaceId = IdUtil.ComputeId("IActorEventSubscription", "System.Fabric.Actors.Communication");
             SubscribeMethodId = "SubscribeAsyc".GetHashCode();
             UnSubscribeMethodId = "UnSubscribeAsyc".GetHashCode();

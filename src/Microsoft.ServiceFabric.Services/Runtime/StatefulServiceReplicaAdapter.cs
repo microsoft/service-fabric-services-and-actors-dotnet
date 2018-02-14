@@ -1,14 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Fabric;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Data;
@@ -75,7 +75,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         internal IList<ICommunicationListener> Test_CommunicationListeners
         {
             get { return this.communicationListeners; }
-        } 
+        }
 
         #region Implementation of IStatefulServiceReplica
 
@@ -126,7 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         async Task<string> IStatefulServiceReplica.ChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
         {
             ServiceTrace.Source.WriteInfoWithId(
-                TraceType, 
+                TraceType,
                 this.traceId,
                 "ChangeRoleAsync : new role {0}",
                 newRole);
@@ -142,9 +142,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
             }
             else
-            {                
+            {
                 await this.CancelRunAsync();
-                
+
                 if (newRole == ReplicaRole.ActiveSecondary)
                 {
                     this.endpointCollection = await this.OpenCommunicationListenersAsync(newRole, cancellationToken);
@@ -212,7 +212,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 TraceType,
                 this.traceId,
                 "Abort");
-            
+
             this.AbortCommunicationListeners();
             this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
             this.userServiceReplica.OnAbort();
@@ -231,7 +231,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private Task ScheduleRunAsync(CancellationToken runAsyncCancellationToken)
         {
             ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Scheduling RunAsync");
-            
+
             // Ensure that RunAsync is invoked on a different thread so that calling thread
             // can return and complete the ChangeRoleAsync() call. If we await user's RunAsync
             // directly in current thread, then user can block the current thread and
@@ -338,8 +338,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     ServiceHelper.RunAsyncExpectedCancellationTimeSpan);
 
                 ServiceTrace.Source.WriteInfoWithId(
-                    TraceType + ServiceHelper.ApiStartTraceTypeSuffix, 
-                    this.traceId, 
+                    TraceType + ServiceHelper.ApiStartTraceTypeSuffix,
+                    this.traceId,
                     "Canceling RunAsync");
 
                 var cancellationStopwatch = new Stopwatch();
@@ -405,8 +405,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                         ServiceHelper.RunAsyncExpectedCancellationTimeSpan);
 
                     ServiceTrace.Source.WriteWarningWithId(
-                        TraceType + ServiceHelper.ApiSlowTraceTypeSuffix, 
-                        this.traceId, 
+                        TraceType + ServiceHelper.ApiSlowTraceTypeSuffix,
+                        this.traceId,
                         "RunAsync slow cancellation: Time: {0}s",
                         cancellationStopwatch.Elapsed.TotalSeconds);
                 }
@@ -452,7 +452,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await Task.Delay(PrimaryStatusCheckRetryIntervalInMillis, cancellationToken);
             }
         }
-        
+
         #endregion
 
         #region Communication Listeners Management
@@ -521,7 +521,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 {
                     foreach (var entry in this.communicationListeners)
                     {
-                        
+
                         await entry.CloseAsync(cancellationToken);
                     }
                 }
@@ -595,8 +595,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         internal bool Test_IsRunAsyncTaskRunning()
         {
-            return (!this.executeRunAsyncTask.IsCompleted && 
-                    !this.executeRunAsyncTask.IsCanceled && 
+            return (!this.executeRunAsyncTask.IsCompleted &&
+                    !this.executeRunAsyncTask.IsCanceled &&
                     !this.executeRunAsyncTask.IsFaulted);
         }
 

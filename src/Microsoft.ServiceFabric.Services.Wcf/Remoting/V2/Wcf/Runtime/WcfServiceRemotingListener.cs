@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 {
     using System;
@@ -168,7 +169,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// </remarks>
         public ServiceHost ServiceHost
         {
-            get { return ((WcfCommunicationListener<IServiceRemotingContract>) this.wcfListener).ServiceHost; }
+            get { return ((WcfCommunicationListener<IServiceRemotingContract>)this.wcfListener).ServiceHost; }
         }
 
         /// <summary>
@@ -292,8 +293,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
         private void DisposeIfNeeded()
         {
-            var disposableItem = this.messageHandler as IDisposable;
-            if (null != disposableItem)
+            if (this.messageHandler is IDisposable disposableItem)
             {
                 disposableItem.Dispose();
             }

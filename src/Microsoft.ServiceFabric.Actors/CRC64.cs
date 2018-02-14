@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors
 {
     using System.Globalization;
@@ -91,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors
             var crc = 0xffffffffffffffff;
             for (var i = 0; i < value.Length; i++)
             {
-                var tableIndex = (((uint) (crc >> 56)) ^ value[i]) & 0xff;
+                var tableIndex = (((uint)(crc >> 56)) ^ value[i]) & 0xff;
                 crc = Crc64Table[tableIndex] ^ (crc << 8);
             }
 
@@ -110,7 +111,7 @@ namespace Microsoft.ServiceFabric.Actors
             {
                 for (var i = 0; i < values[x].Length; i++)
                 {
-                    var tableIndex = (((uint) (crc >> 56)) ^ values[x][i]) & 0xff;
+                    var tableIndex = (((uint)(crc >> 56)) ^ values[x][i]) & 0xff;
                     crc = Crc64Table[tableIndex] ^ (crc << 8);
                 }
             }

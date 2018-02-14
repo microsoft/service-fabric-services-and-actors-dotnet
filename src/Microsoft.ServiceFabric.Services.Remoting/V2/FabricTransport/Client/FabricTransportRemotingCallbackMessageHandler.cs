@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 {
     using Microsoft.ServiceFabric.FabricTransport.V2;
@@ -9,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
-    class FabricTransportRemotingCallbackMessageHandler : IFabricTransportCallbackMessageHandler
+    internal class FabricTransportRemotingCallbackMessageHandler : IFabricTransportCallbackMessageHandler
     {
         private IServiceRemotingCallbackMessageHandler remotingCallbackClient;
         private readonly ServiceRemotingMessageSerializersManager manager;
@@ -36,8 +37,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             {
                 deserializedMsgBody = null;
             }
-            
-            this.remotingCallbackClient.HandleOneWayMessage(new ServiceRemotingRequestMessage(deserializerHeaders,deserializedMsgBody));
+
+            this.remotingCallbackClient.HandleOneWayMessage(new ServiceRemotingRequestMessage(deserializerHeaders, deserializedMsgBody));
         }
     }
 }

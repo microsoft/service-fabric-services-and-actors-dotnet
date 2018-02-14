@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf
 {
     using System;
@@ -61,8 +62,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
 
                 var exceptionData = new ServiceExceptionData(exception.GetType().FullName,
                     exceptionStringBuilder.ToString());
-                string result;
-                if (TrySerializeExceptionData(exceptionData, out result))
+                if (TrySerializeExceptionData(exceptionData, out var result))
                 {
                     return result;
                 }
@@ -86,14 +86,13 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                 };
                 using (var textStream = XmlReader.Create(stringReader, settings))
                 {
-                    return (Exception) serializer.ReadObject(textStream);
+                    return (Exception)serializer.ReadObject(textStream);
                 }
             }
             catch (Exception ex)
             {
                 // add the message as service exception
-                ServiceExceptionData exceptionData;
-                if (TryDeserializeExceptionData(exceptionString, out exceptionData))
+                if (TryDeserializeExceptionData(exceptionString, out var exceptionData))
                 {
                     return new ServiceException(exceptionData.Type, exceptionData.Message);
                 }
@@ -138,7 +137,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                 };
                 using (var textStream = XmlReader.Create(stringReader, settings))
                 {
-                    result = (ServiceExceptionData) serializer.ReadObject(textStream);
+                    result = (ServiceExceptionData)serializer.ReadObject(textStream);
                     return true;
                 }
             }

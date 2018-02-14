@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
     using System;
@@ -9,7 +10,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
     /// Specifies the Service partition client for Remoting communication
@@ -26,11 +26,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             string listenerName = null,
             OperationRetrySettings retrySettings = null)
             : base(
-            remotingClientFactory, 
-            serviceUri, 
+            remotingClientFactory,
+            serviceUri,
             partitionKey,
             targetReplicaSelector,
-            listenerName, 
+            listenerName,
             retrySettings)
         {
         }
@@ -115,32 +115,32 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                         var finishedTask = await Task.WhenAny(innerTask, remoteCancellationTask);
 
                         if (finishedTask != innerTask)
-                        { 
+                        {
                             ServiceTrace.Source.WriteInfo(
                                 TraceType,
                                 "Cancellation delivered for CallContext : {0}, MethodId : {1}, InterfaceId : {2}",
                                 headers.InvocationId,
                                 headers.MethodId,
                                 headers.InterfaceId);
-                    }
-                    else
-                    {
-                        //
-                        // Actual task finished before cancellation task.
-                        // Cancel the cancellation task and observe exception if any.
-                        //
-                        remoteCancellationTaskCts.Cancel();
+                        }
+                        else
+                        {
+                            //
+                            // Actual task finished before cancellation task.
+                            // Cancel the cancellation task and observe exception if any.
+                            //
+                            remoteCancellationTaskCts.Cancel();
 
-                        try
-                        {
-                            await remoteCancellationTask;
-                        }
-                        catch (Exception)
-                        {
-                            // Ignore.
+                            try
+                            {
+                                await remoteCancellationTask;
+                            }
+                            catch (Exception)
+                            {
+                                // Ignore.
+                            }
                         }
                     }
-                }
                 }
 
                 tcs.TrySetResult(true);

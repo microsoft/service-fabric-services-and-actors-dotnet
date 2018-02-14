@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
 {
     using System;
@@ -96,7 +97,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                     endpointAddress)
                 : ChannelFactory<TServiceContract>.CreateChannel(this.clientBinding, endpointAddress);
 
-            var clientChannel = ((IClientChannel) channel);
+            var clientChannel = ((IClientChannel)channel);
             Exception connectionTimeoutException = null;
             try
             {

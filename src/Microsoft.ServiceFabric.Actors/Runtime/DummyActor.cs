@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// </summary>
     internal sealed class DummyActor : ActorBase
     {
-        internal DummyActor(ActorService actorService, ActorId actorId) 
+        internal DummyActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
             this.IsDummy = true;

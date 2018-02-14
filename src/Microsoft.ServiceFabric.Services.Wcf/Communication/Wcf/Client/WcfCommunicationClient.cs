@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
 {
     using System.Fabric;
@@ -17,7 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         where TServiceContract : class
     {
         private readonly TServiceContract channel;
-      
+
         internal WcfCommunicationClient(TServiceContract channel)
         {
             this.channel = channel;
@@ -37,7 +38,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         /// <value>The name of the listener in the service replica or instance to which the client is
         /// connected to.</value>
         public string ListenerName { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the service endpoint to which the client is connected to.
         /// </summary>
@@ -50,7 +51,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         /// <value>The WCF channel for the specified contract that this communication client uses.</value>
         public TServiceContract Channel
         {
-            get { return this.channel;  }
+            get { return this.channel; }
         }
 
         internal IClientChannel ClientChannel

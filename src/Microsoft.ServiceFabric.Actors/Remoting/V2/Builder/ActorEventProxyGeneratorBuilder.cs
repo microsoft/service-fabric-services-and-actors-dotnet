@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 {
     using System;
@@ -14,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Description;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
 
-    internal class ActorEventProxyGeneratorBuilder :ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
+    internal class ActorEventProxyGeneratorBuilder : ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
     {
 #if !DotNetCoreClr
         private readonly MethodInfo invokeMethodInfoV1;
@@ -39,13 +40,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             Type proxyInterfaceType,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
         {
-            
-            var result =  base.Build(proxyInterfaceType, interfaceDescriptions);
 
-            #if !DotNetCoreClr
+            var result = base.Build(proxyInterfaceType, interfaceDescriptions);
+
+#if !DotNetCoreClr
             // This code is to support V1 stack serialization logic
 
-            
+
             var methodBodyTypesResultsMap = interfaceDescriptions.ToDictionary(
                 d => d,
                 d => this.CodeBuilder.GetOrBuildMethodBodyTypes(d.InterfaceType));
@@ -59,14 +60,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 item => item.Key.V1Id,
                 item => item.Value.GetResponseBodyTypes());
 
-            var v1ProxyGenerator =  new Remoting.V1.Builder.ActorEventProxyGeneratorWith(
+            var v1ProxyGenerator = new Remoting.V1.Builder.ActorEventProxyGeneratorWith(
                 proxyInterfaceType,
                 null,
                 requestBodyTypes,
                 responseBodyTypes);
 
             ((ActorEventProxyGenerator)result.ProxyGenerator).InitializeV1ProxyGenerator(v1ProxyGenerator);
-        #endif
+#endif
             return result;
         }
 
@@ -75,7 +76,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         {
             return new ActorEventProxyGenerator(
                 proxyInterfaceType,
-                (IProxyActivator) Activator.CreateInstance(proxyActivatorType)
+                (IProxyActivator)Activator.CreateInstance(proxyActivatorType)
                 );
         }
 
@@ -86,49 +87,49 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             MethodDescription methodDescription,
             MethodBodyTypes methodBodyTypes)
         {
-                var interfaceMethod = methodDescription.MethodInfo;
-                var parameters = interfaceMethod.GetParameters();
-            
-                LocalBuilder requestBody = null;
-                if (methodBodyTypes.RequestBodyType != null)
+            var interfaceMethod = methodDescription.MethodInfo;
+            var parameters = interfaceMethod.GetParameters();
+
+            LocalBuilder requestBody = null;
+            if (methodBodyTypes.RequestBodyType != null)
+            {
+                // create requestBody and assign the values to its field from the arguments
+                requestBody = ilGen.DeclareLocal(methodBodyTypes.RequestBodyType);
+                var requestBodyCtor = methodBodyTypes.RequestBodyType.GetConstructor(Type.EmptyTypes);
+
+                if (requestBodyCtor != null)
                 {
-                    // create requestBody and assign the values to its field from the arguments
-                    requestBody = ilGen.DeclareLocal(methodBodyTypes.RequestBodyType);
-                    var requestBodyCtor = methodBodyTypes.RequestBodyType.GetConstructor(Type.EmptyTypes);
+                    ilGen.Emit(OpCodes.Newobj, requestBodyCtor);
+                    ilGen.Emit(OpCodes.Stloc, requestBody);
 
-                    if (requestBodyCtor != null)
+                    for (var i = 0; i < parameters.Length; i++)
                     {
-                        ilGen.Emit(OpCodes.Newobj, requestBodyCtor);
-                        ilGen.Emit(OpCodes.Stloc, requestBody);
-
-                        for (var i = 0; i < parameters.Length; i++)
-                        {
-                            ilGen.Emit(OpCodes.Ldloc, requestBody);
-                            ilGen.Emit(OpCodes.Ldarg, i + 1);
-                            ilGen.Emit(OpCodes.Stfld, methodBodyTypes.RequestBodyType.GetField(parameters[i].Name));
-                        }
+                        ilGen.Emit(OpCodes.Ldloc, requestBody);
+                        ilGen.Emit(OpCodes.Ldarg, i + 1);
+                        ilGen.Emit(OpCodes.Stfld, methodBodyTypes.RequestBodyType.GetField(parameters[i].Name));
                     }
                 }
-
-                // call the base Invoke method
-                ilGen.Emit(OpCodes.Ldarg_0); // base
-                ilGen.Emit(OpCodes.Ldc_I4, interfaceIdV1); // interfaceId
-                ilGen.Emit(OpCodes.Ldc_I4, methodDescription.V1Id); // methodId
-
-                if (requestBody != null)
-                {
-                    ilGen.Emit(OpCodes.Ldloc, requestBody);
-                }
-                else
-                {
-                    ilGen.Emit(OpCodes.Ldnull);
-                }
-
-                ilGen.EmitCall(OpCodes.Call, this.invokeMethodInfoV1, null);
-            
             }
+
+            // call the base Invoke method
+            ilGen.Emit(OpCodes.Ldarg_0); // base
+            ilGen.Emit(OpCodes.Ldc_I4, interfaceIdV1); // interfaceId
+            ilGen.Emit(OpCodes.Ldc_I4, methodDescription.V1Id); // methodId
+
+            if (requestBody != null)
+            {
+                ilGen.Emit(OpCodes.Ldloc, requestBody);
+            }
+            else
+            {
+                ilGen.Emit(OpCodes.Ldnull);
+            }
+
+            ilGen.EmitCall(OpCodes.Call, this.invokeMethodInfoV1, null);
+
+        }
 #endif
-        
+
         internal override void AddInterfaceImplementations(
             TypeBuilder classBuilder,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
@@ -148,8 +149,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 {
                     var methodBodyTypes = methodBodyTypesMap[methodDescription.Name];
 
-                  
-                  if (TypeUtility.IsVoidType(methodDescription.ReturnType))
+
+                    if (TypeUtility.IsVoidType(methodDescription.ReturnType))
                     {
                         var interfaceMethod = methodDescription.MethodInfo;
 

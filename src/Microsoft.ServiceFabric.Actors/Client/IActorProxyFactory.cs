@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Client
 {
     using System;
@@ -43,7 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             string serviceName = null,
             string listenerName = null) where TActorInterface : IActor;
 
-       
+
 
         /// <summary>
         /// Creates a proxy to the actor object that implements an actor interface.
