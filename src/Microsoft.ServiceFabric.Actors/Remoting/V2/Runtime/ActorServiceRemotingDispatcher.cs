@@ -65,9 +65,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             Requires.ThrowIfNull(requestMessage.GetHeader(), "RequestMessageHeader");
 
             var messageHeaders = requestMessage.GetHeader();
-            var actorHeaders = requestMessage.GetHeader() as IActorRemotingMessageHeaders;
 
-            if (actorHeaders != null)
+            if (requestMessage.GetHeader() is IActorRemotingMessageHeaders actorHeaders)
             {
                 if (messageHeaders.InterfaceId == Runtime.ActorEventSubscription.InterfaceId)
                 {
@@ -79,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
 
                 return this.HandleActorMethodDispatchAsync(actorHeaders, requestMessage.GetBody());
             }
-            
+
             return base.HandleRequestResponseAsync(requestContext, requestMessage);
         }
 
@@ -106,7 +105,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             }
             var header = this.CreateActorHeader(actorDispatchHeaders);
 
-            return this.HandleActorMethodDispatchAsync (header, requestBody, cancellationToken);
+            return this.HandleActorMethodDispatchAsync(header, requestBody, cancellationToken);
         }
 
         private async Task<IServiceRemotingResponseMessageBody> HandleActorMethodDispatchAsync(
@@ -176,27 +175,25 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                     this.GetRemotingMessageBodyFactory(),
                     cancellationToken);
         }
-       
+
 
         private IActorRemotingMessageHeaders CreateActorHeader(ActorRemotingDispatchHeaders actorDispatchHeaders)
         {
-            InterfaceDetails details;
-            if (ActorCodeBuilder.TryGetKnownTypes(actorDispatchHeaders.ActorInterfaceName, out details))
+            if (ActorCodeBuilder.TryGetKnownTypes(actorDispatchHeaders.ActorInterfaceName, out var details))
             {
                 var headers = new ActorRemotingMessageHeaders();
                 headers.ActorId = actorDispatchHeaders.ActorId;
-                 headers.InterfaceId = details.Id;
-                    if (String.IsNullOrEmpty(actorDispatchHeaders.CallContext))
-                    {
-                        headers.CallContext = Helper.GetCallContext();
-                    }
-                    else
-                    {
-                        headers.CallContext = actorDispatchHeaders.CallContext;
-                    }
-                
-                var headersMethodId = 0;
-                if (!details.MethodNames.TryGetValue(actorDispatchHeaders.MethodName, out headersMethodId))
+                headers.InterfaceId = details.Id;
+                if (string.IsNullOrEmpty(actorDispatchHeaders.CallContext))
+                {
+                    headers.CallContext = Helper.GetCallContext();
+                }
+                else
+                {
+                    headers.CallContext = actorDispatchHeaders.CallContext;
+                }
+
+                if (!details.MethodNames.TryGetValue(actorDispatchHeaders.MethodName, out var headersMethodId))
                 {
                     throw new NotSupportedException("This Actor Method is not Supported" + actorDispatchHeaders.MethodName);
                 }
@@ -204,21 +201,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
 
                 return headers;
             }
-          
+
             throw new NotSupportedException("This Actor Interface is not Supported" + actorDispatchHeaders.ActorInterfaceName);
-          }
+        }
 
         private async Task<IServiceRemotingResponseMessage> HandleSubscriptionRequestsAsync(
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessageHeader messageHeaders,
             IServiceRemotingRequestMessageBody requestMsgBody)
         {
-            var actorHeaders = (IActorRemotingMessageHeaders) messageHeaders;
+            var actorHeaders = (IActorRemotingMessageHeaders)messageHeaders;
 
             if (actorHeaders.MethodId == Runtime.ActorEventSubscription.SubscribeMethodId)
             {
                 var castedRequestMsgBody =
-                    (EventSubscriptionRequestBody) requestMsgBody.GetParameter(0, "Value",
+                    (EventSubscriptionRequestBody)requestMsgBody.GetParameter(0, "Value",
                         typeof(EventSubscriptionRequestBody));
 
                 await this.actorService.ActorManager
@@ -235,7 +232,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             if (messageHeaders.MethodId == Runtime.ActorEventSubscription.UnSubscribeMethodId)
             {
                 var castedRequestMsgBody =
-                    (Actors.Remoting.EventSubscriptionRequestBody) requestMsgBody.GetParameter(0, "Value",
+                    (Actors.Remoting.EventSubscriptionRequestBody)requestMsgBody.GetParameter(0, "Value",
                         typeof(Actors.Remoting.EventSubscriptionRequestBody));
 
                 await this.actorService.ActorManager

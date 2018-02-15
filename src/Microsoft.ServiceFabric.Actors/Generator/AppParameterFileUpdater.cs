@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             // Create new parameters for Actor Types and merge it with existing Parameters.
             appInstanceDefinition.Parameters = MergeAppParams(appInstanceDefinition.Parameters, newAppParams);
 
-            string newContent = XmlSerializationUtility.InsertXmlComments(appParamFileContents, appInstanceDefinition);
+            var newContent = XmlSerializationUtility.InsertXmlComments(appParamFileContents, appInstanceDefinition);
             Utility.WriteIfNeeded(arguments.AppParamFilePath, appParamFileContents, newContent);
         }
 
@@ -82,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             appInstanceDefinition.Parameters = MergeAppParams(appInstanceDefinition.Parameters, newAppParams);
 
-            string newContent = XmlSerializationUtility.InsertXmlComments(appParamFileContents, appInstanceDefinition);
+            var newContent = XmlSerializationUtility.InsertXmlComments(appParamFileContents, appInstanceDefinition);
             Utility.WriteIfNeeded(arguments.AppParamFilePath, appParamFileContents, newContent);
         }
 

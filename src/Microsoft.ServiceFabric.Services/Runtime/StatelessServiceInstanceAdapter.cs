@@ -1,21 +1,20 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Fabric;
-    using System.Fabric.Health;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
-    class StatelessServiceInstanceAdapter : IStatelessServiceInstance
+    internal class StatelessServiceInstanceAdapter : IStatelessServiceInstance
     {
         private const string TraceType = "StatelessServiceInstanceAdapter";
         private readonly string traceId;
@@ -125,7 +124,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private Task ScheduleRunAsync(CancellationToken runAsyncCancellationToken)
         {
             ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Scheduling RunAsync");
-            
+
             // Ensure that RunAsync is invoked on a different thread so that calling thread
             // can return and complete the OpenAsync() call. If we await RunAsync directly in
             // current thread, then user can block the current thread and OpenAsync() call will

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         {
             this.outgoingBuffer = buffer;
             this.pooledBuffer = null;
-          
+
         }
 
         private ArraySegment<byte> CreateAndReleaseBuffer(IEnumerable<IPooledBuffer> pooledBuffers)
@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
         public Stream GetReceivedBuffer()
         {
-           throw new NotImplementedException("This method is not valid on outgoing messages");
+            throw new NotImplementedException("This method is not valid on outgoing messages");
         }
 
         public ArraySegment<byte> GetSendBuffer()

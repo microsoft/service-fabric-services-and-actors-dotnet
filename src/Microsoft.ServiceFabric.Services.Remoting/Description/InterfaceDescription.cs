@@ -2,12 +2,12 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Description
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
     using System.Reflection;
     using Microsoft.ServiceFabric.Services.Common;
 
@@ -40,9 +40,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             {
                 this.interfaceId = IdUtil.ComputeId(remotedInterfaceType);
             }
-            
-            this.methods = GetMethodDescriptions(remotedInterfaceKindName, remotedInterfaceType, methodReturnCheck,useCRCIdGeneration);
-        
+
+            this.methods = GetMethodDescriptions(remotedInterfaceKindName, remotedInterfaceType, methodReturnCheck, useCRCIdGeneration);
+
         }
 
         public int V1Id
@@ -93,9 +93,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             EnsureValidMethods(remotedInterfaceKindName, remotedInterfaceType, methodReturnCheck);
             var methods = remotedInterfaceType.GetMethods();
             var methodDescriptions = new MethodDescription[methods.Length];
-            for (int i = 0; i < methods.Length; i++)
+            for (var i = 0; i < methods.Length; i++)
             {
-              methodDescriptions[i] = MethodDescription.Create(remotedInterfaceKindName, methods[i],useCRCIdGeneration);
+                methodDescriptions[i] = MethodDescription.Create(remotedInterfaceKindName, methods[i], useCRCIdGeneration);
             }
             return methodDescriptions;
         }

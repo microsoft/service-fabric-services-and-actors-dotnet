@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
 {
     using System;
@@ -47,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
             if (service != null)
             {
                 var serviceTypeInformation = ServiceTypeInformation.Get(service.GetType());
-                List<ServiceInterfaceDescription> interfaceDescriptions = new List<ServiceInterfaceDescription>();
+                var interfaceDescriptions = new List<ServiceInterfaceDescription>();
 
                 foreach (var interfaceType in serviceTypeInformation.InterfaceTypes)
                 {
@@ -136,8 +137,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         private Task<byte[]> OnDispatch(ServiceRemotingMessageHeaders headers, byte[] requestBodyBytes,
             CancellationToken cancellationToken)
         {
-            ServiceMethodDispatcherBase methodDispatcher;
-            if (!this.methodDispatcherMap.TryGetValue(headers.InterfaceId, out methodDispatcher))
+            if (!this.methodDispatcherMap.TryGetValue(headers.InterfaceId, out var methodDispatcher))
             {
                 throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture,
                     SR.ErrorInterfaceNotImplemented, headers.InterfaceId, this.service));
@@ -218,9 +218,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
 
         internal bool IsCancellationRequest(ServiceRemotingMessageHeaders messageHeaders)
         {
-            byte[] headerValue;
             if (messageHeaders.InvocationId != null &&
-                messageHeaders.TryGetHeaderValue(ServiceRemotingMessageHeaders.CancellationHeaderName, out headerValue))
+                messageHeaders.TryGetHeaderValue(ServiceRemotingMessageHeaders.CancellationHeaderName, out var headerValue))
             {
                 return true;
             }

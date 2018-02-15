@@ -1,16 +1,15 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     using System;
     using System.Collections.Generic;
     using System.Fabric.Common;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     internal class ServiceRemotingPerformanceCounterProvider : IDisposable
     {
@@ -33,14 +32,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         }
 
         public ServiceRemotingPerformanceCounterProvider(Guid partitionId, long replicaOrInstanceId)
-            
+
         {
             this.partitionId = partitionId;
             var ticks = (long)((DateTime.UtcNow.Ticks) % Math.Pow(10, MaxDigits));
-            this.counterInstanceDifferentiator = String.Concat(replicaOrInstanceId,
+            this.counterInstanceDifferentiator = string.Concat(replicaOrInstanceId,
                 "_",
                 ticks.ToString("D"));
-            var serviceCounterInstanceName = String.Concat(this.partitionId.ToString("D"), "_",
+            var serviceCounterInstanceName = string.Concat(this.partitionId.ToString("D"), "_",
                 this.counterInstanceDifferentiator);
             try
             {
@@ -97,19 +96,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             var sb = new StringBuilder();
 
-            sb.Append(String.Format("Created performance counter category {0} with following counters.",
+            sb.Append(string.Format("Created performance counter category {0} with following counters.",
                 counterSet.CounterSetDefinition.Name));
             sb.AppendLine();
             foreach (var counter in activeCounters)
             {
-                sb.Append(String.Format("CounterName : {0}", counter.Name));
+                sb.Append(string.Format("CounterName : {0}", counter.Name));
                 sb.AppendLine();
             }
             ServiceTrace.Source.WriteInfo(TraceType, sb.ToString());
         }
 
-    
-  
+
+
         private void CreateserviceCounterWriters(string serviceCounterInstanceName)
         {
             if (this.
@@ -158,7 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
         }
 
-   
+
         private T CreateCounterWriter<T>(string serviceCounterInstanceName, Type writerType,
             Func<T> writerCreationCallback)
         {
@@ -177,7 +176,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             return result;
         }
 
-   
+
 
         private void LogCounterInstanceCreationResult(Type counterWriterType, string instanceName, Exception e)
         {
@@ -201,9 +200,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
         }
 
-      
 
-      
+
+
 
         public void Dispose()
         {

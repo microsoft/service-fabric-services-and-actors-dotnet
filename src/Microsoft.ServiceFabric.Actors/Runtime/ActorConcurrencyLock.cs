@@ -1,14 +1,13 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
-    using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Remoting;
     using System.Globalization;
 
     /// <summary>
@@ -58,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.currentCallContext = this.initialCallContext;
             this.currentCallCount = 0;
             this.turnLockTimeout = actorConcurrencySettings.LockTimeout;
-            this.turnLockTimeoutRandomizer = GetRandomizer(this.turnLockTimeout, out turnLockWaitMaxRandomIntervalMillis);
+            this.turnLockTimeoutRandomizer = GetRandomizer(this.turnLockTimeout, out this.turnLockWaitMaxRandomIntervalMillis);
         }
 
         internal string Test_CurrentContext
@@ -110,7 +109,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     if (incomingCallContext.Length == this.currentCallContext.Length)
                     {
                         throw new DuplicateMessageException(string.Format(CultureInfo.CurrentCulture,
-                                                            SR.ErrorDuplicateMessage,this.GetType()));
+                                                            SR.ErrorDuplicateMessage, this.GetType()));
                     }
 
                     //
@@ -120,7 +119,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     // if the reentrancy is disallowed, throw and exception
                     if (actorReentrancyMode == ActorReentrancyMode.Disallowed)
                     {
-                        throw new ReentrancyModeDisallowedException(String.Format(SR.ReentrancyModeDisallowed, this.GetType()));
+                        throw new ReentrancyModeDisallowedException(string.Format(SR.ReentrancyModeDisallowed, this.GetType()));
                     }
 
                     // if the actor is dirty, do not allow reentrant call to go through

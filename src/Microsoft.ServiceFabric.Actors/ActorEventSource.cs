@@ -1,12 +1,10 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
 {
-    using System;
-    using System.Fabric;
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ServiceFabric.Diagnostics.Tracing;

@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
     using System;
@@ -9,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Description;
     using System.Reflection;
 
-    internal class MethodBodyTypesBuilder  : CodeBuilderModule
+    internal class MethodBodyTypesBuilder : CodeBuilderModule
     {
         public MethodBodyTypesBuilder(ICodeBuilder codeBuilder)
             : base(codeBuilder)
@@ -40,7 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
         private static MethodBodyTypes Build(
             ICodeBuilderNames codeBuilderNames,
-            CodeBuilderContext context, 
+            CodeBuilderContext context,
             MethodDescription methodDescription)
         {
             var methodDataTypes = new MethodBodyTypes()
@@ -56,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             }
 
             if (TypeUtility.IsTaskType(methodDescription.ReturnType) && methodDescription.ReturnType.GetTypeInfo().IsGenericType)
-            { 
+            {
                 methodDataTypes.ResponseBodyType = BuildResponseBodyType(codeBuilderNames, context, methodDescription);
             }
 
@@ -65,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
         private static Type BuildRequestBodyType(
             ICodeBuilderNames codeBuilderNames,
-            CodeBuilderContext context, 
+            CodeBuilderContext context,
             MethodDescription methodDescription)
         {
             var requestBodyTypeBuilder = CodeBuilderUtils.CreateDataContractTypeBuilder(
@@ -87,7 +88,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
         private static Type BuildResponseBodyType(
             ICodeBuilderNames codeBuilderNames,
-            CodeBuilderContext context, 
+            CodeBuilderContext context,
             MethodDescription methodDescription)
         {
             var responseBodyTypeBuilder = CodeBuilderUtils.CreateDataContractTypeBuilder(

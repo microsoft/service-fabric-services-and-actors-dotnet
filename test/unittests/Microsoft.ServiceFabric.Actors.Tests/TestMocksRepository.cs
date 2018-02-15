@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 MockReplicaOrInstanceID);
         }
 
-        internal static ActorService GetActorService<T>() where T: Actor
+        internal static ActorService GetActorService<T>() where T : Actor
         {
             return new ActorService(
                 GetMockStatefulServiceContext(),
@@ -90,7 +90,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         }
 
         private static ICodePackageActivationContext GetCodePackageActivationContext()
-        {   
+        {
             // Create mock Context and setup required things needed by tests.
             var mockContext = new Mock<ICodePackageActivationContext>();
             mockContext.SetupAllProperties();

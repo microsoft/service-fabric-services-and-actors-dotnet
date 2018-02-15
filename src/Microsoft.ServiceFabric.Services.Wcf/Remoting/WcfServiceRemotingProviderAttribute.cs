@@ -1,13 +1,13 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
 {
     using System;
     using System.Fabric;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
-    using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class WcfServiceRemotingProviderAttribute : ServiceRemotingProviderAttribute
     {
-        private const long DefaultMaxMessageSize = 4*1024*1024;
+        private const long DefaultMaxMessageSize = 4 * 1024 * 1024;
         private static readonly TimeSpan DefaultOpenCloseTimeout = TimeSpan.FromMilliseconds(5000);
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         /// </summary>
         public WcfServiceRemotingProviderAttribute()
         {
-            
+
         }
         /// <summary>
         ///     Gets or Sets the maximum message size that can be transferred over remoting.
@@ -77,7 +77,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         ///     A <see cref=" V1.Wcf.Runtime.WcfServiceRemotingListener"/> for the specified service.
         /// </returns>
         public override IServiceRemotingListener CreateServiceRemotingListener(
-            ServiceContext serviceContext, 
+            ServiceContext serviceContext,
             IService serviceImplementation)
         {
             return new V1.Wcf.Runtime.WcfServiceRemotingListener(

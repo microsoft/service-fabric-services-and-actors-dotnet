@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -102,7 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             get { return this.diagnosticsContext; }
         }
-        
+
         internal bool MarkedForDeletion
         {
             get { return this.markedForDeletion; }
@@ -260,7 +261,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             object state,
             TimeSpan dueTime,
             TimeSpan period)
-        {   
+        {
             if (this.GcHandler.IsGarbageCollected)
             {
                 throw new ObjectDisposedException("actor");
@@ -308,15 +309,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             if (!(this is IRemindable))
             {
-                throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, SR.ActorNotIRemindable, reminderName, this.Id));
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, SR.ActorNotIRemindable, reminderName, this.Id));
             }
 
             if (!this.Manager.HasRemindersLoaded)
             {
-                throw new ReminderLoadInProgressException(String.Format(CultureInfo.CurrentCulture, SR.UnregisterReminderConflict, reminderName, this.Id));
+                throw new ReminderLoadInProgressException(string.Format(CultureInfo.CurrentCulture, SR.UnregisterReminderConflict, reminderName, this.Id));
             }
         }
-        
+
         internal async Task OnActivateInternalAsync()
         {
             this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncStart(this);
@@ -348,7 +349,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             this.IsDirty = true;
         }
-        
+
         internal Task ResetStateAsyncInternal()
         {
             return this.OnResetStateAsyncInternal();

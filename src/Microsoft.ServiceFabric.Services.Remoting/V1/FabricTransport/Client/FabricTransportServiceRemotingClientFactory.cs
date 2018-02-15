@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 {
     using System;
@@ -169,7 +170,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             CancellationToken cancellationToken)
         {
             return this.impl.ReportOperationExceptionAsync(
-                (FabricTransportServiceRemotingClient) client,
+                (FabricTransportServiceRemotingClient)client,
                 exceptionInformation,
                 retrySettings,
                 cancellationToken);

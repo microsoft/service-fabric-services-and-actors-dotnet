@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             Action action = () => this.StateManager.RemoveStateAsync("State1").GetAwaiter().GetResult();
             action.ShouldThrow<KeyNotFoundException>("State1 was removed using RemoveStateAsync (RemoveStateAsync verification)");
 
-            action = ()=> this.StateManager.GetStateAsync<int>("State1").GetAwaiter().GetResult();
+            action = () => this.StateManager.GetStateAsync<int>("State1").GetAwaiter().GetResult();
             action.ShouldThrow<KeyNotFoundException>("State1 was removed using RemoveStateAsync (GetStateAsync verification)");
 
             (await this.StateManager.ContainsStateAsync("State1")).Should().BeFalse("State1 has been removed (ContainsStateAsync(State2) verification)");
@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
         public async Task VerifyRemiderMockabilityAsync()
         {
-            Action action = ()=> this.GetReminder("NonExistingReminder");
+            Action action = () => this.GetReminder("NonExistingReminder");
             action.ShouldThrow<ReminderNotFoundException>("reminder doesn't exist.");
 
             await this.RegisterReminderAsync("MockReminder", null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));

@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -19,14 +20,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Initializes a new instance of the ActorServiceSettings class.
         /// </summary>
         public ActorServiceSettings()
-        {   
+        {
         }
 
         internal static ActorServiceSettings DeepCopyFromOrDefaultOnNull(ActorServiceSettings other)
         {
             var actorServiceSettings = new ActorServiceSettings();
 
-            if (other == null) return actorServiceSettings;
+            if (other == null)
+            {
+                return actorServiceSettings;
+            }
 
             // deep copy settings.
             actorServiceSettings.actorGarbageCollectionSettings = new ActorGarbageCollectionSettings(other.actorGarbageCollectionSettings);
@@ -35,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             return actorServiceSettings;
         }
-        
+
         /// <summary>
         /// Gets or sets garbage collection settings for the Actor service.
         /// </summary>

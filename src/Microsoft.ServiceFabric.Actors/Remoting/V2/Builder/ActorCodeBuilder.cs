@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             return InterfaceDetailsStore.TryGetKnownTypes(interfaceId, out interfaceDetails);
         }
 
-        
+
         internal static bool TryGetKnownTypes(string interfaceName, out InterfaceDetails interfaceDetails)
         {
             return InterfaceDetailsStore.TryGetKnownTypes(interfaceName, out interfaceDetails);
@@ -75,7 +75,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         protected override MethodDispatcherBuildResult BuildMethodDispatcher(Type interfaceType)
         {
             var actorInterfaceDescription = ActorInterfaceDescription.CreateUsingCRCId(interfaceType);
-            var res =  this.methodDispatcherBuilder.Build(actorInterfaceDescription);
+            var res = this.methodDispatcherBuilder.Build(actorInterfaceDescription);
             InterfaceDetailsStore.UpdateKnownTypeDetail(actorInterfaceDescription);
             return res;
         }
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             var actorEventInterfaces = interfaceType.GetActorEventInterfaces();
             var actorEventDispatchers = actorEventInterfaces.Select(
                 t => this.eventCodeBuilder.GetOrBuilderMethodDispatcher(t).MethodDispatcher);
-            IEnumerable<ActorMethodDispatcherBase> actorMethodDispatcherBases =
+            var actorMethodDispatcherBases =
                 actorEventDispatchers.Cast<ActorMethodDispatcherBase>();
             // register them with the event subscriber manager
             ActorEventSubscriberManager.Singleton.RegisterEventDispatchers(actorMethodDispatcherBases);

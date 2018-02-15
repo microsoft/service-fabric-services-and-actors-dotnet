@@ -1,13 +1,13 @@
-﻿namespace Microsoft.ServiceFabric.Actors.Remoting.V2
+namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 {
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
-    class BasicDataContractActorHeaderSerializer  : BasicDataContractHeaderSerializer
+    internal class BasicDataContractActorHeaderSerializer : BasicDataContractHeaderSerializer
     {
 
-        public BasicDataContractActorHeaderSerializer() 
-            :base(
+        public BasicDataContractActorHeaderSerializer()
+            : base(
                 new DataContractSerializer(
                     typeof(IServiceRemotingRequestMessageHeader),
                     new DataContractSerializerSettings()

@@ -1,10 +1,10 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
-    using System;
     using System.Globalization;
     using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             if (this.callback == null)
             {
                 var nativeCallback = this.requestContext.GetCallbackClient();
-                this.callback = new FabricTransportServiceRemotingCallbackClient(nativeCallback, serializersManager);
+                this.callback = new FabricTransportServiceRemotingCallbackClient(nativeCallback, this.serializersManager);
             }
 
             if (this.callback == null)

@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 {
     using System;
@@ -56,8 +57,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
         /// The result of the Task is the serialized response body.
         /// </returns>
         public override Task<byte[]> RequestResponseAsync(
-            IServiceRemotingRequestContext requestContext, 
-            ServiceRemotingMessageHeaders messageHeaders, 
+            IServiceRemotingRequestContext requestContext,
+            ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestBodyBytes)
         {
             if (messageHeaders.InterfaceId == ActorMessageDispatch.InterfaceId)
@@ -78,9 +79,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
             ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestMsgBodyBytes)
         {
-            ActorMessageHeaders actorMessageHeaders;
-            if (!ActorMessageHeaders.TryFromServiceMessageHeaders(messageHeaders, out actorMessageHeaders))
-           {
+            if (!ActorMessageHeaders.TryFromServiceMessageHeaders(messageHeaders, out var actorMessageHeaders))
+            {
                 //This can only happen if there is issue in our product code like Message Corruption or changing headers format.
                 ReleaseAssert.Failfast("ActorMessageHeaders Deserialization failed");
             }
@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 
             if (actorMessageHeaders.MethodId == ActorEventSubscription.UnSubscribeMethodId)
             {
-                var requestMsgBody = (ActorMessageBody) SerializationUtility.Deserialize(ActorEventSubscription.Serializer, requestMsgBodyBytes);
+                var requestMsgBody = (ActorMessageBody)SerializationUtility.Deserialize(ActorEventSubscription.Serializer, requestMsgBodyBytes);
                 var castedRequestMsgBody = (EventSubscriptionRequestBody)requestMsgBody.Value;
 
                 await this.actorService.ActorManager.UnsubscribeAsync(
@@ -121,20 +121,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
             byte[] requestMsgBodyBytes)
         {
             var startTime = DateTime.UtcNow;
-            ActorMessageHeaders actorMessageHeaders;
-            if (!ActorMessageHeaders.TryFromServiceMessageHeaders(messageHeaders, out actorMessageHeaders))
+            if (!ActorMessageHeaders.TryFromServiceMessageHeaders(messageHeaders, out var actorMessageHeaders))
             {
 
                 throw new SerializationException(Actors.SR.ErrorActorMessageHeadersDeserializationFailed);
-                    
+
             }
 
             if (this.IsCancellationRequest(messageHeaders))
             {
-                 await this.cancellationHelper.CancelRequestAsync(
-                    actorMessageHeaders.InterfaceId,
-                    actorMessageHeaders.MethodId,
-                    messageHeaders.InvocationId);
+                await this.cancellationHelper.CancelRequestAsync(
+                   actorMessageHeaders.InterfaceId,
+                   actorMessageHeaders.MethodId,
+                   messageHeaders.InvocationId);
                 return null;
             }
             else

@@ -1,17 +1,17 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.ServiceFabric.Actors.Remoting.Description;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
-    class ActorMethodFriendlyNameBuilder
+    internal class ActorMethodFriendlyNameBuilder
     {
         private readonly Dictionary<Type, ActorInterfaceDescription> actorMethodDescriptions;
         private readonly Dictionary<Type, ActorInterfaceDescription> actorMethodDescriptionsV2;
@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             actorInterfaceMethodDescriptions = this.actorMethodDescriptions[interfaceType].Methods;
         }
 
-        internal void GetActorInterfaceMethodDescriptionsV2(Type interfaceType, 
+        internal void GetActorInterfaceMethodDescriptionsV2(Type interfaceType,
             out int interfaceId,
             out MethodDescription[] actorInterfaceMethodDescriptions)
         {

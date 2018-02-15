@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
     using System;
     using System.Collections.Generic;
-    using System.Reflection;
     internal class InterfaceDetails
     {
         internal InterfaceDetails()

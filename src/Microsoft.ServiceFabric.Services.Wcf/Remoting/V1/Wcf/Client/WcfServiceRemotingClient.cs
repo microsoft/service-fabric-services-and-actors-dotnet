@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
 {
     using System;
@@ -11,10 +12,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.Wcf;
 
     internal class WcfServiceRemotingClient : IServiceRemotingClient
     {
@@ -63,26 +62,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
             set { this.wcfClient.Endpoint = value; }
         }
 
-        async public Task<byte[]> RequestResponseAsync(ServiceRemotingMessageHeaders headers, byte[] requestBody)
+        public async Task<byte[]> RequestResponseAsync(ServiceRemotingMessageHeaders headers, byte[] requestBody)
         {
             try
             {
                 return await this.wcfClient.Channel.RequestResponseAsync(headers, requestBody).ContinueWith(
-                    t => t.GetAwaiter().GetResult(), 
+                    t => t.GetAwaiter().GetResult(),
                     TaskScheduler.Default);
 
                 // the code above (TaskScheduler.Default) for dispatches the responses on different thread
                 // so that if the user code blocks, we do not stop the response receive pump in WCF
             }
-            catch(FaultException<RemoteExceptionInformation> faultException)
+            catch (FaultException<RemoteExceptionInformation> faultException)
             {
-                Exception remoteException;
-                if (RemoteExceptionInformation.ToException(faultException.Detail, out remoteException))
+                if (RemoteExceptionInformation.ToException(faultException.Detail, out var remoteException))
                 {
                     throw new AggregateException(remoteException);
                 }
 
-                throw new ServiceException(remoteException.GetType().FullName,string.Format(
+                throw new ServiceException(remoteException.GetType().FullName, string.Format(
                                 CultureInfo.InvariantCulture,
                                 Microsoft.ServiceFabric.Services.Wcf.SR.ErrorDeserializationFailure,
                                 remoteException.ToString()));

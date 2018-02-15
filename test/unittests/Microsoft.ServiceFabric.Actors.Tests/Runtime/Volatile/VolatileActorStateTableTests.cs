@@ -1,9 +1,7 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-
-using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 {
@@ -12,14 +10,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     using System.Threading;
     using System.Threading.Tasks;
     using System.Collections.Generic;
-    using ActorStateTable = VolatileActorStateTable<
-        VolatileActorStateProvider.ActorStateType,
+    using ActorStateTable = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
+        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
         string,
-        VolatileActorStateProvider.ActorStateData>;
-    using ActorStateType = VolatileActorStateProvider.ActorStateType;
+        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>;
+    using ActorStateType = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType;
     using Xunit;
 
-    #pragma warning disable xUnit1024
+#pragma warning disable xUnit1024
     public class VolatileActorStateTableTests : VolatileStateProviderTestBase
     {
         [Fact]
@@ -74,7 +72,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             long sequenceNumber = 0;
             var stateTable = new ActorStateTable();
 
-            int targetReplicationCount = 1* 1000;
+            var targetReplicationCount = 1 * 1000;
             var statesPerReplication = GetStatesPerReplication(10);
 
             VerifyStateTableSnapshot(stateTable, statesPerReplication, long.MaxValue, 0, 0, 0);
@@ -189,7 +187,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             var keyPrefixList = new string[] { "d", "e", "f" };
             var replicationUnitDict = new Dictionary<string, ReplicationUnit>();
 
-            long commitSequenceNumber = sequenceNumber;
+            var commitSequenceNumber = sequenceNumber;
 
             foreach (var keyPrefix in keyPrefixList)
             {
@@ -291,7 +289,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             var commitSequenceNumber3 = (commitSequenceNumber2 - 1);
             TestCommitUpdate(stateTable, commitSequenceNumber3);
             Thread.Sleep(500);
-            
+
             foreach (var keyPrefix in keyPrefixList)
             {
                 VerifyReads(
@@ -304,7 +302,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber,
                     sequenceNumber * statesPerReplication[ActorStateType.Actor]);
             }
-            
+
             TestCase("# Passed");
         }
 
@@ -458,7 +456,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 var replicationUnitBatch = new List<ReplicationUnit>();
                 var replicationUnitDict = new Dictionary<string, ReplicationUnit>();
 
-                foreach(var keyPrefix in keyPrefixBatch)
+                foreach (var keyPrefix in keyPrefixBatch)
                 {
                     ++sequenceNumber;
 
@@ -614,7 +612,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     sequenceNumber * statesPerReplication[ActorStateType.Actor]);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
                 VerifyReads(
                     stateTable,
@@ -779,15 +777,15 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             TestCommitUpdate(stateTable, ++updateSequenceNumber);
 
-            var expectedCount = (committedKeyPrefixList.Length + 
-                                 uncommittedKeyPrefixList.Length) * 
+            var expectedCount = (committedKeyPrefixList.Length +
+                                 uncommittedKeyPrefixList.Length) *
                                  statesPerReplication[ActorStateType.Actor];
 
             var keyPrefixes = new string[] { "x", "z", "w", "y", "a", "b", "c" };
             var expectedResults = new bool[] { true, true, true, true, true, false, false };
             var expectedLengths = new int[] { 1, 1, 2, 2, 2, 0, 0 };
 
-            for(int i = 0; i < keyPrefixes.Length; i++)
+            for (var i = 0; i < keyPrefixes.Length; i++)
             {
                 VerifyReads(
                     stateTable,
@@ -799,7 +797,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber,
                     expectedCount);
             }
-            
+
             VerifyStateTableSnapshot(
                 stateTable,
                 statesPerReplication,
@@ -834,9 +832,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             var stateTable = new ActorStateTable();
             VerifyStateTableSnapshot(stateTable, statesPerReplication, long.MaxValue, 0, 0, 0);
 
-            int committedEntriesCount = 0;
-            int uncommittedEntriesCount = 0;
-            
+            var committedEntriesCount = 0;
+            var uncommittedEntriesCount = 0;
+
             TestCase("# Testcase 1: In order prepare, commit, prepare, commit ...");
 
             {
@@ -863,7 +861,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
@@ -873,7 +871,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     stateTable,
                     replicationUnit,
                     statesPerReplication,
-                    true, 
+                    true,
                     sequenceNumber,
                     sequenceNumber,
                     sequenceNumber,
@@ -905,7 +903,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.LogicalTimestamp];
@@ -947,7 +945,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Reminder];
@@ -992,7 +990,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
@@ -1076,7 +1074,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Reminder];
@@ -1120,7 +1118,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
@@ -1544,7 +1542,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
 
-                if(firstIteration)
+                if (firstIteration)
                 {
                     firstIteration = false;
                     committedEntriesCount -= (statesPerReplication[ActorStateType.Actor] - 1);
@@ -1553,7 +1551,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 {
                     committedEntriesCount -= statesPerReplication[ActorStateType.Actor];
                 }
-                
+
                 VerifyReads(
                     stateTable,
                     replicationUnit,
@@ -1644,7 +1642,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             }
 
             TestCase("# Testcase 4: Delete non-existent key ...");
-            
+
             {
                 ++sequenceNumber;
 
@@ -1808,7 +1806,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.LogicalTimestamp];
@@ -1933,7 +1931,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber - 1,
                     sequenceNumber,
                     uncommittedEntriesCount + committedEntriesCount);
-                
+
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Reminder];

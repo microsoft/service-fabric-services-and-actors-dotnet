@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         {
             return new ActorProxyGenerator(
                 proxyInterfaceType,
-                (IProxyActivator) Activator.CreateInstance(proxyActivatorType));
+                (IProxyActivator)Activator.CreateInstance(proxyActivatorType));
         }
     }
 }

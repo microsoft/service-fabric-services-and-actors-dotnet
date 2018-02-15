@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
     using System;
@@ -24,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         private readonly MethodInfo invokeMethodInfo;
         private readonly MethodInfo continueWithResultMethodInfo;
         private readonly MethodInfo continueWithMethodInfo;
-        
+
         public ProxyGeneratorBuilder(ICodeBuilder codeBuilder)
             : base(codeBuilder)
         {
@@ -35,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
                 CallingConventions.Any,
-                new[] {typeof(int), typeof(int), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken)},
+                new[] { typeof(int), typeof(int), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken) },
                 null);
 
             this.createMessage = this.proxyBaseType.GetMethod(
@@ -43,7 +44,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
                 CallingConventions.Any,
-                new[] {typeof(string), typeof(string), typeof(int)},
+                new[] { typeof(string), typeof(string), typeof(int) },
                 null);
 
             this.invokeMethodInfo = this.proxyBaseType.GetMethod(
@@ -51,7 +52,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
                 CallingConventions.Any,
-                new[] {typeof(int), typeof(int), typeof(IServiceRemotingRequestMessageBody)},
+                new[] { typeof(int), typeof(int), typeof(IServiceRemotingRequestMessageBody) },
                 null);
 
             this.continueWithResultMethodInfo = this.proxyBaseType.GetMethod(
@@ -59,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
                 CallingConventions.Any,
-                new[] {typeof(Task<IServiceRemotingResponseMessageBody>) },
+                new[] { typeof(Task<IServiceRemotingResponseMessageBody>) },
                 null);
 
             this.continueWithMethodInfo = this.proxyBaseType.GetMethod(
@@ -67,7 +68,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
-        public  virtual ProxyGeneratorBuildResult Build(
+        public virtual ProxyGeneratorBuildResult Build(
             Type proxyInterfaceType,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
         {
@@ -194,7 +195,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
         }
 
-        internal  void AddVoidMethodImplementation2(ILGenerator ilGen, int interfaceDescriptionId,
+        internal void AddVoidMethodImplementation2(ILGenerator ilGen, int interfaceDescriptionId,
             MethodDescription methodDescription,
             string interfaceName
         )
@@ -238,7 +239,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.Emit(OpCodes.Ldc_I4, interfaceDescriptionId); // interfaceId
             ilGen.Emit(OpCodes.Ldc_I4, methodDescription.Id); // methodId
 
-            
+
             if (parameters.Length > 0)
             {
                 ilGen.Emit(OpCodes.Ldloc, requestBody);
@@ -250,7 +251,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
             ilGen.EmitCall(OpCodes.Call, this.invokeMethodInfo, null);
 
-           
+
         }
 
 
@@ -275,7 +276,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
                 foreach (var methodDescription in interfaceDescription.Methods)
                 {
-                    if (methodDescription.ReturnType == null) continue;
+                    if (methodDescription.ReturnType == null)
+                    {
+                        continue;
+                    }
 
                     var elseLabel = ilGen.DefineLabel();
 
@@ -320,7 +324,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 parameterLength = parameterLength - 1;
             }
 
-          
+
             LocalBuilder requestMessage = null;
             if (parameters.Length > 0)
             {
@@ -358,7 +362,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.Emit(OpCodes.Ldc_I4, interfaceId); // interfaceId
             ilGen.Emit(OpCodes.Ldc_I4, methodDescription.Id); // methodId
 
-            if (requestMessage !=null)
+            if (requestMessage != null)
             {
                 ilGen.Emit(OpCodes.Ldloc, requestMessage);
             }
@@ -437,12 +441,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             MethodDescription methodDescription,
             MethodBodyTypes methodBodyTypes)
         {
-            
+
         }
 
         protected abstract TProxyGenerator CreateProxyGenerator(
             Type proxyInterfaceType,
             Type proxyActivatorType);
-    
+
     }
 }

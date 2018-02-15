@@ -6,11 +6,9 @@
 namespace Microsoft.ServiceFabric.Services.Tests
 {
     using System;
-    using System.Diagnostics;
     using System.Fabric;
     using System.Fabric.Health;
     using System.Linq;
-    using System.Numerics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Runtime;
@@ -23,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
     /// </summary>
     public class StatefulServiceLifeCycleTests
     {
-        class RunAsyncBlockingCallTestService : StatefulBaseTestService
+        private class RunAsyncBlockingCallTestService : StatefulBaseTestService
         {
             public RunAsyncBlockingCallTestService(StatefulServiceContext context)
                 : base(context)
@@ -36,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             protected override Task RunAsync(CancellationToken cancellationToken)
             {
                 this.RunAsyncInvoked = true;
-                
+
                 long i = 0;
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -65,15 +63,15 @@ namespace Microsoft.ServiceFabric.Services.Tests
             Console.WriteLine(@"// U -> P");
             var changeRoleTask = testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
 
-            CancellationTokenSource source = new CancellationTokenSource(10000);
+            var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
             }
 
             Assert.True(changeRoleTask.IsCompleted && !changeRoleTask.IsCanceled && !changeRoleTask.IsFaulted);
-            ((StatefulServiceReplicaAdapter) testServiceReplica).Test_IsRunAsyncTaskRunning().Should().BeTrue();
-            
+            ((StatefulServiceReplicaAdapter)testServiceReplica).Test_IsRunAsyncTaskRunning().Should().BeTrue();
+
             testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
         }
 
@@ -105,7 +103,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        class RunAsyncCancellationTestService : StatefulBaseTestService
+        private class RunAsyncCancellationTestService : StatefulBaseTestService
         {
             private const int ToWait = 100;
 
@@ -144,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             Console.WriteLine(@"// U -> P");
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
 
-            CancellationTokenSource source = new CancellationTokenSource(10000);
+            var source = new CancellationTokenSource(10000);
             while (!testService.StartedWaiting)
             {
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
@@ -158,7 +156,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        class RunAsyncSlowCancellationTestService : StatefulBaseTestService
+        private class RunAsyncSlowCancellationTestService : StatefulBaseTestService
         {
             public RunAsyncSlowCancellationTestService(StatefulServiceContext context)
                 : base(context)
@@ -194,12 +192,12 @@ namespace Microsoft.ServiceFabric.Services.Tests
             Console.WriteLine(@"// U -> P");
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
 
-            CancellationTokenSource source = new CancellationTokenSource(10000);
+            var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
             }
-            
+
             Console.WriteLine(@"// P -> S");
             testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
 
@@ -207,7 +205,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncSlowCancellationHealthInformation(hinfo))), Times.AtLeastOnce);
         }
 
-        class RunAsyncFailTestService : StatefulBaseTestService
+        private class RunAsyncFailTestService : StatefulBaseTestService
         {
             public RunAsyncFailTestService(StatefulServiceContext context)
                 : base(context)
@@ -262,7 +260,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(FaultType.Transient), Times.Once());
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncUnhandledExceptionHealthInformation(hinfo))), Times.Once());
         }
-        
+
         [Fact]
         public void CommunicationListenerLifeCycle_P_S_P_N_NoListenOnSecondary()
         {
@@ -284,7 +282,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 1;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened only once(U->P)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
                 ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.First().Should().Be(testService.CurrentListener.Object);
@@ -298,10 +296,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 1;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened only once(U->P->S)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                ((StatefulServiceReplicaAdapter) testServiceReplica).Test_CommunicationListeners.Should().BeNull();
+                ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.Should().BeNull();
 
                 testService.CurrentListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
                 testService.CurrentListener.Verify(l => l.CloseAsync(It.IsAny<CancellationToken>()), Times.Once());
@@ -312,7 +310,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 2;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened twice(U->P->S->P)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
                 ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.First().Should().Be(testService.CurrentListener.Object);
@@ -331,10 +329,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.None, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 2;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened twice(U->P->S->P->N)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                ((StatefulServiceReplicaAdapter) testServiceReplica).Test_CommunicationListeners.Should().BeNull();
+                ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.Should().BeNull();
 
                 var firstListener = testService.Listeners.First();
 
@@ -371,7 +369,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 1;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened only once(U->P)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
                 ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.First().Should().Be(testService.CurrentListener.Object);
@@ -385,7 +383,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 2;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened twice(U->P->S)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
                 ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.First().Should().Be(testService.CurrentListener.Object);
@@ -404,7 +402,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 3;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened three times(U->P->S->P)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
                 ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.First().Should().Be(testService.CurrentListener.Object);
@@ -428,10 +426,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.None, CancellationToken.None).GetAwaiter().GetResult();
             {
                 const int expectedCount = 3;
-                int actualCount = testService.Listeners.Count;
+                var actualCount = testService.Listeners.Count;
                 actualCount.Should().Be(expectedCount, "listener has been opened three times(U->P->S->P->N)");
                 testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                ((StatefulServiceReplicaAdapter) testServiceReplica).Test_CommunicationListeners.Should().BeNull();
+                ((StatefulServiceReplicaAdapter)testServiceReplica).Test_CommunicationListeners.Should().BeNull();
 
                 var firstListener = testService.Listeners[0];
                 firstListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
@@ -450,7 +448,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
-        
+
         [Fact]
         public void ListenerExceptionOnAbort()
         {

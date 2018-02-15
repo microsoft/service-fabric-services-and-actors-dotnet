@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Client
 {
     using System;
@@ -91,14 +92,14 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         private static Type GetEventInterface(Type eventHandlerType)
         {
-            return IsEventInterface(eventHandlerType) ? 
-                eventHandlerType : 
+            return IsEventInterface(eventHandlerType) ?
+                eventHandlerType :
                 eventHandlerType.GetInterfaces().FirstOrDefault(IsEventInterface);
         }
 
         private static bool IsEventInterface(Type userEventInterfaceType)
         {
-            return ((userEventInterfaceType.GetTypeInfo().IsInterface) && 
+            return ((userEventInterfaceType.GetTypeInfo().IsInterface) &&
                    (typeof(IActorEvents).IsAssignableFrom(userEventInterfaceType)));
         }
     }

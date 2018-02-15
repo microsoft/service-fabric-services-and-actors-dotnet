@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
@@ -14,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// Defines the interface that must be implemented to provide a factory for communication clients to talk to a service fabric service.
     /// </summary>
     /// <typeparam name="TCommunicationClient">Type of communication client</typeparam>
-    public interface ICommunicationClientFactory<TCommunicationClient> 
+    public interface ICommunicationClientFactory<TCommunicationClient>
         where TCommunicationClient : ICommunicationClient
     {
         /// <summary>
@@ -85,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// a <see cref="OperationRetryControl" /> object that provides information on retry policy for this exception.
         /// </returns>
         Task<OperationRetryControl> ReportOperationExceptionAsync(
-            TCommunicationClient client, 
+            TCommunicationClient client,
             ExceptionInformation exceptionInformation,
             OperationRetrySettings retrySettings,
             CancellationToken cancellationToken);

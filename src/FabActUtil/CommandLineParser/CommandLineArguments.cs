@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace FabActUtil.CommandLineParser
 {
     using System;
@@ -208,7 +209,9 @@ namespace FabActUtil.CommandLineParser
                 if (!argument.ExplicitShortName && argument.ShortName != null && argument.ShortName.Length > 0)
                 {
                     if (!this.argumentMap.ContainsKey(argument.ShortName))
+                    {
                         this.argumentMap[argument.ShortName] = argument;
+                    }
                 }
             }
         }
@@ -217,7 +220,9 @@ namespace FabActUtil.CommandLineParser
         {
             var attributes = field.GetCustomAttributes(typeof(CommandLineArgumentAttribute), false);
             if (attributes.Length == 1)
-                return (CommandLineArgumentAttribute) attributes[0];
+            {
+                return (CommandLineArgumentAttribute)attributes[0];
+            }
 
             Debug.Assert(attributes.Length == 0);
             return null;
@@ -247,7 +252,7 @@ namespace FabActUtil.CommandLineParser
                         {
                             case '-':
                             case '/':
-                                var endIndex = argument.IndexOfAny(new[] {':', '+', '-'}, 1);
+                                var endIndex = argument.IndexOfAny(new[] { ':', '+', '-' }, 1);
                                 var option = argument.Substring(1, endIndex == -1 ? argument.Length - 1 : endIndex - 1);
                                 string optionArgument;
                                 if (endIndex == -1)
@@ -263,7 +268,7 @@ namespace FabActUtil.CommandLineParser
                                     optionArgument = argument.Substring(option.Length + 1);
                                 }
 
-                                var arg = (Argument) this.argumentMap[option];
+                                var arg = (Argument)this.argumentMap[option];
                                 if (arg == null)
                                 {
                                     this.ReportUnrecognizedArgument(argument);
@@ -424,9 +429,14 @@ namespace FabActUtil.CommandLineParser
                     if (field.IsStatic)
                     {
                         if (first)
+                        {
                             first = false;
+                        }
                         else
+                        {
                             builder.Append('|');
+                        }
+
                         builder.Append(field.Name);
                     }
                 }
@@ -561,7 +571,7 @@ namespace FabActUtil.CommandLineParser
                 }
             }
 
-            parameters = (string[]) argArray.ToArray(typeof(string));
+            parameters = (string[])argArray.ToArray(typeof(string));
             return hadError;
         }
 
@@ -588,16 +598,25 @@ namespace FabActUtil.CommandLineParser
         private static Type ElementType(FieldInfo field)
         {
             if (IsCollectionType(field.FieldType))
+            {
                 return field.FieldType.GetElementType();
+            }
+
             return null;
         }
 
         private static CommandLineArgumentType Flags(CommandLineArgumentAttribute attribute, FieldInfo field)
         {
             if (attribute != null)
+            {
                 return attribute.Type;
+            }
+
             if (IsCollectionType(field.FieldType))
+            {
                 return CommandLineArgumentType.MultipleUnique;
+            }
+
             return CommandLineArgumentType.AtMostOnce;
         }
 
@@ -660,9 +679,14 @@ namespace FabActUtil.CommandLineParser
                 if (this.IsRequired && !this.SeenValue)
                 {
                     if (this.IsDefault)
+                    {
                         this.reporter(string.Format("Missing required argument '<{0}>'.", this.LongName));
+                    }
                     else
+                    {
                         this.reporter(string.Format("Missing required argument '/{0}'.", this.LongName));
+                    }
+
                     return true;
                 }
                 return false;
@@ -682,9 +706,11 @@ namespace FabActUtil.CommandLineParser
                 }
                 this.SeenValue = true;
 
-                object newValue;
-                if (!this.ParseValue(this.ValueType, value, out newValue))
+                if (!this.ParseValue(this.ValueType, value, out var newValue))
+                {
                     return false;
+                }
+
                 if (this.IsCollection)
                 {
                     if (this.Unique && this.collectionValues.Contains(newValue))

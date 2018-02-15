@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
     using System;
@@ -20,14 +21,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private const string RunAsyncHealthSourceId = "RunAsync";
         private const string RunAsyncHealthUnhandledExceptionProperty = "RunAsyncUnhandledException";
         private const string RunAsyncHealthSlowCanecellationProperty = "RunAsyncSlowCancellation";
-        private const int MaxHealthDescriptionLength = 4*1024 - 1;
-        
+        private const int MaxHealthDescriptionLength = 4 * 1024 - 1;
+
         private static readonly TimeSpan HealthInformationTimeToLive = TimeSpan.FromMinutes(5);
         internal static readonly TimeSpan RunAsyncExpectedCancellationTimeSpan = TimeSpan.FromSeconds(15);
 
         private readonly string traceType;
         private readonly string traceId;
-        
+
         public ServiceHelper(string traceType, string traceId)
         {
             this.traceType = traceType;
@@ -45,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             // Trim the health description to maximum allowed size.
             healthDescription = TrimToLength(healthDescription, MaxHealthDescriptionLength);
-            
+
             var healthInfo = new HealthInformation(RunAsyncHealthSourceId, RunAsyncHealthUnhandledExceptionProperty, HealthState.Warning)
             {
                 TimeToLive = HealthInformationTimeToLive,
@@ -96,7 +97,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             var healthInfo = GetRunAsyncUnexpectedExceptionHealthInformation(unexpectedException);
             this.ReportPartitionHealth(partition, healthInfo);
         }
-        
+
         internal void HandleRunAsyncUnexpectedFabricException(IServicePartition partition, FabricException fex)
         {
             ServiceTrace.Source.WriteErrorWithId(
@@ -167,6 +168,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     // ignored
                 }
             });
-        } 
+        }
     }
 }

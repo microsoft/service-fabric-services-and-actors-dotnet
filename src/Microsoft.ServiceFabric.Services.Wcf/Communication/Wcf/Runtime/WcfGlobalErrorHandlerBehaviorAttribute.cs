@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
 {
     using System;
@@ -21,9 +22,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         {
             foreach (var channelDispBase in serviceHostBase.ChannelDispatchers)
             {
-                var channelDisp = channelDispBase as ChannelDispatcher;
 
-                if (channelDisp != null)
+                if (channelDispBase is ChannelDispatcher channelDisp)
                 {
                     var wcfErrorHandler = new WcfGlobalErrorHandler(channelDisp);
                     channelDisp.ErrorHandlers.Add(wcfErrorHandler);

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -15,7 +15,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
@@ -98,8 +97,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         private static ActorRemotingSerializationManager InitializeSerializerManager(FabricTransportRemotingListenerSettings listenerSettings,
             IServiceRemotingMessageSerializationProvider serializationProvider)
         {
-             listenerSettings = listenerSettings ?? FabricTransportRemotingListenerSettings.GetDefault();
-         
+            listenerSettings = listenerSettings ?? FabricTransportRemotingListenerSettings.GetDefault();
+
             return new ActorRemotingSerializationManager(serializationProvider,
                 new ActorRemotingMessageHeaderSerializer(listenerSettings.HeaderBufferSize,
                     listenerSettings.HeaderMaxBufferCount));

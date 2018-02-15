@@ -1,13 +1,11 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
     using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
     using System.Threading;
@@ -61,8 +59,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
             // create the dispatcher type, instantiate and initialize it
             result.MethodDispatcherType = classBuilder.CreateTypeInfo().AsType();
-            result.MethodDispatcher = (TMethodDispatcher) Activator.CreateInstance(result.MethodDispatcherType);
-            var v2MethodDispatcherBase = (MethodDispatcherBase) result.MethodDispatcher;
+            result.MethodDispatcher = (TMethodDispatcher)Activator.CreateInstance(result.MethodDispatcherType);
+            var v2MethodDispatcherBase = (MethodDispatcherBase)result.MethodDispatcher;
             v2MethodDispatcherBase.Initialize(
                 interfaceDescription,
                 methodNameMap);
@@ -71,7 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             return result;
         }
 
-       
+
 
         private void AddOnDispatchMethod(TypeBuilder classBuilder, InterfaceDescription interfaceDescription)
         {
@@ -147,7 +145,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.EmitCall(OpCodes.Callvirt, methodDescription.MethodInfo, null);
             ilGen.Emit(OpCodes.Ret);
         }
-        
+
         private void AddOnDispatchAsyncMethod(
             TypeBuilder classBuilder,
             InterfaceDescription interfaceDescription)
@@ -247,7 +245,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 ilGen.Emit(OpCodes.Ldarg_0);
                 ilGen.Emit(OpCodes.Ldstr, interfaceName);
                 ilGen.Emit(OpCodes.Ldstr, methodDescription.Name);
-                ilGen.Emit(OpCodes.Ldarg,4);
+                ilGen.Emit(OpCodes.Ldarg, 4);
                 ilGen.Emit(OpCodes.Ldloc, invokeTask);
                 ilGen.EmitCall(OpCodes.Call, continueWithGenericMethodInfo, null);
                 ilGen.Emit(OpCodes.Ret);

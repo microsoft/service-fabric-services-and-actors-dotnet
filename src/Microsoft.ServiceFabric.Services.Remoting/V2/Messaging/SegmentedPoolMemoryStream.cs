@@ -89,15 +89,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-           if (buffer == null)
+            if (buffer == null)
+            {
                 throw new ArgumentNullException("buffer");
-            if ((offset + count) > buffer.Length)
-                throw new ArgumentException("buffer too small", "buffer");
-            if (offset < 0)
-                throw new ArgumentException("offset must be >= 0", "offset");
-            if (count < 0)
-                throw new ArgumentException("count must be >= 0", "count");
+            }
 
+            if ((offset + count) > buffer.Length)
+            {
+                throw new ArgumentException("buffer too small", "buffer");
+            }
+
+            if (offset < 0)
+            {
+                throw new ArgumentException("offset must be >= 0", "offset");
+            }
+
+            if (count < 0)
+            {
+                throw new ArgumentException("count must be >= 0", "count");
+            }
 
             var i = this.currentBufferOffset + count;
 

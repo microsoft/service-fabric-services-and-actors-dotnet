@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 {
     using System;
@@ -11,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     /// <summary>
     /// Service method dispatcher class. Internal use only.
     /// </summary>
-    public abstract class 
+    public abstract class
         ServiceMethodDispatcherBase : MethodDispatcherBaseWithSerializer
     {
 
@@ -28,12 +29,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 
         internal override object GetRequestMessageBodyValue(object requestMessageBody)
         {
-            return ((ServiceRemotingMessageBody) requestMessageBody).Value;
+            return ((ServiceRemotingMessageBody)requestMessageBody).Value;
         }
 
         internal override object CreateResponseMessageBody(object responseMessageBodyValue)
         {
-            return new ServiceRemotingMessageBody {Value = responseMessageBodyValue};
+            return new ServiceRemotingMessageBody { Value = responseMessageBodyValue };
         }
     }
 }

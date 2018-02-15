@@ -1,19 +1,19 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Fabric;
-    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
-    class EventSourceProvider
+    internal class EventSourceProvider
     {
         internal class ActorMethodInfo
         {
@@ -41,14 +41,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             this.InitializeActorMethodInfo(diagnosticsEventManager);
 
-            diagnosticsEventManager.OnActorChangeRole += this.OnActorChangeRole;
-            diagnosticsEventManager.OnActorActivated += this.OnActorActivated;
-            diagnosticsEventManager.OnActorDeactivated += this.OnActorDeactivated;
-            diagnosticsEventManager.OnActorMethodStart += this.OnActorMethodStart;
-            diagnosticsEventManager.OnActorMethodFinish += this.OnActorMethodFinish;
-            diagnosticsEventManager.OnSaveActorStateStart += this.OnSaveActorStateStart;
-            diagnosticsEventManager.OnSaveActorStateFinish += this.OnSaveActorStateFinish;
-            diagnosticsEventManager.OnPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
+            diagnosticsEventManager.onActorChangeRole += this.OnActorChangeRole;
+            diagnosticsEventManager.onActorActivated += this.OnActorActivated;
+            diagnosticsEventManager.onActorDeactivated += this.OnActorDeactivated;
+            diagnosticsEventManager.onActorMethodStart += this.OnActorMethodStart;
+            diagnosticsEventManager.onActorMethodFinish += this.OnActorMethodFinish;
+            diagnosticsEventManager.onSaveActorStateStart += this.OnSaveActorStateStart;
+            diagnosticsEventManager.onSaveActorStateFinish += this.OnSaveActorStateFinish;
+            diagnosticsEventManager.onPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
         }
 
         internal virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
@@ -57,10 +57,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             foreach (var actorInterfaceType in this.actorTypeInformation.InterfaceTypes)
             {
-                int interfaceId;
-                MethodDescription[] actorInterfaceMethodDescriptions;
                 diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
-                    actorInterfaceType, out interfaceId, out actorInterfaceMethodDescriptions);
+                    actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 this.InitializeActorMethodInfo(actorInterfaceMethodDescriptions, interfaceId, this.actorMethodInfo);
 
             }
@@ -75,13 +73,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 var methodInfo = actorInterfaceMethodDescription.MethodInfo;
                 var ami = new ActorMethodInfo()
                 {
-                    MethodName = String.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
+                    MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
                     MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString()
                 };
 
                 var key =
-                    DiagnosticsEventManager.GetInterfaceMethodKey((uint) interfaceId,
-                        (uint) actorInterfaceMethodDescription.Id);
+                    DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId,
+                        (uint)actorInterfaceMethodDescription.Id);
                 actorMethodInfos[key] = ami;
             }
         }
@@ -121,7 +119,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             if (this.writer.IsActorMethodStartEventEnabled())
             {
                 var actorId = methodData.ActorId;
-                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey,methodData.RemotingListener);
+                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListener);
                 this.writer.ActorMethodStart(
                     methodInfo.MethodName,
                     methodInfo.MethodSignature,
@@ -131,7 +129,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal virtual ActorMethodInfo GetActorMethodInfo(long key,RemotingListener remotingListener)
+        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
         {
             var methodInfo = this.actorMethodInfo[key];
             return methodInfo;
@@ -145,7 +143,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 if (this.writer.IsActorMethodStopEventEnabled())
                 {
                     var actorId = methodData.ActorId;
-                    var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey,methodData.RemotingListener);
+                    var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListener);
                     this.writer.ActorMethodStop(
                         methodData.MethodExecutionTime.Value.Ticks,
                         methodInfo.MethodName,
@@ -158,7 +156,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             else
             {
                 var actorId = methodData.ActorId;
-                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey,methodData.RemotingListener);
+                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListener);
                 this.writer.ActorMethodThrewException(
                     methodData.Exception.ToString(),
                     methodData.MethodExecutionTime.Value.Ticks,
@@ -211,4 +209,4 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     }
 }
 
-    
+

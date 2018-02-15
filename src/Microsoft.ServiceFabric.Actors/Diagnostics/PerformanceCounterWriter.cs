@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System.Fabric.Common;
@@ -51,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             : base(
                 counterSetInstance,
                 ActorPerformanceCounters.ActorMethodExecTimeMillisecCounterName,
-                ActorPerformanceCounters.ActorMethodExecTimeMillisecBaseCounterName)                
+                ActorPerformanceCounters.ActorMethodExecTimeMillisecBaseCounterName)
         {
         }
 
@@ -59,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (methodData.MethodExecutionTime != null)
             {
-                this.Counter.IncrementBy((long) methodData.MethodExecutionTime.Value.TotalMilliseconds);
+                this.Counter.IncrementBy((long)methodData.MethodExecutionTime.Value.TotalMilliseconds);
                 this.CounterBase.Increment();
             }
         }
@@ -78,7 +79,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal void UpdateCounterValue(PendingActorMethodDiagnosticData pendingMethodData)
         {
-            long delta = pendingMethodData.PendingActorMethodCallsDelta;
+            var delta = pendingMethodData.PendingActorMethodCallsDelta;
             if (delta != 0)
             {
                 this.Counter.IncrementBy(delta);
@@ -102,7 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (stateData.OperationTime != null)
             {
-                this.Counter.IncrementBy((long) stateData.OperationTime.Value.TotalMilliseconds);
+                this.Counter.IncrementBy((long)stateData.OperationTime.Value.TotalMilliseconds);
                 this.CounterBase.Increment();
             }
         }

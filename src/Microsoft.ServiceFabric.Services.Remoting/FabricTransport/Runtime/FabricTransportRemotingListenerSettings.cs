@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 {
     using System;
@@ -18,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
-        
+
         private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
 
         /// <summary>
@@ -32,7 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
-            :this()
+            : this()
         {
             this.listenerSettings = listenerSettings;
         }
@@ -148,7 +149,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             set { this.headerMaxBufferCount = value; }
         }
 
-   
+
         /// <summary>
         /// Security credentials for securing the communication 
         /// </summary>
@@ -218,8 +219,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             out FabricTransportRemotingListenerSettings remotingListenerSettings,
             string configPackageName = null)
         {
-            FabricTransportListenerSettings listenerSettings;
-            var isSucceded = FabricTransportListenerSettings.TryLoadFrom(sectionName, out listenerSettings,
+            var isSucceded = FabricTransportListenerSettings.TryLoadFrom(sectionName, out var listenerSettings,
                 configPackageName);
             if (isSucceded)
             {
@@ -254,7 +254,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 settings.SecurityCredentials.CredentialType,
                 settings.HeaderBufferSize,
                 settings.HeaderMaxBufferCount);
-             
+
 
             return settings;
         }

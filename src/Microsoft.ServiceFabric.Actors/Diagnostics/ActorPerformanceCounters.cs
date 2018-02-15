@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System;
@@ -137,13 +138,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     "Counters for methods implemented by Service Fabric actor services",
                     FabricPerformanceCounterCategoryType.MultiInstance,
                     new Guid("7D3CC77C-4631-4FD3-8FA2-F7FBFC261272"),
-                    "ServiceFabricActorMethod"), 
+                    "ServiceFabricActorMethod"),
                 new[]
                 {
                     new FabricPerformanceCounterDefinition(
                             1,
                             ActorMethodInvocationsPerSecCounterName,
-                            "Number of times the actor service method is invoked per second", 
+                            "Number of times the actor service method is invoked per second",
                             GetType(ActorMethodCategoryName, ActorMethodInvocationsPerSecCounterName),
                             "InvocationsPerSecond"),
 
@@ -151,14 +152,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             2,
                             3,
                             ActorMethodExecTimeMillisecCounterName,
-                            "Time taken to execute the actor service method in milliseconds", 
+                            "Time taken to execute the actor service method in milliseconds",
                             GetType(ActorMethodCategoryName, ActorMethodExecTimeMillisecCounterName),
                             "ExecutionTime"),
 
                     new FabricPerformanceCounterDefinition(
                             3,
                             ActorMethodExecTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorMethodCategoryName, ActorMethodExecTimeMillisecBaseCounterName),
                             "ExecutionTimeBase",
                             new[] {"noDisplay"}),
@@ -166,8 +167,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             4,
                             ActorMethodExceptionsPerSecCounterName,
-                            "Number of times the actor service method threw an exception per second", 
-                            GetType(ActorMethodCategoryName, ActorMethodExceptionsPerSecCounterName), 
+                            "Number of times the actor service method threw an exception per second",
+                            GetType(ActorMethodCategoryName, ActorMethodExceptionsPerSecCounterName),
                             "ExceptionsPerSecond"),
                 }
             },
@@ -190,13 +191,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             2,
                             3,
                             ActorSaveStateTimeMillisecCounterName,
-                            "Time taken to save actor state in milliseconds", 
+                            "Time taken to save actor state in milliseconds",
                             GetType(ActorCategoryName, ActorSaveStateTimeMillisecCounterName),
                             "SaveStateTime"),
                     new FabricPerformanceCounterDefinition(
                             3,
                             ActorSaveStateTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorSaveStateTimeMillisecBaseCounterName),
                             "SaveStateTimeBase",
                             new[] { "noDisplay" }
@@ -205,13 +206,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             4,
                             5,
                             ActorRequestProcessingTimeMillisecCounterName,
-                            "Time taken to process actor request in milliseconds", 
+                            "Time taken to process actor request in milliseconds",
                             GetType(ActorCategoryName, ActorRequestProcessingTimeMillisecCounterName),
                             "MethodProcessingTime"),
                     new FabricPerformanceCounterDefinition(
                             5,
                             ActorRequestProcessingTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorRequestProcessingTimeMillisecBaseCounterName),
                             "MethodProcessingTimeBase",
                             new[] { "noDisplay" }
@@ -220,13 +221,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             6,
                             7,
                             ActorLockAcquireWaitTimeMillisecCounterName,
-                            "Time taken to acquire actor lock in milliseconds", 
+                            "Time taken to acquire actor lock in milliseconds",
                             GetType(ActorCategoryName, ActorLockAcquireWaitTimeMillisecCounterName),
                             "LockAcquireTime"),
                     new FabricPerformanceCounterDefinition(
                             7,
                             ActorLockAcquireWaitTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorLockAcquireWaitTimeMillisecBaseCounterName),
                             "LockAcquireTimeBase",
                             new[] { "noDisplay" }
@@ -235,13 +236,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             8,
                             9,
                             ActorLockHoldTimeMillisecCounterName,
-                            "Time for which actor lock is held in milliseconds", 
+                            "Time for which actor lock is held in milliseconds",
                             GetType(ActorCategoryName, ActorLockHoldTimeMillisecCounterName),
                             "LockHoldTime"),
                     new FabricPerformanceCounterDefinition(
                             9,
                             ActorLockHoldTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorLockHoldTimeMillisecBaseCounterName),
                             "LockHoldTimeBase",
                             new[] { "noDisplay" }
@@ -250,13 +251,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             10,
                             11,
                             ActorRequestDeserializationTimeMillisecCounterName,
-                            "Actor request deserialization time in milliseconds", 
+                            "Actor request deserialization time in milliseconds",
                             GetType(ActorCategoryName, ActorRequestDeserializationTimeMillisecCounterName),
                             "RequestDeserializationTime"),
                     new FabricPerformanceCounterDefinition(
                             11,
                             ActorRequestDeserializationTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorRequestDeserializationTimeMillisecBaseCounterName),
                             "RequestDeserializationTimeBase",
                             new[] { "noDisplay" }
@@ -265,13 +266,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             12,
                             13,
                             ActorResponseSerializationTimeMillisecCounterName,
-                            "Actor response serialization time in milliseconds", 
+                            "Actor response serialization time in milliseconds",
                             GetType(ActorCategoryName, ActorResponseSerializationTimeMillisecCounterName),
                             "ResponseSerializationTime"),
                     new FabricPerformanceCounterDefinition(
                             13,
                             ActorResponseSerializationTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorResponseSerializationTimeMillisecBaseCounterName),
                             "ResponseSerializationTimeBase",
                             new[] { "noDisplay" }
@@ -280,13 +281,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             14,
                             15,
                             ActorOnActivateAsyncTimeMillisecCounterName,
-                            "Time taken to execute OnActivateAsync method in milliseconds", 
+                            "Time taken to execute OnActivateAsync method in milliseconds",
                             GetType(ActorCategoryName, ActorOnActivateAsyncTimeMillisecCounterName),
                             "OnActivateAsyncTime"),
                     new FabricPerformanceCounterDefinition(
                             15,
                             ActorOnActivateAsyncTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorOnActivateAsyncTimeMillisecBaseCounterName),
                             "OnActivateAsyncTimeBase",
                             new[] { "noDisplay" }
@@ -295,13 +296,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             16,
                             17,
                             ActorLoadStateTimeMillisecCounterName,
-                            "Time taken to load actor state in milliseconds", 
+                            "Time taken to load actor state in milliseconds",
                             GetType(ActorCategoryName, ActorLoadStateTimeMillisecCounterName),
                             "LoadStateTime"),
                     new FabricPerformanceCounterDefinition(
                             17,
                             ActorLoadStateTimeMillisecBaseCounterName,
-                            "", 
+                            "",
                             GetType(ActorCategoryName, ActorLoadStateTimeMillisecBaseCounterName),
                             "LoadStateTimeBase",
                             new[] { "noDisplay" }

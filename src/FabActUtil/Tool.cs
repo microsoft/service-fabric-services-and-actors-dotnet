@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace FabActUtil
 {
     using System;
@@ -18,7 +19,7 @@ namespace FabActUtil
         public static void Run(ToolArguments arguments)
         {
             // create tool context
-            var context = new ToolContext {Arguments = arguments};
+            var context = new ToolContext { Arguments = arguments };
 
             // process the arguments
             ProcessArguments(context);
@@ -144,10 +145,16 @@ namespace FabActUtil
             var actorTypeInfoTable = new Dictionary<Type, ActorTypeInformation>();
             foreach (var t in inputAssembly.GetTypes())
             {
-                if (!t.IsActor()) continue;
+                if (!t.IsActor())
+                {
+                    continue;
+                }
 
                 var actorTypeInformation = ActorTypeInformation.Get(t);
-                if (actorTypeInformation.IsAbstract) continue;
+                if (actorTypeInformation.IsAbstract)
+                {
+                    continue;
+                }
 
                 CheckForDuplicateFabricServiceName(actorTypeInfoTable, actorTypeInformation);
 

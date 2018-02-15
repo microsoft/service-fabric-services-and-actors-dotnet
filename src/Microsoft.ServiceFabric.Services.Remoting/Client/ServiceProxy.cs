@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
 {
     using System;
@@ -19,7 +20,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 #endif
     using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
 
     /// <summary>
     /// Provides the base implementation for the proxy to the remoted IService interfaces.
@@ -112,7 +112,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
-            return ((ServiceRemotingMessageBody) responseMessageBody).Value;
+            return ((ServiceRemotingMessageBody)responseMessageBody).Value;
         }
 
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
@@ -124,9 +124,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
         internal override Task<byte[]> InvokeAsync(
-            int interfaceId, 
-            int methodId, 
-            byte[] requestMsgBodyBytes, 
+            int interfaceId,
+            int methodId,
+            byte[] requestMsgBodyBytes,
             CancellationToken cancellationToken)
         {
             var headers = new ServiceRemotingMessageHeaders()

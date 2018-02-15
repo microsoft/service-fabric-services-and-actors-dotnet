@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -10,9 +11,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Common;
-    
+
     internal class VolatileActorStateTable<TType, TKey, TValue>
     {
         private readonly Dictionary<TType, Dictionary<TKey, TableEntry>> committedEntriesTable;
@@ -93,20 +93,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return;
             }
 
-            foreach (ActorStateDataWrapper actorStateDataWrapper in actorStateDataWrapperList)
+            foreach (var actorStateDataWrapper in actorStateDataWrapperList)
             {
                 actorStateDataWrapper.UpdateSequenceNumber(sequenceNumber);
-            }                
+            }
 
             using (this.rwLock.AcquireWriteLock())
             {
                 var replicationContext = new ReplicationContext();
 
-                foreach (ActorStateDataWrapper actorStateDataWrapper in actorStateDataWrapperList)
+                foreach (var actorStateDataWrapper in actorStateDataWrapperList)
                 {
                     var entry = new ListEntry(actorStateDataWrapper, replicationContext);
                     this.uncommittedEntriesList.AddLast(entry);
-                }                
+                }
 
                 this.pendingReplicationContexts.Add(sequenceNumber, replicationContext);
             }
@@ -116,7 +116,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             if (sequenceNumber == 0) // Invalid LSN
             {
-                if(ex != null)
+                if (ex != null)
                 {
                     throw ex;
                 }
@@ -155,7 +155,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                         this.uncommittedEntriesList.RemoveFirst();
 
-                        if(!listNode.Value.IsFailed)
+                        if (!listNode.Value.IsFailed)
                         {
                             this.ApplyUpdate_UnderWriteLock(listNode);
                         }
@@ -167,7 +167,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         {
                             committedReplicationContexts.Add(this.pendingReplicationContexts[seqNum]);
                             this.pendingReplicationContexts.Remove(seqNum);
-                        }                            
+                        }
                     }
 
                     replicationContext = null;
@@ -197,18 +197,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
         }
-        
+
         public bool TryGetValue(TType type, TKey key, out TValue value)
         {
             using (this.rwLock.AcquireReadLock())
             {
-                Dictionary<TKey, TableEntry> keyTable = null;
-                var exists = this.committedEntriesTable.TryGetValue(type, out keyTable);
+                var exists = this.committedEntriesTable.TryGetValue(type, out var keyTable);
 
                 if (exists)
                 {
-                    TableEntry tableEntry = null;
-                    exists = keyTable.TryGetValue(key, out tableEntry);
+                    exists = keyTable.TryGetValue(key, out var tableEntry);
 
                     value = exists ? tableEntry.ActorStateDataWrapper.Value : default(TValue);
                 }
@@ -231,8 +229,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // which will also us to always get the keys in sorted order,
                 // the lookup in SortedDictionary<> is O(logN) as opposed to
                 // Dictionary<> which is average O(1).
-                Dictionary<TKey, TableEntry> keyTable = null;
-                if (this.committedEntriesTable.TryGetValue(type, out keyTable))
+                if (this.committedEntriesTable.TryGetValue(type, out var keyTable))
                 {
                     foreach (var kvPair in keyTable)
                     {
@@ -259,8 +256,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var actorStateDict = new Dictionary<TKey, TValue>();
 
-                Dictionary<TKey, TableEntry> keyTable = null;
-                if (this.committedEntriesTable.TryGetValue(type, out keyTable))
+                if (this.committedEntriesTable.TryGetValue(type, out var keyTable))
                 {
                     foreach (var entry in keyTable.Values)
                     {
@@ -278,8 +274,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var committedEntriesListShallowCopy = new List<ActorStateDataWrapper>();
 
-                Dictionary<TKey, TableEntry> keyTable = null;
-                if (this.committedEntriesTable.TryGetValue(type, out keyTable))
+                if (this.committedEntriesTable.TryGetValue(type, out var keyTable))
                 {
                     foreach (var entry in keyTable.Values)
                     {
@@ -352,8 +347,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 listNode.Value.ActorStateDataWrapper,
                 listNode);
 
-            Dictionary<TKey, TableEntry> keyTable = null;
-            if (!this.committedEntriesTable.TryGetValue(type, out keyTable))
+            if (!this.committedEntriesTable.TryGetValue(type, out var keyTable))
             {
                 if (isDelete)
                 {
@@ -366,8 +360,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.committedEntriesTable[type] = keyTable;
             }
 
-            TableEntry oldTableEntry = null;
-            if (keyTable.TryGetValue(key, out oldTableEntry))
+            if (keyTable.TryGetValue(key, out var oldTableEntry))
             {
                 this.committedEntriesList.Remove(oldTableEntry.ListNode);
             }
@@ -665,7 +658,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 get
                 {
-                    if(this.PendingReplicationContext != null)
+                    if (this.PendingReplicationContext != null)
                     {
                         return this.PendingReplicationContext.IsFailed;
                     }

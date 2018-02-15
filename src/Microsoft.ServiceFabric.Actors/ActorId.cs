@@ -1,16 +1,15 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors
 {
     using System;
-    using System.Fabric;
     using System.Fabric.Common;
     using System.Globalization;
     using System.Runtime.Serialization;
     using System.Text;
-    using Microsoft.ServiceFabric.Services;
 
     /// <summary>
     /// The ActorId represents the identity of an actor within an actor service. This is used to identify the partition of the actor service inside which the actor will run, see <see cref="GetPartitionKey"/>
@@ -23,13 +22,16 @@ namespace Microsoft.ServiceFabric.Actors
 
         [DataMember(Name = "Kind", Order = 1, IsRequired = true)] private readonly ActorIdKind kind;
 
-        [DataMember(Name = "LongId", Order = 2, IsRequired = false, EmitDefaultValue = false)] private readonly long
+        [DataMember(Name = "LongId", Order = 2, IsRequired = false, EmitDefaultValue = false)]
+        private readonly long
             longId;
 
-        [DataMember(Name = "GuidId", Order = 3, IsRequired = false, EmitDefaultValue = false)] private readonly Guid
+        [DataMember(Name = "GuidId", Order = 3, IsRequired = false, EmitDefaultValue = false)]
+        private readonly Guid
             guidId;
 
-        [DataMember(Name = "StringId", Order = 4, IsRequired = false, EmitDefaultValue = false)] private readonly string
+        [DataMember(Name = "StringId", Order = 4, IsRequired = false, EmitDefaultValue = false)]
+        private readonly string
             stringId;
 
         private volatile string stringRepresentation;
@@ -60,7 +62,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// Initializes a new instance of ActorId class with Id value of type <see cref="System.String"/>.
         /// </summary>
         /// <param name="id">Value for actor id.</param>
-        public ActorId(String id)
+        public ActorId(string id)
         {
             if (null == id)
             {
@@ -122,7 +124,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Gets id for ActorId whose <see cref="ActorIdKind"/> is <see cref="ActorIdKind.String"/>.
         /// </summary>
-        /// <returns><see cref="String"/>The id value for ActorId.</returns>
+        /// <returns><see cref="string"/>The id value for ActorId.</returns>
         /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Guid"/></exception>
         public string GetStringId()
         {
@@ -188,7 +190,7 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         /// <summary>
-        /// Overrides <see cref="System.Object.ToString"/>.
+        /// Overrides <see cref="object.ToString"/>.
         /// </summary>
         /// <returns>Returns a string that represents the current object.</returns>
         public override string ToString()
@@ -292,14 +294,14 @@ namespace Microsoft.ServiceFabric.Actors
 
             if (this.stringId != null)
             {
-                size += this.stringId.Length*sizeof(char);
+                size += this.stringId.Length * sizeof(char);
             }
 
             return size;
         }
 
         /// <summary>
-        /// Overrides <see cref="System.Object.GetHashCode"/>.
+        /// Overrides <see cref="object.GetHashCode"/>.
         /// </summary>
         /// <returns>Hash code for the current object.</returns>
         public override int GetHashCode()
@@ -323,7 +325,7 @@ namespace Microsoft.ServiceFabric.Actors
 
         /// <summary>
         /// Determines whether this instance and a specified object, which must also be a <see cref="ActorId"/> object, 
-        /// have the same value. Overrides <see cref="System.Object.Equals(object)"/>.
+        /// have the same value. Overrides <see cref="object.Equals(object)"/>.
         /// </summary>
         /// <param name="obj">The actorId to compare to this instance. </param>
         /// <returns>true if obj is a <see cref="ActorId"/> and its value is the same as this instance; 
@@ -340,7 +342,7 @@ namespace Microsoft.ServiceFabric.Actors
             }
             else
             {
-                return EqualsContents(this, (ActorId) obj);
+                return EqualsContents(this, (ActorId)obj);
             }
         }
 
@@ -443,7 +445,7 @@ namespace Microsoft.ServiceFabric.Actors
                     return (x.guidId == y.guidId);
 
                 case ActorIdKind.String:
-                    return String.Equals(x.stringId, y.stringId, StringComparison.OrdinalIgnoreCase);
+                    return string.Equals(x.stringId, y.stringId, StringComparison.OrdinalIgnoreCase);
 
                 default:
                     return false;

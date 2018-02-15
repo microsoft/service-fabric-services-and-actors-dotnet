@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System;
@@ -31,7 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var actorName = actorInterfaceTypeName;
             if (!actorName.EndsWith("Actor", StringComparison.InvariantCultureIgnoreCase))
             {
-                actorName = String.Format(CultureInfo.InvariantCulture, "{0}Actor", actorName);
+                actorName = string.Format(CultureInfo.InvariantCulture, "{0}Actor", actorName);
             }
             if ((actorName[0] == 'I') && !Char.IsLower(actorName[1]))
             {
@@ -39,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             }
             else
             {
-                return String.Format(CultureInfo.InvariantCulture, actorName);
+                return string.Format(CultureInfo.InvariantCulture, actorName);
             }
         }
 
@@ -73,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         public static Uri GetFabricServiceUri(Type actorInterfaceType, string applicationName = null,
             string serviceName = null)
         {
-            if (String.IsNullOrEmpty(applicationName))
+            if (string.IsNullOrEmpty(applicationName))
             {
                 applicationName = GetCurrentFabricApplicationName();
                 if (string.IsNullOrEmpty(applicationName))
@@ -85,7 +86,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             if (!applicationName.StartsWith("fabric:/", StringComparison.OrdinalIgnoreCase))
             {
                 return new Uri(
-                    String.Format(
+                    string.Format(
                         CultureInfo.InvariantCulture,
                         "fabric:/{0}/{1}",
                         applicationName.TrimEnd('/'),
@@ -94,7 +95,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             else
             {
                 return new Uri(
-                    String.Format(
+                    string.Format(
                         CultureInfo.InvariantCulture,
                         "{0}/{1}",
                         applicationName.TrimEnd('/'),
@@ -154,7 +155,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             if (applicationUri == null)
             {
-                return GetFabricServiceUri(actorInterfaceType, (string) null, serviceName);
+                return GetFabricServiceUri(actorInterfaceType, (string)null, serviceName);
             }
             else
             {
@@ -169,7 +170,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Service type name.</returns>
         public static string GetFabricServiceTypeName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}Type", GetActorServiceName(actorImplementationType));
+            return string.Format(CultureInfo.InvariantCulture, "{0}Type", GetActorServiceName(actorImplementationType));
         }
 
         /// <summary>
@@ -179,12 +180,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Service package name.</returns>
         public static string GetFabricServicePackageName(string servicePackageNamePrefix)
         {
-            if (String.IsNullOrEmpty(servicePackageNamePrefix))
+            if (string.IsNullOrEmpty(servicePackageNamePrefix))
             {
                 servicePackageNamePrefix = "FabricActorService";
             }
 
-            return String.Format(CultureInfo.InvariantCulture, "{0}Pkg", servicePackageNamePrefix);
+            return string.Format(CultureInfo.InvariantCulture, "{0}Pkg", servicePackageNamePrefix);
         }
 
         /// <summary>
@@ -194,7 +195,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Service endpoint name.</returns>
         public static string GetFabricServiceEndpointName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}Endpoint",
+            return string.Format(CultureInfo.InvariantCulture, "{0}Endpoint",
                 GetActorServiceName(actorImplementationType));
         }
 
@@ -206,7 +207,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Service endpoint name.</returns>
         public static string GetFabricServiceV2EndpointName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}EndpointV2",
+            return string.Format(CultureInfo.InvariantCulture, "{0}EndpointV2",
                 GetActorServiceName(actorImplementationType));
         }
         /// <summary>
@@ -216,7 +217,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Service replicator endpoint name.</returns>
         public static string GetFabricServiceReplicatorEndpointName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}ReplicatorEndpoint",
+            return string.Format(CultureInfo.InvariantCulture, "{0}ReplicatorEndpoint",
                 GetActorServiceName(actorImplementationType));
         }
 
@@ -230,7 +231,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// </remarks>
         public static string GetFabricServiceReplicatorConfigSectionName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}ReplicatorConfig",
+            return string.Format(CultureInfo.InvariantCulture, "{0}ReplicatorConfig",
                 GetActorServiceName(actorImplementationType));
         }
         ///<summary>
@@ -243,7 +244,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// </remarks>
         public static string GetFabricServiceTransportSettingsSectionName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}TransportSettings",
+            return string.Format(CultureInfo.InvariantCulture, "{0}TransportSettings",
                 GetActorServiceName(actorImplementationType));
         }
 
@@ -263,7 +264,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         public static string GetActorStateProviderSettingsSectionName(Type actorImplementationType)
         {
             return string.Format(
-                CultureInfo.InvariantCulture, 
+                CultureInfo.InvariantCulture,
                 "{0}ActorStateProviderSettings",
                 GetActorServiceName(actorImplementationType));
         }
@@ -278,7 +279,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// </remarks>
         public static string GetFabricServiceReplicatorSecurityConfigSectionName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}ReplicatorSecurityConfig",
+            return string.Format(CultureInfo.InvariantCulture, "{0}ReplicatorSecurityConfig",
                 GetActorServiceName(actorImplementationType));
         }
 
@@ -292,7 +293,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// </remarks>
         public static string GetLocalEseStoreConfigSectionName(Type actorImplementationType)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}LocalStoreConfig",
+            return string.Format(CultureInfo.InvariantCulture, "{0}LocalStoreConfig",
                 GetActorServiceName(actorImplementationType));
         }
 
@@ -334,7 +335,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Application package name.</returns>
         public static string GetFabricApplicationPackageName(string appPrefix)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}Pkg", GetFabricApplicationPrefix(appPrefix));
+            return string.Format(CultureInfo.InvariantCulture, "{0}Pkg", GetFabricApplicationPrefix(appPrefix));
         }
 
         /// <summary>
@@ -344,7 +345,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Application type name.</returns>
         public static string GetFabricApplicationTypeName(string appPrefix)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}Type", GetFabricApplicationPrefix(appPrefix));
+            return string.Format(CultureInfo.InvariantCulture, "{0}Type", GetFabricApplicationPrefix(appPrefix));
         }
 
         /// <summary>
@@ -354,7 +355,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// <returns>Application name.</returns>
         public static string GetFabricApplicationName(string appPrefix)
         {
-            return String.Format(CultureInfo.InvariantCulture, "fabric:/{0}", GetFabricApplicationPrefix(appPrefix));
+            return string.Format(CultureInfo.InvariantCulture, "fabric:/{0}", GetFabricApplicationPrefix(appPrefix));
         }
 
         internal static string GetCurrentFabricApplicationName()
@@ -387,12 +388,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static string GetFabricServiceName(string actorInterfaceTypeName)
         {
-            return String.Format(CultureInfo.InvariantCulture, "{0}Service", GetName(actorInterfaceTypeName));
+            return string.Format(CultureInfo.InvariantCulture, "{0}Service", GetName(actorInterfaceTypeName));
         }
 
         private static string GetFabricApplicationPrefix(string appPrefix)
         {
-            if (String.IsNullOrEmpty(appPrefix))
+            if (string.IsNullOrEmpty(appPrefix))
             {
                 return "FabricActorApp";
             }
@@ -412,7 +413,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var actorImplName = actorImplTypeName;
             if (!actorImplName.EndsWith("Actor", StringComparison.InvariantCultureIgnoreCase))
             {
-                actorImplName = String.Format(CultureInfo.InvariantCulture, "{0}Actor", actorImplName);
+                actorImplName = string.Format(CultureInfo.InvariantCulture, "{0}Actor", actorImplName);
             }
 
             return actorImplName;
@@ -427,7 +428,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             }
             else
             {
-                return String.Format(CultureInfo.InvariantCulture, "{0}Service",
+                return string.Format(CultureInfo.InvariantCulture, "{0}Service",
                     GetActorImplName(actorImplementationType));
             }
         }

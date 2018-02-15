@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 {
     using System;
@@ -103,7 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             var handlers = this.FabricTransportClientConnected;
             if (handlers != null)
             {
-                handlers(this, new CommunicationClientEventArgs<IServiceRemotingClient>() {Client = e.Client});
+                handlers(this, new CommunicationClientEventArgs<IServiceRemotingClient>() { Client = e.Client });
             }
         }
 
@@ -113,10 +114,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             var handlers = this.FabricTransportClientDisconnected;
             if (handlers != null)
             {
-                handlers(this, new CommunicationClientEventArgs<IServiceRemotingClient>() {Client = e.Client});
+                handlers(this, new CommunicationClientEventArgs<IServiceRemotingClient>() { Client = e.Client });
             }
         }
-
-      
     }
 }

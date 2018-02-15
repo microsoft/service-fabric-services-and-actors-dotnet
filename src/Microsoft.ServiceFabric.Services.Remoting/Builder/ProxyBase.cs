@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 requestMsgBody = this.CreateRequestMessageBody(requestMsgBodyValue);
             }
 
-            byte[] requestMsgBodyBytes = SerializationUtility.Serialize(
+            var requestMsgBodyBytes = SerializationUtility.Serialize(
                 this.GetRequestMessageBodySerializer(interfaceId),
                 requestMsgBody);
 
@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return (TRetval)this.GetReturnValue(interfaceId, methodId, responseBody);
         }
 
-      
+
         /// <summary>
         /// Implemented by the derived class to type cast the response body and extract the value from it.
         /// </summary>

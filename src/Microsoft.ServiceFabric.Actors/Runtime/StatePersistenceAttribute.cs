@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -24,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="statePersistence">Indicates how actor state is stored for an actor service.</param>
         public StatePersistenceAttribute(StatePersistence statePersistence)
         {
-            StatePersistence = statePersistence;
+            this.StatePersistence = statePersistence;
         }
 
         /// <summary>
@@ -37,11 +38,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var attribute = new StatePersistenceAttribute(StatePersistence.None);
 
-            var attributes = actorType.GetTypeInfo().GetCustomAttributes(typeof (StatePersistenceAttribute), false);
+            var attributes = actorType.GetTypeInfo().GetCustomAttributes(typeof(StatePersistenceAttribute), false);
             var enumerator = attributes.GetEnumerator();
             if (enumerator.MoveNext())
             {
-                attribute.StatePersistence = ((StatePersistenceAttribute) enumerator.Current).StatePersistence;
+                attribute.StatePersistence = ((StatePersistenceAttribute)enumerator.Current).StatePersistence;
             }
             return attribute;
         }

@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
     using System;
@@ -85,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
                 IServiceRemotingMessageSerializationProvider serializationProvider = null)
-            
+
         {
             if (serializationProvider == null)
             {
@@ -259,7 +260,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// </summary>
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
-          return  this.remotingMessageBodyFactory;
+            return this.remotingMessageBodyFactory;
         }
 
         private void OnClientDisconnected(
@@ -273,7 +274,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client,this.serializersManager)
+                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client, this.serializersManager)
                     });
             }
         }
@@ -289,7 +290,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client,this.serializersManager)
+                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client, this.serializersManager)
                     });
             }
         }
@@ -308,7 +309,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             return handlers;
         }
 
-        private  IServiceRemotingCallbackContract GetCallbackImplementation(
+        private IServiceRemotingCallbackContract GetCallbackImplementation(
             IServiceRemotingCallbackMessageHandler callbackClient)
         {
             if (callbackClient == null)
@@ -328,7 +329,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             public NoOpCallbackReceiver()
             {
             }
-            
+
 
             public void SendOneWay(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody)
             {
@@ -348,15 +349,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 this.callbackHandler = callbackHandler;
                 this.serializersManager = serializersManager;
             }
-          
-            
+
+
             public void SendOneWay(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody)
             {
                 var headerSerializer = this.serializersManager.GetHeaderSerializer();
                 var deserializerHeaders = headerSerializer.DeserializeRequestHeaders(new IncomingMessageHeader(new SegmentedReadMemoryStream(messageHeaders)));
                 var msgBodySerializer = this.serializersManager.GetRequestBodySerializer(deserializerHeaders.InterfaceId);
                 var deserializedMsgBody = msgBodySerializer.Deserialize(new IncomingMessageBody(new SegmentedReadMemoryStream(requestBody)));
-                var msg = new ServiceRemotingRequestMessage(deserializerHeaders,deserializedMsgBody);
+                var msg = new ServiceRemotingRequestMessage(deserializerHeaders, deserializedMsgBody);
                 Task.Run(() => this.callbackHandler.HandleOneWayMessage(msg));
             }
         }

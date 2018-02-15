@@ -2,9 +2,9 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 {
-    using System;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.settings = remotingSettings ?? FabricTransportRemotingSettings.GetDefault();
             this.serializersManager = serializersManager;
             this.disposer = new NativeFabricTransportMessageDisposer();
-            this.fabricTransportRemotingCallbackMessageHandler = new FabricTransportRemotingCallbackMessageHandler(remotingCallbackMessageHandler,this.serializersManager);
+            this.fabricTransportRemotingCallbackMessageHandler = new FabricTransportRemotingCallbackMessageHandler(remotingCallbackMessageHandler, this.serializersManager);
         }
 
 
@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     remotingHandler,
                     this.fabricTransportRemotingCallbackMessageHandler,
                     this.disposer);
-                FabricTransportServiceRemotingClient client = new FabricTransportServiceRemotingClient(serializersManager, nativeClient);
+                var client = new FabricTransportServiceRemotingClient(this.serializersManager, nativeClient);
                 remotingHandler.ClientConnected += this.OnFabricTransportClientConnected;
                 remotingHandler.ClientDisconnected += this.OnFabricTransportClientDisconnected;
                 client.OpenAsync(CancellationToken.None).Wait();
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
         private void OnFabricTransportClientDisconnected(object sender, CommunicationClientEventArgs<FabricTransportServiceRemotingClient> e)
         {
-          this.OnClientDisconnected(e.Client);
+            this.OnClientDisconnected(e.Client);
         }
 
         private void OnFabricTransportClientConnected(object sender, CommunicationClientEventArgs<FabricTransportServiceRemotingClient> e)

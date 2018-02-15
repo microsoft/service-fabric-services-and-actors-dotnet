@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -16,14 +17,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             this.reminder = reminder;
 
-            if(reminderCompletedData != null)
+            if (reminderCompletedData != null)
             {
                 this.nextDueTime = ComputeRemainingTime(currentLogicalTime, reminderCompletedData.LogicalTime, reminder.Period);
             }
             else
             {
                 this.nextDueTime = ComputeRemainingTime(currentLogicalTime, reminder.LogicalCreationTime, reminder.DueTime);
-            }            
+            }
         }
 
         TimeSpan IActorReminderState.RemainingDueTime
@@ -59,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var elapsedTime = TimeSpan.Zero;
 
-            if(currentLogicalTime > createdOrLastCompletedTime)
+            if (currentLogicalTime > createdOrLastCompletedTime)
             {
                 elapsedTime = currentLogicalTime - createdOrLastCompletedTime;
             }

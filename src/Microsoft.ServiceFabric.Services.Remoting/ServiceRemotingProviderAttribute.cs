@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     using System;
@@ -12,8 +13,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 #if !DotNetCoreClr
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
 #endif
     /// <summary>
     /// This is a base type for attribute that sets the default service remoting provider to use for 

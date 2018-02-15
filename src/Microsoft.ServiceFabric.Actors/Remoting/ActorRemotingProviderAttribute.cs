@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -112,7 +112,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
         public abstract IServiceRemotingListener CreateServiceRemotingListenerV2(ActorService actorService);
 
-     
+
         /// <summary>
         /// Creates a service remoting client factory that can be used by the 
         /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.

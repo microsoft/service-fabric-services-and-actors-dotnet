@@ -1,12 +1,12 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
 {
     using System.ServiceModel;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
 
@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
     ///    Interface that defines the contract for WCF service remoting.
     /// </summary>
     [ServiceContract(
-        Namespace = WcfConstants.Namespace, 
+        Namespace = WcfConstants.Namespace,
         CallbackContract = typeof(IServiceRemotingCallbackContract))]
     public interface IServiceRemotingContract
     {
@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
         /// <param name="messageHeaders">Message Headers contains the information needed to deserialize request and to dispatch message to the service.</param>
         /// <param name="requestBody"> Message Body contains a request in a serialized form.</param>
         /// <returns>Response Body is a serialized response received by the client.</returns>
-        #pragma warning disable 108
+#pragma warning disable 108
         [OperationContract]
         [FaultContract(typeof(RemoteExceptionInformation))]
         Task<byte[]> RequestResponseAsync(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody);

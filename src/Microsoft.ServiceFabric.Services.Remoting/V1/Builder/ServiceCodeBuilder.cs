@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 {
     using System;
@@ -45,8 +46,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 
         protected override MethodDispatcherBuildResult BuildMethodDispatcher(Type interfaceType)
         {
-         return this.methodDispatcherBuilder.Build(ServiceInterfaceDescription.Create(interfaceType));
-        
+            return this.methodDispatcherBuilder.Build(ServiceInterfaceDescription.Create(interfaceType));
+
         }
 
         protected override MethodBodyTypesBuildResult BuildMethodBodyTypes(Type interfaceType)
@@ -61,7 +62,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             serviceInterfaces.AddRange(interfaceType.GetServiceInterfaces());
 
             // create interface descriptions for all interfaces
-            var servicenterfaceDescriptions = serviceInterfaces.Select<Type,InterfaceDescription>(
+            var servicenterfaceDescriptions = serviceInterfaces.Select<Type, InterfaceDescription>(
                 (t) => ServiceInterfaceDescription.Create(t));
 
             return this.proxyGeneratorBuilder.Build(interfaceType, servicenterfaceDescriptions);

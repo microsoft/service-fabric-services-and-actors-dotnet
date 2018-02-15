@@ -1,14 +1,13 @@
-﻿namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Reflection;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
-    class InterfaceDetailsStore
+    internal class InterfaceDetailsStore
     {
         private readonly ConcurrentDictionary<int, InterfaceDetails> knownTypesMap =
             new ConcurrentDictionary<int, InterfaceDetails>();
@@ -23,10 +22,9 @@
 
         public bool TryGetKnownTypes(string interfaceName, out InterfaceDetails interfaceDetails)
         {
-            int interfaceId;
-            if (!this.interfaceIdMapping.TryGetValue(interfaceName, out interfaceId))
+            if (!this.interfaceIdMapping.TryGetValue(interfaceName, out var interfaceId))
             {
-                ServiceTrace.Source.WriteInfo(TraceType,"InterfaceName {0} not found ",interfaceName);
+                ServiceTrace.Source.WriteInfo(TraceType, "InterfaceName {0} not found ", interfaceName);
                 interfaceDetails = null;
                 return false;
             }
@@ -57,7 +55,7 @@
                         responseKnownTypes.Add(returnType);
                     }
                 }
-                    
+
                 requestKnownType.AddRange(entry.MethodInfo.GetParameters()
                     .ToList()
                     .Select(p => p.ParameterType)
@@ -79,7 +77,7 @@
         {
             if (this.knownTypesMap.ContainsKey(interfaceId))
             {
-                ServiceTrace.Source.WriteInfo(TraceType, "InterfaceId {0} and InterfaceName {1} already existing ", interfaceId,interfaceName);
+                ServiceTrace.Source.WriteInfo(TraceType, "InterfaceId {0} and InterfaceName {1} already existing ", interfaceId, interfaceName);
                 return;
             }
 
@@ -87,7 +85,7 @@
             {
                 this.interfaceIdMapping.TryAdd(interfaceName, interfaceId);
             }
-            
+
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
         public void GetFabricService_NoServiceNameProvided_ReturnServiceName()
         {
             // Arrange
-            string serviceName = "ObjectActorService";
+            var serviceName = "ObjectActorService";
 
             // Act
             var result = ActorNameFormat.GetFabricServiceName(typeof(object));
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
         public void GetFabricService_PassServiceName_ReturnServiceName()
         {
             // Arrange
-            string serviceName = "serviceName";
+            var serviceName = "serviceName";
 
             // Act
             var result = ActorNameFormat.GetFabricServiceName(typeof(object), serviceName);

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
     using Microsoft.ServiceFabric.Actors;
     using Xunit;
 
-    #pragma warning disable xUnit1024
+#pragma warning disable xUnit1024
     public class ActorIdTest
     {
 
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         {
             ActorId x = null;
             ActorId y = null;
-            
+
             Assert.True((x == y), "Verify null == null is true");
             Assert.False((x != y), "Verify null != null is false");
         }
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         public void TestNullEquality()
         {
             ActorId x = null;
-            ActorId y = new ActorId(1);
+            var y = new ActorId(1);
 
             Assert.False((x == y), "Verify null == ActorId(1) is false");
             Assert.True((x != y), "Verify null != ActorId(1) is false");
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             {
                 TestEqualityString((string)null, (string)null);
             }
-            catch(ArgumentNullException)
+            catch (ArgumentNullException)
             {
             }
             TestEqualityString("Id1", "Id1");
@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     ToStringWithKind(x),
                     ToStringWithKind(y)));
 
-            object z = y as object;
+            var z = y as object;
             Assert.True(
                x.Equals(z),
                string.Format(
@@ -191,7 +191,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     ToStringWithKind(x),
                     ToStringWithKind(y)));
 
-            object z = y as object;
+            var z = y as object;
             Assert.False(
                x.Equals(z),
                string.Format(

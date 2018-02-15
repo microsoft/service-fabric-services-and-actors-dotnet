@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
 {
     using System;
@@ -18,13 +19,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         public static readonly ActorEventSubscriberManager Singleton = new ActorEventSubscriberManager();
 
         private readonly ConcurrentDictionary<Subscriber, SubscriptionInfo> eventKeyToInfoMap;
-        private readonly ConcurrentDictionary<Guid,SubscriptionInfo> subscriptionIdToInfoMap;
+        private readonly ConcurrentDictionary<Guid, SubscriptionInfo> subscriptionIdToInfoMap;
         private readonly ConcurrentDictionary<int, ActorMethodDispatcherBase> eventIdToDispatchersMap;
 
         private ActorEventSubscriberManager()
         {
             this.eventIdToDispatchersMap = new ConcurrentDictionary<int, ActorMethodDispatcherBase>();
-            this.eventKeyToInfoMap = new ConcurrentDictionary<Subscriber,SubscriptionInfo>();
+            this.eventKeyToInfoMap = new ConcurrentDictionary<Subscriber, SubscriptionInfo>();
             this.subscriptionIdToInfoMap = new ConcurrentDictionary<Guid, SubscriptionInfo>();
         }
 
@@ -40,20 +41,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 }
             }
         }
-       
+
         public void HandleOneWayMessage(IServiceRemotingRequestMessage requestMessage)
         {
-            IActorRemotingMessageHeaders actorHeaders = (IActorRemotingMessageHeaders)requestMessage.GetHeader();
-            
-            ActorMethodDispatcherBase eventDispatcher;
+            var actorHeaders = (IActorRemotingMessageHeaders)requestMessage.GetHeader();
+
             if ((this.eventIdToDispatchersMap == null) ||
-                (!this.eventIdToDispatchersMap.TryGetValue(actorHeaders.InterfaceId, out eventDispatcher)))
+                (!this.eventIdToDispatchersMap.TryGetValue(actorHeaders.InterfaceId, out var eventDispatcher)))
             {
                 return;
             }
 
-            SubscriptionInfo info;
-            if (!this.subscriptionIdToInfoMap.TryGetValue(actorHeaders.ActorId.GetGuidId(), out info))
+            if (!this.subscriptionIdToInfoMap.TryGetValue(actorHeaders.ActorId.GetGuidId(), out var info))
             {
                 return;
             }
@@ -93,8 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
             {
                 info.IsActive = false;
 
-                SubscriptionInfo info2;
-                this.subscriptionIdToInfoMap.TryRemove(info.Id, out info2);
+                this.subscriptionIdToInfoMap.TryRemove(info.Id, out var info2);
                 return true;
             }
 

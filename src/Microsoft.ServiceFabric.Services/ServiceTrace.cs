@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services
 {
     //extern alias Internal;
@@ -19,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services
 
         internal static string GetTraceIdForReplica(Guid partitionId, long replicaId)
         {
-            return String.Concat(
+            return string.Concat(
                 partitionId.ToString("B"),
                 ":",
                 replicaId.ToString(CultureInfo.InvariantCulture));

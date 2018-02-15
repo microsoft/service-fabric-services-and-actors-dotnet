@@ -1,12 +1,12 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 {
     using System;
     using System.Fabric.Common;
-    using System.Threading;
 
     /// <summary>
     /// You can use the BufferManager class to manage a buffer pool. 
@@ -24,8 +24,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
         private readonly int limit;
 
-        private const int DefaultSegmentSize = 4*1024;
-        private const int DefaultBufferLimit= 100;
+        private const int DefaultSegmentSize = 4 * 1024;
+        private const int DefaultBufferLimit = 100;
 
         /// <summary>
         /// Initializes a new instance of the BufferPoolManager class.
@@ -68,9 +68,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <param name="buffer"></param>
         public bool ReturnBuffer(IPooledBuffer buffer)
         {
-            var segment = ((PooledBuffer) buffer);
+            var segment = ((PooledBuffer)buffer);
             //Return the buffer
-           return this.bufferPool.Return(segment);
+            return this.bufferPool.Return(segment);
         }
 
         private ArraySegment<byte> CreateSegment()

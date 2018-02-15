@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
     using System;
@@ -65,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             get { return this.serviceContext; }
         }
-        
+
         /// <summary>
         /// Service partition to which current service instance belongs. 
         /// </summary>
@@ -206,7 +207,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         protected virtual void OnAbort()
         {
         }
-        
+
         IReadOnlyDictionary<string, string> IStatelessUserServiceInstance.Addresses
         {
             set { Volatile.Write(ref this.addresses, value); }

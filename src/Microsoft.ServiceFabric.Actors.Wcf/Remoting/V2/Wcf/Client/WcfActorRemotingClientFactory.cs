@@ -1,13 +1,13 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
 {
     using System.Collections.Generic;
     using System.ServiceModel.Channels;
     using Microsoft.ServiceFabric.Actors.Remoting.Client;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
@@ -69,7 +69,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             IServicePartitionResolver servicePartitionResolver = null,
             string traceId = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider=null) :
+            IServiceRemotingMessageSerializationProvider serializationProvider = null) :
             base(
                  new ActorRemotingSerializationManager(serializationProvider ?? new BasicDataContractSerializationProvider(),
                     new BasicDataContractActorHeaderSerializer()),

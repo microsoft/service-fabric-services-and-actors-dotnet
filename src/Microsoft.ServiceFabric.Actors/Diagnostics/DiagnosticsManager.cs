@@ -1,11 +1,11 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System;
-    using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal sealed class DiagnosticsManager : IDiagnosticsManager
@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             get
             {
                 return this.diagnosticsEventManager;
-            } 
+            }
         }
 
         internal DiagnosticsManager(ActorService actorService)
@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.eventSourceProviderV2 = new EventSourceProviderV2(actorService.Context, actorService.ActorTypeInformation);
             this.perfCounterProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
             this.eventSourceProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
-            
+
         }
 
         void IDisposable.Dispose()

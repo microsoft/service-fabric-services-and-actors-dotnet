@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 {
     using System;
@@ -32,7 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         internal FabricTransportRemotingSettings(FabricTransportSettings fabricTransportSettings)
-            :this()
+            : this()
         {
             this.fabricTransportSettings = fabricTransportSettings;
         }
@@ -217,8 +218,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             string filepath = null,
             string configPackageName = null)
         {
-            FabricTransportSettings transportSettings;
-            var isSucceded = FabricTransportSettings.TryLoadFrom(sectionName, out transportSettings, filepath,
+            var isSucceded = FabricTransportSettings.TryLoadFrom(sectionName, out var transportSettings, filepath,
                 configPackageName);
             if (isSucceded)
             {

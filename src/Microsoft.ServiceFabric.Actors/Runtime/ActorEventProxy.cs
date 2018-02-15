@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -10,8 +11,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Remoting;
-    using Microsoft.ServiceFabric.Actors.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
@@ -19,12 +18,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// <summary>
     /// Provides the base implementation for the proxy to invoke methods on actor event subscribers.
     /// </summary>
-    public abstract class ActorEventProxy :ProxyBase
+    public abstract class ActorEventProxy : ProxyBase
     {
-        #if !DotNetCoreClr
+#if !DotNetCoreClr
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith proxyGeneratorWith;
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV1;
-        #endif
+#endif
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV2;
 
 
@@ -33,9 +32,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         protected ActorEventProxy()
         {
-            #if !DotNetCoreClr
+#if !DotNetCoreClr
             this.subscriberProxiesV1 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
-            #endif
+#endif
             this.subscriberProxiesV2 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
         }
 
@@ -49,7 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return new DummyServiceRemoingRequestMessageBody();
             }
             return this.serviceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount);
-        }    
+        }
 
         internal void AddSubscriber(IActorEventSubscriberProxy subscriber)
         {
@@ -60,24 +59,23 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     this.serviceRemotingMessageBodyFactory = subscriber.GetRemotingMessageBodyFactory();
                 }
 
-               this.subscriberProxiesV2.AddOrUpdate(subscriber.Id, subscriber, (id, existing) => subscriber);
+                this.subscriberProxiesV2.AddOrUpdate(subscriber.Id, subscriber, (id, existing) => subscriber);
             }
             else
             {
-                #if !DotNetCoreClr
+#if !DotNetCoreClr
                 this.subscriberProxiesV1.AddOrUpdate(subscriber.Id, subscriber, (id, existing) => subscriber);
-                #endif
+#endif
             }
-            
+
         }
 
         internal void RemoveSubscriber(Guid subscriberId)
         {
-            IActorEventSubscriberProxy removed;
-            #if !DotNetCoreClr
-            this.subscriberProxiesV1.TryRemove(subscriberId, out removed);
-            #endif
-            this.subscriberProxiesV2.TryRemove(subscriberId, out removed);
+#if !DotNetCoreClr
+            this.subscriberProxiesV1.TryRemove(subscriberId, out var removedV1);
+#endif
+            this.subscriberProxiesV2.TryRemove(subscriberId, out var removedV2);
         }
 
 #if !DotNetCoreClr
@@ -155,8 +153,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 foreach (var subscriberKey in subscribersToRemove)
                 {
-                    IActorEventSubscriberProxy eventProxy;
-                    this.subscriberProxiesV1.TryRemove(subscriberKey, out eventProxy);
+                    this.subscriberProxiesV1.TryRemove(subscriberKey, out var eventProxy);
                 }
             }
         }
@@ -214,8 +211,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 foreach (var subscriberKey in subscribersToRemove)
                 {
-                    IActorEventSubscriberProxy eventProxy;
-                    this.subscriberProxiesV2.TryRemove(subscriberKey, out eventProxy);
+                    this.subscriberProxiesV2.TryRemove(subscriberKey, out var eventProxy);
                 }
             }
         }
@@ -227,7 +223,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, messageBody);
         }
 
-        #if !DotNetCoreClr
+#if !DotNetCoreClr
 
         private static void SendTo(
             IActorEventSubscriberProxy subscriberProxy, int eventInterfaceId, int eventMethodId,
@@ -235,7 +231,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, eventMsgBytes);
         }
-        #endif
+#endif
     }
     internal class DummyServiceRemoingRequestMessageBody : IServiceRemotingRequestMessageBody
     {

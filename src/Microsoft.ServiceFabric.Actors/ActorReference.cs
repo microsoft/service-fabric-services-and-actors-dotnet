@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors
 {
     using System;
@@ -9,7 +10,6 @@ namespace Microsoft.ServiceFabric.Actors
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
     /// Encapsulation of a reference to an actor for serialization.
@@ -82,8 +82,7 @@ namespace Microsoft.ServiceFabric.Actors
             }
 
             // try as IActorProxy for backward compatibility as customers's mock framework may rely on it before V2 remoting stack.
-            var actorProxy = actor as IActorProxy;
-            if (actorProxy != null)
+            if (actor is IActorProxy actorProxy)
             {
 #if !DotNetCoreClr
                 if (actorProxy.ActorServicePartitionClient != null)
@@ -105,8 +104,7 @@ namespace Microsoft.ServiceFabric.Actors
                 };
             }
 
-            var actorBase = actor as ActorBase;
-            if (actorBase != null)
+            if (actor is ActorBase actorBase)
             {
                 return new ActorReference()
                 {

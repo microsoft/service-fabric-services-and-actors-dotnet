@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -40,14 +40,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal Task ExecuteWithRetriesAsync(
             Func<Task> func,
-            string functionNameTag, 
+            string functionNameTag,
             CancellationToken userCancellationToken)
         {
             return this.ExecuteWithRetriesAsync(
                 async () =>
                 {
                     await func.Invoke();
-                    return (object) null;
+                    return (object)null;
                 },
                 functionNameTag,
                 userCancellationToken);
@@ -194,7 +194,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 await Task.Delay(effectiveRetryDelay, userCancellationToken);
             }
         }
-        
+
         internal Task<PagedResult<ActorId>> GetStoredActorIdsAsync<T>(
             int itemsCount,
             ContinuationToken continuationToken,
@@ -202,7 +202,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<T, string> getStorageKeyFunc,
             CancellationToken cancellationToken)
         {
-            var previousActorCount = continuationToken == null ? 0 : Int64.Parse((string) continuationToken.Marker);
+            var previousActorCount = continuationToken == null ? 0 : Int64.Parse((string)continuationToken.Marker);
 
             long currentActorCount = 0;
             var actorIdList = new List<ActorId>();
@@ -251,7 +251,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     ActorTrace.Source.WriteWarningWithId(
                         this.owner.TraceType,
                         this.owner.TraceId,
-                        String.Format("Failed to parse ActorId from storage key: {0}", storageKey));
+                        string.Format("Failed to parse ActorId from storage key: {0}", storageKey));
                 }
 
                 enumHasMoreEntries = enumerator.MoveNext();
@@ -277,7 +277,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             return Task.FromResult(actorQueryResult);
         }
-        
+
         #region Static Methods
 
         internal static IActorStateProvider GetActorStateProviderOverride()
@@ -337,7 +337,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var nodeContext = FabricRuntime.GetNodeContext();
             var endpoint = codePackage.GetEndpoint(ActorNameFormat.GetFabricServiceReplicatorEndpointName(actorImplType));
 
-            settings.ReplicatorAddress = String.Format(
+            settings.ReplicatorAddress = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}:{1}",
                 nodeContext.IPAddressOrFQDN,
@@ -358,7 +358,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static string CreateActorPresenceStorageKey(ActorId actorId)
         {
-            return String.Format(
+            return string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}_{1}",
                 ActorPresenceStorageKeyPrefix,
@@ -367,7 +367,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static string CreateReminderCompletedStorageKey(ActorId actorId, string reminderName)
         {
-            return String.Format(
+            return string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}_{1}_{2}",
                 ReminderCompletedStorageKeyPrefix,
@@ -377,7 +377,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static string CreateReminderCompletedStorageKeyPrefix(ActorId actorId)
         {
-            return String.Format(
+            return string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}_{1}_",
                 ReminderCompletedStorageKeyPrefix,
@@ -397,7 +397,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static DataContractSerializer CreateDataContractSerializer(Type actorStateType)
         {
-            var dataContractSerializer =  new DataContractSerializer(
+            var dataContractSerializer = new DataContractSerializer(
                 actorStateType,
                 new DataContractSerializerSettings
                 {
@@ -410,10 +410,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         typeof(ActorReference) ,
                     }
                 });
-#if DotNetCoreClr					
+#if DotNetCoreClr
 			dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Singleton);
-#endif			
-			return dataContractSerializer;
+#endif
+            return dataContractSerializer;
         }
 
         internal static IActorStateProvider CreateDefaultStateProvider(ActorTypeInformation actorTypeInfo)
@@ -517,11 +517,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             get
             {
-                return (this.stopWatch.Elapsed < this.originalTimeout); 
+                return (this.stopWatch.Elapsed < this.originalTimeout);
             }
         }
 
-        public bool HasTimedOut 
+        public bool HasTimedOut
         {
             get
             {

@@ -15,9 +15,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
     /// </summary>
     public class ActorProxyFactory : IActorProxyFactory
     {
-       #if !DotNetCoreClr
+#if !DotNetCoreClr
         private Remoting.V1.Client.ActorProxyFactory proxyFactoryV1;
-       #endif
+#endif
         private Remoting.V2.Client.ActorProxyFactory proxyFactoryV2;
         private bool overrideListenerName = false;
 
@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
         }
 
-        #if !DotNetCoreClr
+#if !DotNetCoreClr
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class using V1 remoting Client Factory.
         /// </summary>
@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             this.proxyFactoryV1 =
                 new Remoting.V1.Client.ActorProxyFactory(createServiceRemotingClientFactory, retrySettings);
         }
-        #endif
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class using V2 Remoting Client Factory.
@@ -86,9 +86,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// </param>
         /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
         public TActorInterface CreateActorProxy<TActorInterface>(
-            ActorId actorId, 
+            ActorId actorId,
             string applicationName = null,
-            string serviceName = null, 
+            string serviceName = null,
             string listenerName = null) where TActorInterface : IActor
         {
             var actorInterfaceType = typeof(TActorInterface);
@@ -178,7 +178,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             string listenerName = null)
         {
             this.GetOrSetProxyFactory(actorInterfaceType);
-            #if !DotNetCoreClr
+#if !DotNetCoreClr
             if (this.proxyFactoryV1 != null)
             {
                 return this.proxyFactoryV1.CreateActorProxy(
@@ -187,7 +187,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                     actorId,
                     listenerName);
             }
-            #endif
+#endif
 
             return this.proxyFactoryV2.CreateActorProxy(
                 actorInterfaceType,
@@ -198,7 +198,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         private ActorRemotingProviderAttribute GetProviderAttribute(Type actorInterfaceType)
         {
-            return ActorRemotingProviderAttribute.GetProvider(new[] {actorInterfaceType});
+            return ActorRemotingProviderAttribute.GetProvider(new[] { actorInterfaceType });
         }
 
         private IActorProxyFactory GetOrSetProxyFactory(Type actorInterfaceType)
@@ -227,7 +227,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
             return this.proxyFactoryV1;
 
-            
+
 #else
             if (this.proxyFactoryV2 == null)
             {

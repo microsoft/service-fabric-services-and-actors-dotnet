@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 {
     using System;
@@ -101,10 +102,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                     var retval = t.GetAwaiter().GetResult();
                     if (retval.IsException)
                     {
-                        Exception e;
                         var isDeserialzied =
                             RemoteExceptionInformation.ToException(new RemoteExceptionInformation(retval.GetBody()),
-                                out e);
+                                out var e);
 
                         if (isDeserialzied)
                         {

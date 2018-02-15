@@ -1,14 +1,14 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V1
 {
     using System;
     using System.Fabric.Common;
     using System.Globalization;
     using System.IO;
-    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Text;
     using Microsoft.ServiceFabric.Services.Common;
@@ -76,8 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
             Requires.ThrowIfNull(remoteExceptionInformation, "RemoteExceptionInformation");
 
             // try to de-serialize the bytes in to the exception
-            Exception res;
-            if (TryDeserializeException(remoteExceptionInformation.Data, out res))
+            if (TryDeserializeException(remoteExceptionInformation.Data, out var res))
             {
                 result = res;
                 return true;
@@ -120,8 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
         {
             try
             {
-                ServiceExceptionData eData;
-                if (TryDeserializeExceptionData(data, out eData))
+                if (TryDeserializeExceptionData(data, out var eData))
                 {
                     result = new ServiceException(eData.Type, eData.Message);
                     return true;

@@ -6,13 +6,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using System.Xml;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
-    class BasicDataContractHeaderSerializer : IServiceRemotingMessageHeaderSerializer
+    internal class BasicDataContractHeaderSerializer : IServiceRemotingMessageHeaderSerializer
     {
         private readonly DataContractSerializer requestHeaderSerializer;
         private readonly DataContractSerializer responseHeaderSerializer;
 
         public BasicDataContractHeaderSerializer()
-            :this(new DataContractSerializer(
+            : this(new DataContractSerializer(
                 typeof(IServiceRemotingRequestMessageHeader),
                 new DataContractSerializerSettings()
                 {
@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader) }
                 }))
         {
-            
+
         }
 
         //Used for Actor layer

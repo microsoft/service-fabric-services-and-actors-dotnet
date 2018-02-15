@@ -1,17 +1,14 @@
 // ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System;
     using System.Collections.Generic;
-    using System.Fabric.Common;
-    using System.Linq;
-    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Xml;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     /// <summary>
@@ -20,14 +17,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     /// </summary>
     public class ServiceRemotingDataContractSerializationProvider : IServiceRemotingMessageSerializationProvider
     {
-        
+
         private readonly IBufferPoolManager bodyBufferPoolManager;
 
         /// <summary>
         /// Creates a ServiceRemotingDataContractSerializationProvider with default IBufferPoolManager 
         /// </summary>
         public ServiceRemotingDataContractSerializationProvider()
-            : this(new BufferPoolManager(Constants.DefaultMessageBufferSize,Constants.DefaultMaxBufferCount))
+            : this(new BufferPoolManager(Constants.DefaultMessageBufferSize, Constants.DefaultMaxBufferCount))
         {
         }
 
@@ -71,7 +68,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 this.bodyBufferPoolManager,
                 responseBodyTypes);
         }
-  
+
         /// <summary>
         /// Creates a MessageFactory for DataContract Remoting Types. This is used to create Remoting Request/Response objects.
         /// </summary>
@@ -88,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
             public ServiceRemotingRequestMessageBodySerializer(
                 IBufferPoolManager bufferPoolManager,
-                IEnumerable<Type>  parameterInfo)
+                IEnumerable<Type> parameterInfo)
             {
                 this.bufferPoolManager = bufferPoolManager;
                 this.serializer = new DataContractSerializer(
@@ -106,7 +103,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 {
                     return null;
                 }
-               
+
 
                 using (var stream = new SegmentedPoolMemoryStream(this.bufferPoolManager))
                 {
@@ -121,7 +118,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
             public IServiceRemotingRequestMessageBody Deserialize(IncomingMessageBody messageBody)
             {
-                if (messageBody == null || messageBody.GetReceivedBuffer()==null || messageBody.GetReceivedBuffer().Length==0)
+                if (messageBody == null || messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0)
                 {
                     return null;
                 }
@@ -132,7 +129,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     XmlDictionaryReaderQuotas.Max))
                 {
                     return (ServiceRemotingRequestMessageBody)this.serializer.ReadObject(reader);
-                
+
                 }
             }
         }

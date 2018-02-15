@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
@@ -12,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     public sealed class ExceptionHandlingRetryResult : ExceptionHandlingResult
     {
         private static readonly Random Rand = new Random();
- 
+
         private readonly bool isTransient;
         private readonly string exceptionId;
         private readonly TimeSpan retryDelay;
@@ -42,7 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// </value>
         public string ExceptionId
         {
-            get { return this.exceptionId;  }
+            get { return this.exceptionId; }
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <value>Max retry count</value>
         public int MaxRetryCount
         {
-            get { return this.maxRetryCount;  }
+            get { return this.maxRetryCount; }
         }
 
         /// <summary>

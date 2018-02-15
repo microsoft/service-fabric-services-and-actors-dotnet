@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System.Fabric.Common;
@@ -40,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        internal static LogicalTimestamp Deserialize(byte[] logicalTimestampBytes) 
+        internal static LogicalTimestamp Deserialize(byte[] logicalTimestampBytes)
         {
             if ((logicalTimestampBytes == null) || (logicalTimestampBytes.Length == 0))
             {
@@ -66,7 +67,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private static int ComputeSizeInBytes(LogicalTimestamp logicalTimestamp)
         {
-            int size = sizeof(ushort); // Data version
+            var size = sizeof(ushort); // Data version
             size += sizeof(byte); // Null value indicator prefix
 
             if (logicalTimestamp != null)

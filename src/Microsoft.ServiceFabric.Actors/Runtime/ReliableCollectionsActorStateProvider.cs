@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
@@ -9,7 +10,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric;
     using System.Fabric.Common;
     using System.Globalization;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Text;
@@ -358,8 +358,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
 
-            int totalCount = 0;
-            var reminderKeys = this.GetReminderKeys(reminderNames, out totalCount);
+            var reminderKeys = this.GetReminderKeys(reminderNames, out var totalCount);
 
             await this.DeleteRemindersInternalAsync(reminderKeys, $"DeleteRemindersAsync[{totalCount}]", cancellationToken);
         }
@@ -546,7 +545,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 TraceType, this.traceId, "ReliableCollectionsActorStateProviderSettings: {0}", this.stateProviderSettings);
         }
 
-        Task DeleteRemindersInternalAsync(
+        private Task DeleteRemindersInternalAsync(
             IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderKeys,
             string functionNameTag,
             CancellationToken cancellationToken)
@@ -610,7 +609,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task EnsureStateProviderInitializedAsync(CancellationToken cancellationToken)
         {
-            int retryCount = 0;
+            var retryCount = 0;
 
             while (this.replicaRole == ReplicaRole.Primary &&
                    (!this.isDictionariesInitialized || !this.isLogicalTimeManagerInitialized))
@@ -718,7 +717,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task WaitForWriteStatusAsync(CancellationToken cancellationToken)
         {
-            int retryCount = 0;
+            var retryCount = 0;
 
             while (!cancellationToken.IsCancellationRequested &&
                    this.servicePartition.WriteStatus != PartitionAccessStatus.Granted)
@@ -780,7 +779,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return;
             }
 
-            using (ITransaction tx = this.stateManager.CreateTransaction())
+            using (var tx = this.stateManager.CreateTransaction())
             {
                 var condVal = await this.logicalTimeDictionary.TryGetValueAsync(tx, LogicalTimestampKey);
 
@@ -812,7 +811,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var dicts = new Dictionary<int, IReliableDictionary2<string, byte[]>>();
 
-            int storageIndex = 0;
+            var storageIndex = 0;
             var dictName = string.Format(dictionaryNameFormat, storageIndex);
             var condVal = await this.TryGetDictionaryAsync(dictName);
 
@@ -832,7 +831,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 // We are here means dictionaries are being created for first time.
 
-                for (int i = 0; i < dictionaryCount; i++)
+                for (var i = 0; i < dictionaryCount; i++)
                 {
                     dictName = string.Format(dictionaryNameFormat, i);
                     var dict = await this.GetOrAddDictionaryAsync(tx, dictName);
@@ -845,7 +844,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private static T[] DictionaryToArray<T>(Dictionary<int, T> dict)
         {
-            T[] arr = new T[dict.Count];
+            var arr = new T[dict.Count];
 
             foreach (var kvPair in dict)
             {
@@ -916,8 +915,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     var reminderData = ActorReminderDataSerializer.Deserialize(data);
                     var key = CreateStorageKey(reminderData.ActorId, reminderData.Name);
 
-                    ReminderCompletedData reminderCompletedData;
-                    reminderCompletedDataDict.TryGetValue(key, out reminderCompletedData);
+                    reminderCompletedDataDict.TryGetValue(key, out var reminderCompletedData);
 
                     reminderCollection.Add(
                         reminderData.ActorId,

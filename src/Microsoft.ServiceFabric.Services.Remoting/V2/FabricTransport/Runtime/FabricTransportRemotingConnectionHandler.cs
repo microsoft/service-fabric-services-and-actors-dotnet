@@ -1,19 +1,16 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
+    using System;
+    using System.Threading.Tasks;
     using System.Collections.Concurrent;
     using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
 
-    class FabricTransportRemotingConnectionHandler : IFabricTransportConnectionHandler
+    internal class FabricTransportRemotingConnectionHandler : IFabricTransportConnectionHandler
     {
         private ConcurrentDictionary<string, FabricTransportCallbackClient> clientCallbackConnection;
 
@@ -36,8 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         FabricTransportCallbackClient IFabricTransportConnectionHandler.GetCallBack(string clientId)
         {
-            FabricTransportCallbackClient nativeCallback;
-            this.clientCallbackConnection.TryGetValue(clientId, out nativeCallback);
+            this.clientCallbackConnection.TryGetValue(clientId, out var nativeCallback);
             return nativeCallback;
         }
 
@@ -48,8 +44,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         private void RemoveCallBackConnection(string clientId)
         {
-            FabricTransportCallbackClient fabricTransportCallbackClient;
-            this.clientCallbackConnection.TryRemove(clientId, out fabricTransportCallbackClient);
+            this.clientCallbackConnection.TryRemove(clientId, out var fabricTransportCallbackClient);
             if (fabricTransportCallbackClient != null)
             {
                 fabricTransportCallbackClient.Dispose();

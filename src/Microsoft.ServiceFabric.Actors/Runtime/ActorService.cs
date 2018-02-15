@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -61,13 +61,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo))
         {
             this.actorTypeInformation = actorTypeInfo;
-            this.stateProvider = (IActorStateProvider) this.StateProviderReplica;
+            this.stateProvider = (IActorStateProvider)this.StateProviderReplica;
             this.settings = ActorServiceSettings.DeepCopyFromOrDefaultOnNull(settings);
 
             // Set internal components
             this.actorActivator = new ActorActivator(actorFactory ?? this.DefaultActorFactory);
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
-            this.actorManagerAdapter = new ActorManagerAdapter {ActorManager = new MockActorManager(this)};
+            this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
         }
 
@@ -200,7 +200,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}</returns>
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-            var types = new List<Type> {this.ActorTypeInformation.ImplementationType};
+            var types = new List<Type> { this.ActorTypeInformation.ImplementationType };
             types.AddRange(this.ActorTypeInformation.InterfaceTypes);
 
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
@@ -327,7 +327,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)
         {
-            return (ActorBase) Activator.CreateInstance(
+            return (ActorBase)Activator.CreateInstance(
                 this.ActorTypeInformation.ImplementationType,
                 actorService,
                 actorId);

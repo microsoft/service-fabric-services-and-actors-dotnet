@@ -69,10 +69,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 this.serializationProvider.CreateResponseMessageSerializer(serviceInterfaceType, responseBodyTypes));
         }
 
-        internal  virtual InterfaceDetails GetInterfaceDetails(int interfaceId)
+        internal virtual InterfaceDetails GetInterfaceDetails(int interfaceId)
         {
-            InterfaceDetails interfaceDetails;
-            if (!ServiceCodeBuilder.TryGetKnownTypes(interfaceId, out interfaceDetails))
+            if (!ServiceCodeBuilder.TryGetKnownTypes(interfaceId, out var interfaceDetails))
             {
                 throw new ArgumentException("No interface found with this Id  " + interfaceId);
             }

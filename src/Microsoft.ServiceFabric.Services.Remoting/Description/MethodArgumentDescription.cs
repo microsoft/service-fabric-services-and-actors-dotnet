@@ -1,7 +1,8 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Description
 {
     using System;
@@ -37,34 +38,34 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
         }
 
         private static void EnsureNotVariableLength(
-            string remotedInterfaceKindName, 
-            Type remotedInterfaceType, 
-            MethodInfo methodInfo, 
+            string remotedInterfaceKindName,
+            Type remotedInterfaceType,
+            MethodInfo methodInfo,
             ParameterInfo param)
         {
             if (param.GetCustomAttributes(typeof(ParamArrayAttribute), false).Length > 0)
             {
                 ThrowArgumentExceptionForParamChecks(
                     remotedInterfaceKindName,
-                    remotedInterfaceType, 
-                    methodInfo, 
+                    remotedInterfaceType,
+                    methodInfo,
                     param,
                     SR.ErrorRemotedMethodHasVaArgParameter);
             }
         }
 
         private static void EnsureNotOutRefOptional(
-            string remotedInterfaceKindName, 
-            Type remotedInterfaceType, 
-            MethodInfo methodInfo, 
+            string remotedInterfaceKindName,
+            Type remotedInterfaceType,
+            MethodInfo methodInfo,
             ParameterInfo param)
         {
             if (param.IsOut || param.IsIn || param.IsOptional)
             {
                 ThrowArgumentExceptionForParamChecks(
-                    remotedInterfaceKindName, 
-                    remotedInterfaceType, 
-                    methodInfo, 
+                    remotedInterfaceKindName,
+                    remotedInterfaceType,
+                    methodInfo,
                     param,
                     SR.ErrorRemotedMethodHasOutRefOptionalParameter);
             }
@@ -72,9 +73,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
 
         private static void ThrowArgumentExceptionForParamChecks(
             string remotedInterfaceKindName,
-            Type remotedInterfaceType, 
+            Type remotedInterfaceType,
             MethodInfo methodInfo,
-            ParameterInfo param, 
+            ParameterInfo param,
             string resourceName)
         {
             throw new ArgumentException(
@@ -89,4 +90,3 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
         }
     }
 }
- 
