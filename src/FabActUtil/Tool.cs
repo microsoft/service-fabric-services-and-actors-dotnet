@@ -11,8 +11,8 @@ namespace FabActUtil
     using System.IO;
     using System.Reflection;
     using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class Tool
     {
@@ -187,23 +187,23 @@ namespace FabActUtil
                             actorTypeInfoTable[actorTypeInterface].ImplementationType))
                         {
                             throw new TypeLoadException(
-                            string.Format(CultureInfo.CurrentCulture,
-                                SR.ErrorNoActorServiceNameMultipleImplDerivation,
-                                actorTypeInterface.FullName,
-                                actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,
-                                actorTypeInformation.ImplementationType.FullName,
-                                typeof(ActorServiceAttribute).FullName));
+                                string.Format(CultureInfo.CurrentCulture,
+                                    SR.ErrorNoActorServiceNameMultipleImplDerivation,
+                                    actorTypeInterface.FullName,
+                                    actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,
+                                    actorTypeInformation.ImplementationType.FullName,
+                                    typeof(ActorServiceAttribute).FullName));
                         }
                         else if (actorTypeInfoTable[actorTypeInterface].ImplementationType.IsAssignableFrom(
                             actorTypeInformation.ImplementationType))
                         {
                             throw new TypeLoadException(
-                              string.Format(CultureInfo.CurrentCulture,
-                                  SR.ErrorNoActorServiceNameMultipleImplDerivation,
-                                  actorTypeInterface.FullName,
-                                  actorTypeInformation.ImplementationType.FullName,
-                                  actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,
-                                  typeof(ActorServiceAttribute).FullName));
+                                string.Format(CultureInfo.CurrentCulture,
+                                    SR.ErrorNoActorServiceNameMultipleImplDerivation,
+                                    actorTypeInterface.FullName,
+                                    actorTypeInformation.ImplementationType.FullName,
+                                    actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,
+                                    typeof(ActorServiceAttribute).FullName));
                         }
                         else
                         {
