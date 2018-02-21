@@ -119,8 +119,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             }
 
 #else
-             return new[]
-                {
+            return new[]
+               {
                     new ServiceReplicaListener(
                         (t) =>
                         {

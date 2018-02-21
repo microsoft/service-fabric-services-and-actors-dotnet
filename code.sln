@@ -29,7 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnetcore", "dotnetcore", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E1B4B64-112D-4D58-B156-C7E94B6D9D11}"
 	ProjectSection(SolutionItems) = preProject
-		..\.editorconfig = ..\.editorconfig
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}"

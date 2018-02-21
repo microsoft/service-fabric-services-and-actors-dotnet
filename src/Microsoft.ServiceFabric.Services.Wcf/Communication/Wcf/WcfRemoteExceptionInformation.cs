@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
         public static readonly FaultCode FaultCodeThrow = new FaultCode(FaultCodeName,
             new FaultCode(FaultSubCodeThrowName));
 
-        private static readonly DataContractSerializer serializer =
+        private static readonly DataContractSerializer Serializer =
             new DataContractSerializer(typeof(ServiceExceptionData));
 
         public static string ToString(Exception exception)
@@ -108,7 +108,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
 
                 using (var textStream = XmlWriter.Create(stringWriter))
                 {
-                    serializer.WriteObject(textStream, serviceExceptionData);
+                    Serializer.WriteObject(textStream, serviceExceptionData);
                     textStream.Flush();
 
                     result = stringWriter.ToString();
@@ -137,7 +137,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                 };
                 using (var textStream = XmlReader.Create(stringReader, settings))
                 {
-                    result = (ServiceExceptionData)serializer.ReadObject(textStream);
+                    result = (ServiceExceptionData)Serializer.ReadObject(textStream);
                     return true;
                 }
             }
