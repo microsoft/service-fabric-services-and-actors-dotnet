@@ -7,8 +7,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Numerics;
     using System.Fabric;
+    using System.Numerics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -42,7 +42,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
         internal static StatefulServiceContext GetMockStatefulServiceContext()
         {
-            return new StatefulServiceContext(GetNodeContext(),
+            return new StatefulServiceContext(
+                GetNodeContext(),
                 GetCodePackageActivationContext(),
                 MockServiceTypeName,
                 MockServiceUri,
@@ -53,7 +54,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
         internal static StatelessServiceContext GetMockStatelessServiceContext()
         {
-            return new StatelessServiceContext(GetNodeContext(),
+            return new StatelessServiceContext(
+                GetNodeContext(),
                 GetCodePackageActivationContext(),
                 MockServiceTypeName,
                 MockServiceUri,
@@ -82,7 +84,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
         private static NodeContext GetNodeContext()
         {
-            return new NodeContext(MockNodeName,
+            return new NodeContext(
+                MockNodeName,
                 new NodeId(BigInteger.Zero, BigInteger.Zero),
                 BigInteger.Zero,
                 MockNodeType,

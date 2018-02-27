@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
@@ -17,8 +17,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
 
     /// <summary>
-    ///     An <see cref="IServiceRemotingListener"/> 
-    ///     that uses fabric TCP transport to provide remoting of actor and service interfaces for actor 
+    ///     An <see cref="IServiceRemotingListener"/>
+    ///     that uses fabric TCP transport to provide remoting of actor and service interfaces for actor
     ///     service.
     /// </summary>
     public class FabricTransportActorServiceRemotingListener : FabricTransportServiceRemotingListener

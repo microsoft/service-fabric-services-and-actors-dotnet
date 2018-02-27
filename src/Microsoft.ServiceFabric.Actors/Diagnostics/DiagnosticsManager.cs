@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -33,12 +33,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.eventSourceProviderV2 = new EventSourceProviderV2(actorService.Context, actorService.ActorTypeInformation);
             this.perfCounterProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
             this.eventSourceProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
-
         }
 
         void IDisposable.Dispose()
         {
-            if (null != this.perfCounterProviderV2)
+            if (this.perfCounterProviderV2 != null)
             {
                 this.perfCounterProviderV2.Dispose();
             }

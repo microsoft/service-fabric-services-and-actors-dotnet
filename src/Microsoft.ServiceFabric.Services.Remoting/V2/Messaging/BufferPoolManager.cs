@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
@@ -9,10 +9,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
     using System.Fabric.Common;
 
     /// <summary>
-    /// You can use the BufferManager class to manage a buffer pool. 
+    /// You can use the BufferManager class to manage a buffer pool.
     /// The pool is created when you instantiate this class . Buffer is instantiated when there are no unused buffers in the pool.
-    /// Destroyed when the buffer pool is reclaimed by garbage collection. 
-    /// Every time you need to use a buffer, you take one from the pool, use it, and return it to the pool when done. 
+    /// Destroyed when the buffer pool is reclaimed by garbage collection.
+    /// Every time you need to use a buffer, you take one from the pool, use it, and return it to the pool when done.
     /// This process is much faster than creating and destroying a buffer every time you need to use one.
     /// </summary>
     public sealed class BufferPoolManager : IBufferPoolManager
@@ -37,7 +37,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             this.limit = bufferLimit;
             this.bufferPool = new SynchronizedPool<PooledBuffer>(this.limit);
             this.allocator = new Allocator(segmentSize);
-            AppTrace.TraceSource.WriteInfo("BufferPoolManager",
+            AppTrace.TraceSource.WriteInfo(
+                "BufferPoolManager",
                 "BufferMessageSize {0} ,BufferMacCount {1}",
                 segmentSize,
                 bufferLimit);

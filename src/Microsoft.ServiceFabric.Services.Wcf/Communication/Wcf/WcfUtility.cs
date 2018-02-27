@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf
@@ -30,16 +30,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
         ///     Creates a TCP listener binding with no security for WCF communication.
         /// </summary>
         /// <param name="maxMessageSize">
-        ///     Maximum size of the message in bytes. 
+        ///     Maximum size of the message in bytes.
         ///     If the value is not specified or it is less than or equals to zero,
         ///     a default value of 4,194,304 bytes (4 MB) is used.
         /// </param>
         /// <param name="openTimeout">
-        ///     Timeout for opening the connection. 
+        ///     Timeout for opening the connection.
         ///     If the value is not specified, the default value of 5 seconds is used.
         /// </param>
         /// <param name="closeTimeout">
-        ///     Time to wait for messages to drain on the connections before aborting the connection. 
+        ///     Time to wait for messages to drain on the connections before aborting the connection.
         ///     If the value is not specified, the default value of 5 seconds is used.
         /// </param>
         /// <returns>A <see cref="System.ServiceModel.Channels.Binding"/> to use with <see cref="Runtime.WcfCommunicationListener{TServiceContract}"/>.</returns>
@@ -88,16 +88,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
         ///     Creates a TCP client binding with no security for WCF communication.
         /// </summary>
         /// <param name="maxMessageSize">
-        ///     Maximum size of the message in bytes. 
+        ///     Maximum size of the message in bytes.
         ///     If the value is not specified or it is less than or equals to zero,
         ///     a default value of 4,194,304 bytes (4 MB) is used.
         /// </param>
         /// <param name="openTimeout">
-        ///     Timeout for opening the connection. 
+        ///     Timeout for opening the connection.
         ///     If the value is not specified, the default value of 5 seconds is used.
         /// </param>
         /// <param name="closeTimeout">
-        ///     Time to wait for messages to drain on the connections before aborting the connection. 
+        ///     Time to wait for messages to drain on the connections before aborting the connection.
         ///     If the value is not specified, the default value of 5 seconds is used.
         /// </param>
         /// <returns>A <see cref="System.ServiceModel.Channels.Binding"/> to use with <see cref="Client.WcfCommunicationClientFactory{TChannel}"/>.</returns>

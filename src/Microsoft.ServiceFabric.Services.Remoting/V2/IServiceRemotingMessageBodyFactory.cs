@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -20,8 +20,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters);
 
         /// <summary>
-        /// 
-        ///</summary> 
+        ///
+        ///</summary>
         /// <param name="interfaceName"> This is FullName for the service interface for which request body is being constructed</param>
         /// <param name="methodName">MethodName for the service interface for which request will be sent to</param>
         /// <returns>IServiceRemotingResponseMessageBody</returns>

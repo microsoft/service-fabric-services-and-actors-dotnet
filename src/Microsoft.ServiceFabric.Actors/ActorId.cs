@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// <param name="id">Value for actor id.</param>
         public ActorId(string id)
         {
-            if (null == id)
+            if (id == null)
             {
                 throw new ArgumentNullException("id");
             }
@@ -145,7 +145,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// Gets the partition key for this ActorId.
         /// </summary>
         /// <returns>The key for locating the partition of the actor service that is responsible for this ActorId.</returns>
-        /// <remarks> 
+        /// <remarks>
         ///     <list type="bullet">
         ///         <item>The actor service is always partitioned using <see cref="System.Fabric.Description.PartitionScheme.UniformInt64Range"/> scheme. Therefore the partition key is of <see cref="System.Int64"/> type.</item>
         ///         <item>The partition key is generated based on the <see cref="ActorIdKind"/> and the id value as follows:
@@ -324,11 +324,11 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         /// <summary>
-        /// Determines whether this instance and a specified object, which must also be a <see cref="ActorId"/> object, 
+        /// Determines whether this instance and a specified object, which must also be a <see cref="ActorId"/> object,
         /// have the same value. Overrides <see cref="object.Equals(object)"/>.
         /// </summary>
         /// <param name="obj">The actorId to compare to this instance. </param>
-        /// <returns>true if obj is a <see cref="ActorId"/> and its value is the same as this instance; 
+        /// <returns>true if obj is a <see cref="ActorId"/> and its value is the same as this instance;
         /// otherwise, false. If obj is null, the method returns false.</returns>
         public override bool Equals(object obj)
         {
@@ -351,7 +351,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// </summary>
         /// <param name="other">The actorId to compare to this instance. </param>
         /// <returns>true if the <see cref="ActorIdKind"/> and id of the other parameter is the same as the
-        /// <see cref="ActorIdKind"/> and id of this instance; otherwise, false. 
+        /// <see cref="ActorIdKind"/> and id of this instance; otherwise, false.
         /// If other is null, the method returns false.</returns>
         public bool Equals(ActorId other)
         {
@@ -367,7 +367,7 @@ namespace Microsoft.ServiceFabric.Actors
 
         /// <summary>
         /// Compares this instance with a specified <see cref="ActorId"/> object and indicates whether this
-        /// instance precedes, follows, or appears in the same position in the sort order as the specified actorId. 
+        /// instance precedes, follows, or appears in the same position in the sort order as the specified actorId.
         /// </summary>
         /// <param name="other">The actorId to compare with this instance. </param>
         /// <returns>A 32-bit signed integer that indicates whether this instance precedes, follows, or appears
@@ -380,8 +380,8 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         /// <summary>
-        /// Create a new instance of the <see cref="ActorId"/> of kind <see cref="ActorIdKind.Long"/> 
-        /// with a random <see cref="System.Int64"/> id value. 
+        /// Create a new instance of the <see cref="ActorId"/> of kind <see cref="ActorIdKind.Long"/>
+        /// with a random <see cref="System.Int64"/> id value.
         /// </summary>
         /// <returns>A new ActorId object.</returns>
         /// <remarks>This method is thread-safe and generates a new random <see cref="ActorId"/> every time it is called.</remarks>

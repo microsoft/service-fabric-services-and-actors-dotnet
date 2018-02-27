@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="..\..\properties\service_fabric_managed_dotnetframework.props" />
+  <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <ProjectGuid>{A01358E6-D5E1-44B5-948A-45709D2421A5}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric.Services.Remoting</RootNamespace>

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
 
         /// <summary>
-        /// Instantiates the ActorServiceRemotingDispatcher that can dispatch messages to an actor service and 
+        /// Instantiates the ActorServiceRemotingDispatcher that can dispatch messages to an actor service and
         /// to the actors hosted in the service..
         /// </summary>
         /// <param name="actorService">An actor service instance.</param>
@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
         /// <param name="messageHeaders">Service remoting message headers</param>
         /// <param name="requestBodyBytes">serialized request body of the remoting message.</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. 
+        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// The result of the Task is the serialized response body.
         /// </returns>
         public override Task<byte[]> RequestResponseAsync(
@@ -125,7 +125,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
             {
 
                 throw new SerializationException(Actors.SR.ErrorActorMessageHeadersDeserializationFailed);
-
             }
 
             if (this.IsCancellationRequest(messageHeaders))
@@ -169,6 +168,5 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
                 requestBodyBytes,
                 cancellationToken);
         }
-
     }
 }

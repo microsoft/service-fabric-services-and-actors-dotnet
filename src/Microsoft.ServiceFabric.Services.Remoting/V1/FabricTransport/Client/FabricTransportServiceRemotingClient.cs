@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
@@ -92,7 +92,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             }
         }
 
-        Task<byte[]> IServiceRemotingClient.RequestResponseAsync(ServiceRemotingMessageHeaders messageHeaders,
+        Task<byte[]> IServiceRemotingClient.RequestResponseAsync(
+            ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestBody)
         {
             var header = ServiceRemotingMessageHeaders.Serialize(this.serializer, messageHeaders);
@@ -103,7 +104,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                     if (retval.IsException)
                     {
                         var isDeserialzied =
-                            RemoteExceptionInformation.ToException(new RemoteExceptionInformation(retval.GetBody()),
+                            RemoteExceptionInformation.ToException(
+                                new RemoteExceptionInformation(retval.GetBody()),
                                 out var e);
 
                         if (isDeserialzied)

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         private static readonly TimeSpan DefaultOpenCloseTimeout = TimeSpan.FromMilliseconds(5000);
 
         /// <summary>
-        /// Creates a <see cref="WcfActorRemotingProviderAttribute"/> which can be used to set 
+        /// Creates a <see cref="WcfActorRemotingProviderAttribute"/> which can be used to set
         /// WCF as the default remoting provider for actors.
         /// </summary>
         public WcfActorRemotingProviderAttribute()
@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         /// a default value of 4,194,304 bytes (4 MB) is used.
         /// </summary>
         /// <value>
-        ///     The maximum size of the remoting message in bytes. If this value is not specified 
+        ///     The maximum size of the remoting message in bytes. If this value is not specified
         ///     or it is less than or equals to zero, a default value of 4,194,304 bytes (4 MB) is used.
         /// </value>
         public long MaxMessageSize
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         ///     Gets or Sets time to wait in milliseconds for opening the connection.
         /// </summary>
         /// <value>
-        ///     Time to wait in milliseconds for opening the connection. If this value is not specified 
+        ///     Time to wait in milliseconds for opening the connection. If this value is not specified
         ///     or it is less than zero, default value of 5000 milliseconds is used.
         /// </value>
         public long OpenTimeoutInMilliSeconds
@@ -58,7 +58,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         }
 
         /// <summary>
-        ///     Gets or Sets time to wait in milliseconds for messages to drain on the connections before aborting the connection. 
+        ///     Gets or Sets time to wait in milliseconds for messages to drain on the connections before aborting the connection.
         /// </summary>
         /// <value>
         ///     Time to wait in milliseconds for messages to drain on the connections before aborting the connection.
@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         /// <returns>
         ///     A <see cref="Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client.WcfActorRemotingClientFactory"/>
         ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingClientFactory"/>
-        ///     that can be used with <see cref="ActorProxyFactory"/> to 
+        ///     that can be used with <see cref="ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
         public override Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
@@ -101,7 +101,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         ///     needs to be remoted.
         /// </param>
         /// <returns>
-        ///     An <see cref="IServiceRemotingListener"/> 
+        ///     An <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
         public override IServiceRemotingListener CreateServiceRemotingListenerV2(ActorService actorService)
@@ -123,7 +123,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         /// <returns>
         ///     A <see cref="Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client.WcfActorRemotingClientFactory"/>
         ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>
-        ///     that can be used with <see cref="ActorProxyFactory"/> to 
+        ///     that can be used with <see cref="ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
         public override IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
@@ -146,7 +146,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         ///     needs to be remoted.
         /// </param>
         /// <returns>
-        ///     An <see cref="IServiceRemotingListener"/> 
+        ///     An <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
         public override IServiceRemotingListener CreateServiceRemotingListener(

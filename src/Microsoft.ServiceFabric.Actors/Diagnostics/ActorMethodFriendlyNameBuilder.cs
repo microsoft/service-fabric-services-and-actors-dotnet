@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -26,7 +26,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 this.actorMethodDescriptions[actorInterfaceType] = actorInterfaceDescription;
                 var actorInterfaceDescriptionV2 = ActorInterfaceDescription.CreateUsingCRCId(actorInterfaceType);
                 this.actorMethodDescriptionsV2[actorInterfaceType] = actorInterfaceDescriptionV2;
-
             }
         }
 
@@ -37,14 +36,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             actorInterfaceMethodDescriptions = this.actorMethodDescriptions[interfaceType].Methods;
         }
 
-        internal void GetActorInterfaceMethodDescriptionsV2(Type interfaceType,
+        internal void GetActorInterfaceMethodDescriptionsV2(
+            Type interfaceType,
             out int interfaceId,
             out MethodDescription[] actorInterfaceMethodDescriptions)
         {
             interfaceId = this.actorMethodDescriptionsV2[interfaceType].Id;
             actorInterfaceMethodDescriptions = this.actorMethodDescriptionsV2[interfaceType].Methods;
         }
-
     }
-
 }

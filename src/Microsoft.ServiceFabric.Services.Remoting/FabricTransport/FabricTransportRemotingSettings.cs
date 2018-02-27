@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
@@ -88,9 +88,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         /// <summary>
-        /// Gets or sets the maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting. 
+        /// Gets or sets the maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting.
         /// </summary>
-        /// <value>The maximum size for a Queue that receives messages from the channel. 
+        /// <value>The maximum size for a Queue that receives messages from the channel.
         /// </value>
         /// <remarks>
         /// Default value is 10,000 messages</remarks>
@@ -142,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         /// <summary>
-        /// Gets or sets the security credentials for securing the communication. 
+        /// Gets or sets the security credentials for securing the communication.
         /// </summary>
         /// <value>The security credentials as  <see cref=" System.Fabric.SecurityCredentials"/>.
         /// </value>
@@ -164,18 +164,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         /// <summary>
-        /// Loads the FabricTransport settings from a sectionName specified in the configuration file. 
+        /// Loads the FabricTransport settings from a sectionName specified in the configuration file.
         /// Configuration File can be specified using the filePath or using the name of the configuration package specified in the service manifest.
         /// It will first try to load config using configPackageName. If configPackageName is not specified then try to load from filePath.
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file. If not found section in configuration file, it will throw ArgumentException.</param>
-        /// <param name="filepath">The full path of the file where the settings will be loaded from. 
+        /// <param name="filepath">The full path of the file where the settings will be loaded from.
         ///  If not specified , it will first try to load from default Config Package"Config" , if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
         ///  <param name="configPackageName"> Name of the configuration package.If its null or empty,it will check for file in filePath.</param>
         /// <returns>The FabricTransportRemotingSettings</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file, to be recognizable by service fabric to load the transport settings.
-        ///     
+        ///
         ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
         ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
         ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.
@@ -197,7 +197,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// It will first try to load config using configPackageName. If configPackageName is not specified then try to load from filePath.
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file. If not found section in configuration file, it return false.</param>
-        /// <param name="filepath">The full path of the file where the settings will be loaded from. 
+        /// <param name="filepath">The full path of the file where the settings will be loaded from.
         ///  If not specified , it will first try to load from default Config Package"Config" , if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
         ///  <param name="configPackageName">The name of the configuration package. If its null or empty, it will check for file in filePath.</param>
         /// <param name="settings">When this method returns it sets the <see cref="FabricTransportRemotingSettings"/> settings if load from Config succeeded. If fails, its sets settings to null. </param>
@@ -205,7 +205,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// It returns true when load from Config succeeded, else return false. </returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
-        ///     
+        ///
         ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
         ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
         ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.

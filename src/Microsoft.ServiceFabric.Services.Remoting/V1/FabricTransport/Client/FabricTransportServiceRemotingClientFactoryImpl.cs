@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
@@ -98,7 +98,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             return remotingClient.IsValid && remotingClient.ConnectionAddress.Equals(endpoint);
         }
 
-        private void OnFabricTransportClientConnected(object sender,
+        private void OnFabricTransportClientConnected(
+            object sender,
             CommunicationClientEventArgs<IServiceRemotingClient> e)
         {
             var handlers = this.FabricTransportClientConnected;
@@ -108,7 +109,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             }
         }
 
-        private void OnFabricTransportClientDisconnected(object sender,
+        private void OnFabricTransportClientDisconnected(
+            object sender,
             CommunicationClientEventArgs<IServiceRemotingClient> e)
         {
             var handlers = this.FabricTransportClientDisconnected;

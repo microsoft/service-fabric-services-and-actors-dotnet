@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
@@ -132,7 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             if (ctorInfo != null)
             {
                 var localBuilder = ilGen.DeclareLocal(responseType);
-                // new <ResponseBodyType>    
+                // new <ResponseBodyType>
                 ilGen.Emit(OpCodes.Newobj, ctorInfo);
                 ilGen.Emit(OpCodes.Stloc, localBuilder);
                 ilGen.Emit(OpCodes.Ldloc, localBuilder);
@@ -140,7 +140,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
                 // responseBody.retval = (<retvaltype>)retval;
                 var fInfo = responseType.GetField(this.CodeBuilder.Names.RetVal);
                 ilGen.Emit(OpCodes.Ldarg_2);
-                ilGen.Emit(fInfo.FieldType.GetTypeInfo().IsClass ? OpCodes.Castclass : OpCodes.Unbox_Any,
+                ilGen.Emit(
+                    fInfo.FieldType.GetTypeInfo().IsClass ? OpCodes.Castclass : OpCodes.Unbox_Any,
                     fInfo.FieldType);
                 ilGen.Emit(OpCodes.Stfld, fInfo);
                 ilGen.Emit(OpCodes.Ldloc, localBuilder);
@@ -214,7 +215,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             if (methodBodyTypes.RequestBodyType != null)
             {
                 // cast the request body
-                // var castedRequestBody = (<RequestBodyType>)requestBody; 
+                // var castedRequestBody = (<RequestBodyType>)requestBody;
                 castedRequestBody = ilGen.DeclareLocal(methodBodyTypes.RequestBodyType);
                 ilGen.Emit(OpCodes.Ldarg_3);
                 ilGen.Emit(OpCodes.Castclass, methodBodyTypes.RequestBodyType);
@@ -323,7 +324,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             if (requestBodyType != null)
             {
                 // cast the request body
-                // var castedRequestBody = (<RequestBodyType>)requestBody; 
+                // var castedRequestBody = (<RequestBodyType>)requestBody;
                 castedRequestBody = ilGen.DeclareLocal(requestBodyType);
                 ilGen.Emit(OpCodes.Ldarg_3);
                 ilGen.Emit(OpCodes.Castclass, requestBodyType);

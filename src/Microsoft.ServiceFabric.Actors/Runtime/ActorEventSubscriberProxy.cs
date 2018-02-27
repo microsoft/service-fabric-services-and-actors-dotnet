@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     ActorId = new ActorId(this.id),
                     InterfaceId = eventInterfaceId,
-                    MethodId = eventMethodId
+                    MethodId = eventMethodId,
                 }.ToServiceMessageHeaders(),
                 eventMsgBody);
         }
@@ -65,11 +65,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 ActorId = new ActorId(this.id),
                 InterfaceId = eventInterfaceId,
-                MethodId = methodId
+                MethodId = methodId,
             };
 
             this.callbackV2.SendOneWay(
-                new ServiceRemotingRequestMessage(headers,
+                new ServiceRemotingRequestMessage(
+                    headers,
                     eventMsgBody));
         }
 

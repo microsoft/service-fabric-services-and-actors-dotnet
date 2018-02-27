@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Common
@@ -47,6 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Common
             {
                 name = string.Concat(type.Namespace, name);
             }
+
             return ComputeIdWithCRC(name);
         }
 
@@ -88,7 +89,9 @@ namespace Microsoft.ServiceFabric.Services.Common
         /// </summary>
         internal static int HashCombine(int newKey, int currentKey)
         {
+#pragma warning disable SA1139 // Use literal suffix notation instead of casting
             return unchecked((currentKey * (int)0xA5555529) + newKey);
+#pragma warning restore SA1139 // Use literal suffix notation instead of casting
         }
     }
 }

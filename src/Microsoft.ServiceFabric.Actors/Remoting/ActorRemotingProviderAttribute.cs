@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting
@@ -18,33 +18,33 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 #endif
     /// <summary>
-    /// This is a base type for attribute that sets the default remoting provider to use for 
+    /// This is a base type for attribute that sets the default remoting provider to use for
     /// remoting the actor interfaces defined or used in the assembly.
     /// </summary>
     /// <remarks>
     ///     <para>
     ///     On service side, implementation of this attribute is looked up by
-    ///     <see cref="ActorService"/> to create default 
-    ///     <see cref="IServiceRemotingListener"/> for it. 
+    ///     <see cref="ActorService"/> to create default
+    ///     <see cref="IServiceRemotingListener"/> for it.
     ///     </para>
     ///     <para>
-    ///     On client side, implementation of this attribute is looked up by 
+    ///     On client side, implementation of this attribute is looked up by
     ///     <see cref="Actors.Client.ActorProxyFactory"/> constructor to create a default
     ///     <see cref="IServiceRemotingClientFactory"/> when it is not specified.
     ///     </para>
     ///     <para>
     ///     Note that on client side when actor proxy is created using the static <see cref="ActorProxy"/>
-    ///     class, it uses a default <see cref="Actors.Client.ActorProxyFactory"/> once and hence the provider lookup 
+    ///     class, it uses a default <see cref="Actors.Client.ActorProxyFactory"/> once and hence the provider lookup
     ///     happens only for the first time in an assembly, after which the same provider is used.
     ///     </para>
     ///     <para>
     ///     This attribute is looked up in the following order:
     ///     <list type="number">
     ///         <item>
-    ///             In the entry <see cref="System.Reflection.Assembly"/> obtained by calling method <see cref="System.Reflection.Assembly.GetEntryAssembly"/> 
+    ///             In the entry <see cref="System.Reflection.Assembly"/> obtained by calling method <see cref="System.Reflection.Assembly.GetEntryAssembly"/>
     ///         </item>
     ///         <item>
-    ///             In the <see cref="System.Reflection.Assembly"/> that defines the remote interface for which listener or proxy is being created. 
+    ///             In the <see cref="System.Reflection.Assembly"/> that defines the remote interface for which listener or proxy is being created.
     ///         </item>
     ///     </list>
     ///     </para>
@@ -77,10 +77,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         ///     needs to be remoted.
         /// </param>
         /// <returns>
-        ///     An <see cref="IServiceRemotingListener"/> 
+        ///     An <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
-        /// 
+        ///
 #if !DotNetCoreClr
 
         public abstract IServiceRemotingListener CreateServiceRemotingListener(
@@ -94,7 +94,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// </param>
         /// <returns>
         ///     An <see cref="IServiceRemotingClientFactory"/>
-        ///     that can be used with <see cref="Microsoft.ServiceFabric.Actors.Client.ActorProxyFactory"/> to 
+        ///     that can be used with <see cref="Microsoft.ServiceFabric.Actors.Client.ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 
 
         /// <summary>
-        /// Creates a service remoting client factory that can be used by the 
+        /// Creates a service remoting client factory that can be used by the
         /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>

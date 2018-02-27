@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         internal void ActorRequestProcessingStart()
         {
             var callbacks = this.onActorRequestProcessingStart;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks();
             }
@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var processingTime = DateTime.UtcNow - startTime;
             var callbacks = this.onActorRequestProcessingFinish;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(processingTime);
             }
@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var processingTime = DateTime.UtcNow - startTime;
             var callbacks = this.onActorRequestDeserializationFinish;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(processingTime);
             }
@@ -81,7 +81,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var processingTime = DateTime.UtcNow - startTime;
             var callbacks = this.onActorResponseSerializationFinish;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(processingTime);
             }
@@ -100,7 +100,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             onActivateAsyncStopwatch.Stop();
 
             var callbacks = this.onActorOnActivateAsyncFinish;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(onActivateAsyncStopwatch.Elapsed);
             }
@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             methodStopwatch.Restart();
 
             var callbacks = this.onActorMethodStart;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(mtdEvtArgs);
             }
@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             mtdStopwatch.Reset();
 
             var callbacks = this.onActorMethodFinish;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(mtdEvtArgs);
             }
@@ -166,7 +166,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             stateStopwatch.Stop();
 
             var callbacks = this.onLoadActorStateFinish;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(stateStopwatch.Elapsed);
             }
@@ -183,7 +183,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagCtx.StateStopwatch.Restart();
 
             var callbacks = this.onSaveActorStateStart;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(stateEvtArgs);
             }
@@ -200,7 +200,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             stateStopwatch.Reset();
 
             var callbacks = this.onSaveActorStateFinish;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(stateEvtArgs);
             }
@@ -237,7 +237,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             pendingMtdEvtArgs.PendingActorMethodCallsDelta = delta;
 
             var callbacks1 = this.onPendingActorMethodCallsUpdated;
-            if (null != callbacks1)
+            if (callbacks1 != null)
             {
                 callbacks1(pendingMtdEvtArgs);
             }
@@ -245,7 +245,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             // Update time taken to acquire actor lock
             var lockAcquireTime = currentTime - actorLockAcquireStartTime;
             var callbacks2 = this.onActorLockAcquired;
-            if (null != callbacks2)
+            if (callbacks2 != null)
             {
                 callbacks2(lockAcquireTime);
             }
@@ -258,7 +258,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             if (actorLockHoldStartTime.HasValue)
             {
                 var callbacks = this.onActorLockReleased;
-                if (null != callbacks)
+                if (callbacks != null)
                 {
                     var lockHoldTime = DateTime.UtcNow - actorLockHoldStartTime.Value;
                     callbacks(lockHoldTime);
@@ -269,7 +269,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         internal void ActorChangeRole(ReplicaRole currentRole, ReplicaRole newRole)
         {
             var callbacks = this.onActorChangeRole;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 this.changeRoleDiagnosticData.CurrentRole = currentRole;
                 this.changeRoleDiagnosticData.NewRole = newRole;
@@ -284,7 +284,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             activationEvtArgs.ActorId = actor.Id;
 
             var callbacks = this.onActorActivated;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(activationEvtArgs);
             }
@@ -297,7 +297,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             activationEvtArgs.ActorId = actor.Id;
 
             var callbacks = this.onActorDeactivated;
-            if (null != callbacks)
+            if (callbacks != null)
             {
                 callbacks(activationEvtArgs);
             }

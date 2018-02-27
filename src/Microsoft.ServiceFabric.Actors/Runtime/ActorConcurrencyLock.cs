@@ -1,14 +1,14 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Globalization;
 
     /// <summary>
     /// Provides a turn based concurrency that supports logical call based reentrancy for actor calls.
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         // this semaphore provides turn based concurrency for non-reentrant (independent) calls
         private readonly SemaphoreSlim turnLock;
 
-        // this semaphore allows reentrancy for the reentrant calls, it protects the 
+        // this semaphore allows reentrancy for the reentrant calls, it protects the
         // currentCallCount and currentCallContext variables.
         private readonly SemaphoreSlim reentrantLock;
 
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         // current logical call context value, that identifies the current logical call chain
         private string currentCallContext;
 
-        // the current call context is initialized with this value at the start to prevent 
+        // the current call context is initialized with this value at the start to prevent
         // it matching from incoming call contexts
         private readonly string initialCallContext;
 
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly Random turnLockTimeoutRandomizer;
         private int turnLockWaitMaxRandomIntervalMillis;
 
-        // the actor for which this guard provides turn based concurrency with reentrancy 
+        // the actor for which this guard provides turn based concurrency with reentrancy
         private readonly ActorBase owner;
 
         // if the state of the actor was dirty, it needs to be handled before a call is allowed to it
@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             try
             {
                 // A new logical call context is appended to every outgoing method call.
-                // The received callContext is of form callContext1callContext2callContext3... 
+                // The received callContext is of form callContext1callContext2callContext3...
                 // thus to check if incoming call was made from the current calls in progress
                 // we need to check if the incoming call context starts with the currentCallContext
                 var startsWith = incomingCallContext.StartsWith(this.currentCallContext);
@@ -102,13 +102,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     // the incoming call is part of the current call chain
 
-                    // The messaging layer may deliver duplicate messages, therefore if the 
+                    // The messaging layer may deliver duplicate messages, therefore if the
                     // incomingCallContext is same as currentCallContext it is a duplicate message
                     // this is because every outgoing call from actors has a new callContext appended
                     // to the currentCallContext
                     if (incomingCallContext.Length == this.currentCallContext.Length)
                     {
-                        throw new DuplicateMessageException(string.Format(CultureInfo.CurrentCulture,
+                        throw new DuplicateMessageException(string.Format(
+                            CultureInfo.CurrentCulture,
                                                             SR.ErrorDuplicateMessage, this.GetType()));
                     }
 
@@ -136,7 +137,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     // the currentCallCount must not be zero here as the startsWith comparison can only
                     // be true if the incoming call is part of the current call chain
-                    // 
+                    //
                     // we only allow one cycle in the reentrant call chain, so if this is a second reentrant call
                     // then reject it. this also ensures that if multiple calls are made from the actor in parallel
                     // and they reenter the actor only one is allowed
@@ -161,7 +162,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             //
             // this is not a reentrant call, which means that the caller needs to wait
             // for its turn to execute this call
-            // 
+            //
             var timeout = this.GetTurnLockWaitTimeout();
             if (!await this.turnLock.WaitAsync(timeout, cancellationToken))
             {
@@ -173,7 +174,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         timeout));
             }
 
-            // the caller has the turn lock 
+            // the caller has the turn lock
             try
             {
                 // check  if the owner is dirty
@@ -195,7 +196,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     this.reentrantLock.Release();
                 }
-
             }
             catch
             {
@@ -205,17 +205,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw;
             }
 
-            // release the reentrancy lock but continue to hold the turn lock and release 
+            // release the reentrancy lock but continue to hold the turn lock and release
             // it through ReleaseContext method after this call invocation on the actor is completed
 
-            // indicate that the turn based concurrency lock is acquired and proceed to 
+            // indicate that the turn based concurrency lock is acquired and proceed to
             // call the method on the actor
-
         }
 
         public async Task ReleaseContext(string callContext)
         {
-            // first acquire the reentrancy lock to reduce the call counts and 
+            // first acquire the reentrancy lock to reduce the call counts and
             await this.reentrantLock.WaitAsync();
             try
             {
@@ -228,7 +227,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         --this.currentCallCount;
                         if (this.currentCallCount == 0)
                         {
-                            // if this is the first call in the call chain, reset the 
+                            // if this is the first call in the call chain, reset the
                             // current context to initial context and our turn is finished
                             // so release the turn lock as well, so that another logical call
                             // chain can take the turn

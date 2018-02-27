@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -57,16 +57,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     stream.Flush();
                     var buffers = new List<ArraySegment<byte>>
                     {
-                        new ArraySegment<byte>(stream.ToArray())
+                        new ArraySegment<byte>(stream.ToArray()),
                     };
                     return new RemoteException(buffers);
                 }
-
             }
             catch (Exception e)
             {
                 // failed to serialize the exception, include the information about the exception in the data
-                ServiceTrace.Source.WriteWarning("RemoteException",
+                ServiceTrace.Source.WriteWarning(
+                    "RemoteException",
                     "Serialization failed for Exception Type {0} : Reason  {1}", exception.GetType().FullName, e);
                 var buffer = FromExceptionString(exception);
                 return new RemoteException(buffer);
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 return true;
             }
 
-            //Set Reason for Serialization failure. This can happen in case where serialization succeded 
+            //Set Reason for Serialization failure. This can happen in case where serialization succeded
             //but deserialization fails as type is not accessible
             result = res;
             messageBuffer.Dispose();
@@ -149,7 +149,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             catch (Exception e)
             {
                 //swallowing the exception
-                ServiceTrace.Source.WriteWarning("RemoteException",
+                ServiceTrace.Source.WriteWarning(
+                    "RemoteException",
                     " ServiceExceptionData DeSerialization failed : Reason  {0}", e);
             }
 
@@ -178,7 +179,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             var exceptionBytes = SerializeServiceExceptionData(exceptionData);
             var buffers = new List<ArraySegment<byte>>
             {
-                new ArraySegment<byte>(exceptionBytes)
+                new ArraySegment<byte>(exceptionBytes),
             };
             return buffers;
         }
@@ -215,6 +216,4 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             }
         }
     }
-
-
 }

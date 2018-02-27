@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Generator
@@ -74,7 +74,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             }
         }
 
-        public static void PerformPlaceholderReplacements(StringBuilder template,
+        public static void PerformPlaceholderReplacements(
+            StringBuilder template,
             IDictionary<string, string> placeHolders)
         {
             foreach (var p in placeHolders)
@@ -144,7 +145,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private const int FileAttributeNormal = 0x80;
 
         [DllImport("shlwapi.dll", SetLastError = true)]
-        private static extern int PathRelativePathTo(StringBuilder pszPath,
+        private static extern int PathRelativePathTo(
+            StringBuilder pszPath,
             string pszFrom, int dwAttrFrom, string pszTo, int dwAttrTo);
     }
 }

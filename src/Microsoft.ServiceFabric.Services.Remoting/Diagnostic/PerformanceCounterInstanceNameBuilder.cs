@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
         internal IEnumerable<KeyValuePair<long, string>> GetMethodCounterInstanceNames(
             IEnumerable<KeyValuePair<long, MethodInfo>> actorMethodInfo)
         {
-            // The method name will be part of the performance counter instance name so that it is 
+            // The method name will be part of the performance counter instance name so that it is
             // easy for a user to figure out which method the counter instance is for. Create the data
             // structure that will help us build the method names from the MethodInfo objects.
             var methodNameBuilders = this.CreateMethodNameBuilders(actorMethodInfo);
@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
         private void ComputeMethodRanks(IEnumerable<MethodNameBuilder> methodNameBuilders)
         {
             // The most detailed method name format is one that includes type name, method name, parameter information
-            // and return type. Sort the method name builders based on method names built according to the above format. 
+            // and return type. Sort the method name builders based on method names built according to the above format.
             // After sorting, assign a rank to each method.
             // Note that the rank of each method will be unique within the actor type.
             var methodNameBuildersSorted = methodNameBuilders.OrderBy(
@@ -143,12 +143,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
             return methodOverloads;
         }
 
-        private void ComputeMethodNameInCounterInstanceName(IEnumerable<MethodNameBuilder> methodNameBuilders,
+        private void ComputeMethodNameInCounterInstanceName(
+            IEnumerable<MethodNameBuilder> methodNameBuilders,
             Dictionary<string, int> methodOverloads)
         {
             foreach (var currentMethodBuilderInfo in methodNameBuilders)
             {
-                // If the type and method (without parameters) can fit into the instance name and if the method is 
+                // If the type and method (without parameters) can fit into the instance name and if the method is
                 // not overloaded (hence easy to identify), then include just the type and method name.
                 var methodNameWithoutParams = currentMethodBuilderInfo.Names[(int)MethodNameFormat.TypeAndMember];
                 if ((methodNameWithoutParams.Length <= currentMethodBuilderInfo.MethodNameMaxLength) &&
@@ -225,7 +226,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
                         methodNameTruncated = this.TruncateTypeOrMethod(methodNameFull, maxSizeOfTruncatedPart);
                         break;
                     case MethodNameParts.Params:
-                        paramsTruncated = this.TruncateParams(methodNameBuilder.MethodInfo.GetParameters(),
+                        paramsTruncated = this.TruncateParams(
+                            methodNameBuilder.MethodInfo.GetParameters(),
                             maxSizeOfTruncatedPart);
                         break;
                 }
@@ -249,7 +251,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
         {
             truncatedNameOfMethodNamePart = null;
 
-            // For parameters, we add two to the string length because we need to account 
+            // For parameters, we add two to the string length because we need to account
             // for the square brackets that the parameters are enclosed in.
             var adjustedPartLength = (methodNamePart == MethodNameParts.Params)
                 ? (fullNameOfMethodNamePart.Length + 2)
@@ -276,7 +278,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
         private string TruncateTypeOrMethod(string typeOrMethod, int maxSizeOfTruncatedPart)
         {
             // Take ((maxSizeOfTruncatedPart/2) - 1) characters from the start, and (maxSizeOfTruncatedPart/2)
-            // characters from the end. Separate the starting and ending portions with a '~'. 
+            // characters from the end. Separate the starting and ending portions with a '~'.
             var firstPart = typeOrMethod.Substring(0, ((maxSizeOfTruncatedPart / 2) - 1));
             var lastPart = typeOrMethod.Substring(typeOrMethod.Length - (maxSizeOfTruncatedPart / 2));
             return string.Concat(firstPart, "~", lastPart);
@@ -334,7 +336,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
         private IEnumerable<KeyValuePair<long, string>> ComputeCounterInstanceNames(
             Dictionary<long, MethodNameBuilder> methodNameBuilders)
         {
-            // The counter instance name includes the method name (possibly truncated), the method rank, 
+            // The counter instance name includes the method name (possibly truncated), the method rank,
             // the partition ID, and the differentiator.
             //     <MethodName>_<Rank>_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX_<Differentiator>
             var counterInstanceNames = new List<KeyValuePair<long, string>>();
@@ -371,7 +373,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 
             // This value does not represent a method name format. It represents the count of
             // method name formats.
-            Count
+            Count,
         }
 
         private enum MethodNameParts
@@ -382,7 +384,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 
             // This value does not represent any part of the method name. Instead,
             // it represents the total count of method name parts.
-            Count
+            Count,
         }
     }
 }

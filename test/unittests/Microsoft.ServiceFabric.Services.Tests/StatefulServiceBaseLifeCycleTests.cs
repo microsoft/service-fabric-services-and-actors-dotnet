@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Tests
@@ -11,8 +11,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Runtime;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Services.Runtime;
     using Moq;
     using Xunit;
 
@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
             }
 
-            // This will throw if cancellation propagates out, as canceling of RunAsync is awaited during 
+            // This will throw if cancellation propagates out, as canceling of RunAsync is awaited during
             // change role away from primary.
             Console.WriteLine(@"// P -> S");
             testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
@@ -270,7 +270,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             var testService = new StatefulBaseTestService(serviceContext)
             {
-                ListenOnSecondary = false
+                ListenOnSecondary = false,
             };
 
             IStatefulServiceReplica testServiceReplica = new StatefulServiceReplicaAdapter(serviceContext, testService);
@@ -357,7 +357,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             var testService = new StatefulBaseTestService(serviceContext)
             {
-                ListenOnSecondary = true
+                ListenOnSecondary = true,
             };
 
             IStatefulServiceReplica testServiceReplica = new StatefulServiceReplicaAdapter(serviceContext, testService);
@@ -458,7 +458,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             var testService = new StatefulBaseTestService(serviceContext)
             {
-                EnableListenerExceptionOnAbort = true
+                EnableListenerExceptionOnAbort = true,
             };
 
             IStatefulServiceReplica testServiceReplica = new StatefulServiceReplicaAdapter(serviceContext, testService);

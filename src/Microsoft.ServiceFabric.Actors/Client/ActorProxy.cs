@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Client
@@ -81,14 +81,14 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Creates a proxy to the actor object that implements an actor interface.
         /// </summary>
         /// <typeparam name="TActorInterface">
-        /// The actor interface implemented by the remote actor object. 
+        /// The actor interface implemented by the remote actor object.
         /// The returned proxy object will implement this interface.
         /// </typeparam>
-        /// <param name="actorId">The actor ID of the proxy actor object. Methods called on this proxy will result in requests 
+        /// <param name="actorId">The actor ID of the proxy actor object. Methods called on this proxy will result in requests
         /// being sent to the actor with this ID.</param>
         /// <param name="applicationName">
         /// The name of the Service Fabric application that contains the actor service hosting the actor objects.
-        /// This parameter can be null if the client is running as part of that same Service Fabric application. For more information, see Remarks. 
+        /// This parameter can be null if the client is running as part of that same Service Fabric application. For more information, see Remarks.
         /// </param>
         /// <param name="serviceName">
         /// The name of the Service Fabric service as configured by <see cref="ActorServiceAttribute"/> on the actor implementation.
@@ -103,7 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
         /// <remarks><para>The applicationName parameter can be null if the client is running as part of the same Service Fabric
         /// application as the actor service it intends to communicate with. In this case, the application name is determined from
-        /// <see cref="System.Fabric.CodePackageActivationContext"/>, and is obtained by calling the 
+        /// <see cref="System.Fabric.CodePackageActivationContext"/>, and is obtained by calling the
         /// <see cref="System.Fabric.CodePackageActivationContext.ApplicationName"/> property.</para>
         /// </remarks>
         public static TActorInterface Create<TActorInterface>(
@@ -120,11 +120,11 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Creates a proxy to the actor object that implements an actor interface.
         /// </summary>
         /// <typeparam name="TActorInterface">
-        /// The actor interface implemented by the remote actor object. 
+        /// The actor interface implemented by the remote actor object.
         /// The returned proxy object will implement this interface.
         /// </typeparam>
         /// <param name="serviceUri">Uri of the actor service.</param>
-        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests 
+        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests
         /// being sent to the actor with this id.</param>
         /// <param name="listenerName">
         /// By default an actor service has only one listener for clients to connect to and communicate with.
@@ -170,10 +170,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 ActorId = this.servicePartitionClientV2.ActorId,
                 InterfaceId = interfaceId,
                 MethodId = methodId,
-                CallContext = Helper.GetCallContext()
+                CallContext = Helper.GetCallContext(),
             };
 
-            return this.servicePartitionClientV2.InvokeAsync(new ServiceRemotingRequestMessage(headers,
+            return this.servicePartitionClientV2.InvokeAsync(
+                new ServiceRemotingRequestMessage(
+                headers,
                 requestMsgBodyValue), cancellationToken);
         }
 
@@ -291,7 +293,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 ActorId = this.servicePartitionClient.ActorId,
                 InterfaceId = interfaceId,
                 MethodId = methodId,
-                CallContext = Helper.GetCallContext()
+                CallContext = Helper.GetCallContext(),
             };
 
             return this.servicePartitionClient.InvokeAsync(actorMsgHeaders, requestMsgBodyBytes, cancellationToken);
@@ -307,7 +309,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
             throw new NotImplementedException();
         }
 
-        internal void Initialize(Remoting.V1.Builder.ActorProxyGeneratorWith actorProxyGeneratorWith,
+        internal void Initialize(
+            Remoting.V1.Builder.ActorProxyGeneratorWith actorProxyGeneratorWith,
             Remoting.V1.Client.ActorServicePartitionClient actorServicePartitionClient)
         {
             this.proxyGeneratorWith = actorProxyGeneratorWith;

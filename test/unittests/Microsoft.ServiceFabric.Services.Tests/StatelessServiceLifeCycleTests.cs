@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Tests
@@ -9,13 +9,13 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Health;
-    using System.Threading.Tasks;
     using System.Threading;
-    using Microsoft.ServiceFabric.Services.Runtime;
+    using System.Threading.Tasks;
+    using Communication.Runtime;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Services.Runtime;
     using Moq;
     using Xunit;
-    using Communication.Runtime;
 
     public class StatelessServiceLifeCycleTests
     {
@@ -110,7 +110,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
             }
 
-            // This will throw if cancellation propagates out, as canceling of RunAsync is 
+            // This will throw if cancellation propagates out, as canceling of RunAsync is
             // awaited during close of stateless serice instance.
             testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
 

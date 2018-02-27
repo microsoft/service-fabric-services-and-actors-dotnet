@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
     /// <summary>
     /// An <see cref="IServiceRemotingClientFactory"/> that uses
     /// Windows Communication Foundation to create <see cref="IServiceRemotingClient"/> to communicate with stateless
-    /// and stateful services over interfaces that are remoted via 
+    /// and stateful services over interfaces that are remoted via
     /// <see cref="WcfServiceRemotingListener"/>.
     /// </summary>
     public class WcfServiceRemotingClientFactory : IServiceRemotingClientFactory
@@ -45,8 +45,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         /// </summary>
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is not specified or null,
-        ///     a default client binding is created using 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method 
+        ///     a default client binding is created using
+        ///     <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method
         ///     which creates a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
         /// <param name="callbackClient">
@@ -56,19 +56,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         ///     Exception handlers to handle the exceptions encountered in communicating with the service.
         /// </param>
         /// <param name="servicePartitionResolver">
-        ///     Service partition resolver to resolve the service endpoints. If not specified, a default 
+        ///     Service partition resolver to resolve the service endpoints. If not specified, a default
         ///     service partition resolver returned by <see cref="ServicePartitionResolver.GetDefault"/> is used.
         /// </param>
         /// <param name="traceId">
         ///     Id to use in diagnostics traces from this component.
         /// </param>
         /// <param name="createWcfClientFactory">
-        ///     Delegate function that creates <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfCommunicationClientFactory{TServiceContract}"/> using the 
+        ///     Delegate function that creates <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfCommunicationClientFactory{TServiceContract}"/> using the
         ///     <see cref="IServiceRemotingContract"/>.
         /// </param>
         /// <remarks>
-        ///     This factory uses <see cref="WcfExceptionHandler"/> and <see cref="ServiceRemotingExceptionHandler"/> in addition to the 
-        ///     exception handlers supplied to the constructor. 
+        ///     This factory uses <see cref="WcfExceptionHandler"/> and <see cref="ServiceRemotingExceptionHandler"/> in addition to the
+        ///     exception handlers supplied to the constructor.
         /// </remarks>
         public WcfServiceRemotingClientFactory(
             Binding clientBinding = null,
@@ -113,9 +113,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         }
 
         /// <summary>
-        /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate 
-        /// to the endpoint corresponding to the given listenerName. 
-        /// 
+        /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
+        /// to the endpoint corresponding to the given listenerName.
+        ///
         /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// </summary>
         /// <param name="serviceUri">Uri of the service to resolve</param>
@@ -148,9 +148,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         }
 
         /// <summary>
-        /// Re-resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate 
-        /// to the endpoint corresponding to the given listenerName. 
-        /// 
+        /// Re-resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
+        /// to the endpoint corresponding to the given listenerName.
+        ///
         /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// </summary>
         /// <param name="previousRsp">Previous ResolvedServicePartition value</param>
@@ -214,7 +214,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client)
+                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client),
                     });
             }
         }
@@ -230,7 +230,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client)
+                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client),
                     });
             }
         }

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         {
         }
 
-#if !DotNetCoreClr        
+#if !DotNetCoreClr
         /// <summary>
         /// Called by the generated proxy class to send the message to the remote object.
         /// </summary>
@@ -149,7 +149,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
 
         /// <summary>
-        /// Creates the Remoting request message Body 
+        /// Creates the Remoting request message Body
         /// </summary>
         /// <param name="interfaceName">Full Name of the service interface for which this call is invoked</param>
         /// <param name="methodName">Method Name of the service interface for which this call is invoked</param>
@@ -229,6 +229,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             int interfaceId,
             int methodId,
             IServiceRemotingRequestMessageBody requestMsgBodyValue);
-
     }
 }

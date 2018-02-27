@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
@@ -97,7 +97,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 return
                     (MethodDispatcherBase)
                     result.MethodDispatcher;
-
             }
         }
 
@@ -156,7 +155,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             return res;
         }
 
-        private ProxyGeneratorBuildResult CreateProxyGeneratorBuildResult(Type interfaceType,
+        private ProxyGeneratorBuildResult CreateProxyGeneratorBuildResult(
+            Type interfaceType,
             IEnumerable<InterfaceDescription> servicenterfaceDescriptions)
         {
             var res = this.proxyGeneratorBuilder.Build(interfaceType, servicenterfaceDescriptions);

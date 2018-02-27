@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
@@ -34,15 +34,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.serializersManager = serializersManager;
             this.partitionId = partitionId;
             this.replicaOrInstanceId = replicaOrInstanceId;
-            this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(this.partitionId,
+            this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(
+                this.partitionId,
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
         }
 
-        public async Task<FabricTransportMessage> RequestResponseAsync(FabricTransportRequestContext requestContext,
+        public async Task<FabricTransportMessage> RequestResponseAsync(
+            FabricTransportRequestContext requestContext,
             FabricTransportMessage fabricTransportMessage)
         {
-            if (null != this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
+            if (this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
             {
                 this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
                     .UpdateCounterValue(1);
@@ -69,19 +71,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             finally
             {
                 fabricTransportMessage.Dispose();
-                if (null != this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
+                if (this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
                 {
                     this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
                         .UpdateCounterValue(-1);
                 }
 
-                if (null != this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter)
+                if (this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter != null)
                 {
                     this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter
                         .UpdateCounterValue(
                             requestStopWatch.ElapsedMilliseconds);
                 }
-
             }
         }
 
@@ -105,7 +106,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             }
             var responseHeader = this.headerSerializer.SerializeResponseHeader(retval.GetHeader());
             var fabricTransportRequestHeader = responseHeader != null
-                ? new FabricTransportRequestHeader(responseHeader.GetSendBuffer(),
+                ? new FabricTransportRequestHeader(
+                    responseHeader.GetSendBuffer(),
                     responseHeader.Dispose)
                 : new FabricTransportRequestHeader(new ArraySegment<byte>(), null);
             var responseSerializer =
@@ -118,7 +120,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
             var fabricTransportRequestBody = responseMsgBody != null
-                ? new FabricTransportRequestBody(responseMsgBody.GetSendBuffers(),
+                ? new FabricTransportRequestBody(
+                    responseMsgBody.GetSendBuffers(),
                     responseMsgBody.Dispose)
                 : new FabricTransportRequestBody(new List<ArraySegment<byte>>(), null);
 
@@ -156,7 +159,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
         }
 
-        public void HandleOneWay(FabricTransportRequestContext requestContext,
+        public void HandleOneWay(
+            FabricTransportRequestContext requestContext,
             FabricTransportMessage requesTransportMessage)
         {
             throw new NotImplementedException();

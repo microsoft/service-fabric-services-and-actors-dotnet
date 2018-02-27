@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="..\..\..\properties\service_fabric_managed_dotnetcore.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <AssemblyName>FabActUtil</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>

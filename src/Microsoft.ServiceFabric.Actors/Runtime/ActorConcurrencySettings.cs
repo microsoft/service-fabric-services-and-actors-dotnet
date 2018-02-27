@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         /// <summary>
         /// Initializes a new instance of the ActorConcurrencySettings class.
-        /// 
+        ///
         /// By default the <see cref="ReentrancyMode"/> is <see cref="ActorReentrancyMode.LogicalCallContext"/> with a <see cref="LockTimeout"/> of 60 seconds
         /// </summary>
         public ActorConcurrencySettings()
@@ -45,11 +45,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         /// <summary>
         /// Gets or sets the timeout for the turn based concurrency lock. If the runtime cannot acquire the lock to dispatch the method
-        /// call, it will throw the <see cref="Microsoft.ServiceFabric.Actors.ActorConcurrencyLockTimeoutException"/> exception. 
+        /// call, it will throw the <see cref="Microsoft.ServiceFabric.Actors.ActorConcurrencyLockTimeoutException"/> exception.
         /// This exception will unwind the logical call chain and the call will retried up to a configured maximum amount of times.
         /// </summary>
         /// <remarks>
-        /// The actual timeout value for the concurrency lock can be higher as the runtime will add a random interval to 
+        /// The actual timeout value for the concurrency lock can be higher as the runtime will add a random interval to
         /// the supplied value.
         /// </remarks>
         /// <value>Timeout for the turn based concurrency lock. This can be set to <see cref="Timeout.InfiniteTimeSpan"/> to specify waiting forever.</value>

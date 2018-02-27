@@ -82,7 +82,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 replicationData.Add(replicationUnit.ActorStateDataWrapperList);
                 batch.AddRange(replicationUnit.ActorStateDataWrapperList);
 
-                TestLog("ApplyBatch({0}, {1}, {2})",
+                TestLog(
+                    "ApplyBatch({0}, {1}, {2})",
                     replicationUnit.SequenceNumber,
                     replicationUnit.StateType,
                     replicationUnit.GetKeyString());
@@ -183,7 +184,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             if (actualResult)
             {
                 var resultBuffer = data.ActorState;
-                FailTestIf(expectedLength != resultBuffer.Length,
+                FailTestIf(
+                    expectedLength != resultBuffer.Length,
                     "DataLength({0}): expected={1} actual={2}",
                     key,
                     expectedLength,
@@ -218,7 +220,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             if (actualResult)
             {
                 var resultTimestamp = data.LogicalTimestamp.Value;
-                FailTestIf(expectedTimestamp != resultTimestamp,
+                FailTestIf(
+                    expectedTimestamp != resultTimestamp,
                     "Data({0}): expected={1} actual={2}",
                     key,
                     expectedTimestamp,
@@ -253,7 +256,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             if (actualResult)
             {
                 var resultReminder = data.ActorReminderData;
-                FailTestIf(expectedReminderName != resultReminder.Name,
+                FailTestIf(
+                    expectedReminderName != resultReminder.Name,
                     "Data({0}): expected={1} actual={2}",
                     key,
                     expectedReminderName,
@@ -271,7 +275,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             data = null;
             var actualResult = stateTable.TryGetValue(type, key, out data);
 
-            FailTestIf(expectedResult != actualResult,
+            FailTestIf(
+                expectedResult != actualResult,
                 "TryGetValue({0}, {1}): expected={2} actual={3}",
                 type,
                 key,
@@ -503,7 +508,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
                 TestLog(ConsoleColor.Red, failedFormat, conditionMessage);
 
-                throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture,
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.InvariantCulture,
                     failedFormat, conditionMessage));
             }
             else
@@ -596,7 +602,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             {
                 [ActorStateType.Actor] = actorstatesPerReplication,
                 [ActorStateType.LogicalTimestamp] = timeStampstatesPerReplication,
-                [ActorStateType.Reminder] = reminderStatesPerReplication
+                [ActorStateType.Reminder] = reminderStatesPerReplication,
             };
 
             return statesPerReplication;

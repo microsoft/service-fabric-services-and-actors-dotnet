@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
@@ -48,7 +48,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             this.methodDispatcherBuildResultMap.Add(interfaceType, result);
         }
 
-        protected bool TryGetMethodDispatcher(Type interfaceType,
+        protected bool TryGetMethodDispatcher(
+            Type interfaceType,
             out MethodDispatcherBuildResult builderMethodDispatcher)
         {
             if (this.methodDispatcherBuildResultMap.TryGetValue(interfaceType, out var result))

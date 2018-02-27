@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// This exception indicates that an Actor received the duplicate message while waiting for to acquire 
+    /// This exception indicates that an Actor received the duplicate message while waiting for to acquire
     /// the turn based concurrency lock.
     /// </summary>
     [Serializable]

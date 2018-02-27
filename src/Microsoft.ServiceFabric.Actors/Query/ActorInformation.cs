@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Query
@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
 
 
     /// <summary>
-    /// Represents the information about an actor returned by Actor Query method call. 
+    /// Represents the information about an actor returned by Actor Query method call.
     /// </summary>
     [DataContract(Name = "ActorInformation", Namespace = Constants.Namespace)]
     [Serializable]

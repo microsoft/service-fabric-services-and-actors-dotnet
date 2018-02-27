@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
 
     /// <summary>
-    /// Provides an implementation of <see cref="IActorStateProvider"/> which 
+    /// Provides an implementation of <see cref="IActorStateProvider"/> which
     /// uses <see cref="KeyValueStoreReplica"/> to store and persist the actor state.
     /// </summary>
     public abstract class KvsActorStateProviderBase
@@ -70,7 +70,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         /// <summary>
         /// Ensures single backup in progress at ActorStateProvider level.
-        /// This enables cleaning up the backup directory before invoking into KeyValueStoreReplica's backup. 
+        /// This enables cleaning up the backup directory before invoking into KeyValueStoreReplica's backup.
         /// </summary>
         private int isBackupInProgress;
 
@@ -175,7 +175,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This method is invoked as part of the activation process of the actor with the specified Id. 
+        /// This method is invoked as part of the activation process of the actor with the specified Id.
         /// </summary>
         /// <param name="actorId">The ID of the actor that is activated.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
@@ -201,7 +201,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This method is invoked when a reminder fires and finishes executing its callback 
+        /// This method is invoked when a reminder fires and finishes executing its callback
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
         /// <param name="actorId">The ID of the actor which own reminder</param>
@@ -275,7 +275,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <remarks>
         /// The collection of state changes should contain only one item for a given state name.
-        /// The save operation will fail on trying to add an actor state which already exists 
+        /// The save operation will fail on trying to add an actor state which already exists
         /// or update/remove an actor state which does not exist.
         /// </remarks>
         /// <exception cref="System.InvalidOperationException">
@@ -312,7 +312,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Checks whether the actor state provider contains an actor state with 
+        /// Checks whether the actor state provider contains an actor state with
         /// specified state name.
         /// </summary>
         /// <param name="actorId">ID of the actor for which to check state existence.</param>
@@ -392,7 +392,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// The <paramref name="continuationToken"/> is relative to the state of actor state provider
         /// at the time of invocation of this API. If the state of actor state provider changes (i.e.
         /// new actors are activated or existing actors are deleted) in between calls to this API and
-        /// the continuation token from previous call (before the state was modified) is supplied, the 
+        /// the continuation token from previous call (before the state was modified) is supplied, the
         /// result may contain entries that were already fetched in previous calls.
         /// </remarks>
         Task<PagedResult<ActorId>> IActorStateProvider.GetActorsAsync(
@@ -409,7 +409,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Saves the specified actor reminder. If an actor reminder with
         /// given name does not exist, it adds the actor reminder otherwise
-        /// existing actor reminder with same name is updated. 
+        /// existing actor reminder with same name is updated.
         /// </summary>
         /// <param name="actorId">The ID of the actor for which to save the reminder.</param>
         /// <param name="reminder">The actor reminder to save.</param>
@@ -449,7 +449,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var reminderKeyInfo = new List<ReminderKeyInfo>
             {
-                new ReminderKeyInfo(reminderKey, reminderCompletedKey)
+                new ReminderKeyInfo(reminderKey, reminderCompletedKey),
             };
 
             return this.DeleteRemindersInternalAsync(reminderKeyInfo, $"DeleteReminderAsync[{actorId}]", cancellationToken);
@@ -658,12 +658,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or 
+        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or
         /// <see cref="IStateProviderReplica.BackupAsync(BackupOption, TimeSpan, CancellationToken, Func{BackupInfo, CancellationToken, Task{bool}})"/>.
         /// </summary>
         /// <param name="backupFolderPath">
         /// The directory where the replica is to be restored from.
-        /// This parameter cannot be null, empty or contain just whitespace. 
+        /// This parameter cannot be null, empty or contain just whitespace.
         /// UNC paths may also be provided.
         /// </param>
         /// <returns>Task that represents the asynchronous restore operation.</returns>
@@ -674,13 +674,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or 
+        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or
         /// <see cref="IStateProviderReplica.BackupAsync(BackupOption, TimeSpan, CancellationToken, Func{BackupInfo, CancellationToken, Task{bool}})"/>.
         /// </summary>
         /// <param name="restorePolicy">The restore policy.</param>
         /// <param name="backupFolderPath">
         /// The directory where the replica is to be restored from.
-        /// This parameter cannot be null, empty or contain just whitespace. 
+        /// This parameter cannot be null, empty or contain just whitespace.
         /// UNC paths may also be provided.
         /// </param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
@@ -944,7 +944,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 TimeToLive = this.stateProviderSettings.BackupCallbackSlowCancellationHealthReportTimeToLive,
                 RemoveWhenExpired = true,
-                Description = description
+                Description = description,
             };
 
             this.ReportPartitionHealth(healthInfo);

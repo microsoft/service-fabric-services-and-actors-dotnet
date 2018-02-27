@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
     public interface IMessageBody : IDisposable
     {
         /// <summary>
-        /// Gets the Send Buffers 
+        /// Gets the Send Buffers
         /// </summary>
         /// <returns></returns>
         IEnumerable<ArraySegment<byte>> GetSendBuffers();

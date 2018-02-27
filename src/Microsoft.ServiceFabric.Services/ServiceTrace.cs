@@ -1,21 +1,33 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services
 {
-    //extern alias Internal;
     using System;
     using System.Globalization;
 
     internal static class ServiceTrace
     {
-        internal static ServiceEventSource Source;
+        private static ServiceEventSource source;
 
         static ServiceTrace()
         {
             Source = ServiceEventSource.Instance;
+        }
+
+        internal static ServiceEventSource Source
+        {
+            get
+            {
+                return source;
+            }
+
+            private set
+            {
+                source = value;
+            }
         }
 
         internal static string GetTraceIdForReplica(Guid partitionId, long replicaId)

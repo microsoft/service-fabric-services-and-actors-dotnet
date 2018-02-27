@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
@@ -92,11 +92,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
                         headers.AddHeader(ServiceRemotingMessageHeaders.CancellationHeaderName, new byte[0]);
 
                         //
-                        // Under normal service operation, we want to make sure that cancellation message is 
-                        // delivered to destination service. However if the destination service undergoes failover 
-                        // while cancellation request is in progress, we would not want to retry the cancellation 
+                        // Under normal service operation, we want to make sure that cancellation message is
+                        // delivered to destination service. However if the destination service undergoes failover
+                        // while cancellation request is in progress, we would not want to retry the cancellation
                         // after resolving to new primary as it is not valid for the new primary that will take over.
-                        // 
+                        //
                         // Have a cancellation token that can used to cancel the cancellation task if needed.
                         //
                         var remoteCancellationTaskCts = new CancellationTokenSource();

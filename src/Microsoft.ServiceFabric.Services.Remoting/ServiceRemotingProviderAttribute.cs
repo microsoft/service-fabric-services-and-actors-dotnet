@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting
@@ -15,24 +15,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 #endif
     /// <summary>
-    /// This is a base type for attribute that sets the default service remoting provider to use for 
+    /// This is a base type for attribute that sets the default service remoting provider to use for
     /// remoting the service interfaces defined and used in the assembly.
     /// </summary>
     /// <remarks>
     ///     <para>
     ///     On service side, implementation of this attribute is looked up by
     ///     <see cref="ServiceRemotingExtensions.CreateServiceRemotingListener{TStatefulService}(TStatefulService,System.Fabric.StatefulServiceContext)"/> and
-    ///     <see cref="ServiceRemotingExtensions.CreateServiceRemotingListener{TStatelessService}(TStatelessService,System.Fabric.StatelessServiceContext)"/> 
-    ///     methods on the runtime to create a default <see cref="IServiceRemotingListener"/> for the stateful and stateless services. 
+    ///     <see cref="ServiceRemotingExtensions.CreateServiceRemotingListener{TStatelessService}(TStatelessService,System.Fabric.StatelessServiceContext)"/>
+    ///     methods on the runtime to create a default <see cref="IServiceRemotingListener"/> for the stateful and stateless services.
     ///     </para>
     ///     <para>
-    ///     On client side, implementation of this attribute is looked up by 
+    ///     On client side, implementation of this attribute is looked up by
     ///     <see cref="ServiceProxyFactory"/> constructor to create a default
     ///     <see cref="IServiceRemotingClientFactory"/> when it is not specified.
     ///     </para>
     ///     <para>
     ///     Note that on client side
-    ///     <see cref="Client.ServiceProxy.Create{TServiceInterface}(Uri, Services.Client.ServicePartitionKey, Communication.Client.TargetReplicaSelector, string)"/> 
+    ///     <see cref="Client.ServiceProxy.Create{TServiceInterface}(Uri, Services.Client.ServicePartitionKey, Communication.Client.TargetReplicaSelector, string)"/>
     ///     method create a default <see cref="ServiceProxyFactory"/> once and hence the provider lookup happens
     ///     only for the first time, after which the same provider is used.
     ///     </para>
@@ -40,10 +40,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     ///     The order in which this attribute is looked up is as follows:
     ///     <list type="number">
     ///         <item>
-    ///             In the entry <see cref="System.Reflection.Assembly"/> obtained by calling method <see cref="System.Reflection.Assembly.GetEntryAssembly"/> 
+    ///             In the entry <see cref="System.Reflection.Assembly"/> obtained by calling method <see cref="System.Reflection.Assembly.GetEntryAssembly"/>
     ///         </item>
     ///         <item>
-    ///             In the <see cref="System.Reflection.Assembly"/> that defines the remote interface for which listener or proxy is being created. 
+    ///             In the <see cref="System.Reflection.Assembly"/> that defines the remote interface for which listener or proxy is being created.
     ///         </item>
     ///     </list>
     ///     </para>
@@ -85,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             IService serviceImplementation);
 
         /// <summary>
-        /// Creates a service remoting client factory that can be used by the 
+        /// Creates a service remoting client factory that can be used by the
         /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackClient">Client implementation where the callbacks should be dispatched.</param>
@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             IService serviceImplementation);
 
         /// <summary>
-        /// Creates a V2 service remoting client factory that can be used by the 
+        /// Creates a V2 service remoting client factory that can be used by the
         /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
@@ -155,7 +155,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// This is selected to create V2 Client. V2 is a new Remoting Stack.
         /// </summary>
-        V2Client
+        V2Client,
     }
 
     /// <summary>
@@ -180,6 +180,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// This is selected to create V2 Listener.V2 is a new Remoting Stack.
         /// </summary>
         V2Listener,
-
     }
 }

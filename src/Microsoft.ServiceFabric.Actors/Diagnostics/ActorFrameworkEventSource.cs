@@ -1,25 +1,25 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System;
-    using System.Fabric;
     using System.Diagnostics.Tracing;
+    using System.Fabric;
 
     //
-    // REMARKS: 
+    // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
-    // you must call the WriteEvent method on the base class, passing the event ID, followed by the same 
+    // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
     //
     [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR")]
     internal sealed class ActorFrameworkEventSource : EventSource
     {
-        // Although the documentation claims it exists, EventKeywords.All does not 
+        // Although the documentation claims it exists, EventKeywords.All does not
         // seem to be defined in the assembly. So just use a constant with all possible
         // bits set.
         private const long AllKeywords = 0x7FFFFFFFFFFFFFFF;
@@ -667,7 +667,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         /// <summary>
         /// Implement WriteEvent overload to match our reconfiguration events. If this overload is
         /// not implemented, the standard WriteEvent overload method in the base class that accepts
-        /// an object array as argument gets used and it is not very efficient. 
+        /// an object array as argument gets used and it is not very efficient.
         /// </summary>
         [NonEvent]
         private unsafe void WriteEvent(
@@ -700,7 +700,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         /// <summary>
         /// Implement WriteEvent overload to match our activation/deactivation events. If this overload is
         /// not implemented, the standard WriteEvent overload method in the base class that accepts an
-        /// object array as argument gets used and it is not very efficient. 
+        /// object array as argument gets used and it is not very efficient.
         /// </summary>
         [NonEvent]
         private unsafe void WriteEvent(
@@ -738,9 +738,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         /// <summary>
-        /// Implement WriteEvent overload to match our actor metric events. If this overload is not 
+        /// Implement WriteEvent overload to match our actor metric events. If this overload is not
         /// implemented, the standard WriteEvent overload method in the base class that accepts an
-        /// object array as argument gets used and it is not very efficient. 
+        /// object array as argument gets used and it is not very efficient.
         /// </summary>
         [NonEvent]
         private unsafe void WriteEvent(
@@ -808,7 +808,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             var dataDesc = stackalloc EventData[maxDataDescCount];
 
-            if (Int64.MaxValue != methodExecutionTimeTicks)
+            if (methodExecutionTimeTicks != Int64.MaxValue)
             {
                 this.SetLongData(&methodExecutionTimeTicks, out dataDesc[1]);
                 dataDescCount++;
@@ -819,7 +819,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             fixed (char* str0 = exception, str1 = methodName, str2 = methodSignature, str3 = actorType, str4 = actorId, str5 = serviceName, str6 = applicationName, str7 = serviceTypeName, str8 = applicationTypeName, str9 = nodeName)
             {
-                if (null != exception)
+                if (exception != null)
                 {
                     this.SetStringData(exception, str0, out dataDesc[0]);
                     dataDescCount++;

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             Type proxyInterfaceType,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
         {
-            // create the context to build the proxy 
+            // create the context to build the proxy
             var context = new CodeBuilderContext(
                 assemblyName: this.CodeBuilder.Names.GetProxyAssemblyName(proxyInterfaceType),
                 assemblyNamespace: this.CodeBuilder.Names.GetProxyAssemblyNamespace(proxyInterfaceType),
@@ -346,7 +346,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             ilGen.EmitCall(OpCodes.Call, this.invokeAsyncMethodInfo, null);
             ilGen.Emit(OpCodes.Stloc, objectTask);
 
-            // call the base method to get the continuation task and 
+            // call the base method to get the continuation task and
             // convert the response body to return value when the task is finished
             if (methodBodyTypes.ResponseBodyType != null)
             {

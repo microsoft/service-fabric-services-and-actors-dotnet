@@ -1,13 +1,13 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     /// <summary>
     /// Defines an interfaces that must be implemented to provide header for remoting response message.
-    /// 
+    ///
     /// </summary>
     public interface IServiceRemotingResponseMessageHeader
     {

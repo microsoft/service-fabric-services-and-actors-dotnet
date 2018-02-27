@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication
@@ -21,12 +21,13 @@ namespace Microsoft.ServiceFabric.Services.Communication
     [DataContract]
     public sealed class ServiceEndpointCollection
     {
-        [DataMember(Name = "Endpoints")] private Dictionary<string, string> endpoints;
+        [DataMember(Name = "Endpoints")]
+        private Dictionary<string, string> endpoints;
 
         private object endpointsLock;
 
         /// <summary>
-        /// Instantiates an empty ServiceEndpointsCollection.
+        /// Initializes a new instance of the <see cref="ServiceEndpointCollection"/> class that is empty.
         /// </summary>
         public ServiceEndpointCollection()
         {
@@ -35,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         }
 
         /// <summary>
-        /// Instantiates the ServiceEndpointsCollection with a single endpoint, identified by the listener name.
+        /// Initializes a new instance of the <see cref="ServiceEndpointCollection"/> class with a single endpoint, identified by the listener name.
         /// </summary>
         /// <param name="listenerName">Listener name of the endpoint</param>
         /// <param name="endpointAddress">Address of the endpoint</param>
@@ -43,6 +44,39 @@ namespace Microsoft.ServiceFabric.Services.Communication
             : this()
         {
             this.endpoints[listenerName] = endpointAddress;
+        }
+
+        /// <summary>
+        /// Constructs an EndpointsCollection from a string version of the endpoints. String form of EndpointsCollection is of the form
+        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
+        /// </summary>
+        /// <param name="endpointsString">string form of endpointsCollection</param>
+        /// <param name="serviceEndpoints">ServiceEndpointCollection object if the string can be parsed to a valid ServiceEndpointCollection object</param>
+        /// <returns>True if the string can be parsed to a valid EndpointsCollection, False otherwise</returns>
+        public static bool TryParseEndpointsString(string endpointsString, out ServiceEndpointCollection serviceEndpoints)
+        {
+            if (endpointsString == string.Empty)
+            {
+                serviceEndpoints = new ServiceEndpointCollection();
+                return true;
+            }
+
+            serviceEndpoints = null;
+            var deserializer = new DataContractJsonSerializer(
+                typeof(ServiceEndpointCollection),
+                new DataContractJsonSerializerSettings() { UseSimpleDictionaryFormat = true });
+            try
+            {
+                var stream = new MemoryStream(Encoding.UTF8.GetBytes(endpointsString));
+                serviceEndpoints = (ServiceEndpointCollection)deserializer.ReadObject(stream);
+                return true;
+            }
+            catch (Exception)
+            {
+                // Catch any exception that occurs during deserialization
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -117,40 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         }
 
         /// <summary>
-        /// Constructs an EndpointsCollection from a string version of the endpoints. String form of EndpointsCollection is of the form
-        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
-        /// </summary>
-        /// <param name="endpointsString">string form of endpointsCollection</param>
-        /// <param name="serviceEndpoints">ServiceEndpointCollection object if the string can be parsed to a valid ServiceEndpointCollection object</param>
-        /// <returns>True if the string can be parsed to a valid EndpointsCollection, False otherwise</returns>
-        public static bool TryParseEndpointsString(string endpointsString, out ServiceEndpointCollection serviceEndpoints)
-        {
-            if (endpointsString == string.Empty)
-            {
-                serviceEndpoints = new ServiceEndpointCollection();
-                return true;
-            }
-
-            serviceEndpoints = null;
-            var deserializer = new DataContractJsonSerializer(
-                typeof(ServiceEndpointCollection),
-                new DataContractJsonSerializerSettings() { UseSimpleDictionaryFormat = true });
-            try
-            {
-                var stream = new MemoryStream(Encoding.UTF8.GetBytes(endpointsString));
-                serviceEndpoints = (ServiceEndpointCollection)deserializer.ReadObject(stream);
-                return true;
-            }
-            catch (Exception)
-            {
-                // Catch any exception that occurs during deserialization
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Converts the endpointsCollection to a JSON string of the form 
+        /// Converts the endpointsCollection to a JSON string of the form
         /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// </summary>
         /// <returns>String form of the endpointsCollection</returns>
@@ -206,10 +207,8 @@ namespace Microsoft.ServiceFabric.Services.Communication
         [OnDeserialized]
         private void OnDeserialized(StreamingContext c)
         {
-            //
-            // Deserialization doesnt invoke the constructor, so the lock object must be 
+            // Deserialization doesnt invoke the constructor, so the lock object must be
             // initialized explicitly.
-            //
             this.endpointsLock = new object();
         }
     }

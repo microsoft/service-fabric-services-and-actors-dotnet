@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     {
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
         private readonly FabricTransportClient fabricTransportClient;
-        // we need to pass a cache of the serializers here rather than the known types, 
+        // we need to pass a cache of the serializers here rather than the known types,
         // the serializer cache should be maintained by the factor
 
         internal FabricTransportServiceRemotingClient(
@@ -53,7 +53,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             var msgBodySeriaizer = this.serializersManager.GetRequestBodySerializer(interfaceId);
             var serializedMsgBody = msgBodySeriaizer.Serialize(remotingRequestRequestMessage.GetBody());
             var fabricTransportRequestBody = serializedMsgBody != null
-                ? new FabricTransportRequestBody(serializedMsgBody.GetSendBuffers(),
+                ? new FabricTransportRequestBody(
+                    serializedMsgBody.GetSendBuffers(),
                     serializedMsgBody.Dispose)
                 : new FabricTransportRequestBody(new List<ArraySegment<byte>>(), null);
 
@@ -79,7 +80,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
                     var isDeserialzied =
-                        RemoteException.ToException(retval.GetBody().GetRecievedStream(),
+                        RemoteException.ToException(
+                            retval.GetBody().GetRecievedStream(),
                             out var e);
                     if (isDeserialzied)
                     {
@@ -103,7 +105,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(header, responseMessageBody);
             }
-
         }
 
         public void SendOneWay(IServiceRemotingRequestMessage requestMessage)

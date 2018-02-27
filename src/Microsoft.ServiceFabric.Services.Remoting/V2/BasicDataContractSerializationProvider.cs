@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -19,13 +19,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             return new DataContractRemotingMessageFactory();
         }
 
-        public IServiceRemotingRequestMessageBodySerializer CreateRequestMessageSerializer(Type serviceInterfaceType,
+        public IServiceRemotingRequestMessageBodySerializer CreateRequestMessageSerializer(
+            Type serviceInterfaceType,
             IEnumerable<Type> requestBodyTypes)
         {
             return new BasicDataRequestMessageBodySerializer(requestBodyTypes);
         }
 
-        public IServiceRemotingResponseMessageBodySerializer CreateResponseMessageSerializer(Type serviceInterfaceType,
+        public IServiceRemotingResponseMessageBodySerializer CreateResponseMessageSerializer(
+            Type serviceInterfaceType,
             IEnumerable<Type> responseBodyTypes)
         {
             return new BasicDataResponsetMessageBodySerializer(responseBodyTypes);
@@ -44,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = parameterInfo
+                    KnownTypes = parameterInfo,
                 });
         }
         public OutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
@@ -63,7 +65,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     var bytes = stream.ToArray();
                     var segments = new List<ArraySegment<byte>>
                     {
-                        new ArraySegment<byte>(bytes)
+                        new ArraySegment<byte>(bytes),
                     };
                     return new OutgoingMessageBody(segments);
                 }
@@ -82,7 +84,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 XmlDictionaryReaderQuotas.Max))
             {
                 return (ServiceRemotingRequestMessageBody)this.serializer.ReadObject(reader);
-
             }
         }
     }
@@ -99,7 +100,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = parameterInfo
+                    KnownTypes = parameterInfo,
                 });
         }
         public OutgoingMessageBody Serialize(IServiceRemotingResponseMessageBody serviceRemotingRequestMessageBody)
@@ -118,7 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     var bytes = stream.ToArray();
                     var segments = new List<ArraySegment<byte>>
                     {
-                        new ArraySegment<byte>(bytes)
+                        new ArraySegment<byte>(bytes),
                     };
                     return new OutgoingMessageBody(segments);
                 }
@@ -137,7 +138,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 XmlDictionaryReaderQuotas.Max))
             {
                 return (ServiceRemotingResponseMessageBody)this.serializer.ReadObject(reader);
-
             }
         }
     }

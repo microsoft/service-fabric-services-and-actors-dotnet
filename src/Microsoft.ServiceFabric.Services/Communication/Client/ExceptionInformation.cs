@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private readonly TargetReplicaSelector targetReplica;
 
         /// <summary>
-        /// Instantiates the exception information using the given exception and the default target replica selector.
+        /// Initializes a new instance of the <see cref="ExceptionInformation"/> class using the given exception and the default target replica selector.
         /// </summary>
         /// <param name="exception">The exception that was received</param>
         public ExceptionInformation(Exception exception)
@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Instantiates the exception information using the given exception and target replica selector.
+        /// Initializes a new instance of the <see cref="ExceptionInformation"/> class using the given exception and target replica selector.
         /// </summary>
         /// <param name="exception">The exception that was received</param>
         /// <param name="targetReplica">The target replica information</param>
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Exception that was seen on the communication channel
+        /// Gets exception that was seen on the communication channel
         /// </summary>
         /// <value>The <see cref="System.Exception"/> that was seen.</value>
         public Exception Exception
@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// The target replica identifier to which the communication channel was established.
+        /// Gets the target replica identifier to which the communication channel was established.
         /// </summary>
         /// <value>A <see cref="TargetReplicaSelector"/> that specifies gives information about the target replica</value>
         public TargetReplicaSelector TargetReplica

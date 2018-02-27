@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Description
@@ -40,7 +40,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             if (!serviceInterfaceType.GetTypeInfo().IsInterface)
             {
                 throw new ArgumentException(
-                    string.Format(CultureInfo.CurrentCulture,
+                    string.Format(
+                        CultureInfo.CurrentCulture,
                         SR.ErrorNotAServiceInterface_InterfaceCheck,
                         serviceInterfaceType.FullName,
                         typeof(IService).FullName),
@@ -53,7 +54,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
                 if (nonActorParentInterface == serviceInterfaceType)
                 {
                     throw new ArgumentException(
-                        string.Format(CultureInfo.CurrentCulture,
+                        string.Format(
+                            CultureInfo.CurrentCulture,
                             SR.ErrorNotAServiceInterface_DerivationCheck1,
                             serviceInterfaceType.FullName,
                             typeof(IService).FullName),
@@ -62,7 +64,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
                 else
                 {
                     throw new ArgumentException(
-                       string.Format(CultureInfo.CurrentCulture,
+                       string.Format(
+                           CultureInfo.CurrentCulture,
                            SR.ErrorNotAServiceInterface_DerivationCheck1,
                            serviceInterfaceType.FullName,
                            nonActorParentInterface.FullName,

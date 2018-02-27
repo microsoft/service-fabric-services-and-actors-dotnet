@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace FabActUtil.CommandLineParser
@@ -23,14 +23,14 @@ namespace FabActUtil.CommandLineParser
         public const string NewLine = "\r\n";
 
         /// <summary>
-        /// Don't ever call this.
+        /// Initializes a new instance of the <see cref="CommandLineUtility"/> class.
         /// </summary>
         private CommandLineUtility()
         {
         }
 
         /// <summary>
-        /// Parses Command Line Arguments. 
+        /// Parses Command Line Arguments.
         /// Errors are output on Console.Error.
         /// Use CommandLineArgumentAttributes to control parsing behaviour.
         /// </summary>
@@ -43,7 +43,7 @@ namespace FabActUtil.CommandLineParser
         }
 
         /// <summary>
-        /// Parses Command Line Arguments. 
+        /// Parses Command Line Arguments.
         /// Use CommandLineArgumentAttributes to control parsing behaviour.
         /// </summary>
         /// <param name="arguments"> The actual arguments. </param>

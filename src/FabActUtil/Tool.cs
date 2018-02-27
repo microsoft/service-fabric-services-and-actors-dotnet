@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace FabActUtil
@@ -72,7 +72,7 @@ namespace FabActUtil
                 OutputPath = context.Arguments.OutputPath,
                 ApplicationPackagePath = context.Arguments.ApplicationPackagePath,
                 ServicePackagePath = context.Arguments.ServicePackagePath,
-                Version = context.Arguments.Version
+                Version = context.Arguments.Version,
             };
 
             ManifestGenerator.Generate(generatorArgs);
@@ -88,7 +88,7 @@ namespace FabActUtil
             var updaterArgs = new AppParameterFileUpdater.Arguments()
             {
                 ActorTypes = context.ActorTypes,
-                AppParamFilePath = context.Arguments.Local5NodeAppParamFile
+                AppParamFilePath = context.Arguments.Local5NodeAppParamFile,
             };
 
             AppParameterFileUpdater.AddParameterValuesToLocalFiveNodeParamFile(updaterArgs);
@@ -104,7 +104,7 @@ namespace FabActUtil
             var updaterArgs = new AppParameterFileUpdater.Arguments()
             {
                 ActorTypes = context.ActorTypes,
-                AppParamFilePath = context.Arguments.Local1NodeAppParamFile
+                AppParamFilePath = context.Arguments.Local1NodeAppParamFile,
             };
 
             AppParameterFileUpdater.AddParameterValuesToLocalOneNodeParamFile(updaterArgs);
@@ -132,7 +132,8 @@ namespace FabActUtil
             if ((actorFilters != null) && (actorFilters.Count > 0))
             {
                 throw new TypeLoadException(
-                    string.Format(CultureInfo.CurrentCulture,
+                    string.Format(
+                        CultureInfo.CurrentCulture,
                         SR.ErrorNotAnActor,
                         actorFilters[0],
                         typeof(Actor).FullName));
@@ -187,7 +188,8 @@ namespace FabActUtil
                             actorTypeInfoTable[actorTypeInterface].ImplementationType))
                         {
                             throw new TypeLoadException(
-                                string.Format(CultureInfo.CurrentCulture,
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
                                     SR.ErrorNoActorServiceNameMultipleImplDerivation,
                                     actorTypeInterface.FullName,
                                     actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,
@@ -198,7 +200,8 @@ namespace FabActUtil
                             actorTypeInformation.ImplementationType))
                         {
                             throw new TypeLoadException(
-                                string.Format(CultureInfo.CurrentCulture,
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
                                     SR.ErrorNoActorServiceNameMultipleImplDerivation,
                                     actorTypeInterface.FullName,
                                     actorTypeInformation.ImplementationType.FullName,
@@ -208,7 +211,8 @@ namespace FabActUtil
                         else
                         {
                             throw new TypeLoadException(
-                                string.Format(CultureInfo.CurrentCulture,
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
                                     SR.ErrorNoActorServiceNameMultipleImpl,
                                     actorTypeInterface.FullName,
                                     actorTypeInformation.ImplementationType.FullName,

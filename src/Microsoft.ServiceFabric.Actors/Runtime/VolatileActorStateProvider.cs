@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -15,17 +15,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
+    using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using ActorStateTable = VolatileActorStateTable<
-        VolatileActorStateProvider.ActorStateType,
-        string,
-        VolatileActorStateProvider.ActorStateData>;
     using ActorStateDataWrapper = VolatileActorStateTable<
         VolatileActorStateProvider.ActorStateType,
         string,
         VolatileActorStateProvider.ActorStateData>.ActorStateDataWrapper;
+    using ActorStateTable = VolatileActorStateTable<
+        VolatileActorStateProvider.ActorStateType,
+        string,
+        VolatileActorStateProvider.ActorStateData>;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             LogicalTimestamp = 0,
             Actor = 1,
-            Reminder = 2
+            Reminder = 2,
         }
 
         private const string LogicalTimestampKey = "LogicalTimestamp";
@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="VolatileActorStateProvider"/> with 
+        /// Creates an instance of <see cref="VolatileActorStateProvider"/> with
         /// specified replicator settings.
         /// </summary>
         /// <param name="replicatorSettings">
@@ -107,7 +107,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This method is invoked as part of the activation process of the actor with the specified Id. 
+        /// This method is invoked as part of the activation process of the actor with the specified Id.
         /// </summary>
         /// <param name="actorId">ID of the actor that is activated.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
@@ -132,7 +132,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This method is invoked when a reminder fires and finishes executing its callback 
+        /// This method is invoked when a reminder fires and finishes executing its callback
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
         /// <param name="actorId">ID of the actor which own reminder</param>
@@ -195,7 +195,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <remarks>
         /// The collection of state changes should contain only one item for a given state name.
-        /// The save operation will fail on trying to add an actor state which already exists 
+        /// The save operation will fail on trying to add an actor state which already exists
         /// or update/remove an actor state which does not exist.
         /// </remarks>
         /// <exception cref="System.InvalidOperationException">
@@ -236,7 +236,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Checks whether actor state provider contains an actor state with 
+        /// Checks whether actor state provider contains an actor state with
         /// specified state name.
         /// </summary>
         /// <param name="actorId">The ID of the actor for which to check state existence.</param>
@@ -375,7 +375,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// The <paramref name="continuationToken"/> is relative to the state of actor state provider
         /// at the time of invocation of this API. If the state of actor state provider changes (i.e.
         /// new actors are activated or existing actors are deleted) in between calls to this API and
-        /// the continuation token from previous call (before the state was modified) is supplied, the 
+        /// the continuation token from previous call (before the state was modified) is supplied, the
         /// result may contain entries that were already fetched in previous calls.
         /// </remarks>
         Task<PagedResult<ActorId>> IActorStateProvider.GetActorsAsync(
@@ -396,7 +396,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Saves the specified actor reminder. If an actor reminder with
         /// given name does not exist, it adds the actor reminder otherwise
-        /// existing actor reminder with same name is updated. 
+        /// existing actor reminder with same name is updated.
         /// </summary>
         /// <param name="actorId">The ID of the actor for which to save the reminder.</param>
         /// <param name="reminder">The actor reminder to save.</param>
@@ -414,7 +414,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 ActorStateDataWrapper.CreateForDelete(
                     ActorStateType.Actor,
-                    ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminder.Name))
+                    ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminder.Name)),
             };
 
             return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
@@ -445,7 +445,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 ActorStateDataWrapper.CreateForDelete(
                     ActorStateType.Actor,
-                    ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminderName))
+                    ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminderName)),
             };
 
             return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
@@ -696,7 +696,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or 
+        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or
         /// <see cref="IStateProviderReplica.BackupAsync(BackupOption, TimeSpan, CancellationToken, Func{BackupInfo, CancellationToken, Task{bool}})"/>.
         /// </summary>
         /// <param name="backupFolderPath">
@@ -712,7 +712,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or 
+        /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or
         /// <see cref="IStateProviderReplica.BackupAsync(BackupOption, TimeSpan, CancellationToken, Func{BackupInfo, CancellationToken, Task{bool}})"/>.
         /// </summary>
         /// <param name="restorePolicy">The restore policy.</param>
@@ -758,7 +758,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         ///     a mechanism to asynchronously establish a bidirectional conversation with the Primary replica. The Secondary replica sends <see cref="OperationData" />
         ///     objects with which the Primary replica can determine the progress of collecting context on the Secondary replica. The Primary replica responds by sending the required state back.
         ///     See <see cref="IStateProvider.GetCopyState(Int64,IOperationDataStream)" /> at the Primary replica for the other half of the exchange. </para>
-        /// <para>For in-memory services, the <see cref="IStateProvider.GetCopyContext" /> method is not called, 
+        /// <para>For in-memory services, the <see cref="IStateProvider.GetCopyContext" /> method is not called,
         /// as the state of the Secondary replicas is known (they are empty and will require all of the state).</para>
         /// </remarks>
         IOperationDataStream IStateProvider.GetCopyContext()
@@ -782,14 +782,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </returns>
         /// <remarks>
         /// <para>Just as <see cref="IStateProvider.GetCopyContext" /> enables the Secondary replica to send context to the Primary replica via
-        /// an <see cref="IOperationDataStream" />, <see cref="IStateProvider.GetCopyState(Int64,IOperationDataStream)" /> enables the Primary 
+        /// an <see cref="IOperationDataStream" />, <see cref="IStateProvider.GetCopyState(Int64,IOperationDataStream)" /> enables the Primary
         /// replica to respond with an <see cref="IOperationDataStream" />. The stream contains objects that are delivered to the Secondary replica
-        /// via the <see cref="IStateReplicator.GetCopyStream" /> method of the <see cref="FabricReplicator" /> class. The objects implement 
+        /// via the <see cref="IStateReplicator.GetCopyStream" /> method of the <see cref="FabricReplicator" /> class. The objects implement
         /// <see cref="IOperation" /> and contain the specified data. </para>
-        /// <para> When the Primary replica receives this call, it should create and return another <see cref="IOperationDataStream" /> 
+        /// <para> When the Primary replica receives this call, it should create and return another <see cref="IOperationDataStream" />
         /// that contains <see cref="OperationData" />. <see cref="OperationData" /> represents the data/state that the Secondary replica
-        /// requires to catch up to the provided <paramref name="upToSequenceNumber" /> maximum LSN. 
-        /// How much and which state has to be sent can be determined via the context information that the Secondary replica provides via 
+        /// requires to catch up to the provided <paramref name="upToSequenceNumber" /> maximum LSN.
+        /// How much and which state has to be sent can be determined via the context information that the Secondary replica provides via
         /// <see cref="IStateProvider.GetCopyContext"/> method.</para>
         /// </remarks>
         IOperationDataStream IStateProvider.GetCopyState(long upToSequenceNumber, IOperationDataStream copyContext)
@@ -799,7 +799,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var highestSequenceNumber = this.stateTable.GetHighestKnownSequenceNumber();
                 if (highestSequenceNumber < upToSequenceNumber)
                 {
-                    // This is not expected. If we have acquired this.replicationLock 
+                    // This is not expected. If we have acquired this.replicationLock
                     // this means our state table must have this sequence number.
                     // Please see comment in method ReplicateStateChangesAsync()
                     var ex = new InvalidOperationException(
@@ -823,7 +823,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (replicatorSettings.MaxReplicationMessageSize == null)
             {
                 // This is unexpected. The MaxReplicationMessageSize must not be null after
-                // replicator settings was initialized from configuration with valid value. 
+                // replicator settings was initialized from configuration with valid value.
 
                 var ex = new InvalidOperationException(
                     string.Format(
@@ -854,10 +854,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <para>Returns <see cref="Int64" />.</para>
         /// </returns>
         /// <remarks>
-        /// <para>This method is called on a service when it first starts up, in case it has any persistent state, and when data loss is suspected. 
+        /// <para>This method is called on a service when it first starts up, in case it has any persistent state, and when data loss is suspected.
         /// When a stateful service replica starts up, it has the option to restore any data that might have persisted from previous updates.
         /// If it restores some state in this manner, its current progress is the last written sequence number for that data. A volatile service can simply return 0.
-        /// Note that this method is not called to determine a new primary election during fail-over, 
+        /// Note that this method is not called to determine a new primary election during fail-over,
         /// because the current committed progress is already known by the <see cref="FabricReplicator" /> class at that time. </para>
         /// </remarks>
         long IStateProvider.GetLastCommittedSequenceNumber()
@@ -866,19 +866,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// <para>Indicates that a write quorum of replicas in this replica set  has been lost, and that therefore data loss might have occurred. 
+        /// <para>Indicates that a write quorum of replicas in this replica set  has been lost, and that therefore data loss might have occurred.
         /// The replica set consists of a majority of replicas, which includes the Primary replica. </para>
         /// </summary>
         /// <param name="cancellationToken">
-        /// <para>The <see cref="CancellationToken" /> object that the operation is observing. 
+        /// <para>The <see cref="CancellationToken" /> object that the operation is observing.
         /// It can be used to send a notification that the operation should be canceled. Note that cancellation is advisory and that the operation might still be completed even if it is canceled.</para>
         /// </param>
         /// <returns>
-        /// <para>Returns <see cref="Task{T}" /> of type <see cref="Boolean" />, that indicates whether state changed. 
+        /// <para>Returns <see cref="Task{T}" /> of type <see cref="Boolean" />, that indicates whether state changed.
         /// When it changed, the method returns true or when it did not change, the method returns false.</para>
         /// </returns>
         /// <remarks>
-        /// <para>When the Service Fabric runtime observes the failure of a quorum of replicas, which includes the Primary replica, 
+        /// <para>When the Service Fabric runtime observes the failure of a quorum of replicas, which includes the Primary replica,
         /// it elects a new Primary replica and immediately calls this method on the new Primary replica. A Primary replica that is informed of possible data loss
         /// can choose to restore its state from some external data source or can continue to run with the state that it currently has. If the service continues to run with its current state,
         /// it should return false from this method, which indicates that no state change has been made. If it has restored or altered its state,
@@ -891,8 +891,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// <para>Indicates to a replica that the configuration of a replica set has changed due to a change or attempted change to the Primary replica. 
-        /// The change occurs due to failure or load balancing of the previous Primary replica. Epoch changes act as a barrier by segmenting operations 
+        /// <para>Indicates to a replica that the configuration of a replica set has changed due to a change or attempted change to the Primary replica.
+        /// The change occurs due to failure or load balancing of the previous Primary replica. Epoch changes act as a barrier by segmenting operations
         /// into the exact configuration periods in which they were sent by a specific Primary replica.</para>
         /// </summary>
         /// <param name="epoch">
@@ -902,18 +902,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <para> The maximum sequence number (LSN) that should have been observed in the previous epoch.</para>
         /// </param>
         /// <param name="cancellationToken">
-        /// <para>The <see cref="CancellationToken" /> object that the operation is observing. It can be used to send a notification 
+        /// <para>The <see cref="CancellationToken" /> object that the operation is observing. It can be used to send a notification
         /// that the operation should be canceled. Note that cancellation is advisory and that the operation might still be completed even if it is canceled.</para>
         /// </param>
         /// <returns>
         /// <para>Returns <see cref="Task" />.</para>
         /// </returns>
         /// <remarks>
-        /// <para>This method is called because the Primary replica of the replica set has changed, or a change was attempted. 
-        /// Secondary replicas receive this method either when they are about to become the new Primary replica, or, if they are not the new Primary replica, 
-        /// they receive it when they attempt to get the first operation from the new Primary replica from the replication stream. 
+        /// <para>This method is called because the Primary replica of the replica set has changed, or a change was attempted.
+        /// Secondary replicas receive this method either when they are about to become the new Primary replica, or, if they are not the new Primary replica,
+        /// they receive it when they attempt to get the first operation from the new Primary replica from the replication stream.
         /// Primary replicas might occasionally receive this method if there is an attempt to swap the Primary replica, which fails.</para>
-        /// <para>The information in the <see cref="IStateProvider.UpdateEpochAsync(Epoch,Int64,CancellationToken)" /> 
+        /// <para>The information in the <see cref="IStateProvider.UpdateEpochAsync(Epoch,Int64,CancellationToken)" />
         /// method enables the service to maintain a progress vector, which is a list of each epoch that the replica has received, and the maximum LSN that they contained. The progress vector data along with the current applied maximum LSN is useful for a Secondary replica to send during the copy operation  to describe how far the operation has progressed. Comparing progress vectors that are received from Secondary replicas during the copy operation enables Primary replicas to determine whether the Secondary replica is up-to-date, what state must be sent to the Secondary replica, and whether the Secondary replica has made false progress. False progress means that an LSN in a previous epoch was greater than the LSN that the Primary replica receives. </para>
         /// </remarks>
         Task IStateProvider.UpdateEpochAsync(
@@ -1080,7 +1080,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     out sequenceNumber);
 
                 // We add this state to uncommitted list entries before releasing the
-                // lock. A call to IStateProvider.GetCopyState() can come before we 
+                // lock. A call to IStateProvider.GetCopyState() can come before we
                 // have executed this which will then block on this.replicationLock.
                 this.stateTable.PrepareUpdate(actorStateDataWrapperList, sequenceNumber);
             }

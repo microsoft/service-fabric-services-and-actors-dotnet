@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -101,7 +101,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets the settings for the actor service. 
+        /// Gets the settings for the actor service.
         /// </summary>
         /// <value>
         /// Settings for the actor service.
@@ -152,7 +152,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
-        #region IActorService Members        
+        #region IActorService Members
 
         /// <summary>
         /// Deletes an Actor from the Actor service.
@@ -196,7 +196,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Overrides <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase.CreateServiceReplicaListeners()"/>.
         /// </summary>
-        /// <returns>Endpoint string pairs like 
+        /// <returns>Endpoint string pairs like
         /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}</returns>
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
@@ -210,9 +210,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 return new[]
                 {
-                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListenerV2(this); },
+                    new ServiceReplicaListener(
+                        (t) => { return provider.CreateServiceRemotingListenerV2(this); },
                         ServiceRemotingProviderAttribute.DefaultV2listenerName
-                        )
+                        ),
                 };
             }
             if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
@@ -221,9 +222,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
                         ),
-                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListenerV2(this); },
+                    new ServiceReplicaListener(
+                        (t) => { return provider.CreateServiceRemotingListenerV2(this); },
                         ServiceRemotingProviderAttribute.DefaultV2listenerName
-                        )
+                        ),
                 };
             }
             else
@@ -231,16 +233,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return new[]
                 {
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
-                        )
+                        ),
                 };
             }
 #else
             return new[] {
-                    new ServiceReplicaListener((t) =>
+                    new ServiceReplicaListener(
+                        (t) =>
                     {
                         return provider.CreateServiceRemotingListenerV2(this);
                     }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                )};
+                ),};
 #endif
         }
 
@@ -254,9 +257,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <remarks>
         /// If you need to override this method, please make sure to call this method from your overridden method.
         /// Also make sure your implementation of overridden method conforms to the guideline specified for
-        /// <see cref="StatefulServiceBase.RunAsync(CancellationToken)"/>. 
+        /// <see cref="StatefulServiceBase.RunAsync(CancellationToken)"/>.
         /// <para>
-        /// Failing to do so can cause failover, reconfiguration or upgrade of your actor service to get stuck and 
+        /// Failing to do so can cause failover, reconfiguration or upgrade of your actor service to get stuck and
         /// can impact availibility of your service.
         /// </para>
         /// </remarks>
@@ -333,7 +336,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorId);
         }
 
-        private static IActorStateManager DefaultActorStateManagerFactory(ActorBase actorBase,
+        private static IActorStateManager DefaultActorStateManagerFactory(
+            ActorBase actorBase,
             IActorStateProvider actorStateProvider)
         {
             return new ActorStateManager(actorBase, actorStateProvider);

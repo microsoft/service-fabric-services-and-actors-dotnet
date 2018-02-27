@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1
@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
                 return true;
             }
 
-            //Set Reason for Serialization failure. This can happen in case where serialization succeded 
+            //Set Reason for Serialization failure. This can happen in case where serialization succeded
             //but deserialization fails as type is not accessible
             result = res;
             return false;

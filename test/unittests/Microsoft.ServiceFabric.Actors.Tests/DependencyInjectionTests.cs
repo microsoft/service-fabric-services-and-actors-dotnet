@@ -9,9 +9,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using FluentAssertions;
     using Xunit;
 
     public interface IMockActor : IActor

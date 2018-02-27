@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Client
@@ -12,16 +12,16 @@ namespace Microsoft.ServiceFabric.Services.Client
     /// </summary>
     public sealed class ServicePartitionKey
     {
-        private readonly ServicePartitionKind servicePartitionKind;
-        private readonly object value;
-
         /// <summary>
         /// Returns a ServicePartitionKey that indicates a singleton partition.
         /// </summary>
         public static readonly ServicePartitionKey Singleton = new ServicePartitionKey();
 
+        private readonly ServicePartitionKind servicePartitionKind;
+        private readonly object value;
+
         /// <summary>
-        /// Instantiates a ServicePartitionKey for singleton partitioned service.
+        /// Initializes a new instance of the <see cref="ServicePartitionKey"/> class.
         /// </summary>
         public ServicePartitionKey()
         {
@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// Instantiates a ServicePartitionKey for uniform int64 partitioned service.
+        /// Initializes a new instance of the <see cref="ServicePartitionKey"/> class for uniform int64 partitioned service.
         /// </summary>
         /// <param name="partitionKey">Value of the int64 partition key</param>
         public ServicePartitionKey(long partitionKey)
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// Instantiates a ServicePartitionKey for named partitioned services.
+        /// Initializes a new instance of the <see cref="ServicePartitionKey"/> class for named partitioned services.
         /// </summary>
         /// <param name="partitionKey">Value of the named partition key</param>
         public ServicePartitionKey(string partitionKey)

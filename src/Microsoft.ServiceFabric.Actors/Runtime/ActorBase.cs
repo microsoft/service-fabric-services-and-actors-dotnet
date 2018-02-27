@@ -1,16 +1,16 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Services.Common;
-    using System.Globalization;
 
     /// <summary>
     /// Represents the base class for actors.
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// The base type for actors, that provides the common functionality
     /// for actors that derive from <see cref="Actor"/>.
     /// The state is preserved across actor garbage collections and fail-overs.
-    /// The storage and retrieval of the state is provided by the actor state provider. See 
+    /// The storage and retrieval of the state is provided by the actor state provider. See
     /// <see cref="IActorStateProvider"/> for more information.
     /// </remarks>
     /// <seealso cref="Actor"/>
@@ -248,12 +248,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// It returns a <see cref="System.Threading.Tasks.Task"/> representing the asynchronous operation.
         /// </param>
         /// <param name="state">An object containing information to be used by the callback method, or null.</param>
-        /// <param name="dueTime">The amount of time to delay before the async callback is first invoked. 
-        /// Specify negative one (-1) milliseconds to prevent the timer from starting. 
+        /// <param name="dueTime">The amount of time to delay before the async callback is first invoked.
+        /// Specify negative one (-1) milliseconds to prevent the timer from starting.
         /// Specify zero (0) to start the timer immediately.
         /// </param>
         /// <param name="period">
-        /// The time interval between invocations of the async callback. 
+        /// The time interval between invocations of the async callback.
         /// Specify negative one (-1) milliseconds to disable periodic signaling.</param>
         /// <returns>Returns IActorTimer object.</returns>
         protected IActorTimer RegisterTimer(

@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     using SecondaryPump = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.SecondaryPump;
     using CopyStateEnumerator = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.CopyStateEnumerator;
     using Moq;
-  
+
     using Xunit;
 
 #pragma warning disable xUnit1024
@@ -63,7 +63,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         {
             TestCase("### TestCopyAndReplication ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -232,7 +233,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         {
             TestCase("### TestCopyUpToSequenceNumber ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -401,7 +403,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         {
             TestCase("### TestCopyAndReplicationDelete ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -616,7 +619,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         {
             TestCase("### TestReplication ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);

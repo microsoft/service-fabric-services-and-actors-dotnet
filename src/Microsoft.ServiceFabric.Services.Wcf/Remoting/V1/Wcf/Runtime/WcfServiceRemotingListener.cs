@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         private ICommunicationListener wcfListener;
 
         /// <summary>
-        /// Constructs a WCF based service remoting listener. 
+        /// Constructs a WCF based service remoting listener.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceImplementation">The service implementation object.</param>
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         /// a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
         /// a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
-        /// <param name="endpointResourceName">The name of the endpoint resource defined in the service manifest that 
+        /// <param name="endpointResourceName">The name of the endpoint resource defined in the service manifest that
         /// should be used to create the address for the listener. If the endpointResourceName is not specified or null,
         /// the default value "ServiceEndpoint" is used.
         /// </param>
@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         }
 
         /// <summary>
-        /// Constructs a WCF based service remoting listener. 
+        /// Constructs a WCF based service remoting listener.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="messageHandler">The handler for receiving and processing remoting messages. As the messages are received
@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         /// a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
         /// a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
-        /// <param name="endpointResourceName">The name of the endpoint resource defined in the service manifest that 
+        /// <param name="endpointResourceName">The name of the endpoint resource defined in the service manifest that
         /// should be used to create the address for the listener. If the endpointResourceName is not specified or it is null,
         /// the default value "ServiceEndpoint" is used.
         /// </param>
@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
 
 
         /// <summary>
-        /// Constructs a WCF based service remoting listener. 
+        /// Constructs a WCF based service remoting listener.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="messageHandler">The handler for receiving and processing remoting messages. As the messages are received
@@ -96,7 +96,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         /// a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method.
         /// </param>
         /// <param name="address">The endpoint address to use for the WCF listener. If not specified or null, the endpoint
-        /// address is created using the default endpoint resource named "ServiceEndpoint" defined in the service manifest. 
+        /// address is created using the default endpoint resource named "ServiceEndpoint" defined in the service manifest.
         /// </param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
@@ -124,11 +124,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         }
 
         /// <summary>
-        ///     Gets the <see cref="System.ServiceModel.ServiceHost"/> used by this listener to host the 
+        ///     Gets the <see cref="System.ServiceModel.ServiceHost"/> used by this listener to host the
         ///     WCF service implementation.
         /// </summary>
         /// <value>
-        ///     A <see cref="System.ServiceModel.ServiceHost"/> used by this listener to host the 
+        ///     A <see cref="System.ServiceModel.ServiceHost"/> used by this listener to host the
         ///     WCF service implementation.
         /// </value>
         /// <remarks>
@@ -156,7 +156,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         }
 
         /// <summary>
-        /// This method causes the communication listener to close. Close is a terminal state and 
+        /// This method causes the communication listener to close. Close is a terminal state and
         /// this method allows the communication listener to transition to this state in a
         /// graceful manner.
         /// </summary>
@@ -187,7 +187,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
             private readonly IServiceRemotingMessageHandler messageHandler;
 
             //
-            // The request context need not be generated every time for WCF because for WCF, 
+            // The request context need not be generated every time for WCF because for WCF,
             // the actual callback channel is accessed from the current operation context.
             //
             private readonly WcfServiceRemotingRequestContext requestContext;

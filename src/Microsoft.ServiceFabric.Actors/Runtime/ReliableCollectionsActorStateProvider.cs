@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -10,9 +10,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric;
     using System.Fabric.Common;
     using System.Globalization;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Text;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Data;
@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     /// <summary>
     /// <see cref="ReliableCollectionsActorStateProvider"/> is currently in PREVIEW.
-    /// Provides an implementation of <see cref="IActorStateProvider"/> which 
+    /// Provides an implementation of <see cref="IActorStateProvider"/> which
     /// uses <see cref="IReliableStateManager"/> to store and persist the actor state.
     /// </summary>
     public sealed class ReliableCollectionsActorStateProvider :
@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// with specified configuration. This is currently in PREVIEW.
         /// </summary>
         /// <param name="stateManagerConfig">
-        /// A <see cref="ReliableStateManagerConfiguration"/> that describes <see cref="IReliableStateManager"/> configuration. 
+        /// A <see cref="ReliableStateManagerConfiguration"/> that describes <see cref="IReliableStateManager"/> configuration.
         /// </param>
         public ReliableCollectionsActorStateProvider(ReliableStateManagerConfiguration stateManagerConfig)
             : this(stateManagerConfig, DefaultActorStateDictionaryCount, DefaultReminderDictionaryCount)
@@ -98,7 +98,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         /// <summary>
         /// <see cref="ReliableCollectionsActorStateProvider"/> is currently in PREVIEW.
-        /// Initializes a new instance of the ReliableDictionaryActorStateProvider class 
+        /// Initializes a new instance of the ReliableDictionaryActorStateProvider class
         /// with specified configuration.
         /// </summary>
         /// <param name="stateManagerConfig">
@@ -112,7 +112,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </param>
         /// <remarks>
         /// Values for <paramref name="actorStateDictionaryCount"/> and <paramref name="reminderDictionaryCount"/> can be specified
-        /// only once when the Actor Service is created for first time. It cannot be changed after that and 
+        /// only once when the Actor Service is created for first time. It cannot be changed after that and
         /// <see cref="ReliableCollectionsActorStateProvider"/> will ignore any values that are different from first time.
         /// </remarks>
         public ReliableCollectionsActorStateProvider(
@@ -347,7 +347,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var reminderKeys = new Dictionary<ActorId, IReadOnlyCollection<string>>()
             {
-                { actorId, new List<string>() { reminderkey } }
+                { actorId, new List<string>() { reminderkey } },
             };
 
             await this.DeleteRemindersInternalAsync(reminderKeys, $"DeleteReminderAsync[{actorId}]", cancellationToken);
@@ -1050,7 +1050,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                 }
 
-                // We are here means 'actorIdList' contains less than 'itemsCount' 
+                // We are here means 'actorIdList' contains less than 'itemsCount'
                 // item or it is empty. The continuation token will remain null.
                 actorQueryResult.Items = actorIdList.AsReadOnly();
 

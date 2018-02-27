@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Query
@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// <summary>
         /// Gets or sets Enumerator to iterate over the results.
         /// </summary>
-        /// <value>An Enumerator, which supports a simple iteration over 
+        /// <value>An Enumerator, which supports a simple iteration over
         /// the collection.</value>
         [DataMember(Name = "Items", IsRequired = true, Order = 0)]
         public IEnumerable<T> Items { get; set; }
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// <remarks>A null value of continuation token means that the result contains all the items
         /// and no calls to method needs to be made to fetch more items.</remarks>
         /// <value>ConinutationToken signifying if the method which returned
-        /// the <see cref="PagedResult{T}"/> 
+        /// the <see cref="PagedResult{T}"/>
         /// needs to called again to get more results </value>
         [DataMember(Name = "ContinuationToken", IsRequired = false, Order = 1)]
         public ContinuationToken ContinuationToken { get; set; }

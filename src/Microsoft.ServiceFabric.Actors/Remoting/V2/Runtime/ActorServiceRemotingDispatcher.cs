@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
@@ -29,14 +29,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
 
 
         /// <summary>
-        /// Instantiates the ActorServiceRemotingDispatcher that can dispatch messages to an actor service and 
+        /// Instantiates the ActorServiceRemotingDispatcher that can dispatch messages to an actor service and
         /// to the actors hosted in the service..
         /// </summary>
         /// <param name="actorService">An actor service instance.</param>
         /// <param name="serviceRemotingRequestMessageBodyFactory"></param>
-        public ActorServiceRemotingDispatcher(ActorService actorService,
+        public ActorServiceRemotingDispatcher(
+            ActorService actorService,
             IServiceRemotingMessageBodyFactory serviceRemotingRequestMessageBodyFactory)
-            : base(GetContext(actorService),
+            : base(
+                GetContext(actorService),
                 actorService,
                 serviceRemotingRequestMessageBodyFactory)
         {
@@ -99,7 +101,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             //For Actor Service Requests
             if (!string.IsNullOrEmpty(actorDispatchHeaders.ServiceInterfaceName))
             {
-                return base.HandleRequestResponseAsync(actorDispatchHeaders,
+                return base.HandleRequestResponseAsync(
+                    actorDispatchHeaders,
                     requestBody,
                     cancellationToken);
             }

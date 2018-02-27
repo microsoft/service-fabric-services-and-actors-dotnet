@@ -8,11 +8,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
     using System;
     using System.Fabric;
     using System.Numerics;
-    using System.Threading.Tasks;
     using System.Threading;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Actors;
+    using System.Threading.Tasks;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Moq;
     using Xunit;
 
@@ -37,7 +37,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 Guid.Empty,
                 long.MinValue);
 
-            return new ActorService(serviceContext,
+            return new ActorService(
+                serviceContext,
                 ActorTypeInformation.Get(typeof(DummyActor)));
         }
 
@@ -74,7 +75,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                     RunTest(guard);
                 }
             );
-
             }
             Task.WaitAll(tasks);
         }

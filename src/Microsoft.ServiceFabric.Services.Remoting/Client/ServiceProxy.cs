@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
         /// <summary>
-        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that 
+        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
         /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
@@ -119,7 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         {
             return new ServiceRemotingMessageBody()
             {
-                Value = requestMessageBodyValue
+                Value = requestMessageBodyValue,
             };
         }
 
@@ -132,7 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             var headers = new ServiceRemotingMessageHeaders()
             {
                 InterfaceId = interfaceId,
-                MethodId = methodId
+                MethodId = methodId,
             };
 
             return this.partitionClient.InvokeAsync(
@@ -167,7 +167,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             var headers = new ServiceRemotingRequestMessageHeader()
             {
                 InterfaceId = interfaceId,
-                MethodId = methodId
+                MethodId = methodId,
             };
             return this.partitionClientV2.InvokeAsync(
                 new ServiceRemotingRequestMessage(headers, requestMsgBodyValue),

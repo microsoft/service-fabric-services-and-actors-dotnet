@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
@@ -11,12 +11,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2;
+    using Microsoft.ServiceFabric.FabricTransport.V2.Client;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.FabricTransport.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using SR = Microsoft.ServiceFabric.Services.Remoting.SR;
 
     // how does the serialization provider gets the types?
@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
     // ReSharper disable UnusedParameter.Local
     /// <summary>
-    /// 
+    ///
     /// </summary>
     internal class FabricTransportServiceRemotingClientFactoryImpl : CommunicationClientFactoryBase<FabricTransportServiceRemotingClient>
     {
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         private FabricTransportRemotingSettings settings;
         private readonly NativeFabricTransportMessageDisposer disposer;
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="remotingSettings"></param>
         /// <param name="remotingCallbackMessageHandler"></param>

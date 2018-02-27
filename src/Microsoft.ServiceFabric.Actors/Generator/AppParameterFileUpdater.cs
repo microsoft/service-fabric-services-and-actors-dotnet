@@ -1,13 +1,13 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Fabric.Management.ServiceModel;
+    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class AppParameterFileUpdater
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                         return new AppInstanceDefinitionTypeParameter
                         {
                             Name = string.Format(ParamNameFormat, serviceName, PartitionCountParamName),
-                            Value = LocalFiveNodeDefaultPartitionCount.ToString()
+                            Value = LocalFiveNodeDefaultPartitionCount.ToString(),
                         };
                     });
 
@@ -64,20 +64,20 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     new AppInstanceDefinitionTypeParameter
                     {
                         Name = string.Format(ParamNameFormat, serviceName, PartitionCountParamName),
-                        Value = LocalOneNodeDefaultPartitionCount.ToString()
+                        Value = LocalOneNodeDefaultPartitionCount.ToString(),
                     });
 
                 newAppParams.Add(
                     new AppInstanceDefinitionTypeParameter
                     {
                         Name = string.Format(ParamNameFormat, serviceName, TargetReplicaSetSizeParamName),
-                        Value = LocalOneNodeDefaultTargetReplicaSetSize.ToString()
+                        Value = LocalOneNodeDefaultTargetReplicaSetSize.ToString(),
                     });
                 newAppParams.Add(
                     new AppInstanceDefinitionTypeParameter
                     {
                         Name = string.Format(ParamNameFormat, serviceName, MinReplicaSetSizeParamName),
-                        Value = LocalOneNodeDefaultMinReplicaSetSize.ToString()
+                        Value = LocalOneNodeDefaultMinReplicaSetSize.ToString(),
                     });
             }
 
@@ -87,7 +87,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             Utility.WriteIfNeeded(arguments.AppParamFilePath, appParamFileContents, newContent);
         }
 
-        internal static AppInstanceDefinitionTypeParameter[] MergeAppParams(IEnumerable<AppInstanceDefinitionTypeParameter> existingItems,
+        internal static AppInstanceDefinitionTypeParameter[] MergeAppParams(
+            IEnumerable<AppInstanceDefinitionTypeParameter> existingItems,
             IEnumerable<AppInstanceDefinitionTypeParameter> newItems)
         {
             // Add new parameters if not already exist in the app instance definition file.
@@ -111,7 +112,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             public string AppParamFilePath { get; set; }
 
             public IList<ActorTypeInformation> ActorTypes { get; set; }
-
         }
     }
 }

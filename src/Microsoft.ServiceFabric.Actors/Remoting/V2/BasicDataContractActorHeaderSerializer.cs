@@ -14,9 +14,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
                     {
                         MaxItemsInObjectGraph = int.MaxValue,
                         KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader),
-                            typeof(ActorRemotingMessageHeaders) }
+                            typeof(ActorRemotingMessageHeaders), },
                     }))
         { }
-
     }
 }

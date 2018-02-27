@@ -1,13 +1,13 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System;
-    using System.Linq;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             {
                 Encoding = new UTF8Encoding(false),
                 Indent = true,
-                OmitXmlDeclaration = false
+                OmitXmlDeclaration = false,
             };
         }
 

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -21,10 +21,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Operations are only committed in sequence number order. This is needed
         /// to perform builds correctly - i.e. without sequence number "holes" in
         /// the copy data. ReplicationContext tracks whether a replication operation is
-        /// 
+        ///
         ///     1) quorum acked
         ///     2) completed
-        ///     
+        ///
         /// A replication operation is only completed when it is quorum acked and there
         /// are no other operations with lower sequence numbers that are not yet
         /// quorum acked.
@@ -132,7 +132,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // (while the lock still being held) which then tries to again acquire read/write lock
             // causing System.Threading.LockRecursionException.
             //
-            // In .Net 4.6, TaskCompletionSource.SetResult() accepts an additional argument which 
+            // In .Net 4.6, TaskCompletionSource.SetResult() accepts an additional argument which
             // makes the task associated with TaskCompletionSource execute asynchronously on a different
             // thread. Till we move to .Net 4.6, we will adopt the above approach.
             var committedReplicationContexts = new List<ReplicationContext>();
@@ -240,9 +240,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
 
                     // SortedList<> is designed to be used when we need the list
-                    // to be sorted through its intermediate stages. If the list 
+                    // to be sorted through its intermediate stages. If the list
                     // needs to be sorted only at the end of adding all entries
-                    // then using List<> is better.                     
+                    // then using List<> is better.
                     committedStorageKeyList.Sort();
                 }
 

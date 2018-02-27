@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -13,8 +13,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Data;
 
     /// <summary>
-    /// Represents the interface that an actor state provider needs to implement for 
-    /// actor runtime to communicate with it. 
+    /// Represents the interface that an actor state provider needs to implement for
+    /// actor runtime to communicate with it.
     /// </summary>
     public interface IActorStateProvider : IStateProviderReplica2
     {
@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task ActorActivatedAsync(ActorId actorId, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Invoked when a reminder fires and finishes executing its callback 
+        /// Invoked when a reminder fires and finishes executing its callback
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
         /// <param name="actorId">ID of the actor which own reminder</param>
@@ -70,7 +70,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <remarks>
         /// The collection of state changes should contain only one item for a given state name.
-        /// The save operation will fail on trying to add an actor state which already exists 
+        /// The save operation will fail on trying to add an actor state which already exists
         /// or update/remove an actor state which does not exist.
         /// </remarks>
         /// <exception cref="System.InvalidOperationException">
@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task SaveStateAsync(ActorId actorId, IReadOnlyCollection<ActorStateChange> stateChanges, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Checks whether actor state provider contains an actor state with 
+        /// Checks whether actor state provider contains an actor state with
         /// specified state name for the specified actor ID.
         /// </summary>
         /// <param name="actorId">ID of the actor for which to check state existence.</param>
@@ -134,7 +134,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// The <paramref name="continuationToken"/> is relative to the state of actor state provider
         /// at the time of invocation of this API. If the state of actor state provider changes (i.e.
         /// new actors are activated or existing actors are deleted) in between calls to this API and
-        /// the continuation token from previous call (before the state was modified) is supplied, the 
+        /// the continuation token from previous call (before the state was modified) is supplied, the
         /// result may contain entries that were already fetched in previous calls.
         /// </remarks>
         Task<PagedResult<ActorId>> GetActorsAsync(int numItemsToReturn, ContinuationToken continuationToken, CancellationToken cancellationToken);
@@ -142,7 +142,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Saves the specified actor ID reminder. If an actor reminder with
         /// given name does not exist, it adds the actor reminder otherwise
-        /// existing actor reminder with same name is updated. 
+        /// existing actor reminder with same name is updated.
         /// </summary>
         /// <param name="actorId">ID of the actor for which to save the reminder.</param>
         /// <param name="reminder">Actor reminder to save.</param>

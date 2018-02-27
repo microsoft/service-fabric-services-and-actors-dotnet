@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
@@ -55,11 +55,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                     var methodDispatcher = ServiceCodeBuilder.GetOrCreateMethodDispatcher(interfaceType);
                     this.methodDispatcherMap.Add(methodDispatcher.InterfaceId, methodDispatcher);
                     interfaceDescriptions.Add(ServiceInterfaceDescription.Create(interfaceType));
-
                 }
 
                 this.servicePerformanceCounterProvider =
-                    new ServicePerformanceCounterProvider(serviceContext.PartitionId,
+                    new ServicePerformanceCounterProvider(
+                        serviceContext.PartitionId,
                         serviceContext.ReplicaOrInstanceId,
                         interfaceDescriptions);
             }
@@ -87,7 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
             }
             else
             {
-                if (null != this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
+                if (this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
                 {
                     this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
                 }
@@ -104,13 +104,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                 }
                 finally
                 {
-                    if (null != this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
+                    if (this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
                     {
                         this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
                             .UpdateCounterValue(-1);
                     }
 
-                    if (null != this.servicePerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter)
+                    if (this.servicePerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter != null)
                     {
                         this.servicePerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter
                             .UpdateCounterValue(
@@ -127,7 +127,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         /// <param name="requestContext">Request context - contains additional information about the request</param>
         /// <param name="messageHeaders">Request message headers</param>
         /// <param name="requestBody">Request message body</param>
-        public virtual void HandleOneWay(IServiceRemotingRequestContext requestContext,
+        public virtual void HandleOneWay(
+            IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
         {
             throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, SR.ErrorMethodNotImplemented,
@@ -139,7 +140,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         {
             if (!this.methodDispatcherMap.TryGetValue(headers.InterfaceId, out var methodDispatcher))
             {
-                throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture,
+                throw new NotImplementedException(string.Format(
+                    CultureInfo.CurrentCulture,
                     SR.ErrorInterfaceNotImplemented, headers.InterfaceId, this.service));
             }
             Task<object> dispatchTask = null;
@@ -162,7 +164,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
             {
                 var info = ExceptionDispatchInfo.Capture(e);
                 this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                (headers.InterfaceId,
+                (
+                    headers.InterfaceId,
                     headers.MethodId,
                     stopwatch.Elapsed, e);
                 info.Throw();
@@ -181,14 +184,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                         var info = ExceptionDispatchInfo.Capture(e);
 
                         this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                        (headers.InterfaceId,
+                        (
+                            headers.InterfaceId,
                             headers.MethodId,
                             stopwatch.Elapsed, e);
                         info.Throw();
                     }
 
                     this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                    (headers.InterfaceId,
+                    (
+                        headers.InterfaceId,
                         headers.MethodId,
                         stopwatch.Elapsed);
 

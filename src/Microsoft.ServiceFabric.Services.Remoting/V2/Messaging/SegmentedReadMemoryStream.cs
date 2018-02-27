@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         {
             var tempBuffers = new List<ArraySegment<byte>>
             {
-                readbuffer
+                readbuffer,
             };
             this.length = 0;
             this.readbuffers = tempBuffers;
@@ -91,10 +91,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
                 case SeekOrigin.Begin:
                     this.Initialize();
                     return this.Position;
-
             }
             throw new NotImplementedException();
-
         }
 
         public override void SetLength(long value)

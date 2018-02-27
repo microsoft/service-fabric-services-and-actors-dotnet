@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors
         [NonEvent]
         internal void WriteErrorWithId(string type, string id, string format, params object[] args)
         {
-            if (null == args || 0 == args.Length)
+            if (args == null || args.Length == 0)
             {
                 Instance.ErrorText(id, type, format);
             }
@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Actors
         [NonEvent]
         internal void WriteInfoWithId(string type, string id, string format, params object[] args)
         {
-            if (null == args || 0 == args.Length)
+            if (args == null || args.Length == 0)
             {
                 Instance.InfoText(id, type, format);
             }
@@ -121,7 +121,7 @@ namespace Microsoft.ServiceFabric.Actors
         [NonEvent]
         internal void WriteNoiseWithId(string type, string id, string format, params object[] args)
         {
-            if (null == args || 0 == args.Length)
+            if (args == null || args.Length == 0)
             {
                 Instance.NoiseText(id, type, format);
             }

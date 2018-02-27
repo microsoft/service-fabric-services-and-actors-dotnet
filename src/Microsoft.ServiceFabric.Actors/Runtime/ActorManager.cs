@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -195,7 +195,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 try
                 {
                     await
-                        actor.ConcurrencyLock.Acquire(callContext,
+                        actor.ConcurrencyLock.Acquire(
+                            callContext,
                             (async innerActor => await this.HandleDirtyStateAsync(innerActor)), cancellationToken);
                 }
                 catch
@@ -206,12 +207,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 //
                 // WARNING: DO NOT PUT ANY CODE BETWEEN CONCURRENCY LOCK ACQUIRE AND TRY
-                // THE LOCK NEEDS TO BE RELEASED IF THERE IS ANY EXCEPTION 
-                // 
+                // THE LOCK NEEDS TO BE RELEASED IF THERE IS ANY EXCEPTION
+                //
                 try
                 {
                     // Emit diagnostic info - after acquiring actor lock
-                    lockAcquireFinishTime = this.DiagnosticsEventManager.AcquireActorLockFinish(actor,
+                    lockAcquireFinishTime = this.DiagnosticsEventManager.AcquireActorLockFinish(
+                        actor,
                         lockAcquireStartTime);
 
                     retval =
@@ -235,7 +237,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // WARNING: DO NOT PUT ANY CODE BELOW BEFORE THE LOCK IS RELEASED
                 // BECAUSE WE ARE NOT INSIDE A TRY-CATCH BLOCK
                 //
-                // signal that current execution is finished on this actor 
+                // signal that current execution is finished on this actor
                 // since there is no call pending or this was the first actor call in the callContext
                 await actor.ConcurrencyLock.ReleaseContext(callContext);
 
@@ -466,7 +468,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             if (!this.HasRemindersLoaded)
             {
-                throw new ReminderLoadInProgressException(string.Format(CultureInfo.CurrentCulture,
+                throw new ReminderLoadInProgressException(string.Format(
+                    CultureInfo.CurrentCulture,
                     SR.DeleteActorConflictWithLoadReminders, actorId));
             }
 
@@ -596,7 +599,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Returns Actors list by querying state provider for Actors.
         /// </summary>
-        public async Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(ContinuationToken continuationToken,
+        public async Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(
+            ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
             // Get the Actors list from State provider and mark them Active or Inactive
@@ -611,7 +615,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return new PagedResult<ActorInformation>()
             {
                 Items = actorInfos,
-                ContinuationToken = queryResult.ContinuationToken
+                ContinuationToken = queryResult.ContinuationToken,
             };
         }
 
@@ -621,7 +625,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public string GetActorTraceId(ActorId actorId)
         {
-            return ActorTrace.GetTraceIdForActor(this.actorService.Context.PartitionId,
+            return ActorTrace.GetTraceIdForActor(
+                this.actorService.Context.PartitionId,
                 this.actorService.Context.ReplicaId, actorId);
         }
 
@@ -643,7 +648,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             object requestBody,
             CancellationToken innerCancellationToken)
         {
-            var actorInterfaceMethodKey = DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId,
+            var actorInterfaceMethodKey = DiagnosticsEventManager.GetInterfaceMethodKey(
+                (uint)interfaceId,
                 (uint)methodId);
             this.DiagnosticsEventManager.ActorMethodStart(actorInterfaceMethodKey, actor, RemotingListener.V1Listener);
 
@@ -746,7 +752,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (actor.MarkedForDeletion || actor.IsDummy)
             {
                 // Deleted Actor, Method calls will be retried by Actor Proxy.
-                throw new ActorDeletedException(string.Format(CultureInfo.CurrentCulture,
+                throw new ActorDeletedException(string.Format(
+                    CultureInfo.CurrentCulture,
                     SR.ActorDeletedExceptionMessage, actorId));
             }
 
@@ -938,7 +945,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                                                         this.actorService.Settings.ActorGarbageCollectionSettings
                                                             .ScanIntervalInSeconds;
                     scanIntervalInMilliseconds += (scanIntervalInMilliseconds * this.random.Next(0, 10)) / 100;
-                    this.gcTimer.Change(TimeSpan.FromMilliseconds(scanIntervalInMilliseconds),
+                    this.gcTimer.Change(
+                        TimeSpan.FromMilliseconds(scanIntervalInMilliseconds),
                         TimeSpan.FromMilliseconds(-1));
                 }
             }
@@ -962,7 +970,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (deactivatedActors.Count > 0)
             {
 #pragma warning disable 4014
-                // let the thread continue and deactivate the actors 
+                // let the thread continue and deactivate the actors
                 // in asynchronous manner and then reset the GC timer
                 this.DeactivateActorsAsync(deactivatedActors);
 #pragma warning restore 4014
@@ -1151,7 +1159,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 remainingDueTime,
                 saveState);
 
-            var reminderDictionary = this.remindersByActorId.GetOrAdd(actorReminder.OwnerActorId,
+            var reminderDictionary = this.remindersByActorId.GetOrAdd(
+                actorReminder.OwnerActorId,
                 k => new ConcurrentDictionary<string, ActorReminder>());
 
             reminderDictionary.AddOrUpdate(
@@ -1264,7 +1273,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var reminderNames = new Dictionary<ActorId, IReadOnlyCollection<string>>
                 {
-                    { actorId, remindersToDelete }
+                    { actorId, remindersToDelete },
                 };
 
                 await this.StateProvider.DeleteRemindersAsync(reminderNames, cancellationToken);

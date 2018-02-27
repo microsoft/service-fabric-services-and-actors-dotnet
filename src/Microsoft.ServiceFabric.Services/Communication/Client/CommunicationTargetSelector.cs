@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -44,6 +44,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// established for to any secondary replica chosen in random.
         /// This is not valid for stateless service partitions
         /// </summary>
-        RandomSecondaryReplica = 2
+        RandomSecondaryReplica = 2,
     }
 }

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
 
         /// <summary>
-        ///This method is used to dispatch request to the specified methodId of the 
+        ///This method is used to dispatch request to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
         /// <param name="objectImplementation"></param>
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// This method is used to dispatch one way messages to the specified methodId of the 
+        /// This method is used to dispatch one way messages to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
         /// <param name="objectImplementation"></param>
@@ -77,7 +77,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="methodId"></param>
         /// <returns></returns>
@@ -85,11 +85,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         {
             return this.methodNameMap[methodId];
         }
-
-
-
-
-
-
     }
 }

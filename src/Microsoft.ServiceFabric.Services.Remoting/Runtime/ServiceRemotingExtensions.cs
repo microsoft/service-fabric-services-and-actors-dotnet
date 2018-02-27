@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
     /// <summary>
     /// This class adds extensions methods to create <see cref="IServiceRemotingListener"/>
-    /// for remoting methods of the service interfaces that are derived from 
+    /// for remoting methods of the service interfaces that are derived from
     /// <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.
     /// </summary>
     public static class ServiceRemotingExtensions
@@ -85,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
                         }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                    ),
                 };
             }
 
@@ -103,7 +103,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
                         }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                    ),
                 };
             }
             else
@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         {
                             return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
                         }
-                    )
+                    ),
                 };
             }
 
@@ -126,7 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
                         }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                    ),
                 };
 #endif
         }
@@ -177,7 +177,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
                         }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                    ),
                 };
             }
             else
@@ -188,7 +188,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         {
                             return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
                         }
-                    )
+                    ),
                 };
             }
 #else

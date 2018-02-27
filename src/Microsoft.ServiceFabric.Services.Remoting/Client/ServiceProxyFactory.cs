@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
 
         /// <summary>
-        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that 
+        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
         /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
@@ -85,7 +85,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// </param>
         /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="IServiceProxy"/> interface.</returns>
         /// </summary>
-        public TServiceInterface CreateServiceProxy<TServiceInterface>(Uri serviceUri,
+        public TServiceInterface CreateServiceProxy<TServiceInterface>(
+            Uri serviceUri,
             ServicePartitionKey partitionKey = null,
             TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
             where TServiceInterface : IService
@@ -109,24 +110,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 {
                     this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
                 }
-
             }
 
             if (this.proxyFactoryV1 != null)
             {
-                return this.proxyFactoryV1.CreateServiceProxy<TServiceInterface>(serviceUri,
+                return this.proxyFactoryV1.CreateServiceProxy<TServiceInterface>(
+                    serviceUri,
                     partitionKey,
                     targetReplicaSelector,
                     listenerName);
             }
             if (this.overrideListenerName && listenerName == null)
             {
-                return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
+                return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
+                    serviceUri,
                     partitionKey,
                     targetReplicaSelector,
                     ServiceRemotingProviderAttribute.DefaultV2listenerName);
             }
-            return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
+            return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
+                serviceUri,
                 partitionKey,
                 targetReplicaSelector,
                 listenerName);
@@ -141,12 +144,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             }
             if (this.overrideListenerName && listenerName == null)
             {
-                return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
+                return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
+                    serviceUri,
                     partitionKey,
                     targetReplicaSelector,
                     ServiceRemotingProviderAttribute.DefaultV2listenerName);
             }
-            return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(serviceUri,
+            return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
+                serviceUri,
               partitionKey,
               targetReplicaSelector,
               listenerName);
@@ -155,7 +160,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
 
         /// <summary>
-        /// Creates a proxy  to communicate to the specified service using the remoted interface TServiceInterface that 
+        /// Creates a proxy  to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
         /// <typeparam name="TServiceInterface">Interface that is being remoted . Service Interface does not need to be inherited from IService.</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
@@ -167,7 +172,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// </param>
         /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="IServiceProxy"/> interface.</returns>
         /// </summary>
-        public TServiceInterface CreateNonIServiceProxy<TServiceInterface>(Uri serviceUri,
+        public TServiceInterface CreateNonIServiceProxy<TServiceInterface>(
+            Uri serviceUri,
             ServicePartitionKey partitionKey = null,
             TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
         {
@@ -179,7 +185,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
                 this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
             }
-            return this.proxyFactoryV2.CreateNonIServiceProxy<TServiceInterface>(serviceUri,
+            return this.proxyFactoryV2.CreateNonIServiceProxy<TServiceInterface>(
+                serviceUri,
                 partitionKey,
                 targetReplicaSelector,
                 listenerName);
@@ -188,8 +195,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private ServiceRemotingProviderAttribute GetProviderAttribute(Type serviceInterfaceType)
         {
             return ServiceRemotingProviderAttribute.GetProvider(new[] { serviceInterfaceType });
-
         }
-
     }
 }

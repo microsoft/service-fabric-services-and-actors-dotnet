@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
@@ -71,8 +71,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
                 Value = new EventSubscriptionRequestBody()
                 {
                     eventInterfaceId = eventInterfaceId,
-                    subscriptionId = subscriberId
-                }
+                    subscriptionId = subscriberId,
+                },
             };
 
             var msgBodyBytes = SerializationUtility.Serialize(ActorEventSubscription.Serializer, msgBody);
@@ -100,8 +100,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
                 Value = new EventSubscriptionRequestBody()
                 {
                     eventInterfaceId = eventInterfaceId,
-                    subscriptionId = subscriberId
-                }
+                    subscriptionId = subscriberId,
+                },
             };
 
             var msgBodyBytes = SerializationUtility.Serialize(ActorEventSubscription.Serializer, msgBody);

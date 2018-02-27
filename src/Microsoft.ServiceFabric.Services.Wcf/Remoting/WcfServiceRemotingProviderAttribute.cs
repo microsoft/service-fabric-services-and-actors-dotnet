@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
@@ -26,7 +26,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         /// </summary>
         public WcfServiceRemotingProviderAttribute()
         {
-
         }
         /// <summary>
         ///     Gets or Sets the maximum message size that can be transferred over remoting.
@@ -91,8 +90,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
 
 
         /// <summary>
-        ///     Creates a V1 service remoting client factory that can be used by the 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/> 
+        ///     Creates a V1 service remoting client factory that can be used by the
+        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/>
         ///     to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackClient">
@@ -113,8 +112,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         }
 
         /// <summary>
-        ///     Creates a service remoting client factory that can be used by the 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/> 
+        ///     Creates a service remoting client factory that can be used by the
+        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/>
         ///     to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">

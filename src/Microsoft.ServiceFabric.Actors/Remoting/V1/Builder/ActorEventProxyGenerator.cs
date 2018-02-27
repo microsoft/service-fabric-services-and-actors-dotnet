@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
             IProxyActivator proxyActivator,
             IDictionary<int, IEnumerable<Type>> requestBodyTypes,
             // interfaceId -> RequestBodyTypes
-            IDictionary<int, IEnumerable<Type>> responseBodyTypes) // interfaceId -> ResponseBodyTypes) 
+            IDictionary<int, IEnumerable<Type>> responseBodyTypes) // interfaceId -> ResponseBodyTypes)
             : base(actorEventInterfaceType, GetBodySerializers(requestBodyTypes), GetBodySerializers(responseBodyTypes))
         {
             this.proxyActivator = proxyActivator;

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     public interface IServiceProxyFactory
     {
         /// <summary>
-        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that 
+        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
         /// <typeparam name="TServiceInterface">The interface that is being remoted.</typeparam>
         /// <param name="serviceUri">The Uri of the Service.</param>

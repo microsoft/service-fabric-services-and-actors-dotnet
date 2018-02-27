@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf
@@ -19,10 +19,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
         public static readonly string FaultSubCodeRetryName = "Retry";
         public static readonly string FaultSubCodeThrowName = "Throw";
 
-        public static readonly FaultCode FaultCodeRetry = new FaultCode(FaultCodeName,
+        public static readonly FaultCode FaultCodeRetry = new FaultCode(
+            FaultCodeName,
             new FaultCode(FaultSubCodeRetryName));
 
-        public static readonly FaultCode FaultCodeThrow = new FaultCode(FaultCodeName,
+        public static readonly FaultCode FaultCodeThrow = new FaultCode(
+            FaultCodeName,
             new FaultCode(FaultSubCodeThrowName));
 
         private static readonly DataContractSerializer Serializer =
@@ -60,7 +62,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                     Microsoft.ServiceFabric.Services.Wcf.SR.ErrorExceptionSerializationFailed2,
                     exception);
 
-                var exceptionData = new ServiceExceptionData(exception.GetType().FullName,
+                var exceptionData = new ServiceExceptionData(
+                    exception.GetType().FullName,
                     exceptionStringBuilder.ToString());
                 if (TrySerializeExceptionData(exceptionData, out var result))
                 {
@@ -82,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                 var settings = new XmlReaderSettings
                 {
                     DtdProcessing = DtdProcessing.Prohibit,
-                    XmlResolver = null
+                    XmlResolver = null,
                 };
                 using (var textStream = XmlReader.Create(stringReader, settings))
                 {
@@ -133,7 +136,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                 var settings = new XmlReaderSettings
                 {
                     DtdProcessing = DtdProcessing.Prohibit,
-                    XmlResolver = null
+                    XmlResolver = null,
                 };
                 using (var textStream = XmlReader.Create(stringReader, settings))
                 {

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -16,9 +16,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         LogicalCallContext = 1,
 
         /// <summary>
-        /// Disallows actors to be reentrant. In this case if an actor sends a reentrant message to another 
+        /// Disallows actors to be reentrant. In this case if an actor sends a reentrant message to another
         /// actor, an exception of type <see cref="System.Fabric.FabricException"/> will be thrown.
         /// </summary>
-        Disallowed = 2
+        Disallowed = 2,
     }
 }

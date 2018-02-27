@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Common
@@ -11,15 +11,15 @@ namespace Microsoft.ServiceFabric.Services.Common
 
     internal static class DebugUtility
     {
-        public static TimeSpan DefaultDebugAttachWaitDuration { get; set; }
-
-        public static TimeSpan DefaultDebugAttachCheckDuration { get; set; }
-
         static DebugUtility()
         {
             DefaultDebugAttachWaitDuration = TimeSpan.FromSeconds(180);
             DefaultDebugAttachCheckDuration = TimeSpan.FromSeconds(1);
         }
+
+        public static TimeSpan DefaultDebugAttachWaitDuration { get; set; }
+
+        public static TimeSpan DefaultDebugAttachCheckDuration { get; set; }
 
         public static void WaitForDebuggerAttach()
         {

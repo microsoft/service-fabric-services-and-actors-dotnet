@@ -1,13 +1,13 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Tests
 {
     using System;
-    using System.Numerics;
     using System.Fabric;
+    using System.Numerics;
     using Moq;
 
     /// <summary>
@@ -23,7 +23,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
         internal static StatefulServiceContext GetMockStatefulServiceContext()
         {
-            return new StatefulServiceContext(GetNodeContext(),
+            return new StatefulServiceContext(
+                GetNodeContext(),
                 GetCodePackageActivationContext(),
                 MockServiceTypeName,
                 MockServiceUri,
@@ -34,7 +35,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
         internal static StatelessServiceContext GetMockStatelessServiceContext()
         {
-            return new StatelessServiceContext(GetNodeContext(),
+            return new StatelessServiceContext(
+                GetNodeContext(),
                 GetCodePackageActivationContext(),
                 MockServiceTypeName,
                 MockServiceUri,
@@ -44,7 +46,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
         }
         public static NodeContext GetNodeContext()
         {
-            return new NodeContext("MockNode",
+            return new NodeContext(
+                "MockNode",
                 new NodeId(BigInteger.Zero, BigInteger.Zero),
                 BigInteger.Zero,
                 "MockNodeType",

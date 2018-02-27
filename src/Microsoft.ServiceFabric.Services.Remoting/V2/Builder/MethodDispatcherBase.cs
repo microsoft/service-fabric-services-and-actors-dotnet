@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
         /// <summary>
-        /// This method is used ti create the remoting response from the specified return value 
+        /// This method is used ti create the remoting response from the specified return value
         /// </summary>
         /// <param name="interfaceName"></param>
         /// <param name="methodName"></param>
@@ -40,13 +40,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
 
-        ////Why we pass IServiceRemotingMessageBodyFactory to this function instead of 
-        /// setting at class level?. Since we cache MethodDispatcher for each interface , 
+        ////Why we pass IServiceRemotingMessageBodyFactory to this function instead of
+        /// setting at class level?. Since we cache MethodDispatcher for each interface ,
         /// we can't set IServiceRemotingMessageBodyFactory at class level .
         /// These can be cases where multiple IServiceRemotingMessageBodyFactory implmenetation
         ///  but single dispatcher class .
         /// <summary>
-        ///This method is used to dispatch request to the specified methodId of the 
+        ///This method is used to dispatch request to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
         /// <param name="objectImplementation"></param>
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
         /// <summary>
-        /// This method is used to dispatch one way messages to the specified methodId of the 
+        /// This method is used to dispatch one way messages to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
         /// <param name="objectImplementation"></param>
@@ -85,13 +85,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
         /// <summary>
-        /// This method is implemented by the generated method dispatcher to dispatch request to the specified methodId of the 
+        /// This method is implemented by the generated method dispatcher to dispatch request to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
         protected abstract Task<IServiceRemotingResponseMessageBody> OnDispatchAsync(int methodId, object remotedObject, IServiceRemotingRequestMessageBody requestBody, IServiceRemotingMessageBodyFactory remotingMessageBodyFactory, CancellationToken cancellationToken);
 
         /// <summary>
-        /// This method is implemented by the generated method dispatcher to dispatch one way messages to the specified methodId of the 
+        /// This method is implemented by the generated method dispatcher to dispatch one way messages to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
         /// <param name="methodId"></param>

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Common
@@ -32,15 +32,20 @@ namespace Microsoft.ServiceFabric.Services.Common
             private readonly ReaderWriterLockSlim rwLock;
             private bool isDisposed;
 
-            protected ReaderWriterLockSlim Lock
-            {
-                get { return this.rwLock; }
-            }
-
             protected DisposableLockBase(ReaderWriterLockSlim rwLock)
             {
                 this.rwLock = rwLock;
                 this.isDisposed = false;
+            }
+
+            ~DisposableLockBase()
+            {
+                this.Dispose(false);
+            }
+
+            protected ReaderWriterLockSlim Lock
+            {
+                get { return this.rwLock; }
             }
 
             void IDisposable.Dispose()
@@ -62,12 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Common
             }
 
             protected abstract void OnDispose();
-
-            ~DisposableLockBase()
-            {
-                this.Dispose(false);
-            }
-        };
+        }
 
         private class DisposableReadLock : DisposableLockBase
         {
@@ -81,7 +81,7 @@ namespace Microsoft.ServiceFabric.Services.Common
             {
                 this.Lock.ExitReadLock();
             }
-        };
+        }
 
         private class DisposableWriteLock : DisposableLockBase
         {
@@ -95,6 +95,6 @@ namespace Microsoft.ServiceFabric.Services.Common
             {
                 this.Lock.ExitWriteLock();
             }
-        };
+        }
     }
 }

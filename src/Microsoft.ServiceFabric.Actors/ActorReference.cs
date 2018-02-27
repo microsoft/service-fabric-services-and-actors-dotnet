@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors
         public string ListenerName { get; set; }
 
         /// <summary>
-        /// Creates an <see cref="ActorProxy"/> that implements an actor interface for the actor using the 
+        /// Creates an <see cref="ActorProxy"/> that implements an actor interface for the actor using the
         ///     <see cref="ActorProxyFactory.CreateActorProxy(System.Type,System.Uri, Microsoft.ServiceFabric.Actors.ActorId,System.String)"/>
         /// method.
         /// </summary>
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors
                     {
                         ActorId = actorProxy.ActorId,
                         ServiceUri = actorProxy.ActorServicePartitionClient.ServiceUri,
-                        ListenerName = actorProxy.ActorServicePartitionClient.ListenerName
+                        ListenerName = actorProxy.ActorServicePartitionClient.ListenerName,
                     };
                 }
 #endif
@@ -100,7 +100,7 @@ namespace Microsoft.ServiceFabric.Actors
                 {
                     ActorId = actorProxy.ActorId,
                     ServiceUri = actorProxy.ActorServicePartitionClientV2.ServiceUri,
-                    ListenerName = actorProxy.ActorServicePartitionClientV2.ListenerName
+                    ListenerName = actorProxy.ActorServicePartitionClientV2.ListenerName,
                 };
             }
 

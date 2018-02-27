@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -60,7 +60,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
                     actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 this.InitializeActorMethodInfo(actorInterfaceMethodDescriptions, interfaceId, this.actorMethodInfo);
-
             }
         }
 
@@ -74,11 +73,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 var ami = new ActorMethodInfo()
                 {
                     MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
-                    MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString()
+                    MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString(),
                 };
 
                 var key =
-                    DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId,
+                    DiagnosticsEventManager.GetInterfaceMethodKey(
+                        (uint)interfaceId,
                         (uint)actorInterfaceMethodDescription.Id);
                 actorMethodInfos[key] = ami;
             }
@@ -86,11 +86,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         private void OnActorChangeRole(ChangeRoleDiagnosticData changeRoleData)
         {
-            if (ReplicaRole.Primary == changeRoleData.NewRole)
+            if (changeRoleData.NewRole == ReplicaRole.Primary)
             {
                 this.writer.ReplicaChangeRoleToPrimary(this.serviceContext);
             }
-            else if (ReplicaRole.Primary == changeRoleData.CurrentRole)
+            else if (changeRoleData.CurrentRole == ReplicaRole.Primary)
             {
                 this.writer.ReplicaChangeRoleFromPrimary(this.serviceContext);
             }
@@ -138,7 +138,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         [SuppressMessage("ReSharper", "PossibleInvalidOperationException")]
         private void OnActorMethodFinish(ActorMethodDiagnosticData methodData)
         {
-            if (null == methodData.Exception)
+            if (methodData.Exception == null)
             {
                 if (this.writer.IsActorMethodStopEventEnabled())
                 {

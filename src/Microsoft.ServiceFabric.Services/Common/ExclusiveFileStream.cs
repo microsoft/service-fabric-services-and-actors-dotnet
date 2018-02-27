@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Common
@@ -16,16 +16,15 @@ namespace Microsoft.ServiceFabric.Services.Common
         private const int MinRetryIntervalMillis = 100;
         private static readonly Random Rand = new Random();
 
-        public FileStream Value { get; private set; }
-
         private ExclusiveFileStream(FileStream stream)
         {
             this.Value = stream;
         }
 
-        public void Dispose()
+        public FileStream Value
         {
-            this.Value.Dispose();
+            get;
+            private set;
         }
 
         public static ExclusiveFileStream Acquire(
@@ -57,6 +56,11 @@ namespace Microsoft.ServiceFabric.Services.Common
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            this.Value.Dispose();
         }
     }
 }

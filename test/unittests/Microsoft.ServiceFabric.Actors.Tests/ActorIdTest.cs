@@ -88,7 +88,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             TestCompareTo(new ActorId("0"), new ActorId("-234"), ExpectedComparisionResult.More);
 
             TestCompareTo(new ActorId(Guid.Empty), new ActorId(Guid.Empty.ToString()), ExpectedComparisionResult.Less);
-
         }
 
         private static void TestEqualityLong(long lx, long ly)
@@ -278,7 +277,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         {
             Less,
             Equals,
-            More
+            More,
         }
     }
 }

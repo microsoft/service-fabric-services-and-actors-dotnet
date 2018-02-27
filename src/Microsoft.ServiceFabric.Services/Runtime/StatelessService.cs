@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Runtime
@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
     /// <summary>
-    /// Represents the Microsoft Service Fabric based stateless reliable service base class. 
+    /// Represents the Microsoft Service Fabric based stateless reliable service base class.
     /// Derive from this class to implement a Microsoft Service Fabric based stateless reliable service.
     /// </summary>
     public abstract class StatelessService : IStatelessUserServiceInstance
@@ -25,12 +25,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private IReadOnlyDictionary<string, string> addresses;
 
         /// <summary>
-        /// Creates a new <see cref="StatelessService"/> instance.
+        /// Initializes a new instance of the <see cref="StatelessService"/> class.
         /// </summary>
-        /// <param name="serviceContext">
-        /// A <see cref="StatelessServiceContext"/> that describes the service context.
-        /// </param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="serviceContext">A <see cref="StatelessServiceContext"/> that describes the context in which service is created.</param>
         protected StatelessService(StatelessServiceContext serviceContext)
         {
             if (serviceContext == null)
@@ -40,6 +37,69 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+        }
+
+        /// <summary>
+        /// Gets the service context that this stateless service is operating under. It provides
+        /// information like InstanceId, PartitionId, ServiceName etc.
+        /// </summary>
+        /// <value>
+        /// A <see cref="StatelessServiceContext"/> that describes the service context.
+        /// </value>
+        public StatelessServiceContext Context
+        {
+            get { return this.serviceContext; }
+        }
+
+        /// <inheritdoc/>
+        IReadOnlyDictionary<string, string> IStatelessUserServiceInstance.Addresses
+        {
+            set { Volatile.Write(ref this.addresses, value); }
+        }
+
+        /// <inheritdoc/>
+        IStatelessServicePartition IStatelessUserServiceInstance.Partition
+        {
+            set { this.Partition = value; }
+        }
+
+        /// <summary>
+        /// Gets service partition that this service instance belongs to.
+        /// </summary>
+        /// <value>
+        /// An <see cref="IStatelessServicePartition"/> that represents the
+        /// partition to which this service replica belongs.
+        /// </value>
+        protected IStatelessServicePartition Partition { get; private set; }
+
+        /// <inheritdoc/>
+        IEnumerable<ServiceInstanceListener> IStatelessUserServiceInstance.CreateServiceInstanceListeners()
+        {
+            return this.CreateServiceInstanceListeners();
+        }
+
+        /// <inheritdoc/>
+        Task IStatelessUserServiceInstance.OnOpenAsync(CancellationToken cancellationToken)
+        {
+            return this.OnOpenAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        Task IStatelessUserServiceInstance.RunAsync(CancellationToken cancellationToken)
+        {
+            return this.RunAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        Task IStatelessUserServiceInstance.OnCloseAsync(CancellationToken cancellationToken)
+        {
+            return this.OnCloseAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        void IStatelessUserServiceInstance.OnAbort()
+        {
+            this.OnAbort();
         }
 
         /// <summary>
@@ -56,29 +116,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Gets the service context that this stateless service is operating under. It provides
-        /// information like InstanceId, PartitionId, ServiceName etc.
-        /// </summary>
-        /// <value>
-        /// A <see cref="StatelessServiceContext"/> that describes the service context.
-        /// </value>
-        public StatelessServiceContext Context
-        {
-            get { return this.serviceContext; }
-        }
-
-        /// <summary>
-        /// Service partition to which current service instance belongs. 
-        /// </summary>
-        /// <value>
-        /// An <see cref="IStatelessServicePartition"/> that represents the 
-        /// partition to which this service replica belongs.
-        /// </value>
-        protected IStatelessServicePartition Partition { get; private set; }
-
-        /// <summary>
         /// Override this method to supply the communication listeners for the service instance. The endpoints returned by the communication listener's
-        /// are stored as a JSON string of ListenerName, Endpoint string pairs like 
+        /// are stored as a JSON string of ListenerName, Endpoint string pairs like
         /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// <para>
         /// For information about Reliable Services life cycle please see
@@ -125,9 +164,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <list type="bullet">
         ///     <item>
         ///         <description>
-        ///         Make sure <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/> is honored and once 
+        ///         Make sure <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/> is honored and once
         ///         it has been signaled, <see cref="RunAsync"/> exits gracefully as soon as possible. Please note that
-        ///         if <see cref="RunAsync"/> has finished its intended work, it does not need to wait for 
+        ///         if <see cref="RunAsync"/> has finished its intended work, it does not need to wait for
         ///         <paramref name="cancellationToken"/> to be signaled and can return gracefully.
         ///         </description>
         ///     </item>
@@ -138,7 +177,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         ///         <list type="bullet">
         ///             <item>
         ///                 <description>
-        ///                 If a <see cref="FabricException"/> (or one of its derived exception) escapes from <see cref="RunAsync"/>, 
+        ///                 If a <see cref="FabricException"/> (or one of its derived exception) escapes from <see cref="RunAsync"/>,
         ///                 Service Fabric runtime will drop this service instance and a new instance will be created. A health warning
         ///                 will be appear in Service Fabric Explorer containing details about unhandled exception.
         ///                 </description>
@@ -154,7 +193,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         ///                 <description>
         ///                 If an <see cref="OperationCanceledException"/> escapes from <see cref="RunAsync"/> and Service Fabric runtime
         ///                 has NOT requested cancellation by signaling <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/>,
-        ///                 the process that is hosting this service instance is brought down. This will impact all other service instances 
+        ///                 the process that is hosting this service instance is brought down. This will impact all other service instances
         ///                 that are hosted by the same process. The details about unhandled exceptions can be viewed in Windows Event Viewer.
         ///                 </description>
         ///             </item>
@@ -206,41 +245,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// </summary>
         protected virtual void OnAbort()
         {
-        }
-
-        IReadOnlyDictionary<string, string> IStatelessUserServiceInstance.Addresses
-        {
-            set { Volatile.Write(ref this.addresses, value); }
-        }
-
-        IStatelessServicePartition IStatelessUserServiceInstance.Partition
-        {
-            set { this.Partition = value; }
-        }
-
-        IEnumerable<ServiceInstanceListener> IStatelessUserServiceInstance.CreateServiceInstanceListeners()
-        {
-            return this.CreateServiceInstanceListeners();
-        }
-
-        Task IStatelessUserServiceInstance.OnOpenAsync(CancellationToken cancellationToken)
-        {
-            return this.OnOpenAsync(cancellationToken);
-        }
-
-        Task IStatelessUserServiceInstance.RunAsync(CancellationToken cancellationToken)
-        {
-            return this.RunAsync(cancellationToken);
-        }
-
-        Task IStatelessUserServiceInstance.OnCloseAsync(CancellationToken cancellationToken)
-        {
-            return this.OnCloseAsync(cancellationToken);
-        }
-
-        void IStatelessUserServiceInstance.OnAbort()
-        {
-            this.OnAbort();
         }
     }
 }

@@ -5,8 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Generator
 {
-    using Microsoft.ServiceFabric.Actors.Generator;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Actors.Generator;
     using Xunit;
 
     public class ActorNameFormatTests

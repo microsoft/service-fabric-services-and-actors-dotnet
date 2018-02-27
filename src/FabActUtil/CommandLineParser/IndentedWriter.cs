@@ -1,81 +1,66 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace FabActUtil.CommandLineParser
 {
-    using System;
     using System.IO;
     using System.Text;
 
     /// <summary>
     /// Stream which writes at different indents.
     /// </summary>
-    public class IndentedWriter : StreamWriter
+    internal class IndentedWriter : StreamWriter
     {
+        private int indent;
+        private string newLine;
+
         /// <summary>
-        /// Create a new Indented Writer.
+        /// Initializes a new instance of the <see cref="IndentedWriter"/> class.
         /// </summary>
-        /// <param name="stream"></param>
+        /// <param name="stream">The stream on which write the indented output.</param>
         public IndentedWriter(Stream stream)
             : base(stream)
         {
-            this.SetNewLine();
+            this.indent = 0;
+            this.newLine = GetNewLine(this.indent);
         }
 
         /// <summary>
-        /// The current number of spaces to indent.
+        /// Gets the value of NewLine that includes the space for the current indent level.
         /// </summary>
-        public int Indent
+        public override string NewLine
         {
-            get { return this.indent; }
-            set
+            get
             {
-                this.indent = value;
-                this.SetNewLine();
+                return this.newLine;
             }
         }
 
-        private void SetNewLine()
+        /// <summary>
+        /// Gets or sets the number of spaces to indent.
+        /// </summary>
+        public int Indent
+        {
+            get
+            {
+                return this.indent;
+            }
+
+            set
+            {
+                this.indent = value;
+                this.newLine = GetNewLine(value);
+            }
+        }
+
+        private static string GetNewLine(int indent)
         {
             var s = new StringBuilder();
             s.Append(CommandLineUtility.NewLine);
-            s.Append(' ', this.indent);
-            this.NewLine = s.ToString();
+            s.Append(' ', indent);
+            return s.ToString();
         }
-
-        private int indent;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public struct Indent : IDisposable
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="indent"></param>
-        public Indent(IndentedWriter writer, int indent)
-        {
-            this.writer = writer;
-            this.indent = indent;
-
-            writer.Indent += indent;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public void Dispose()
-        {
-            this.writer.Indent -= this.indent;
-            this.writer = null;
-        }
-
-        private IndentedWriter writer;
-        private readonly int indent;
     }
 }

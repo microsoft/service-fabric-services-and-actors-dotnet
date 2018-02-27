@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -9,11 +9,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Fabric;
+    using System.Fabric.Description;
     using System.Globalization;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Fabric.Description;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
@@ -70,15 +70,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 try
                 {
                     //
-                    // Actor operations only happen on a primary replica and are required not to span role 
-                    // change boundaries. This is required to ensure that for a given ActorId on a primary 
+                    // Actor operations only happen on a primary replica and are required not to span role
+                    // change boundaries. This is required to ensure that for a given ActorId on a primary
                     // replica only one thread can make any state change. Any operation active for this ActorId
                     // when current replica was primary previously should fail to make any state change.
-                    // 
-                    // When primary replica becomes secondary, all in-flight operations fail as replica do not 
+                    //
+                    // When primary replica becomes secondary, all in-flight operations fail as replica do not
                     // have write status. However, in rare cases, it may happen that replica undergoes a P -> S -> P
-                    // role change very quickly while an in-flight operation was undergoing back-off before next retry. 
-                    // 
+                    // role change very quickly while an in-flight operation was undergoing back-off before next retry.
+                    //
                     // Fail the operation if primary replica of partition has changed.
                     //
                     this.EnsureSamePrimary(roleChangeTracker);
@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 catch (FabricObjectClosedException)
                 {
-                    // During close of a primary replica, the user code may try to use the 
+                    // During close of a primary replica, the user code may try to use the
                     // KVS after it has been closed. This causes KVS to throw FabricObjectClosedException.
                     // RC already converts it to FabricNotPrimaryException.
                     if (this.owner is KvsActorStateProvider)
@@ -271,7 +271,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            // We are here means 'actorIdList' contains less than 'itemsCount' 
+            // We are here means 'actorIdList' contains less than 'itemsCount'
             // item or it is empty. The continuation token will remain null.
             actorQueryResult.Items = actorIdList.AsReadOnly();
 
@@ -402,13 +402,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new DataContractSerializerSettings
                 {
                     MaxItemsInObjectGraph = Int32.MaxValue,
-#if !DotNetCoreClr					
+#if !DotNetCoreClr
                     DataContractSurrogate = ActorDataContractSurrogate.Singleton,
 #endif
                     KnownTypes = new[]
                     {
                         typeof(ActorReference) ,
-                    }
+                    },
                 });
 #if DotNetCoreClr
 			dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Singleton);
@@ -418,7 +418,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal static IActorStateProvider CreateDefaultStateProvider(ActorTypeInformation actorTypeInfo)
         {
-            // KvsActorStateProvider is used only when: 
+            // KvsActorStateProvider is used only when:
             //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
             // VolatileActorStateProvider is used when:
             //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Volatile

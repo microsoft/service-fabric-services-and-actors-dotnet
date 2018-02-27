@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication
@@ -10,16 +10,16 @@ namespace Microsoft.ServiceFabric.Services.Communication
     [DataContract(Name = "ServiceExceptionData", Namespace = Constants.ServiceCommunicationNamespace)]
     internal class ServiceExceptionData
     {
-        [DataMember]
-        public string Type { get; private set; }
-
-        [DataMember]
-        public string Message { get; private set; }
-
         public ServiceExceptionData(string type, string message)
         {
             this.Type = type;
             this.Message = message;
         }
+
+        [DataMember]
+        public string Type { get; private set; }
+
+        [DataMember]
+        public string Message { get; private set; }
     }
 }

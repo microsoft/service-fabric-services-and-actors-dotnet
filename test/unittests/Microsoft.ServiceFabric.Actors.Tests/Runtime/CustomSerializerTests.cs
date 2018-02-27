@@ -8,10 +8,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using FluentAssertions;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Xunit;
-    using FluentAssertions;
 
     public class CustomSerializerTests
     {

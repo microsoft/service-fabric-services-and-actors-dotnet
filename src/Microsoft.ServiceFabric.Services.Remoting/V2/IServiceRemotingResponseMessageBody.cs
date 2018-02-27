@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         void Set(object response);
 
         /// <summary>
-        /// Gets the response of a remoting Method from a remoting response body before sending it to Client. 
+        /// Gets the response of a remoting Method from a remoting response body before sending it to Client.
         /// </summary>
         /// <param name="paramType"> Return Type of a Remoting Method</param>
         /// <returns>Remoting Method Response</returns>

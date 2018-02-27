@@ -17,10 +17,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader) }
+                    KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader) },
                 }))
         {
-
         }
 
         //Used for Actor layer
@@ -34,7 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new[] { typeof(ServiceRemotingResponseMessageHeader) }
+                    KnownTypes = new[] { typeof(ServiceRemotingResponseMessageHeader) },
                 });
         }
 

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
 
     /// <summary>
-    /// Represents the kind of state change for an actor state when 
+    /// Represents the kind of state change for an actor state when
     /// <see cref="IActorStateProvider.SaveStateAsync(ActorId, IReadOnlyCollection{ActorStateChange}, CancellationToken)"/>
     /// saves changes to a set of actor states.
     /// </summary>
@@ -33,6 +33,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// The state needs to be removed.
         /// </summary>
-        Remove = 3
+        Remove = 3,
     }
 }

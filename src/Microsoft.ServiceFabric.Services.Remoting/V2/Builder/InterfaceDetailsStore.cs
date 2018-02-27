@@ -85,7 +85,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             {
                 this.interfaceIdMapping.TryAdd(interfaceName, interfaceId);
             }
-
         }
     }
 }

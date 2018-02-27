@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
@@ -23,7 +23,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// A null value of continuation token means start returning values form the beginning.</param>
         /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
         /// <returns>A task that represents the asynchronous operation of call to server.</returns>
-        Task<PagedResult<ActorInformation>> GetActorsAsync(ContinuationToken continuationToken,
+        Task<PagedResult<ActorInformation>> GetActorsAsync(
+            ContinuationToken continuationToken,
             CancellationToken cancellationToken);
 
         /// <summary>

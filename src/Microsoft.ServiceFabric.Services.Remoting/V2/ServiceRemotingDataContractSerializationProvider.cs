@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         private readonly IBufferPoolManager bodyBufferPoolManager;
 
         /// <summary>
-        /// Creates a ServiceRemotingDataContractSerializationProvider with default IBufferPoolManager 
+        /// Creates a ServiceRemotingDataContractSerializationProvider with default IBufferPoolManager
         /// </summary>
         public ServiceRemotingDataContractSerializationProvider()
             : this(new BufferPoolManager(Constants.DefaultMessageBufferSize, Constants.DefaultMaxBufferCount))
@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     new DataContractSerializerSettings()
                     {
                         MaxItemsInObjectGraph = int.MaxValue,
-                        KnownTypes = parameterInfo
+                        KnownTypes = parameterInfo,
                     });
             }
 
@@ -129,7 +129,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     XmlDictionaryReaderQuotas.Max))
                 {
                     return (ServiceRemotingRequestMessageBody)this.serializer.ReadObject(reader);
-
                 }
             }
         }
@@ -149,7 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     new DataContractSerializerSettings()
                     {
                         MaxItemsInObjectGraph = int.MaxValue,
-                        KnownTypes = parameterInfo
+                        KnownTypes = parameterInfo,
                     });
             }
 
@@ -184,7 +183,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     XmlDictionaryReaderQuotas.Max))
                 {
                     return (ServiceRemotingResponseMessageBody)this.serializer.ReadObject(reader);
-
                 }
             }
         }

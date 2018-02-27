@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
@@ -36,7 +36,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             this.partitionId = partitionId;
             var ticks = (long)((DateTime.UtcNow.Ticks) % Math.Pow(10, MaxDigits));
-            this.counterInstanceDifferentiator = string.Concat(replicaOrInstanceId,
+            this.counterInstanceDifferentiator = string.Concat(
+                replicaOrInstanceId,
                 "_",
                 ticks.ToString("D"));
             var serviceCounterInstanceName = string.Concat(this.partitionId.ToString("D"), "_",
@@ -50,7 +51,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             catch (Exception ex)
             {
                 //Instance creation failed, Be done.
-                ServiceTrace.Source.WriteWarning(TraceType,
+                ServiceTrace.Source.WriteWarning(
+                    TraceType,
                     "Data for performance counter instance {0} of categoryName {1} will not be provided because an exception occurred during its initialization. Exception info: {2}",
                     serviceCounterInstanceName, ServiceRemotingPerformanceCounters.ServiceCategoryName, ex);
                 return;
@@ -62,7 +64,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             var servicePerformanceCounters = new ServiceRemotingPerformanceCounters();
             var counterSetDefinitions = servicePerformanceCounters.GetCounterSets();
-            ServiceCounterSet = CreateCounterSet(counterSetDefinitions,
+            ServiceCounterSet = CreateCounterSet(
+                counterSetDefinitions,
                 ServiceRemotingPerformanceCounters.ServiceCategoryName);
         }
 
@@ -80,7 +83,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
             catch (Exception ex)
             {
-                ServiceTrace.Source.WriteWarning(TraceType,
+                ServiceTrace.Source.WriteWarning(
+                    TraceType,
                     "Data for performance counter categoryName {0} will not be provided because an exception occurred during its initialization. Exception info: {1}",
                     counterSetDefinition.Key.Name, ex);
                 return null;
@@ -91,12 +95,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         }
 
 
-        private static void DumpCounterSetInfo(FabricPerformanceCounterSet counterSet,
+        private static void DumpCounterSetInfo(
+            FabricPerformanceCounterSet counterSet,
             IEnumerable<FabricPerformanceCounterDefinition> activeCounters)
         {
             var sb = new StringBuilder();
 
-            sb.Append(string.Format("Created performance counter category {0} with following counters.",
+            sb.Append(string.Format(
+                "Created performance counter category {0} with following counters.",
                 counterSet.CounterSetDefinition.Name));
             sb.AppendLine();
             foreach (var counter in activeCounters)
@@ -180,10 +186,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         private void LogCounterInstanceCreationResult(Type counterWriterType, string instanceName, Exception e)
         {
-            if (null == e)
+            if (e == null)
             {
                 // Success
-                ServiceTrace.Source.WriteInfo(TraceType,
+                ServiceTrace.Source.WriteInfo(
+                    TraceType,
                     "Performance counter writer {0} enabled for counter instance {1}.",
                     counterWriterType,
                     instanceName);
@@ -191,7 +198,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             else
             {
                 // Failure
-                ServiceTrace.Source.WriteWarning(TraceType,
+                ServiceTrace.Source.WriteWarning(
+                    TraceType,
                     "Performance counter writer {0} for instance {1} has been disabled because an exception occurred during its initialization. Exception info: {2}"
                     ,
                     counterWriterType,
@@ -208,7 +216,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             ServiceTrace.Source.WriteInfo(TraceType, "Disposing Service Remoting Performance Counters");
 
-            if (null != this.serviceCounterSetInstance)
+            if (this.serviceCounterSetInstance != null)
             {
                 //Remove Counter Instance.
                 this.serviceCounterSetInstance.Dispose();

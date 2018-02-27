@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Generator
@@ -284,7 +284,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
-        /// Gets local store configuration section name specified in configuration package for the actor service. 
+        /// Gets local store configuration section name specified in configuration package for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
         /// <returns>Local store configuration section name.</returns>

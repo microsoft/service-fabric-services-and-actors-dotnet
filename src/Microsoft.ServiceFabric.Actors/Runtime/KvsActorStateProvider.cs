@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
 
     /// <summary>
-    /// Provides an implementation of <see cref="IActorStateProvider"/> which 
+    /// Provides an implementation of <see cref="IActorStateProvider"/> which
     /// uses <see cref="KeyValueStoreReplica"/> to store and persist the actor state.
     /// </summary>
     public sealed class KvsActorStateProvider : KvsActorStateProviderBase
@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             if (settings == null)
             {
-                // try load from configuration                
+                // try load from configuration
                 var configPackageName = ActorNameFormat.GetConfigPackageName(this.ActorTypeInformation.ImplementationType);
                 var localEseStoreConfigSectionName = ActorNameFormat.GetLocalEseStoreConfigSectionName(this.ActorTypeInformation.ImplementationType);
                 var configPackageObj = this.InitParams.CodePackageActivationContext.GetConfigurationPackageObject(configPackageName);
@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     MaxAsyncCommitDelay = TimeSpan.FromMilliseconds(100),
                     MaxVerPages = 8192 * 4,
-                    EnableIncrementalBackup = this.userDefinedEnableIncrementalBackup
+                    EnableIncrementalBackup = this.userDefinedEnableIncrementalBackup,
                 };
             }
 
@@ -167,7 +167,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var kvsReplicaSettings = new KeyValueStoreReplicaSettings
             {
-                SecondaryNotificationMode = KeyValueStoreReplica.SecondaryNotificationMode.NonBlockingQuorumAcked
+                SecondaryNotificationMode = KeyValueStoreReplica.SecondaryNotificationMode.NonBlockingQuorumAcked,
             };
 
             if (this.userDefinedLogTruncationInterval.HasValue)

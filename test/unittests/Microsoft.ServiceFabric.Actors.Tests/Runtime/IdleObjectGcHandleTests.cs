@@ -7,8 +7,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Runtime;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Xunit;
 
     public class IdleObjectGcHandleTests

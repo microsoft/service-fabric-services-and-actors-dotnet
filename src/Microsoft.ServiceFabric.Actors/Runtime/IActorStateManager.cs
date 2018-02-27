@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="ArgumentNullException">The specified state name is null.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <remarks>
-        /// The type of state value <typeparamref name="T"/> must be 
+        /// The type of state value <typeparamref name="T"/> must be
         /// <see href="https://msdn.microsoft.com/library/ms731923.aspx">Data Contract</see> serializable.
         /// </remarks>
         Task AddStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken));
@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="ArgumentNullException">The specified state name is null.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <remarks>
-        /// The type of state value <typeparamref name="T"/> must be 
+        /// The type of state value <typeparamref name="T"/> must be
         /// <see href="https://msdn.microsoft.com/library/ms731923.aspx">Data Contract</see> serializable.
         /// </remarks>
         Task<T> GetStateAsync<T>(string stateName, CancellationToken cancellationToken = default(CancellationToken));
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="ArgumentNullException">The specified state name is null.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <remarks>
-        /// The type of state value <typeparamref name="T"/> must be 
+        /// The type of state value <typeparamref name="T"/> must be
         /// <see href="https://msdn.microsoft.com/library/ms731923.aspx">Data Contract</see> serializable.
         /// </remarks>
         Task SetStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken));
@@ -92,8 +92,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task RemoveStateAsync(string stateName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Attempts to add an actor state with given state name and value. Returns false if an actor state with 
-        /// the same name already exists. 
+        /// Attempts to add an actor state with given state name and value. Returns false if an actor state with
+        /// the same name already exists.
         /// </summary>
         /// <typeparam name="T">Type of value associated with given state name.</typeparam>
         /// <param name="stateName">Name of the actor state to add.</param>
@@ -101,7 +101,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="cancellationToken">The token to monitor for cancellation requests.
         /// This is optional and defaults to <see cref="System.Threading.CancellationToken.None" /></param>
         /// <returns>
-        /// A boolean task that represents the asynchronous add operation. Returns true if the 
+        /// A boolean task that represents the asynchronous add operation. Returns true if the
         /// value was successfully added and false if an actor state with the same name already exists.
         /// </returns>
         /// <exception cref="ArgumentNullException">The specified state name is null.
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="OperationCanceledException">The request was canceled using the specified
         /// <paramref name="cancellationToken" />.</exception>
         /// <remarks>
-        /// The type of state value <typeparamref name="T"/> must be 
+        /// The type of state value <typeparamref name="T"/> must be
         /// <see href="https://msdn.microsoft.com/library/ms731923.aspx">Data Contract</see> serializable.
         /// </remarks>
         Task<bool> TryAddStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken));
@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="ArgumentNullException">The specified state name is null.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <remarks>
-        /// The type of state value <typeparamref name="T"/> must be 
+        /// The type of state value <typeparamref name="T"/> must be
         /// <see href="https://msdn.microsoft.com/library/ms731923.aspx">Data Contract</see> serializable.
         /// </remarks>
         Task<ConditionalValue<T>> TryGetStateAsync<T>(string stateName, CancellationToken cancellationToken = default(CancellationToken));
@@ -160,7 +160,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task<bool> ContainsStateAsync(string stateName, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Gets an actor state with the given state name if it exists. If it does not 
+        /// Gets an actor state with the given state name if it exists. If it does not
         /// exist, creates and new state with the specified name and value.
         /// </summary>
         /// <typeparam name="T">Type of value associated with given state name.</typeparam>
@@ -176,14 +176,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="OperationCanceledException">The request was canceled using the specified
         /// <paramref name="cancellationToken" />.</exception>
         /// <remarks>
-        /// The type of state value <typeparamref name="T"/> must be 
+        /// The type of state value <typeparamref name="T"/> must be
         /// <see href="https://msdn.microsoft.com/library/ms731923.aspx">Data Contract</see> serializable.
         /// </remarks>
         Task<T> GetOrAddStateAsync<T>(string stateName, T value, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Adds an actor state with given state name, if it does not already exist or updates
-        /// the state with specified state name, if it exists. 
+        /// the state with specified state name, if it exists.
         /// </summary>
         /// <typeparam name="T">Type of value associated with given state name.</typeparam>
         /// <param name="stateName">Name of the actor state to add or update.</param>
@@ -197,7 +197,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <exception cref="ArgumentNullException"> The specified state name is null.</exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         /// <remarks>
-        /// The type of state value <typeparamref name="T"/> must be 
+        /// The type of state value <typeparamref name="T"/> must be
         /// <see href="https://msdn.microsoft.com/library/ms731923.aspx">Data Contract</see> serializable.
         /// </remarks>
         Task<T> AddOrUpdateStateAsync<T>(string stateName, T addValue, Func<string, T, T> updateValueFactory, CancellationToken cancellationToken = default(CancellationToken));

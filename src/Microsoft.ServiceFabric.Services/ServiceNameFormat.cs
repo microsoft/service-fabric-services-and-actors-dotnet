@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services
@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services
     using System.Globalization;
 
     /// <summary>
-    /// This class provides the logic for deriving the names of various items within the manifest from the code. 
+    /// This class provides the logic for deriving the names of various items within the manifest from the code.
     /// It is used by framework components when names are not specified in the API and the framework types have
     /// to default it to a meaningful name derived from the service type.
     /// </summary>
@@ -47,6 +47,7 @@ namespace Microsoft.ServiceFabric.Services
             {
                 serviceName = string.Format(CultureInfo.InvariantCulture, "{0}Service", serviceName);
             }
+
             if ((serviceName[0] == 'I') && !char.IsLower(serviceName[1]))
             {
                 return serviceName.Substring(1);

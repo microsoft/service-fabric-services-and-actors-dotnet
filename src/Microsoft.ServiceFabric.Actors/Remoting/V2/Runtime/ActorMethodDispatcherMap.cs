@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
@@ -29,12 +29,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         {
             if (!this.map.TryGetValue(interfaceId, out var methodDispatcher))
             {
-                throw new KeyNotFoundException(string.Format(CultureInfo.CurrentCulture,
+                throw new KeyNotFoundException(string.Format(
+                    CultureInfo.CurrentCulture,
                     SR.ErrorMethodDispatcherNotFound, interfaceId));
             }
 
             return methodDispatcher;
         }
-
     }
 }
