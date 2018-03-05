@@ -93,8 +93,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                                 "",
                                 GetType(ServiceCategoryName, ServiceRequestProcessingTimeMillisecBaseCounterName),
                                 "MethodProcessingTimeBase",
-                                new[] {"noDisplay"}
-                            ),
+                                new[] {"noDisplay"}),
                             new FabricPerformanceCounterDefinition(
                                 3,
                                 4,
@@ -108,8 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                                 "",
                                 GetType(ServiceCategoryName, ServiceRequestDeserializationTimeMillisecBaseCounterName),
                                 "RequestDeserializationTimeBase",
-                                new[] {"noDisplay"}
-                            ),
+                                new[] {"noDisplay"}),
                             new FabricPerformanceCounterDefinition(
                                 5,
                                 6,
@@ -123,8 +121,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                                 "",
                                 GetType(ServiceCategoryName, ServiceResponseSerializationTimeMillisecBaseCounterName),
                                 "ResponseSerializationTimeBase",
-                                new[] {"noDisplay"}
-                            ),
+                                new[] {"noDisplay"}),
                             new FabricPerformanceCounterDefinition(
                                 7,
                                 ServiceOutstandingRequestsCounterName,

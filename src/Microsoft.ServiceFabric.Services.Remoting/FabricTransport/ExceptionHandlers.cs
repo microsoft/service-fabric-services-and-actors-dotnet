@@ -33,8 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             out ExceptionHandlingResult result)
         {
             if ((fabricException is FabricCannotConnectException) ||
-                (fabricException is FabricEndpointNotFoundException)
-                )
+                (fabricException is FabricEndpointNotFoundException))
             {
                 result = new ExceptionHandlingRetryResult(
                     fabricException,

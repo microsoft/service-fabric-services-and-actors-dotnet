@@ -11,20 +11,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public interface IServiceRemotingMessageBodyFactory
     {
         /// <summary>
-        /// Creates a Remoting Request Body
+        /// Creates a remoting request message body.
         /// </summary>
         /// <param name="interfaceName"> This is FullName for the service interface for which request body is being constructed</param>
         /// <param name="methodName">MethodName for the service interface for which request will be sent to</param>
         /// <param name="numberOfParameters">Number of Parameters in that Method</param>
-        /// <returns>IServiceRemotingRequestMessageBody</returns>
+        /// <returns>An <see cref="IServiceRemotingRequestMessageBody"/>.</returns>
         IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters);
 
         /// <summary>
-        ///
-        ///</summary>
+        /// Creates a remoting response message body.
+        /// </summary>
         /// <param name="interfaceName"> This is FullName for the service interface for which request body is being constructed</param>
         /// <param name="methodName">MethodName for the service interface for which request will be sent to</param>
         /// <returns>IServiceRemotingResponseMessageBody</returns>
+        /// <returns>An <see cref="IServiceRemotingResponseMessageBody"/>.</returns>
         IServiceRemotingResponseMessageBody CreateResponse(string interfaceName, string methodName);
     }
 }

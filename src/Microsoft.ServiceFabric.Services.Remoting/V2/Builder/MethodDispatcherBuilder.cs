@@ -194,8 +194,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             Label elseLabel,
             LocalBuilder castedObject,
             MethodDescription methodDescription,
-            string interfaceName
-        )
+            string interfaceName)
         {
             ilGen.Emit(OpCodes.Ldarg_1);
             ilGen.Emit(OpCodes.Ldc_I4, methodDescription.Id);

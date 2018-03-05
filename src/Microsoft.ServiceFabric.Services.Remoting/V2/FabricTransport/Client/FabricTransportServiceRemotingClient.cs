@@ -95,6 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                             e.ToString()));
                     }
                 }
+
                 var responseSerializer = this.serializersManager.GetResponseBodySerializer(interfaceId);
                 IServiceRemotingResponseMessageBody responseMessageBody = null;
                 if (retval != null && retval.GetBody() != null)

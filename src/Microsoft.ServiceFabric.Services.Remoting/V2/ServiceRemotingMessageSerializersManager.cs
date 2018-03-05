@@ -24,10 +24,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 headerSerializer = new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager());
             }
+
             if (serializationProvider == null)
             {
                 serializationProvider = new ServiceRemotingDataContractSerializationProvider();
             }
+
             this.serializationProvider = serializationProvider;
             this.cachedBodySerializers = new ConcurrentDictionary<int, CacheEntry>();
             this.headerSerializer = headerSerializer;
@@ -55,14 +57,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         internal virtual CacheEntry CreateSerializers(int interfaceId)
         {
-            var interfaceDetails = GetInterfaceDetails(interfaceId);
-            var serviceInterfaceType = interfaceDetails.ServiceInterfaceType;
-            // get the service interface type from the code gen layer
+            var interfaceDetails = this.GetInterfaceDetails(interfaceId);
 
+            // get the service interface type from the code gen layer
+            var serviceInterfaceType = interfaceDetails.ServiceInterfaceType;
+
+            // get the known types from the codegen layer
             var requestBodyTypes = interfaceDetails.RequestKnownTypes;
+
             // get the known types from the codegen layer
             var responseBodyTypes = interfaceDetails.ResponseKnownTypes;
-            // get the known types from the codegen layer
 
             return new CacheEntry(
                 this.serializationProvider.CreateRequestMessageSerializer(serviceInterfaceType, requestBodyTypes),
@@ -75,6 +79,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 throw new ArgumentException("No interface found with this Id  " + interfaceId);
             }
+
             return interfaceDetails;
         }
     }

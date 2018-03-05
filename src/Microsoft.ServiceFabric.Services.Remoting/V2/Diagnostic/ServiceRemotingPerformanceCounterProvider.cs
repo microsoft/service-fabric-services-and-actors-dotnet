@@ -57,6 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                     serviceCounterInstanceName, ServiceRemotingPerformanceCounters.ServiceCategoryName, ex);
                 return;
             }
+
             this.CreateserviceCounterWriters(serviceCounterInstanceName);
         }
 
@@ -89,6 +90,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                     counterSetDefinition.Key.Name, ex);
                 return null;
             }
+
             DumpCounterSetInfo(counterSet, counterSetDefinition.Value);
 
             return counterSet;
@@ -110,6 +112,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                 sb.Append(string.Format("CounterName : {0}", counter.Name));
                 sb.AppendLine();
             }
+
             ServiceTrace.Source.WriteInfo(TraceType, sb.ToString());
         }
 

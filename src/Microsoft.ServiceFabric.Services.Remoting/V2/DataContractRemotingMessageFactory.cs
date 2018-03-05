@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
-
     internal class DataContractRemotingMessageFactory : IServiceRemotingMessageBodyFactory
     {
         public IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters)

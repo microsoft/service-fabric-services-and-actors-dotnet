@@ -44,8 +44,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             ServiceContext serviceContext,
             IService serviceImplementation,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null
-            )
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
             : this(
                 serviceContext,
                 new ServiceRemotingMessageDispatcher(
@@ -54,8 +53,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     serializationProvider != null ? serializationProvider.CreateMessageBodyFactory() :
                     new DataContractRemotingMessageFactory()),
                 remotingListenerSettings,
-                serializationProvider
-                )
+                serializationProvider)
         {
         }
 
@@ -76,8 +74,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null
-            ) : this(
+            IServiceRemotingMessageSerializationProvider serializationProvider = null) : this(
                 serviceContext,
                 serviceRemotingMessageHandler,
                 InitializeSerializersManager(serializationProvider, remotingListenerSettings),
@@ -102,8 +99,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
-            FabricTransportRemotingListenerSettings remotingListenerSettings = null
-        )
+            FabricTransportRemotingListenerSettings remotingListenerSettings = null)
         {
             Requires.ThrowIfNull(serviceContext, "serviceContext");
 

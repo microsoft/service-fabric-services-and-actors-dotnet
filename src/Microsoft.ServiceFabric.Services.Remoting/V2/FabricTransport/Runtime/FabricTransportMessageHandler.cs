@@ -49,13 +49,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
                     .UpdateCounterValue(1);
             }
+
             var requestStopWatch = Stopwatch.StartNew();
             var requestResponseSerializationStopwatch = Stopwatch.StartNew();
 
             try
             {
-                var remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch
-                    );
+                var remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch);
 
                 var retval = await
                     this.remotingMessageHandler.HandleRequestResponseAsync(
@@ -104,6 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 return new FabricTransportMessage(null, null);
             }
+
             var responseHeader = this.headerSerializer.SerializeResponseHeader(retval.GetHeader());
             var fabricTransportRequestHeader = responseHeader != null
                 ? new FabricTransportRequestHeader(
@@ -119,6 +120,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.serviceRemotingPerformanceCounterProvider.serviceResponseSerializationTimeCounterWriter
                     .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
+
             var fabricTransportRequestBody = responseMsgBody != null
                 ? new FabricTransportRequestBody(
                     responseMsgBody.GetSendBuffers(),
@@ -156,6 +158,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 (
                     stopwatch.ElapsedMilliseconds);
             }
+
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
         }
 
@@ -172,6 +175,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 this.serviceRemotingPerformanceCounterProvider.Dispose();
             }
+
             if (this.remotingMessageHandler is IDisposable disposableItem)
             {
                 disposableItem.Dispose();

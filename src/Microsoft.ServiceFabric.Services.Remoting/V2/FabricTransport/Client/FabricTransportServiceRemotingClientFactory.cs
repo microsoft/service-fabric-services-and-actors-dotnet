@@ -146,8 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 remotingCallbackMessageHandler,
                 servicePartitionResolver,
                 exceptionHandlers,
-                traceId
-            );
+                traceId);
             this.clientFactoryImpl.ClientConnected += this.OnClientConnected;
             this.clientFactoryImpl.ClientDisconnected += this.OnClientDisconnected;
         }
@@ -249,9 +248,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         }
 
         /// <summary>
-        ///  Gets the IServiceRemotingMessageBodyFactory used to create Remoting Request Body objects.
+        /// Gets a factory for creating the remoting message bodies.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A factory for creating the remoting message bodies</returns>
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
             return this.remotingMessageBodyFactory;

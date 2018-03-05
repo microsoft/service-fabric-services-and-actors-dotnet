@@ -6,14 +6,14 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
     /// <summary>
-    ///
+    /// Interface for handling the callback messages from the service.
     /// </summary>
     public interface IServiceRemotingCallbackMessageHandler
     {
         /// <summary>
-        ///
+        /// Handles the one-way message sent from the service.
         /// </summary>
-        /// <param name="requestMessage"></param>
+        /// <param name="requestMessage">The one-way message.</param>
         void HandleOneWayMessage(IServiceRemotingRequestMessage requestMessage);
     }
 }

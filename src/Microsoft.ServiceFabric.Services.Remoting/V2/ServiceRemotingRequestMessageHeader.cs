@@ -19,29 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         private Dictionary<string, byte[]> headers;
 
         /// <summary>
-        /// The methodId of the remote method
-        /// </summary>
-        /// <value>Method id</value>
-        [DataMember(Name = "MethodId", IsRequired = true, Order = 0)]
-        public int MethodId { get; set; }
-
-        /// <summary>
-        /// The interface id of the remote interface.
-        /// </summary>
-        /// <value>Interface id</value>
-        [DataMember(Name = "InterfaceId", IsRequired = true, Order = 1)]
-        public int InterfaceId { get; set; }
-
-        /// <summary>
-        /// Identifier for the remote method invocation
-        /// </summary>
-        [DataMember(Name = "InvocationId", IsRequired = false, Order = 3, EmitDefaultValue = false)]
-        public string InvocationId { get; set; }
-
-
-
-        /// <summary>
-        /// Instantiates a new instance of the ServiceRemotingRequestMessageHeader
+        /// Initializes a new instance of the <see cref="ServiceRemotingRequestMessageHeader"/> class.
         /// </summary>
         public ServiceRemotingRequestMessageHeader()
         {
@@ -49,6 +27,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             this.InvocationId = null;
         }
 
+        /// <summary>
+        /// Gets or sets the methodId of the remote method
+        /// </summary>
+        /// <value>Method id</value>
+        [DataMember(Name = "MethodId", IsRequired = true, Order = 0)]
+        public int MethodId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the interface id of the remote interface.
+        /// </summary>
+        /// <value>Interface id</value>
+        [DataMember(Name = "InterfaceId", IsRequired = true, Order = 1)]
+        public int InterfaceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets identifier for the remote method invocation
+        /// </summary>
+        [DataMember(Name = "InvocationId", IsRequired = false, Order = 3, EmitDefaultValue = false)]
+        public string InvocationId { get; set; }
 
         public void AddHeader(string headerName, byte[] headerValue)
         {

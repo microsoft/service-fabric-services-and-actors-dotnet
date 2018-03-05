@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             this.isRelease = false;
             this.ContentLength = 0;
         }
+
         public ArraySegment<byte> Value { get; set; }
 
         public int ContentLength { get; set; }

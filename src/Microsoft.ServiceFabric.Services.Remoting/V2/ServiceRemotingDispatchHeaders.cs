@@ -14,12 +14,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public class ServiceRemotingDispatchHeaders
     {
         /// <summary>
-        /// This is the Full Name for the user remoting service interface.
+        /// Gets or sets the full name for the user remoting service interface.
         /// </summary>
         public string ServiceInterfaceName { get; set; }
 
         /// <summary>
-        /// This is the Method Name to which the request will be sent to .
+        /// Gets or sets this is the method name to which the request will be sent to.
         /// </summary>
         public string MethodName { get; set; }
     }

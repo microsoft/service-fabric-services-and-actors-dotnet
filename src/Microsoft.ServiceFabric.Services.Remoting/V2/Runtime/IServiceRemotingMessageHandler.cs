@@ -30,9 +30,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         void HandleOneWayMessage(IServiceRemotingRequestMessage requestMessage);
 
         /// <summary>
-        /// Returns the IServiceRemotingMessageBodyFactory . It is used by Dispatcher to create Remoting Response Body
+        /// Gets a factory for creating the remoting message bodies.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A factory for creating the remoting message bodies</returns>
         IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory();
     }
 }

@@ -57,6 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
                 var seg1 = this.CreateSegment();
                 return new PooledBuffer(this, seg1, 0);
             }
+
             segment.ResetBuffer();
             return segment;
         }

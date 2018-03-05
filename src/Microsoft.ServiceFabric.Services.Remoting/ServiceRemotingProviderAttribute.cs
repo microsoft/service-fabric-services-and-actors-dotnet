@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 #if !DotNetCoreClr
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 #endif
+
     /// <summary>
     /// This is a base type for attribute that sets the default service remoting provider to use for
     /// remoting the service interfaces defined and used in the assembly.
@@ -52,18 +53,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     public abstract class ServiceRemotingProviderAttribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the ServiceRemotingProviderAttribute class.
+        /// Initializes a new instance of the <see cref="ServiceRemotingProviderAttribute"/> class.
         /// </summary>
         public ServiceRemotingProviderAttribute()
         {
         }
+
         /// <summary>
-        /// RemotingClient is used to determine where  V1 or V2 remoting Client is used.
+        /// Gets or sets the version of the remoting client to use.
         /// </summary>
         public RemotingClient RemotingClient { get; set; }
 
         /// <summary>
-        /// RemotingListener is used to determine where listener is in V1, V2 or Compact Mode.
+        /// Gets or sets the version that the remoting listener to use.
         /// </summary>
         public RemotingListener RemotingListener { get; set; }
 
@@ -94,6 +96,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             Remoting.V1.IServiceRemotingCallbackClient callbackClient);
 
 #endif
+
         /// <summary>
         /// Creates a V2 service remoting listener for remoting the service interface.
         /// </summary>
@@ -110,7 +113,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
         /// <returns>An <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>
-
         public abstract Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
             Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
 
@@ -137,48 +139,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                     return attribute;
                 }
             }
+
             return new FabricTransportServiceRemotingProviderAttribute();
         }
-    }
-
-    /// <summary>
-    /// Determines the remoting stack for client
-    /// </summary>
-    public enum RemotingClient
-    {
-#if !DotNetCoreClr
-        /// <summary>
-        /// This is selected to create V1 Client. V1 is an old(soon to be deprecated) Remoting Stack.
-        /// </summary>
-        V1Client,
-#endif
-        /// <summary>
-        /// This is selected to create V2 Client. V2 is a new Remoting Stack.
-        /// </summary>
-        V2Client,
-    }
-
-    /// <summary>
-    /// Determines the remoting stack for server/listener when using remoting provider attribuite to determine the remoting client.
-    /// </summary>
-    public enum RemotingListener
-    {
-#if !DotNetCoreClr
-
-        /// <summary>
-        /// This is selected to create V1 Listener.V1 is an old (soon to be deprecated) Remoting Stack.
-        /// </summary>
-        V1Listener,
-
-        /// <summary>
-        /// This is selected to create Listener which creates both V1 and V2 Listener to support both V1 and V2 Clients.
-        /// This is useful in case of upgrade from V1 to V2 Listener.
-        /// </summary>
-        CompatListener,
-#endif
-        /// <summary>
-        /// This is selected to create V2 Listener.V2 is a new Remoting Stack.
-        /// </summary>
-        V2Listener,
     }
 }

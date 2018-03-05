@@ -11,8 +11,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
+
     /// <summary>
-    ///Settings that configures the  FabricTransport Listener.
+    /// Settings that configures the  FabricTransport Listener.
     /// </summary>
     public class FabricTransportRemotingListenerSettings
     {
@@ -23,7 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
 
         /// <summary>
-        /// Creates a new instance of FabricTransportRemotingListenerSettings and initializes properties with default Values.
+        /// Initializes a new instance of the <see cref="FabricTransportRemotingListenerSettings"/> class with default values.
         /// </summary>
         public FabricTransportRemotingListenerSettings()
         {
@@ -38,14 +39,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.listenerSettings = listenerSettings;
         }
 
-        internal FabricTransportListenerSettings GetInternalSettings()
-        {
-            return this.listenerSettings;
-        }
-
         /// <summary>
-        /// EndpointResourceName is name of the endpoint resource specified in ServiceManifest .This is used to obtain the port number on which to
-        /// service will listen.
+        /// Gets or sets the name of the endpoint resource specified in ServiceManifest.
+        /// This is used to obtain the port number on which to service will listen.
         /// </summary>
         /// <value>
         /// EndpointResourceName is  name of the  endpoint resource defined in the service manifest.
@@ -56,6 +52,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         {
             get { return this.listenerSettings.EndpointResourceName; }
             set { this.listenerSettings.EndpointResourceName = value; }
+        }
+
+        internal FabricTransportListenerSettings GetInternalSettings()
+        {
+            return this.listenerSettings;
         }
 
         /// <summary>
@@ -228,6 +229,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 remotingListenerSettings = new FabricTransportRemotingListenerSettings(listenerSettings);
                 return true;
             }
+
             remotingListenerSettings = null;
             return false;
         }

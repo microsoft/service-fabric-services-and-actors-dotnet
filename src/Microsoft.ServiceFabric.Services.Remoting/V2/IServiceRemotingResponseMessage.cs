@@ -11,15 +11,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public interface IServiceRemotingResponseMessage
     {
         /// <summary>
-        /// Gets the Response Message Header.
+        /// Gets the header of the response message.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The header of this response message.</returns>
         IServiceRemotingResponseMessageHeader GetHeader();
 
         /// <summary>
-        /// Gets the Response Message Body.
+        /// Gets the body of the response message.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The body of this response message.</returns>
         IServiceRemotingResponseMessageBody GetBody();
     }
 }

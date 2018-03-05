@@ -78,8 +78,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                     string.Format(
                         CultureInfo.CurrentCulture,
                         SR.ErrorInvalidAddress,
-                        endpoint
-                        ));
+                        endpoint));
             }
         }
 

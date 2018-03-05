@@ -24,8 +24,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private bool overrideListenerName = false;
 
         /// <summary>
-        /// Instantiates the ServiceProxyFactory with the specified retrysettings and default remotingClientFactory
+        /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class with the specified retrysettings and default remotingClientFactory.
         /// </summary>
+        /// <param name="retrySettings">The settings for retrying the failed operations.</param>
         public ServiceProxyFactory(OperationRetrySettings retrySettings = null)
         {
             this.retrySettings = retrySettings;
@@ -36,17 +37,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             this.proxyFactoryV2 = null;
         }
 
-
 #if !DotNetCoreClr
 
         /// <summary>
-        /// Instantiates the ServiceProxyFactory with the specified V1 remoting factory and retrysettings.
+        /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class with the specified V1 remoting factory and retrysettings.
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">
         /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
         /// is cached in the ServiceProxyFactory.
         /// </param>
-        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="retrySettings">The settings for retrying the failed operations.</param>
         public ServiceProxyFactory(
             Func<V1.IServiceRemotingCallbackClient, V1.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null)
@@ -55,14 +55,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
 #endif
+
         /// <summary>
-        /// Instantiates the ServiceProxyFactory with the specified V2 remoting factory and retrysettings.
+        /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class with the specified V2 remoting factory and retrysettings.
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">
         /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
         /// is cached in the ServiceProxyFactory.
         /// </param>
-        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="retrySettings">The settings for retrying the failed operations.</param>
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackMessageHandler, Remoting.V2.Client.IServiceRemotingClientFactory>
                 createServiceRemotingClientFactory,
@@ -71,10 +72,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings);
         }
 
-
         /// <summary>
         /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
+        /// </summary>
         /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
         /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy</param>
@@ -84,24 +85,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// identifies which of those endpoints to use for the remoting communication.
         /// </param>
         /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="IServiceProxy"/> interface.</returns>
-        /// </summary>
         public TServiceInterface CreateServiceProxy<TServiceInterface>(
             Uri serviceUri,
             ServicePartitionKey partitionKey = null,
-            TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
+            TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default,
+            string listenerName = null)
             where TServiceInterface : IService
         {
             var serviceInterfaceType = typeof(TServiceInterface);
 
 #if !DotNetCoreClr
 
-            //Use provider to find the stack
+            // Use provider to find the stack
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
                 if (provider.RemotingClient.Equals(RemotingClient.V2Client))
                 {
-                    //We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
+                    // We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
                     this.overrideListenerName = true;
                     this.proxyFactoryV2 =
                         new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
@@ -120,6 +121,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                     targetReplicaSelector,
                     listenerName);
             }
+
             if (this.overrideListenerName && listenerName == null)
             {
                 return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
@@ -128,6 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                     targetReplicaSelector,
                     ServiceRemotingProviderAttribute.DefaultV2listenerName);
             }
+
             return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
                 serviceUri,
                 partitionKey,
@@ -158,10 +161,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 #endif
         }
 
-
         /// <summary>
         /// Creates a proxy  to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
+        /// </summary>
         /// <typeparam name="TServiceInterface">Interface that is being remoted . Service Interface does not need to be inherited from IService.</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
         /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy</param>
@@ -171,11 +174,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// identifies which of those endpoints to use for the remoting communication.
         /// </param>
         /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="IServiceProxy"/> interface.</returns>
-        /// </summary>
         public TServiceInterface CreateNonIServiceProxy<TServiceInterface>(
             Uri serviceUri,
             ServicePartitionKey partitionKey = null,
-            TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
+            TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default,
+            string listenerName = null)
         {
             var serviceInterfaceType = typeof(TServiceInterface);
 
@@ -185,6 +188,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
                 this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
             }
+
             return this.proxyFactoryV2.CreateNonIServiceProxy<TServiceInterface>(
                 serviceUri,
                 partitionKey,

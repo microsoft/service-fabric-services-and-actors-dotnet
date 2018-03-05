@@ -81,8 +81,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                 callbackClient,
                 servicePartitionResolver,
                 GetExceptionHandlers(exceptionHandlers, traceId),
-                traceId
-                );
+                traceId);
             this.impl.FabricTransportClientConnected += this.OnClientConnected;
             this.impl.FabricTransportClientDisconnected += this.OnClientDisconnected;
         }
@@ -217,6 +216,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new ServiceRemotingExceptionHandler(traceId));
             return handlers;
         }

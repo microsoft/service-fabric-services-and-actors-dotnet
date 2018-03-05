@@ -65,8 +65,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             // create the dispatcher type, instantiate and initialize it
             result.MethodDispatcherType = classBuilder.CreateTypeInfo().AsType();
             result.MethodDispatcher = (TMethodDispatcher)Activator.CreateInstance(result.MethodDispatcherType);
-            var v1MethodDispatcherBase = (MethodDispatcherBaseWithSerializer
-            )result.MethodDispatcher;
+            var v1MethodDispatcherBase = (MethodDispatcherBaseWithSerializer)result.MethodDispatcher;
             v1MethodDispatcherBase.Initialize(
                 interfaceDescription,
                 methodNameMap,

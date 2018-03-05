@@ -16,14 +16,59 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
     /// </summary>
     public abstract class ProxyBase
     {
-        internal IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory;
+        private IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory;
 
         /// <summary>
-        /// Initializes a new instance of the ProxyBase class.
+        /// Initializes a new instance of the <see cref="ProxyBase"/> class.
         /// </summary>
         protected ProxyBase()
         {
         }
+
+        internal IServiceRemotingMessageBodyFactory ServiceRemotingMessageBodyFactory
+        {
+            get
+            {
+                return this.serviceRemotingMessageBodyFactory;
+            }
+
+            set
+            {
+                this.serviceRemotingMessageBodyFactory = value;
+            }
+        }
+
+#if !DotNetCoreClr
+        internal abstract DataContractSerializer GetRequestMessageBodySerializer(int interfaceId);
+
+        internal abstract DataContractSerializer GetResponseMessageBodySerializer(int interfaceId);
+
+        internal abstract object GetResponseMessageBodyValue(object responseMessageBody);
+
+        internal abstract object CreateRequestMessageBody(object requestMessageBodyValue);
+
+        internal abstract Task<byte[]> InvokeAsync(int interfaceId, int methodId, byte[] requestMsgBodyBytes, CancellationToken cancellationToken);
+
+        internal abstract void Invoke(int interfaceId, int methodId, byte[] requestMsgBodyBytes);
+#endif
+
+        // V2 Stack Internal Api
+        internal void InitializeV2(
+            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
+        {
+            this.ServiceRemotingMessageBodyFactory = serviceRemotingMessageBodyFactory;
+        }
+
+        internal abstract Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
+            int interfaceId,
+            int methodId,
+            IServiceRemotingRequestMessageBody requestMsgBodyValue,
+            CancellationToken cancellationToken);
+
+        internal abstract void InvokeImplV2(
+            int interfaceId,
+            int methodId,
+            IServiceRemotingRequestMessageBody requestMsgBodyValue);
 
 #if !DotNetCoreClr
         /// <summary>
@@ -105,48 +150,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return (TRetval)this.GetReturnValue(interfaceId, methodId, responseBody);
         }
 
-
         /// <summary>
         /// Implemented by the derived class to type cast the response body and extract the value from it.
         /// </summary>
         /// <param name="interfaceId">Interface Id for the actor interface.</param>
         /// <param name="methodId">Method Id for the actor method.</param>
         /// <param name="responseBody">Response body.</param>
-        /// <returns>Return value of method call as <see cref="System.Object"/>.</returns>
+        /// <returns>Return value of method call as <see cref="object"/>.</returns>
         protected abstract object GetReturnValue(int interfaceId, int methodId, object responseBody);
-
-        internal abstract DataContractSerializer GetRequestMessageBodySerializer(int interfaceId);
-
-        internal abstract DataContractSerializer GetResponseMessageBodySerializer(int interfaceId);
-
-        internal abstract object GetResponseMessageBodyValue(object responseMessageBody);
-
-        internal abstract object CreateRequestMessageBody(object requestMessageBodyValue);
-
-        internal abstract Task<byte[]> InvokeAsync(int interfaceId, int methodId, byte[] requestMsgBodyBytes, CancellationToken cancellationToken);
-
-        internal abstract void Invoke(int interfaceId, int methodId, byte[] requestMsgBodyBytes);
 
 #endif
 
+        // V2 Stack protected APIs
+
         /// <summary>
-        /// Called by the generated proxy class to continue after getting the response body that does not have value.
+        /// This method is used by the generated proxy type and should be used directly. This method converts the Task with object
+        /// return value to a Task without the return value for the void method invocation.
         /// </summary>
-        /// <param name="task">A task that represents the asynchronous operation for remote method call.</param>
-        /// <returns>A task that represents the asynchronous operation for remote method call.</returns>
+        /// <param name="task">A task returned from the method that contains null return value.</param>
+        /// <returns>A task that represents the asynchronous operation for remote method call without the return value.</returns>
         protected Task ContinueWith(Task<object> task)
         {
             return task;
         }
-
-        //V2 Stack Api
-
-        internal void InitializeV2(
-            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
-        {
-            this.serviceRemotingMessageBodyFactory = serviceRemotingMessageBodyFactory;
-        }
-
 
         /// <summary>
         /// Creates the Remoting request message Body
@@ -154,11 +180,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <param name="interfaceName">Full Name of the service interface for which this call is invoked</param>
         /// <param name="methodName">Method Name of the service interface for which this call is invoked</param>
         /// <param name="parameterCount">Number of Parameters in the service interface Method</param>
-        /// <returns></returns>
-        protected virtual IServiceRemotingRequestMessageBody CreateRequestMessageBodyV2(string interfaceName, string methodName,
+        /// <returns>A request message body for V2 remoting stack.</returns>
+        protected virtual IServiceRemotingRequestMessageBody CreateRequestMessageBodyV2(
+            string interfaceName,
+            string methodName,
             int parameterCount)
         {
-            return this.serviceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount);
+            return this.ServiceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount);
         }
 
         /// <summary>
@@ -189,7 +217,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
-
             var responseMsg = await this.InvokeAsyncImplV2(
                 interfaceId,
                 methodId,
@@ -199,7 +226,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return responseMsg != null ? responseMsg.GetBody()
                 : null;
         }
-
 
         /// <summary>
         /// Called by the generated proxy class to send the requestMessage to the remote object.
@@ -217,17 +243,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 methodId,
                 requestMsgBodyValue);
         }
-
-
-        internal abstract Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
-            int interfaceId,
-            int methodId,
-            IServiceRemotingRequestMessageBody requestMsgBodyValue,
-            CancellationToken cancellationToken);
-
-        internal abstract void InvokeImplV2(
-            int interfaceId,
-            int methodId,
-            IServiceRemotingRequestMessageBody requestMsgBodyValue);
     }
 }

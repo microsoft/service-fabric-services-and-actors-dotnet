@@ -26,7 +26,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.remotingMessageBodyFactory = this.serializersManager.GetSerializationProvider().CreateMessageBodyFactory();
         }
 
-
         public void SendOneWay(IServiceRemotingRequestMessage requestMessage)
         {
             var headerSerialzier = this.serializersManager.GetHeaderSerializer();

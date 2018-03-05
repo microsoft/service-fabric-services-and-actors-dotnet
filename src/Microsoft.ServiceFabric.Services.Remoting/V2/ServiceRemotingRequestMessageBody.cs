@@ -12,18 +12,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     [DataContract(Name = "msgBody", Namespace = Constants.ServiceCommunicationNamespace)]
     internal class ServiceRemotingRequestMessageBody : IServiceRemotingRequestMessageBody
     {
+        [DataMember]
+        private Dictionary<string, object> parameters;
+
         public ServiceRemotingRequestMessageBody(int parameterInfos)
         {
             this.parameters = new Dictionary<string, object>(parameterInfos);
         }
 
-        [DataMember] private Dictionary<string, object> parameters;
-
         public void SetParameter(int position, string paramName, object parameter)
         {
             this.parameters[paramName] = parameter;
         }
-
 
         public object GetParameter(int position, string paramName, Type paramType)
         {

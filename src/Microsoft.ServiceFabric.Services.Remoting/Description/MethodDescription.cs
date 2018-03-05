@@ -24,14 +24,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
         private MethodDescription(
             MethodInfo methodInfo,
             MethodArgumentDescription[] arguments,
-            bool hasCancellationToken, bool useCRCIdGeneration)
+            bool hasCancellationToken,
+            bool useCRCIdGeneration)
         {
             this.methodInfo = methodInfo;
             this.useCRCIdGeneration = useCRCIdGeneration;
             if (this.useCRCIdGeneration)
             {
                 this.methodId = IdUtil.ComputeIdWithCRC(methodInfo);
-                //This is needed for backward compatibility support to V1 Stack like ActorEventproxy where Code-gen happens only once.
+
+                // This is needed for backward compatibility support to V1 Stack like ActorEventproxy where Code-gen happens only once.
                 this.methodIdV1 = IdUtil.ComputeId(methodInfo);
             }
             else
@@ -88,9 +90,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             {
                 if (hasCancellationToken)
                 {
-                    //
                     // If the method has a cancellation token, then it must be the last argument.
-                    //
                     throw new ArgumentException(
                         string.Format(
                             CultureInfo.CurrentCulture,

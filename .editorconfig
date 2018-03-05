@@ -164,12 +164,12 @@ dotnet_naming_symbols.static_fields.applicable_kinds            = field
 dotnet_naming_symbols.static_fields.applicable_accessibilities  = public,internal
 dotnet_naming_symbols.static_fields.required_modifiers          = static
 
-# Use PascalCase for public fields
-dotnet_naming_rule.pascal_case_for_public_fields.severity       = warning
-dotnet_naming_rule.pascal_case_for_public_fields.symbols        = public_fields
-dotnet_naming_rule.pascal_case_for_public_fields.style          = pascal_case_style
-dotnet_naming_symbols.public_fields.applicable_kinds            = field
-dotnet_naming_symbols.public_fields.applicable_accessibilities  = public
+# Use PascalCase for public and internal fields
+dotnet_naming_rule.pascal_case_for_public_internal_fields.severity       = warning
+dotnet_naming_rule.pascal_case_for_public_internal_fields.symbols        = public_internal_fields
+dotnet_naming_rule.pascal_case_for_public_internal_fields.style          = pascal_case_style
+dotnet_naming_symbols.public_internal_fields.applicable_kinds            = field
+dotnet_naming_symbols.public_internal_fields.applicable_accessibilities  = public,internal
 
 # Use PascalCase for private static readonly fields
 dotnet_naming_rule.pascal_case_for_private_static_readonly_fields.severity       = warning

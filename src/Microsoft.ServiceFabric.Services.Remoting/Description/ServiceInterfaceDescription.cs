@@ -11,11 +11,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
 
     internal sealed class ServiceInterfaceDescription : InterfaceDescription
     {
-
         private ServiceInterfaceDescription(
             Type serviceInterfaceType,
-            bool useCRCIdGeneration) :
-            base("service", serviceInterfaceType, useCRCIdGeneration)
+            bool useCRCIdGeneration)
+            : base("service", serviceInterfaceType, useCRCIdGeneration)
         {
         }
 

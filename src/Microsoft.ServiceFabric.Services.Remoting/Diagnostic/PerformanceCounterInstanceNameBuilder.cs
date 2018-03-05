@@ -16,29 +16,66 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 
         // The counter instance name for a method contains the substring "_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX".
         // So compute the number of characters remaining for the rest of the instance name.
-        internal static int DefaultMaxInstanceNameVariablePartsLen = MaxCounterInstanceNameLen - Guid.Empty.ToString().Length - 1;
+        private static int defaultMaxInstanceNameVariablePartsLen = (MaxCounterInstanceNameLen - Guid.Empty.ToString().Length - 1);
 
-        private Guid partitionId;
         private readonly string counterInstanceDifferentiator;
         private readonly int maxMethodInfoLen;
 
-        internal PerformanceCounterInstanceNameBuilder(Guid partitionId, string counterInstanceDifferentiator,
-            int MaxInstanceNameVariablePartsLen = 0)
+        private Guid partitionId;
+
+        internal PerformanceCounterInstanceNameBuilder(
+            Guid partitionId,
+            string counterInstanceDifferentiator,
+            int maxInstanceNameVariablePartsLen = 0)
         {
-            if (MaxInstanceNameVariablePartsLen == 0)
+            if (maxInstanceNameVariablePartsLen == 0)
             {
-                MaxInstanceNameVariablePartsLen = DefaultMaxInstanceNameVariablePartsLen;
+                maxInstanceNameVariablePartsLen = DefaultMaxInstanceNameVariablePartsLen;
             }
+
             this.partitionId = partitionId;
 
             this.counterInstanceDifferentiator = counterInstanceDifferentiator;
 
             // Adjust the number of characters available to hold the method information to account for the
             // counterInstanceDifferentiator that is appended at the end.
-            this.maxMethodInfoLen = MaxInstanceNameVariablePartsLen - this.counterInstanceDifferentiator.Length - 1;
+            this.maxMethodInfoLen = maxInstanceNameVariablePartsLen - this.counterInstanceDifferentiator.Length - 1;
         }
 
+        private enum MethodNameFormat
+        {
+            TypeAndMember,
+            TypeMemberParamsAndReturn,
+            Truncated,
 
+            // This value does not represent a method name format. It represents the count of
+            // method name formats.
+            Count,
+        }
+
+        private enum MethodNameParts
+        {
+            DeclaringType,
+            MethodName,
+            Params,
+
+            // This value does not represent any part of the method name. Instead,
+            // it represents the total count of method name parts.
+            Count,
+        }
+
+        internal static int DefaultMaxInstanceNameVariablePartsLen
+        {
+            get
+            {
+                return defaultMaxInstanceNameVariablePartsLen;
+            }
+
+            set
+            {
+                defaultMaxInstanceNameVariablePartsLen = value;
+            }
+        }
 
         internal IEnumerable<KeyValuePair<long, string>> GetMethodCounterInstanceNames(
             IEnumerable<KeyValuePair<long, MethodInfo>> actorMethodInfo)
@@ -138,8 +175,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
                 {
                     methodOverloads[methodName] = 0;
                 }
+
                 methodOverloads[methodName]++;
             }
+
             return methodOverloads;
         }
 
@@ -353,38 +392,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
                     this.counterInstanceDifferentiator);
                 counterInstanceNames.Add(new KeyValuePair<long, string>(currentMethodId, counterInstanceName));
             }
+
             return counterInstanceNames;
         }
 
         private class MethodNameBuilder
         {
+#pragma warning disable SA1401 // Fields should be private
+
             internal MethodNameFormat FormatToUse;
             internal MethodInfo MethodInfo;
             internal int MethodNameMaxLength;
             internal string[] Names;
             internal int Rank;
-        }
 
-        private enum MethodNameFormat
-        {
-            TypeAndMember,
-            TypeMemberParamsAndReturn,
-            Truncated,
-
-            // This value does not represent a method name format. It represents the count of
-            // method name formats.
-            Count,
-        }
-
-        private enum MethodNameParts
-        {
-            DeclaringType,
-            MethodName,
-            Params,
-
-            // This value does not represent any part of the method name. Instead,
-            // it represents the total count of method name parts.
-            Count,
+#pragma warning restore SA1401 // Fields should be private
         }
     }
 }

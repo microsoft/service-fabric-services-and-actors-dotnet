@@ -12,11 +12,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         private readonly Type proxyInterfaceType;
 
         protected ProxyGenerator(Type proxyInterfaceType)
-
         {
             this.proxyInterfaceType = proxyInterfaceType;
         }
-
 
         public Type ProxyInterfaceType
         {

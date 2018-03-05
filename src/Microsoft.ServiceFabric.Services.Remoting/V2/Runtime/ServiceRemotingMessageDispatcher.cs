@@ -32,14 +32,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         private ServicePerformanceCounterProvider servicePerformanceCounterProvider;
 
         /// <summary>
-        /// Instantiates the ServiceRemotingDispatcher that uses the given service context and
-        /// dispatches messages to the given service implementation.
-        /// This dispatcher can be used to dispatch request to the specified Remoting types.
+        /// Initializes a new instance of the <see cref="ServiceRemotingMessageDispatcher"/> class
+        /// that uses the given service context and dispatches messages to the given service implementation.
         /// </summary>
-        /// <param name="remotingTypes">Types to which you can dispatch request to  </param>
-        /// <param name="serviceContext">Service context</param>
-        /// <param name="serviceImplementation">Service implementation that implements specified remoting interfaces</param>
-        /// <param name="serviceRemotingMessageBodyFactory"></param>
+        /// <param name="remotingTypes">Remoted interface types to which to dispatch the messages to.</param>
+        /// <param name="serviceContext">The service fabric service context.</param>
+        /// <param name="serviceImplementation">Object that implements the speciifed remoted interfaces.</param>
+        /// <param name="serviceRemotingMessageBodyFactory">The factory that will be used by the dispatcher to create response message bodies.</param>
         public ServiceRemotingMessageDispatcher(
             IEnumerable<Type> remotingTypes,
             ServiceContext serviceContext,
@@ -57,15 +56,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                     }
                 }
             }
+
             this.Initialize(serviceContext, serviceImplementation, allRemotingTypes, true, serviceRemotingMessageBodyFactory);
         }
+
         /// <summary>
-        /// Instantiates the ServiceRemotingDispatcher that uses the given service context and
-        /// dispatches messages to the given service implementation.
+        /// Initializes a new instance of the <see cref="ServiceRemotingMessageDispatcher"/> class
+        /// that uses the given service context and dispatches messages to the given service implementation.
         /// </summary>
         /// <param name="serviceContext">Service context</param>
         /// <param name="serviceImplementation">Service implementation that implements interfaces of type <see cref="IService"/></param>
-        /// <param name="serviceRemotingMessageBodyFactory">This is the factory used by Dispatcher to create Remoting Response object</param>
+        /// <param name="serviceRemotingMessageBodyFactory">The factory that will be used by the dispatcher to create response message bodies.</param>
         public ServiceRemotingMessageDispatcher(
             ServiceContext serviceContext,
             IService serviceImplementation,
@@ -82,6 +83,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <param name="requestMessageDispatchHeaders">Request message headers</param>
         /// <param name="requestMessageBody">Request message body</param>
         /// <param name="cancellationToken">Cancellation token. It can be used to cancel the request</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The result of the task is the response for the received request.</returns>
         public virtual Task<IServiceRemotingResponseMessageBody> HandleRequestResponseAsync(
             ServiceRemotingDispatchHeaders requestMessageDispatchHeaders,
             IServiceRemotingRequestMessageBody requestMessageBody,
@@ -91,12 +93,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             return this.HandleRequestResponseAsync(header, requestMessageBody, cancellationToken);
         }
 
-
         /// <summary>
         /// Handles a message from the client that requires a response from the service.
         /// </summary>
         /// <param name="requestContext">Request context - contains additional information about the request</param>
         /// <param name="requestMessage">Request message</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The result of the task is the response for the received request.</returns>
         public virtual async Task<IServiceRemotingResponseMessage> HandleRequestResponseAsync(
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
@@ -117,7 +119,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                         messageHeaders.InterfaceId,
                         messageHeaders.MethodId,
                         messageHeaders.InvocationId,
-                        cancellationToken => this.OnDispatch(messageHeaders, requestMessage.GetBody(),
+                        cancellationToken => this.OnDispatch(
+                            messageHeaders,
+                            requestMessage.GetBody(),
                             cancellationToken));
 
                 return retval;
@@ -130,30 +134,59 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <param name="requestMessage">Request message</param>
         public virtual void HandleOneWayMessage(IServiceRemotingRequestMessage requestMessage)
         {
-            throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, SR.ErrorMethodNotImplemented,
-                this.GetType().Name, "HandleOneWay"));
+            throw new NotImplementedException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    SR.ErrorMethodNotImplemented,
+                    this.GetType().Name,
+                    "HandleOneWay"));
         }
 
         /// <summary>
-        /// Returns a IServiceRemotingMessageBodyFactory used to create Remoting Response objects.
+        /// Gets the factory used for creating the remoting response message bodies.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The factory used by this dispatcher for creating the remoting response message bodies.</returns>
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
             return this.serviceRemotingMessageBodyFactory;
         }
 
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (this.servicePerformanceCounterProvider != null)
+            {
+                this.servicePerformanceCounterProvider.Dispose();
+            }
+        }
+
+        internal bool IsCancellationRequest(IServiceRemotingRequestMessageHeader requestMessageHeaders)
+        {
+            if (requestMessageHeaders.InvocationId != null &&
+                requestMessageHeaders.TryGetHeaderValue(
+                    ServiceRemotingRequestMessageHeader.CancellationHeaderName,
+                    out var headerValue))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         private Task<IServiceRemotingResponseMessage> OnDispatch(
             IServiceRemotingRequestMessageHeader requestMessageHeaders,
-            IServiceRemotingRequestMessageBody requestBody, CancellationToken cancellationToken)
+            IServiceRemotingRequestMessageBody requestBody,
+            CancellationToken cancellationToken)
         {
             if (!this.methodDispatcherMap.TryGetValue(requestMessageHeaders.InterfaceId, out var methodDispatcher))
             {
                 throw new NotImplementedException(string.Format(
                     CultureInfo.CurrentCulture,
-                    SR.ErrorInterfaceNotImplemented, requestMessageHeaders.InterfaceId, this.serviceImplementation));
+                    SR.ErrorInterfaceNotImplemented,
+                    requestMessageHeaders.InterfaceId,
+                    this.serviceImplementation));
             }
+
             Task<IServiceRemotingResponseMessageBody> dispatchTask = null;
             var stopwatch = Stopwatch.StartNew();
 
@@ -169,11 +202,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             catch (Exception e)
             {
                 var info = ExceptionDispatchInfo.Capture(e);
-                this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                (
+                this.servicePerformanceCounterProvider.OnServiceMethodFinish(
                     requestMessageHeaders.InterfaceId,
                     requestMessageHeaders.MethodId,
-                    stopwatch.Elapsed, e);
+                    stopwatch.Elapsed,
+                    e);
                 info.Throw();
             }
 
@@ -189,11 +222,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                     {
                         var info = ExceptionDispatchInfo.Capture(e);
 
-                        this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                        (
+                        this.servicePerformanceCounterProvider.OnServiceMethodFinish(
                             requestMessageHeaders.InterfaceId,
                             requestMessageHeaders.MethodId,
-                            stopwatch.Elapsed, e);
+                            stopwatch.Elapsed,
+                            e);
                         info.Throw();
                     }
 
@@ -206,19 +239,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                         (IServiceRemotingResponseMessageBody)responseBody);
                 },
                 TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        internal bool IsCancellationRequest(IServiceRemotingRequestMessageHeader requestMessageHeaders)
-        {
-            if (requestMessageHeaders.InvocationId != null &&
-                requestMessageHeaders.TryGetHeaderValue(
-                    ServiceRemotingRequestMessageHeader.CancellationHeaderName,
-                    out var headerValue))
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private IServiceRemotingRequestMessageHeader CreateServiceRemotingRequestMessageHeader(
@@ -240,12 +260,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
                 return headers;
             }
+
             throw new NotSupportedException("This Interface is not Supported" +
                                             serviceRemotingDispatchHeaders.ServiceInterfaceName);
         }
 
-        private void Initialize(ServiceContext serviceContext, object serviceImplementation,
-            IEnumerable<Type> remotedInterfaces, bool nonServiceInterface,
+        private void Initialize(
+            ServiceContext serviceContext,
+            object serviceImplementation,
+            IEnumerable<Type> remotedInterfaces,
+            bool nonServiceInterface,
             IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
         {
             this.serviceRemotingMessageBodyFactory = serviceRemotingMessageBodyFactory ?? new DataContractRemotingMessageFactory();
@@ -271,6 +295,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                         methodDispatcher = ServiceCodeBuilder.GetOrCreateMethodDispatcher(interfaceType);
                         interfaceDescriptions.Add(ServiceInterfaceDescription.CreateUsingCRCId(interfaceType, true));
                     }
+
                     this.methodDispatcherMap.Add(methodDispatcher.InterfaceId, methodDispatcher);
                 }
 
@@ -288,23 +313,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestMessageBody requestMessageBody,
             CancellationToken cancellationToken)
         {
-            var retval = await this.OnDispatch(remotingRequestMessageHeader, requestMessageBody,
-                    cancellationToken);
+            var retval = await this.OnDispatch(
+                remotingRequestMessageHeader,
+                requestMessageBody,
+                cancellationToken);
 
             if (retval != null)
             {
                 return retval.GetBody();
             }
-            return null;
-        }
 
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (this.servicePerformanceCounterProvider != null)
-            {
-                this.servicePerformanceCounterProvider.Dispose();
-            }
+            return null;
         }
     }
 }

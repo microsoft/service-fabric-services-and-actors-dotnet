@@ -176,8 +176,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
         private void AddVoidMethodImplementation(TypeBuilder classBuilder, int interfaceDescriptionId,
             MethodDescription methodDescription,
-            string interfaceName
-        )
+            string interfaceName)
         {
             var interfaceMethod = methodDescription.MethodInfo;
 
@@ -198,8 +197,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
         internal void AddVoidMethodImplementation2(ILGenerator ilGen, int interfaceDescriptionId,
             MethodDescription methodDescription,
-            string interfaceName
-        )
+            string interfaceName)
         {
             var interfaceMethod = methodDescription.MethodInfo;
 
@@ -231,6 +229,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                     {
                         ilGen.Emit(OpCodes.Box, parameters[i].ParameterType);
                     }
+
                     ilGen.Emit(OpCodes.Callvirt, setMethod);
                 }
             }
@@ -349,6 +348,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                     {
                         ilGen.Emit(OpCodes.Box, parameters[i].ParameterType);
                     }
+
                     ilGen.Emit(OpCodes.Callvirt, setMethod);
                 }
             }

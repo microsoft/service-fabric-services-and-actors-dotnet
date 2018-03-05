@@ -1,3 +1,8 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System;
@@ -22,10 +27,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         {
         }
 
-        //Used for Actor layer
         public BasicDataContractHeaderSerializer(
-            DataContractSerializer headerRequestSerializer
-        )
+            DataContractSerializer headerRequestSerializer)
         {
             this.requestHeaderSerializer = headerRequestSerializer;
             this.responseHeaderSerializer = new DataContractSerializer(
@@ -43,7 +46,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 return null;
             }
-
 
             using (var stream = new MemoryStream())
             {
@@ -79,7 +81,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 return null;
             }
-
 
             using (var stream = new MemoryStream())
             {

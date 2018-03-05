@@ -57,7 +57,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             Uri serviceUri,
             ServicePartitionKey partitionKey = null,
             TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default,
-            string listenerName = null) where TServiceInterface : IService
+            string listenerName = null)
+            where TServiceInterface : IService
         {
             var serviceInterfaceType = typeof(TServiceInterface);
             var proxyGenerator = ServiceCodeBuilder.GetOrCreateProxyGenerator(serviceInterfaceType);

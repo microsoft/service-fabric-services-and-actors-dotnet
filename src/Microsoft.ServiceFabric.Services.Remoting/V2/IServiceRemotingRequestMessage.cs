@@ -16,7 +16,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <returns>IServiceRemotingRequestMessageHeader</returns>
         IServiceRemotingRequestMessageHeader GetHeader();
 
-
         /// <summary>
         /// Gets the Remoting Request Message Body </summary>
         /// <returns>IServiceRemotingRequestMessageBody</returns>

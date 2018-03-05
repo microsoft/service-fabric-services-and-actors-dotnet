@@ -184,6 +184,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             {
                 ilGen.Emit(OpCodes.Box, fieldInfo.FieldType);
             }
+
             ilGen.Emit(OpCodes.Ret);
         }
 
@@ -203,8 +204,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
                     if (TypeUtility.IsTaskType(methodDescription.ReturnType))
                     {
                         this.AddAsyncMethodImplementation(classBuilder, interfaceDescription.Id, methodDescription,
-                            methodBodyTypes
-                        );
+                            methodBodyTypes);
                     }
                     else if (TypeUtility.IsVoidType(methodDescription.ReturnType))
                     {

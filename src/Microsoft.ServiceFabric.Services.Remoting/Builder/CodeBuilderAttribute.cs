@@ -15,16 +15,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
     public class CodeBuilderAttribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the ActorCodeBuilderAttribute class.
+        /// Initializes a new instance of the <see cref="CodeBuilderAttribute"/> class.
         /// </summary>
         public CodeBuilderAttribute()
         {
         }
 
         /// <summary>
-        /// Gets or sets enable debugging flag for the attribute to be used by auto code generation.
+        /// Gets or sets a value indicating whether to enable debugging flag for the attribute to be used by auto code generation.
         /// </summary>
-        /// <value><see cref="System.Boolean"/> to get or set enable debugging flag for the attribute to be used by auto code generation.</value>
+        /// <value><see cref="bool"/> to get or set enable debugging flag for the attribute to be used by auto code generation.</value>
         public bool EnableDebugging { get; set; }
 
         internal static bool IsDebuggingEnabled(Type type = null)

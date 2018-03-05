@@ -7,8 +7,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
     using System.Reflection;
+    using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     internal class MethodBodyTypesBuilder : CodeBuilderModule
     {
@@ -97,13 +97,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 typeName: codeBuilderNames.GetResponseBodyTypeName(methodDescription.Name),
                 dcNamespace: codeBuilderNames.GetDataContractNamespace());
 
-
             var returnDataType = methodDescription.ReturnType.GetGenericArguments()[0];
             CodeBuilderUtils.AddDataMemberField(
                 dcTypeBuilder: responseBodyTypeBuilder,
                 fieldType: returnDataType,
                 fieldName: codeBuilderNames.RetVal);
-
 
             return responseBodyTypeBuilder.CreateTypeInfo().AsType();
         }

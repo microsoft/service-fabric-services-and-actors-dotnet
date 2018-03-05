@@ -59,6 +59,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
                         this.transportCallbackClient.Dispose();
                     }
                 }
+
                 this.disposedValue = true;
             }
         }

@@ -92,6 +92,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
                     this.Initialize();
                     return this.Position;
             }
+
             throw new NotImplementedException();
         }
 
@@ -163,6 +164,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             {
                 return -1;
             }
+
             var currentBuffer = this.readbuffers.ElementAt((this.bufferNum));
 
             //Read from next buffer

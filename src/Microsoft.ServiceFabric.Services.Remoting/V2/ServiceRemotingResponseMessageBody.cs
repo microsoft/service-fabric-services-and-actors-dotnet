@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -11,7 +11,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     [DataContract(Name = "msgResponse", Namespace = Constants.ServiceCommunicationNamespace)]
     internal class ServiceRemotingResponseMessageBody : IServiceRemotingResponseMessageBody
     {
-        [DataMember] private object response;
+        [DataMember]
+        private object response;
 
         public void Set(object response)
         {

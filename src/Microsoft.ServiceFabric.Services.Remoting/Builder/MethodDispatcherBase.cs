@@ -17,12 +17,47 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
     {
         private int interfaceId;
         private IReadOnlyDictionary<int, string> methodNameMap;
+
         /// <summary>
-        ///  Interface Id is used to identify remoting Interfaces.
+        /// Gets the id of the interface supported by this method dispatcher.
         /// </summary>
         public int InterfaceId
         {
             get { return this.interfaceId; }
+        }
+
+        /// <summary>
+        /// This method is used to dispatch request to the specified methodId of the
+        /// interface implemented by the remoted object.
+        /// </summary>
+        /// <param name="objectImplementation">The object impplemented the remoted interface.</param>
+        /// <param name="methodId">Id of the method to which to dispatch the request to.</param>
+        /// <param name="requestBody">The body of the request object that needs to be dispatched to the object.</param>
+        /// <param name="cancellationToken">The cancellation token that will be signaled if this operation is cancelled.</param>
+        /// <returns>A task that represents the outstanding asynchronous call to the implementation object.
+        /// The return value of the task contains the returned value from the invoked method.</returns>
+        public abstract Task<object> DispatchAsync(
+            object objectImplementation,
+            int methodId,
+            object requestBody,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// This method is used to dispatch one way messages to the specified methodId of the interface implemented by the remoted object.
+        /// </summary>
+        /// <param name="objectImplementation">The object impplemented the remoted interface.</param>
+        /// <param name="methodId">Id of the method to which to dispatch the request to.</param>
+        /// <param name="messageBody">The body of the one-way message that needs to be dispatched to the object.</param>
+        public abstract void Dispatch(object objectImplementation, int methodId, object messageBody);
+
+        /// <summary>
+        /// Gets the name of the method that has the specified methodId.
+        /// </summary>
+        /// <param name="methodId">The id of the method.</param>
+        /// <returns>The name of the method corresponding to the specified method id.</returns>
+        public string GetMethodName(int methodId)
+        {
+            return this.methodNameMap[methodId];
         }
 
         internal void SetInterfaceId(int interfaceId)
@@ -34,28 +69,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         {
             this.methodNameMap = methodNameMap;
         }
-
-
-        /// <summary>
-        ///This method is used to dispatch request to the specified methodId of the
-        /// interface implemented by the remoted object.
-        /// </summary>
-        /// <param name="objectImplementation"></param>
-        /// <param name="methodId"></param>
-        /// <param name="requestBody"></param>
-        /// <param name="cancellationToken"></param>
-        public abstract Task<object> DispatchAsync(object objectImplementation, int methodId, object requestBody,
-            CancellationToken cancellationToken);
-
-        /// <summary>
-        /// This method is used to dispatch one way messages to the specified methodId of the
-        /// interface implemented by the remoted object.
-        /// </summary>
-        /// <param name="objectImplementation"></param>
-        /// <param name="methodId"></param>
-        /// <param name="messageBody"></param>
-        public abstract void Dispatch(object objectImplementation, int methodId, object messageBody);
-
 
         /// <summary>
         /// Internal - used by Service remoting
@@ -73,17 +86,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                     return null;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="methodId"></param>
-        /// <returns></returns>
-        public string GetMethodName(int methodId)
-        {
-            return this.methodNameMap[methodId];
         }
     }
 }

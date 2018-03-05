@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private readonly string traceId;
 
         /// <summary>
-        /// Constructs a ServiceRemotingExceptionHandler with a default trace ID.
+        /// Initializes a new instance of the <see cref="ServiceRemotingExceptionHandler"/> class with a default trace id.
         /// </summary>
         public ServiceRemotingExceptionHandler()
             : this(null)
@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
         /// <summary>
-        /// Constructs a ServiceRemotingExceptionHandler with a specified trace ID.
+        /// Initializes a new instance of the <see cref="ServiceRemotingExceptionHandler"/> class with a specified trace Id.
         /// </summary>
         /// <param name="traceId">
         ///     The ID to use in diagnostics traces from this component.
@@ -79,7 +79,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             OperationRetrySettings retrySettings,
             out ExceptionHandlingResult result)
         {
-
             if (exceptionInformation.Exception is FabricNotPrimaryException)
             {
                 if (exceptionInformation.TargetReplica == TargetReplicaSelector.PrimaryReplica)

@@ -141,6 +141,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
             return res;
         }
+
         protected override ProxyGeneratorBuildResult BuildProxyGenerator(Type interfaceType)
         {
             // create all service interfaces that this interface derives from

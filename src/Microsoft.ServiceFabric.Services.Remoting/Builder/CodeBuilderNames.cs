@@ -51,6 +51,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}_.{1}.mt", interfaceType.FullName, this.namePrefix);
         }
+
         public string GetRequestBodyTypeName(string methodName)
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}ReqBody", methodName);

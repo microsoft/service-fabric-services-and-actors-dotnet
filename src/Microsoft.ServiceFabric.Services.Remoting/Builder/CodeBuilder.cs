@@ -43,26 +43,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return result;
         }
 
-        protected void UpdateMethodDispatcherBuildMap(Type interfaceType, MethodDispatcherBuildResult result)
-        {
-            this.methodDispatcherBuildResultMap.Add(interfaceType, result);
-        }
-
-        protected bool TryGetMethodDispatcher(
-            Type interfaceType,
-            out MethodDispatcherBuildResult builderMethodDispatcher)
-        {
-            if (this.methodDispatcherBuildResultMap.TryGetValue(interfaceType, out var result))
-            {
-                {
-                    builderMethodDispatcher = result;
-                    return true;
-                }
-            }
-            builderMethodDispatcher = null;
-            return false;
-        }
-
         MethodBodyTypesBuildResult ICodeBuilder.GetOrBuildMethodBodyTypes(Type interfaceType)
         {
             if (this.methodBodyTypesBuildResultMap.TryGetValue(interfaceType, out var result))
@@ -89,6 +69,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return result;
         }
 
+        protected void UpdateMethodDispatcherBuildMap(Type interfaceType, MethodDispatcherBuildResult result)
+        {
+            this.methodDispatcherBuildResultMap.Add(interfaceType, result);
+        }
+
+        protected bool TryGetMethodDispatcher(
+            Type interfaceType,
+            out MethodDispatcherBuildResult builderMethodDispatcher)
+        {
+            if (this.methodDispatcherBuildResultMap.TryGetValue(interfaceType, out var result))
+            {
+                {
+                    builderMethodDispatcher = result;
+                    return true;
+                }
+            }
+
+            builderMethodDispatcher = null;
+            return false;
+        }
+
         protected void UpdateProxyGeneratorMap(Type interfaceType, ProxyGeneratorBuildResult result)
         {
             this.proxyGeneratorBuildResultMap.Add(interfaceType, result);
@@ -103,6 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                     return true;
                 }
             }
+
             orBuildProxyGenerator = null;
             return false;
         }

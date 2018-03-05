@@ -9,21 +9,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
-    ///
+    /// Defines the interface for service remoting client.
     /// </summary>
     public interface IServiceRemotingClient : ICommunicationClient
     {
         /// <summary>
-        ///
+        /// Send a remoting request to the service and gets a response back.
         /// </summary>
-        /// <param name="requestRequestMessage"></param>
-        /// <returns></returns>
-        Task<IServiceRemotingResponseMessage> RequestResponseAsync(IServiceRemotingRequestMessage requestRequestMessage);
+        /// <param name="requestRequestMessage">The request message.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation for remote method call.
+        /// The result of the task contains the response for the request.</returns>
+        Task<IServiceRemotingResponseMessage> RequestResponseAsync(
+            IServiceRemotingRequestMessage requestRequestMessage);
 
         /// <summary>
-        ///
+        /// Sends a one-way message to the service.
         /// </summary>
-        /// <param name="requestMessage"></param>
+        /// <param name="requestMessage">The one-way message.</param>
         void SendOneWay(IServiceRemotingRequestMessage requestMessage);
     }
 }

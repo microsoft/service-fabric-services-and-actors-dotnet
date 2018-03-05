@@ -87,9 +87,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
             }
             else
             {
-                if (this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
+                if (this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
                 {
-                    this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
+                    this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
                 }
 
                 var requestStopWatch = Stopwatch.StartNew();
@@ -104,19 +104,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                 }
                 finally
                 {
-                    if (this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
+                    if (this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
                     {
-                        this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
+                        this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
                             .UpdateCounterValue(-1);
                     }
 
-                    if (this.servicePerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter != null)
+                    if (this.servicePerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter != null)
                     {
-                        this.servicePerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter
+                        this.servicePerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter
                             .UpdateCounterValue(
                                 requestStopWatch.ElapsedMilliseconds);
                     }
                 }
+
                 return retval;
             }
         }
@@ -144,16 +145,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                     CultureInfo.CurrentCulture,
                     SR.ErrorInterfaceNotImplemented, headers.InterfaceId, this.service));
             }
+
             Task<object> dispatchTask = null;
             var stopwatch = Stopwatch.StartNew();
             var requestBody = methodDispatcher.DeserializeRequestMessageBody(requestBodyBytes);
 
-            if (this.servicePerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter != null)
+            if (this.servicePerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
             {
-                this.servicePerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter.UpdateCounterValue
+                this.servicePerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue
                 (
                     stopwatch.ElapsedMilliseconds);
             }
+
             stopwatch.Restart();
             try
             {
@@ -199,11 +202,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
 
                     stopwatch.Restart();
                     var response = methodDispatcher.SerializeResponseMessageBody(responseBody);
-                    if (this.servicePerformanceCounterProvider.serviceResponseSerializationTimeCounterWriter != null)
+                    if (this.servicePerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
                     {
-                        this.servicePerformanceCounterProvider.serviceResponseSerializationTimeCounterWriter
+                        this.servicePerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter
                             .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
                     }
+
                     return response;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);

@@ -33,7 +33,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             if (this.useCRCIdGeneration)
             {
                 this.interfaceId = IdUtil.ComputeIdWithCRC(remotedInterfaceType);
-                //This is needed for backward compatibility support to V1 Stack like ActorEventproxy
+
+                // This is needed for backward compatibility support to V1 Stack like ActorEventproxy
                 this.interfaceIdV1 = IdUtil.ComputeId(remotedInterfaceType);
             }
             else
@@ -81,13 +82,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             }
         }
 
-
         private static MethodDescription[] GetMethodDescriptions(
             string remotedInterfaceKindName,
             Type remotedInterfaceType,
             MethodReturnCheck methodReturnCheck,
-            bool useCRCIdGeneration
-           )
+            bool useCRCIdGeneration)
         {
             EnsureValidMethods(remotedInterfaceKindName, remotedInterfaceType, methodReturnCheck);
             var methods = remotedInterfaceType.GetMethods();
@@ -96,6 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             {
                 methodDescriptions[i] = MethodDescription.Create(remotedInterfaceKindName, methods[i], useCRCIdGeneration);
             }
+
             return methodDescriptions;
         }
 
@@ -123,35 +123,50 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             }
         }
 
-        private static void EnsureNotOverloaded(string remotedInterfaceKindName, Type remotedInterfaceType,
+        private static void EnsureNotOverloaded(
+            string remotedInterfaceKindName,
+            Type remotedInterfaceType,
             MethodInfo methodInfo,
             ISet<string> methodNameSet)
         {
             if (methodNameSet.Contains(methodInfo.Name))
             {
-                ThrowArgumentExceptionForMethodChecks(remotedInterfaceKindName, remotedInterfaceType, methodInfo,
+                ThrowArgumentExceptionForMethodChecks(
+                    remotedInterfaceKindName,
+                    remotedInterfaceType,
+                    methodInfo,
                     SR.ErrorRemotedMethodsIsOverloaded);
             }
 
             methodNameSet.Add((methodInfo.Name));
         }
 
-        private static void EnsureNotGeneric(string remotedInterfaceKindName, Type remotedInterfaceType,
+        private static void EnsureNotGeneric(
+            string remotedInterfaceKindName,
+            Type remotedInterfaceType,
             MethodInfo methodInfo)
         {
             if (methodInfo.IsGenericMethod)
             {
-                ThrowArgumentExceptionForMethodChecks(remotedInterfaceKindName, remotedInterfaceType, methodInfo,
+                ThrowArgumentExceptionForMethodChecks(
+                    remotedInterfaceKindName,
+                    remotedInterfaceType,
+                    methodInfo,
                     SR.ErrorRemotedMethodHasGenerics);
             }
         }
 
-        private static void EnsureNotVariableArgs(string remotedInterfaceKindName, Type remotedInterfaceType,
+        private static void EnsureNotVariableArgs(
+            string remotedInterfaceKindName,
+            Type remotedInterfaceType,
             MethodInfo methodInfo)
         {
             if (methodInfo.CallingConvention == CallingConventions.VarArgs)
             {
-                ThrowArgumentExceptionForMethodChecks(remotedInterfaceKindName, remotedInterfaceType, methodInfo,
+                ThrowArgumentExceptionForMethodChecks(
+                    remotedInterfaceKindName,
+                    remotedInterfaceType,
+                    methodInfo,
                     SR.ErrorRemotedMethodHasVaArgs);
             }
         }

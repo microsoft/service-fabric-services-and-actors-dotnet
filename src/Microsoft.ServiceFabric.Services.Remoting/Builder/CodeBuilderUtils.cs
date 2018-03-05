@@ -35,21 +35,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
         public static AssemblyBuilder CreateAssemblyBuilder(string assemblyName, bool saveOnDisk = false)
         {
-            return AssemblyBuilder.DefineDynamicAssembly(
 #if !DotNetCoreClr
+            return AssemblyBuilder.DefineDynamicAssembly(
                 new AssemblyName(assemblyName),
-                saveOnDisk ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.RunAndCollect
+                saveOnDisk ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.RunAndCollect);
 #else
-                new AssemblyName(assemblyName), AssemblyBuilderAccess.RunAndCollect
+             return AssemblyBuilder.DefineDynamicAssembly(
+                new AssemblyName(assemblyName),
+                AssemblyBuilderAccess.RunAndCollect);
 #endif
-                );
         }
 
-        public static ModuleBuilder CreateModuleBuilder(AssemblyBuilder assemblyBuilder, string moduleName,
+        public static ModuleBuilder CreateModuleBuilder(
+            AssemblyBuilder assemblyBuilder,
+            string moduleName,
             bool saveOnDisk = false)
         {
 #if !DotNetCoreClr
-            return saveOnDisk ? assemblyBuilder.DefineDynamicModule(moduleName, string.Concat(moduleName, ".dll"), true)
+            return saveOnDisk ?
+                assemblyBuilder.DefineDynamicModule(moduleName, string.Concat(moduleName, ".dll"), true)
                 : assemblyBuilder.DefineDynamicModule(moduleName);
 #else
             return assemblyBuilder.DefineDynamicModule(moduleName);
@@ -74,7 +78,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                     TypeAttributes.Public | TypeAttributes.Class,
                     baseType);
             }
-
 
             return moduleBuilder.DefineType(
                 className,
@@ -159,13 +162,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             var parameters = interfaceMethod.GetParameters();
             var parameterTypes = parameters.Select(pi => pi.ParameterType).ToArray();
 
-            var methodBuilder = typeBuilder.DefineMethod(
-                string.Concat(interfaceMethod.DeclaringType.Name, ".", interfaceMethod.Name),
-                (MethodAttributes.Private |
+            var methodAttrs = (MethodAttributes.Private |
                 MethodAttributes.HideBySig |
                 MethodAttributes.NewSlot |
                 MethodAttributes.Virtual |
-                MethodAttributes.Final),
+                MethodAttributes.Final);
+
+            var methodBuilder = typeBuilder.DefineMethod(
+                string.Concat(interfaceMethod.DeclaringType.Name, ".", interfaceMethod.Name),
+                methodAttrs,
                 interfaceMethod.ReturnType,
                 parameterTypes);
 
@@ -186,7 +191,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             AddDataContractAttribute(typeBuilder, dcNamespace, dcName);
             return typeBuilder;
         }
-
 
         public static void AddDataMemberField(TypeBuilder dcTypeBuilder, Type fieldType, string fieldName)
         {

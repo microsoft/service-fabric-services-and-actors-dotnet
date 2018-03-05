@@ -19,20 +19,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             IBufferPoolManager bufferPoolManager)
             : this(
                 bufferPoolManager,
-                 new DataContractSerializer(
-                typeof(IServiceRemotingRequestMessageHeader),
-                new DataContractSerializerSettings()
-                {
-                    MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader) },
-                }))
-        { }
-
+                new DataContractSerializer(
+                    typeof(IServiceRemotingRequestMessageHeader),
+                    new DataContractSerializerSettings()
+                    {
+                        MaxItemsInObjectGraph = int.MaxValue,
+                        KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader) },
+                    }))
+        {
+        }
 
         public ServiceRemotingMessageHeaderSerializer(
             IBufferPoolManager bufferPoolManager,
-            DataContractSerializer headerRequestSerializer
-        )
+            DataContractSerializer headerRequestSerializer)
         {
             this.bufferPoolManager = bufferPoolManager;
             this.requestHeaderSerializer = headerRequestSerializer;
@@ -45,15 +44,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 });
         }
 
-
         public IMessageHeader SerializeRequestHeader(IServiceRemotingRequestMessageHeader serviceRemotingRequestMessageHeader)
         {
-
             if (serviceRemotingRequestMessageHeader == null)
             {
                 return null;
             }
-
 
             using (var stream = new SegmentedPoolMemoryStream(this.bufferPoolManager))
             {
@@ -88,7 +84,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 return null;
             }
-
 
             using (var stream = new SegmentedPoolMemoryStream(this.bufferPoolManager))
             {

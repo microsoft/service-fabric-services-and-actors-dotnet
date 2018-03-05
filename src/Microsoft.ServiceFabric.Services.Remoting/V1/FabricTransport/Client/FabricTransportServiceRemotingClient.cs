@@ -120,6 +120,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                                 e.ToString()));
                         }
                     }
+
                     return retval.GetBody();
                 });
         }

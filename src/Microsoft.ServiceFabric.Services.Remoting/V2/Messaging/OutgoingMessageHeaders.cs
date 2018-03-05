@@ -50,6 +50,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             {
                 length += pooledBuffer.ContentLength;
             }
+
             var sourceArr = new byte[length];
             var writtenBytes = 0;
             foreach (var pooledBuffer in pooledBuffers)
