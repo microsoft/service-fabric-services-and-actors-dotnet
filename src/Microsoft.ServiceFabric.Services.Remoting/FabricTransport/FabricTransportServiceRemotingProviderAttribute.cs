@@ -17,15 +17,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 #endif
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
-
     /// <summary>
-    ///  Sets Fabric TCP transport as the default service remoting transport provider in the assembly.
+    /// This attributes allows to set Fabric TCP transport as the default service remoting transport provider in the assembly and customization of it.
     /// </summary>
     public class FabricTransportServiceRemotingProviderAttribute : ServiceRemotingProviderAttribute
     {
         /// <summary>
-        /// Constructs a <see cref="FabricTransportServiceRemotingProviderAttribute"/> which can be used
-        /// to set Fabric TCP transport as the default service remoting transport provider in the assembly.
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingProviderAttribute"/> class.
         /// </summary>
         public FabricTransportServiceRemotingProviderAttribute()
         {
@@ -42,7 +40,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// </value>
         public long MaxMessageSize { get; set; }
 
-
         /// <summary>
         ///     Gets or Sets the operation timeout in seconds. If the operation is not completed in the specified
         ///     time, it will be timed out. By default, exception handler of
@@ -55,7 +52,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// </value>
         public long OperationTimeoutInSeconds { get; set; }
 
-
         /// <summary>
         ///     Gets or Sets the keep alive timeout in seconds. This settings is useful in the scenario when the client
         ///     and service are connected via load balancer that closes the connection if it is idle for some time.
@@ -67,7 +63,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// </value>
         public long KeepAliveTimeoutInSeconds { get; set; }
 
-
         /// <summary>
         ///     Gets or Sets the connect timeout in milliseconds. This settings specifies the maximum time allowed for the connection
         ///     to be established.
@@ -77,7 +72,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// </value>
         /// <remarks>Default Value for ConnectTimeout Timeout is 5 seconds.</remarks>
         public long ConnectTimeoutInMilliseconds { get; set; }
-
 
 #if !DotNetCoreClr
 
@@ -130,6 +124,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
 #endif
+
         /// <summary>
         ///     Creates a V2 service remoting listener for remoting the service interface.
         /// </summary>
@@ -152,7 +147,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
             return new V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener(
                 serviceContext: serviceContext,
-                serviceImplementation: serviceImplementation, remotingListenerSettings: settings);
+                serviceImplementation: serviceImplementation,
+                remotingListenerSettings: settings);
         }
 
         /// <summary>
@@ -167,7 +163,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     that can be used with <see cref="Remoting.Client.ServiceProxyFactory"/> to
         ///     generate service proxy to talk to a stateless or stateful service over remoted actor interface.
         /// </returns>
-
         public override V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
             IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {

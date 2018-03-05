@@ -17,11 +17,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     /// </summary>
     public class FabricTransportRemotingListenerSettings
     {
+        private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
-
-        private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRemotingListenerSettings"/> class with default values.
