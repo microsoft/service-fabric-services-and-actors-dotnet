@@ -72,7 +72,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
                 methodBodyTypesBuildResult.GetRequestBodyTypes(),
                 methodBodyTypesBuildResult.GetResponseBodyTypes());
 
-
             context.Complete();
             return result;
         }
@@ -115,7 +114,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             ilGen.Emit(OpCodes.Ret);
         }
 
-
         private void AddIfMethodIdCreateResponseBlock(
             ILGenerator ilGen,
             Label elseLabel,
@@ -131,6 +129,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
             if (ctorInfo != null)
             {
                 var localBuilder = ilGen.DeclareLocal(responseType);
+
                 // new <ResponseBodyType>
                 ilGen.Emit(OpCodes.Newobj, ctorInfo);
                 ilGen.Emit(OpCodes.Stloc, localBuilder);
@@ -195,7 +194,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 
             ilGen.ThrowException(typeof(MissingMethodException));
         }
-
 
         private void AddIfMethodIdInvokeAsyncBlock(
             ILGenerator ilGen,
@@ -299,8 +297,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
                     elseLabel: elseLable,
                     castedObject: castedObject,
                     methodDescription: methodDescription,
-                    requestBodyType: methodBodyTypesBuildResult.MethodBodyTypesMap[methodDescription.Name]
-                        .RequestBodyType);
+                    requestBodyType: methodBodyTypesBuildResult.MethodBodyTypesMap[methodDescription.Name].RequestBodyType);
 
                 ilGen.MarkLabel(elseLable);
             }

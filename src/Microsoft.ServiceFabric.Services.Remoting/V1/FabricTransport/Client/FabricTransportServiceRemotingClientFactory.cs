@@ -28,20 +28,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
         private readonly FabricTransportServiceRemotingClientFactoryImpl impl;
 
         /// <summary>
-        /// Event handler that is fired when a client is connected to the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
-
-        /// <summary>
-        /// Event handler that is fired when a client is disconnected from the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
-
-
-        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingClientFactory"/> class.
         ///     Constructs a fabric transport based service remoting client factory.
         /// </summary>
-        /// <param name="FabricTransportRemotingSettings">
+        /// <param name="fabricTransportRemotingSettings">
         ///     The settings for the fabric transport. If the settings are not provided or null, default settings
         ///     with no security.
         /// </param>
@@ -64,7 +54,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
         ///     constructor.
         /// </remarks>
         public FabricTransportServiceRemotingClientFactory(
-            FabricTransportRemotingSettings FabricTransportRemotingSettings = null,
+            FabricTransportRemotingSettings fabricTransportRemotingSettings = null,
             IServiceRemotingCallbackClient callbackClient = null,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
@@ -75,9 +65,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                 traceId = Guid.NewGuid().ToString();
             }
 
-
             this.impl = new FabricTransportServiceRemotingClientFactoryImpl(
-                FabricTransportRemotingSettings,
+                fabricTransportRemotingSettings,
                 callbackClient,
                 servicePartitionResolver,
                 GetExceptionHandlers(exceptionHandlers, traceId),
@@ -85,6 +74,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             this.impl.FabricTransportClientConnected += this.OnClientConnected;
             this.impl.FabricTransportClientDisconnected += this.OnClientDisconnected;
         }
+
+        /// <summary>
+        /// Event handler that is fired when a client is connected to the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
+
+        /// <summary>
+        /// Event handler that is fired when a client is disconnected from the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
 
         /// <summary>
         /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
@@ -175,6 +174,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                 cancellationToken);
         }
 
+        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
+            IEnumerable<IExceptionHandler> exceptionHandlers,
+            string traceId)
+        {
+            var handlers = new List<IExceptionHandler>();
+            if (exceptionHandlers != null)
+            {
+                handlers.AddRange(exceptionHandlers);
+            }
+
+            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
+            return handlers;
+        }
+
         private void OnClientConnected(
             object sender,
             CommunicationClientEventArgs<IServiceRemotingClient> e)
@@ -205,20 +218,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                         Client = e.Client,
                     });
             }
-        }
-
-        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
-            IEnumerable<IExceptionHandler> exceptionHandlers,
-            string traceId)
-        {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
-            {
-                handlers.AddRange(exceptionHandlers);
-            }
-
-            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
-            return handlers;
         }
     }
 }

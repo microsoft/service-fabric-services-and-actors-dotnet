@@ -14,15 +14,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     {
         private readonly IProxyActivator proxyActivator;
 
-        public ServiceProxyGenerator(Type type, IProxyActivator createInstance) : base(type)
+        public ServiceProxyGenerator(Type type, IProxyActivator createInstance)
+            : base(type)
         {
             this.proxyActivator = createInstance;
         }
 
-        public ServiceProxy CreateServiceProxy
-            (
+        public ServiceProxy CreateServiceProxy(
                 ServiceRemotingPartitionClient remotingPartitionClient,
-            IServiceRemotingMessageBodyFactory remotingMessageBodyFactory)
+                IServiceRemotingMessageBodyFactory remotingMessageBodyFactory)
         {
             var serviceProxy = (ServiceProxy)this.proxyActivator.CreateInstance();
             serviceProxy.Initialize(this, remotingPartitionClient, remotingMessageBodyFactory);

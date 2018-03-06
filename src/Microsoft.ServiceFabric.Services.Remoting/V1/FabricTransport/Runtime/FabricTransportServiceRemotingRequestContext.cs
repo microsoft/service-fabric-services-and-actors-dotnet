@@ -34,7 +34,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
             {
                 throw new FabricTransportCallbackNotFoundException(string.Format(
                     CultureInfo.CurrentCulture,
-                    SR.ErrorClientCallbackChannelNotFound, this.id));
+                    SR.ErrorClientCallbackChannelNotFound,
+                    this.id));
             }
 
             return this.callback;

@@ -26,18 +26,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     /// </summary>
     public class FabricTransportServiceRemotingClientFactory : IServiceRemotingClientFactory
     {
-        /// <summary>
-        /// Event handler that is fired when a client is connected to the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
-        /// <summary>
-        /// Event handler that is fired when a client is disconnected from the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
         private FabricTransportServiceRemotingClientFactoryImpl clientFactoryImpl;
         private IServiceRemotingMessageBodyFactory remotingMessageBodyFactory = null;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingClientFactory"/> class.
         ///     Constructs a fabric transport based service remoting client factory.
         /// </summary>
         /// <param name="remotingSettings">
@@ -99,6 +92,110 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 serializersManager);
         }
 
+        /// <summary>
+        /// Event handler that is fired when a client is connected to the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
+
+        /// <summary>
+        /// Event handler that is fired when a client is disconnected from the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
+
+        /// <summary>
+        /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
+        /// to the endpoint corresponding to the given listenerName.
+        /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
+        /// </summary>
+        /// <param name="serviceUri">Uri of the service to resolve</param>
+        /// <param name="partitionKey">Key that identifies the partition to resolve</param>
+        /// <param name="targetReplicaSelector">Specifies which replica in the partition identified by the partition key, the client should connect to</param>
+        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to</param>
+        /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>
+        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
+        /// </returns>
+        public async Task<IServiceRemotingClient> GetClientAsync(
+            Uri serviceUri,
+            ServicePartitionKey partitionKey,
+            TargetReplicaSelector targetReplicaSelector,
+            string listenerName,
+            OperationRetrySettings retrySettings,
+            CancellationToken cancellationToken)
+        {
+            return await this.clientFactoryImpl.GetClientAsync(
+                serviceUri,
+                partitionKey,
+                targetReplicaSelector,
+                listenerName,
+                retrySettings,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Re-resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
+        /// to the endpoint corresponding to the given listenerName.
+        /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
+        /// </summary>
+        /// <param name="previousRsp">Previous ResolvedServicePartition value</param>
+        /// <param name="targetReplicaSelector">Specifies which replica in the partition identified by the partition key, the client should connect to</param>
+        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to</param>
+        /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>
+        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
+        /// </returns>
+        public async Task<IServiceRemotingClient> GetClientAsync(
+            ResolvedServicePartition previousRsp,
+            TargetReplicaSelector targetReplicaSelector,
+            string listenerName,
+            OperationRetrySettings retrySettings,
+            CancellationToken cancellationToken)
+        {
+            return await this.clientFactoryImpl.GetClientAsync(
+                previousRsp,
+                targetReplicaSelector,
+                listenerName,
+                retrySettings,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Handles the exceptions that occur in the CommunicationClient when sending a message to the Service
+        /// </summary>
+        /// <param name="client">Communication client</param>
+        /// <param name="exceptionInformation">Information about exception that happened while communicating with the service.</param>
+        /// <param name="retrySettings">Specifies the retry policy that should be used for handling the reported exception.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>
+        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// a <see cref="OperationRetryControl" /> object that provides information on retry policy for this exception.
+        /// </returns>
+        public Task<OperationRetryControl> ReportOperationExceptionAsync(
+            IServiceRemotingClient client,
+            ExceptionInformation exceptionInformation,
+            OperationRetrySettings retrySettings,
+            CancellationToken cancellationToken)
+        {
+            return this.clientFactoryImpl.ReportOperationExceptionAsync(
+                (FabricTransportServiceRemotingClient)client,
+                exceptionInformation,
+                retrySettings,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets a factory for creating the remoting message bodies.
+        /// </summary>
+        /// <returns>A factory for creating the remoting message bodies</returns>
+        public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
+        {
+            return this.remotingMessageBodyFactory;
+        }
+
         private void Initialize(
             FabricTransportRemotingSettings remotingSettings,
             IServiceRemotingCallbackMessageHandler remotingCallbackMessageHandler,
@@ -118,7 +215,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             var serializersManager = new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
                 headerSerializer);
-
 
             this.Initialize(
                 remotingSettings,
@@ -151,7 +247,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.clientFactoryImpl.ClientDisconnected += this.OnClientDisconnected;
         }
 
-
         private void OnClientConnected(
             object sender,
             CommunicationClientEventArgs<FabricTransportServiceRemotingClient> e)
@@ -166,94 +261,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                         Client = e.Client,
                     });
             }
-        }
-
-
-        /// <summary>
-        /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
-        /// to the endpoint corresponding to the given listenerName.
-        /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
-        /// </summary>
-        /// <param name="serviceUri">Uri of the service to resolve</param>
-        /// <param name="partitionKey">Key that identifies the partition to resolve</param>
-        /// <param name="targetReplicaSelector">Specifies which replica in the partition identified by the partition key, the client should connect to</param>
-        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to</param>
-        /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
-        /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
-        /// </returns>
-        public async Task<IServiceRemotingClient> GetClientAsync(Uri serviceUri, ServicePartitionKey partitionKey,
-            TargetReplicaSelector targetReplicaSelector,
-            string listenerName, OperationRetrySettings retrySettings, CancellationToken cancellationToken)
-        {
-            return await this.clientFactoryImpl.GetClientAsync(
-                serviceUri,
-                partitionKey,
-                targetReplicaSelector,
-                listenerName,
-                retrySettings,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Re-resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
-        /// to the endpoint corresponding to the given listenerName.
-        /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
-        /// </summary>
-        /// <param name="previousRsp">Previous ResolvedServicePartition value</param>
-        /// <param name="targetReplicaSelector">Specifies which replica in the partition identified by the partition key, the client should connect to</param>
-        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to</param>
-        /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
-        /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
-        /// </returns>
-        public async Task<IServiceRemotingClient> GetClientAsync(
-            ResolvedServicePartition previousRsp,
-            TargetReplicaSelector targetReplicaSelector,
-            string listenerName, OperationRetrySettings retrySettings, CancellationToken cancellationToken)
-        {
-            return await this.clientFactoryImpl.GetClientAsync(
-                previousRsp,
-                targetReplicaSelector,
-                listenerName,
-                retrySettings,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Handles the exceptions that occur in the CommunicationClient when sending a message to the Service
-        /// </summary>
-        /// <param name="client">Communication client</param>
-        /// <param name="exceptionInformation">Information about exception that happened while communicating with the service.</param>
-        /// <param name="retrySettings">Specifies the retry policy that should be used for handling the reported exception.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
-        /// a <see cref="OperationRetryControl" /> object that provides information on retry policy for this exception.
-        /// </returns>
-        public Task<OperationRetryControl> ReportOperationExceptionAsync(
-            IServiceRemotingClient client,
-            ExceptionInformation exceptionInformation,
-            OperationRetrySettings retrySettings, CancellationToken cancellationToken)
-        {
-            return this.clientFactoryImpl.ReportOperationExceptionAsync(
-                (FabricTransportServiceRemotingClient)client,
-                exceptionInformation,
-                retrySettings,
-                cancellationToken);
-        }
-
-        /// <summary>
-        /// Gets a factory for creating the remoting message bodies.
-        /// </summary>
-        /// <returns>A factory for creating the remoting message bodies</returns>
-        public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
-        {
-            return this.remotingMessageBodyFactory;
         }
 
         private void OnClientDisconnected(

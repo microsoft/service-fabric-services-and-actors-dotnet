@@ -20,6 +20,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
             this.clientCallbackConnection = new ConcurrentDictionary<string, FabricTransportCallbackClient>();
         }
 
+        ~FabricTransportServiceRemotingConnectionHandler()
+        {
+            this.clientCallbackConnection.Clear();
+        }
+
         public Task ConnectAsync(FabricTransportCallbackClient fabricTransportServiceRemotingCallback, TimeSpan timeout)
         {
             this.AddCallBackConnection(fabricTransportServiceRemotingCallback);
@@ -50,11 +55,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
             {
                 fabricTransportCallbackClient.Dispose();
             }
-        }
-
-        ~FabricTransportServiceRemotingConnectionHandler()
-        {
-            this.clientCallbackConnection.Clear();
         }
     }
 }

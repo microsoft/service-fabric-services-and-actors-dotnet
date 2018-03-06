@@ -21,9 +21,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     {
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
         private readonly FabricTransportClient fabricTransportClient;
+
         // we need to pass a cache of the serializers here rather than the known types,
         // the serializer cache should be maintained by the factor
-
         internal FabricTransportServiceRemotingClient(
             ServiceRemotingMessageSerializersManager serializersManager,
             FabricTransportClient fabricTransportClient)
@@ -31,6 +31,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.fabricTransportClient = fabricTransportClient;
             this.serializersManager = serializersManager;
             this.IsValid = true;
+        }
+
+        ~FabricTransportServiceRemotingClient()
+        {
+            if (this.fabricTransportClient != null)
+            {
+                this.fabricTransportClient.Dispose();
+            }
+        }
+
+        public bool IsValid { get; private set; }
+
+        public object ConnectionAddress
+        {
+            get { return this.fabricTransportClient.ConnectionAddress; }
         }
 
         public ResolvedServicePartition ResolvedServicePartition { get; set; }
@@ -58,15 +73,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     serializedMsgBody.Dispose)
                 : new FabricTransportRequestBody(new List<ArraySegment<byte>>(), null);
 
-
-            //Send Request
+            // Send Request
             using (var retval = await this.fabricTransportClient.RequestResponseAsync(
                 new FabricTransportMessage(
                     new FabricTransportRequestHeader(serializedHeader.GetSendBuffer(), serializedHeader.Dispose),
                     fabricTransportRequestBody),
                 this.fabricTransportClient.Settings.OperationTimeout))
             {
-
                 var incomingHeader = (retval != null && retval.GetHeader() != null)
                     ? new IncomingMessageHeader(retval.GetHeader().GetRecievedStream())
                     : null;
@@ -117,21 +130,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         {
             this.IsValid = false;
             this.fabricTransportClient.Abort();
-        }
-
-        public bool IsValid { get; private set; }
-
-        public object ConnectionAddress
-        {
-            get { return this.fabricTransportClient.ConnectionAddress; }
-        }
-
-        ~FabricTransportServiceRemotingClient()
-        {
-            if (this.fabricTransportClient != null)
-            {
-                this.fabricTransportClient.Dispose();
-            }
         }
     }
 }

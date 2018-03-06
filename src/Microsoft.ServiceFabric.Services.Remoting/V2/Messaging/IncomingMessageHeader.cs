@@ -13,7 +13,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         private readonly Stream receivedBufferStream;
         private bool isDisposed;
 
-
         public IncomingMessageHeader(Stream receivedBufferStream)
         {
             this.receivedBufferStream = receivedBufferStream;

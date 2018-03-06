@@ -27,6 +27,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
         private string publishAddress;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener with default
         ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>
@@ -48,6 +49,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener with <see cref="FabricTransportRemotingListenerSettings"/>
         ///     loaded from configuration section.
         /// </summary>
@@ -74,6 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener with the specified
         ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>
@@ -99,6 +102,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener with default
         ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>
@@ -117,6 +121,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener with <see cref="FabricTransportRemotingListenerSettings"/>
         ///     loaded from configuration section.
         /// </summary>
@@ -143,6 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener with the specified
         ///     <see cref="FabricTransportRemotingListenerSettings"/>.
         /// </summary>

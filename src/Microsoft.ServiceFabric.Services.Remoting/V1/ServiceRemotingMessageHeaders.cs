@@ -24,6 +24,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
         private Dictionary<string, byte[]> headers;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceRemotingMessageHeaders"/> class.
+        /// </summary>
+        public ServiceRemotingMessageHeaders()
+        {
+            this.headers = new Dictionary<string, byte[]>();
+            this.InvocationId = null;
+        }
+
+        /// <summary>
         /// Gets or sets the methodId of the remote method.
         /// </summary>
         /// <value>The method id.</value>
@@ -42,53 +51,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
         /// </summary>
         [DataMember(Name = "InvocationId", IsRequired = false, Order = 3, EmitDefaultValue = false)]
         public string InvocationId { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the ServiceRemotingMessageHeaders class.
-        /// </summary>
-        public ServiceRemotingMessageHeaders()
-        {
-            this.headers = new Dictionary<string, byte[]>();
-            this.InvocationId = null;
-        }
-
-        /// <summary>
-        /// Adds a new header with the specified name and value.
-        /// Throws FabricElementAlreadyExistsException if a header with the same name already exists.
-        /// </summary>
-        /// <param name="headerName">The header Name.</param>
-        /// <param name="headerValue">The header value.</param>
-        public void AddHeader(string headerName, byte[] headerValue)
-        {
-            if (this.headers.ContainsKey(headerName))
-            {
-                throw new FabricElementAlreadyExistsException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        SR.ErrorHeaderAlreadyExists,
-                        headerName));
-            }
-
-            this.headers[headerName] = headerValue;
-        }
-
-        /// <summary>
-        /// Gets the header with the specified name.
-        /// </summary>
-        /// <param name="headerName">The header Name.</param>
-        /// <param name="headerValue">The header value.</param>
-        /// <returns>true if a header with that name exists; otherwise, false.</returns>
-        public bool TryGetHeaderValue(string headerName, out byte[] headerValue)
-        {
-            headerValue = null;
-
-            if (this.headers == null)
-            {
-                return false;
-            }
-
-            return this.headers.TryGetValue(headerName, out headerValue);
-        }
 
         /// <summary>
         /// Serializes the headers to a byte array.
@@ -134,6 +96,44 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
                     return (ServiceRemotingMessageHeaders)serializer.ReadObject(reader);
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds a new header with the specified name and value.
+        /// Throws FabricElementAlreadyExistsException if a header with the same name already exists.
+        /// </summary>
+        /// <param name="headerName">The header Name.</param>
+        /// <param name="headerValue">The header value.</param>
+        public void AddHeader(string headerName, byte[] headerValue)
+        {
+            if (this.headers.ContainsKey(headerName))
+            {
+                throw new FabricElementAlreadyExistsException(
+                    string.Format(
+                        CultureInfo.CurrentCulture,
+                        SR.ErrorHeaderAlreadyExists,
+                        headerName));
+            }
+
+            this.headers[headerName] = headerValue;
+        }
+
+        /// <summary>
+        /// Gets the header with the specified name.
+        /// </summary>
+        /// <param name="headerName">The header Name.</param>
+        /// <param name="headerValue">The header value.</param>
+        /// <returns>true if a header with that name exists; otherwise, false.</returns>
+        public bool TryGetHeaderValue(string headerName, out byte[] headerValue)
+        {
+            headerValue = null;
+
+            if (this.headers == null)
+            {
+                return false;
+            }
+
+            return this.headers.TryGetValue(headerName, out headerValue);
         }
     }
 }

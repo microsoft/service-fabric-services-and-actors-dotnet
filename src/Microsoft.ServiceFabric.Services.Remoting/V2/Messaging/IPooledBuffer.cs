@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Release the buffer to the Pool.
         /// </summary>
+        /// <returns>true if it has successfully released buffer to the pool , false otherwise.</returns>
         bool Release();
     }
 }

@@ -27,19 +27,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             this.Initialize();
         }
 
-        private void Initialize()
-        {
-            this.canWrite = true;
-            this.canRead = false;
-            this.canSeek = false;
-            this.position = 0;
-            this.writeBuffers = new List<IPooledBuffer>(1);
-            this.currentBuffer = this.bufferPoolManager.TakeBuffer();
-            this.writeBuffers.Add(this.currentBuffer);
-            this.bufferSize = this.writeBuffers[0].Value.Count;
-            this.currentBufferOffset = 0;
-        }
-
         public override bool CanRead
         {
             get { return this.canRead; }
@@ -66,10 +53,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             set { this.position = value; }
         }
 
-
         public override void Flush()
         {
-            //no-op
+            // no-op
         }
 
         public override long Seek(long offset, SeekOrigin origin)
@@ -113,8 +99,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
             if (i <= this.bufferSize)
             {
-                Buffer.BlockCopy(buffer, offset, this.currentBuffer.Value.Array, this.currentBufferOffset,
-                    count);
+                Buffer.BlockCopy(buffer, offset, this.currentBuffer.Value.Array, this.currentBufferOffset, count);
                 this.currentBuffer.ContentLength += count;
                 this.currentBufferOffset += count;
                 this.position += count;
@@ -125,11 +110,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
             while (bytesLeft > 0)
             {
-                //check for buffer full
+                // check for buffer full
                 if (this.bufferSize <= this.currentBufferOffset)
                 {
-                    //Create new buffer and Add to buffer
-
+                    // Create new buffer and Add to buffer
                     this.currentBuffer = this.bufferPoolManager.TakeBuffer();
 
                     this.writeBuffers.Add(this.currentBuffer);
@@ -140,8 +124,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
                     ? bytesLeft
                     : this.bufferSize - this.currentBufferOffset;
 
-                Buffer.BlockCopy(buffer, offset, this.currentBuffer.Value.Array, this.currentBufferOffset,
-                    bytesToCopy);
+                Buffer.BlockCopy(buffer, offset, this.currentBuffer.Value.Array, this.currentBufferOffset, bytesToCopy);
 
                 this.currentBuffer.ContentLength += bytesToCopy;
 
@@ -176,6 +159,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             }
 
             return this.writeBuffers;
+        }
+
+        private void Initialize()
+        {
+            this.canWrite = true;
+            this.canRead = false;
+            this.canSeek = false;
+            this.position = 0;
+            this.writeBuffers = new List<IPooledBuffer>(1);
+            this.currentBuffer = this.bufferPoolManager.TakeBuffer();
+            this.writeBuffers.Add(this.currentBuffer);
+            this.bufferSize = this.writeBuffers[0].Value.Count;
+            this.currentBufferOffset = 0;
         }
     }
 }

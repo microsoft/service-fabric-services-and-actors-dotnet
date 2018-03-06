@@ -38,7 +38,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             this.RemotingClientConnectionHandler = remotingClientConnectionHandler;
         }
 
-
         ~FabricTransportServiceRemotingClient()
         {
             if (this.nativeClient != null)
@@ -55,7 +54,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 
         ResolvedServicePartition ICommunicationClient.ResolvedServicePartition
         {
-            get { return this.resolvedServicePartition; }
+            get
+            {
+                return this.resolvedServicePartition;
+            }
+
             set
             {
                 this.resolvedServicePartition = value;
@@ -68,7 +71,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 
         string ICommunicationClient.ListenerName
         {
-            get { return this.listenerName; }
+            get
+            {
+                return this.listenerName;
+            }
+
             set
             {
                 this.listenerName = value;
@@ -81,7 +88,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 
         ResolvedServiceEndpoint ICommunicationClient.Endpoint
         {
-            get { return this.resolvedServiceEndpoint; }
+            get
+            {
+                return this.resolvedServiceEndpoint;
+            }
+
             set
             {
                 this.resolvedServiceEndpoint = value;
@@ -97,7 +108,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             byte[] requestBody)
         {
             var header = ServiceRemotingMessageHeaders.Serialize(this.serializer, messageHeaders);
-            return this.nativeClient.RequestResponseAsync(header, requestBody,
+            return this.nativeClient.RequestResponseAsync(
+                header,
+                requestBody,
                 this.settings.OperationTimeout).ContinueWith(t =>
                 {
                     var retval = t.GetAwaiter().GetResult();

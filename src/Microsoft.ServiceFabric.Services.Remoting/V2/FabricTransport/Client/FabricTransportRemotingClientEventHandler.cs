@@ -12,6 +12,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
     internal class FabricTransportRemotingClientEventHandler : IFabricTransportClientEventHandler
     {
+        private readonly FabricTransportServiceRemotingClient remotingClient;
+
+        public FabricTransportRemotingClientEventHandler()
+        {
+            this.remotingClient = new DummyFabricTransportRemotingClient(null, null);
+        }
+
+        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientConnected;
+
+        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientDisconnected;
+
         public string ListenerName
         {
             set { this.remotingClient.ListenerName = value; }
@@ -25,17 +36,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         public ResolvedServiceEndpoint Endpoint
         {
             set { this.remotingClient.Endpoint = value; }
-        }
-
-        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientConnected;
-
-        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientDisconnected;
-
-        private readonly FabricTransportServiceRemotingClient remotingClient;
-
-        public FabricTransportRemotingClientEventHandler()
-        {
-            this.remotingClient = new DummyFabricTransportRemotingClient(null, null);
         }
 
         void IFabricTransportClientEventHandler.OnConnected()

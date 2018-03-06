@@ -58,20 +58,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
 #endif
+
         /// <summary>
-        /// An extension method that creates an <see cref="IServiceRemotingListener"/>
+        ///  An extension method that creates an <see cref="IServiceRemotingListener"/>
         /// for a stateful service implementation.
+        /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
         /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
-        ///</summary>
         /// <param name="serviceImplementation">A stateful service implementation.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         public static IEnumerable<ServiceReplicaListener> CreateServiceRemotingReplicaListeners<TStatefulService>(
             this TStatefulService serviceImplementation)
             where TStatefulService : StatefulServiceBase, IService
-
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
@@ -142,7 +142,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         public static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
             this TStatelessService serviceImplementation)
             where TStatelessService : StatelessService, IService
-
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
@@ -198,6 +197,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 };
 #endif
         }
+
 #if !DotNetCoreClr
         private static IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,

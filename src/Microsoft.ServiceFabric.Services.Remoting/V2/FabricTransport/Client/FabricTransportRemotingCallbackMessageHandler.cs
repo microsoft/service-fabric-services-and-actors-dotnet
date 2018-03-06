@@ -12,8 +12,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
     internal class FabricTransportRemotingCallbackMessageHandler : IFabricTransportCallbackMessageHandler
     {
-        private IServiceRemotingCallbackMessageHandler remotingCallbackClient;
         private readonly ServiceRemotingMessageSerializersManager manager;
+        private IServiceRemotingCallbackMessageHandler remotingCallbackClient;
 
         public FabricTransportRemotingCallbackMessageHandler(
             IServiceRemotingCallbackMessageHandler remotingCallbackClient,
