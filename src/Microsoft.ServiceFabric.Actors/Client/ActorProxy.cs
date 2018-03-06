@@ -162,6 +162,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
             int interfaceId,
             int methodId,
+            string methodName,
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
@@ -174,7 +175,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             };
 
             return this.servicePartitionClientV2.InvokeAsync(new ServiceRemotingRequestMessage(headers,
-                requestMsgBodyValue), cancellationToken);
+                requestMsgBodyValue), methodName, cancellationToken);
         }
 
 

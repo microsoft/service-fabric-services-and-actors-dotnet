@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     break;
                 }
 
-                var msg = $"RunAsync is taking longer then expected time ({RunAsyncExpectedCancellationTimeSpan.TotalSeconds}s) to cancel.";
+                var msg = $"RunAsync is taking longer than expected time ({RunAsyncExpectedCancellationTimeSpan.TotalSeconds}s) to cancel.";
 
                 ServiceTrace.Source.WriteWarningWithId(this.traceType + ApiSlowTraceTypeSuffix, this.traceId, msg);
                 this.ReportRunAsyncSlowCancellationHealth(partition, msg);

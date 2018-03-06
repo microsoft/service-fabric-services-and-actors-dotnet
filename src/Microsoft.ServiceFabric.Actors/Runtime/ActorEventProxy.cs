@@ -164,6 +164,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
             int interfaceId,
             int methodId,
+            string methodName,
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {

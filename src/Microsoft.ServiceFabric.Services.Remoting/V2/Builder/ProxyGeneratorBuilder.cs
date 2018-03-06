@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
                 CallingConventions.Any,
-                new[] { typeof(int), typeof(int), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken) },
+                new[] {typeof(int), typeof(int), typeof(string), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken)},
                 null);
 
             this.createMessage = this.proxyBaseType.GetMethod(
@@ -361,6 +361,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.Emit(OpCodes.Ldarg_0); // base
             ilGen.Emit(OpCodes.Ldc_I4, interfaceId); // interfaceId
             ilGen.Emit(OpCodes.Ldc_I4, methodDescription.Id); // methodId
+            ilGen.Emit(OpCodes.Ldstr, methodDescription.Name); // method name
 
             if (requestMessage != null)
             {

@@ -150,12 +150,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// This is selected to create V1 Client. V1 is an old(soon to be deprecated) Remoting Stack.
         /// </summary>
-        V1Client,
+        V1Client = 0,
 #endif
+
         /// <summary>
         /// This is selected to create V2 Client. V2 is a new Remoting Stack.
         /// </summary>
-        V2Client
+        V2Client = 1,
     }
 
     /// <summary>
@@ -164,22 +165,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     public enum RemotingListener
     {
 #if !DotNetCoreClr
-
         /// <summary>
         /// This is selected to create V1 Listener.V1 is an old (soon to be deprecated) Remoting Stack.
         /// </summary>
-        V1Listener,
+        V1Listener = 0,
 
         /// <summary>
         /// This is selected to create Listener which creates both V1 and V2 Listener to support both V1 and V2 Clients.
         /// This is useful in case of upgrade from V1 to V2 Listener.
         /// </summary>
-        CompatListener,
+        CompatListener = 1,
 #endif
+
         /// <summary>
         /// This is selected to create V2 Listener.V2 is a new Remoting Stack.
         /// </summary>
-        V2Listener,
-
+        V2Listener = 2,
     }
 }

@@ -365,6 +365,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 if (actorReminders.TryRemove(reminderName, out var reminder))
                 {
                     reminder.Dispose();
+
+                    //
+                    // If this was last reminder for this actor, remove entry for actor.
+                    // Though space occupied by entry is small, for application that
+                    // create and delete actors at high frequency, this will start
+                    // piling up redundant memory until the current primary failover happens.
+                    //
+                    if (actorReminders.Count == 0)
+                    {
+                        this.remindersByActorId.TryRemove(actorId, out actorReminders);
+                    }
                 }
                 else
                 {

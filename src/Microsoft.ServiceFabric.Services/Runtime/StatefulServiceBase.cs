@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     {
         private readonly RestoreContext restoreContext;
         private readonly StatefulServiceContext serviceContext;
-        private readonly IStateProviderReplica2 stateProviderReplica;
+        private readonly IStateProviderReplica stateProviderReplica;
 
         private IReadOnlyDictionary<string, string> addresses;
 
@@ -33,12 +33,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// A <see cref="StatefulServiceContext"/> describes the service context, which it provides information like replica ID, partition ID, and service name.
         /// </param>
         /// <param name="stateProviderReplica">
-        /// A <see cref="IStateProviderReplica2"/> represents a reliable state provider replica.
+        /// A <see cref="IStateProviderReplica"/> represents a reliable state provider replica.
         /// </param>
         /// <exception cref="ArgumentNullException"></exception>
         protected StatefulServiceBase(
             StatefulServiceContext serviceContext,
-            IStateProviderReplica2 stateProviderReplica)
+            IStateProviderReplica stateProviderReplica)
         {
             if (serviceContext == null)
             {
@@ -52,13 +52,17 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.stateProviderReplica = stateProviderReplica;
             this.stateProviderReplica.OnDataLossAsync = this.OnDataLossAsync;
-            this.stateProviderReplica.OnRestoreCompletedAsync = this.OnRestoreCompletedAsync;
+            if (this.stateProviderReplica is IStateProviderReplica2)
+            {
+                ((IStateProviderReplica2)this.stateProviderReplica).OnRestoreCompletedAsync = this.OnRestoreCompletedAsync;
+            }
+            
             this.restoreContext = new RestoreContext(this.stateProviderReplica);
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
         }
 
-        internal IStateProviderReplica2 StateProviderReplica
+        internal IStateProviderReplica StateProviderReplica
         {
             get { return this.stateProviderReplica; }
         }
@@ -258,7 +262,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             set { this.Partition = value; }
         }
 
-        IStateProviderReplica2 IStatefulUserServiceReplica.CreateStateProviderReplica()
+        IStateProviderReplica IStatefulUserServiceReplica.CreateStateProviderReplica()
         {
             return this.StateProviderReplica;
         }
@@ -314,7 +318,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// This method is called when replica's state has been restored successfully via the Backup Restore service
+        /// This method is called when replica's state has been restored successfully via the Backup Restore service.
+        /// This is only supported when the reliable state provider replica object passed in the constructor is derived from <see cref="IStateProviderReplica2"/>.
         /// </summary>
         /// <param name="cancellationToken">
         /// <see cref="CancellationToken"/> to monitor for cancellation requests.

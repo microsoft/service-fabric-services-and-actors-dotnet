@@ -180,12 +180,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// </summary>
         /// <param name="interfaceId">Id of the remote interface.</param>
         /// <param name="methodId">Id of the remote method to be invokved.</param>
+        /// <param name="methodName"></param>
         /// <param name="requestMsgBodyValue">Request body.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>A task that represents the asynchronous operation async call to remote object.</returns>
         protected async Task<IServiceRemotingResponseMessageBody> InvokeAsyncV2(
             int interfaceId,
             int methodId,
+            string methodName,
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
@@ -193,6 +195,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             var responseMsg = await this.InvokeAsyncImplV2(
                 interfaceId,
                 methodId,
+                methodName,
                 requestMsgBodyValue,
                 cancellationToken);
 
@@ -222,6 +225,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         internal abstract Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
             int interfaceId,
             int methodId,
+            string methodName,
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken);
 
