@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Gets or sets keepAliveTimeout is provides a way to configure  Tcp keep-alive option.
+        /// Gets or sets keepAliveTimeout which provides a way to configure  Tcp keep-alive option.
         /// </summary>
         /// <value>KeepAliveTimeout as <see cref="System.TimeSpan"/></value>
         /// <remarks>Default Value for KeepAliveTimeout Timeout is set as TimeSpan.Zero. which indicates we disable the tcp keepalive option.
@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Gets or sets maxMessageSize represents  the maximum size for a message that can be received on a channel configured with this setting.
+        /// Gets or sets Max MessageSize  for a message that can be received on a channel configured with this setting.
         /// </summary>
         /// <value>Maximum size of the message in bytes.
         /// </value>
@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Gets or sets the maxConcurrentCalls represents maximum number of messages actively service processes at one time.
+        /// Gets or sets the maxConcurrentCalls which represents maximum number of messages actively service processes at one time.
         /// </summary>
         /// <value>
         /// MaxConcurrentCalls is  the upper limit of active messages in the service.
@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///  Gets or sets headerBufferSize represents size of each header buffer in the bufferPool .
+        ///  Gets or sets headerBufferSize which represents size of each header buffer in the bufferPool .
         /// </summary>
         /// <remarks>
         ///    Defaults  value for the HeaderBufferSize is 1024 bytes.
@@ -132,7 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///  Gets or sets headerMaxBufferCount represents the maximum number of header buffers assigned  to the BufferPool.
+        ///  Gets or sets headerMaxBufferCount which represents the maximum number of header buffers assigned  to the BufferPool.
         /// </summary>
         /// <remarks>
         ///    Defaults  value for the HeaderMaxBufferCount is 1000.
