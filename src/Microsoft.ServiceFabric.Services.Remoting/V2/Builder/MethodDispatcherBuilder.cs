@@ -16,19 +16,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     internal class MethodDispatcherBuilder<TMethodDispatcher> : CodeBuilderModule
         where TMethodDispatcher : MethodDispatcherBase
     {
-        protected readonly Type MethodDispatcherBaseType;
-        protected readonly MethodInfo ContinueWithResultMethodInfo;
-        protected readonly MethodInfo ContinueWithMethodInfo;
+        private readonly Type methodDispatcherBaseType;
+        private readonly MethodInfo continueWithResultMethodInfo;
+        private readonly MethodInfo continueWithMethodInfo;
 
-        public MethodDispatcherBuilder(ICodeBuilder codeBuilder) : base(codeBuilder)
+        public MethodDispatcherBuilder(ICodeBuilder codeBuilder)
+            : base(codeBuilder)
         {
-            this.MethodDispatcherBaseType = typeof(TMethodDispatcher);
+            this.methodDispatcherBaseType = typeof(TMethodDispatcher);
 
-            this.ContinueWithResultMethodInfo = this.MethodDispatcherBaseType.GetMethod(
+            this.continueWithResultMethodInfo = this.methodDispatcherBaseType.GetMethod(
                 "ContinueWithResult",
                 BindingFlags.Instance | BindingFlags.NonPublic);
 
-            this.ContinueWithMethodInfo = this.MethodDispatcherBaseType.GetMethod(
+            this.continueWithMethodInfo = this.methodDispatcherBaseType.GetMethod(
                 "ContinueWith",
                 BindingFlags.Instance | BindingFlags.NonPublic);
         }
@@ -49,7 +50,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 context.ModuleBuilder,
                 ns: context.AssemblyNamespace,
                 className: this.CodeBuilder.Names.GetMethodDispatcherClassName(interfaceDescription.InterfaceType),
-                baseType: this.MethodDispatcherBaseType);
+                baseType: this.methodDispatcherBaseType);
 
             this.AddOnDispatchAsyncMethod(classBuilder, interfaceDescription);
             this.AddOnDispatchMethod(classBuilder, interfaceDescription);
@@ -68,8 +69,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             return result;
         }
 
-
-
         private void AddOnDispatchMethod(TypeBuilder classBuilder, InterfaceDescription interfaceDescription)
         {
             var dispatchMethodImpl = CodeBuilderUtils.CreateProtectedMethodBuilder(
@@ -79,7 +78,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 typeof(int), // methodid
                 typeof(object), // remoted object
                 typeof(IServiceRemotingRequestMessageBody)); // requestBody
-
 
             var ilGen = dispatchMethodImpl.GetILGenerator();
 
@@ -110,8 +108,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.ThrowException(typeof(MissingMethodException));
         }
 
-        private void AddIfMethodIdInvokeBlock(ILGenerator ilGen, Label elseLabel, LocalBuilder castedObject,
-            MethodDescription methodDescription, string interfaceName)
+        private void AddIfMethodIdInvokeBlock(
+            ILGenerator ilGen,
+            Label elseLabel,
+            LocalBuilder castedObject,
+            MethodDescription methodDescription,
+            string interfaceName)
         {
             ilGen.Emit(OpCodes.Ldarg_1);
             ilGen.Emit(OpCodes.Ldc_I4, methodDescription.Id);
@@ -128,9 +130,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 for (var i = 0; i < methodDescription.Arguments.Length; i++)
                 {
                     var argument = methodDescription.Arguments[i];
+
                     // ReSharper disable once AssignNullToNotNullAttribute
                     // castedRequestBody is set to non-null in the previous if check on the same condition
-
                     ilGen.Emit(OpCodes.Ldarg_3);
                     ilGen.Emit(OpCodes.Ldc_I4, i);
                     ilGen.Emit(OpCodes.Ldstr, argument.Name);
@@ -139,7 +141,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                     ilGen.Emit(OpCodes.Unbox_Any, argument.ArgumentType);
                 }
             }
-
 
             ilGen.EmitCall(OpCodes.Callvirt, methodDescription.MethodInfo, null);
             ilGen.Emit(OpCodes.Ret);
@@ -156,9 +157,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 typeof(int), // methodid
                 typeof(object), // remoted object
                 typeof(IServiceRemotingRequestMessageBody), // requestBody
-                typeof(IServiceRemotingMessageBodyFactory), //remotingmessageBodyFactory
+                typeof(IServiceRemotingMessageBodyFactory), // remotingmessageBodyFactory
                 typeof(CancellationToken)); // CancellationToken
-
 
             var ilGen = dispatchMethodImpl.GetILGenerator();
 
@@ -212,9 +212,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 for (var i = 0; i < methodDescription.Arguments.Length; i++)
                 {
                     var argument = methodDescription.Arguments[i];
+
                     // ReSharper disable once AssignNullToNotNullAttribute
                     // castedRequestBody is set to non-null in the previous if check on the same condition
-
                     ilGen.Emit(OpCodes.Ldarg_3);
                     ilGen.Emit(OpCodes.Ldc_I4, i);
                     ilGen.Emit(OpCodes.Ldstr, argument.Name);
@@ -237,7 +237,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 methodDescription.ReturnType.GetTypeInfo().IsGenericType)
             {
                 // the return is Task<IServiceRemotingMessageBody>
-                var continueWithGenericMethodInfo = this.ContinueWithResultMethodInfo.MakeGenericMethod(
+                var continueWithGenericMethodInfo = this.continueWithResultMethodInfo.MakeGenericMethod(
                     methodDescription.ReturnType.GenericTypeArguments[0]);
 
                 ilGen.Emit(OpCodes.Ldarg_0);
@@ -252,7 +252,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
                 ilGen.Emit(OpCodes.Ldloc, invokeTask);
-                ilGen.EmitCall(OpCodes.Call, this.ContinueWithMethodInfo, null);
+                ilGen.EmitCall(OpCodes.Call, this.continueWithMethodInfo, null);
                 ilGen.Emit(OpCodes.Ret);
             }
         }

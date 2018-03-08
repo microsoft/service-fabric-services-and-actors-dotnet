@@ -19,10 +19,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
     {
         private readonly object thisLock;
         private readonly Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory> createServiceRemotingClientFactory;
-        private volatile IServiceRemotingClientFactory remotingClientFactory;
         private readonly OperationRetrySettings retrySettings;
+        private volatile IServiceRemotingClientFactory remotingClientFactory;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class.
         /// Instantiates the ServiceProxyFactory with the specified remoting factory and retrysettings.
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">
@@ -73,19 +74,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient);
         }
 
-        private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type serviceInterfaceType)
-        {
-            var callbackClient = new DummyServiceRemotingCallbackClient();
-
-            var factory = this.CreateServiceRemotingClientFactory(callbackClient);
-            if (factory == null)
-            {
-                throw new NotSupportedException("ClientFactory cannot be null");
-            }
-
-            return factory;
-        }
-
         /// <summary>
         /// Creates service remoting client factory.
         /// </summary>
@@ -100,6 +88,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             }
 
             return null;
+        }
+
+        private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type serviceInterfaceType)
+        {
+            var callbackClient = new DummyServiceRemotingCallbackClient();
+
+            var factory = this.CreateServiceRemotingClientFactory(callbackClient);
+            if (factory == null)
+            {
+                throw new NotSupportedException("ClientFactory cannot be null");
+            }
+
+            return factory;
         }
 
         private IServiceRemotingClientFactory GetOrCreateServiceRemotingClientFactory(Type serviceInterfaceType)

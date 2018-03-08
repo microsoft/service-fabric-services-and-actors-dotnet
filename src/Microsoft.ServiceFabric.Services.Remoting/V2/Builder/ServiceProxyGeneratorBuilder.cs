@@ -11,7 +11,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
     internal sealed class ServiceProxyGeneratorBuilder : ProxyGeneratorBuilder<ServiceProxyGenerator, ServiceProxy>
     {
-        public ServiceProxyGeneratorBuilder(ICodeBuilder codeBuilder) : base(codeBuilder)
+        public ServiceProxyGeneratorBuilder(ICodeBuilder codeBuilder)
+            : base(codeBuilder)
         {
         }
 

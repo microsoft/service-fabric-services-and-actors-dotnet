@@ -26,11 +26,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
     public class ServiceRemotingDispatcher : IServiceRemotingMessageHandler, IDisposable
     {
         private readonly IService service;
+
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
+
         private readonly Dictionary<int, ServiceMethodDispatcherBase> methodDispatcherMap;
+
         private readonly ServicePerformanceCounterProvider servicePerformanceCounterProvider;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceRemotingDispatcher"/> class.
         /// Instantiates the ServiceRemotingDispatcher that uses the given service context and
         /// dispatches messages to the given service implementation.
         /// </summary>
@@ -79,10 +83,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         {
             if (this.IsCancellationRequest(messageHeaders))
             {
-
                 await
-                    this.cancellationHelper.CancelRequestAsync(messageHeaders.InterfaceId, messageHeaders.MethodId,
-                        messageHeaders.InvocationId);
+                    this.cancellationHelper.CancelRequestAsync(messageHeaders.InterfaceId, messageHeaders.MethodId, messageHeaders.InvocationId);
                 return null;
             }
             else
@@ -130,20 +132,63 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         /// <param name="requestBody">Request message body</param>
         public virtual void HandleOneWay(
             IServiceRemotingRequestContext requestContext,
-            ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
+            ServiceRemotingMessageHeaders messageHeaders,
+            byte[] requestBody)
         {
-            throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, SR.ErrorMethodNotImplemented,
-                this.GetType().Name, "HandleOneWay"));
+            throw new NotImplementedException(string.Format(
+                                                CultureInfo.CurrentCulture,
+                                                SR.ErrorMethodNotImplemented,
+                                                this.GetType().Name,
+                                                "HandleOneWay"));
         }
 
-        private Task<byte[]> OnDispatch(ServiceRemotingMessageHeaders headers, byte[] requestBodyBytes,
-            CancellationToken cancellationToken)
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
+        {
+            if (this.servicePerformanceCounterProvider != null)
+            {
+                this.servicePerformanceCounterProvider.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// The IsCancellationRequest
+        /// </summary>
+        /// <param name="messageHeaders">The <see cref="ServiceRemotingMessageHeaders"/></param>
+        /// <returns>The <see cref="bool"/></returns>
+        internal bool IsCancellationRequest(ServiceRemotingMessageHeaders messageHeaders)
+        {
+            if (messageHeaders.InvocationId != null &&
+                messageHeaders.TryGetHeaderValue(ServiceRemotingMessageHeaders.CancellationHeaderName, out var headerValue))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// The OnDispatch
+        /// </summary>
+        /// <param name="headers">The <see cref="ServiceRemotingMessageHeaders"/></param>
+        /// <param name="requestBodyBytes">Serialized Bytes to be dispatched/></param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the dispatch task/></param>
+        /// <returns>Task represents </returns>
+        private Task<byte[]> OnDispatch(
+                            ServiceRemotingMessageHeaders headers,
+                            byte[] requestBodyBytes,
+                            CancellationToken cancellationToken)
         {
             if (!this.methodDispatcherMap.TryGetValue(headers.InterfaceId, out var methodDispatcher))
             {
                 throw new NotImplementedException(string.Format(
                     CultureInfo.CurrentCulture,
-                    SR.ErrorInterfaceNotImplemented, headers.InterfaceId, this.service));
+                    SR.ErrorInterfaceNotImplemented,
+                    headers.InterfaceId,
+                    this.service));
             }
 
             Task<object> dispatchTask = null;
@@ -152,25 +197,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
 
             if (this.servicePerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
             {
-                this.servicePerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue
-                (
+                this.servicePerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
                     stopwatch.ElapsedMilliseconds);
             }
 
             stopwatch.Restart();
             try
             {
-                dispatchTask = methodDispatcher.DispatchAsync(this.service, headers.MethodId, requestBody,
+                dispatchTask = methodDispatcher.DispatchAsync(
+                    this.service,
+                    headers.MethodId,
+                    requestBody,
                     cancellationToken);
             }
             catch (Exception e)
             {
                 var info = ExceptionDispatchInfo.Capture(e);
-                this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                (
+                this.servicePerformanceCounterProvider.OnServiceMethodFinish(
                     headers.InterfaceId,
                     headers.MethodId,
-                    stopwatch.Elapsed, e);
+                    stopwatch.Elapsed,
+                    e);
                 info.Throw();
             }
 
@@ -186,16 +233,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                     {
                         var info = ExceptionDispatchInfo.Capture(e);
 
-                        this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                        (
+                        this.servicePerformanceCounterProvider.OnServiceMethodFinish(
                             headers.InterfaceId,
                             headers.MethodId,
-                            stopwatch.Elapsed, e);
+                            stopwatch.Elapsed,
+                            e);
                         info.Throw();
                     }
 
-                    this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                    (
+                    this.servicePerformanceCounterProvider.OnServiceMethodFinish(
                         headers.InterfaceId,
                         headers.MethodId,
                         stopwatch.Elapsed);
@@ -211,29 +257,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                     return response;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            if (this.servicePerformanceCounterProvider != null)
-            {
-                this.servicePerformanceCounterProvider.Dispose();
-            }
-        }
-
-        internal bool IsCancellationRequest(ServiceRemotingMessageHeaders messageHeaders)
-        {
-            if (messageHeaders.InvocationId != null &&
-                messageHeaders.TryGetHeaderValue(ServiceRemotingMessageHeaders.CancellationHeaderName, out var headerValue))
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

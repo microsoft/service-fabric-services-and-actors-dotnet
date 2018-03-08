@@ -15,12 +15,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     public abstract class
         ServiceMethodDispatcherBase : MethodDispatcherBaseWithSerializer
     {
-
         internal override DataContractSerializer CreateRequestMessageBodySerializer(IEnumerable<Type> requestBodyValueTypes)
         {
             return ServiceRemotingMessageSerializer.GetMessageBodySerializer(requestBodyValueTypes);
         }
-
 
         internal override DataContractSerializer CreateResponseMessageBodySerializer(IEnumerable<Type> responseBodyValueTypes)
         {

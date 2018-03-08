@@ -16,7 +16,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     {
         public ServiceProxyGeneratorBuilder(ICodeBuilder codeBuilder)
             : base(codeBuilder)
-        { }
+        {
+        }
 
         protected override ServiceProxyGeneratorWith CreateProxyGenerator(
             Type proxyInterfaceType,

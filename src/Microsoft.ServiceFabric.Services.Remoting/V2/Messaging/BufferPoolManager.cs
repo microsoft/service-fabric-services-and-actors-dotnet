@@ -17,21 +17,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
     /// </summary>
     public sealed class BufferPoolManager : IBufferPoolManager
     {
-        //Not using SynchonizedBufferPool as it has shrink buffer logic , which we don't need yet
+        private const int DefaultSegmentSize = 4 * 1024;
+        private const int DefaultBufferLimit = 100;
+
+        // Not using SynchonizedBufferPool as it has shrink buffer logic , which we don't need yet
         private readonly SynchronizedPool<PooledBuffer> bufferPool;
 
         private readonly Allocator allocator;
 
         private readonly int limit;
 
-        private const int DefaultSegmentSize = 4 * 1024;
-        private const int DefaultBufferLimit = 100;
-
         /// <summary>
-        /// Initializes a new instance of the BufferPoolManager class.
+        /// Initializes a new instance of the <see cref="BufferPoolManager"/> class.
         /// </summary>
-        /// <param name="segmentSize"></param>
-        /// <param name="bufferLimit"></param>
+        /// <param name="segmentSize">Size of a Buffered Segment.</param>
+        /// <param name="bufferLimit">Maximum number of Buffers kept in the Pool.</param>
         public BufferPoolManager(int segmentSize = DefaultSegmentSize, int bufferLimit = DefaultBufferLimit)
         {
             this.limit = bufferLimit;
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// Gets a buffer from the pool.
         /// if it doesn't find any unused buffer , it instantiate new buffer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The Pooled Buffer</returns>
         public IPooledBuffer TakeBuffer()
         {
             var segment = this.bufferPool.Take();
@@ -67,11 +67,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// if limit crosses, buffer won't be returned to the Pool.
         /// It return false , if buffer is not returned.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">Represents Buffer to be returned to the pool</param>
+        /// <returns>True If returned to the pool succeded otherwise false.</returns>
         public bool ReturnBuffer(IPooledBuffer buffer)
         {
             var segment = ((PooledBuffer)buffer);
-            //Return the buffer
             return this.bufferPool.Return(segment);
         }
 

@@ -17,11 +17,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         private readonly Stream receivedBufferStream;
         private bool isDisposed;
 
-
         /// <summary>
+        /// Initializes a new instance of the <see cref="IncomingMessageBody"/> class.
         /// Creates an incoming Message Body with the received stream .
         /// </summary>
-        /// <param name="receivedBufferStream"></param>
+        /// <param name="receivedBufferStream">Recieved Stream </param>
         public IncomingMessageBody(Stream receivedBufferStream)
         {
             this.receivedBufferStream = receivedBufferStream;
@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// This is not used for this implementation
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of ArraySegment</returns>
         public IEnumerable<ArraySegment<byte>> GetSendBuffers()
         {
             throw new NotImplementedException("This method is not implemented for incoming messages");
@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Return the Received Buffer Stream
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Stream</returns>
         public Stream GetReceivedBuffer()
         {
             return this.receivedBufferStream;

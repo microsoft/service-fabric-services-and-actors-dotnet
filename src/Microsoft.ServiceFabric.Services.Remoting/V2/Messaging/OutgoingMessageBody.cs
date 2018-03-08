@@ -20,9 +20,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         private bool isDisposed;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="OutgoingMessageBody"/> class.
         /// Creates OutgoingMessageBody with list of pooled Buffers
         /// </summary>
-        /// <param name="outgoingPooledBodyBuffers"></param>
+        /// <param name="outgoingPooledBodyBuffers"> List of Pooled Buffers</param>
         public OutgoingMessageBody(IEnumerable<IPooledBuffer> outgoingPooledBodyBuffers)
         {
             this.pooledBodyBuffers = outgoingPooledBodyBuffers;
@@ -34,8 +35,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="OutgoingMessageBody"/> class.
         /// Creates OutgoingMessageBody with list of segments.
         /// </summary>
+        /// <param name="outgoingBodyBuffers">List of ArraySegment </param>
         public OutgoingMessageBody(IEnumerable<ArraySegment<byte>> outgoingBodyBuffers)
         {
             this.pooledBodyBuffers = null;
@@ -45,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Returns the Buffers to be sent over the wire.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of ArraySegment</returns>
         public IEnumerable<ArraySegment<byte>> GetSendBuffers()
         {
             return this.bodyBuffers;
@@ -54,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// This method is not implemented.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Not Implemented</returns>
         public Stream GetReceivedBuffer()
         {
             throw new NotImplementedException("This method is not valid on outgoing messages");

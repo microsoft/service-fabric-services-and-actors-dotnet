@@ -16,11 +16,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
         private FabricTransportCallbackClient transportCallbackClient;
         private DataContractSerializer serializer = new DataContractSerializer(typeof(ServiceRemotingMessageHeaders));
         private string clientId;
+        private bool disposedValue = false; // To detect redundant calls
 
         public FabricTransportServiceRemotingCallback(FabricTransportCallbackClient transportCallbackClient)
         {
             this.transportCallbackClient = transportCallbackClient;
             this.clientId = this.transportCallbackClient.GetClientId();
+        }
+
+        ~FabricTransportServiceRemotingCallback()
+        {
+            this.Dispose(false);
         }
 
         public Task<byte[]> RequestResponseAsync(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
@@ -41,10 +47,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
             return this.clientId;
         }
 
-
         #region IDisposable Support
 
-        private bool disposedValue = false; // To detect redundant calls
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -53,7 +62,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
                 if (disposing)
                 {
                     // No other managed resources to dispose.
-
                     if (this.transportCallbackClient != null)
                     {
                         this.transportCallbackClient.Dispose();
@@ -63,18 +71,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
                 this.disposedValue = true;
             }
         }
-
-        ~FabricTransportServiceRemotingCallback()
-        {
-            this.Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         #endregion
     }
 }

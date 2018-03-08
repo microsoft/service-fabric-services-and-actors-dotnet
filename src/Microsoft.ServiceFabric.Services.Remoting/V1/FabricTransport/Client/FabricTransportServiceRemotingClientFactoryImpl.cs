@@ -22,11 +22,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
     {
         private readonly Remoting.FabricTransport.FabricTransportRemotingSettings settings;
         private readonly FabricTransportRemotingCallbackMessageHandler fabricTransportRemotingCallbackMessageHandler;
-        //We don't need implementation of ClientConnection handler provided in base class , hence creating new eventHandler here.Using FabricTransport Connectionhandler implementation.
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> FabricTransportClientConnected;
-        //We don't need impl of ClientConnection handler provided in base class , hence creating new eventHandler here.Using FabricTransport Connectionhandler implementation.
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>>
-            FabricTransportClientDisconnected;
 
         public FabricTransportServiceRemotingClientFactoryImpl(
             Remoting.FabricTransport.FabricTransportRemotingSettings fabricTransportRemotingSettings = null,
@@ -44,18 +39,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                 new FabricTransportRemotingCallbackMessageHandler(callbackHandler);
         }
 
-        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
-            IEnumerable<IExceptionHandler> exceptionHandlers)
-        {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
-            {
-                handlers.AddRange(exceptionHandlers);
-            }
+        // We don't need implementation of ClientConnection handler provided in base class , hence creating new eventHandler here.Using FabricTransport Connectionhandler implementation.
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> FabricTransportClientConnected;
 
-            handlers.Add(new ExceptionHandler());
-            return handlers;
-        }
+        // We don't need impl of ClientConnection handler provided in base class , hence creating new eventHandler here.Using FabricTransport Connectionhandler implementation.
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>>
+            FabricTransportClientDisconnected;
 
         protected override Task<FabricTransportServiceRemotingClient> CreateClientAsync(
             string endpoint,
@@ -64,7 +53,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             try
             {
                 var remotingHandler = new FabricTransportRemotingClientConnectionHandler();
-                var nativeClient = new FabricTransportClient(this.settings.GetInternalSettings(), endpoint,
+                var nativeClient = new FabricTransportClient(
+                    this.settings.GetInternalSettings(),
+                    endpoint,
                     remotingHandler,
                     this.fabricTransportRemotingCallbackMessageHandler);
                 var client = new FabricTransportServiceRemotingClient(nativeClient, remotingHandler);
@@ -95,6 +86,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
         protected override bool ValidateClient(string endpoint, FabricTransportServiceRemotingClient remotingClient)
         {
             return remotingClient.IsValid && remotingClient.ConnectionAddress.Equals(endpoint);
+        }
+
+        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
+            IEnumerable<IExceptionHandler> exceptionHandlers)
+        {
+            var handlers = new List<IExceptionHandler>();
+            if (exceptionHandlers != null)
+            {
+                handlers.AddRange(exceptionHandlers);
+            }
+
+            handlers.Add(new ExceptionHandler());
+            return handlers;
         }
 
         private void OnFabricTransportClientConnected(

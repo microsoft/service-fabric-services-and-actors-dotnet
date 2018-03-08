@@ -31,7 +31,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         internal const string ServiceOutstandingRequestsCounterName = "# of outstanding requests";
 
-
         private static readonly Dictionary<Tuple<string, string>, FabricPerformanceCounterType> CounterTypes = new Dictionary
             <Tuple<string, string>, FabricPerformanceCounterType>()
             {
@@ -59,7 +58,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                     Tuple.Create(ServiceCategoryName, ServiceResponseSerializationTimeMillisecBaseCounterName),
                     FabricPerformanceCounterType.AverageBase
                 },
-
                 {
                     Tuple.Create(ServiceCategoryName, ServiceOutstandingRequestsCounterName),
                     FabricPerformanceCounterType.NumberOfItems64
@@ -90,10 +88,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                             new FabricPerformanceCounterDefinition(
                                 2,
                                 ServiceRequestProcessingTimeMillisecBaseCounterName,
-                                "",
+                                string.Empty,
                                 GetType(ServiceCategoryName, ServiceRequestProcessingTimeMillisecBaseCounterName),
                                 "MethodProcessingTimeBase",
-                                new[] {"noDisplay"}),
+                                new[] { "noDisplay" }),
                             new FabricPerformanceCounterDefinition(
                                 3,
                                 4,
@@ -104,10 +102,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                             new FabricPerformanceCounterDefinition(
                                 4,
                                 ServiceRequestDeserializationTimeMillisecBaseCounterName,
-                                "",
+                                string.Empty,
                                 GetType(ServiceCategoryName, ServiceRequestDeserializationTimeMillisecBaseCounterName),
                                 "RequestDeserializationTimeBase",
-                                new[] {"noDisplay"}),
+                                new[] { "noDisplay" }),
                             new FabricPerformanceCounterDefinition(
                                 5,
                                 6,
@@ -118,10 +116,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                             new FabricPerformanceCounterDefinition(
                                 6,
                                 ServiceResponseSerializationTimeMillisecBaseCounterName,
-                                "",
+                                string.Empty,
                                 GetType(ServiceCategoryName, ServiceResponseSerializationTimeMillisecBaseCounterName),
                                 "ResponseSerializationTimeBase",
-                                new[] {"noDisplay"}),
+                                new[] { "noDisplay" }),
                             new FabricPerformanceCounterDefinition(
                                 7,
                                 ServiceOutstandingRequestsCounterName,
@@ -132,16 +130,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                     },
                 };
 
-
-        internal static FabricPerformanceCounterType GetType(string categoryName, string counterName)
-        {
-            return CounterTypes[Tuple.Create(categoryName, counterName)];
-        }
-
         public Dictionary<FabricPerformanceCounterSetDefinition, IEnumerable<FabricPerformanceCounterDefinition>>
             GetCounterSets()
         {
             return CounterSets;
+        }
+
+        internal static FabricPerformanceCounterType GetType(string categoryName, string counterName)
+        {
+            return CounterTypes[Tuple.Create(categoryName, counterName)];
         }
     }
 }

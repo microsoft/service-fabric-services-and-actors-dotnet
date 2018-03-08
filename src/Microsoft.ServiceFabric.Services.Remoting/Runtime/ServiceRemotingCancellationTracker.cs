@@ -83,7 +83,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             public async Task<CancellationTokenSource> GetOrAddCancellationTokenSourceAsync(string callId)
             {
                 CancellationTokenSource cancellationTokenSource = null;
-
                 {
                     await this.callTrackerLock.WaitAsync();
 
@@ -109,7 +108,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             {
                 var ret = false;
                 CancellationTokenSource cancellationToken = null;
-
                 {
                     await this.callTrackerLock.WaitAsync();
 
@@ -152,29 +150,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
         private sealed class MethodCallTrackerEntry
         {
-            public CancellationTokenSource CancellationTknSource { get; set; }
-
-            public int NumberOfInflightCalls { get; set; }
-
-            public string CallId { get; set; }
-
-            public MethodCallTrackerEntry(string callId)
+           public MethodCallTrackerEntry(string callId)
             {
                 this.CancellationTknSource = new CancellationTokenSource();
                 this.NumberOfInflightCalls = 1;
                 this.CallId = callId;
             }
+
+           public CancellationTokenSource CancellationTknSource { get; set; }
+
+           public int NumberOfInflightCalls { get; set; }
+
+           private string CallId { get; set; }
         }
-    }
-
-    /// <summary>
-    /// Represents wrapper object that is used to get the result of querying the cancellation token for a
-    /// particular method call via Async api's.
-    /// </summary>
-    internal class CancellationTokenResult
-    {
-        public CancellationTokenSource CancellationTknSource;
-
-        public bool CancellationTokenValid;
     }
 }

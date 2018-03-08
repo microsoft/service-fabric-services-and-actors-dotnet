@@ -17,13 +17,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Gets the Send Buffers
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of Segemented Buffers </returns>
         IEnumerable<ArraySegment<byte>> GetSendBuffers();
 
         /// <summary>
         /// Get the Received Stream
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Represents Recieved Buffer Stream</returns>
         Stream GetReceivedBuffer();
     }
 }

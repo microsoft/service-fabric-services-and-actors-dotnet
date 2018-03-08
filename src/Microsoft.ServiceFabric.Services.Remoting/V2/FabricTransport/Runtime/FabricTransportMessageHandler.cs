@@ -44,9 +44,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             FabricTransportRequestContext requestContext,
             FabricTransportMessage fabricTransportMessage)
         {
-            if (this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
+            if (this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
             {
-                this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
+                this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
                     .UpdateCounterValue(1);
             }
 
@@ -71,18 +71,38 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             finally
             {
                 fabricTransportMessage.Dispose();
-                if (this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter != null)
+                if (this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
                 {
-                    this.serviceRemotingPerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
+                    this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
                         .UpdateCounterValue(-1);
                 }
 
-                if (this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter != null)
+                if (this.serviceRemotingPerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter != null)
                 {
-                    this.serviceRemotingPerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter
+                    this.serviceRemotingPerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter
                         .UpdateCounterValue(
                             requestStopWatch.ElapsedMilliseconds);
                 }
+            }
+        }
+
+        public void HandleOneWay(
+            FabricTransportRequestContext requestContext,
+            FabricTransportMessage requesTransportMessage)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            if (this.serviceRemotingPerformanceCounterProvider != null)
+            {
+                this.serviceRemotingPerformanceCounterProvider.Dispose();
+            }
+
+            if (this.remotingMessageHandler is IDisposable disposableItem)
+            {
+                disposableItem.Dispose();
             }
         }
 
@@ -110,14 +130,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 ? new FabricTransportRequestHeader(
                     responseHeader.GetSendBuffer(),
                     responseHeader.Dispose)
-                : new FabricTransportRequestHeader(new ArraySegment<byte>(), null);
+                : new FabricTransportRequestHeader(default(ArraySegment<byte>), null);
             var responseSerializer =
                 this.serializersManager.GetResponseBodySerializer(interfaceId);
             stopwatch.Restart();
             var responseMsgBody = responseSerializer.Serialize(retval.GetBody());
-            if (this.serviceRemotingPerformanceCounterProvider.serviceResponseSerializationTimeCounterWriter != null)
+            if (this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
             {
-                this.serviceRemotingPerformanceCounterProvider.serviceResponseSerializationTimeCounterWriter
+                this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter
                     .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
 
@@ -152,34 +172,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 deserializedMsg = null;
             }
 
-            if (this.serviceRemotingPerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter != null)
+            if (this.serviceRemotingPerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
             {
-                this.serviceRemotingPerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter.UpdateCounterValue
-                (
+                this.serviceRemotingPerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
                     stopwatch.ElapsedMilliseconds);
             }
 
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
-        }
-
-        public void HandleOneWay(
-            FabricTransportRequestContext requestContext,
-            FabricTransportMessage requesTransportMessage)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
-            if (this.serviceRemotingPerformanceCounterProvider != null)
-            {
-                this.serviceRemotingPerformanceCounterProvider.Dispose();
-            }
-
-            if (this.remotingMessageHandler is IDisposable disposableItem)
-            {
-                disposableItem.Dispose();
-            }
         }
     }
 }

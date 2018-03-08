@@ -43,16 +43,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             this.SetLength();
         }
 
-        private void Initialize()
-        {
-            this.canWrite = false;
-            this.canSeek = false;
-            this.canRead = true;
-            this.position = 0;
-            this.bufferNum = 0;
-            this.bufferOffset = 0;
-        }
-
         public override bool CanRead
         {
             get { return this.canRead; }
@@ -158,8 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
         public override int ReadByte()
         {
-            //Number of bytes to read is more than number of unread bytes in buffer
-
+            // Number of bytes to read is more than number of unread bytes in buffer
             if (this.length - this.position < 1)
             {
                 return -1;
@@ -167,7 +156,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 
             var currentBuffer = this.readbuffers.ElementAt((this.bufferNum));
 
-            //Read from next buffer
+            // Read from next buffer
             if (this.bufferOffset == currentBuffer.Count)
             {
                 this.bufferNum++;
@@ -193,6 +182,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             {
                 this.length += segment.Count;
             }
+        }
+
+        private void Initialize()
+        {
+            this.canWrite = false;
+            this.canSeek = false;
+            this.canRead = true;
+            this.position = 0;
+            this.bufferNum = 0;
+            this.bufferOffset = 0;
         }
     }
 }

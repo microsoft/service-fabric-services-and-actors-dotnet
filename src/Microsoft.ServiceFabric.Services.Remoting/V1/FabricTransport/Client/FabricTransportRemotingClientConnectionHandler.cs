@@ -16,6 +16,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 
     internal class FabricTransportRemotingClientConnectionHandler : IFabricTransportClientConnectionHandler
     {
+        private IServiceRemotingClient remotingClient;
+
+        public FabricTransportRemotingClientConnectionHandler()
+        {
+            this.remotingClient = new FabricTransportServiceRemotingClient(new DummyNativeClient(), null);
+        }
+
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
+
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
+
         public string ListenerName
         {
             set { this.remotingClient.ListenerName = value; }
@@ -29,17 +40,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
         public ResolvedServiceEndpoint Endpoint
         {
             set { this.remotingClient.Endpoint = value; }
-        }
-
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
-
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
-
-        private IServiceRemotingClient remotingClient;
-
-        public FabricTransportRemotingClientConnectionHandler()
-        {
-            this.remotingClient = new FabricTransportServiceRemotingClient(new DummyNativeClient(), null);
         }
 
         void IFabricTransportClientConnectionHandler.OnConnected()
@@ -68,24 +68,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                         Client = this.remotingClient,
                     });
             }
-        }
-    }
-
-    internal class DummyNativeClient : FabricTransportClient
-    {
-        public DummyNativeClient()
-        {
-            this.settings = new FabricTransportSettings();
-        }
-
-        public override Task<FabricTransportReplyMessage> RequestResponseAsync(byte[] header, byte[] requestBody, TimeSpan timeout)
-        {
-            throw new ArgumentException(SR.Error_InvalidOperation);
-        }
-
-        public override void SendOneWay(byte[] messageHeaders, byte[] requestBody)
-        {
-            throw new ArgumentException(SR.Error_InvalidOperation);
         }
     }
 }

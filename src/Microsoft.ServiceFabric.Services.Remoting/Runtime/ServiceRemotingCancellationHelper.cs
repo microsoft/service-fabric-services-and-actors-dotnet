@@ -16,9 +16,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     /// </summary>
     internal sealed class ServiceRemotingCancellationHelper
     {
-        private ConcurrentDictionary<int, ServiceRemotingCancellationTracker> requestCancellationTracker;
-        private const string traceType = "ServiceRemotingCancellationHelper";
-        private string traceId;
+        private const string TraceType = "ServiceRemotingCancellationHelper";
+        private readonly ConcurrentDictionary<int, ServiceRemotingCancellationTracker> requestCancellationTracker;
+        private readonly string traceId;
 
         public ServiceRemotingCancellationHelper(string traceId)
         {
@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 if (cancellationTokenResult.CancellationTokenValid)
                 {
                     ServiceTrace.Source.WriteInfoWithId(
-                        traceType,
+                        TraceType,
                         this.traceId,
                         "Cancelling method call - CallContext : {0}, InterfaceId : {1}, MethodId : {2}",
                         callContext,
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 else
                 {
                     ServiceTrace.Source.WriteInfoWithId(
-                        traceType,
+                        TraceType,
                         this.traceId,
                         "Method call - CallContext : {0}, InterfaceId : {1}, MethodId : {2}, is not tracked for cancellation, so it will not be cancelled",
                         callContext,
@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             else
             {
                 ServiceTrace.Source.WriteWarningWithId(
-                    traceType,
+                    TraceType,
                     this.traceId,
                     "Cancel was called for InterfaceId : {0}, MethodId : {1} with a NULL call context",
                     interfaceId,
@@ -84,10 +84,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             if (callContext != null)
             {
                 var cancellationTracker = this.GetCancellationTracker(interfaceId);
-                //
+
                 // A cancellation token is created only when the remoting client specifies a callcontext to track
                 // the call.
-                //
                 var cancellationTokenSource = await cancellationTracker.GetOrAddCancellationTokenSource(
                     methodId,
                     callContext);
@@ -113,9 +112,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 }
             }
 
-            //
             // Cleanup the cancellation token source.
-            //
             if (callContext != null)
             {
                 await this.GetCancellationTracker(interfaceId).TryRemoveCancellationTokenSource(methodId, callContext);
@@ -131,7 +128,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
         private ServiceRemotingCancellationTracker GetCancellationTracker(int interfaceId)
         {
-            return this.requestCancellationTracker.GetOrAdd(interfaceId, obj => new ServiceRemotingCancellationTracker());
+            return this.requestCancellationTracker.GetOrAdd(
+                interfaceId,
+                obj => new ServiceRemotingCancellationTracker());
         }
     }
 }
