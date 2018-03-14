@@ -319,7 +319,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// controls if the exception should be retried or not.
         /// </summary>
         /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>        /// 
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
         [Obsolete("Use InvokeWithRetryAsync Api instead ")]
         public void InvokeWithRetry(
             Action<TCommunicationClient> func,
