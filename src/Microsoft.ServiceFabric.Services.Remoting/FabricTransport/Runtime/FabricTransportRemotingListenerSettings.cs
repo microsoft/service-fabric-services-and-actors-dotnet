@@ -121,6 +121,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
         /// <summary>
         ///  Gets or sets headerBufferSize which represents size of each header buffer in the bufferPool .
+        /// Default Remoting Serialization is using BufferPooling to avoid allocation every time.
+        /// So If you are adding any header in <see cref="ServiceRemotingRequestMessageHeader"/> , which can increase the headerSize to be
+        /// larger than BufferSize, it is recomended then to change this value to higher value .If bufferSize is less than serialized header bytes,
+        /// we copy the header to larger buffer.
         /// </summary>
         /// <remarks>
         ///    Defaults  value for the HeaderBufferSize is 1024 bytes.
