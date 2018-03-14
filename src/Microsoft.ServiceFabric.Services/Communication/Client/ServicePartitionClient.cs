@@ -124,7 +124,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
-        /// If you are invoking this method in Asp.Net /UT thread, these are recommendation to avoid deadlock:
+        /// If you are invoking this method in Asp.Net / UI thread, these are recommendation to avoid deadlock:
         ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
         ///  2 Or To  use run Task in a threadpool thread using Task.Run.
         /// </summary>
@@ -146,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
-        ///  If you are invoking this method in Asp.Net /UT thread, these are recommendation to avoid deadlock:
+        ///  If you are invoking this method in Asp.Net / UI thread, these are recommendation to avoid deadlock:
         ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
         ///  2 Or To  use run Task in a threadpool thread using Task.Run. 
         /// </summary>
@@ -247,7 +247,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
-        /// If you are invoking this method in Asp.Net /UT thread, these are recommendation to avoid deadlock:
+        /// If you are invoking this method in Asp.Net / UI thread, these are recommendation to avoid deadlock:
         ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
         ///  2 Or To  use run Task in a threadpool thread using Task.Run. 
         /// </summary>
@@ -319,8 +319,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// controls if the exception should be retried or not.
         /// </summary>
         /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
-        /// 
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>        /// 
         [Obsolete("Use InvokeWithRetryAsync Api instead ")]
         public void InvokeWithRetry(
             Action<TCommunicationClient> func,
