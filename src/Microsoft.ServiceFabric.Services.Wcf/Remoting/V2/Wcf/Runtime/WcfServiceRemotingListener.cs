@@ -236,7 +236,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             public async Task<ResponseMessage> RequestResponseAsync(ArraySegment<byte> messageHeaders,
                 IEnumerable<ArraySegment<byte>> requestBody)
             {
-                IMessageBody outgoingMessageBody = null;
+                OutgoingMessageBody outgoingMessageBody = null;
                 IMessageHeader outgoingMessageHeader = null;
                 try
                 {
