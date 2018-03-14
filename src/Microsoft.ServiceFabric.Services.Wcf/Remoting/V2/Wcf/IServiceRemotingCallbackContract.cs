@@ -17,7 +17,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
     [ServiceContract(Namespace = WcfConstants.Namespace)]
     public interface IServiceRemotingCallbackContract
     {
-
         /// <summary>
         /// Sends a one way message to the client.
         /// </summary>

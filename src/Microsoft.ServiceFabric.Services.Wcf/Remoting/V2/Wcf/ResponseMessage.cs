@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
     public class ResponseMessage
     {
         /// <summary>
-        /// Creates Response with Empty Headers and Body
+        /// Initializes a new instance of the <see cref="ResponseMessage"/> class with Empty Headers and Body
         /// </summary>
         public ResponseMessage()
         {
