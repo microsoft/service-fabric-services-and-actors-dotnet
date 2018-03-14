@@ -126,7 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// controls if the exception should be retried or not.
         /// If you are invoking this method in Asp.Net / UI thread, these are recommendation to avoid deadlock:
         ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
-        ///  2 Or To  use run Task in a threadpool thread using Task.Run.
+        ///  2 Or To  invoke this method in a threadpool thread using Task.Run.
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
         /// <param name="func">Function being invoked</param>
@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// controls if the exception should be retried or not.
         ///  If you are invoking this method in Asp.Net / UI thread, these are recommendation to avoid deadlock:
         ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
-        ///  2 Or To  use run Task in a threadpool thread using Task.Run. 
+        ///  2 Or To  invoke this method in a threadpool thread using Task.Run. 
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
         /// <param name="func">Function being invoked</param>
