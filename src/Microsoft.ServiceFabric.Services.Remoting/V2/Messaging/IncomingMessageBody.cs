@@ -6,17 +6,15 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
 
     /// <summary>
     /// Serialized Message Body received from an incoming connection.
     /// </summary>
-    public sealed class IncomingMessageBody : IMessageBody
+    public sealed class IncomingMessageBody : IDisposable
     {
         private readonly Stream receivedBufferStream;
         private bool isDisposed;
-
 
         /// <summary>
         /// Creates an incoming Message Body with the received stream .
@@ -25,15 +23,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         public IncomingMessageBody(Stream receivedBufferStream)
         {
             this.receivedBufferStream = receivedBufferStream;
-        }
-
-        /// <summary>
-        /// This is not used for this implementation
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<ArraySegment<byte>> GetSendBuffers()
-        {
-            throw new NotImplementedException("This method is not implemented for incoming messages");
         }
 
         /// <summary>

@@ -7,13 +7,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
 
     /// <summary>
     /// Represents the outgoing message body to be sent over the wire.
     /// </summary>
-    public sealed class OutgoingMessageBody : IMessageBody
+    public sealed class OutgoingMessageBody : IDisposable
     {
         private readonly IEnumerable<ArraySegment<byte>> bodyBuffers;
         private readonly IEnumerable<IPooledBuffer> pooledBodyBuffers;
@@ -49,15 +48,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         public IEnumerable<ArraySegment<byte>> GetSendBuffers()
         {
             return this.bodyBuffers;
-        }
-
-        /// <summary>
-        /// This method is not implemented.
-        /// </summary>
-        /// <returns></returns>
-        public Stream GetReceivedBuffer()
-        {
-            throw new NotImplementedException("This method is not valid on outgoing messages");
         }
 
         /// <summary>
