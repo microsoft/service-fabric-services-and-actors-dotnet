@@ -125,7 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
         /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
-        ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api in a threadpool thread using Task.Run.
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
         ///  If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
-        ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api  in a threadpool thread using Task.Run. 
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
@@ -224,7 +224,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         ref currentRetryCount))
                 {
                     throw exceptionReportResult.Exception ?? exception;
-s                }
+                }
 
                 ServiceTrace.Source.WriteInfoWithId(
                     TraceType,
@@ -248,7 +248,7 @@ s                }
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
         /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
-        ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api in a threadpool thread using Task.Run. 
         /// </summary>
         /// <param name="func">Function being invoked</param>
@@ -266,7 +266,7 @@ s                }
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
         /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
-        ///  1 if your calling Api is Async , configure await to not to resume in orignal context. by setting ConfigureAwait as false. 
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api in a threadpool thread using Task.Run. 
         /// </summary>
         /// <param name="func">Function being invoked</param>
