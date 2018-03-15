@@ -124,6 +124,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
+        /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
+        ///  2 Or To  invoke this Api in a threadpool thread using Task.Run.
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
         /// <param name="func">Function being invoked</param>
@@ -143,6 +146,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
+        ///  If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
+        ///  2 Or To  invoke this Api  in a threadpool thread using Task.Run. 
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
         /// <param name="func">Function being invoked</param>
@@ -241,6 +247,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
+        /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
+        ///  2 Or To  invoke this Api in a threadpool thread using Task.Run. 
         /// </summary>
         /// <param name="func">Function being invoked</param>
         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
@@ -256,6 +265,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
         /// controls if the exception should be retried or not.
+        /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
+        ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
+        ///  2 Or To  invoke this Api in a threadpool thread using Task.Run. 
         /// </summary>
         /// <param name="func">Function being invoked</param>
         /// <param name="cancellationToken">Cancellation token</param>
@@ -287,6 +299,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="func">Function being invoked</param>
         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
         /// <returns>Result from the function given in the argument</returns>
+        [Obsolete("Use InvokeWithRetryAsync Api instead ")]
         public TResult InvokeWithRetry<TResult>(
             Func<TCommunicationClient, TResult> func,
             params Type[] doNotRetryExceptionTypes)
@@ -310,6 +323,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// </summary>
         /// <param name="func">Function being invoked</param>
         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+        [Obsolete("Use InvokeWithRetryAsync Api instead ")]
         public void InvokeWithRetry(
             Action<TCommunicationClient> func,
             params Type[] doNotRetryExceptionTypes)
