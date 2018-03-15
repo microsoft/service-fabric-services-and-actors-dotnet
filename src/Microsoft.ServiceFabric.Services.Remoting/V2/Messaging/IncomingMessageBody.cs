@@ -5,13 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 {
-    using System;
     using System.IO;
 
     /// <summary>
     /// Serialized Message Body received from an incoming connection.
     /// </summary>
-    public sealed class IncomingMessageBody : IDisposable
+    public sealed class IncomingMessageBody : IIncomingMessageBody
     {
         private readonly Stream receivedBufferStream;
         private bool isDisposed;

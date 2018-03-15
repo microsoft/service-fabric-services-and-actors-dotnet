@@ -350,7 +350,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 this.serializersManager = serializersManager;
             }
 
-
             public void SendOneWay(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody)
             {
                 var headerSerializer = this.serializersManager.GetHeaderSerializer();

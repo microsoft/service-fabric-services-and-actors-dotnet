@@ -13,17 +13,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public interface IServiceRemotingRequestMessageBodySerializer
     {
         /// <summary>
-        /// Serializes IServiceRemotingRequestMessageBody to OutgoingMessageBody
+        /// Serializes IServiceRemotingRequestMessageBody to IOutgoingMessageBody
         /// </summary>
         /// <param name="serviceRemotingRequestMessageBody"></param>
-        /// <returns>OutgoingMessageBody</returns>
-        OutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody);
+        /// <returns>IOutgoingMessageBody</returns>
+        IOutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody);
 
         /// <summary>
-        /// Deserializes IncomingMessageBody to IServiceRemotingRequestMessageBody
+        /// Deserializes IIncomingMessageBody to IServiceRemotingRequestMessageBody
         /// </summary>
         /// <param name="messageBody"></param>
         /// <returns>IServiceRemotingRequestMessageBody</returns>
-        IServiceRemotingRequestMessageBody Deserialize(IncomingMessageBody messageBody);
+        IServiceRemotingRequestMessageBody Deserialize(IIncomingMessageBody messageBody);
     }
 }
