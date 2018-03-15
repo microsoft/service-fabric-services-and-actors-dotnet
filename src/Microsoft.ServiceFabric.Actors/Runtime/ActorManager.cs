@@ -1311,6 +1311,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return !(this.remindersByActorId.IsEmpty);
         }
 
+        internal bool Test_ReminderDictionaryHasEntry(ActorId actorId)
+        {
+            return this.remindersByActorId.ContainsKey(actorId);
+        }
+
         #endregion
     }
 }
