@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
     /// <summary>
     /// Represents the outgoing message body to be sent over the wire.
     /// </summary>
-    public sealed class OutgoingMessageBody : IDisposable
+    public sealed class OutgoingMessageBody : IOutgoingMessageBody
     {
         private readonly IEnumerable<ArraySegment<byte>> bodyBuffers;
         private readonly IEnumerable<IPooledBuffer> pooledBodyBuffers;

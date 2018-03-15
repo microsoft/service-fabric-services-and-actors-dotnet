@@ -97,7 +97,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     });
             }
 
-            public OutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
+            public IOutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
             {
                 if (serviceRemotingRequestMessageBody == null)
                 {
@@ -116,7 +116,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 }
             }
 
-            public IServiceRemotingRequestMessageBody Deserialize(IncomingMessageBody messageBody)
+            public IServiceRemotingRequestMessageBody Deserialize(IIncomingMessageBody messageBody)
             {
                 if (messageBody == null || messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0)
                 {
@@ -153,7 +153,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     });
             }
 
-            public OutgoingMessageBody Serialize(IServiceRemotingResponseMessageBody serviceRemotingResponseMessageBody)
+            public IOutgoingMessageBody Serialize(IServiceRemotingResponseMessageBody serviceRemotingResponseMessageBody)
             {
                 if (serviceRemotingResponseMessageBody == null)
                 {
@@ -172,7 +172,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 }
             }
 
-            public IServiceRemotingResponseMessageBody Deserialize(IncomingMessageBody messageBody)
+            public IServiceRemotingResponseMessageBody Deserialize(IIncomingMessageBody messageBody)
             {
                 if (messageBody == null || messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0)
                 {

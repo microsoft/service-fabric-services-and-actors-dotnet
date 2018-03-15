@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
         public void SendOneWay(IServiceRemotingRequestMessage requestMessage)
         {
-            OutgoingMessageBody outgoingMessageBody = null;
+            IOutgoingMessageBody outgoingMessageBody = null;
             IMessageHeader outgoingMessageHeader = null;
             try
             {

@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
         public async Task<IServiceRemotingResponseMessage> RequestResponseAsync(IServiceRemotingRequestMessage requestMessage)
         {
-            OutgoingMessageBody serializedMsgBody = null;
+            IOutgoingMessageBody serializedMsgBody = null;
             IMessageHeader serializedHeader = null;
 
             try
