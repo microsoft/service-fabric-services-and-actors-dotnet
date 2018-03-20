@@ -186,7 +186,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
 
         private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type actorInterfaceType)
         {
-            var factory = this.CreateServiceRemotingClientFactory(ActorEventSubscriberManager.Singleton);
+            var factory = this.CreateServiceRemotingClientFactory(ActorEventSubscriberManager.Instance);
             if (factory == null)
             {
                 throw new NotSupportedException("ClientFactory can't be null");

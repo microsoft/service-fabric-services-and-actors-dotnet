@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     /// </summary>
     internal class ServiceCodeBuilder : CodeBuilder
     {
-        private static readonly ICodeBuilder Singleton = new ServiceCodeBuilder();
+        private static readonly ICodeBuilder Instance = new ServiceCodeBuilder();
         internal static readonly InterfaceDetailsStore InterfaceDetailsStore = new InterfaceDetailsStore();
         private static readonly object BuildLock = new object();
 
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         {
             lock (BuildLock)
             {
-                return (ServiceProxyGenerator)Singleton.GetOrBuildProxyGenerator(serviceInterfaceType).ProxyGenerator;
+                return (ServiceProxyGenerator)Instance.GetOrBuildProxyGenerator(serviceInterfaceType).ProxyGenerator;
             }
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         {
             lock (BuildLock)
             {
-                var codebuilder = (ServiceCodeBuilder)Singleton;
+                var codebuilder = (ServiceCodeBuilder)Instance;
 
                 if (codebuilder.TryGetProxyGenerator(serviceInterfaceType, out var result))
                 {
@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             {
                 return
                     (MethodDispatcherBase)
-                    Singleton.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
+                    Instance.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
             }
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         {
             lock (BuildLock)
             {
-                var codebuilder = (ServiceCodeBuilder)Singleton;
+                var codebuilder = (ServiceCodeBuilder)Instance;
 
                 if (codebuilder.TryGetMethodDispatcher(serviceInterfaceType, out var result))
                 {
