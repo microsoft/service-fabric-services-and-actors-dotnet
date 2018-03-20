@@ -182,7 +182,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         internal async Task SubscribeAsyncV2(Type eventType, object subscriber, TimeSpan resubscriptionInterval)
         {
             var actorId = this.servicePartitionClientV2.ActorId;
-            var info = Remoting.V2.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(actorId, eventType,
+            var info = Remoting.V2.Client.ActorEventSubscriberManager.Instance.RegisterSubscriber(actorId, eventType,
                 subscriber);
 
             Exception error = null;
@@ -215,7 +215,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         internal async Task UnsubscribeAsyncV2(Type eventType, object subscriber)
         {
             var actorId = this.servicePartitionClientV2.ActorId;
-            if (Remoting.V2.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(actorId, eventType,
+            if (Remoting.V2.Client.ActorEventSubscriberManager.Instance.TryUnregisterSubscriber(actorId, eventType,
                 subscriber, out var info))
             {
                 await this.servicePartitionClientV2.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
@@ -329,7 +329,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
-            var info = Remoting.V1.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(actorId, eventType,
+            var info = Remoting.V1.Client.ActorEventSubscriberManager.Instance.RegisterSubscriber(actorId, eventType,
                 subscriber);
 
             Exception error = null;
@@ -370,7 +370,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
-            if (Remoting.V1.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(actorId, eventType,
+            if (Remoting.V1.Client.ActorEventSubscriberManager.Instance.TryUnregisterSubscriber(actorId, eventType,
                 subscriber, out var info))
             {
                 await this.servicePartitionClient.UnsubscribeAsync(info.Subscriber.EventId, info.Id);

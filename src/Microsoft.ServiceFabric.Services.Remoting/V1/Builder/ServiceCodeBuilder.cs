@@ -13,8 +13,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
 
     internal class ServiceCodeBuilder : CodeBuilder
     {
-        private static ICodeBuilder Singleton = new ServiceCodeBuilder();
-        private static object BuildLock = new object();
+        private static readonly ICodeBuilder Instance = new ServiceCodeBuilder();
+        private static readonly object BuildLock = new object();
 
         private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
         private readonly MethodDispatcherBuilder<ServiceMethodDispatcherBase> methodDispatcherBuilder;
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
         {
             lock (BuildLock)
             {
-                return (ServiceProxyGeneratorWith)Singleton.GetOrBuildProxyGenerator(serviceInterfaceType).ProxyGenerator;
+                return (ServiceProxyGeneratorWith)Instance.GetOrBuildProxyGenerator(serviceInterfaceType).ProxyGenerator;
             }
         }
 
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
         {
             lock (BuildLock)
             {
-                return (ServiceMethodDispatcherBase)Singleton.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
+                return (ServiceMethodDispatcherBase)Instance.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
             }
         }
 

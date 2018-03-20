@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
 #if !DotNetCoreClr
-                    DataContractSurrogate = ActorDataContractSurrogate.Singleton,
+                    DataContractSurrogate = ActorDataContractSurrogate.Instance,
 #endif
                     KnownTypes = new[] { typeof(ActorReference) }
                 });

@@ -402,16 +402,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new DataContractSerializerSettings
                 {
                     MaxItemsInObjectGraph = Int32.MaxValue,
-#if !DotNetCoreClr					
-                    DataContractSurrogate = ActorDataContractSurrogate.Singleton,
+#if !DotNetCoreClr
+                    DataContractSurrogate = ActorDataContractSurrogate.Instance,
 #endif
                     KnownTypes = new[]
                     {
-                        typeof(ActorReference) ,
+                        typeof(ActorReference)
                     }
                 });
 #if DotNetCoreClr
-			dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Singleton);
+			dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Instance);
 #endif
             return dataContractSerializer;
         }

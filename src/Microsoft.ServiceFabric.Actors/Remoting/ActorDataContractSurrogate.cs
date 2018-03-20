@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 #if DotNetCoreClr
     internal class ActorDataContractSurrogate : ISerializationSurrogateProvider
     {
-        public static readonly ISerializationSurrogateProvider Singleton = new ActorDataContractSurrogate();
+        public static readonly ISerializationSurrogateProvider Instance = new ActorDataContractSurrogate();
         public Type GetSurrogateType(Type type)
         {
             if (typeof(IActor).IsAssignableFrom(type))
@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 #else
     internal class ActorDataContractSurrogate : IDataContractSurrogate
     {
-        public static readonly IDataContractSurrogate Singleton = new ActorDataContractSurrogate();
+        public static readonly IDataContractSurrogate Instance = new ActorDataContractSurrogate();
 
         public Type GetDataContractType(Type type)
         {
