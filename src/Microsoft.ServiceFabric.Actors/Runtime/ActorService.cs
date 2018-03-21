@@ -208,6 +208,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #if !DotNetCoreClr
             if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
             {
+                this.RemotingListener = RemotingListener.V2Listener;
+
                 return new[]
                 {
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListenerV2(this); },
@@ -217,6 +219,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
             {
+                this.RemotingListener = RemotingListener.CompatListener;
+
                 return new[]
                 {
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
@@ -228,6 +232,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             else
             {
+                this.RemotingListener = RemotingListener.V1Listener;
+
                 return new[]
                 {
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
@@ -235,6 +241,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 };
             }
 #else
+            this.RemotingListener = RemotingListener.V2Listener;
+
             return new[] {
                     new ServiceReplicaListener((t) =>
                     {
