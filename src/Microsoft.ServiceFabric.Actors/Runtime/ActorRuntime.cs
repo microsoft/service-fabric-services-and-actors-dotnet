@@ -55,8 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="actorServiceFactory">The delegate that creates new actor service.</param>
         /// <param name="timeout">A timeout period after which the registration operation will be canceled.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>A task that repre
-        /// sents the asynchronous operation to register actor service with Service Fabric runtime.</returns>        
+        /// <returns>A task that represents the asynchronous operation to register actor service with Service Fabric runtime.</returns>        
         public static async Task RegisterActorAsync<TActor>(
             Func<StatefulServiceContext, ActorTypeInformation, ActorService> actorServiceFactory,
             TimeSpan timeout = default(TimeSpan),
