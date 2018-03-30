@@ -208,7 +208,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(actorInterfaceType);
-                if (provider.RemotingClient.Equals(RemotingClient.V2Client))
+                if (provider.RemotingClientVersion.Equals(RemotingClientVersion.V2))
                 {
                     //We are overriding listenerName since using provider service can have multiple listener configured(Compat Mode).
                     this.overrideListenerName = true;

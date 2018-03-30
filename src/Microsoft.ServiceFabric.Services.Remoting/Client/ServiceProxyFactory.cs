@@ -98,7 +98,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
-                if (provider.RemotingClient.Equals(RemotingClient.V2Client))
+                if (provider.RemotingClientVersion.Equals(RemotingClientVersion.V2))
                 {
                     //We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
                     this.overrideListenerName = true;

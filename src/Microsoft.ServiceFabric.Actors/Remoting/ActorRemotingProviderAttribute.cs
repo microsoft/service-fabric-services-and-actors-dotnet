@@ -61,9 +61,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 
 
         /// <summary>
-        /// RemotingClient is used to determine where  V1 or V2 remoting Client is used.
+        /// RemotingClientVersion is used to determine where V1 or V2 remoting Client version is used.
         /// </summary>
-        public RemotingClient RemotingClient { get; set; }
+        public RemotingClientVersion RemotingClientVersion { get; set; }
 
         /// <summary>
         /// RemotingListener is used to determine where listener is in V1, V2 or Compact Mode.

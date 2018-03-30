@@ -58,9 +58,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         {
         }
         /// <summary>
-        /// RemotingClient is used to determine where  V1 or V2 remoting Client is used.
+        /// RemotingClientVersion is used to determine where  V1 or V2 remoting Client version is used.
         /// </summary>
-        public RemotingClient RemotingClient { get; set; }
+        public RemotingClientVersion RemotingClientVersion { get; set; }
 
         /// <summary>
         /// RemotingListener is used to determine where listener is in V1, V2 or Compact Mode.
@@ -142,21 +142,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     }
 
     /// <summary>
-    /// Determines the remoting stack for client
+    /// Determines the version of remoting stack for client
     /// </summary>
-    public enum RemotingClient
+    public enum RemotingClientVersion
     {
 #if !DotNetCoreClr
         /// <summary>
         /// This is selected to create V1 Client. V1 is an old(soon to be deprecated) Remoting Stack.
         /// </summary>
-        V1Client = 0,
+        V1 = 0,
 #endif
 
         /// <summary>
         /// This is selected to create V2 Client. V2 is a new Remoting Stack.
         /// </summary>
-        V2Client = 1,
+        V2 = 1
     }
 
     /// <summary>
