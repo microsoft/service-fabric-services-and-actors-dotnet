@@ -17,14 +17,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #endif
         private readonly ServiceFabric.Services.Remoting.V2.Runtime.IServiceRemotingCallbackClient callbackV2;
         private readonly Guid id;
-        private readonly RemotingListener remotingListener;
+        private readonly RemotingListenerVersion remotingListenerVersion;
 
 #if !DotNetCoreClr
         public ActorEventSubscriberProxy(Guid id, ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback)
         {
             this.id = id;
             this.callback = callback;
-            this.remotingListener = RemotingListener.V1Listener;
+            this.remotingListenerVersion = RemotingListenerVersion.V1;
         }
 
 #endif
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             this.id = id;
             this.callbackV2 = callback;
-            this.remotingListener = RemotingListener.V2Listener;
+            this.remotingListenerVersion = RemotingListenerVersion.V2;
         }
 
         Guid IActorEventSubscriberProxy.Id
@@ -40,9 +40,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.id; }
         }
 
-        public RemotingListener RemotingListener
+        public RemotingListenerVersion RemotingListenerVersion
         {
-            get { return this.remotingListener; }
+            get { return this.remotingListenerVersion; }
         }
 
 #if !DotNetCoreClr
@@ -75,7 +75,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
-            if (this.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (this.RemotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 return this.callbackV2.GetRemotingMessageBodyFactory();
             }

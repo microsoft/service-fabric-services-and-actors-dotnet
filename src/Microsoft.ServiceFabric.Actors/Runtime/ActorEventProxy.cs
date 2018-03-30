@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal void AddSubscriber(IActorEventSubscriberProxy subscriber)
         {
-            if (subscriber.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (subscriber.RemotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 if (this.serviceRemotingMessageBodyFactory == null)
                 {

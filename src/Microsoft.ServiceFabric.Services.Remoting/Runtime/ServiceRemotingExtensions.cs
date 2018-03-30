@@ -76,7 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             var impl = (IService)serviceImplementation;
             var provider = ServiceRemotingProviderAttribute.GetProvider(interfaceTypes);
 #if !DotNetCoreClr
-            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 return new[]
                 {
@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 };
             }
 
-            if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.Compat))
             {
                 return new[]
                 {
@@ -151,7 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             var impl = (IService)serviceImplementation;
             var provider = ServiceRemotingProviderAttribute.GetProvider(interfaceTypes);
 #if !DotNetCoreClr
-            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 return new[]
                 {
@@ -163,7 +163,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                     ),
                 };
             }
-            if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.Compat))
             {
                 return new[]
                 {
@@ -212,7 +212,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
 
             var provider = ServiceRemotingProviderAttribute.GetProvider(interfaceTypes);
-            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 throw new NotSupportedException(
                     "This extension method doesnt support V2Listener or CompatListener. Use CreateServiceRemotingReplicaListeners for using V2Stack ");

@@ -60,14 +60,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.actorMethodCounterInstanceDataV2 = this.CreateActorMethodCounterInstanceData(methodInfoListV2, percCounterInstanceNameBuilderV2);
         }
 
-        internal override MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListener remotingListener)
+        internal override MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListenerVersion)
         {
-            if (remotingListener.Equals(RemotingListener.V2Listener))
+            if (remotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 return this.actorMethodCounterInstanceDataV2[interfaceMethodKey].CounterWriters;
             }
 
-            return base.GetMethodSpecificCounterWriters(interfaceMethodKey, remotingListener);
+            return base.GetMethodSpecificCounterWriters(interfaceMethodKey, remotingListenerVersion);
         }
 
 

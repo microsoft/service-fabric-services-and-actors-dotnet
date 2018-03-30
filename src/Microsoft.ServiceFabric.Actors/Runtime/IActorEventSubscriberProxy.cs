@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         Guid Id { get; }
 
-        RemotingListener RemotingListener { get; }
+        RemotingListenerVersion RemotingListenerVersion { get; }
 
 #if !DotNetCoreClr
         void RaiseEvent(int eventInterfaceId, int methodId, byte[] eventMsgBody);

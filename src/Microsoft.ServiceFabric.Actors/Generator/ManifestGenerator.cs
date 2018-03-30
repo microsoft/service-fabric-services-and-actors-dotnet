@@ -409,12 +409,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
 #if !DotNetCoreClr
-            switch (actorTypeInfo.RemotingListener)
+            switch (actorTypeInfo.RemotingListenerVersion)
             {
-                case RemotingListener.V2Listener:
+                case RemotingListenerVersion.V2:
                     generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
                     break;
-                case RemotingListener.CompatListener:
+                case RemotingListenerVersion.Compat:
                     generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
                     generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
                     break;
@@ -434,9 +434,9 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var endpoints = new List<EndpointType>();
 #if !DotNetCoreClr
-            switch (actorTypeInfo.RemotingListener)
+            switch (actorTypeInfo.RemotingListenerVersion)
             {
-                case RemotingListener.V2Listener:
+                case RemotingListenerVersion.V2:
                     endpoints.Add(
                         new EndpointType()
                         {
@@ -444,7 +444,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                         }
                     );
                     break;
-                case RemotingListener.CompatListener:
+                case RemotingListenerVersion.Compat:
                     endpoints.Add(
                         new EndpointType()
                         {

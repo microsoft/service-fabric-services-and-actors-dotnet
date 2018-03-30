@@ -280,7 +280,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var interfaceMethodKey = methodData.InterfaceMethodKey;
 
-            var counterWriters = this.GetMethodSpecificCounterWriters(interfaceMethodKey, methodData.RemotingListener);
+            var counterWriters = this.GetMethodSpecificCounterWriters(interfaceMethodKey, methodData.RemotingListenerVersion);
 
 
             // Call the counter writers to update the counter values
@@ -299,7 +299,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
 
-        internal virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListener remotingListener)
+        internal virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListenerVersion)
         {
             return this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
         }

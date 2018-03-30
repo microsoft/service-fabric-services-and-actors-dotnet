@@ -119,7 +119,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             if (this.writer.IsActorMethodStartEventEnabled())
             {
                 var actorId = methodData.ActorId;
-                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListener);
+                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListenerVersion);
                 this.writer.ActorMethodStart(
                     methodInfo.MethodName,
                     methodInfo.MethodSignature,
@@ -129,7 +129,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
+        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListenerVersion)
         {
             var methodInfo = this.actorMethodInfo[key];
             return methodInfo;
@@ -143,7 +143,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 if (this.writer.IsActorMethodStopEventEnabled())
                 {
                     var actorId = methodData.ActorId;
-                    var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListener);
+                    var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListenerVersion);
                     this.writer.ActorMethodStop(
                         methodData.MethodExecutionTime.Value.Ticks,
                         methodInfo.MethodName,
@@ -156,7 +156,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             else
             {
                 var actorId = methodData.ActorId;
-                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListener);
+                var methodInfo = this.GetActorMethodInfo(methodData.InterfaceMethodKey, methodData.RemotingListenerVersion);
                 this.writer.ActorMethodThrewException(
                     methodData.Exception.ToString(),
                     methodData.MethodExecutionTime.Value.Ticks,
