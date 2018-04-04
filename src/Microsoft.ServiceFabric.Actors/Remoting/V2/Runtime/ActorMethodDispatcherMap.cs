@@ -31,7 +31,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             {
                 throw new KeyNotFoundException(string.Format(
                     CultureInfo.CurrentCulture,
-                    SR.ErrorMethodDispatcherNotFound, interfaceId));
+                    SR.ErrorMethodDispatcherNotFound,
+                    interfaceId));
             }
 
             return methodDispatcher;

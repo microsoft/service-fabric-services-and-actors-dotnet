@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     internal class ActorDataContractSurrogate : ISerializationSurrogateProvider
     {
         public static readonly ISerializationSurrogateProvider Singleton = new ActorDataContractSurrogate();
+
         public Type GetSurrogateType(Type type)
         {
             if (typeof(IActor).IsAssignableFrom(type))
@@ -50,6 +51,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
             {
                 return ((IActorReference)obj).Bind(targetType);
             }
+
             return obj;
         }
     }
@@ -94,7 +96,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
             {
                 return ((IActorReference)obj).Bind(targetType);
             }
-
 
             return obj;
         }

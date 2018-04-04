@@ -21,6 +21,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.OperationTimeout = TimeSpan.FromMinutes(5);
         }
 
+        public TimeSpan TransientErrorRetryDelay { get; set; }
+
+        public TimeSpan OperationTimeout { get; set; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append($"TransientErrorRetryDelay: {this.TransientErrorRetryDelay.TotalSeconds}, ");
+            sb.Append($"OperationTimeout: {this.OperationTimeout.TotalSeconds}");
+
+            return sb.ToString();
+        }
+
         protected virtual void LoadFromSection(ConfigurationSection section)
         {
             this.TransientErrorRetryDelay = ActorStateProviderHelper.GetTimeConfigInSecondsAsTimeSpan(
@@ -43,20 +57,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 this.LoadFromSection(section);
             }
-        }
-
-        public TimeSpan TransientErrorRetryDelay { get; set; }
-
-        public TimeSpan OperationTimeout { get; set; }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-
-            sb.Append($"TransientErrorRetryDelay: {this.TransientErrorRetryDelay.TotalSeconds}, ");
-            sb.Append($"OperationTimeout: {this.OperationTimeout.TotalSeconds}");
-
-            return sb.ToString();
         }
     }
 }

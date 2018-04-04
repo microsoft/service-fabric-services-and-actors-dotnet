@@ -68,12 +68,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                     .Except(requestKnownType));
             }
 
-            var knownType = new InterfaceDetails();
-            knownType.Id = interfaceDescription.Id;
-            knownType.ServiceInterfaceType = interfaceDescription.InterfaceType;
-            knownType.RequestKnownTypes = requestKnownType;
-            knownType.ResponseKnownTypes = responseKnownTypes;
-            knownType.MethodNames = interfaceDescription.Methods.ToDictionary(item => item.Name, item => item.Id);
+            var knownType = new InterfaceDetails
+            {
+                Id = interfaceDescription.Id,
+                ServiceInterfaceType = interfaceDescription.InterfaceType,
+                RequestKnownTypes = requestKnownType,
+                ResponseKnownTypes = responseKnownTypes,
+                MethodNames = interfaceDescription.Methods.ToDictionary(item => item.Name, item => item.Id),
+            };
 
             this.UpdateKnownTypes(interfaceDescription.Id, interfaceDescription.InterfaceType.FullName, knownType);
         }

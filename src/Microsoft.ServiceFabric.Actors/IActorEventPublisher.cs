@@ -16,7 +16,8 @@ namespace Microsoft.ServiceFabric.Actors
     /// Represents publisher of actor events. Publishers of actor events must implement this interface
     /// </summary>
     /// <typeparam name="TIActorEvents">Actor event interface type derived from <see cref="IActorEvents"/>.</typeparam>
-    public interface IActorEventPublisher<TIActorEvents> : IActorEventPublisher where TIActorEvents : IActorEvents
+    public interface IActorEventPublisher<TIActorEvents> : IActorEventPublisher
+        where TIActorEvents : IActorEvents
     {
     }
 }

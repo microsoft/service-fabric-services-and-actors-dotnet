@@ -42,9 +42,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
             ActorId actorId,
             string applicationName = null,
             string serviceName = null,
-            string listenerName = null) where TActorInterface : IActor;
-
-
+            string listenerName = null)
+            where TActorInterface : IActor;
 
         /// <summary>
         /// Creates a proxy to the actor object that implements an actor interface.
@@ -81,8 +80,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
         TServiceInterface CreateActorServiceProxy<TServiceInterface>(
             Uri serviceUri,
             ActorId actorId,
-            string listenerName = null) where TServiceInterface : IService;
-
+            string listenerName = null)
+            where TServiceInterface : IService;
 
         /// <summary>
         /// Create a proxy to the actor service that is hosting the specified actor id and implementing specified type of the service interface.

@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
     public class FabricTransportActorServiceRemotingListener : FabricTransportServiceRemotingListener
     {
         /// <summary>
-        ///     Construct a fabric TCP transport based service remoting listener for the specified actor service.
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class for the specified actor service.
         /// </summary>
         /// <param name="actorService">
         ///     The implementation of the actor service.
@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Construct a fabric TCP transport based service remoting listener for the specified actor service.
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class for the specified actor service.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
         ///     The handler for processing remoting messages. As the messages are received,
         ///     the listener delivers them to this handler.
         /// </param>
-        /// <param name="listenerSettings"></param>
+        /// <param name="listenerSettings">Settings for creating the listener.</param>
         public FabricTransportActorServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -63,7 +63,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
                 listenerSettings)
         {
         }
-
 
         private static ServiceContext GetContext(ActorService actorService)
         {
@@ -85,6 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
                 listenerSettings.EndpointResourceName = ActorNameFormat.GetFabricServiceEndpointName(
                     actorService.ActorTypeInformation.ImplementationType);
             }
+
             return listenerSettings;
         }
     }

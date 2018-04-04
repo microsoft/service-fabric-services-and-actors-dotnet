@@ -11,18 +11,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 
     internal class ActorRemotingMessageHeaderSerializer : ServiceRemotingMessageHeaderSerializer
     {
-
         public ActorRemotingMessageHeaderSerializer(int headerBufferSize, int headerBufferCount)
         : base(
             new BufferPoolManager(headerBufferSize, headerBufferCount),
-             new DataContractSerializer(
+            new DataContractSerializer(
                 typeof(IServiceRemotingRequestMessageHeader),
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader),
-                        typeof(ActorRemotingMessageHeaders), },
+                    KnownTypes = new[]
+                    {
+                        typeof(ServiceRemotingRequestMessageHeader),
+                        typeof(ActorRemotingMessageHeaders),
+                    },
                 }))
-        { }
+        {
+        }
     }
 }

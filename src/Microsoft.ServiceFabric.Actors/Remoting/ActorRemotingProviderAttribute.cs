@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 #endif
+
     /// <summary>
     /// This is a base type for attribute that sets the default remoting provider to use for
     /// remoting the actor interfaces defined or used in the assembly.
@@ -30,7 +31,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     ///     <para>
     ///     On client side, implementation of this attribute is looked up by
     ///     <see cref="Actors.Client.ActorProxyFactory"/> constructor to create a default
-    ///     <see cref="IServiceRemotingClientFactory"/> when it is not specified.
+    ///     <see cref="Services.Remoting.V2.Client.IServiceRemotingClientFactory"/> when it is not specified.
     ///     </para>
     ///     <para>
     ///     Note that on client side when actor proxy is created using the static <see cref="ActorProxy"/>
@@ -59,16 +60,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         {
         }
 
-
         /// <summary>
-        /// RemotingClient is used to determine where  V1 or V2 remoting Client is used.
+        /// Gets or sets RemotingClient to determine where  V1 or V2 remoting Client is used.
         /// </summary>
         public RemotingClient RemotingClient { get; set; }
 
         /// <summary>
-        /// RemotingListener is used to determine where listener is in V1, V2 or Compact Mode.
+        /// Gets or sets RemotingListener to determine where listener is in V1, V2 or Compact Mode.
         /// </summary>
         public RemotingListener RemotingListener { get; set; }
+
+#if !DotNetCoreClr
+
         /// <summary>
         ///     Creates a service remoting listener for remoting the actor interfaces.
         /// </summary>
@@ -81,8 +84,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         ///     for the specified actor service.
         /// </returns>
         ///
-#if !DotNetCoreClr
-
         public abstract IServiceRemotingListener CreateServiceRemotingListener(
             ActorService actorService);
 
@@ -100,7 +101,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient);
 #endif
-        //V2 Stack
+
+        // V2 Stack
 
         /// <summary>
         /// Creates a V2 service remoting listener for remoting the service interface.
@@ -112,13 +114,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
         public abstract IServiceRemotingListener CreateServiceRemotingListenerV2(ActorService actorService);
 
-
         /// <summary>
         /// Creates a service remoting client factory that can be used by the
-        /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
+        /// <see cref="Services.Remoting.V2.Client.ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
-        /// <returns>An <see cref="IServiceRemotingClientFactory"/>.</returns>
+        /// <returns>An <see cref="Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>
         public abstract Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
             Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
 
@@ -135,6 +136,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
                     }
                 }
             }
+
             var assembly = Assembly.GetEntryAssembly();
             if (assembly != null)
             {
@@ -144,6 +146,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
                     return attribute;
                 }
             }
+
             return new FabricTransportActorRemotingProviderAttribute();
         }
     }

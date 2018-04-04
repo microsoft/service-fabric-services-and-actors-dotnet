@@ -493,8 +493,7 @@ namespace FabActUtil.CommandLineParser
 
                             case '@':
                                 {
-                                    string[] nestedArguments;
-                                    hadError |= this.LexFileArguments(argument.Substring(1), out nestedArguments);
+                                    hadError |= this.LexFileArguments(argument.Substring(1), out var nestedArguments);
                                     hadError |= this.ParseArgumentList(nestedArguments, destination);
                                     break;
                                 }
@@ -668,8 +667,7 @@ namespace FabActUtil.CommandLineParser
 
                 this.seenValue = true;
 
-                object newValue;
-                if (!this.ParseValue(this.ValueType, value, out newValue))
+                if (!this.ParseValue(this.ValueType, value, out var newValue))
                 {
                     return false;
                 }

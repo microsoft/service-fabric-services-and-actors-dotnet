@@ -12,11 +12,13 @@ namespace Microsoft.ServiceFabric.Actors
     [Serializable]
     internal sealed class ReminderLoadInProgressException : FabricTransientException
     {
-        public ReminderLoadInProgressException() : base()
+        public ReminderLoadInProgressException()
+            : base()
         {
         }
 
-        public ReminderLoadInProgressException(string message) : base(message)
+        public ReminderLoadInProgressException(string message)
+            : base(message)
         {
         }
 

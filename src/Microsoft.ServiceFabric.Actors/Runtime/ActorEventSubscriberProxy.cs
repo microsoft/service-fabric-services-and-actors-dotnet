@@ -80,6 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 return this.callbackV2.GetRemotingMessageBodyFactory();
             }
+
             throw new NotSupportedException("MessageFactory is not supported for V1Listener");
         }
     }

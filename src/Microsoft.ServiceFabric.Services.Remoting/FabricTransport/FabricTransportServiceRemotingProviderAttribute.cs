@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <summary>
         ///     Gets or Sets the operation timeout in seconds. If the operation is not completed in the specified
         ///     time, it will be timed out. By default, exception handler of
-        ///     <see cref="FabricTransportServiceRemotingClientFactory"/>
+        ///     <see cref="V2.FabricTransport.Client.FabricTransportServiceRemotingClientFactory"/>
         ///     retries the timed out exception. It is recommended to not change the operation timeout from it's default value.
         /// </summary>
         /// <value>
@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     The service implementation object.
         /// </param>
         /// <returns>
-        ///     A <see cref="FabricTransportServiceRemotingListener"/>
+        ///     A <see cref="V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener"/>
         ///     as <see cref="IServiceRemotingListener"/>
         ///     for the specified service implementation.
         /// </returns>
@@ -158,7 +158,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///    The client implementation where the callbacks should be dispatched.
         /// </param>
         /// <returns>
-        ///     A <see cref="FabricTransportServiceRemotingClientFactory"/>
+        ///     A <see cref="V2.FabricTransport.Client.FabricTransportServiceRemotingClientFactory"/>
         ///     as <see cref="V2.Client.IServiceRemotingClientFactory"/>
         ///     that can be used with <see cref="Remoting.Client.ServiceProxyFactory"/> to
         ///     generate service proxy to talk to a stateless or stateful service over remoted actor interface.

@@ -21,18 +21,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
         /// </summary>
         public ResponseMessage()
         {
-            this.MessageHeaders = new ArraySegment<byte>();
+            this.MessageHeaders = default(ArraySegment<byte>);
             this.ResponseBody = new List<ArraySegment<byte>>();
         }
 
         /// <summary>
-        /// Headers in the response Message
+        /// Gets or sets headers in the response Message
         /// </summary>
         [DataMember(Name = "Headers")]
         public ArraySegment<byte> MessageHeaders { get; set; }
 
         /// <summary>
-        /// Message body in the response Message
+        /// Gets or sets message body in the response Message
         /// </summary>
         [DataMember(Name = "ResponseBody")]
         public IEnumerable<ArraySegment<byte>> ResponseBody { get; set; }

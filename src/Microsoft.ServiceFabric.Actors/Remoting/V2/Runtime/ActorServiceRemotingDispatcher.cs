@@ -27,13 +27,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         private readonly ActorService actorService;
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
 
-
         /// <summary>
-        /// Instantiates the ActorServiceRemotingDispatcher that can dispatch messages to an actor service and
+        /// Initializes a new instance of the <see cref="ActorServiceRemotingDispatcher"/> class. This can dispatch messages to an actor service and
         /// to the actors hosted in the service..
         /// </summary>
         /// <param name="actorService">An actor service instance.</param>
-        /// <param name="serviceRemotingRequestMessageBodyFactory"></param>
+        /// <param name="serviceRemotingRequestMessageBodyFactory">Factory for creating remtoing request body and response body objects.</param>
         public ActorServiceRemotingDispatcher(
             ActorService actorService,
             IServiceRemotingMessageBodyFactory serviceRemotingRequestMessageBodyFactory)
@@ -46,19 +45,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             this.cancellationHelper = new ServiceRemotingCancellationHelper(actorService.Context.TraceId);
         }
 
-        private static ServiceContext GetContext(ActorService actorService)
-        {
-            Requires.ThrowIfNull(actorService, "actorService");
-            return actorService.Context;
-        }
-
         /// <summary>
         /// Dispatches the messages received from the client to the actor service methods or the actor methods.
         /// This can be used by user where they know interfaceId and MethodId for the method to dispatch to .
         /// </summary>
         /// <param name="requestContext">Request context that allows getting the callback channel if required.</param>
         /// <param name="requestMessage">Remoting message.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The result of the task is the response for the received request.</returns>
         public override Task<IServiceRemotingResponseMessage> HandleRequestResponseAsync(
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
@@ -84,21 +77,20 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             return base.HandleRequestResponseAsync(requestContext, requestMessage);
         }
 
-
         /// <summary>
         /// Dispatches the messages received from the client to the actor service methods or the actor methods.
         /// This can be be used  by user as an independent dispatcher like short-circuiting.
         /// </summary>
-        /// <param name="requestBody"></param>
-        /// <param name="cancellationToken"></param>
-        /// <param name="actorDispatchHeaders"></param>
-        /// <returns></returns>
+        /// <param name="actorDispatchHeaders">Request Message headers.</param>
+        /// <param name="requestBody">Request message body.</param>
+        /// <param name="cancellationToken">Cancellation token to cancel the request</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation. The result of the task is the response message body for the received request.</returns>
         public Task<IServiceRemotingResponseMessageBody> HandleRequestResponseAsync(
             ActorRemotingDispatchHeaders actorDispatchHeaders,
             IServiceRemotingRequestMessageBody requestBody,
             CancellationToken cancellationToken)
         {
-            //For Actor Service Requests
+            // For Actor Service Requests
             if (!string.IsNullOrEmpty(actorDispatchHeaders.ServiceInterfaceName))
             {
                 return base.HandleRequestResponseAsync(
@@ -106,13 +98,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                     requestBody,
                     cancellationToken);
             }
+
             var header = this.CreateActorHeader(actorDispatchHeaders);
 
             return this.HandleActorMethodDispatchAsync(header, requestBody, cancellationToken);
         }
 
+        private static ServiceContext GetContext(ActorService actorService)
+        {
+            Requires.ThrowIfNull(actorService, "actorService");
+            return actorService.Context;
+        }
+
         private async Task<IServiceRemotingResponseMessageBody> HandleActorMethodDispatchAsync(
-            IActorRemotingMessageHeaders actorMessageHeaders, IServiceRemotingRequestMessageBody msgBody,
+            IActorRemotingMessageHeaders actorMessageHeaders,
+            IServiceRemotingRequestMessageBody msgBody,
             CancellationToken cancellationToken)
         {
             var startTime = DateTime.UtcNow;
@@ -120,13 +120,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingStart();
             try
             {
-                retVal = await this.OnDispatch(actorMessageHeaders, msgBody,
+                retVal = await this.OnDispatch(
+                    actorMessageHeaders,
+                    msgBody,
                     cancellationToken);
             }
             finally
             {
                 this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingFinish(startTime);
             }
+
             return retVal;
         }
 
@@ -152,13 +155,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                         messageHeaders.InterfaceId,
                         messageHeaders.MethodId,
                         messageHeaders.InvocationId,
-                        cancellationToken => this.OnDispatch(messageHeaders, msgBody,
+                        cancellationToken => this.OnDispatch(
+                            messageHeaders,
+                            msgBody,
                             cancellationToken));
                 }
                 finally
                 {
                     this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingFinish(startTime);
                 }
+
                 return new ServiceRemotingResponseMessage(null, retVal);
             }
         }
@@ -179,14 +185,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                     cancellationToken);
         }
 
-
         private IActorRemotingMessageHeaders CreateActorHeader(ActorRemotingDispatchHeaders actorDispatchHeaders)
         {
             if (ActorCodeBuilder.TryGetKnownTypes(actorDispatchHeaders.ActorInterfaceName, out var details))
             {
-                var headers = new ActorRemotingMessageHeaders();
-                headers.ActorId = actorDispatchHeaders.ActorId;
-                headers.InterfaceId = details.Id;
+                var headers = new ActorRemotingMessageHeaders
+                {
+                    ActorId = actorDispatchHeaders.ActorId,
+                    InterfaceId = details.Id,
+                };
+
                 if (string.IsNullOrEmpty(actorDispatchHeaders.CallContext))
                 {
                     headers.CallContext = Helper.GetCallContext();
@@ -200,6 +208,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                 {
                     throw new NotSupportedException("This Actor Method is not Supported" + actorDispatchHeaders.MethodName);
                 }
+
                 headers.MethodId = headersMethodId;
 
                 return headers;
@@ -218,15 +227,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             if (actorHeaders.MethodId == Runtime.ActorEventSubscription.SubscribeMethodId)
             {
                 var castedRequestMsgBody =
-                    (EventSubscriptionRequestBody)requestMsgBody.GetParameter(0, "Value",
+                    (EventSubscriptionRequestBody)requestMsgBody.GetParameter(
+                        0,
+                        "Value",
                         typeof(EventSubscriptionRequestBody));
 
                 await this.actorService.ActorManager
                     .SubscribeAsync(
                         actorHeaders.ActorId,
-                        castedRequestMsgBody.eventInterfaceId,
+                        castedRequestMsgBody.EventInterfaceId,
                         new ActorEventSubscriberProxy(
-                            castedRequestMsgBody.subscriptionId,
+                            castedRequestMsgBody.SubscriptionId,
                             requestContext.GetCallBackClient()));
 
                 return null;
@@ -235,19 +246,23 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             if (messageHeaders.MethodId == Runtime.ActorEventSubscription.UnSubscribeMethodId)
             {
                 var castedRequestMsgBody =
-                    (Actors.Remoting.EventSubscriptionRequestBody)requestMsgBody.GetParameter(0, "Value",
+                    (Actors.Remoting.EventSubscriptionRequestBody)requestMsgBody.GetParameter(
+                        0,
+                        "Value",
                         typeof(Actors.Remoting.EventSubscriptionRequestBody));
 
                 await this.actorService.ActorManager
                     .UnsubscribeAsync(
                         actorHeaders.ActorId,
-                        castedRequestMsgBody.eventInterfaceId,
-                        castedRequestMsgBody.subscriptionId);
+                        castedRequestMsgBody.EventInterfaceId,
+                        castedRequestMsgBody.SubscriptionId);
 
                 return null;
             }
 
-            throw new MissingMethodException(string.Format(CultureInfo.CurrentCulture, SR.ErrorInvalidMethodId,
+            throw new MissingMethodException(string.Format(
+                CultureInfo.CurrentCulture,
+                SR.ErrorInvalidMethodId,
                 messageHeaders.MethodId));
         }
     }

@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class ActorServiceAttribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the ActorServiceAttribute class.
+        /// Initializes a new instance of the <see cref="ActorServiceAttribute"/> class.
         /// </summary>
         public ActorServiceAttribute()
         {

@@ -25,18 +25,17 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private Remoting.V2.Client.ActorServicePartitionClient servicePartitionClientV2;
         private RemotingClient remotingClient;
 
+#if !DotNetCoreClr
+        private Remoting.V1.Builder.ActorProxyGeneratorWith proxyGeneratorWith;
+        private Remoting.V1.Client.ActorServicePartitionClient servicePartitionClient;
+#endif
+
         /// <summary>
-        /// Initializes a new instance of the ActorProxy class.
+        /// Initializes a new instance of the <see cref="ActorProxy"/> class.
         /// </summary>
         protected ActorProxy()
         {
         }
-
-        internal RemotingClient RemotingClient
-        {
-            get { return this.remotingClient; }
-        }
-
 
         /// <summary>
         /// Gets <see cref="ServiceFabric.Actors.ActorId"/> associated with the proxy object.
@@ -76,6 +75,10 @@ namespace Microsoft.ServiceFabric.Actors.Client
             get { return this.servicePartitionClientV2; }
         }
 
+        internal RemotingClient RemotingClient
+        {
+            get { return this.remotingClient; }
+        }
 
         /// <summary>
         /// Creates a proxy to the actor object that implements an actor interface.
@@ -110,9 +113,13 @@ namespace Microsoft.ServiceFabric.Actors.Client
             ActorId actorId,
             string applicationName = null,
             string serviceName = null,
-            string listenerName = null) where TActorInterface : IActor
+            string listenerName = null)
+            where TActorInterface : IActor
         {
-            return DefaultProxyFactory.CreateActorProxy<TActorInterface>(actorId, applicationName, serviceName,
+            return DefaultProxyFactory.CreateActorProxy<TActorInterface>(
+                actorId,
+                applicationName,
+                serviceName,
                 listenerName);
         }
 
@@ -123,9 +130,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// The actor interface implemented by the remote actor object.
         /// The returned proxy object will implement this interface.
         /// </typeparam>
-        /// <param name="serviceUri">Uri of the actor service.</param>
         /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests
         /// being sent to the actor with this id.</param>
+        /// <param name="serviceUri">Uri of the actor service.</param>
         /// <param name="listenerName">
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
@@ -134,13 +141,13 @@ namespace Microsoft.ServiceFabric.Actors.Client
         public static TActorInterface Create<TActorInterface>(
             ActorId actorId,
             Uri serviceUri,
-            string listenerName = null) where TActorInterface : IActor
+            string listenerName = null)
+            where TActorInterface : IActor
         {
             return DefaultProxyFactory.CreateActorProxy<TActorInterface>(serviceUri, actorId, listenerName);
         }
 
-        //V2 Stack Api
-
+        // V2 Stack Api
         internal void Initialize(
             Remoting.V2.Client.ActorServicePartitionClient client,
             IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
@@ -149,7 +156,6 @@ namespace Microsoft.ServiceFabric.Actors.Client
             this.InitializeV2(serviceRemotingMessageBodyFactory);
             this.remotingClient = RemotingClient.V2Client;
         }
-
 
         internal override void InvokeImplV2(
             int interfaceId,
@@ -179,11 +185,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 requestMsgBodyValue), cancellationToken);
         }
 
-
         internal async Task SubscribeAsyncV2(Type eventType, object subscriber, TimeSpan resubscriptionInterval)
         {
             var actorId = this.servicePartitionClientV2.ActorId;
-            var info = Remoting.V2.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(actorId, eventType,
+            var info = Remoting.V2.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(
+                actorId,
+                eventType,
                 subscriber);
 
             Exception error = null;
@@ -216,49 +223,15 @@ namespace Microsoft.ServiceFabric.Actors.Client
         internal async Task UnsubscribeAsyncV2(Type eventType, object subscriber)
         {
             var actorId = this.servicePartitionClientV2.ActorId;
-            if (Remoting.V2.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(actorId, eventType,
-                subscriber, out var info))
+            if (Remoting.V2.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(
+                actorId,
+                eventType,
+                subscriber,
+                out var info))
             {
                 await this.servicePartitionClientV2.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
             }
         }
-
-        private void ResubscribeAsyncV2(SubscriptionInfo info, TimeSpan resubscriptionInterval)
-        {
-#pragma warning disable 4014
-            // ReSharper disable once UnusedVariable
-            var ignore = Task.Run(
-                async () =>
-#pragma warning restore 4014
-                {
-                    while (true)
-                    {
-                        await Task.Delay(resubscriptionInterval);
-
-                        if (!info.IsActive)
-                        {
-                            break;
-                        }
-
-                        try
-                        {
-                            await
-                                this.servicePartitionClientV2.SubscribeAsync(info.Subscriber.EventId, info.Id)
-                                    .ConfigureAwait(false);
-                        }
-                        catch
-                        {
-                            // ignore
-                        }
-                    }
-                });
-        }
-
-#if !DotNetCoreClr
-
-        private Remoting.V1.Builder.ActorProxyGeneratorWith proxyGeneratorWith;
-        private Remoting.V1.Client.ActorServicePartitionClient servicePartitionClient;
-#endif
 
 #if !DotNetCoreClr
 
@@ -331,7 +304,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
-            var info = Remoting.V1.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(actorId, eventType,
+            var info = Remoting.V1.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(
+                actorId,
+                eventType,
                 subscriber);
 
             Exception error = null;
@@ -362,7 +337,6 @@ namespace Microsoft.ServiceFabric.Actors.Client
 #endif
         }
 
-
         internal async Task UnsubscribeAsync(Type eventType, object subscriber)
         {
             if (this.remotingClient.Equals(RemotingClient.V2Client))
@@ -372,14 +346,16 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
-            if (Remoting.V1.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(actorId, eventType,
-                subscriber, out var info))
+            if (Remoting.V1.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(
+                actorId,
+                eventType,
+                subscriber,
+                out var info))
             {
                 await this.servicePartitionClient.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
             }
 #endif
         }
-
 
 #if !DotNetCoreClr
         private void ResubscribeAsync(SubscriptionInfo info, TimeSpan resubscriptionInterval)
@@ -413,6 +389,37 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 });
         }
 #endif
+
+        private void ResubscribeAsyncV2(SubscriptionInfo info, TimeSpan resubscriptionInterval)
+        {
+#pragma warning disable 4014
+            // ReSharper disable once UnusedVariable
+            var ignore = Task.Run(
+                async () =>
+#pragma warning restore 4014
+                {
+                    while (true)
+                    {
+                        await Task.Delay(resubscriptionInterval);
+
+                        if (!info.IsActive)
+                        {
+                            break;
+                        }
+
+                        try
+                        {
+                            await
+                                this.servicePartitionClientV2.SubscribeAsync(info.Subscriber.EventId, info.Id)
+                                    .ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            // ignore
+                        }
+                    }
+                });
+        }
 
         #endregion
     }

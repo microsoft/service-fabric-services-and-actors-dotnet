@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class ActorTypeInformation
     {
         /// <summary>
-        /// Initializes a new instance of the ActorTypeInformation class.
+        /// Initializes a new instance of the <see cref="ActorTypeInformation"/> class.
         /// </summary>
         public ActorTypeInformation()
         {
@@ -51,13 +51,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public string ServiceName { get; private set; }
 
         /// <summary>
-        /// Gets a value whether the class implementing actor is abstract.
+        /// Gets a value indicating whether the class implementing actor is abstract.
         /// </summary>
         /// <value>true if the class implementing actor is abstract, otherwise false.</value>
         public bool IsAbstract { get; private set; }
 
         /// <summary>
-        /// Gets a value whether the actor class implements <see cref="IRemindable"/>.
+        /// Gets a value indicating whether the actor class implements <see cref="IRemindable"/>.
         /// </summary>
         /// <value>true if the actor class implements <see cref="IRemindable"/>, otherwise false.</value>
         public bool IsRemindable { get; private set; }
@@ -188,7 +188,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 remotingserver = remotingserverAttribuite.RemotingListener;
             }
-
 
             return new ActorTypeInformation()
             {

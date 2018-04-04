@@ -22,8 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
     public class FabricTransportActorRemotingProviderAttribute : ActorRemotingProviderAttribute
     {
         /// <summary>
-        /// Instantiates a new <see cref="FabricTransportActorRemotingProviderAttribute"/>, which can be used to set
-        /// fabric TCP transport as the default remoting provider for the actors.
+        /// Initializes a new instance of the <see cref="FabricTransportActorRemotingProviderAttribute"/> class which can be used to set fabric TCP transport as the default remoting provider for the actors.
         /// </summary>
         public FabricTransportActorRemotingProviderAttribute()
         {
@@ -119,6 +118,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         }
 
 #endif
+
         /// <summary>
         ///     Creates a service remoting listener for remoting the actor interfaces.
         /// </summary>
@@ -152,6 +152,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
             return new FabricTransportActorRemotingClientFactory(settings, callbackMessageHandler);
         }
 
+        internal static FabricTransportRemotingListenerSettings GetActorListenerSettings(ActorService actorService)
+        {
+            var sectionName = ActorNameFormat.GetFabricServiceTransportSettingsSectionName(
+                actorService.ActorTypeInformation.ImplementationType);
+            var isSucceded = FabricTransportRemotingListenerSettings.TryLoadFrom(sectionName, out var listenerSettings);
+            if (!isSucceded)
+            {
+                listenerSettings = FabricTransportRemotingListenerSettings.GetDefault();
+            }
+
+            return listenerSettings;
+        }
+
         private long GetAndValidateMaxMessageSize(long maxMessageSize)
         {
             return (this.MaxMessageSize > 0) ? this.MaxMessageSize : maxMessageSize;
@@ -176,19 +189,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
             return (this.ConnectTimeoutInMilliseconds > 0)
                 ? TimeSpan.FromMilliseconds(this.ConnectTimeoutInMilliseconds)
                 : connectTimeout;
-        }
-
-        internal static FabricTransportRemotingListenerSettings GetActorListenerSettings(ActorService actorService)
-        {
-            var sectionName = ActorNameFormat.GetFabricServiceTransportSettingsSectionName(
-                actorService.ActorTypeInformation.ImplementationType);
-            var isSucceded = FabricTransportRemotingListenerSettings.TryLoadFrom(sectionName, out var listenerSettings);
-            if (!isSucceded)
-            {
-                listenerSettings = FabricTransportRemotingListenerSettings.GetDefault();
-            }
-
-            return listenerSettings;
         }
     }
 }

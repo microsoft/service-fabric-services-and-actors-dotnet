@@ -18,7 +18,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ReminderNotFoundException"/> class.
         /// </summary>
-        public ReminderNotFoundException() : base()
+        public ReminderNotFoundException()
+            : base()
         {
         }
 
@@ -26,7 +27,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// Initializes a new instance of the <see cref="ReminderNotFoundException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public ReminderNotFoundException(string message) : base(message)
+        public ReminderNotFoundException(string message)
+            : base(message)
         {
         }
 

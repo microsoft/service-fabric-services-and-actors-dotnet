@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private static readonly string NodeName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActorRuntime"/> class.
+        /// Initializes static members of the <see cref="ActorRuntime"/> class.
         /// </summary>
         static ActorRuntime()
         {

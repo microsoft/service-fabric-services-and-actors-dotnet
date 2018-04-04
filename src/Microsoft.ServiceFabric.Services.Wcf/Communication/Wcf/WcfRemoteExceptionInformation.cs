@@ -69,10 +69,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                 {
                     return result;
                 }
+
                 throw e;
             }
         }
-
 
         public static Exception ToException(string exceptionString)
         {
@@ -99,6 +99,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
                 {
                     return new ServiceException(exceptionData.Type, exceptionData.Message);
                 }
+
                 throw ex;
             }
         }
@@ -122,6 +123,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
             {
                 // no-op
             }
+
             result = null;
             return false;
         }

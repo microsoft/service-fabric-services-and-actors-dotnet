@@ -23,7 +23,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidReentrantCallException"/> class.
         /// </summary>
-        public InvalidReentrantCallException() : base(SR.InvalidReentrantCall)
+        public InvalidReentrantCallException()
+            : base(SR.InvalidReentrantCall)
         {
         }
 
@@ -31,7 +32,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// Initializes a new instance of the <see cref="InvalidReentrantCallException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public InvalidReentrantCallException(string message) : base(message)
+        public InvalidReentrantCallException(string message)
+            : base(message)
         {
         }
 

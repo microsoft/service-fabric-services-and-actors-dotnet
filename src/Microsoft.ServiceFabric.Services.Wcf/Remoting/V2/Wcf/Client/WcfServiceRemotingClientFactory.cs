@@ -20,7 +20,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
-
     /// <summary>
     /// An <see cref="IServiceRemotingClientFactory"/> that uses
     /// Windows Communication Foundation to create <see cref="IServiceRemotingClient"/> to communicate with stateless
@@ -31,18 +30,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         private WcfCommunicationClientFactory<IServiceRemotingContract> wcfFactory;
         private ServiceRemotingMessageSerializersManager serializersManager;
         private IServiceRemotingMessageBodyFactory remotingMessageBodyFactory;
-        /// <summary>
-        /// Event handler that is fired when a client is connected to the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
 
         /// <summary>
-        /// Event handler that is fired when a client is disconnected from the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
-
-        /// <summary>
-        ///     Constructs a WCF based service remoting client factory.
+        /// Initializes a new instance of the <see cref="WcfServiceRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is not specified or null,
@@ -67,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         ///     Delegate function that creates <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfCommunicationClientFactory{TServiceContract}"/> using the
         ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.IServiceRemotingContract"/>.
         /// </param>
-        /// <param name="serializationProvider"></param>
+        /// <param name="serializationProvider">Serialization Provider</param>
         /// <remarks>
         ///     This factory uses <see cref="WcfExceptionHandler"/> and <see cref="ServiceRemotingExceptionHandler"/> in addition to the
         ///     exception handlers supplied to the constructor.
@@ -85,8 +75,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 string,
                 IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
-                IServiceRemotingMessageSerializationProvider serializationProvider = null)
-
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
         {
             if (serializationProvider == null)
             {
@@ -107,7 +96,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 createWcfClientFactory);
         }
 
-
         internal WcfServiceRemotingClientFactory(
             ServiceRemotingMessageSerializersManager serializersManager,
             Binding clientBinding = null,
@@ -121,47 +109,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 IServicePartitionResolver,
                 string,
                 IServiceRemotingCallbackContract,
-                WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null
-            )
+                WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null)
         {
             this.Initialize(serializersManager, clientBinding, callbackClient, exceptionHandlers, servicePartitionResolver, traceId, createWcfClientFactory);
         }
 
-        private void Initialize(ServiceRemotingMessageSerializersManager serializersManager, Binding clientBinding,
-            IServiceRemotingCallbackMessageHandler callbackClient, IEnumerable<IExceptionHandler> exceptionHandlers,
-            IServicePartitionResolver servicePartitionResolver, string traceId, Func<Binding, IEnumerable<IExceptionHandler>, IServicePartitionResolver, string, IServiceRemotingCallbackContract, WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory)
-        {
-            this.serializersManager = serializersManager;
-            if (traceId == null)
-            {
-                traceId = Guid.NewGuid().ToString();
-            }
+        /// <summary>
+        /// Event handler that is fired when a client is connected to the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
 
-            if (createWcfClientFactory == null)
-            {
-                this.wcfFactory = new WcfCommunicationClientFactory<IServiceRemotingContract>(
-                    clientBinding,
-                    GetExceptionHandlers(exceptionHandlers, traceId),
-                    servicePartitionResolver,
-                    traceId,
-                    this.GetCallbackImplementation(callbackClient));
-            }
-            else
-            {
-                this.wcfFactory = createWcfClientFactory(
-                    clientBinding,
-                    GetExceptionHandlers(exceptionHandlers, traceId),
-                    servicePartitionResolver,
-                    traceId,
-                    this.GetCallbackImplementation(callbackClient));
-            }
-
-
-            this.wcfFactory.ClientConnected += this.OnClientConnected;
-            this.wcfFactory.ClientDisconnected += this.OnClientDisconnected;
-
-            this.remotingMessageBodyFactory = this.serializersManager.GetSerializationProvider().CreateMessageBodyFactory();
-        }
+        /// <summary>
+        /// Event handler that is fired when a client is disconnected from the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
 
         /// <summary>
         /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
@@ -261,9 +222,68 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// <summary>
         /// Returns the Message Factory used to create Request and Response Remoting Message Body
         /// </summary>
+        /// <returns>A factory for creating the remoting message bodies</returns>
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
             return this.remotingMessageBodyFactory;
+        }
+
+        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
+            IEnumerable<IExceptionHandler> exceptionHandlers,
+            string traceId)
+        {
+            var handlers = new List<IExceptionHandler>();
+            if (exceptionHandlers != null)
+            {
+                handlers.AddRange(exceptionHandlers);
+            }
+
+            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
+
+            return handlers;
+        }
+
+        private void Initialize(
+            ServiceRemotingMessageSerializersManager serializersManager,
+            Binding clientBinding,
+            IServiceRemotingCallbackMessageHandler callbackClient,
+            IEnumerable<IExceptionHandler> exceptionHandlers,
+            IServicePartitionResolver servicePartitionResolver,
+            string traceId,
+            Func<Binding, IEnumerable<IExceptionHandler>,
+                IServicePartitionResolver,
+                string, IServiceRemotingCallbackContract,
+                WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory)
+        {
+            this.serializersManager = serializersManager;
+            if (traceId == null)
+            {
+                traceId = Guid.NewGuid().ToString();
+            }
+
+            if (createWcfClientFactory == null)
+            {
+                this.wcfFactory = new WcfCommunicationClientFactory<IServiceRemotingContract>(
+                    clientBinding,
+                    GetExceptionHandlers(exceptionHandlers, traceId),
+                    servicePartitionResolver,
+                    traceId,
+                    this.GetCallbackImplementation(callbackClient));
+            }
+            else
+            {
+                this.wcfFactory = createWcfClientFactory(
+                    clientBinding,
+                    GetExceptionHandlers(exceptionHandlers, traceId),
+                    servicePartitionResolver,
+                    traceId,
+                    this.GetCallbackImplementation(callbackClient));
+            }
+
+            this.wcfFactory.ClientConnected += this.OnClientConnected;
+            this.wcfFactory.ClientDisconnected += this.OnClientDisconnected;
+
+            this.remotingMessageBodyFactory = this.serializersManager.GetSerializationProvider().CreateMessageBodyFactory();
         }
 
         private void OnClientDisconnected(
@@ -298,20 +318,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             }
         }
 
-        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
-            IEnumerable<IExceptionHandler> exceptionHandlers,
-            string traceId)
-        {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
-            {
-                handlers.AddRange(exceptionHandlers);
-            }
-            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
-
-            return handlers;
-        }
-
         private IServiceRemotingCallbackContract GetCallbackImplementation(
             IServiceRemotingCallbackMessageHandler callbackClient)
         {
@@ -334,12 +340,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             {
             }
 
-
             public void SendOneWay(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody)
             {
             }
         }
-
 
         [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]
         private class CallbackReceiver : IServiceRemotingCallbackContract
@@ -355,7 +359,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 this.serializersManager = serializersManager;
             }
 
-
             public void SendOneWay(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody)
             {
                 var headerSerializer = this.serializersManager.GetHeaderSerializer();
@@ -368,4 +371,3 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         }
     }
 }
-

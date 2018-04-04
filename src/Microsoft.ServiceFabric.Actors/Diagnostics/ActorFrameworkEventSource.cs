@@ -9,13 +9,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Diagnostics.Tracing;
     using System.Fabric;
 
-    //
     // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
-    //
     [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR")]
     internal sealed class ActorFrameworkEventSource : EventSource
     {
@@ -24,15 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         // bits set.
         private const long AllKeywords = 0x7FFFFFFFFFFFFFFF;
 
-        public class Keywords
-        {
-            internal const EventKeywords Default = (EventKeywords)0x1;
-            internal const EventKeywords ActorMethod = (EventKeywords)0x2;
-            internal const EventKeywords ActorState = (EventKeywords)0x4;
-            internal const EventKeywords MetricActorMethodCallsWaitingForLock = (EventKeywords)0x8;
-        }
-
-        internal static ActorFrameworkEventSource Writer = new ActorFrameworkEventSource();
+        internal static ActorFrameworkEventSource Writer { get; } = new ActorFrameworkEventSource();
 
         [NonEvent]
         internal void ReplicaChangeRoleToPrimary(ServiceContext serviceContext)
@@ -45,6 +35,277 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 serviceContext.ServiceTypeName,
                 serviceContext.CodePackageActivationContext.ApplicationTypeName,
                 serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal void ReplicaChangeRoleFromPrimary(ServiceContext serviceContext)
+        {
+            this.ReplicaChangeRoleFromPrimary(
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal void ServiceInstanceOpen(ServiceContext serviceContext)
+        {
+            this.ServiceInstanceOpen(
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal void ServiceInstanceClose(ServiceContext serviceContext)
+        {
+            this.ServiceInstanceClose(
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal void ActorActivated(
+            string actorType,
+            ActorId actorId,
+            ServiceContext serviceContext)
+        {
+            this.ActorActivated(
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal void ActorDeactivated(
+            string actorType,
+            ActorId actorId,
+            ServiceContext serviceContext)
+        {
+            this.ActorDeactivated(
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal bool IsActorMethodStartEventEnabled()
+        {
+            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorMethod);
+        }
+
+        [NonEvent]
+        internal void ActorMethodStart(
+            string methodName,
+            string methodSignature,
+            string actorType,
+            ActorId actorId,
+            ServiceContext serviceContext)
+        {
+            this.ActorMethodStart(
+                methodName,
+                methodSignature,
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal bool IsActorMethodStopEventEnabled()
+        {
+            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorMethod);
+        }
+
+        [NonEvent]
+        internal void ActorMethodStop(
+           long methodExecutionTimeTicks,
+           string methodName,
+           string methodSignature,
+           string actorType,
+           ActorId actorId,
+           ServiceContext serviceContext)
+        {
+            this.ActorMethodStop(
+                methodExecutionTimeTicks,
+                methodName,
+                methodSignature,
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal void ActorMethodThrewException(
+            string exception,
+            long methodExecutionTimeTicks,
+            string methodName,
+            string methodSignature,
+            string actorType,
+            ActorId actorId,
+            ServiceContext serviceContext)
+        {
+            this.ActorMethodThrewException(
+                exception,
+                methodExecutionTimeTicks,
+                methodName,
+                methodSignature,
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal bool IsActorSaveStateStartEventEnabled()
+        {
+            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorState);
+        }
+
+        [NonEvent]
+        internal void ActorSaveStateStart(
+            string actorType,
+            ActorId actorId,
+            ServiceContext serviceContext)
+        {
+            this.ActorSaveStateStart(
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal bool IsActorSaveStateStopEventEnabled()
+        {
+            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorState);
+        }
+
+        [NonEvent]
+        internal void ActorSaveStateStop(
+            long saveStateExecutionTimeTicks,
+            string actorType,
+            ActorId actorId,
+            ServiceContext serviceContext)
+        {
+            this.ActorSaveStateStop(
+                saveStateExecutionTimeTicks,
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [NonEvent]
+        internal bool IsPendingMethodCallsEventEnabled()
+        {
+            return this.IsEnabled(EventLevel.Verbose, Keywords.MetricActorMethodCallsWaitingForLock);
+        }
+
+        [NonEvent]
+        internal void ActorMethodCallsWaitingForLock(
+            long countOfWaitingMethodCalls,
+            string actorType,
+            ActorId actorId,
+            ServiceContext serviceContext)
+        {
+            this.ActorMethodCallsWaitingForLock(
+                countOfWaitingMethodCalls,
+                actorType,
+                actorId.ToString(),
+                actorId.Kind,
+                serviceContext.ReplicaOrInstanceId,
+                serviceContext.PartitionId,
+                serviceContext.ServiceName.OriginalString,
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.ServiceTypeName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName,
+                serviceContext.NodeContext.NodeName);
+        }
+
+        [Event(13, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        internal void ActorTypeRegistered(
+            string actorType,
+            string customeActorServiceType,
+            string nodeName)
+        {
+            this.WriteEvent(
+                13,
+                actorType,
+                customeActorServiceType,
+                nodeName);
+        }
+
+        [Event(14, Level = EventLevel.Error, Keywords = Keywords.Default)]
+        internal void ActorTypeRegistrationFailed(
+            string exception,
+            string actorType,
+            string customeActorServiceType,
+            string nodeName)
+        {
+            this.WriteEvent(
+                14,
+                exception,
+                actorType,
+                customeActorServiceType,
+                nodeName);
         }
 
         [Event(1, Level = EventLevel.Informational, Keywords = Keywords.Default)]
@@ -71,19 +332,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        [NonEvent]
-        internal void ReplicaChangeRoleFromPrimary(ServiceContext serviceContext)
-        {
-            this.ReplicaChangeRoleFromPrimary(
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
-        }
-
         [Event(2, Level = EventLevel.Informational, Keywords = Keywords.Default)]
         private void ReplicaChangeRoleFromPrimary(
             long replicaId,
@@ -107,20 +355,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     nodeName);
             }
         }
-
-        [NonEvent]
-        internal void ServiceInstanceOpen(ServiceContext serviceContext)
-        {
-            this.ServiceInstanceOpen(
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
-        }
-
 
         [Event(3, Level = EventLevel.Informational, Keywords = Keywords.Default)]
         private void ServiceInstanceOpen(
@@ -146,19 +380,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        [NonEvent]
-        internal void ServiceInstanceClose(ServiceContext serviceContext)
-        {
-            this.ServiceInstanceClose(
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
-        }
-
         [Event(4, Level = EventLevel.Informational, Keywords = Keywords.Default)]
         private void ServiceInstanceClose(
             long instanceId,
@@ -181,25 +402,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     applicationTypeName,
                     nodeName);
             }
-        }
-
-        [NonEvent]
-        internal void ActorActivated(
-            string actorType,
-            ActorId actorId,
-            ServiceContext serviceContext)
-        {
-            this.ActorActivated(
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
         }
 
         [Event(5, Level = EventLevel.Informational, Keywords = Keywords.Default)]
@@ -232,25 +434,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        [NonEvent]
-        internal void ActorDeactivated(
-            string actorType,
-            ActorId actorId,
-            ServiceContext serviceContext)
-        {
-            this.ActorDeactivated(
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
-        }
-
         [Event(6, Level = EventLevel.Informational, Keywords = Keywords.Default)]
         private void ActorDeactivated(
             string actorType,
@@ -281,35 +464,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        [NonEvent]
-        internal bool IsActorMethodStartEventEnabled()
-        {
-            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorMethod);
-        }
-
-        [NonEvent]
-        internal void ActorMethodStart(
-            string methodName,
-            string methodSignature,
-            string actorType,
-            ActorId actorId,
-            ServiceContext serviceContext)
-        {
-            this.ActorMethodStart(
-                methodName,
-                methodSignature,
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
-        }
-
         [Event(7, Level = EventLevel.Verbose, Keywords = Keywords.ActorMethod)]
         private void ActorMethodStart(
             string methodName,
@@ -328,7 +482,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.WriteActorMethodEvent(
                 7,
                 null, // not applicable
-                Int64.MaxValue, // not applicable
+                long.MaxValue, // not applicable
                 methodName,
                 methodSignature,
                 actorType,
@@ -341,37 +495,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 serviceTypeName,
                 applicationTypeName,
                 nodeName);
-        }
-
-        [NonEvent]
-        internal bool IsActorMethodStopEventEnabled()
-        {
-            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorMethod);
-        }
-
-        [NonEvent]
-        internal void ActorMethodStop(
-           long methodExecutionTimeTicks,
-           string methodName,
-           string methodSignature,
-           string actorType,
-           ActorId actorId,
-           ServiceContext serviceContext)
-        {
-            this.ActorMethodStop(
-                methodExecutionTimeTicks,
-                methodName,
-                methodSignature,
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
         }
 
         [Event(8, Level = EventLevel.Verbose, Keywords = Keywords.ActorMethod)]
@@ -406,33 +529,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 serviceTypeName,
                 applicationTypeName,
                 nodeName);
-        }
-
-        [NonEvent]
-        internal void ActorMethodThrewException(
-            string exception,
-            long methodExecutionTimeTicks,
-            string methodName,
-            string methodSignature,
-            string actorType,
-            ActorId actorId,
-            ServiceContext serviceContext)
-        {
-            this.ActorMethodThrewException(
-                exception,
-                methodExecutionTimeTicks,
-                methodName,
-                methodSignature,
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
         }
 
         [Event(9, Level = EventLevel.Warning, Keywords = (Keywords.Default | Keywords.ActorMethod))]
@@ -472,30 +568,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     nodeName);
             }
         }
-        [NonEvent]
-        internal bool IsActorSaveStateStartEventEnabled()
-        {
-            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorState);
-        }
-
-        [NonEvent]
-        internal void ActorSaveStateStart(
-            string actorType,
-            ActorId actorId,
-            ServiceContext serviceContext)
-        {
-            this.ActorSaveStateStart(
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
-        }
 
         [Event(10, Level = EventLevel.Verbose, Keywords = Keywords.ActorState)]
         private void ActorSaveStateStart(
@@ -522,33 +594,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 serviceTypeName,
                 applicationTypeName,
                 nodeName);
-        }
-
-        [NonEvent]
-        internal bool IsActorSaveStateStopEventEnabled()
-        {
-            return this.IsEnabled(EventLevel.Verbose, Keywords.ActorState);
-        }
-
-        [NonEvent]
-        internal void ActorSaveStateStop(
-            long saveStateExecutionTimeTicks,
-            string actorType,
-            ActorId actorId,
-            ServiceContext serviceContext)
-        {
-            this.ActorSaveStateStop(
-                saveStateExecutionTimeTicks,
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
         }
 
         [Event(11, Level = EventLevel.Verbose, Keywords = Keywords.ActorState)]
@@ -580,33 +625,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 nodeName);
         }
 
-        [NonEvent]
-        internal bool IsPendingMethodCallsEventEnabled()
-        {
-            return this.IsEnabled(EventLevel.Verbose, Keywords.MetricActorMethodCallsWaitingForLock);
-        }
-
-        [NonEvent]
-        internal void ActorMethodCallsWaitingForLock(
-            long countOfWaitingMethodCalls,
-            string actorType,
-            ActorId actorId,
-            ServiceContext serviceContext)
-        {
-            this.ActorMethodCallsWaitingForLock(
-                countOfWaitingMethodCalls,
-                actorType,
-                actorId.ToString(),
-                actorId.Kind,
-                serviceContext.ReplicaOrInstanceId,
-                serviceContext.PartitionId,
-                serviceContext.ServiceName.OriginalString,
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.ServiceTypeName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName,
-                serviceContext.NodeContext.NodeName);
-        }
-
         [Event(12, Level = EventLevel.Verbose, Keywords = Keywords.MetricActorMethodCallsWaitingForLock)]
         private void ActorMethodCallsWaitingForLock(
             long countOfWaitingMethodCalls,
@@ -633,34 +651,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 applicationName,
                 serviceTypeName,
                 applicationTypeName,
-                nodeName);
-        }
-
-        [Event(13, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        internal void ActorTypeRegistered(
-            string actorType,
-            string customeActorServiceType,
-            string nodeName)
-        {
-            this.WriteEvent(
-                13,
-                actorType,
-                customeActorServiceType,
-                nodeName);
-        }
-
-        [Event(14, Level = EventLevel.Error, Keywords = Keywords.Default)]
-        internal void ActorTypeRegistrationFailed(
-            string exception,
-            string actorType,
-            string customeActorServiceType,
-            string nodeName)
-        {
-            this.WriteEvent(
-                14,
-                exception,
-                actorType,
-                customeActorServiceType,
                 nodeName);
         }
 
@@ -808,11 +798,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             var dataDesc = stackalloc EventData[maxDataDescCount];
 
-            if (methodExecutionTimeTicks != Int64.MaxValue)
+            if (methodExecutionTimeTicks != long.MaxValue)
             {
                 this.SetLongData(&methodExecutionTimeTicks, out dataDesc[1]);
                 dataDescCount++;
             }
+
             this.SetIntData(&actorIdKind, out dataDesc[6]);
             this.SetLongData(&replicaOrInstanceId, out dataDesc[7]);
             this.SetGuidData(&partitionId, out dataDesc[8]);
@@ -824,6 +815,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     this.SetStringData(exception, str0, out dataDesc[0]);
                     dataDescCount++;
                 }
+
                 this.SetStringData(methodName, str1, out dataDesc[2]);
                 this.SetStringData(methodSignature, str2, out dataDesc[3]);
                 this.SetStringData(actorType, str3, out dataDesc[4]);
@@ -861,6 +853,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         private unsafe void SetGuidData(Guid* fixedDataPtr, out EventData dataDesc)
         {
             dataDesc = new EventData() { DataPointer = (IntPtr)fixedDataPtr, Size = sizeof(Guid) };
+        }
+
+        public class Keywords
+        {
+            internal const EventKeywords Default = (EventKeywords)0x1;
+            internal const EventKeywords ActorMethod = (EventKeywords)0x2;
+            internal const EventKeywords ActorState = (EventKeywords)0x4;
+            internal const EventKeywords MetricActorMethodCallsWaitingForLock = (EventKeywords)0x8;
         }
     }
 }

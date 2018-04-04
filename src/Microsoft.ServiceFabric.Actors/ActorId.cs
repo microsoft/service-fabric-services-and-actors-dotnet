@@ -20,26 +20,24 @@ namespace Microsoft.ServiceFabric.Actors
         private static readonly Random Rand = new Random();
         private static readonly object RandLock = new object();
 
-        [DataMember(Name = "Kind", Order = 1, IsRequired = true)] private readonly ActorIdKind kind;
+        [DataMember(Name = "Kind", Order = 1, IsRequired = true)]
+        private readonly ActorIdKind kind;
 
         [DataMember(Name = "LongId", Order = 2, IsRequired = false, EmitDefaultValue = false)]
-        private readonly long
-            longId;
+        private readonly long longId;
 
         [DataMember(Name = "GuidId", Order = 3, IsRequired = false, EmitDefaultValue = false)]
-        private readonly Guid
-            guidId;
+        private readonly Guid guidId;
 
         [DataMember(Name = "StringId", Order = 4, IsRequired = false, EmitDefaultValue = false)]
-        private readonly string
-            stringId;
+        private readonly string stringId;
 
         private volatile string stringRepresentation;
         private volatile string storageKey;
         private long? partitionKey;
 
         /// <summary>
-        /// Initializes a new instance of ActorId class with Id value of type <see cref="System.Int64"/>.
+        /// Initializes a new instance of the <see cref="ActorId"/> class with Id value of type <see cref="long"/>.
         /// </summary>
         /// <param name="id">Value for actor id.</param>
         public ActorId(long id)
@@ -49,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         /// <summary>
-        /// Initializes a new instance of ActorId class with Id value of type <see cref="System.Guid"/>.
+        /// Initializes a new instance of the <see cref="ActorId"/> class with Id value of type <see cref="System.Guid"/>.
         /// </summary>
         /// <param name="id">Value for actor id.</param>
         public ActorId(Guid id)
@@ -59,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         /// <summary>
-        /// Initializes a new instance of ActorId class with Id value of type <see cref="System.String"/>.
+        /// Initializes a new instance of the <see cref="ActorId"/> class with Id value of type <see cref="string"/>.
         /// </summary>
         /// <param name="id">Value for actor id.</param>
         public ActorId(string id)
@@ -68,6 +66,7 @@ namespace Microsoft.ServiceFabric.Actors
             {
                 throw new ArgumentNullException("id");
             }
+
             this.kind = ActorIdKind.String;
             this.stringId = id;
         }
@@ -82,9 +81,59 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         /// <summary>
+        /// Determines whether two specified actorIds have the same id and <see cref="ActorIdKind"/>.
+        /// </summary>
+        /// <param name="x">The first actorId to compare, or null. </param>
+        /// <param name="y">The second actorId to compare, or null. </param>
+        /// <returns>true if the id and <see cref="ActorIdKind"/> is same for both objects; otherwise, false.</returns>
+        public static bool operator ==(ActorId x, ActorId y)
+        {
+            if (ReferenceEquals(x, null) && ReferenceEquals(y, null))
+            {
+                return true;
+            }
+            else if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
+            {
+                return false;
+            }
+            else
+            {
+                return EqualsContents(x, y);
+            }
+        }
+
+        /// <summary>
+        /// Determines whether two specified actorIds have different values for id and <see cref="ActorIdKind"/>.
+        /// </summary>
+        /// <param name="x">The first actorId to compare, or null. </param>
+        /// <param name="y">The second actorId to compare, or null. </param>
+        /// <returns>true if the id or <see cref="ActorIdKind"/> is different for both objects; otherwise, true.</returns>
+        public static bool operator !=(ActorId x, ActorId y)
+        {
+            return !(x == y);
+        }
+
+        /// <summary>
+        /// Create a new instance of the <see cref="ActorId"/> of kind <see cref="ActorIdKind.Long"/>
+        /// with a random <see cref="long"/> id value.
+        /// </summary>
+        /// <returns>A new ActorId object.</returns>
+        /// <remarks>This method is thread-safe and generates a new random <see cref="ActorId"/> every time it is called.</remarks>
+        public static ActorId CreateRandom()
+        {
+            var buffer = new byte[8];
+            lock (RandLock)
+            {
+                Rand.NextBytes(buffer);
+            }
+
+            return new ActorId(BitConverter.ToInt64(buffer, 0));
+        }
+
+        /// <summary>
         /// Gets id for ActorId whose <see cref="ActorIdKind"/> is <see cref="ActorIdKind.Long"/>.
         /// </summary>
-        /// <returns><see cref="System.Int64"/>The id value for ActorId.</returns>
+        /// <returns><see cref="long"/>The id value for ActorId.</returns>
         /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Long"/></exception>
         public long GetLongId()
         {
@@ -147,7 +196,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// <returns>The key for locating the partition of the actor service that is responsible for this ActorId.</returns>
         /// <remarks>
         ///     <list type="bullet">
-        ///         <item>The actor service is always partitioned using <see cref="System.Fabric.Description.PartitionScheme.UniformInt64Range"/> scheme. Therefore the partition key is of <see cref="System.Int64"/> type.</item>
+        ///         <item>The actor service is always partitioned using <see cref="System.Fabric.Description.PartitionScheme.UniformInt64Range"/> scheme. Therefore the partition key is of <see cref="long"/> type.</item>
         ///         <item>The partition key is generated based on the <see cref="ActorIdKind"/> and the id value as follows:
         ///             <list type="bullet">
         ///                 <item><see cref="ActorIdKind.String"/>: CRC64 hash of the UTF8 bytes of the string id.</item>
@@ -222,82 +271,6 @@ namespace Microsoft.ServiceFabric.Actors
 
             this.stringRepresentation = actorIdAsString;
             return actorIdAsString;
-        }
-
-        internal string GetStorageKey()
-        {
-            if (this.storageKey == null)
-            {
-                string key;
-                switch (this.kind)
-                {
-                    case ActorIdKind.Long:
-                        key = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", this.Kind.ToString(), this.longId);
-                        break;
-
-                    case ActorIdKind.Guid:
-                        key = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", this.Kind.ToString(), this.guidId);
-                        break;
-
-                    case ActorIdKind.String:
-                        key = string.Format(
-                            CultureInfo.InvariantCulture,
-                            "{0}_{1}",
-                            this.Kind.ToString(),
-                            this.stringId);
-                        break;
-
-                    default:
-                        ReleaseAssert.Failfast("The ActorIdKind value {0} is invalid", this.kind);
-                        key = null; // unreachable
-                        break;
-                }
-
-                this.storageKey = key;
-            }
-
-            return this.storageKey;
-        }
-
-        internal static ActorId TryGetActorIdFromStorageKey(string storageKey)
-        {
-            Requires.Argument("storageKey", storageKey).NotNullOrWhiteSpace();
-
-            var idx = storageKey.IndexOf('_');
-
-            var kind = storageKey.Substring(0, idx);
-            var id = storageKey.Substring(idx + 1);
-
-            if (kind.Equals(ActorIdKind.Guid.ToString(), StringComparison.OrdinalIgnoreCase))
-            {
-                return new ActorId(Guid.Parse(id));
-            }
-
-            if (kind.Equals(ActorIdKind.Long.ToString(), StringComparison.OrdinalIgnoreCase))
-            {
-                return new ActorId(long.Parse(id));
-            }
-
-            if (kind.Equals(ActorIdKind.String.ToString(), StringComparison.OrdinalIgnoreCase))
-            {
-                return new ActorId(id);
-            }
-
-            return null;
-        }
-
-        internal long EstimateDataLength()
-        {
-            long size = sizeof(int) // Kind
-                        + sizeof(long) // LongId
-                        + 16; // this.guidId.ToByteArray().Length
-
-            if (this.stringId != null)
-            {
-                size += this.stringId.Length * sizeof(char);
-            }
-
-            return size;
         }
 
         /// <summary>
@@ -379,54 +352,80 @@ namespace Microsoft.ServiceFabric.Actors
             return ReferenceEquals(other, null) ? 1 : CompareContents(this, other);
         }
 
-        /// <summary>
-        /// Create a new instance of the <see cref="ActorId"/> of kind <see cref="ActorIdKind.Long"/>
-        /// with a random <see cref="System.Int64"/> id value.
-        /// </summary>
-        /// <returns>A new ActorId object.</returns>
-        /// <remarks>This method is thread-safe and generates a new random <see cref="ActorId"/> every time it is called.</remarks>
-        public static ActorId CreateRandom()
+        internal static ActorId TryGetActorIdFromStorageKey(string storageKey)
         {
-            var buffer = new byte[8];
-            lock (RandLock)
+            Requires.Argument("storageKey", storageKey).NotNullOrWhiteSpace();
+
+            var idx = storageKey.IndexOf('_');
+
+            var kind = storageKey.Substring(0, idx);
+            var id = storageKey.Substring(idx + 1);
+
+            if (kind.Equals(ActorIdKind.Guid.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                Rand.NextBytes(buffer);
+                return new ActorId(Guid.Parse(id));
             }
 
-            return new ActorId(BitConverter.ToInt64(buffer, 0));
+            if (kind.Equals(ActorIdKind.Long.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return new ActorId(long.Parse(id));
+            }
+
+            if (kind.Equals(ActorIdKind.String.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                return new ActorId(id);
+            }
+
+            return null;
         }
 
-        /// <summary>
-        /// Determines whether two specified actorIds have the same id and <see cref="ActorIdKind"/>.
-        /// </summary>
-        /// <param name="x">The first actorId to compare, or null. </param>
-        /// <param name="y">The second actorId to compare, or null. </param>
-        /// <returns>true if the id and <see cref="ActorIdKind"/> is same for both objects; otherwise, false.</returns>
-        public static bool operator ==(ActorId x, ActorId y)
+        internal string GetStorageKey()
         {
-            if (ReferenceEquals(x, null) && ReferenceEquals(y, null))
+            if (this.storageKey == null)
             {
-                return true;
+                string key;
+                switch (this.kind)
+                {
+                    case ActorIdKind.Long:
+                        key = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", this.Kind.ToString(), this.longId);
+                        break;
+
+                    case ActorIdKind.Guid:
+                        key = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", this.Kind.ToString(), this.guidId);
+                        break;
+
+                    case ActorIdKind.String:
+                        key = string.Format(
+                            CultureInfo.InvariantCulture,
+                            "{0}_{1}",
+                            this.Kind.ToString(),
+                            this.stringId);
+                        break;
+
+                    default:
+                        ReleaseAssert.Failfast("The ActorIdKind value {0} is invalid", this.kind);
+                        key = null; // unreachable
+                        break;
+                }
+
+                this.storageKey = key;
             }
-            else if (ReferenceEquals(x, null) || ReferenceEquals(y, null))
-            {
-                return false;
-            }
-            else
-            {
-                return EqualsContents(x, y);
-            }
+
+            return this.storageKey;
         }
 
-        /// <summary>
-        /// Determines whether two specified actorIds have different values for id and <see cref="ActorIdKind"/>.
-        /// </summary>
-        /// <param name="x">The first actorId to compare, or null. </param>
-        /// <param name="y">The second actorId to compare, or null. </param>
-        /// <returns>true if the id or <see cref="ActorIdKind"/> is different for both objects; otherwise, true.</returns>
-        public static bool operator !=(ActorId x, ActorId y)
+        internal long EstimateDataLength()
         {
-            return !(x == y);
+            long size = sizeof(int) // Kind
+                        + sizeof(long) // LongId
+                        + 16; // this.guidId.ToByteArray().Length
+
+            if (this.stringId != null)
+            {
+                size += this.stringId.Length * sizeof(char);
+            }
+
+            return size;
         }
 
         private static bool EqualsContents(ActorId x, ActorId y)

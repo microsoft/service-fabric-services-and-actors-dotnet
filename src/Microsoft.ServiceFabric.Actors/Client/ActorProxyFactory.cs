@@ -89,7 +89,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
             ActorId actorId,
             string applicationName = null,
             string serviceName = null,
-            string listenerName = null) where TActorInterface : IActor
+            string listenerName = null)
+            where TActorInterface : IActor
         {
             var actorInterfaceType = typeof(TActorInterface);
 
@@ -116,8 +117,11 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
         /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
-        public TActorInterface CreateActorProxy<TActorInterface>(Uri serviceUri, ActorId actorId,
-            string listenerName = null) where TActorInterface : IActor
+        public TActorInterface CreateActorProxy<TActorInterface>(
+            Uri serviceUri,
+            ActorId actorId,
+            string listenerName = null)
+            where TActorInterface : IActor
         {
             var actorInterfaceType = typeof(TActorInterface);
             var proxyFactory = this.GetOrSetProxyFactory(actorInterfaceType);
@@ -138,17 +142,20 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
         /// <returns>A service proxy object that implements <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> and TServiceInterface.</returns>
-        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(Uri serviceUri, ActorId actorId,
-            string listenerName = null) where TServiceInterface : IService
+        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(
+            Uri serviceUri,
+            ActorId actorId,
+            string listenerName = null)
+            where TServiceInterface : IService
         {
             var serviceInterfaceType = typeof(TServiceInterface);
             var proxyFactory = this.GetOrSetProxyFactory(serviceInterfaceType);
 
             return proxyFactory.CreateActorServiceProxy<TServiceInterface>(
                 serviceUri,
-                actorId, this.OverrideListenerNameIfConditionMet(listenerName));
+                actorId,
+                this.OverrideListenerNameIfConditionMet(listenerName));
         }
-
 
         /// <summary>
         /// Create a proxy to the actor service that is hosting the specified actor id and implementing specified type of the service interface.
@@ -161,8 +168,11 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
         /// <returns>A service proxy object that implements <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> and TServiceInterface.</returns>
-        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(Uri serviceUri, long partitionKey,
-            string listenerName = null) where TServiceInterface : IService
+        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(
+            Uri serviceUri,
+            long partitionKey,
+            string listenerName = null)
+            where TServiceInterface : IService
         {
             var serviceInterfaceType = typeof(TServiceInterface);
             var proxyFactory = this.GetOrSetProxyFactory(serviceInterfaceType);
@@ -205,18 +215,19 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private IActorProxyFactory GetOrSetProxyFactory(Type actorInterfaceType)
         {
 #if !DotNetCoreClr
-            //Use provider to find the stack
+            // Use provider to find the stack
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(actorInterfaceType);
                 if (provider.RemotingClient.Equals(RemotingClient.V2Client))
                 {
-                    //We are overriding listenerName since using provider service can have multiple listener configured(Compat Mode).
+                    // We are overriding listenerName since using provider service can have multiple listener configured(Compat Mode).
                     this.overrideListenerName = true;
                     this.proxyFactoryV2 =
                         new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactoryV2);
                     return this.proxyFactoryV2;
                 }
+
                 this.proxyFactoryV1 =
                     new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory);
                 return this.proxyFactoryV1;
@@ -226,8 +237,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 return this.proxyFactoryV2;
             }
-            return this.proxyFactoryV1;
 
+            return this.proxyFactoryV1;
 
 #else
             if (this.proxyFactoryV2 == null)
@@ -249,6 +260,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 return ServiceRemotingProviderAttribute.DefaultV2listenerName;
             }
+
             return listenerName;
         }
     }

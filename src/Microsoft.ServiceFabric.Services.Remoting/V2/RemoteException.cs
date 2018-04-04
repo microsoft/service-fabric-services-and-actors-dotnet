@@ -28,8 +28,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         static RemoteException()
         {
-            binaryFormatter = new BinaryFormatter();
-            binaryFormatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
+            binaryFormatter = new BinaryFormatter
+            {
+                AssemblyFormat = FormatterAssemblyStyle.Simple,
+            };
         }
 
         public RemoteException(List<ArraySegment<byte>> buffers)

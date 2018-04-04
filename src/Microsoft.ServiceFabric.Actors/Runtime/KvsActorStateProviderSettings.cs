@@ -21,20 +21,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.BackupCallbackExpectedCancellationTime = TimeSpan.FromSeconds(5);
         }
 
-        protected override void LoadFromSection(ConfigurationSection section)
-        {
-            base.LoadFromSection(section);
+        public TimeSpan BackupCallbackSlowCancellationHealthReportTimeToLive { get; set; }
 
-            this.BackupCallbackSlowCancellationHealthReportTimeToLive = ActorStateProviderHelper.GetTimeConfigInSecondsAsTimeSpan(
-                section,
-                BackupCallbackSlowCancellationHealthReportTimeToLiveParameterName,
-                this.BackupCallbackSlowCancellationHealthReportTimeToLive);
-
-            this.BackupCallbackExpectedCancellationTime = ActorStateProviderHelper.GetTimeConfigInSecondsAsTimeSpan(
-                section,
-                BackupCallbackExpectedCancellationTimeParameterName,
-                this.BackupCallbackExpectedCancellationTime);
-        }
+        public TimeSpan BackupCallbackExpectedCancellationTime { get; set; }
 
         public static KvsActorStateProviderSettings LoadFrom(
             ICodePackageActivationContext activationContext,
@@ -48,10 +37,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return settings;
         }
 
-        public TimeSpan BackupCallbackSlowCancellationHealthReportTimeToLive { get; set; }
-
-        public TimeSpan BackupCallbackExpectedCancellationTime { get; set; }
-
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -61,6 +46,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             sb.Append($"BackupCallbackExpectedCancellationTime: {this.BackupCallbackExpectedCancellationTime.TotalSeconds}");
 
             return sb.ToString();
+        }
+
+        protected override void LoadFromSection(ConfigurationSection section)
+        {
+            base.LoadFromSection(section);
+
+            this.BackupCallbackSlowCancellationHealthReportTimeToLive = ActorStateProviderHelper.GetTimeConfigInSecondsAsTimeSpan(
+                section,
+                BackupCallbackSlowCancellationHealthReportTimeToLiveParameterName,
+                this.BackupCallbackSlowCancellationHealthReportTimeToLive);
+
+            this.BackupCallbackExpectedCancellationTime = ActorStateProviderHelper.GetTimeConfigInSecondsAsTimeSpan(
+                section,
+                BackupCallbackExpectedCancellationTimeParameterName,
+                this.BackupCallbackExpectedCancellationTime);
         }
     }
 }

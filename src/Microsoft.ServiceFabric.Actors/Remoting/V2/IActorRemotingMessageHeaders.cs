@@ -13,12 +13,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     public interface IActorRemotingMessageHeaders : IServiceRemotingRequestMessageHeader
     {
         /// <summary>
-        /// This is the actorId to which remoting request will dispatch to.
+        /// Gets or sets the actorId to which remoting request will dispatch to.
         /// </summary>
         ActorId ActorId { get; set; }
 
         /// <summary>
-        /// This is used to limit ren-entrancy in Actors.
+        /// Gets or sets the call context which is used to limit ren-entrancy in Actors.
         /// </summary>
         string CallContext { get; set; }
     }

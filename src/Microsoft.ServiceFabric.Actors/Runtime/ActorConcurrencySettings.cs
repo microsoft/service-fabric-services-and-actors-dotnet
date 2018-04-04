@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private TimeSpan lockTimeout;
 
         /// <summary>
-        /// Initializes a new instance of the ActorConcurrencySettings class.
+        /// Initializes a new instance of the <see cref="ActorConcurrencySettings"/> class.
         ///
         /// By default the <see cref="ReentrancyMode"/> is <see cref="ActorReentrancyMode.LogicalCallContext"/> with a <see cref="LockTimeout"/> of 60 seconds
         /// </summary>
@@ -66,6 +66,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     throw new ArgumentOutOfRangeException("value");
                 }
+
                 if (value == TimeSpan.MaxValue)
                 {
                     value = Timeout.InfiniteTimeSpan;

@@ -12,7 +12,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 
     internal class ActorProxyGeneratorBuilder : ProxyGeneratorBuilder<ActorProxyGenerator, ActorProxy>
     {
-        public ActorProxyGeneratorBuilder(ICodeBuilder codeBuilder) : base(codeBuilder)
+        public ActorProxyGeneratorBuilder(ICodeBuilder codeBuilder)
+            : base(codeBuilder)
         {
         }
 

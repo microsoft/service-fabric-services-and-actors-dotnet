@@ -23,25 +23,24 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
         }
 
         /// <summary>
-        /// The methodId of the remote method
+        /// Gets or sets the methodId of the remote method
         /// </summary>
         /// <value>Method id</value>
         [DataMember(Name = "MethodId", IsRequired = true, Order = 0)]
         public int MethodId { get; set; }
 
         /// <summary>
-        /// The interface id of the remote interface.
+        /// Gets or sets the interface id of the remote interface.
         /// </summary>
         /// <value>Interface id</value>
         [DataMember(Name = "InterfaceId", IsRequired = true, Order = 1)]
         public int InterfaceId { get; set; }
 
         /// <summary>
-        /// Identifier for the remote method invocation
+        /// Gets or sets the id for the remote method invocation
         /// </summary>
         [DataMember(Name = "InvocationId", IsRequired = false, Order = 2, EmitDefaultValue = false)]
         public string InvocationId { get; set; }
-
 
         [DataMember(IsRequired = false, Order = 3)]
         public ActorId ActorId { get; set; }
@@ -49,7 +48,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
         [DataMember(IsRequired = false, Order = 4)]
         public string CallContext { get; set; }
 
-        [DataMember(Name = "Headers", IsRequired = true, Order = 5)] private Dictionary<string, byte[]> headers;
+        [DataMember(Name = "Headers", IsRequired = true, Order = 5)]
+
+ #pragma warning disable SA1201 // Elements should appear in the correct order. Increases readbility when fields kept in order.
+        private Dictionary<string, byte[]> headers;
+#pragma warning restore SA1201 // Elements should appear in the correct order
 
         public void AddHeader(string headerName, byte[] headerValue)
         {

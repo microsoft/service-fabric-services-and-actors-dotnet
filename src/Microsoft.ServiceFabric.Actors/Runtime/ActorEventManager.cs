@@ -35,8 +35,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             if (!this.eventIdToEventTypeMap.TryGetValue(new InterfaceId(eventInterfaceId, eventInterfaceId), out var eventType))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, SR.ErrorEventNotSupportedByActor,
-                    eventInterfaceId, actorId));
+                throw new ArgumentException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    SR.ErrorEventNotSupportedByActor,
+                    eventInterfaceId,
+                    actorId));
             }
 
             var eventProxy = this.GetActorEventProxy(actorId, eventType);
@@ -77,8 +80,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return TaskDone.Done;
         }
 
-
-
         public Task ClearAllSubscriptions(ActorId actorId)
         {
             this.actorIdToEventProxyMap.TryRemove(actorId, out var eventProxyMap);
@@ -87,7 +88,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
     }
 
+#pragma warning disable SA1402 // File may only contain a single type
     internal class InterfaceId
+#pragma warning restore SA1402 // File may only contain a single type
     {
         public InterfaceId(int v1Id, int v2Id)
         {
@@ -96,6 +99,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         public int V1Id { get; }
+
         public int V2Id { get; }
 
         public override int GetHashCode()
@@ -125,6 +129,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 return true;
             }
+
             return false;
         }
     }

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
@@ -9,21 +9,64 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using ActorStateTable = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
-        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
-        string,
-        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>;
-
+    using ActorStateData = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData;
     using ActorStateDataWrapper = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
         Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
         string,
         Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>.ActorStateDataWrapper;
-
+    using ActorStateTable = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
+        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
+        string,
+        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>;
     using ActorStateType = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType;
-    using ActorStateData = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData;
 
+    /// <summary>
+    /// Base class for VolatileStateProvider tests.
+    /// </summary>
     public class VolatileStateProviderTestBase
     {
+        private static object consoleLock = new object();
+
+#pragma warning disable SA1600 // Elements should be documented. skip for test methods
+
+        /// <summary>
+        /// Logs a string to console.
+        /// </summary>
+        /// <param name="format">string foramt to log.</param>
+        /// <param name="args">arguments for string foramt.</param>
+        public static void TestCase(string format, params object[] args)
+        {
+            TestLog("\n");
+            TestLog(ConsoleColor.Green, format, args);
+            TestLog("\n");
+        }
+
+        /// <summary>
+        /// Logs a string to console.
+        /// </summary>
+        /// <param name="format">string foramt to log.</param>
+        /// <param name="args">arguments for string foramt.</param>
+        public static void TestLog(string format, params object[] args)
+        {
+            TestLog(ConsoleColor.Gray, format, args);
+        }
+
+        /// <summary>
+        /// Logs a string to console.
+        /// </summary>
+        /// <param name="color">Color to use for logging to console.</param>
+        /// <param name="format">string foramt to log.</param>
+        /// <param name="args">arguments for string foramt.</param>
+        public static void TestLog(ConsoleColor color, string format, params object[] args)
+        {
+            lock (consoleLock)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(format, args);
+                Console.ResetColor();
+            }
+        }
+
         internal static void TestPrepareUpdate(ActorStateTable stateTable, ReplicationUnit replicationUnit)
         {
             foreach (var actorStateDataWrapper in replicationUnit.ActorStateDataWrapperList)
@@ -68,6 +111,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         /// <summary>
         /// The replicationUnitList should enumerate the replicationUnit in increasing order of sequence number.
         /// </summary>
+        /// <param name="stateTable">Actor state table.</param>
+        /// <param name="replicationUnitList">List of ReplicationUnit.</param>
+        /// <returns>List of list of ActorStateDataWrapper.</returns>
         internal static List<List<ActorStateDataWrapper>> TestApplyBatch(
             ActorStateTable stateTable,
             IEnumerable<ReplicationUnit> replicationUnitList)
@@ -265,27 +311,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             }
         }
 
-        private static bool TryGetActorStateData(
-            ActorStateTable stateTable,
-            ActorStateType type,
-            string key,
-            bool expectedResult,
-            out ActorStateData data)
-        {
-            data = null;
-            var actualResult = stateTable.TryGetValue(type, key, out data);
-
-            FailTestIf(
-                expectedResult != actualResult,
-                "TryGetValue({0}, {1}): expected={2} actual={3}",
-                type,
-                key,
-                expectedResult,
-                actualResult);
-
-            return actualResult;
-        }
-
         internal static void VerifyStateTableSnapshot(
             ActorStateTable stateTable,
             Dictionary<ActorStateType, int> statesPerReplication,
@@ -309,6 +334,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         /// This function verifies snapshot when the replication units are uniform
         /// i.e. they either contain update entries or delete entries.
         /// </summary>
+        /// <param name="stateTable">Actor state table.</param>
+        /// <param name="statesPerReplication">States per replictaion.</param>
+        /// <param name="enumerator">Actor state enumerator.</param>
+        /// <param name="expectedCommittedSequenceNumber">expected CommittedSequenceNumber</param>
+        /// <param name="expectedKnownSequenceNumber">expected KnownSequenceNumber</param>
+        /// <param name="expectedCount">expected Count</param>
         internal static void VerifyStateTableSnapshot(
             ActorStateTable stateTable,
             Dictionary<ActorStateType, int> statesPerReplication,
@@ -496,50 +527,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 stateData.SequenceNumber);
         }
 
-        private static object ConsoleLock = new object();
-
-        protected static void FailTestIf(bool condition, string format, params object[] args)
-        {
-            var conditionMessage = string.Format(CultureInfo.InvariantCulture, format, args);
-
-            if (condition)
-            {
-                var failedFormat = "Failed condition: {0}";
-
-                TestLog(ConsoleColor.Red, failedFormat, conditionMessage);
-
-                throw new InvalidOperationException(string.Format(
-                    CultureInfo.InvariantCulture,
-                    failedFormat, conditionMessage));
-            }
-            else
-            {
-                TestLog(ConsoleColor.DarkGray, "Passed condition: {0}", conditionMessage);
-            }
-        }
-
-        public static void TestCase(string format, params object[] args)
-        {
-            TestLog("\n");
-            TestLog(ConsoleColor.Green, format, args);
-            TestLog("\n");
-        }
-
-        public static void TestLog(string format, params object[] args)
-        {
-            TestLog(ConsoleColor.Gray, format, args);
-        }
-
-        public static void TestLog(ConsoleColor color, string format, params object[] args)
-        {
-            lock (ConsoleLock)
-            {
-                Console.ForegroundColor = color;
-                Console.WriteLine(format, args);
-                Console.ResetColor();
-            }
-        }
-
         internal static ActorStateDataWrapper CreateActorStateDataWrapper(string key, long dataLength)
         {
             var bytes = new byte[dataLength];
@@ -608,17 +595,71 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             return statesPerReplication;
         }
 
-        protected class MockReminder : IActorReminder
+        /// <summary>
+        /// Fails the test by throwinf exception.
+        /// </summary>
+        /// <param name="condition">Condition to check for test pass or failure.</param>
+        /// <param name="format">string foramt to log.</param>
+        /// <param name="args">arguments for string foramt.</param>
+        protected static void FailTestIf(bool condition, string format, params object[] args)
         {
+            var conditionMessage = string.Format(CultureInfo.InvariantCulture, format, args);
+
+            if (condition)
+            {
+                var failedFormat = "Failed condition: {0}";
+
+                TestLog(ConsoleColor.Red, failedFormat, conditionMessage);
+
+                throw new InvalidOperationException(string.Format(
+                    CultureInfo.InvariantCulture,
+                    failedFormat,
+                    conditionMessage));
+            }
+            else
+            {
+                TestLog(ConsoleColor.DarkGray, "Passed condition: {0}", conditionMessage);
+            }
+        }
+
+        private static bool TryGetActorStateData(
+            ActorStateTable stateTable,
+            ActorStateType type,
+            string key,
+            bool expectedResult,
+            out ActorStateData data)
+        {
+            data = null;
+            var actualResult = stateTable.TryGetValue(type, key, out data);
+
+            FailTestIf(
+                expectedResult != actualResult,
+                "TryGetValue({0}, {1}): expected={2} actual={3}",
+                type,
+                key,
+                expectedResult,
+                actualResult);
+
+            return actualResult;
+        }
+
+        internal class MockReminder : IActorReminder
+        {
+            private readonly string name;
+
+            public MockReminder(string reminderName)
+            {
+                this.name = reminderName;
+            }
+
             TimeSpan IActorReminder.DueTime
             {
                 get { return TimeSpan.MaxValue; }
             }
 
-            private readonly string _name;
             string IActorReminder.Name
             {
-                get { return this._name; }
+                get { return this.name; }
             }
 
             TimeSpan IActorReminder.Period
@@ -630,14 +671,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             {
                 get { return null; }
             }
-
-            public MockReminder(string reminderName)
-            {
-                this._name = reminderName;
-            }
         }
 
-        protected internal class ReplicationUnit
+        internal class ReplicationUnit
         {
             internal ReplicationUnit(long sequenceNumber, ActorStateType stateType)
             {
@@ -684,28 +720,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 {
                     return this.ActorStateDataWrapperList[this.ActorStateCount - 1].IsDelete;
                 }
-            }
-
-            internal void UpdateSequenceNumber()
-            {
-                foreach (var actorStateDataWrapper in this.ActorStateDataWrapperList)
-                {
-                    actorStateDataWrapper.UpdateSequenceNumber(this.SequenceNumber);
-                }
-            }
-
-            internal string GetKeyString()
-            {
-                var keysString = "[ ";
-
-                foreach (var actorStateDataWrapper in this.ActorStateDataWrapperList)
-                {
-                    keysString += actorStateDataWrapper.Key + " ";
-                }
-
-                keysString += "]";
-
-                return keysString;
             }
 
             internal static ReplicationUnit CreateForUpdateActor(
@@ -803,6 +817,29 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
                 return replicationUnit;
             }
+
+            internal void UpdateSequenceNumber()
+            {
+                foreach (var actorStateDataWrapper in this.ActorStateDataWrapperList)
+                {
+                    actorStateDataWrapper.UpdateSequenceNumber(this.SequenceNumber);
+                }
+            }
+
+            internal string GetKeyString()
+            {
+                var keysString = "[ ";
+
+                foreach (var actorStateDataWrapper in this.ActorStateDataWrapperList)
+                {
+                    keysString += actorStateDataWrapper.Key + " ";
+                }
+
+                keysString += "]";
+
+                return keysString;
+            }
         }
+#pragma warning restore SA1600 // Elements should be documented
     }
 }

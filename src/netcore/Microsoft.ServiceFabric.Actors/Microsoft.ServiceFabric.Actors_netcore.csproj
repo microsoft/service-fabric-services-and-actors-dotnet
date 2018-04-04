@@ -7,6 +7,7 @@
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <SourceCodeDir>$(RepoRoot)src\Microsoft.ServiceFabric.Actors\</SourceCodeDir>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

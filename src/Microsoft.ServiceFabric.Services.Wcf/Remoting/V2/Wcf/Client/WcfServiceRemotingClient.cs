@@ -21,8 +21,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     {
         private ServiceRemotingMessageSerializersManager serializersManager;
 
-        public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }
-
         public WcfServiceRemotingClient(
             WcfCommunicationClient<IServiceRemotingContract> wcfClient,
             ServiceRemotingMessageSerializersManager serializersManager)
@@ -30,6 +28,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             this.serializersManager = serializersManager;
             this.WcfClient = wcfClient;
         }
+
+        public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }
 
         /// <summary>
         /// Gets or Sets the Resolved service partition which was used when this client was created.
@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
             try
             {
-                //Find the Serializer
+                // Find the Serializer
                 var interfaceId = requestMessage.GetHeader().InterfaceId;
                 serializedHeader = this.serializersManager.GetHeaderSerializer()
                     .SerializeRequestHeader(requestMessage.GetHeader());
@@ -108,7 +108,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 var msgBody =
                     responseSerializer.Deserialize(incomingMsgBody);
-                //Create Response Message
+
+                // Create Response Message
                 return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(
                     header,
                     msgBody);

@@ -29,8 +29,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
 
         /// <summary>
-        /// Instantiates the ActorServiceRemotingDispatcher that can dispatch messages to an actor service and
-        /// to the actors hosted in the service..
+        /// Initializes a new instance of the <see cref="ActorServiceRemotingDispatcher"/> class
+        /// that can dispatch messages to an actor service and to the actors hosted in the service..
         /// </summary>
         /// <param name="actorService">An actor service instance.</param>
         public ActorServiceRemotingDispatcher(ActorService actorService)
@@ -38,12 +38,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
         {
             this.actorService = actorService;
             this.cancellationHelper = new ServiceRemotingCancellationHelper(actorService.Context.TraceId);
-        }
-
-        private static ServiceContext GetContext(ActorService actorService)
-        {
-            Requires.ThrowIfNull(actorService, "actorService");
-            return actorService.Context;
         }
 
         /// <summary>
@@ -74,6 +68,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
             return base.RequestResponseAsync(requestContext, messageHeaders, requestBodyBytes);
         }
 
+        private static ServiceContext GetContext(ActorService actorService)
+        {
+            Requires.ThrowIfNull(actorService, "actorService");
+            return actorService.Context;
+        }
+
         private async Task<byte[]> HandleSubscriptionRequestsAsync(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
@@ -81,7 +81,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
         {
             if (!ActorMessageHeaders.TryFromServiceMessageHeaders(messageHeaders, out var actorMessageHeaders))
             {
-                //This can only happen if there is issue in our product code like Message Corruption or changing headers format.
+                // This can only happen if there is issue in our product code like Message Corruption or changing headers format.
                 ReleaseAssert.Failfast("ActorMessageHeaders Deserialization failed");
             }
 
@@ -92,9 +92,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 
                 await this.actorService.ActorManager.SubscribeAsync(
                     actorMessageHeaders.ActorId,
-                    castedRequestMsgBody.eventInterfaceId,
+                    castedRequestMsgBody.EventInterfaceId,
                     new ActorEventSubscriberProxy(
-                        castedRequestMsgBody.subscriptionId,
+                        castedRequestMsgBody.SubscriptionId,
                         requestContext.GetCallbackClient()));
 
                 return null;
@@ -107,8 +107,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 
                 await this.actorService.ActorManager.UnsubscribeAsync(
                     actorMessageHeaders.ActorId,
-                    castedRequestMsgBody.eventInterfaceId,
-                    castedRequestMsgBody.subscriptionId);
+                    castedRequestMsgBody.EventInterfaceId,
+                    castedRequestMsgBody.SubscriptionId);
 
                 return null;
             }
@@ -123,7 +123,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
             var startTime = DateTime.UtcNow;
             if (!ActorMessageHeaders.TryFromServiceMessageHeaders(messageHeaders, out var actorMessageHeaders))
             {
-
                 throw new SerializationException(Actors.SR.ErrorActorMessageHeadersDeserializationFailed);
             }
 
@@ -151,6 +150,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
                 {
                     this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingFinish(startTime);
                 }
+
                 return retVal;
             }
         }

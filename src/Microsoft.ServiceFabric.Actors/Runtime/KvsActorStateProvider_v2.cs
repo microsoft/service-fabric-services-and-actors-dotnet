@@ -11,19 +11,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading.Tasks;
 
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
-    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
+    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
 
     internal sealed class KvsActorStateProvider_V2 : KvsActorStateProviderBase
     {
-        public KvsActorStateProvider_V2() : base(null)
+        public KvsActorStateProvider_V2()
+            : base(null)
         {
-        }
-
-        private KeyValueStoreReplicaSettings_V2 GetKvsReplicaSettings()
-        {
-            return new KeyValueStoreReplicaSettings_V2(this.InitParams.CodePackageActivationContext.WorkDirectory);
         }
 
         internal override KeyValueStoreReplica OnCreateAndInitializeReplica(
@@ -44,6 +40,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             kvs.InitializeAndOverrideNativeStore(initParams);
 
             return kvs;
+        }
+
+        private KeyValueStoreReplicaSettings_V2 GetKvsReplicaSettings()
+        {
+            return new KeyValueStoreReplicaSettings_V2(this.InitParams.CodePackageActivationContext.WorkDirectory);
         }
 
         private class KeyValueStoreWrapper : KeyValueStoreReplica_V2
@@ -72,7 +73,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public void InitializeAndOverrideNativeStore(StatefulServiceInitializationParameters initParams)
             {
-                base.Initialize_OverrideNativeKeyValueStore(initParams);
+                this.Initialize_OverrideNativeKeyValueStore(initParams);
             }
 
             protected override void OnCopyComplete(KeyValueStoreEnumerator enumerator)

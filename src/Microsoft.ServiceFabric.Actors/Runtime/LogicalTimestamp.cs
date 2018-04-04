@@ -11,12 +11,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     [DataContract]
     internal sealed class LogicalTimestamp
     {
-        [DataMember]
-        public TimeSpan Timestamp { get; private set; }
-
         public LogicalTimestamp(TimeSpan timestamp)
         {
             this.Timestamp = timestamp;
         }
+
+        [DataMember]
+        public TimeSpan Timestamp { get; private set; }
     }
 }

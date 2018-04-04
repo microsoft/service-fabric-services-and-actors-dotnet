@@ -11,8 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class ReminderSettings
     {
         /// <summary>
-        /// Initializes a new instance of the ReminderSettings class.
-        ///
+        /// Initializes a new instance of the <see cref="ReminderSettings"/> class.
         /// By default the <see cref="Microsoft.ServiceFabric.Actors.Runtime.ReminderSettings.AutoDeleteOneTimeReminders"/> is set to <c>true</c>.
         /// </summary>
         public ReminderSettings()
@@ -26,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets or sets value indicating if ActorRuntime should automatically delete one-time reminders after
+        /// Gets or sets a value indicating whether ActorRuntime should automatically delete one-time reminders after
         /// they have fired and completed its callback successfully. One-time reminders refer to reminders whose
         /// <see cref="Microsoft.ServiceFabric.Actors.Runtime.IActorReminder.Period"/> is set to negative value.
         /// </summary>

@@ -246,8 +246,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         {
             if (ServiceCodeBuilder.TryGetKnownTypes(serviceRemotingDispatchHeaders.ServiceInterfaceName, out var details))
             {
-                var headers = new ServiceRemotingRequestMessageHeader();
-                headers.InterfaceId = details.Id;
+                var headers = new ServiceRemotingRequestMessageHeader
+                {
+                    InterfaceId = details.Id,
+                };
+
                 if (details.MethodNames.TryGetValue(serviceRemotingDispatchHeaders.MethodName, out var headersMethodId))
                 {
                     headers.MethodId = headersMethodId;

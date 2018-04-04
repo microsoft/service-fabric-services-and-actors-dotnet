@@ -123,8 +123,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    ),
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
 #endif
         }
@@ -192,8 +191,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    ),
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
 #endif
         }

@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
     public class WcfActorServiceRemotingListener : WcfServiceRemotingListener
     {
         /// <summary>
-        /// Constructs a WCF based actor remoting listener.
+        /// Initializes a new instance of the <see cref="WcfActorServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="listenerBinding">WCF binding to use for the listener. If the listener binding is not specified or null,
         /// a default listener binding is created using <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpListenerBinding"/> method which creates
@@ -47,13 +47,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
         }
 
         /// <summary>
-        /// Constructs a WCF based service remoting listener.
+        /// Initializes a new instance of the <see cref="WcfActorServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceRemotingMessageHandler">The handler for receiving and processing remoting messages. As the messages are received
         /// the listener delivers the messages to the handler.
         /// </param>
-        /// <param name="serializationProvider"></param>
+        /// <param name="serializationProvider">Serialization Provider.</param>
         /// <param name="listenerBinding">WCF binding to use for the listener. If the listener binding is not specified or null,
         /// a default listener binding is created using <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpListenerBinding"/> method.
         /// </param>

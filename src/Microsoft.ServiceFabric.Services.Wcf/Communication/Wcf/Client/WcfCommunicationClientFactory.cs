@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         private readonly object callbackObject;
 
         /// <summary>
-        /// Constructs a factory to create clients using WCF to communicate with the services.
+        /// Initializes a new instance of the <see cref="WcfCommunicationClientFactory{TServiceContract}"/> class.
         /// </summary>
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is not specified or null,
@@ -126,6 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             {
                 connectionTimeoutException = te;
             }
+
             if (connectionTimeoutException != null)
             {
                 throw new EndpointNotFoundException(
@@ -178,6 +179,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new WcfExceptionHandler());
             return handlers;
         }

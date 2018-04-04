@@ -20,24 +20,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Runtime;
-    using SR = Microsoft.ServiceFabric.Actors.SR;
 
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
-    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
+    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
+    using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>
     /// Provides an implementation of <see cref="IActorStateProvider"/> which
     /// uses <see cref="KeyValueStoreReplica"/> to store and persist the actor state.
     /// </summary>
     public abstract class KvsActorStateProviderBase
-        : IActorStateProvider
-        , VolatileLogicalTimeManager.ISnapshotHandler
-        , IActorStateProviderInternal
+        : IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {
-        #region Private Data Members
-
         private const string ActorStorageKeyPrefix = "Actor";
         private const string ReminderStorageKeyPrefix = "Reminder";
         private const string LogicalTimestampKey = "Timestamp_VLTM";
@@ -55,6 +51,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ActorStateProviderSerializer actorStateSerializer;
         private readonly ActorStateProviderHelper actorStateProviderHelper;
         private readonly ReplicatorSettings userDefinedReplicatorSettings;
+
+        /// <summary>
+        /// Used to synchronize between backup callback invocation and replica close/abort
+        /// </summary>
+        private readonly SemaphoreSlim backupCallbackLock;
 
         private ReplicaRole replicaRole;
         private IStatefulServicePartition partition;
@@ -74,20 +75,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         private int isBackupInProgress;
 
-        /// <summary>
-        /// Used to synchronize between backup callback invocation and replica close/abort
-        /// </summary>
-        private readonly SemaphoreSlim backupCallbackLock;
         private CancellationTokenSource backupCallbackCts;
         private Task<bool> backupCallbackTask;
         private bool isClosingOrAborting;
-
-        #endregion
-
-        internal StatefulServiceInitializationParameters InitParams { get { return this.initParams; } }
-        internal ActorTypeInformation ActorTypeInformation { get { return this.actorTypeInformation; } }
-
-        #region C'tors
 
         internal KvsActorStateProviderBase(ReplicatorSettings replicatorSettings)
         {
@@ -100,7 +90,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             // KVS supports logical time natively, but this feature is not currently exposed publicly.
             // Use the same time manager logic as volatile state provider in lieu of the KVS feature.
-            //
             this.logicalTimeManager = new VolatileLogicalTimeManager(this);
 
             this.replicaRole = ReplicaRole.Unknown;
@@ -113,26 +102,61 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosingOrAborting = false;
         }
 
-        #endregion
+        /// <inheritdoc/>
+        string IActorStateProviderInternal.TraceType
+        {
+            get { return TraceType; }
+        }
 
-        internal abstract KeyValueStoreReplica OnCreateAndInitializeReplica(
-            StatefulServiceInitializationParameters initParams,
-            CopyCompletionCallback copyHandler,
-            ReplicationCallback replicationHandler,
-            DataLossCallback onDataLossHandler,
-            RestoreCompletedCallback restoreCompletedHandler);
+        /// <inheritdoc/>
+        string IActorStateProviderInternal.TraceId
+        {
+            get { return this.traceId; }
+        }
 
-        #region IActorStateProvider Members
+        /// <inheritdoc/>
+        ReplicaRole IActorStateProviderInternal.CurrentReplicaRole
+        {
+            get { return this.replicaRole; }
+        }
+
+        /// <inheritdoc/>
+        TimeSpan IActorStateProviderInternal.TransientErrorRetryDelay
+        {
+            get { return this.stateProviderSettings.TransientErrorRetryDelay; }
+        }
+
+        /// <inheritdoc/>
+        TimeSpan IActorStateProviderInternal.CurrentLogicalTime
+        {
+            get { return this.logicalTimeManager.CurrentLogicalTime; }
+        }
+
+        /// <inheritdoc/>
+        TimeSpan IActorStateProviderInternal.OperationTimeout
+        {
+            get { return this.stateProviderSettings.OperationTimeout; }
+        }
+
+        /// <inheritdoc/>
+        long IActorStateProviderInternal.RoleChangeTracker
+        {
+            get
+            {
+                return Interlocked.Read(ref this.roleChangeTracker);
+            }
+        }
 
         /// <summary>
-        /// The function called during suspected data-loss.
+        /// Sets the function to be called during suspected data-loss.
         /// </summary>
         /// <value>
         /// A function representing data-loss callback function.
         /// </value>
         public Func<CancellationToken, Task<bool>> OnDataLossAsync
         {
-            private get { return this.onDataLossAsyncFunction; }
+            private get => this.onDataLossAsyncFunction;
+
             set
             {
                 if (this.onDataLossAsyncFunction != null)
@@ -145,14 +169,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Function called after the partition state has been restored automatically by the system
+        /// Sets the function to be called after the partition state has been restored automatically by the system
         /// </summary>
         /// <value>
         /// A function representing on restore completed callback function.
         /// </value>
         public Func<CancellationToken, Task> OnRestoreCompletedAsync
         {
-            private get { return this.onRestoreCompletedAsyncFunction; }
+            private get => this.onRestoreCompletedAsyncFunction;
+
             set
             {
                 if (this.onRestoreCompletedAsyncFunction != null)
@@ -163,6 +188,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.onRestoreCompletedAsyncFunction = value;
             }
         }
+
+        internal StatefulServiceInitializationParameters InitParams => this.initParams;
+
+        internal ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;
 
         /// <summary>
         /// Initializes the actor state provider with type information
@@ -487,10 +516,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
-        #endregion
-
-        #region IStateProviderReplica Members
-
         /// <summary>
         /// Initialize the state provider replica using the service initialization information.
         /// </summary>
@@ -677,12 +702,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Restore a backup taken by <see cref="IStateProviderReplica.BackupAsync(Func{BackupInfo, CancellationToken, Task{bool}})"/> or
         /// <see cref="IStateProviderReplica.BackupAsync(BackupOption, TimeSpan, CancellationToken, Func{BackupInfo, CancellationToken, Task{bool}})"/>.
         /// </summary>
-        /// <param name="restorePolicy">The restore policy.</param>
         /// <param name="backupFolderPath">
         /// The directory where the replica is to be restored from.
         /// This parameter cannot be null, empty or contain just whitespace.
         /// UNC paths may also be provided.
         /// </param>
+        /// /// <param name="restorePolicy">The restore policy.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>Task that represents the asynchronous restore operation.</returns>
         Task IStateProviderReplica.RestoreAsync(string backupFolderPath, RestorePolicy restorePolicy, CancellationToken cancellationToken)
@@ -693,10 +718,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.storeReplica.RestoreAsync(backupFolderPath, restoreSettings, cancellationToken);
         }
 
-        #endregion
-
-        #region VolatileLogicalTimeManager.ISnapshotHandler Members
-
+        /// <inheritdoc/>
         async Task VolatileLogicalTimeManager.ISnapshotHandler.OnSnapshotAsync(TimeSpan currentLogicalTime)
         {
             var data = new LogicalTimestamp(currentLogicalTime);
@@ -712,9 +734,103 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        #endregion
+        internal abstract KeyValueStoreReplica OnCreateAndInitializeReplica(
+            StatefulServiceInitializationParameters initParams,
+            CopyCompletionCallback copyHandler,
+            ReplicationCallback replicationHandler,
+            DataLossCallback onDataLossHandler,
+            RestoreCompletedCallback restoreCompletedHandler);
 
-        #region Event Handlers
+        internal ReplicatorSettings GetReplicatorSettings()
+        {
+            if (this.userDefinedReplicatorSettings != null)
+            {
+                return this.userDefinedReplicatorSettings;
+            }
+
+            return this.LoadReplicatorSettings();
+        }
+
+        private static string CreateActorStorageKey(ActorId actorId, string stateName)
+        {
+            if (string.IsNullOrEmpty(stateName))
+            {
+                // Backward compatibility for Actor<TState> (before named actor state was introduced)
+                return string.Format(CultureInfo.InvariantCulture, "{0}_{1}", ActorStorageKeyPrefix, actorId.GetStorageKey());
+            }
+
+            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", ActorStorageKeyPrefix, actorId.GetStorageKey(), stateName);
+        }
+
+        private static string CreateActorStorageKeyPrefix(ActorId actorId, string stateNamePrefix)
+        {
+            return CreateActorStorageKey(actorId, stateNamePrefix);
+        }
+
+        private static string ExtractStateName(ActorId actorId, string storageKey)
+        {
+            var storageKeyPrefix = CreateActorStorageKeyPrefix(actorId, string.Empty);
+
+            if (storageKey == storageKeyPrefix)
+            {
+                return string.Empty;
+            }
+
+            return storageKey.Substring(storageKeyPrefix.Length + 1);
+        }
+
+        private static string CreateReminderStorageKey(ActorId actorId, string reminderName)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}_{1}_{2}",
+                ReminderStorageKeyPrefix,
+                actorId.GetStorageKey(),
+                reminderName);
+        }
+
+        private static string CreateReminderStorageKeyPrefix(ActorId actorId, string reminderNamePrefix)
+        {
+            return CreateReminderStorageKey(actorId, reminderNamePrefix);
+        }
+
+        private static void PrepareBackupFolder(string backupFolder)
+        {
+            try
+            {
+                FabricDirectory.Delete(backupFolder, true);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                // Already empty
+            }
+
+            FabricDirectory.CreateDirectory(backupFolder);
+        }
+
+        private static byte[] Serialize<T>(DataContractSerializer serializer, T data)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
+                serializer.WriteObject(binaryWriter, data);
+                binaryWriter.Flush();
+
+                return memoryStream.ToArray();
+            }
+        }
+
+        private static object Deserialize(DataContractSerializer serializer, byte[] data)
+        {
+            using (var memoryStream = new MemoryStream(data))
+            {
+                var binaryReader = XmlDictionaryReader.CreateBinaryReader(
+                    memoryStream,
+                    XmlDictionaryReaderQuotas.Max);
+
+                return serializer.ReadObject(binaryReader);
+            }
+        }
 
         private void OnCopyComplete(KeyValueStoreEnumerator enumerator)
         {
@@ -771,30 +887,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        #endregion
-
-        #region Private Helper Functions
-
         private void EnsureReplicaIsPrimary()
         {
             if (this.replicaRole != ReplicaRole.Primary)
             {
                 throw new FabricNotPrimaryException();
             }
-        }
-
-        private static void PrepareBackupFolder(string backupFolder)
-        {
-            try
-            {
-                FabricDirectory.Delete(backupFolder, true);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                // Already empty
-            }
-
-            FabricDirectory.CreateDirectory(backupFolder);
         }
 
         private async Task<bool> UserBackupCallbackHandler(
@@ -967,16 +1065,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        internal ReplicatorSettings GetReplicatorSettings()
-        {
-            if (this.userDefinedReplicatorSettings != null)
-            {
-                return this.userDefinedReplicatorSettings;
-            }
-
-            return this.LoadReplicatorSettings();
-        }
-
         private ReplicatorSettings LoadReplicatorSettings()
         {
             return ActorStateProviderHelper.GetActorReplicatorSettings(
@@ -998,49 +1086,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 TraceType, this.traceId, "KvsActorStateProviderSettings: {0}", this.stateProviderSettings);
         }
 
-        private static string CreateActorStorageKey(ActorId actorId, string stateName)
-        {
-            if (string.IsNullOrEmpty(stateName))
-            {
-                // Backward compatibility for Actor<TState> (before named actor state was introduced)
-                return string.Format(CultureInfo.InvariantCulture, "{0}_{1}", ActorStorageKeyPrefix, actorId.GetStorageKey());
-            }
-
-            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", ActorStorageKeyPrefix, actorId.GetStorageKey(), stateName);
-        }
-
-        private static string CreateActorStorageKeyPrefix(ActorId actorId, string stateNamePrefix)
-        {
-            return CreateActorStorageKey(actorId, stateNamePrefix);
-        }
-
-        private static string ExtractStateName(ActorId actorId, string storageKey)
-        {
-            var storageKeyPrefix = CreateActorStorageKeyPrefix(actorId, string.Empty);
-
-            if (storageKey == storageKeyPrefix)
-            {
-                return string.Empty;
-            }
-
-            return storageKey.Substring(storageKeyPrefix.Length + 1);
-        }
-
-        private static string CreateReminderStorageKey(ActorId actorId, string reminderName)
-        {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}_{1}_{2}",
-                ReminderStorageKeyPrefix,
-                actorId.GetStorageKey(),
-                reminderName);
-        }
-
-        private static string CreateReminderStorageKeyPrefix(ActorId actorId, string reminderNamePrefix)
-        {
-            return CreateReminderStorageKey(actorId, reminderNamePrefix);
-        }
-
         private byte[] SerializeReminder(ActorReminderData reminder)
         {
             return Serialize(this.reminderSerializer, reminder);
@@ -1054,18 +1099,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private byte[] SerializeReminderCompletedData(ReminderCompletedData data)
         {
             return Serialize(this.reminderCompletedDataSerializer, data);
-        }
-
-        private static byte[] Serialize<T>(DataContractSerializer serializer, T data)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
-                serializer.WriteObject(binaryWriter, data);
-                binaryWriter.Flush();
-
-                return memoryStream.ToArray();
-            }
         }
 
         private ActorReminderData DeserializeReminder(byte[] data)
@@ -1093,18 +1126,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     this.logicalTimeManager.CurrentLogicalTime = timestamp.Timestamp;
                 }
-            }
-        }
-
-        private static object Deserialize(DataContractSerializer serializer, byte[] data)
-        {
-            using (var memoryStream = new MemoryStream(data))
-            {
-                var binaryReader = XmlDictionaryReader.CreateBinaryReader(
-                    memoryStream,
-                    XmlDictionaryReaderQuotas.Max);
-
-                return serializer.ReadObject(binaryReader);
             }
         }
 
@@ -1363,10 +1384,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        #endregion
-
-        #region Protected Helper Class
-
         private class ReminderKeyInfo
         {
             public ReminderKeyInfo(string reminderKey, string reminderCompletedKey)
@@ -1379,49 +1396,5 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public string ReminderCompletedKey { get; private set; }
         }
-
-        #endregion
-
-        #region IActorStateProviderInternal
-
-        string IActorStateProviderInternal.TraceType
-        {
-            get { return TraceType; }
-        }
-
-        string IActorStateProviderInternal.TraceId
-        {
-            get { return this.traceId; }
-        }
-
-        ReplicaRole IActorStateProviderInternal.CurrentReplicaRole
-        {
-            get { return this.replicaRole; }
-        }
-
-        TimeSpan IActorStateProviderInternal.TransientErrorRetryDelay
-        {
-            get { return this.stateProviderSettings.TransientErrorRetryDelay; }
-        }
-
-        TimeSpan IActorStateProviderInternal.CurrentLogicalTime
-        {
-            get { return this.logicalTimeManager.CurrentLogicalTime; }
-        }
-
-        TimeSpan IActorStateProviderInternal.OperationTimeout
-        {
-            get { return this.stateProviderSettings.OperationTimeout; }
-        }
-
-        long IActorStateProviderInternal.RoleChangeTracker
-        {
-            get
-            {
-                return Interlocked.Read(ref this.roleChangeTracker);
-            }
-        }
-
-        #endregion
     }
 }

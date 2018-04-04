@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
     public class FabricTransportActorRemotingClientFactory : FabricTransportServiceRemotingClientFactory
     {
         /// <summary>
-        /// Constructs a fabric transport based actor remoting client factory.
+        /// Initializes a new instance of the <see cref="FabricTransportActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="callbackClient">
         ///     The callback client that receives the callbacks from the service.
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
         }
 
         /// <summary>
-        /// Constructs a fabric transport based actor remoting client factory.
+        /// Initializes a new instance of the <see cref="FabricTransportActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="fabricTransportRemotingSettings">
         ///     The settings for the fabric transport. If the settings are not provided or null, default settings
@@ -60,8 +60,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
             IServiceRemotingCallbackClient callbackClient,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            string traceId = null) :
-            base(
+            string traceId = null)
+            : base(
                 fabricTransportRemotingSettings,
                 callbackClient,
                 servicePartitionResolver,
@@ -78,6 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
         }

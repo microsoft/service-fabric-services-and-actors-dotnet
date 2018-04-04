@@ -18,7 +18,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorConcurrencyLockTimeoutException"/> class.
         /// </summary>
-        public ActorConcurrencyLockTimeoutException() : base()
+        public ActorConcurrencyLockTimeoutException()
+            : base()
         {
         }
 
@@ -26,7 +27,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// Initializes a new instance of the <see cref="ActorConcurrencyLockTimeoutException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public ActorConcurrencyLockTimeoutException(string message) : base(message)
+        public ActorConcurrencyLockTimeoutException(string message)
+            : base(message)
         {
         }
 

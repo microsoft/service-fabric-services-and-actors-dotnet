@@ -18,7 +18,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ReentrantActorInvalidStateException"/> class.
         /// </summary>
-        public ReentrantActorInvalidStateException() : base()
+        public ReentrantActorInvalidStateException()
+            : base()
         {
         }
 
@@ -26,7 +27,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// Initializes a new instance of the <see cref="ReentrantActorInvalidStateException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public ReentrantActorInvalidStateException(string message) : base(message)
+        public ReentrantActorInvalidStateException(string message)
+            : base(message)
         {
         }
 
