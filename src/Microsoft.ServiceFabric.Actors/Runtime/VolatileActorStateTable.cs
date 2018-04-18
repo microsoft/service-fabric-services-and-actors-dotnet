@@ -88,7 +88,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public void PrepareUpdate(IEnumerable<ActorStateDataWrapper> actorStateDataWrapperList, long sequenceNumber)
         {
-            if (sequenceNumber == 0) // Invalid LSN
+            // Invalid LSN
+            if (sequenceNumber == 0)
             {
                 return;
             }
@@ -114,7 +115,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task CommitUpdateAsync(long sequenceNumber, Exception ex = null)
         {
-            if (sequenceNumber == 0) // Invalid LSN
+            // Invalid LSN
+            if (sequenceNumber == 0)
             {
                 if (ex != null)
                 {
@@ -378,7 +380,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // sequence number of the last commit, which may be a delete.
             // If the current last element represents a delete, then it can
             // be removed now since we're adding a new last element.
-            //
             if (this.committedEntriesList.Count > 0 &&
                 this.committedEntriesList.Last.Value.ActorStateDataWrapper.IsDelete)
             {
@@ -395,21 +396,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         [DataContract]
         public class ActorStateDataWrapper
         {
-            [DataMember]
-            public TType Type { get; private set; }
-
-            [DataMember]
-            public TKey Key { get; private set; }
-
-            [DataMember]
-            public TValue Value { get; private set; }
-
-            [DataMember]
-            public bool IsDelete { get; private set; }
-
-            [DataMember]
-            public long SequenceNumber { get; private set; }
-
             private ActorStateDataWrapper(
                 TType type,
                 TKey key,
@@ -432,6 +418,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.IsDelete = true;
                 this.SequenceNumber = 0;
             }
+
+            [DataMember]
+            public TType Type { get; private set; }
+
+            [DataMember]
+            public TKey Key { get; private set; }
+
+            [DataMember]
+            public TValue Value { get; private set; }
+
+            [DataMember]
+            public bool IsDelete { get; private set; }
+
+            [DataMember]
+            public long SequenceNumber { get; private set; }
 
             public static ActorStateDataWrapper CreateForUpdate(
                 TType type,
@@ -483,6 +484,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 get { return this.uncommittedEntriesListShallowCopy.Count; }
             }
 
+            int IReadOnlyCollection<ActorStateDataWrapper>.Count
+            {
+                get
+                {
+                    return this.committedEntriesListShallowCopy.Count + this.uncommittedEntriesListShallowCopy.Count;
+                }
+            }
+
+            ActorStateDataWrapper IEnumerator<ActorStateDataWrapper>.Current
+            {
+                get { return this.current; }
+            }
+
+            object IEnumerator.Current
+            {
+                get { return this.current; }
+            }
+
             public ActorStateDataWrapper PeekNext()
             {
                 ActorStateDataWrapper item = null;
@@ -531,14 +550,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return this.current;
             }
 
-            int IReadOnlyCollection<ActorStateDataWrapper>.Count
-            {
-                get
-                {
-                    return this.committedEntriesListShallowCopy.Count + this.uncommittedEntriesListShallowCopy.Count;
-                }
-            }
-
             IEnumerator<ActorStateDataWrapper> IEnumerable<ActorStateDataWrapper>.GetEnumerator()
             {
                 return this;
@@ -549,19 +560,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return this;
             }
 
-            ActorStateDataWrapper IEnumerator<ActorStateDataWrapper>.Current
-            {
-                get { return this.current; }
-            }
-
             void IDisposable.Dispose()
             {
                 // no-op
-            }
-
-            object IEnumerator.Current
-            {
-                get { return this.current; }
             }
 
             bool IEnumerator.MoveNext()
@@ -582,6 +583,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private class ReplicationContext
         {
+            private readonly TaskCompletionSource<object> pendingCommitTaskSource;
+            private Exception replicationException;
+            private long associatedEntryCount;
+
+            public ReplicationContext()
+            {
+                this.IsReplicationComplete = false;
+                this.replicationException = null;
+                this.pendingCommitTaskSource = new TaskCompletionSource<object>();
+                this.associatedEntryCount = 0;
+            }
+
             public bool IsReplicationComplete { get; private set; }
 
             public bool IsFailed
@@ -595,18 +608,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             public bool IsAllEntriesComplete
             {
                 get { return (this.associatedEntryCount == 0); }
-            }
-
-            private Exception replicationException;
-            private readonly TaskCompletionSource<object> pendingCommitTaskSource;
-            private long associatedEntryCount;
-
-            public ReplicationContext()
-            {
-                this.IsReplicationComplete = false;
-                this.replicationException = null;
-                this.pendingCommitTaskSource = new TaskCompletionSource<object>();
-                this.associatedEntryCount = 0;
             }
 
             public void SetReplicationComplete(Exception replicationException)
@@ -645,9 +646,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private class ListEntry
         {
-            public ActorStateDataWrapper ActorStateDataWrapper { get; private set; }
+            public ListEntry(
+                ActorStateDataWrapper actorStateDataWrapper,
+                ReplicationContext replicationContext)
+            {
+                this.ActorStateDataWrapper = actorStateDataWrapper;
+                this.PendingReplicationContext = replicationContext;
 
-            private ReplicationContext PendingReplicationContext { get; set; }
+                if (this.PendingReplicationContext != null)
+                {
+                    this.PendingReplicationContext.AssociateListEntry();
+                }
+            }
 
             public bool IsReplicationComplete
             {
@@ -667,18 +677,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            public ListEntry(
-                ActorStateDataWrapper actorStateDataWrapper,
-                ReplicationContext replicationContext)
-            {
-                this.ActorStateDataWrapper = actorStateDataWrapper;
-                this.PendingReplicationContext = replicationContext;
+            public ActorStateDataWrapper ActorStateDataWrapper { get; private set; }
 
-                if (this.PendingReplicationContext != null)
-                {
-                    this.PendingReplicationContext.AssociateListEntry();
-                }
-            }
+            private ReplicationContext PendingReplicationContext { get; set; }
 
             public void CompleteReplication()
             {
@@ -692,9 +693,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private class TableEntry
         {
-            public ActorStateDataWrapper ActorStateDataWrapper { get; private set; }
-            public LinkedListNode<ListEntry> ListNode { get; private set; }
-
             public TableEntry(
                 ActorStateDataWrapper actorStateDataWrapper,
                 LinkedListNode<ListEntry> listNode)
@@ -702,6 +700,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.ActorStateDataWrapper = actorStateDataWrapper;
                 this.ListNode = listNode;
             }
+
+            public ActorStateDataWrapper ActorStateDataWrapper { get; private set; }
+
+            public LinkedListNode<ListEntry> ListNode { get; private set; }
         }
 
         #endregion Private inner classes

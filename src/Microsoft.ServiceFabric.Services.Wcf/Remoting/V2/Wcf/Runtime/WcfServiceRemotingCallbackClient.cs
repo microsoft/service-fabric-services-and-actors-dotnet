@@ -12,8 +12,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
     internal class WcfServiceRemotingCallbackClient : IServiceRemotingCallbackClient
     {
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
-        private IServiceRemotingMessageBodyFactory remotingMessageBodyFactory;
         private readonly IServiceRemotingCallbackContract callbackChannel;
+        private IServiceRemotingMessageBodyFactory remotingMessageBodyFactory;
 
         public WcfServiceRemotingCallbackClient(
             IServiceRemotingCallbackContract callbackChannel,
@@ -23,8 +23,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             this.serializersManager = serializersManager;
             this.remotingMessageBodyFactory = serializersManager.GetSerializationProvider().CreateMessageBodyFactory();
         }
-
-
 
         public void SendOneWay(IServiceRemotingRequestMessage requestMessage)
         {
@@ -47,6 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 {
                     outgoingMessageHeader.Dispose();
                 }
+
                 if (outgoingMessageBody != null)
                 {
                     outgoingMessageBody.Dispose();

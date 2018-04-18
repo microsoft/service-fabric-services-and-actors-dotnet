@@ -11,7 +11,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     [DataContract(Namespace = Constants.Namespace)]
     internal class EventSubscriptionRequestBody
     {
-        [DataMember(IsRequired = true, Order = 0)] public int eventInterfaceId;
-        [DataMember(IsRequired = true, Order = 1)] public Guid subscriptionId;
+        [DataMember(IsRequired = true, Order = 0, Name = "eventInterfaceId")]
+        public int EventInterfaceId { get; set; }
+
+        [DataMember(IsRequired = true, Order = 1, Name = "subscriptionId")]
+        public Guid SubscriptionId { get; set; }
     }
 }

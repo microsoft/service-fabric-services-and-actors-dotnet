@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
     internal class ActorServicePartitionClient : ServiceRemotingPartitionClient, IActorServicePartitionClient
     {
         /// <summary>
-        /// Instantiates a Partition client for a singleton partitioned service with the given name.
+        /// Initializes a new instance of the <see cref="ActorServicePartitionClient"/> class with the given name.
         /// </summary>
         /// <param name="remotingClientFactory">Remoting client factory</param>
         /// <param name="serviceUri">Actor service name</param>
@@ -70,8 +70,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
             {
                 Value = new EventSubscriptionRequestBody()
                 {
-                    eventInterfaceId = eventInterfaceId,
-                    subscriptionId = subscriberId,
+                    EventInterfaceId = eventInterfaceId,
+                    SubscriptionId = subscriberId,
                 },
             };
 
@@ -99,8 +99,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
             {
                 Value = new EventSubscriptionRequestBody()
                 {
-                    eventInterfaceId = eventInterfaceId,
-                    subscriptionId = subscriberId,
+                    EventInterfaceId = eventInterfaceId,
+                    SubscriptionId = subscriberId,
                 },
             };
 
@@ -111,7 +111,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
                 CancellationToken.None);
         }
 
-        internal Task<byte[]> InvokeAsync(ActorMessageHeaders headers, byte[] requestMsgBody,
+        internal Task<byte[]> InvokeAsync(
+            ActorMessageHeaders headers,
+            byte[] requestMsgBody,
             CancellationToken cancellationToken)
         {
             var serviceMessageHeaders = headers.ToServiceMessageHeaders();

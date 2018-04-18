@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Client
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
-
     /// <summary>
     /// This class provide handling of exceptions encountered in communicating with
     /// service fabric actors over remoted actor interfaces.
@@ -73,8 +72,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Client
     public class ActorRemotingExceptionHandler : IExceptionHandler
     {
         /// <summary>
-        ///     Instantiates a new <see cref="ActorRemotingExceptionHandler"/> which can be used to handle exceptions encountered in communicating with
-        ///     service fabric actors over remoted actor interfaces.
+        /// Initializes a new instance of the <see cref="ActorRemotingExceptionHandler"/> class which can be used to handle exceptions encountered in communicating with
+        /// service fabric actors over remoted actor interfaces.
         /// </summary>
         public ActorRemotingExceptionHandler()
         {
@@ -114,9 +113,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Client
             }
 
             // The messaging layer may deliver duplicate messages during the connection failures.
-            //E.g when client connection is disconnected but service is still processing the message. We retry on client connection failures.
-            //This results to service receiving duplicate message.
-            //And Actor Reentrancy throws DuplicateMessageException exception when it sees a duplicate Message (message with same callContext).
+            // E.g when client connection is disconnected but service is still processing the message. We retry on client connection failures.
+            // This results to service receiving duplicate message.
+            // And Actor Reentrancy throws DuplicateMessageException exception when it sees a duplicate Message (message with same callContext).
             if (e is DuplicateMessageException)
             {
                 result = new ExceptionHandlingRetryResult(

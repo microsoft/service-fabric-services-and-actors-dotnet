@@ -31,17 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         private readonly WcfCommunicationClientFactory<IServiceRemotingContract> wcfFactory;
 
         /// <summary>
-        /// Event handler that is fired when a client is connected to the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
-
-        /// <summary>
-        /// Event handler that is fired when a client is disconnected from the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
-
-        /// <summary>
-        ///     Constructs a WCF based service remoting client factory.
+        /// Initializes a new instance of the <see cref="WcfServiceRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is not specified or null,
@@ -111,6 +101,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
             this.wcfFactory.ClientConnected += this.OnClientConnected;
             this.wcfFactory.ClientDisconnected += this.OnClientDisconnected;
         }
+
+        /// <summary>
+        /// Event handler that is fired when a client is connected to the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
+
+        /// <summary>
+        /// Event handler that is fired when a client is disconnected from the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
 
         /// <summary>
         /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
@@ -203,6 +203,34 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
                 cancellationToken);
         }
 
+        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
+            IEnumerable<IExceptionHandler> exceptionHandlers,
+            string traceId)
+        {
+            var handlers = new List<IExceptionHandler>();
+            if (exceptionHandlers != null)
+            {
+                handlers.AddRange(exceptionHandlers);
+            }
+
+            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
+
+            return handlers;
+        }
+
+        private static IServiceRemotingCallbackContract GetCallbackImplementation(
+            IServiceRemotingCallbackClient callbackClient)
+        {
+            if (callbackClient == null)
+            {
+                return new NoOpCallbackReceiver();
+            }
+            else
+            {
+                return new CallbackReceiver(callbackClient);
+            }
+        }
+
         private void OnClientDisconnected(
             object sender,
             CommunicationClientEventArgs<WcfCommunicationClient<IServiceRemotingContract>> communicationClientEventArgs)
@@ -235,33 +263,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
             }
         }
 
-        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
-            IEnumerable<IExceptionHandler> exceptionHandlers,
-            string traceId)
-        {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
-            {
-                handlers.AddRange(exceptionHandlers);
-            }
-            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
-
-            return handlers;
-        }
-
-        private static IServiceRemotingCallbackContract GetCallbackImplementation(
-            IServiceRemotingCallbackClient callbackClient)
-        {
-            if (callbackClient == null)
-            {
-                return new NoOpCallbackReceiver();
-            }
-            else
-            {
-                return new CallbackReceiver(callbackClient);
-            }
-        }
-
         [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]
         private class NoOpCallbackReceiver : IServiceRemotingCallbackContract
         {
@@ -278,7 +279,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
             {
             }
         }
-
 
         [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]
         private class CallbackReceiver : IServiceRemotingCallbackContract
@@ -302,4 +302,3 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         }
     }
 }
-

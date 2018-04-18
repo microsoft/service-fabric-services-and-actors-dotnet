@@ -19,7 +19,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="ReentrancyModeDisallowedException"/> class.
         /// </summary>
-        public ReentrancyModeDisallowedException() : base()
+        public ReentrancyModeDisallowedException()
+            : base()
         {
         }
 
@@ -27,7 +28,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// Initializes a new instance of the <see cref="ReentrancyModeDisallowedException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public ReentrancyModeDisallowedException(string message) : base(message)
+        public ReentrancyModeDisallowedException(string message)
+            : base(message)
         {
         }
 

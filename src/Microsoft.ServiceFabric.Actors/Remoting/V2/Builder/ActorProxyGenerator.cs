@@ -17,17 +17,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 
         public ActorProxyGenerator(
             Type proxyInterfaceType,
-            IProxyActivator proxyActivator
-        ) : base(proxyInterfaceType)
+            IProxyActivator proxyActivator)
+            : base(proxyInterfaceType)
         {
             this.proxyActivator = proxyActivator;
         }
 
-        public ActorProxy CreateActorProxy
-        (
+        public ActorProxy CreateActorProxy(
             ActorServicePartitionClient remotingPartitionClient,
             IServiceRemotingMessageBodyFactory remotingMessageBodyFactory)
-
         {
             var serviceProxy = (ActorProxy)this.proxyActivator.CreateInstance();
             serviceProxy.Initialize(remotingPartitionClient, remotingMessageBodyFactory);

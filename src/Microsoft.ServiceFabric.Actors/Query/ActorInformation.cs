@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Query
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
 
-
     /// <summary>
     /// Represents the information about an actor returned by Actor Query method call.
     /// </summary>
@@ -18,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
     public sealed class ActorInformation
     {
         /// <summary>
-        /// Initializes a new instance of the ActorInformation class.
+        /// Initializes a new instance of the <see cref="ActorInformation"/> class.
         /// </summary>
         /// <param name="actorId">The ID of the actor.</param>
         /// <param name="isActive">Indicates whether the Actor is active or inactive.</param>
@@ -38,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// <summary>
         /// Gets a value indicating whether the actor is active.
         /// </summary>
-        /// <value><see cref="System.Boolean"/> indicating if the Actor is active.</value>
+        /// <value><see cref="bool"/> indicating if the Actor is active.</value>
         [DataMember(Order = 1, Name = "IsActive", IsRequired = true)]
         public bool IsActive { get; private set; }
     }

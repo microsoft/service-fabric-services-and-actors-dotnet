@@ -10,7 +10,6 @@ namespace Microsoft.ServiceFabric.Actors
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Services.Remoting;
 
-
     /// <summary>
     /// Defines the interface containing methods which can be called at Actor Service level.
     /// </summary>

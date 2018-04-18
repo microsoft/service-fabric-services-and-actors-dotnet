@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
     public class WcfActorRemotingClientFactory : WcfServiceRemotingClientFactory
     {
         /// <summary>
-        ///     Constructs a WCF based actor remoting factory.
+        /// Initializes a new instance of the <see cref="WcfActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="callbackClient">
         ///     The callback client that receives the callbacks from the service.
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         }
 
         /// <summary>
-        ///     Constructs a WCF based actor remoting factory.
+        /// Initializes a new instance of the <see cref="WcfActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is null,
@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         /// <param name="traceId">
         ///     Id to use in diagnostics traces from this component.
         /// </param>
-        /// <param name="serializationProvider"></param>
+        /// <param name="serializationProvider">Serialization Provider</param>
         /// <remarks>
         ///     This factory uses <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfExceptionHandler"/>,
         ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.Client.ActorRemotingExceptionHandler"/>, in addition to the
@@ -69,16 +69,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             IServicePartitionResolver servicePartitionResolver = null,
             string traceId = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null) :
-            base(
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            : base(
                  new ActorRemotingSerializationManager(
                      serializationProvider ?? new BasicDataContractSerializationProvider(),
-                    new BasicDataContractActorHeaderSerializer()),
-                clientBinding,
-                callbackClient,
-                GetExceptionHandlers(exceptionHandlers),
-                servicePartitionResolver,
-                traceId)
+                     new BasicDataContractActorHeaderSerializer()),
+                 clientBinding,
+                 callbackClient,
+                 GetExceptionHandlers(exceptionHandlers),
+                 servicePartitionResolver,
+                 traceId)
         {
         }
 
@@ -89,6 +89,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
         }

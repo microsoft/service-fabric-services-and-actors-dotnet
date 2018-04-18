@@ -25,7 +25,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
     public class FabricTransportActorServiceRemotingListener : FabricTransportServiceRemotingListener
     {
         /// <summary>
-        ///     Construct a fabric TCP transport based service remoting listener for the specified actor service.
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
+        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
         /// </summary>
         /// <param name="actorService">
         ///     The implementation of the actor service.
@@ -44,7 +45,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Construct a fabric TCP transport based service remoting listener for the specified actor service.
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
+        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
         /// </summary>
         /// <param name="actorService">
         ///     The implementation of the actor service.
@@ -68,7 +70,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         }
 
         /// <summary>
-        ///     Construct a fabric TCP transport based service remoting listener for the specified actor service.
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
+        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
@@ -77,18 +80,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         ///     The handler for processing remoting messages. As the messages are received,
         ///     the listener delivers them to this handler.
         /// </param>
-        /// <param name="listenerSettings"></param>
-        /// <param name="serializationProvider"></param>
+        /// <param name="listenerSettings">Listener Settings.</param>
+        /// <param name="serializationProvider">Serialization provider for remoting.</param>
         public FabricTransportActorServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
             FabricTransportRemotingListenerSettings listenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null
-        )
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
             : base(
                 serviceContext,
                 messageHandler,
-               InitializeSerializerManager(
+                InitializeSerializerManager(
                    listenerSettings,
                    serializationProvider),
                 listenerSettings)
@@ -128,6 +130,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
                 listenerSettings.EndpointResourceName = ActorNameFormat.GetFabricServiceV2EndpointName(
                     actorService.ActorTypeInformation.ImplementationType);
             }
+
             return listenerSettings;
         }
     }

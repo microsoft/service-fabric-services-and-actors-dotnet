@@ -10,12 +10,12 @@ namespace Microsoft.ServiceFabric.Actors
 
     internal static class ActorTrace
     {
-        internal static ActorEventSource Source;
-
         static ActorTrace()
         {
             Source = ActorEventSource.Instance;
         }
+
+        internal static ActorEventSource Source { get; }
 
         internal static string GetTraceIdForActor(Guid partitionId, long replicaId, ActorId actorId)
         {

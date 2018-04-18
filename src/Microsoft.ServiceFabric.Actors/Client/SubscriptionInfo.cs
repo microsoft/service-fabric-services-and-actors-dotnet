@@ -9,15 +9,17 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
     internal class SubscriptionInfo
     {
-        public readonly Guid Id;
-        public readonly Subscriber Subscriber;
-        public bool IsActive;
-
         public SubscriptionInfo(Subscriber subscriber)
         {
             this.Subscriber = subscriber;
             this.Id = Guid.NewGuid();
             this.IsActive = true;
         }
+
+        public Guid Id { get; }
+
+        public Subscriber Subscriber { get; }
+
+        public bool IsActive { get; set; }
     }
 }

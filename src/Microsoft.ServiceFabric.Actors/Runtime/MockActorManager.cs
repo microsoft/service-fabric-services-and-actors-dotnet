@@ -24,11 +24,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private IDiagnosticsManager diagnosticsManager;
         private IActorEventManager eventManager;
 
-        private IActorStateProvider StateProvider
-        {
-            get { return this.actorService.StateProvider; }
-        }
-
         internal MockActorManager(ActorService actorService)
         {
             this.actorService = actorService;
@@ -39,23 +34,32 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.IsClosed = false;
         }
 
-        #region IActorManager Implementation
+        public bool IsClosed { get; private set; }
 
         public ActorService ActorService
         {
             get { return this.actorService; }
         }
 
-        #region Actor Diagnostics
+        public bool HasRemindersLoaded
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public ActorEventSource TraceSource => this.traceSource;
 
         public DiagnosticsEventManager DiagnosticsEventManager
         {
             get { return this.diagnosticsManager.DiagnosticsEventManager; }
         }
 
-        #endregion
-
-        #region Actor Manager Life Cycle
+        private IActorStateProvider StateProvider
+        {
+            get { return this.actorService.StateProvider; }
+        }
 
         public Task OpenAsync(IServicePartition partition, CancellationToken cancellationToken)
         {
@@ -74,12 +78,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.IsClosed = true;
         }
 
-        public bool IsClosed { get; private set; }
-
-        #endregion
-
-        #region Actor Method Dispatch
-
         public Task<byte[]> InvokeAsync(
             ActorId actorId,
             int interfaceId,
@@ -91,9 +89,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return TaskDone<byte[]>.Done;
         }
 
-
-        public Task<IServiceRemotingResponseMessageBody> InvokeAsync(ActorId actorId, int interfaceId, int methodId, string callContext,
-            IServiceRemotingRequestMessageBody requestMsgBody, IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
+        public Task<IServiceRemotingResponseMessageBody> InvokeAsync(
+            ActorId actorId,
+            int interfaceId,
+            int methodId,
+            string callContext,
+            IServiceRemotingRequestMessageBody requestMsgBody,
+            IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
             CancellationToken cancellationToken)
         {
             return TaskDone<IServiceRemotingResponseMessageBody>.Done;
@@ -111,10 +113,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return TaskDone<T>.Done;
         }
 
-        #endregion
-
-        #region Actor Events
-
         public Task SubscribeAsync(ActorId actorId, int eventInterfaceId, IActorEventSubscriberProxy subscriber)
         {
             return this.eventManager.SubscribeAsync(actorId, eventInterfaceId, subscriber);
@@ -130,18 +128,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return (TEvent)(object)this.eventManager.GetActorEventProxy(actorId, typeof(TEvent));
         }
 
-        #endregion
-
-        #region Actor Reminders
-
-        public bool HasRemindersLoaded
-        {
-            get
-            {
-                return true;
-            }
-        }
-
         public async Task<IActorReminder> RegisterOrUpdateReminderAsync(
             ActorId actorId,
             string reminderName,
@@ -155,7 +141,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 k => new ConcurrentDictionary<string, ActorReminder>());
 
             var reminder = new ActorReminder(actorId, this, reminderName, state, dueTime, period);
-
 
             reminderDictionary.AddOrUpdate(
                 reminderName,
@@ -185,7 +170,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public IActorReminder GetReminder(string reminderName, ActorId actorId)
         {
-
             if (this.remindersByActorId.TryGetValue(actorId, out var actorReminders))
             {
                 if (actorReminders.TryGetValue(reminderName, out var reminder))
@@ -200,14 +184,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         public async Task UnregisterReminderAsync(
-            string reminderName, ActorId actorId,
+            string reminderName,
+            ActorId actorId,
             bool removeFromStateProvider)
         {
             if (removeFromStateProvider)
             {
                 await this.StateProvider.DeleteReminderAsync(actorId, reminderName);
             }
-
 
             if (this.remindersByActorId.TryGetValue(actorId, out var actorReminders))
             {
@@ -235,13 +219,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             // no-op.
             // Reminders don't fire in mock version.
-
             return Task.FromResult(true);
         }
-
-        #endregion
-
-        #region Actor Query
 
         public Task DeleteActorAsync(
             string callContext,
@@ -258,19 +237,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return Task.FromResult(new PagedResult<ActorInformation>());
         }
 
-        #endregion
-
-        #region Actor Tracing
-
         public string GetActorTraceId(ActorId actorId)
         {
             return string.Empty;
         }
-
-        public ActorEventSource TraceSource => this.traceSource;
-
-        #endregion
-
-        #endregion
     }
 }

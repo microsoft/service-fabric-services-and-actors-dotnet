@@ -9,6 +9,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     internal sealed class ActorUseScope : IDisposable
     {
+        /// <summary>
+        /// Indicates a value whether the use is for a timer call.
+        /// </summary>
+        private readonly bool timerUse;
+
+        private ActorUseScope(ActorBase actor, bool timerUse)
+        {
+            this.Actor = actor;
+            this.timerUse = timerUse;
+        }
+
+        ~ActorUseScope()
+        {
+            this.Dispose(false);
+        }
+
+        public ActorBase Actor { get; private set; }
+
         public static ActorUseScope TryCreate(ActorBase actor, bool timerUse)
         {
             if (actor.GcHandler.TryUse(timerUse))
@@ -26,24 +44,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             return null;
         }
-
-        private ActorUseScope(ActorBase actor, bool timerUse)
-        {
-            this.Actor = actor;
-            this.timerUse = timerUse;
-        }
-
-        ~ActorUseScope()
-        {
-            this.Dispose(false);
-        }
-
-        public ActorBase Actor { get; private set; }
-
-        /// <summary>
-        /// Indicates a value whether the use is for a timer call.
-        /// </summary>
-        private readonly bool timerUse;
 
         public void Dispose()
         {

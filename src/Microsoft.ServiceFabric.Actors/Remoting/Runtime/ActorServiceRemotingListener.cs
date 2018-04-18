@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
 
-
     internal static class ActorServiceRemotingListener
     {
 #if !DotNetCoreClr

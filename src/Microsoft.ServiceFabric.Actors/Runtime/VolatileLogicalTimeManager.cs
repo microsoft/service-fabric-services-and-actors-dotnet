@@ -13,21 +13,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     internal class VolatileLogicalTimeManager
     {
-        public interface ISnapshotHandler
-        {
-            Task OnSnapshotAsync(TimeSpan currentLogicalTime);
-        }
-
         private const long DefaultLogicalTimeSnapshotIntervalInSeconds = 5;
-
-        private TimeSpan lastSnapshot;
         private readonly Stopwatch stopwatch;
-        private bool isRunning;
         private readonly RwLock rwLock;
 
         private readonly ISnapshotHandler handler;
         private readonly TimeSpan snapshotInterval;
         private readonly Timer timer;
+        private TimeSpan lastSnapshot;
+        private bool isRunning;
 
         public VolatileLogicalTimeManager(ISnapshotHandler handler)
             : this(handler, TimeSpan.FromSeconds(DefaultLogicalTimeSnapshotIntervalInSeconds))
@@ -46,6 +40,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.timer = new Timer(o => this.TimerCallback());
 
             this.stopwatch.Start();
+        }
+
+        /// <summary>
+        /// Interface for Snapshot handling.
+        /// </summary>
+        public interface ISnapshotHandler
+        {
+            /// <summary>
+            /// Method called by timer callback for snapshot.
+            /// </summary>
+            /// <param name="currentLogicalTime">Current Logicla Time.</param>
+            /// <returns>A task that represents the asynchronous operation.</returns>
+            Task OnSnapshotAsync(TimeSpan currentLogicalTime);
         }
 
         public TimeSpan CurrentLogicalTime
@@ -68,14 +75,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        internal TimeSpan Test_GetCurrentSnapshot()
-        {
-            using (this.rwLock.AcquireReadLock())
-            {
-                return this.lastSnapshot;
-            }
-        }
-
         public void Start()
         {
             using (this.rwLock.AcquireWriteLock())
@@ -93,6 +92,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.isRunning = false;
 
                 this.ArmTimer_CallerHoldsLock();
+            }
+        }
+
+        internal TimeSpan Test_GetCurrentSnapshot()
+        {
+            using (this.rwLock.AcquireReadLock())
+            {
+                return this.lastSnapshot;
             }
         }
 

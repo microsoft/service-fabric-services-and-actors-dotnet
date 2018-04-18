@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
     public class FabricTransportActorRemotingClientFactory : FabricTransportServiceRemotingClientFactory
     {
         /// <summary>
-        /// Constructs a fabric transport based actor remoting client factory.
+        /// Initializes a new instance of the <see cref="FabricTransportActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="callbackMessageHandler">
         ///     The callback client that receives the callbacks from the service.
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
         }
 
         /// <summary>
-        /// Constructs a fabric transport based actor remoting client factory.
+        /// Initializes a new instance of the <see cref="FabricTransportActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="fabricTransportRemotingSettings">
         ///     The settings for the fabric transport. If the settings are not provided or null, default settings
@@ -55,22 +55,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
         /// <param name="traceId">
         ///     Id to use in diagnostics traces from this component.
         /// </param>
-        /// <param name="serializationProvider"></param>
+        /// <param name="serializationProvider">Serialization provider for remoting.</param>
         public FabricTransportActorRemotingClientFactory(
             FabricTransportRemotingSettings fabricTransportRemotingSettings,
             IServiceRemotingCallbackMessageHandler callbackMessageHandler = null,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             string traceId = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null) :
-            base(
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            : base(
                 IntializeSerializationManager(serializationProvider, fabricTransportRemotingSettings),
                 fabricTransportRemotingSettings,
                 callbackMessageHandler,
                 servicePartitionResolver,
                 GetExceptionHandlers(exceptionHandlers),
                 traceId)
-
         {
         }
 
@@ -82,6 +81,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
         }

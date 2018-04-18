@@ -23,18 +23,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.actorMethodInfoV2 = new Dictionary<long, ActorMethodInfo>();
         }
 
-
         internal override void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
-            foreach (var actorInterfaceType in this.actorTypeInformation.InterfaceTypes)
+            foreach (var actorInterfaceType in this.ActorTypeInformation.InterfaceTypes)
             {
                 diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptionsV2(
                     actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 this.InitializeActorMethodInfo(actorInterfaceMethodDescriptions, interfaceId, this.actorMethodInfoV2);
             }
+
             base.InitializeActorMethodInfo(diagnosticsEventManager);
         }
-
 
         internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
         {

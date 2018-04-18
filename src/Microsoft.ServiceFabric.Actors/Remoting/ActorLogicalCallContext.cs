@@ -5,13 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting
 {
-
 #if DotNetCoreClr
     using System.Threading;
 
     internal static class ActorLogicalCallContext
     {
-        internal static AsyncLocal<string> fabActAsyncLocal = new AsyncLocal<string>();
+        private static AsyncLocal<string> fabActAsyncLocal = new AsyncLocal<string>();
 
         public static bool IsPresent()
         {
@@ -39,7 +38,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 
     internal static class ActorLogicalCallContext
     {
-
         internal const string CallContextKey = "_FabActCallContext_";
 
         public static bool IsPresent()

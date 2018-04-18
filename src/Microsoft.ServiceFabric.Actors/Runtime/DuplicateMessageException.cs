@@ -19,7 +19,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="DuplicateMessageException"/> class.
         /// </summary>
-        public DuplicateMessageException() : base()
+        public DuplicateMessageException()
+            : base()
         {
         }
 
@@ -27,7 +28,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Initializes a new instance of the <see cref="DuplicateMessageException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public DuplicateMessageException(string message) : base(message)
+        public DuplicateMessageException(string message)
+            : base(message)
         {
         }
 

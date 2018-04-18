@@ -22,19 +22,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     /// <remarks>
     ///     <para>
     ///     On service side, implementation of this attribute is looked up by
-    ///     <see cref="ServiceRemotingExtensions.CreateServiceRemotingListener{TStatefulService}(TStatefulService,System.Fabric.StatefulServiceContext)"/> and
-    ///     <see cref="ServiceRemotingExtensions.CreateServiceRemotingListener{TStatelessService}(TStatelessService,System.Fabric.StatelessServiceContext)"/>
+    ///     <see cref="ServiceRemotingExtensions.CreateServiceRemotingReplicaListeners{TStatefulService}(TStatefulService)"/> and
+    ///     <see cref="ServiceRemotingExtensions.CreateServiceRemotingInstanceListeners{TStatelessService}(TStatelessService)"/>
     ///     methods on the runtime to create a default <see cref="IServiceRemotingListener"/> for the stateful and stateless services.
     ///     </para>
     ///     <para>
     ///     On client side, implementation of this attribute is looked up by
-    ///     <see cref="ServiceProxyFactory"/> constructor to create a default
-    ///     <see cref="IServiceRemotingClientFactory"/> when it is not specified.
+    ///     <see cref="V2.Client.ServiceProxyFactory"/> constructor to create a default
+    ///     <see cref="V2.Client.IServiceRemotingClientFactory"/> when it is not specified.
     ///     </para>
     ///     <para>
     ///     Note that on client side
     ///     <see cref="Client.ServiceProxy.Create{TServiceInterface}(Uri, Services.Client.ServicePartitionKey, Communication.Client.TargetReplicaSelector, string)"/>
-    ///     method create a default <see cref="ServiceProxyFactory"/> once and hence the provider lookup happens
+    ///     method create a default <see cref="V2.Client.ServiceProxyFactory"/> once and hence the provider lookup happens
     ///     only for the first time, after which the same provider is used.
     ///     </para>
     ///     <para>
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 
         /// <summary>
         /// Creates a V2 service remoting client factory that can be used by the
-        /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
+        /// <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
         /// <returns>An <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>

@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public interface IActorReminderState : IActorReminder
     {
         /// <summary>
-        /// Time when Reminder is next due.
+        /// Gets the time when Reminder is next due.
         /// </summary>
         /// <value>Due time as <see cref="System.TimeSpan"/> when the reminder is next due.</value>
         TimeSpan RemainingDueTime { get; }

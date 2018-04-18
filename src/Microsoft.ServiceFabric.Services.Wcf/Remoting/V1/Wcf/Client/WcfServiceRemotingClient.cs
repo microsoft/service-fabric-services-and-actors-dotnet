@@ -19,14 +19,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
     {
         private readonly WcfCommunicationClient<IServiceRemotingContract> wcfClient;
 
-        public WcfCommunicationClient<IServiceRemotingContract> WcfClient
-        {
-            get { return this.wcfClient; }
-        }
-
         public WcfServiceRemotingClient(WcfCommunicationClient<IServiceRemotingContract> wcfClient)
         {
             this.wcfClient = wcfClient;
+        }
+
+        public WcfCommunicationClient<IServiceRemotingContract> WcfClient
+        {
+            get { return this.wcfClient; }
         }
 
         /// <summary>

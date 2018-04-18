@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     {
         private readonly Dictionary<Type, ActorInterfaceDescription> actorMethodDescriptions;
         private readonly Dictionary<Type, ActorInterfaceDescription> actorMethodDescriptionsV2;
+
         internal ActorMethodFriendlyNameBuilder(ActorTypeInformation actorTypeInformation)
         {
             this.actorMethodDescriptions = new Dictionary<Type, ActorInterfaceDescription>();
@@ -29,7 +30,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal void GetActorInterfaceMethodDescriptions(Type interfaceType, out int interfaceId,
+        internal void GetActorInterfaceMethodDescriptions(
+            Type interfaceType,
+            out int interfaceId,
             out MethodDescription[] actorInterfaceMethodDescriptions)
         {
             interfaceId = this.actorMethodDescriptions[interfaceType].Id;

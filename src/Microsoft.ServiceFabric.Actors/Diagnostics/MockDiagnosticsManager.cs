@@ -12,17 +12,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     {
         private readonly DiagnosticsEventManager diagnosticsEventManager;
 
+        internal MockDiagnosticsManager(ActorService actorService)
+        {
+            this.diagnosticsEventManager = new DiagnosticsEventManager(actorService.MethodFriendlyNameBuilder);
+        }
+
         DiagnosticsEventManager IDiagnosticsManager.DiagnosticsEventManager
         {
             get
             {
                 return this.diagnosticsEventManager;
             }
-        }
-
-        internal MockDiagnosticsManager(ActorService actorService)
-        {
-            this.diagnosticsEventManager = new DiagnosticsEventManager(actorService.MethodFriendlyNameBuilder);
         }
 
         void IDisposable.Dispose()

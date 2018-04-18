@@ -19,32 +19,11 @@ namespace Microsoft.ServiceFabric.Services.Tests
     /// <summary>
     /// State manager tests.
     /// </summary>
-    public class StatefulServiceLifeCycleTests
+    public class StatefulServiceBaseLifeCycleTests
     {
-        private class RunAsyncBlockingCallTestService : StatefulBaseTestService
-        {
-            public RunAsyncBlockingCallTestService(StatefulServiceContext context)
-                : base(context)
-            {
-                this.RunAsyncInvoked = false;
-            }
-
-            public bool RunAsyncInvoked { get; private set; }
-
-            protected override Task RunAsync(CancellationToken cancellationToken)
-            {
-                this.RunAsyncInvoked = true;
-
-                long i = 0;
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    i++;
-                }
-
-                return Task.FromResult(i);
-            }
-        }
-
+        /// <summary>
+        /// Tests RunAsync blocking call.
+        /// </summary>
         [Fact]
         public void RunAsyncBlockingCall()
         {
@@ -75,6 +54,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// Tests CancellationDuringWriteStatus.
+        /// </summary>
         [Fact]
         public void CancellationDuringWriteStatus()
         {
@@ -103,28 +85,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        private class RunAsyncCancellationTestService : StatefulBaseTestService
-        {
-            private const int ToWait = 100;
-
-            public bool StartedWaiting = false;
-
-            public RunAsyncCancellationTestService(StatefulServiceContext context)
-                : base(context)
-            {
-            }
-
-            protected override async Task RunAsync(CancellationToken cancellationToken)
-            {
-                this.StartedWaiting = true;
-                while (true)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    await Task.Delay(ToWait, cancellationToken);
-                }
-            }
-        }
-
+        /// <summary>
+        /// Tests RunAsync cancellation.
+        /// </summary>
         [Fact]
         public void RunAsyncCancellation()
         {
@@ -156,23 +119,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        private class RunAsyncSlowCancellationTestService : StatefulBaseTestService
-        {
-            public RunAsyncSlowCancellationTestService(StatefulServiceContext context)
-                : base(context)
-            {
-                this.RunAsyncInvoked = false;
-            }
-
-            public bool RunAsyncInvoked { get; private set; }
-
-            protected override async Task RunAsync(CancellationToken cancellationToken)
-            {
-                this.RunAsyncInvoked = true;
-                await Task.Delay(TimeSpan.FromSeconds(30), CancellationToken.None);
-            }
-        }
-
+        /// <summary>
+        /// Tests Slow Cancellation in RunAsync
+        /// </summary>
         [Fact]
         public void RunAsyncSlowCancellation()
         {
@@ -205,19 +154,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncSlowCancellationHealthInformation(hinfo))), Times.AtLeastOnce);
         }
 
-        private class RunAsyncFailTestService : StatefulBaseTestService
-        {
-            public RunAsyncFailTestService(StatefulServiceContext context)
-                : base(context)
-            {
-            }
-
-            protected override Task RunAsync(CancellationToken cancellationToken)
-            {
-                return Task.Run(() => { throw new FabricException(); }, CancellationToken.None);
-            }
-        }
-
+        /// <summary>
+        /// Tests failures from RunAsync.
+        /// </summary>
         [Fact]
         public void RunAsyncFail()
         {
@@ -261,6 +200,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncUnhandledExceptionHealthInformation(hinfo))), Times.Once());
         }
 
+        /// <summary>
+        /// Tests Change role sequence with listen on secondary not enabled.
+        /// </summary>
         [Fact]
         public void CommunicationListenerLifeCycle_P_S_P_N_NoListenOnSecondary()
         {
@@ -348,6 +290,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
+        /// <summary>
+        /// Tests Change role sequence with listen on secondary enabled.
+        /// </summary>
         [Fact]
         public void CommunicationListenerLifeCycle_P_S_P_N_ListenOnSecondary()
         {
@@ -449,6 +394,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
+        /// <summary>
+        /// Tests ListenerExceptionOnAbort.
+        /// </summary>
         [Fact]
         public void ListenerExceptionOnAbort()
         {
@@ -469,6 +417,82 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
 
             testServiceReplica.Abort();
+        }
+
+        private class RunAsyncBlockingCallTestService : StatefulBaseTestService
+        {
+            public RunAsyncBlockingCallTestService(StatefulServiceContext context)
+                : base(context)
+            {
+                this.RunAsyncInvoked = false;
+            }
+
+            public bool RunAsyncInvoked { get; private set; }
+
+            protected override Task RunAsync(CancellationToken cancellationToken)
+            {
+                this.RunAsyncInvoked = true;
+
+                long i = 0;
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    i++;
+                }
+
+                return Task.FromResult(i);
+            }
+        }
+
+        private class RunAsyncSlowCancellationTestService : StatefulBaseTestService
+        {
+            public RunAsyncSlowCancellationTestService(StatefulServiceContext context)
+                : base(context)
+            {
+                this.RunAsyncInvoked = false;
+            }
+
+            public bool RunAsyncInvoked { get; private set; }
+
+            protected override async Task RunAsync(CancellationToken cancellationToken)
+            {
+                this.RunAsyncInvoked = true;
+                await Task.Delay(TimeSpan.FromSeconds(30), CancellationToken.None);
+            }
+        }
+
+        private class RunAsyncCancellationTestService : StatefulBaseTestService
+        {
+            private const int ToWait = 100;
+
+            public RunAsyncCancellationTestService(StatefulServiceContext context)
+                : base(context)
+            {
+            }
+
+            public bool StartedWaiting { get; private set; } = false;
+
+            protected override async Task RunAsync(CancellationToken cancellationToken)
+            {
+                this.StartedWaiting = true;
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await Task.Delay(ToWait, cancellationToken);
+                }
+            }
+        }
+
+        private class RunAsyncFailTestService : StatefulBaseTestService
+        {
+            public RunAsyncFailTestService(StatefulServiceContext context)
+                : base(context)
+            {
+            }
+
+            protected override Task RunAsync(CancellationToken cancellationToken)
+            {
+                return Task.Run(() => { throw new FabricException(); }, CancellationToken.None);
+            }
         }
     }
 }

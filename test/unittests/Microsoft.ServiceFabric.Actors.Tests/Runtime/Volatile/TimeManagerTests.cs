@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
@@ -12,11 +12,17 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Xunit;
 
-    public class TimeManagerTest : VolatileStateProviderTestBase
+    /// <summary>
+    /// Contais Tests for VolatileLogicalTimeManager in VolatileStateProvider.
+    /// </summary>
+    public class TimeManagerTests : VolatileStateProviderTestBase
     {
         private const double UpperBoundBuffer = 2;
         private const double LowerBoundBuffer = 0.5;
 
+        /// <summary>
+        /// Tests CurrentLogicalTime.
+        /// </summary>
         [Fact]
         public void CurrentLogicalTimeTest()
         {
@@ -62,6 +68,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             VerifySnapshotTime(timeManager, 15);
         }
 
+        /// <summary>
+        /// Tests Snapshot.
+        /// </summary>
         [Fact]
         public void SnapshotTest()
         {
@@ -106,6 +115,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             VerifyCurrentTime(timeManager, snapshotInterval * 4);
             VerifySnapshotTime(timeManager, snapshotInterval * 3);
+        }
+
+        private static Task CreateCompletedTask()
+        {
+            var tcs = new TaskCompletionSource<object>();
+            tcs.SetResult(null);
+            return tcs.Task;
         }
 
         private static void VerifyCurrentTime(
@@ -184,28 +200,21 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
         private class SnapshotHandler : VolatileLogicalTimeManager.ISnapshotHandler
         {
-            public int SnapshotCount { get; private set; }
-
             public SnapshotHandler()
             {
                 this.SnapshotCount = 0;
             }
 
+            public int SnapshotCount { get; private set; }
+
             async Task VolatileLogicalTimeManager.ISnapshotHandler.OnSnapshotAsync(TimeSpan currentLogicalTime)
             {
-                TimeManagerTest.TestLog("OnSnapshotAsync({0})", currentLogicalTime);
+                TimeManagerTests.TestLog("OnSnapshotAsync({0})", currentLogicalTime);
 
                 this.SnapshotCount++;
 
-                await TimeManagerTest.CreateCompletedTask();
+                await TimeManagerTests.CreateCompletedTask();
             }
-        }
-
-        private static Task CreateCompletedTask()
-        {
-            var tcs = new TaskCompletionSource<object>();
-            tcs.SetResult(null);
-            return tcs.Task;
         }
     }
 }

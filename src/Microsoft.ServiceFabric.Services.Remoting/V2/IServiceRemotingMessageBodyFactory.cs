@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     /// <summary>
-    /// Defines the interface that must be implemented for providing factory for creating remtoing request body and response body objects.
+    /// Defines the interface that must be implemented for providing factory for creating remoting request body and response body objects.
     /// </summary>
     public interface IServiceRemotingMessageBodyFactory
     {

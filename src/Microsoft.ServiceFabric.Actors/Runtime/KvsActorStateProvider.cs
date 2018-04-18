@@ -13,8 +13,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Generator;
 
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
-    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
+    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
 
     /// <summary>
@@ -30,6 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         #region C'tors
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class.
         /// Creates an instance of <see cref="KvsActorStateProvider"/> with default settings.
         /// </summary>
         public KvsActorStateProvider()
@@ -38,8 +39,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="KvsActorStateProvider"/> with specified
-        /// replicator and local key-value store settings.
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class
+        /// with specified replicator and local key-value store settings.
         /// </summary>
         /// <param name="replicatorSettings">
         /// A <see cref="ReplicatorSettings"/> that describes replicator settings.
@@ -53,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="KvsActorStateProvider"/> with specified settings.
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class with specified settings.
         /// </summary>
         /// <param name="enableIncrementalBackup">
         /// Indicates whether to enable incremental backup feature.
@@ -65,7 +66,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="KvsActorStateProvider"/> with specified settings.
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class with specified settings.
         /// </summary>
         /// <param name="enableIncrementalBackup">
         /// Indicates whether to enable incremental backup feature.

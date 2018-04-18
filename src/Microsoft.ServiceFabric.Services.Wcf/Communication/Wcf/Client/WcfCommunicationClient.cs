@@ -25,6 +25,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         }
 
         /// <summary>
+        /// Finalizes an instance of the <see cref="WcfCommunicationClient{TServiceContract}"/> class.
+        /// </summary>
+        ~WcfCommunicationClient()
+        {
+            this.ClientChannel.Abort();
+        }
+
+        /// <summary>
         /// Gets or sets the resolved service partition which contains information about the partition
         /// and the endpoints that can be used to communication with the service replica or instance.
         /// </summary>
@@ -57,14 +65,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         internal IClientChannel ClientChannel
         {
             get { return (IClientChannel)this.Channel; }
-        }
-
-        /// <summary>
-        /// Allows an object to try to free resources and perform other cleanup operations before it is reclaimed by garbage collection.
-        /// </summary>
-        ~WcfCommunicationClient()
-        {
-            this.ClientChannel.Abort();
         }
     }
 }

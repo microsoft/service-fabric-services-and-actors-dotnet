@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client
     public class WcfActorRemotingClientFactory : WcfServiceRemotingClientFactory
     {
         /// <summary>
-        ///     Constructs a WCF based actor remoting factory.
+        /// Initializes a new instance of the <see cref="WcfActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="callbackClient">
         ///     The callback client that receives the callbacks from the service.
@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client
         }
 
         /// <summary>
-        ///     Constructs a WCF based actor remoting factory.
+        /// Initializes a new instance of the <see cref="WcfActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is null,
@@ -67,8 +67,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client
             IServiceRemotingCallbackClient callbackClient,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             IServicePartitionResolver servicePartitionResolver = null,
-            string traceId = null) :
-            base(
+            string traceId = null)
+            : base(
                 clientBinding,
                 callbackClient,
                 GetExceptionHandlers(exceptionHandlers),
@@ -84,6 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
         }

@@ -20,21 +20,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorCallType = callType;
         }
 
-        internal static ActorMethodContext CreateForActor(string methodName)
-        {
-            return new ActorMethodContext(methodName, ActorCallType.ActorInterfaceMethod);
-        }
-
-        internal static ActorMethodContext CreateForTimer(string methodName)
-        {
-            return new ActorMethodContext(methodName, ActorCallType.TimerMethod);
-        }
-
-        internal static ActorMethodContext CreateForReminder(string methodName)
-        {
-            return new ActorMethodContext(methodName, ActorCallType.ReminderMethod);
-        }
-
         /// <summary>
         /// Gets the name of the method invoked by actor runtime.
         /// </summary>
@@ -53,6 +38,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public ActorCallType CallType
         {
             get { return this.actorCallType; }
+        }
+
+        internal static ActorMethodContext CreateForActor(string methodName)
+        {
+            return new ActorMethodContext(methodName, ActorCallType.ActorInterfaceMethod);
+        }
+
+        internal static ActorMethodContext CreateForTimer(string methodName)
+        {
+            return new ActorMethodContext(methodName, ActorCallType.TimerMethod);
+        }
+
+        internal static ActorMethodContext CreateForReminder(string methodName)
+        {
+            return new ActorMethodContext(methodName, ActorCallType.ReminderMethod);
         }
     }
 }

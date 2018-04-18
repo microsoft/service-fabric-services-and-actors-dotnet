@@ -13,10 +13,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     internal static class BinaryReaderWriterExtensions
     {
-        private const int NegativeLength = -1;
-
         public const byte NullPrefixByte = 0;
         public const byte NotNullPrefixByte = 1;
+        private const int NegativeLength = -1;
 
         public static void Write(this BinaryWriter writer, Guid guid)
         {
@@ -151,7 +150,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     }
 
     [StructLayout(LayoutKind.Explicit)]
+#pragma warning disable SA1201 // Elements should appear in the correct order
     internal struct GuidBytes
+#pragma warning restore SA1201 // Elements should appear in the correct order
     {
         [FieldOffset(0)]
         public readonly Guid Guid;
@@ -162,12 +163,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         [FieldOffset(8)]
         public readonly ulong Second64Bits;
 
-        public GuidBytes(Guid guid) : this()
+        public GuidBytes(Guid guid)
+            : this()
         {
             this.Guid = guid;
         }
 
-        public GuidBytes(ulong first64Bits, ulong second64Bits) : this()
+        public GuidBytes(ulong first64Bits, ulong second64Bits)
+            : this()
         {
             this.First64Bits = first64Bits;
             this.Second64Bits = second64Bits;

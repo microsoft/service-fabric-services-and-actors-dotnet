@@ -15,21 +15,28 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using Microsoft.ServiceFabric.Services.Runtime;
     using Moq;
 
+    /// <summary>
+    /// Test class for StatefulService.
+    /// </summary>
     public class StatefulBaseTestService : StatefulServiceBase
     {
-        public List<Mock<ICommunicationListener>> Listeners { get; private set; }
-        public Mock<ICommunicationListener> CurrentListener { get; private set; }
-
-        public Mock<IStateProviderReplica2> Replica { get; private set; }
-        public bool ListenOnSecondary { get; set; }
-        public bool EnableListenerExceptionOnAbort { get; set; }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatefulBaseTestService"/> class.
+        /// </summary>
+        /// <param name="context">Service context.</param>
         public StatefulBaseTestService(StatefulServiceContext context)
             : this(context, new Mock<IStateProviderReplica2>())
         {
         }
 
-        public StatefulBaseTestService(StatefulServiceContext context, Mock<IStateProviderReplica2> mockStateProviderReplica)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatefulBaseTestService"/> class.
+        /// </summary>
+        /// <param name="context">Service context.</param>
+        /// <param name="mockStateProviderReplica">Reliable state provider replica..</param>
+        public StatefulBaseTestService(
+            StatefulServiceContext context,
+            Mock<IStateProviderReplica2> mockStateProviderReplica)
             : base(context, mockStateProviderReplica.Object)
         {
             this.Replica = mockStateProviderReplica;
@@ -37,11 +44,40 @@ namespace Microsoft.ServiceFabric.Services.Tests
             this.ListenOnSecondary = false;
         }
 
+        /// <summary>
+        /// Gets the listeners created for the service.
+        /// </summary>
+        public List<Mock<ICommunicationListener>> Listeners { get; private set; }
+
+        /// <summary>
+        /// Gets the current listener for the service.
+        /// </summary>
+        public Mock<ICommunicationListener> CurrentListener { get; private set; }
+
+        /// <summary>
+        /// Gets reliable state provider replica.
+        /// </summary>
+        public Mock<IStateProviderReplica2> Replica { get; private set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether service listens on secondary replicas.
+        /// </summary>
+        public bool ListenOnSecondary { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether listener should throw exception on abort.
+        /// </summary>
+        public bool EnableListenerExceptionOnAbort { get; set; }
+
+        /// <summary>
+        /// Get the service replica listeners that the user service wants to open.
+        /// </summary>
+        /// <returns>A list of service replica listener that should be opened by the adapter.</returns>
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
             return new[]
             {
-                new ServiceReplicaListener(this.CreateCommunicationListener, listenOnSecondary:this.ListenOnSecondary),
+                new ServiceReplicaListener(this.CreateCommunicationListener, listenOnSecondary: this.ListenOnSecondary),
             };
         }
 

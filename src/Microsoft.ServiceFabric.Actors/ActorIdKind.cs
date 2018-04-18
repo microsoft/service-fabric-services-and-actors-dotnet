@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors
     public enum ActorIdKind
     {
         /// <summary>
-        /// Represents ID value of type <see cref="System.Int64"/>.
+        /// Represents ID value of type <see cref="long"/>.
         /// </summary>
         Long = 0,
 
@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors
         Guid = 1,
 
         /// <summary>
-        /// Represents ID value of type <see cref="System.String"/>.
+        /// Represents ID value of type <see cref="string"/>.
         /// </summary>
         String = 2,
     }

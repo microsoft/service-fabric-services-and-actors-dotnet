@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Generator
@@ -9,8 +9,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
     using Microsoft.ServiceFabric.Actors.Generator;
     using Xunit;
 
+    /// <summary>
+    /// Class containing tests for ACtorNameFormat.
+    /// </summary>
     public class ActorNameFormatTests
     {
+        /// <summary>
+        /// Tests ActorNameFormat.GetFabricServiceName without providing a service name.
+        /// </summary>
         [Fact]
         public void GetFabricService_NoServiceNameProvided_ReturnServiceName()
         {
@@ -24,6 +30,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
             result.Should().Be(serviceName);
         }
 
+        /// <summary>
+        /// Tests ActorNameFormat.GetFabricServiceName with providing a service name.
+        /// </summary>
         [Fact]
         public void GetFabricService_PassServiceName_ReturnServiceName()
         {

@@ -8,8 +8,14 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using FluentAssertions;
     using Xunit;
 
+    /// <summary>
+    /// Test class for ServiceNameForamt.
+    /// </summary>
     public class ServiceNameFormatTests
     {
+        /// <summary>
+        /// Tests ServiceNameFormat.GetEndpointName.
+        /// </summary>
         [Fact]
         public void GetServiceNameFormat_NoServiceNameProvided_ReturnEndpointName()
         {

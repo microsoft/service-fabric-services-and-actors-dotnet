@@ -15,11 +15,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     {
         public ActorRemotingSerializationManager(
             IServiceRemotingMessageSerializationProvider serializationProvider,
-            IServiceRemotingMessageHeaderSerializer headerSerializer) : base(serializationProvider, headerSerializer)
+            IServiceRemotingMessageHeaderSerializer headerSerializer)
+            : base(serializationProvider, headerSerializer)
         {
         }
 
-        //Custom Serializer needs to be used only for ActorDispatch scenario
+        // Custom Serializer needs to be used only for ActorDispatch scenario
         internal override CacheEntry CreateSerializers(int interfaceId)
         {
             if (interfaceId == ActorEventSubscription.InterfaceId)
@@ -46,7 +47,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
             {
                 return interfaceDetails;
             }
-            //if not found in Actor Store, Check if its there in service store for actor service request
+
+            // if not found in Actor Store, Check if its there in service store for actor service request
             return base.GetInterfaceDetails(interfaceId);
         }
     }

@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         private ICommunicationListener wcfListener;
 
         /// <summary>
-        /// Constructs a WCF based service remoting listener.
+        /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceImplementation">The service implementation object.</param>
@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         }
 
         /// <summary>
-        /// Constructs a WCF based service remoting listener.
+        /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="messageHandler">The handler for receiving and processing remoting messages. As the messages are received
@@ -84,9 +84,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
                 endpointResourceName);
         }
 
-
         /// <summary>
-        /// Constructs a WCF based service remoting listener.
+        /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="messageHandler">The handler for receiving and processing remoting messages. As the messages are received
@@ -181,15 +180,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
             this.wcfListener.Abort();
         }
 
+        private void DisposeIfNeeded()
+        {
+            if (this.messageHandler is IDisposable disposableItem)
+            {
+                disposableItem.Dispose();
+            }
+        }
+
         [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]
         private class WcfRemotingService : IServiceRemotingContract
         {
             private readonly IServiceRemotingMessageHandler messageHandler;
 
-            //
             // The request context need not be generated every time for WCF because for WCF,
             // the actual callback channel is accessed from the current operation context.
-            //
             private readonly WcfServiceRemotingRequestContext requestContext;
 
             public WcfRemotingService(IServiceRemotingMessageHandler messageHandler)
@@ -216,14 +221,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
             public void OneWayMessage(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
             {
                 this.messageHandler.HandleOneWay(this.requestContext, messageHeaders, requestBody);
-            }
-        }
-
-        private void DisposeIfNeeded()
-        {
-            if (this.messageHandler is IDisposable disposableItem)
-            {
-                disposableItem.Dispose();
             }
         }
     }

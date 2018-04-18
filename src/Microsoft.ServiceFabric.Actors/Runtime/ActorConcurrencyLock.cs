@@ -22,12 +22,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         // currentCallCount and currentCallContext variables.
         private readonly SemaphoreSlim reentrantLock;
 
-        // keeps the count of current number of calls in progress
-        private int currentCallCount;
-
-        // current logical call context value, that identifies the current logical call chain
-        private string currentCallContext;
-
         // the current call context is initialized with this value at the start to prevent
         // it matching from incoming call contexts
         private readonly string initialCallContext;
@@ -38,14 +32,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         // timeout for the turn lock
         private readonly TimeSpan turnLockTimeout;
         private readonly Random turnLockTimeoutRandomizer;
-        private int turnLockWaitMaxRandomIntervalMillis;
 
         // the actor for which this guard provides turn based concurrency with reentrancy
         private readonly ActorBase owner;
+        private int turnLockWaitMaxRandomIntervalMillis;
 
-        // if the state of the actor was dirty, it needs to be handled before a call is allowed to it
-        // this delegate is required on the acquire method of the guard
-        public delegate Task ActorDirtyStateHandler(ActorBase actor);
+        // keeps the count of current number of calls in progress
+        private int currentCallCount;
+
+        // current logical call context value, that identifies the current logical call chain
+        private string currentCallContext;
 
         public ActorConcurrencyLock(ActorBase owner, ActorConcurrencySettings actorConcurrencySettings)
         {
@@ -59,6 +55,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.turnLockTimeout = actorConcurrencySettings.LockTimeout;
             this.turnLockTimeoutRandomizer = GetRandomizer(this.turnLockTimeout, out this.turnLockWaitMaxRandomIntervalMillis);
         }
+
+        // if the state of the actor was dirty, it needs to be handled before a call is allowed to it
+        // this delegate is required on the acquire method of the guard
+        public delegate Task ActorDirtyStateHandler(ActorBase actor);
 
         internal string Test_CurrentContext
         {
@@ -110,12 +110,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     {
                         throw new DuplicateMessageException(string.Format(
                             CultureInfo.CurrentCulture,
-                                                            SR.ErrorDuplicateMessage, this.GetType()));
+                            SR.ErrorDuplicateMessage,
+                            this.GetType()));
                     }
 
-                    //
+                    // **
                     // this is a reentrant call
-                    //
+                    // **
 
                     // if the reentrancy is disallowed, throw and exception
                     if (actorReentrancyMode == ActorReentrancyMode.Disallowed)
@@ -141,7 +142,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     // we only allow one cycle in the reentrant call chain, so if this is a second reentrant call
                     // then reject it. this also ensures that if multiple calls are made from the actor in parallel
                     // and they reenter the actor only one is allowed
-                    //
                     if (this.currentCallCount == 1)
                     {
                         this.currentCallCount++;
@@ -158,11 +158,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.reentrantLock.Release();
             }
 
-
-            //
             // this is not a reentrant call, which means that the caller needs to wait
             // for its turn to execute this call
-            //
             var timeout = this.GetTurnLockWaitTimeout();
             if (!await this.turnLock.WaitAsync(timeout, cancellationToken))
             {
@@ -251,19 +248,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private TimeSpan GetTurnLockWaitTimeout()
-        {
-            if (this.turnLockTimeoutRandomizer != null)
-            {
-                return this.turnLockTimeout.Add(
-                    TimeSpan.FromMilliseconds(
-                        this.turnLockTimeoutRandomizer.Next(this.turnLockWaitMaxRandomIntervalMillis)));
-            }
-
-            return this.turnLockTimeout;
-        }
-
-
         private static Random GetRandomizer(TimeSpan timeout, out int turnLockWaitMaxRandomIntervalMillis)
         {
             if ((timeout == Timeout.InfiniteTimeSpan) || (timeout == TimeSpan.MaxValue))
@@ -292,6 +276,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             turnLockWaitMaxRandomIntervalMillis = 0;
             return null;
+        }
+
+        private TimeSpan GetTurnLockWaitTimeout()
+        {
+            if (this.turnLockTimeoutRandomizer != null)
+            {
+                return this.turnLockTimeout.Add(
+                    TimeSpan.FromMilliseconds(
+                        this.turnLockTimeoutRandomizer.Next(this.turnLockWaitMaxRandomIntervalMillis)));
+            }
+
+            return this.turnLockTimeout;
         }
     }
 }

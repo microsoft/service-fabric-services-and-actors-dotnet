@@ -83,11 +83,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     public class WcfExceptionHandler : IExceptionHandler
     {
         /// <summary>
-        /// Initializes a new instance of WcfExceptionHandler class.
+        /// Initializes a new instance of the <see cref="WcfExceptionHandler"/> class.
         /// </summary>
         public WcfExceptionHandler()
         {
         }
+
         /// <summary>
         /// Method that examines the exception and determines how that exception can be handled.
         /// </summary>
@@ -117,7 +118,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                 return true;
             }
 
-
             // retry on timeout and service busy exceptions
             if ((e is TimeoutException) ||
                 (e is ServerTooBusyException))
@@ -129,7 +129,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                     int.MaxValue);
                 return true;
             }
-
 
             // Derived types of Communication Exception that are not retriable.
             if ((e is ActionNotSupportedException) ||
@@ -151,7 +150,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                 };
                 return true;
             }
-
 
             var faultException = e as FaultException;
             if (faultException != null)

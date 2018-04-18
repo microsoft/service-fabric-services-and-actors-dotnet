@@ -12,24 +12,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     internal class ActorEventProxyGenerator : ProxyGenerator
     {
         private readonly IProxyActivator proxyActivator;
+
 #if !DotNetCoreClr
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith actorV1EventProxyGeneratorW;
 #endif
+
         public ActorEventProxyGenerator(
             Type proxyInterfaceType,
-            IProxyActivator proxyActivator
-            ) : base(proxyInterfaceType)
+            IProxyActivator proxyActivator)
+            : base(proxyInterfaceType)
         {
             this.proxyActivator = proxyActivator;
         }
-
-#if !DotNetCoreClr
-        internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
-        {
-            this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;
-        }
-#endif
-
 
         public ActorEventProxy CreateActorEventProxy()
         {
@@ -39,5 +33,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 #endif
             return actorEventProxy;
         }
+
+#if !DotNetCoreClr
+        internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
+        {
+            this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;
+        }
+#endif
     }
 }

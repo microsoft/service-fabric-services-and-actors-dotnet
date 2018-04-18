@@ -22,8 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             return new WcfServiceRemotingCallbackClient(
                 OperationContext.Current.GetCallbackChannel<IServiceRemotingCallbackContract>(),
-                this.serializerManager
-                );
+                this.serializerManager);
         }
     }
 }

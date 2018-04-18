@@ -28,8 +28,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class ReliableCollectionsActorStateProvider :
         IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {
-        #region Private Data members
-
         private const int StateProviderInitRetryDelayMilliseconds = 500;
         private const int DefaultActorStateDictionaryCount = 32;
         private const int DefaultReminderDictionaryCount = 8;
@@ -70,13 +68,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ReliableCollectionsActorStateProviderSettings stateProviderSettings;
         private long roleChangeTracker;
 
-        #endregion
-
-        #region C'tors
-
         /// <summary>
+        /// Initializes a new instance of the <see cref="ReliableCollectionsActorStateProvider"/> class.
         /// <see cref="ReliableCollectionsActorStateProvider"/> is currently in PREVIEW.
-        ///  Initializes a new instance of the ReliableCollectionsActorStateProvider class.
         /// </summary>
         public ReliableCollectionsActorStateProvider()
             : this(null)
@@ -84,9 +78,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ReliableCollectionsActorStateProvider"/> class with specified configuration
         /// <see cref="ReliableCollectionsActorStateProvider"/> is currently in PREVIEW.
-        /// Initializes a new instance of the ReliableCollectionsActorStateProvider class.
-        /// with specified configuration. This is currently in PREVIEW.
         /// </summary>
         /// <param name="stateManagerConfig">
         /// A <see cref="ReliableStateManagerConfiguration"/> that describes <see cref="IReliableStateManager"/> configuration.
@@ -97,9 +90,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ReliableCollectionsActorStateProvider"/> class with specified configuration
         /// <see cref="ReliableCollectionsActorStateProvider"/> is currently in PREVIEW.
-        /// Initializes a new instance of the ReliableDictionaryActorStateProvider class
-        /// with specified configuration.
         /// </summary>
         /// <param name="stateManagerConfig">
         /// A <see cref="ReliableStateManagerConfiguration"/> that describes <see cref="IReliableStateManager"/> configuration.
@@ -154,15 +146,78 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #endif
         }
 
-        #endregion
+        /// <inheritdoc/>
+        Func<CancellationToken, Task<bool>> IStateProviderReplica.OnDataLossAsync
+        {
+            set
+            {
+                ReleaseAssert.AssertIfNot(this.onDataLossAsyncFunc == null, "ondataloss event handler can only be set once.");
+                this.onDataLossAsyncFunc = value;
+            }
+        }
 
-        #region IActorStateProvider Members
+        /// <inheritdoc/>
+        Func<CancellationToken, Task> IStateProviderReplica2.OnRestoreCompletedAsync
+        {
+            set
+            {
+                ReleaseAssert.AssertIfNot(this.onRestoreCompletedAsyncFunc == null, "onrestorecompleted event handler can only be set once.");
+                this.onRestoreCompletedAsyncFunc = value;
+            }
+        }
 
+        /// <inheritdoc/>
+        string IActorStateProviderInternal.TraceType
+        {
+            get { return TraceType; }
+        }
+
+        /// <inheritdoc/>
+        string IActorStateProviderInternal.TraceId
+        {
+            get { return this.traceId; }
+        }
+
+        /// <inheritdoc/>
+        ReplicaRole IActorStateProviderInternal.CurrentReplicaRole
+        {
+            get { return this.replicaRole; }
+        }
+
+        /// <inheritdoc/>
+        TimeSpan IActorStateProviderInternal.TransientErrorRetryDelay
+        {
+            get { return this.stateProviderSettings.TransientErrorRetryDelay; }
+        }
+
+        /// <inheritdoc/>
+        TimeSpan IActorStateProviderInternal.CurrentLogicalTime
+        {
+            get { return this.logicalTimeManager.CurrentLogicalTime; }
+        }
+
+        /// <inheritdoc/>
+        TimeSpan IActorStateProviderInternal.OperationTimeout
+        {
+            get { return this.stateProviderSettings.OperationTimeout; }
+        }
+
+        /// <inheritdoc/>
+        long IActorStateProviderInternal.RoleChangeTracker
+        {
+            get
+            {
+                return Interlocked.Read(ref this.roleChangeTracker);
+            }
+        }
+
+        /// <inheritdoc/>
         void IActorStateProvider.Initialize(ActorTypeInformation actorTypeInformation)
         {
             this.actorTypeInformation = actorTypeInformation;
         }
 
+        /// <inheritdoc/>
         async Task IActorStateProvider.ActorActivatedAsync(ActorId actorId, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -182,6 +237,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task IActorStateProvider.ReminderCallbackCompletedAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -203,6 +259,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task<T> IActorStateProvider.LoadStateAsync<T>(ActorId actorId, string stateName, CancellationToken cancellationToken)
         {
             Requires.Argument("stateName", stateName).NotNull();
@@ -230,6 +287,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task IActorStateProvider.SaveStateAsync(ActorId actorId, IReadOnlyCollection<ActorStateChange> stateChanges, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -256,6 +314,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task<bool> IActorStateProvider.ContainsStateAsync(ActorId actorId, string stateName, CancellationToken cancellationToken)
         {
             Requires.Argument("stateName", stateName).NotNull();
@@ -276,6 +335,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task IActorStateProvider.RemoveActorAsync(ActorId actorId, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -286,6 +346,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task<IEnumerable<string>> IActorStateProvider.EnumerateStateNamesAsync(ActorId actorId, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -296,6 +357,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task<PagedResult<ActorId>> IActorStateProvider.GetActorsAsync(int itemsCount, ContinuationToken continuationToken, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -306,6 +368,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task IActorStateProvider.SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -329,6 +392,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -339,6 +403,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task IActorStateProvider.DeleteReminderAsync(ActorId actorId, string reminderName, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -353,6 +418,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             await this.DeleteRemindersInternalAsync(reminderKeys, $"DeleteReminderAsync[{actorId}]", cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task IActorStateProvider.DeleteRemindersAsync(
             IReadOnlyDictionary<ActorId, IReadOnlyCollection<string>> reminderNames, CancellationToken cancellationToken)
         {
@@ -363,10 +429,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             await this.DeleteRemindersInternalAsync(reminderKeys, $"DeleteRemindersAsync[{totalCount}]", cancellationToken);
         }
 
-        #endregion
-
-        #region ISnapshotHandler Members
-
+        /// <inheritdoc/>
         async Task VolatileLogicalTimeManager.ISnapshotHandler.OnSnapshotAsync(TimeSpan currentLogicalTime)
         {
             var logicalTimedata = new LogicalTimestamp(currentLogicalTime);
@@ -393,19 +456,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        #endregion
-
-        #region IStateProviderReplica Members
-
-        Func<CancellationToken, Task<bool>> IStateProviderReplica.OnDataLossAsync
-        {
-            set
-            {
-                ReleaseAssert.AssertIfNot(this.onDataLossAsyncFunc == null, "ondataloss event handler can only be set once.");
-                this.onDataLossAsyncFunc = value;
-            }
-        }
-
+        /// <inheritdoc/>
         void IStateProviderReplica.Initialize(StatefulServiceInitializationParameters initializationParameters)
         {
             this.initParams = initializationParameters;
@@ -445,6 +496,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateManager.Initialize(this.initParams);
         }
 
+        /// <inheritdoc/>
         Task<IReplicator> IStateProviderReplica.OpenAsync(
             ReplicaOpenMode openMode,
             IStatefulServicePartition partition,
@@ -454,6 +506,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.stateManager.OpenAsync(openMode, partition, cancellationToken);
         }
 
+        /// <inheritdoc/>
         async Task IStateProviderReplica.ChangeRoleAsync(
             ReplicaRole newRole,
             CancellationToken cancellationToken)
@@ -478,23 +531,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        /// <inheritdoc/>
         async Task IStateProviderReplica.CloseAsync(CancellationToken cancellationToken)
         {
             await this.stateManager.CloseAsync(cancellationToken);
             await this.CancelStateProviderInitializationAsync();
         }
 
+        /// <inheritdoc/>
         void IStateProviderReplica.Abort()
         {
             this.stateManager.Abort();
             this.CancelStateProviderInitializationAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
         }
 
+        /// <inheritdoc/>
         Task IStateProviderReplica.BackupAsync(Func<BackupInfo, CancellationToken, Task<bool>> backupCallback)
         {
             return this.stateManager.BackupAsync(backupCallback);
         }
 
+        /// <inheritdoc/>
         Task IStateProviderReplica.BackupAsync(
             BackupOption option,
             TimeSpan timeout,
@@ -504,32 +561,83 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.stateManager.BackupAsync(option, timeout, cancellationToken, backupCallback);
         }
 
+        /// <inheritdoc/>
         Task IStateProviderReplica.RestoreAsync(string backupFolderPath)
         {
             return this.stateManager.RestoreAsync(backupFolderPath);
         }
 
+        /// <inheritdoc/>
         Task IStateProviderReplica.RestoreAsync(string backupFolderPath, RestorePolicy restorePolicy, CancellationToken cancellationToken)
         {
             return this.stateManager.RestoreAsync(backupFolderPath, restorePolicy, cancellationToken);
         }
 
-        #endregion
-
-        #region IStateProviderReplica2 Members
-
-        Func<CancellationToken, Task> IStateProviderReplica2.OnRestoreCompletedAsync
+        private static async Task RemoveKeysWithPrefixAsync(
+            ITransaction tx,
+            IReliableDictionary2<string, byte[]> relDict,
+            string keyPrefix,
+            CancellationToken cancellationToken)
         {
-            set
+            var enumerable = await relDict.CreateKeyEnumerableAsync(tx, EnumerationMode.Ordered);
+            var enumerator = enumerable.GetAsyncEnumerator();
+
+            var canBreak = false;
+            while (await enumerator.MoveNextAsync(cancellationToken))
             {
-                ReleaseAssert.AssertIfNot(this.onRestoreCompletedAsyncFunc == null, "onrestorecompleted event handler can only be set once.");
-                this.onRestoreCompletedAsyncFunc = value;
+                if (enumerator.Current.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    canBreak = true;
+                    await relDict.TryRemoveAsync(tx, enumerator.Current);
+                }
+                else
+                {
+                    if (canBreak)
+                    {
+                        break;
+                    }
+                }
             }
         }
 
-        #endregion
+        private static T[] DictionaryToArray<T>(Dictionary<int, T> dict)
+        {
+            var arr = new T[dict.Count];
 
-        #region Helper Functions
+            foreach (var kvPair in dict)
+            {
+                arr[kvPair.Key] = kvPair.Value;
+            }
+
+            return arr;
+        }
+
+        private static string CreateStorageKeyPrefix(ActorId actorId, string keyPrefix = null)
+        {
+            if (string.IsNullOrEmpty(keyPrefix))
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0}_", actorId.GetStorageKey());
+            }
+
+            return CreateStorageKey(actorId, keyPrefix);
+        }
+
+        private static string CreateStorageKey(ActorId actorId, string stateName)
+        {
+            Requires.Argument("stateName", stateName.Trim()).NotNullOrEmpty();
+            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}", actorId.GetStorageKey(), stateName);
+        }
+
+        private static string GetStateNameFromStorageKey(ActorId actorId, string storageKey)
+        {
+            var storageKeyPrefix = CreateStorageKeyPrefix(actorId, string.Empty);
+            return storageKey.Substring(storageKeyPrefix.Length);
+        }
+
+        private static ActorId GetActorIdFromPresenceStorageKey(string storageKey)
+        {
+            return ActorId.TryGetActorIdFromStorageKey(storageKey.Substring(0, storageKey.Length - 1));
+        }
 
         private void LoadActorStateProviderSettings()
         {
@@ -830,7 +938,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             else
             {
                 // We are here means dictionaries are being created for first time.
-
                 for (var i = 0; i < dictionaryCount; i++)
                 {
                     dictName = string.Format(dictionaryNameFormat, i);
@@ -840,18 +947,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return dicts;
-        }
-
-        private static T[] DictionaryToArray<T>(Dictionary<int, T> dict)
-        {
-            var arr = new T[dict.Count];
-
-            foreach (var kvPair in dict)
-            {
-                arr[kvPair.Key] = kvPair.Value;
-            }
-
-            return arr;
         }
 
         private IReliableDictionary2<string, byte[]> GetActorStateDictionary(ActorId actorId)
@@ -1058,33 +1153,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private static async Task RemoveKeysWithPrefixAsync(
-            ITransaction tx,
-            IReliableDictionary2<string, byte[]> relDict,
-            string keyPrefix,
-            CancellationToken cancellationToken)
-        {
-            var enumerable = await relDict.CreateKeyEnumerableAsync(tx, EnumerationMode.Ordered);
-            var enumerator = enumerable.GetAsyncEnumerator();
-
-            var canBreak = false;
-            while (await enumerator.MoveNextAsync(cancellationToken))
-            {
-                if (enumerator.Current.StartsWith(keyPrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    canBreak = true;
-                    await relDict.TryRemoveAsync(tx, enumerator.Current);
-                }
-                else
-                {
-                    if (canBreak)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
         private async Task RemoveActorAtomicallyAsync(ActorId actorId, CancellationToken cancellationToken)
         {
             using (var tx = this.stateManager.CreateTransaction())
@@ -1144,76 +1212,5 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return result;
             }
         }
-
-        private static string CreateStorageKeyPrefix(ActorId actorId, string keyPrefix = null)
-        {
-            if (string.IsNullOrEmpty(keyPrefix))
-            {
-                return string.Format(CultureInfo.InvariantCulture, "{0}_", actorId.GetStorageKey());
-            }
-
-            return CreateStorageKey(actorId, keyPrefix);
-        }
-
-        private static string CreateStorageKey(ActorId actorId, string stateName)
-        {
-            Requires.Argument("stateName", stateName.Trim()).NotNullOrEmpty();
-            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}", actorId.GetStorageKey(), stateName);
-        }
-
-        private static string GetStateNameFromStorageKey(ActorId actorId, string storageKey)
-        {
-            var storageKeyPrefix = CreateStorageKeyPrefix(actorId, string.Empty);
-            return storageKey.Substring(storageKeyPrefix.Length);
-        }
-
-        private static ActorId GetActorIdFromPresenceStorageKey(string storageKey)
-        {
-            return ActorId.TryGetActorIdFromStorageKey(storageKey.Substring(0, storageKey.Length - 1));
-        }
-
-        #endregion
-
-        #region IActorStateProviderInternal
-
-        string IActorStateProviderInternal.TraceType
-        {
-            get { return TraceType; }
-        }
-
-        string IActorStateProviderInternal.TraceId
-        {
-            get { return this.traceId; }
-        }
-
-        ReplicaRole IActorStateProviderInternal.CurrentReplicaRole
-        {
-            get { return this.replicaRole; }
-        }
-
-        TimeSpan IActorStateProviderInternal.TransientErrorRetryDelay
-        {
-            get { return this.stateProviderSettings.TransientErrorRetryDelay; }
-        }
-
-        TimeSpan IActorStateProviderInternal.CurrentLogicalTime
-        {
-            get { return this.logicalTimeManager.CurrentLogicalTime; }
-        }
-
-        TimeSpan IActorStateProviderInternal.OperationTimeout
-        {
-            get { return this.stateProviderSettings.OperationTimeout; }
-        }
-
-        long IActorStateProviderInternal.RoleChangeTracker
-        {
-            get
-            {
-                return Interlocked.Read(ref this.roleChangeTracker);
-            }
-        }
-
-        #endregion
     }
 }

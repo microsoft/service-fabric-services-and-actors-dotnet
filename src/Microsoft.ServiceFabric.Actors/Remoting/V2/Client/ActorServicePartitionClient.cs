@@ -25,18 +25,20 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
             ActorId actorId,
             string listenerName = null,
             OperationRetrySettings retrySettings = null)
-            : base(remotingClientFactory, serviceUri,
-                new ServicePartitionKey(actorId.GetPartitionKey()),
-                TargetReplicaSelector.Default,
-                listenerName,
-                retrySettings)
+            : base(
+                  remotingClientFactory,
+                  serviceUri,
+                  new ServicePartitionKey(actorId.GetPartitionKey()),
+                  TargetReplicaSelector.Default,
+                  listenerName,
+                  retrySettings)
         {
             this.ActorId = actorId;
             this.messageBodyFactory = remotingClientFactory.GetRemotingMessageBodyFactory();
         }
 
         /// <summary>
-        /// Actor id. Actor id is used to identify the partition of the service that this actor
+        /// Gets the Actor id. Actor id is used to identify the partition of the service that this actor
         /// belongs to.
         /// </summary>
         /// <value>actor id</value>
@@ -51,15 +53,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 MethodId = ActorEventSubscription.SubscribeMethodId,
             };
 
-
             actorRemotingMessageHeaders.InterfaceId = ActorEventSubscription.InterfaceId;
             actorRemotingMessageHeaders.MethodId = ActorEventSubscription.SubscribeMethodId;
 
             var msgBody = new ServiceRemotingRequestMessageBody(1);
             msgBody.SetParameter(0, "Value", new EventSubscriptionRequestBody()
             {
-                eventInterfaceId = eventInterfaceId,
-                subscriptionId = subscriberId,
+                EventInterfaceId = eventInterfaceId,
+                SubscriptionId = subscriberId,
             });
 
             return this.InvokeWithRetryAsync(
@@ -67,7 +68,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                     new ServiceRemotingRequestMessage(actorRemotingMessageHeaders, msgBody)),
                 CancellationToken.None);
         }
-
 
         internal Task UnsubscribeAsync(int eventInterfaceId, Guid subscriberId)
         {
@@ -78,13 +78,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 MethodId = ActorEventSubscription.UnSubscribeMethodId,
             };
 
-
             var msgBody = new ServiceRemotingRequestMessageBody(1);
 
             msgBody.SetParameter(0, "Value", new EventSubscriptionRequestBody()
             {
-                eventInterfaceId = eventInterfaceId,
-                subscriptionId = subscriberId,
+                EventInterfaceId = eventInterfaceId,
+                SubscriptionId = subscriberId,
             });
 
             return this.InvokeWithRetryAsync(

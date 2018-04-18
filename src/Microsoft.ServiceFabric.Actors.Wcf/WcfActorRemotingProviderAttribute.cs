@@ -22,8 +22,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         private static readonly TimeSpan DefaultOpenCloseTimeout = TimeSpan.FromMilliseconds(5000);
 
         /// <summary>
-        /// Creates a <see cref="WcfActorRemotingProviderAttribute"/> which can be used to set
-        /// WCF as the default remoting provider for actors.
+        /// Initializes a new instance of the <see cref="WcfActorRemotingProviderAttribute"/> class
+        /// which can be used to set WCF as the default remoting provider for actors.
         /// </summary>
         public WcfActorRemotingProviderAttribute()
         {
@@ -89,9 +89,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
                     maxMessageSize: this.GetMaxMessageSize(),
                     openTimeout: this.GetOpenTimeout(),
                     closeTimeout: this.GetCloseTimeout()),
-                    callbackClient);
+                callbackClient);
         }
-
 
         /// <summary>
         ///     Creates a V2 service remoting listener for remoting the actor interfaces.
@@ -129,7 +128,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         public override IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
             IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {
-
             return new Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client.WcfActorRemotingClientFactory(
                 WcfUtility.CreateTcpClientBinding(
                     maxMessageSize: this.GetMaxMessageSize(),

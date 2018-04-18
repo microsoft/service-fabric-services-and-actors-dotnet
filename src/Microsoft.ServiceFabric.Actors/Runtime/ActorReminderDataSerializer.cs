@@ -71,8 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         reader.ReadTimeSpan(),
                         reader.ReadTimeSpan(),
                         reader.ReadByteArray(),
-                        reader.ReadTimeSpan()
-                    );
+                        reader.ReadTimeSpan());
                 }
             }
         }

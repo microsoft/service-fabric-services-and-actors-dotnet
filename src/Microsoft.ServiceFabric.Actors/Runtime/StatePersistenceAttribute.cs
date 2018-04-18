@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class StatePersistenceAttribute : Attribute
     {
         /// <summary>
-        /// Creates an instance of <see cref="StatePersistenceAttribute"/>
+        /// Initializes a new instance of the <see cref="StatePersistenceAttribute"/> class.
         /// </summary>
         /// <param name="statePersistence">Indicates how actor state is stored for an actor service.</param>
         public StatePersistenceAttribute(StatePersistence statePersistence)
@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Get or sets the enum representing type of state store to use for the actor.
+        /// Gets the enum representing type of state store to use for the actor.
         /// </summary>
         /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.StatePersistence"/> representing type of state store to use for the actor.</value>
         public StatePersistence StatePersistence { get; private set; }
@@ -44,6 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 attribute.StatePersistence = ((StatePersistenceAttribute)enumerator.Current).StatePersistence;
             }
+
             return attribute;
         }
     }

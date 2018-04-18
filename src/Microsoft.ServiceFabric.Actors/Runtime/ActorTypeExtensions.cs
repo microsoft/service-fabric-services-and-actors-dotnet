@@ -41,6 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 actorInterfaces.Add(type);
             }
+
             foreach (var ai in actorInterfaces)
             {
                 var eventPublishers = ai.GetInterfaces().Where(

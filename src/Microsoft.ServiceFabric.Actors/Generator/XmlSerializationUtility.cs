@@ -15,7 +15,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
     internal static class XmlSerializationUtility
     {
-        public static string Serialize<T>(T value) where T : class
+        public static string Serialize<T>(T value)
+            where T : class
         {
             if (value == default(T))
             {
@@ -36,7 +37,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             }
         }
 
-        public static T Deserialize<T>(string contents) where T : class
+        public static T Deserialize<T>(string contents)
+            where T : class
         {
             if (string.IsNullOrEmpty(contents))
             {
@@ -46,8 +48,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var serializer = new XmlSerializer(typeof(T));
             using (var stringReader = new StringReader(contents))
             {
-                var settings = new XmlReaderSettings();
-                settings.XmlResolver = null;
+                var settings = new XmlReaderSettings
+                {
+                    XmlResolver = null,
+                };
 
                 using (var xmlReader = XmlReader.Create(stringReader, settings))
                 {
@@ -70,7 +74,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// Inserts Xml Comments from existingContent to xml obtained by serializing the object of type T.
         /// Exception while inserting comments are ignored and content without comments is returned.
         /// </summary>
-        public static string InsertXmlComments<T>(string existingContent, T value) where T : class
+        public static string InsertXmlComments<T>(string existingContent, T value)
+            where T : class
         {
             var contentWithoutComments = XmlSerializationUtility.Serialize(value);
 

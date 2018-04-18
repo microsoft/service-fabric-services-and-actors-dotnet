@@ -14,11 +14,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
     /// </summary>
     public static class WcfUtility
     {
-        private const long DefaultMaxReceivedMessageSize = 4 * 1024 * 1024;
-        private const long DefaultOpenCloseTimeoutInSeconds = 5;
-
         internal static readonly Binding DefaultTcpClientBinding;
         internal static readonly Binding DefaultTcpListenerBinding;
+        private const long DefaultMaxReceivedMessageSize = 4 * 1024 * 1024;
+        private const long DefaultOpenCloseTimeoutInSeconds = 5;
 
         static WcfUtility()
         {
@@ -77,6 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf
             {
                 maxMessageSize = DefaultMaxReceivedMessageSize;
             }
+
             binding.MaxReceivedMessageSize = maxMessageSize;
             binding.MaxBufferSize = (int)binding.MaxReceivedMessageSize;
             binding.MaxBufferPoolSize = Environment.ProcessorCount * binding.MaxReceivedMessageSize;

@@ -223,8 +223,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 requestMsgBodyValue,
                 cancellationToken);
 
-            return responseMsg != null ? responseMsg.GetBody()
-                : null;
+            return responseMsg?.GetBody();
         }
 
         /// <summary>

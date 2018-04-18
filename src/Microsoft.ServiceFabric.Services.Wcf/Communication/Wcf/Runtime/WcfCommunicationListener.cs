@@ -28,7 +28,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         private readonly string publishAddress;
 
         /// <summary>
-        ///     Constructs a WCF based communication listener that uses default binding and default endpoint address.
+        /// Initializes a new instance of the <see cref="WcfCommunicationListener{TServiceContract}"/> class
+        /// that uses default binding and default endpoint address.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which this communication listener is being constructed.
@@ -54,8 +55,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         }
 
         /// <summary>
-        ///     Constructs a WCF based communication listener that uses specified listener binding and
-        ///     endpoint address derived from the specified endpoint resource name.
+        /// Initializes a new instance of the <see cref="WcfCommunicationListener{TServiceContract}"/> class
+        /// that uses specified listener binding and endpoint address derived from the specified endpoint resource name.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which this communication listener is being constructed.
@@ -83,7 +84,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         }
 
         /// <summary>
-        ///     Constructs a WCF based communication listener that uses specified listener binding and
+        /// Initializes a new instance of the <see cref="WcfCommunicationListener{TServiceContract}"/> class that uses specified listener binding and
         ///     endpoint address derived from the specified endpoint resource name.
         /// </summary>
         /// <param name="serviceContext">
@@ -112,8 +113,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         }
 
         /// <summary>
-        ///     Constructs a WCF based communication listener that uses specified listener binding and
-        ///     endpoint address derived from the specified endpoint address.
+        /// Initializes a new instance of the <see cref="WcfCommunicationListener{TServiceContract}"/> class
+        ///  that uses specified listener binding and endpoint address derived from the specified endpoint address.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which this communication listener is being constructed.
@@ -141,8 +142,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         }
 
         /// <summary>
-        ///     Constructs a WCF based communication listener that uses specified listener binding and
-        ///     endpoint address derived from the specified endpoint address.
+        /// Initializes a new instance of the <see cref="WcfCommunicationListener{TServiceContract}"/> class
+        /// that uses specified listener binding and endpoint address derived from the specified endpoint address.
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which this communication listener is being constructed.
@@ -332,6 +333,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                 serviceBehavior = new ServiceBehaviorAttribute();
                 host.Description.Behaviors.Add(serviceBehavior);
             }
+
             if (singleton)
             {
                 serviceBehavior.InstanceContextMode = InstanceContextMode.Single;
@@ -349,6 +351,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                 serviceDebug = new ServiceDebugBehavior();
                 host.Description.Behaviors.Add(serviceDebug);
             }
+
             serviceDebug.IncludeExceptionDetailInFaults = true;
 
             // set throttling behavior
@@ -358,6 +361,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                 serviceThrottle = new ServiceThrottlingBehavior();
                 host.Description.Behaviors.Add(serviceThrottle);
             }
+
             serviceThrottle.MaxConcurrentCalls = int.MaxValue;
             serviceThrottle.MaxConcurrentInstances = int.MaxValue;
             serviceThrottle.MaxConcurrentSessions = int.MaxValue;
@@ -367,8 +371,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                 endpoint.ListenUriMode = ListenUriMode.Unique;
                 serviceBehavior.AddressFilterMode = AddressFilterMode.Any;
             }
+
             host.AddServiceEndpoint(endpoint);
-            //Exception Handler for Background Threads
+
+            // Exception Handler for Background Threads
             ExceptionHandler.AsynchronousThreadExceptionHandler = new WcfAsyncThreadExceptionHandler();
             return host;
         }

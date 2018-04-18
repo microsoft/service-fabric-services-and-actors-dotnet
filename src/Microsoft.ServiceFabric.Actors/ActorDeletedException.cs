@@ -12,11 +12,13 @@ namespace Microsoft.ServiceFabric.Actors
     [Serializable]
     internal sealed class ActorDeletedException : FabricTransientException
     {
-        public ActorDeletedException() : base()
+        public ActorDeletedException()
+            : base()
         {
         }
 
-        public ActorDeletedException(string message) : base(message)
+        public ActorDeletedException(string message)
+            : base(message)
         {
         }
 

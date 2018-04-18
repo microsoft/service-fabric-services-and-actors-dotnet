@@ -137,14 +137,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 targetReplicaSelector,
                 listenerName);
 #else
-            if (proxyFactoryV2 == null)
+            if (this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
-                //We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
+
+                // We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
                 this.overrideListenerName = true;
                 this.proxyFactoryV2 =
                     new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
             }
+
             if (this.overrideListenerName && listenerName == null)
             {
                 return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
@@ -153,11 +155,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                     targetReplicaSelector,
                     ServiceRemotingProviderAttribute.DefaultV2listenerName);
             }
+
             return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
                 serviceUri,
-              partitionKey,
-              targetReplicaSelector,
-              listenerName);
+                partitionKey,
+                targetReplicaSelector,
+                listenerName);
 #endif
         }
 

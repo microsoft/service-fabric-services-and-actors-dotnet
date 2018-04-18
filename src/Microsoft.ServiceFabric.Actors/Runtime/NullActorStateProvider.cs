@@ -42,6 +42,51 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorStateProviderHelper = new ActorStateProviderHelper(this);
         }
 
+        string IActorStateProviderInternal.TraceType
+        {
+            get { return TraceType; }
+        }
+
+        string IActorStateProviderInternal.TraceId
+        {
+            get { return this.traceId; }
+        }
+
+        ReplicaRole IActorStateProviderInternal.CurrentReplicaRole
+        {
+            get { return this.currentRole; }
+        }
+
+        TimeSpan IActorStateProviderInternal.TransientErrorRetryDelay
+        {
+            get { return TimeSpan.Zero; }
+        }
+
+        TimeSpan IActorStateProviderInternal.CurrentLogicalTime
+        {
+            get { return TimeSpan.Zero; }
+        }
+
+        TimeSpan IActorStateProviderInternal.OperationTimeout
+        {
+            get { return TimeSpan.Zero; }
+        }
+
+        long IActorStateProviderInternal.RoleChangeTracker
+        {
+            get { return 0; }
+        }
+
+        Func<CancellationToken, Task<bool>> IStateProviderReplica.OnDataLossAsync
+        {
+            set { this.onDataLoFunc = value; }
+        }
+
+        Func<CancellationToken, Task> IStateProviderReplica2.OnRestoreCompletedAsync
+        {
+            set { this.onRestoreCompFunc = value; }
+        }
+
         #region IActorStateProvider
 
         void IActorStateProvider.Initialize(ActorTypeInformation actorTypeInfo)
@@ -213,11 +258,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #region IStateProviderReplica
 
-        Func<CancellationToken, Task<bool>> IStateProviderReplica.OnDataLossAsync
-        {
-            set { this.onDataLoFunc = value; }
-        }
-
         void IStateProviderReplica.Initialize(StatefulServiceInitializationParameters initializationParameters)
         {
             this.initParams = initializationParameters;
@@ -252,6 +292,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     {
                         this.StartSecondaryReplicationPump();
                     }
+
                     break;
             }
 
@@ -318,15 +359,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion IStateProviderReplica
 
-        #region IStateProviderReplica2
-
-        Func<CancellationToken, Task> IStateProviderReplica2.OnRestoreCompletedAsync
-        {
-            set { this.onRestoreCompFunc = value; }
-        }
-
-        #endregion
-
         #region IStateProvider
 
         IOperationDataStream IStateProvider.GetCopyContext()
@@ -355,6 +387,34 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #endregion IStateProvider
+
+        #region Private static helper methods
+        private static string CreateActorStorageKey(ActorId actorId, string stateName)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", ActorKeyPrefix, actorId.GetStorageKey(), stateName);
+        }
+
+        private static string CreateActorStorageKeyPrefix(ActorId actorId, string stateNamePrefix)
+        {
+            return CreateActorStorageKey(actorId, stateNamePrefix);
+        }
+
+        private static string CreateReminderStorageKey(ActorId actorId, string reminderName)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", ReminderKeyPrefix, actorId.GetStorageKey(), reminderName);
+        }
+
+        private static string CreateReminderStorageKeyPrefix(ActorId actorId, string reminderNamePrefix)
+        {
+            return CreateReminderStorageKey(actorId, reminderNamePrefix);
+        }
+
+        private static string ExtractStateName(ActorId actorId, string storageKey)
+        {
+            var storageKeyPrefix = CreateActorStorageKeyPrefix(actorId, string.Empty);
+            return storageKey.Substring(storageKeyPrefix.Length);
+        }
+        #endregion
 
         #region Secondary Pump Operation
 
@@ -428,8 +488,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion Secondary Pump Operation
 
-        #region Private Helper Methods
-
+        #region Private non-static Helper Methods
         private IOperationStream GetOperationStream(bool isCopy)
         {
             return isCopy ? this.replicator.GetCopyStream() : this.replicator.GetReplicationStream();
@@ -444,32 +503,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return ActorStateProviderHelper.GetActorReplicatorSettings(
                 this.initParams.CodePackageActivationContext,
                 this.actorTypeInformation.ImplementationType);
-        }
-
-        private static string CreateActorStorageKey(ActorId actorId, string stateName)
-        {
-            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", ActorKeyPrefix, actorId.GetStorageKey(), stateName);
-        }
-
-        private static string CreateActorStorageKeyPrefix(ActorId actorId, string stateNamePrefix)
-        {
-            return CreateActorStorageKey(actorId, stateNamePrefix);
-        }
-
-        private static string CreateReminderStorageKey(ActorId actorId, string reminderName)
-        {
-            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}", ReminderKeyPrefix, actorId.GetStorageKey(), reminderName);
-        }
-
-        private static string CreateReminderStorageKeyPrefix(ActorId actorId, string reminderNamePrefix)
-        {
-            return CreateReminderStorageKey(actorId, reminderNamePrefix);
-        }
-
-        private static string ExtractStateName(ActorId actorId, string storageKey)
-        {
-            var storageKeyPrefix = CreateActorStorageKeyPrefix(actorId, string.Empty);
-            return storageKey.Substring(storageKeyPrefix.Length);
         }
 
         private IEnumerator<string> GetActorPresenceKeyEnumerator()
@@ -500,44 +533,5 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #endregion #region Private Helper Classes
-
-        #region IActorStateProviderInternal
-
-        string IActorStateProviderInternal.TraceType
-        {
-            get { return TraceType; }
-        }
-
-        string IActorStateProviderInternal.TraceId
-        {
-            get { return this.traceId; }
-        }
-
-        ReplicaRole IActorStateProviderInternal.CurrentReplicaRole
-        {
-            get { return this.currentRole; }
-        }
-
-        TimeSpan IActorStateProviderInternal.TransientErrorRetryDelay
-        {
-            get { return TimeSpan.Zero; }
-        }
-
-        TimeSpan IActorStateProviderInternal.CurrentLogicalTime
-        {
-            get { return TimeSpan.Zero; }
-        }
-
-        TimeSpan IActorStateProviderInternal.OperationTimeout
-        {
-            get { return TimeSpan.Zero; }
-        }
-
-        long IActorStateProviderInternal.RoleChangeTracker
-        {
-            get { return 0; }
-        }
-
-        #endregion
     }
 }

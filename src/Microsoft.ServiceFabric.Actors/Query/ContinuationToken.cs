@@ -31,6 +31,6 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// </summary>
         /// <value>A marker used to fetch the next set of available results.</value>
         [DataMember(Name = "Marker", Order = 0, IsRequired = true)]
-        public object Marker { private set; get; }
+        public object Marker { get; private set; }
     }
 }

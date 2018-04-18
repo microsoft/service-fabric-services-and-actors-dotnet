@@ -52,7 +52,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.reminder.State; }
         }
 
-
         private static TimeSpan ComputeRemainingTime(
             TimeSpan currentLogicalTime,
             TimeSpan createdOrLastCompletedTime,

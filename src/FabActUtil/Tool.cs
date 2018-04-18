@@ -134,13 +134,15 @@ namespace FabActUtil
                 throw new TypeLoadException(
                     string.Format(
                         CultureInfo.CurrentCulture,
-                        SR.ErrorNotAnActor,
+                        Microsoft.ServiceFabric.Actors.SR.ErrorNotAnActor,
                         actorFilters[0],
                         typeof(Actor).FullName));
             }
         }
 
-        private static void LoadActors(Assembly inputAssembly, IList<string> actorFilters,
+        private static void LoadActors(
+            Assembly inputAssembly,
+            IList<string> actorFilters,
             IList<ActorTypeInformation> actorTypes)
         {
             var actorTypeInfoTable = new Dictionary<Type, ActorTypeInformation>();
@@ -190,7 +192,7 @@ namespace FabActUtil
                             throw new TypeLoadException(
                                 string.Format(
                                     CultureInfo.CurrentCulture,
-                                    SR.ErrorNoActorServiceNameMultipleImplDerivation,
+                                    Microsoft.ServiceFabric.Actors.SR.ErrorNoActorServiceNameMultipleImplDerivation,
                                     actorTypeInterface.FullName,
                                     actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,
                                     actorTypeInformation.ImplementationType.FullName,
@@ -202,7 +204,7 @@ namespace FabActUtil
                             throw new TypeLoadException(
                                 string.Format(
                                     CultureInfo.CurrentCulture,
-                                    SR.ErrorNoActorServiceNameMultipleImplDerivation,
+                                    Microsoft.ServiceFabric.Actors.SR.ErrorNoActorServiceNameMultipleImplDerivation,
                                     actorTypeInterface.FullName,
                                     actorTypeInformation.ImplementationType.FullName,
                                     actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,
@@ -213,7 +215,7 @@ namespace FabActUtil
                             throw new TypeLoadException(
                                 string.Format(
                                     CultureInfo.CurrentCulture,
-                                    SR.ErrorNoActorServiceNameMultipleImpl,
+                                    Microsoft.ServiceFabric.Actors.SR.ErrorNoActorServiceNameMultipleImpl,
                                     actorTypeInterface.FullName,
                                     actorTypeInformation.ImplementationType.FullName,
                                     actorTypeInfoTable[actorTypeInterface].ImplementationType.FullName,

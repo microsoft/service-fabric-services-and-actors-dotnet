@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This determines which version(V1,V2or Compact) of actor service listener is being used.
+        /// Gets the version(V1,V2 or Compact) of actor service listener is being used.
         /// </summary>
         public RemotingListener RemotingListener { get; private set; }
 
@@ -141,17 +141,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
-        internal void InitializeInternal(ActorMethodFriendlyNameBuilder methodNameBuilder)
-        {
-            this.methodFriendlyNameBuilder = methodNameBuilder;
-#if !DotNetCoreClr
-            this.MethodDispatcherMapV1 =
-                new Actors.Remoting.V1.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
-#endif
-            this.MethodDispatcherMapV2 =
-                new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
-        }
-
         #region IActorService Members
 
         /// <summary>
@@ -191,6 +180,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion
 
+        internal IActorStateManager CreateStateManager(ActorBase actor)
+        {
+            return this.stateManagerFactory.Invoke(actor, this.StateProvider);
+        }
+
+        internal void InitializeInternal(ActorMethodFriendlyNameBuilder methodNameBuilder)
+        {
+            this.methodFriendlyNameBuilder = methodNameBuilder;
+#if !DotNetCoreClr
+            this.MethodDispatcherMapV1 =
+                new Actors.Remoting.V1.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
+#endif
+            this.MethodDispatcherMapV2 =
+                new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
+        }
+
         #region StatefulServiceBase Overrides
 
         /// <summary>
@@ -212,38 +217,36 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     new ServiceReplicaListener(
                         (t) => { return provider.CreateServiceRemotingListenerV2(this); },
-                        ServiceRemotingProviderAttribute.DefaultV2listenerName
-                        ),
+                        ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
             }
+
             if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
             {
                 return new[]
                 {
-                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
-                        ),
+                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, string.Empty),
                     new ServiceReplicaListener(
                         (t) => { return provider.CreateServiceRemotingListenerV2(this); },
-                        ServiceRemotingProviderAttribute.DefaultV2listenerName
-                        ),
+                        ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
             }
             else
             {
                 return new[]
                 {
-                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, ""
-                        ),
+                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, string.Empty),
                 };
             }
 #else
-            return new[] {
+            return new[]
+            {
                     new ServiceReplicaListener(
                         (t) =>
                     {
                         return provider.CreateServiceRemotingListenerV2(this);
-                    }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                ),};
+                    }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
+            };
 #endif
         }
 
@@ -276,7 +279,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>A task that represents the asynchronous operation performed when the replica becomes primary.</returns>
         protected override async Task OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "Begin change role. New role: {0}.",
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.Context.TraceId,
+                "Begin change role. New role: {0}.",
                 newRole);
 
             if (newRole == ReplicaRole.Primary)
@@ -296,7 +302,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             this.replicaRole = newRole;
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End change role. New role: {0}.",
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.Context.TraceId,
+                "End change role. New role: {0}.",
                 newRole);
         }
 
@@ -325,8 +334,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #endregion
-
-        #region Helper Functions
+        private static IActorStateManager DefaultActorStateManagerFactory(
+            ActorBase actorBase,
+            IActorStateProvider actorStateProvider)
+        {
+            return new ActorStateManager(actorBase, actorStateProvider);
+        }
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)
         {
@@ -335,19 +348,5 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorService,
                 actorId);
         }
-
-        private static IActorStateManager DefaultActorStateManagerFactory(
-            ActorBase actorBase,
-            IActorStateProvider actorStateProvider)
-        {
-            return new ActorStateManager(actorBase, actorStateProvider);
-        }
-
-        internal IActorStateManager CreateStateManager(ActorBase actor)
-        {
-            return this.stateManagerFactory.Invoke(actor, this.StateProvider);
-        }
-
-        #endregion
     }
 }

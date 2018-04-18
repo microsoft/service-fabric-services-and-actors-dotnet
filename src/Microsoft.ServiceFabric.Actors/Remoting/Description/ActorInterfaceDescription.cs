@@ -13,12 +13,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
 
     internal class ActorInterfaceDescription : InterfaceDescription
     {
-
         private ActorInterfaceDescription(Type actorInterfaceType, bool useCRCIdGeneration)
             : base("actor", actorInterfaceType, useCRCIdGeneration, MethodReturnCheck.EnsureReturnsTask)
         {
         }
-
 
         public static ActorInterfaceDescription Create(Type actorInterfaceType)
         {

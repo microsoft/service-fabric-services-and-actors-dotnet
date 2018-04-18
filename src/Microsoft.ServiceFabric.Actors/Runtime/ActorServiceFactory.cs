@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
 
-
     internal class ActorServiceFactory
     {
         private readonly ActorTypeInformation actorTypeInformation;

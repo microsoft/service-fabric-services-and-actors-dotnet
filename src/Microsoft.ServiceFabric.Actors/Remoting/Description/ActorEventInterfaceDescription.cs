@@ -11,12 +11,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
 
     internal class ActorEventInterfaceDescription : InterfaceDescription
     {
-
         private ActorEventInterfaceDescription(Type actorEventInterfaceType, bool useCRCIdForGeneration)
             : base("actorEvent", actorEventInterfaceType, useCRCIdForGeneration, MethodReturnCheck.EnsureReturnsVoid)
         {
         }
-
 
         public static ActorEventInterfaceDescription Create(Type actorEventInterfaceType)
         {
@@ -29,7 +27,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
             EnsureActorEventInterface(actorEventInterfaceType);
             return new ActorEventInterfaceDescription(actorEventInterfaceType, true);
         }
-
 
         private static void EnsureActorEventInterface(Type actorEventInterfaceType)
         {

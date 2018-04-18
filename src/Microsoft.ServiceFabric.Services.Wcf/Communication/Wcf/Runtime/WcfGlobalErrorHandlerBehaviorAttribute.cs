@@ -12,8 +12,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
     internal class WcfGlobalErrorHandlerBehaviorAttribute : Attribute, IServiceBehavior
     {
         public void AddBindingParameters(
-            ServiceDescription serviceDescription, System.ServiceModel.ServiceHostBase serviceHostBase,
-            System.Collections.ObjectModel.Collection<ServiceEndpoint> endpoints, System.ServiceModel.Channels.BindingParameterCollection bindingParameters)
+            ServiceDescription serviceDescription,
+            System.ServiceModel.ServiceHostBase serviceHostBase,
+            System.Collections.ObjectModel.Collection<ServiceEndpoint> endpoints,
+            System.ServiceModel.Channels.BindingParameterCollection bindingParameters)
         {
             // Nothing to do as of now.
         }
@@ -22,7 +24,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         {
             foreach (var channelDispBase in serviceHostBase.ChannelDispatchers)
             {
-
                 if (channelDispBase is ChannelDispatcher channelDisp)
                 {
                     var wcfErrorHandler = new WcfGlobalErrorHandler(channelDisp);
