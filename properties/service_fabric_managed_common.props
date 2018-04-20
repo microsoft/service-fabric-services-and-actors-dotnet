@@ -51,6 +51,13 @@
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <AssemblyFileVersion>$(Version)</AssemblyFileVersion>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Microsoft Azure Service Fabric</Product>
+    <Copyright>Copyright (c) Microsoft Corporation.  All rights reserved.</Copyright>
+    <Company>Microsoft</Company>
+    <Authors>Microsoft</Authors>
+  </PropertyGroup>
   
   <!-- Setting Paths -->
   <PropertyGroup>
