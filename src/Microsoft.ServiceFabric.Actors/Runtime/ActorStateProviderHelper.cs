@@ -163,15 +163,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     // fall-through and retry
                 }
-                catch (InvalidOperationException)
+                catch (TransactionFaultedException)
                 {
-                    if (timeoutHelper.HasTimedOut || !(this.owner is ReliableCollectionsActorStateProvider))
+                    if (timeoutHelper.HasTimedOut)
                     {
                         throw;
                     }
 
-                    lastExceptionTag = "InvalidOperation";
-
+                    lastExceptionTag = "TransactionFaulted";
                     // fall-through and retry
                 }
 
@@ -429,7 +428,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IActorStateProvider stateProvider = new NullActorStateProvider();
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
             {
+#if DotNetCoreClrLinux
+                stateProvider = new ReliableCollectionsActorStateProvider();
+#else
                 stateProvider = new KvsActorStateProvider();
+#endif
             }
             else if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Volatile))
             {

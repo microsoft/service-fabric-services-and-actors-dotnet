@@ -10,7 +10,7 @@
     <TargetFramework>net45</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="3.0.456" />
+    <PackageReference Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="3.1.262" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />

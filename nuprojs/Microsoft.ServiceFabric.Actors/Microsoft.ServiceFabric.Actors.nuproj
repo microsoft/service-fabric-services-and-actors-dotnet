@@ -78,7 +78,13 @@
       <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Data.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
+      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Data.Extensions.dll">
+        <TargetPath>build\netcoreapp2.0</TargetPath>
+      </File>
       <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Data.Interfaces.dll">
+        <TargetPath>build\netcoreapp2.0</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.ReliableCollection.Interop.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
       <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Internal.dll">
