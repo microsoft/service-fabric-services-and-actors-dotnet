@@ -108,14 +108,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             onActivateAsyncStopwatch.Reset();
         }
 
-        internal void ActorMethodStart(long interfaceMethodKey, ActorBase actor, RemotingListener remotingListener)
+        internal void ActorMethodStart(long interfaceMethodKey, ActorBase actor, RemotingListenerVersion remotingListenerVersion)
         {
             var diagCtx = actor.DiagnosticsContext;
             var mtdEvtArgs = diagCtx.MethodData;
             mtdEvtArgs.ActorId = actor.Id;
             mtdEvtArgs.InterfaceMethodKey = interfaceMethodKey;
             mtdEvtArgs.MethodExecutionTime = null;
-            mtdEvtArgs.RemotingListener = remotingListener;
+            mtdEvtArgs.RemotingListenerVersion = remotingListenerVersion;
             var methodStopwatch = diagCtx.GetOrCreateActorMethodStopwatch();
             methodStopwatch.Restart();
 
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagCtx.PushActorMethodStopwatch(methodStopwatch);
         }
 
-        internal void ActorMethodFinish(long interfaceMethodKey, ActorBase actor, Exception e, RemotingListener remotingListener)
+        internal void ActorMethodFinish(long interfaceMethodKey, ActorBase actor, Exception e, RemotingListenerVersion remotingListenerVersion)
         {
             var diagCtx = actor.DiagnosticsContext;
             var mtdEvtArgs = diagCtx.MethodData;
@@ -143,7 +143,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             mtdEvtArgs.InterfaceMethodKey = interfaceMethodKey;
             mtdEvtArgs.MethodExecutionTime = mtdStopwatch.Elapsed;
             mtdEvtArgs.Exception = e;
-            mtdEvtArgs.RemotingListener = remotingListener;
+            mtdEvtArgs.RemotingListenerVersion = remotingListenerVersion;
             mtdStopwatch.Reset();
 
             var callbacks = this.onActorMethodFinish;

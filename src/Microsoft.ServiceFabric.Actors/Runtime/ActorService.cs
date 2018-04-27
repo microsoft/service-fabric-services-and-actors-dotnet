@@ -84,9 +84,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// This determines which version(V1,V2or Compact) of actor service listener is being used.
+        /// This determines which version(V1,V2 or Compact) of actor service listener is being used.
         /// </summary>
-        public RemotingListener RemotingListener { get; private set; }
+        public RemotingListenerVersion RemotingListenerVersion { get; private set; }
 
         /// <summary>
         /// Gets a <see cref="IActorStateProvider"/> that represents the state provider for the actor service.
@@ -206,7 +206,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
 
 #if !DotNetCoreClr
-            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 return new[]
                 {
@@ -215,7 +215,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         )
                 };
             }
-            if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.Compat))
             {
                 return new[]
                 {

@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
     {
         internal static readonly ActorProxyFactory DefaultProxyFactory = new ActorProxyFactory();
         private Remoting.V2.Client.ActorServicePartitionClient servicePartitionClientV2;
-        private RemotingClient remotingClient;
+        private RemotingClientVersion remotingClientVersion;
 
         /// <summary>
         /// Initializes a new instance of the ActorProxy class.
@@ -32,9 +32,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
         }
 
-        internal RemotingClient RemotingClient
+        internal RemotingClientVersion RemotingClientVersion
         {
-            get { return this.remotingClient; }
+            get { return this.remotingClientVersion; }
         }
 
 
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             get
             {
 #if !DotNetCoreClr
-                if (this.remotingClient.Equals(RemotingClient.V1Client))
+                if (this.remotingClientVersion.Equals(RemotingClientVersion.V1))
                 {
                     return this.servicePartitionClient.ActorId;
                 }
@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
             this.servicePartitionClientV2 = client;
             this.InitializeV2(serviceRemotingMessageBodyFactory);
-            this.remotingClient = RemotingClient.V2Client;
+            this.remotingClientVersion = RemotingClientVersion.V2;
         }
 
 
@@ -313,7 +313,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
             this.proxyGeneratorWith = actorProxyGeneratorWith;
             this.servicePartitionClient = actorServicePartitionClient;
-            this.remotingClient = RemotingClient.V1Client;
+            this.remotingClientVersion = RemotingClientVersion.V1;
         }
 #endif
 
@@ -321,7 +321,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         internal async Task SubscribeAsync(Type eventType, object subscriber, TimeSpan resubscriptionInterval)
         {
-            if (this.remotingClient.Equals(RemotingClient.V2Client))
+            if (this.remotingClientVersion.Equals(RemotingClientVersion.V2))
             {
                 await this.SubscribeAsyncV2(eventType, subscriber, resubscriptionInterval);
                 return;
@@ -363,7 +363,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         internal async Task UnsubscribeAsync(Type eventType, object subscriber)
         {
-            if (this.remotingClient.Equals(RemotingClient.V2Client))
+            if (this.remotingClientVersion.Equals(RemotingClientVersion.V2))
             {
                 await this.UnsubscribeAsyncV2(eventType, subscriber);
                 return;

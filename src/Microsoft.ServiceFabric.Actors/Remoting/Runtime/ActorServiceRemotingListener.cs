@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
             types.AddRange(actorService.ActorTypeInformation.InterfaceTypes);
 
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
-            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (provider.RemotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 return provider.CreateServiceRemotingListenerV2(actorService);
             }

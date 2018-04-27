@@ -35,14 +35,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
 
-        internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
+        internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListenerVersion)
         {
-            if (remotingListener.Equals(RemotingListener.V2Listener))
+            if (remotingListenerVersion.Equals(RemotingListenerVersion.V2))
             {
                 return this.actorMethodInfoV2[key];
             }
 
-            return base.GetActorMethodInfo(key, remotingListener);
+            return base.GetActorMethodInfo(key, remotingListenerVersion);
         }
     }
 }

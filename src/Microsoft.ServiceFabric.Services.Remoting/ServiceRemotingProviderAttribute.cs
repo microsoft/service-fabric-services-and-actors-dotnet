@@ -58,14 +58,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         {
         }
         /// <summary>
-        /// RemotingClient is used to determine where  V1 or V2 remoting Client is used.
+        /// RemotingClientVersion is used to determine where  V1 or V2 remoting Client version is used.
         /// </summary>
-        public RemotingClient RemotingClient { get; set; }
+        public RemotingClientVersion RemotingClientVersion { get; set; }
 
         /// <summary>
-        /// RemotingListener is used to determine where listener is in V1, V2 or Compact Mode.
+        /// RemotingListenerVersion is used to determine where listener version is in V1, V2 or Compact Mode.
         /// </summary>
-        public RemotingListener RemotingListener { get; set; }
+        public RemotingListenerVersion RemotingListenerVersion { get; set; }
 
         internal static string DefaultV2listenerName
         {
@@ -142,44 +142,44 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     }
 
     /// <summary>
-    /// Determines the remoting stack for client
+    /// Determines the version of remoting stack for client
     /// </summary>
-    public enum RemotingClient
+    public enum RemotingClientVersion
     {
 #if !DotNetCoreClr
         /// <summary>
         /// This is selected to create V1 Client. V1 is an old(soon to be deprecated) Remoting Stack.
         /// </summary>
-        V1Client = 0,
+        V1 = 0,
 #endif
 
         /// <summary>
         /// This is selected to create V2 Client. V2 is a new Remoting Stack.
         /// </summary>
-        V2Client = 1,
+        V2 = 1
     }
 
     /// <summary>
-    /// Determines the remoting stack for server/listener when using remoting provider attribuite to determine the remoting client.
+    /// Determines the verion of remoting stack for server/listener when using remoting provider attribuite to determine the remoting client.
     /// </summary>
-    public enum RemotingListener
+    public enum RemotingListenerVersion
     {
 #if !DotNetCoreClr
         /// <summary>
         /// This is selected to create V1 Listener.V1 is an old (soon to be deprecated) Remoting Stack.
         /// </summary>
-        V1Listener = 0,
+        V1 = 0,
 
         /// <summary>
         /// This is selected to create Listener which creates both V1 and V2 Listener to support both V1 and V2 Clients.
         /// This is useful in case of upgrade from V1 to V2 Listener.
         /// </summary>
-        CompatListener = 1,
+        Compat = 1,
 #endif
 
         /// <summary>
         /// This is selected to create V2 Listener.V2 is a new Remoting Stack.
         /// </summary>
-        V2Listener = 2,
+        V2 = 2
     }
 }
