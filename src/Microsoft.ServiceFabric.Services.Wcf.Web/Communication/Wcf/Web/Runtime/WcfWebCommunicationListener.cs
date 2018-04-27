@@ -297,6 +297,13 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Web.Runtime
                 serviceBehavior.AddressFilterMode = AddressFilterMode.Any;
             }
 
+            var webBehavior = endpoint.Behaviors.Find<WebHttpBehavior>();
+            if (webBehavior == null)
+            {
+                webBehavior = new WebHttpBehavior();
+                endpoint.Behaviors.Add(webBehavior);
+            }
+
             host.AddServiceEndpoint(endpoint);
 
             return host;
