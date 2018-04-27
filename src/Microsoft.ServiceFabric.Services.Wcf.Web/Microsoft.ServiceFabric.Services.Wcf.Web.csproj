@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+    <Import Project="..\..\properties\service_fabric_managed_dotnetframework.props" />
+    <PropertyGroup>
+        <ProjectGuid>{F6A0C0E2-5B0F-4E23-8854-B0643DDD29DD}</ProjectGuid>
+        <AssemblyName>Microsoft.ServiceFabric.Services.Wcf.Web</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+        <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+        <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+        <TargetFramework>net45</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
+        <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Wcf\Microsoft.ServiceFabric.Services.Wcf.csproj" />
+        <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="System.ServiceModel.Web" />
+    </ItemGroup>
+</Project>
