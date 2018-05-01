@@ -82,12 +82,73 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return stateProvider;
         }
 
+        internal static string CreateActorPresenceStorageKey(ActorId actorId)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}_{1}",
+                ActorPresenceStorageKeyPrefix,
+                actorId.GetStorageKey());
+        }
+
+        internal static DataContractSerializer CreateDataContractSerializer(Type actorStateType)
+        {
+            var dataContractSerializer = new DataContractSerializer(
+                actorStateType,
+                new DataContractSerializerSettings
+                {
+                    MaxItemsInObjectGraph = int.MaxValue,
+#if !DotNetCoreClr
+                    DataContractSurrogate = ActorDataContractSurrogate.Instance,
+#endif
+                    KnownTypes = new[]
+                    {
+                        typeof(ActorReference),
+                    },
+                });
+#if DotNetCoreClr
+            dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Instance);
+#endif
+            return dataContractSerializer;
+        }
+
+        internal static bool TryGetConfigSection(
+            ICodePackageActivationContext activationContext,
+            string configPackageName,
+            string sectionName,
+            out ConfigurationSection section)
+        {
+            section = null;
+
+            var config = activationContext.GetConfigurationPackageObject(configPackageName);
+
+            if ((config.Settings.Sections == null) || (!config.Settings.Sections.Contains(sectionName)))
+            {
+                return false;
+            }
+
+            section = config.Settings.Sections[sectionName];
+
+            return true;
+        }
+
+        internal static TimeSpan GetTimeConfigInSecondsAsTimeSpan(ConfigurationSection section, string parameterName, TimeSpan defaultValue)
+        {
+            if (section.Parameters.Contains(parameterName) &&
+               !string.IsNullOrWhiteSpace(section.Parameters[parameterName].Value))
+            {
+                var timeInSeconds = double.Parse(section.Parameters[parameterName].Value);
+                return TimeSpan.FromSeconds(timeInSeconds);
+            }
+
+            return defaultValue;
+        }
+
         /// <summary>
         /// Used by Kvs and Volatile actor state provider.
         /// </summary>
         /// <param name="codePackage">The code package.</param>
         /// <param name="actorImplType">The type of actor.</param>
-        /// <returns>Replicator settings.</returns>
         internal static ReplicatorSettings GetActorReplicatorSettings(CodePackageActivationContext codePackage, Type actorImplType)
         {
             var settings = ReplicatorSettings.LoadFrom(
@@ -122,15 +183,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return settings;
         }
 
-        internal static string CreateActorPresenceStorageKey(ActorId actorId)
-        {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}_{1}",
-                ActorPresenceStorageKeyPrefix,
-                actorId.GetStorageKey());
-        }
-
         internal static string CreateReminderCompletedStorageKey(ActorId actorId, string reminderName)
         {
             return string.Format(
@@ -160,27 +212,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return ActorId.TryGetActorIdFromStorageKey(storageKey);
         }
 
-        internal static DataContractSerializer CreateDataContractSerializer(Type actorStateType)
-        {
-            var dataContractSerializer = new DataContractSerializer(
-                actorStateType,
-                new DataContractSerializerSettings
-                {
-                    MaxItemsInObjectGraph = int.MaxValue,
-#if !DotNetCoreClr
-                    DataContractSurrogate = ActorDataContractSurrogate.Singleton,
-#endif
-                    KnownTypes = new[]
-                    {
-                        typeof(ActorReference),
-                    },
-                });
-#if DotNetCoreClr
-            dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Singleton);
-#endif
-            return dataContractSerializer;
-        }
-
         internal static IActorStateProvider CreateDefaultStateProvider(ActorTypeInformation actorTypeInfo)
         {
             // KvsActorStateProvider is used only when:
@@ -193,7 +224,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IActorStateProvider stateProvider = new NullActorStateProvider();
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
             {
+#if DotNetCoreClrLinux
+                stateProvider = new ReliableCollectionsActorStateProvider();
+#else
                 stateProvider = new KvsActorStateProvider();
+#endif
             }
             else if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Volatile))
             {
@@ -209,38 +244,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return stateProvider;
-        }
-
-        internal static bool TryGetConfigSection(
-            ICodePackageActivationContext activationContext,
-            string configPackageName,
-            string sectionName,
-            out ConfigurationSection section)
-        {
-            section = null;
-
-            var config = activationContext.GetConfigurationPackageObject(configPackageName);
-
-            if ((config.Settings.Sections == null) || (!config.Settings.Sections.Contains(sectionName)))
-            {
-                return false;
-            }
-
-            section = config.Settings.Sections[sectionName];
-
-            return true;
-        }
-
-        internal static TimeSpan GetTimeConfigInSecondsAsTimeSpan(ConfigurationSection section, string parameterName, TimeSpan defaultValue)
-        {
-            if (section.Parameters.Contains(parameterName) &&
-               !string.IsNullOrWhiteSpace(section.Parameters[parameterName].Value))
-            {
-                var timeInSeconds = double.Parse(section.Parameters[parameterName].Value);
-                return TimeSpan.FromSeconds(timeInSeconds);
-            }
-
-            return defaultValue;
         }
 
         #endregion Static Methods
@@ -368,14 +371,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     // fall-through and retry
                 }
-                catch (InvalidOperationException)
+                catch (TransactionFaultedException)
                 {
-                    if (timeoutHelper.HasTimedOut || !(this.owner is ReliableCollectionsActorStateProvider))
+                    if (timeoutHelper.HasTimedOut)
                     {
                         throw;
                     }
 
-                    lastExceptionTag = "InvalidOperation";
+                    lastExceptionTag = "TransactionFaulted";
 
                     // fall-through and retry
                 }
@@ -483,6 +486,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return Task.FromResult(actorQueryResult);
         }
 
+        #region Private Helpers
+
         private void EnsureSamePrimary(long roleChangeTracker)
         {
             if (roleChangeTracker != this.owner.RoleChangeTracker)
@@ -490,6 +495,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw new FabricNotPrimaryException();
             }
         }
+
+        #endregion
     }
 
 #pragma warning disable SA1201 // Elements should appear in the correct order

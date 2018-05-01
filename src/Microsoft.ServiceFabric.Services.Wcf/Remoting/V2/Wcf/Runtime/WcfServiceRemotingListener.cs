@@ -296,7 +296,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 ArraySegment<byte> messageHeaders,
                 IEnumerable<ArraySegment<byte>> requestBody)
             {
-                IMessageBody outgoingMessageBody = null;
+                IOutgoingMessageBody outgoingMessageBody = null;
                 IMessageHeader outgoingMessageHeader = null;
                 try
                 {

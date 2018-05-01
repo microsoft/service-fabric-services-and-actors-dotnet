@@ -149,6 +149,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             {
                 IServiceRemotingResponseMessageBody retVal;
                 this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingStart();
+
+                var methodDispatcher = this.actorService.MethodDispatcherMapV2.GetDispatcher(messageHeaders.InterfaceId, messageHeaders.MethodId);
+
+                var requestMessage = new ServiceRemotingRequestMessage(messageHeaders, msgBody);
+                ServiceRemotingServiceEvents.RaiseReceiveRequest(requestMessage, methodDispatcher.GetMethodName(messageHeaders.MethodId));
+
                 try
                 {
                     retVal = await this.cancellationHelper.DispatchRequest(
@@ -160,12 +166,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                             msgBody,
                             cancellationToken));
                 }
+                catch (Exception ex)
+                {
+                    ServiceRemotingServiceEvents.RaiseExceptionResponse(ex, requestMessage);
+                    throw;
+                }
                 finally
                 {
                     this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingFinish(startTime);
                 }
 
-                return new ServiceRemotingResponseMessage(null, retVal);
+                var response = new ServiceRemotingResponseMessage(new ServiceRemotingResponseMessageHeader(), retVal);
+
+                ServiceRemotingServiceEvents.RaiseSendResponse(response, requestMessage);
+
+                return response;
             }
         }
 

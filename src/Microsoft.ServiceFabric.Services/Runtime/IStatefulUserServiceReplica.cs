@@ -31,8 +31,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <summary>
         /// Asks the user service to create an instance of the state provider.
         /// </summary>
-        /// <returns>An instance of <see cref="IStateProviderReplica2"/> state provider replica.</returns>
-        IStateProviderReplica2 CreateStateProviderReplica();
+        /// <returns>An instance of <see cref="IStateProviderReplica"/> state provider replica.</returns>
+        IStateProviderReplica CreateStateProviderReplica();
 
         /// <summary>
         /// Get the service replica listeners that the user service wants to open.

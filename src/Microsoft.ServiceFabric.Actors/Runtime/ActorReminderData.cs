@@ -58,7 +58,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                    + (this.Name.Length * sizeof(char))
                    + sizeof(long) // DueTime
                    + sizeof(long) // Period
-                   + (this.State.Length * sizeof(byte))
+                   + ((this.State == null) ? 0 : this.State.Length * sizeof(byte))
                    + sizeof(long) // Attributes
                    + sizeof(long); // LogicalCreationTime
         }

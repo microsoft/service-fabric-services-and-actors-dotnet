@@ -190,6 +190,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             Task<IServiceRemotingResponseMessageBody> dispatchTask = null;
             var stopwatch = Stopwatch.StartNew();
 
+            var requestMessage = new ServiceRemotingRequestMessage(requestMessageHeaders, requestBody);
+            ServiceRemotingServiceEvents.RaiseReceiveRequest(requestMessage, methodDispatcher.GetMethodName(requestMessageHeaders.MethodId));
+
             try
             {
                 dispatchTask = methodDispatcher.DispatchAsync(
@@ -201,6 +204,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             }
             catch (Exception e)
             {
+                // Suggestion:
+                // In future, we should consider consolodating how service remoting handles exceptions (failed requests) and normal responses (successful requests)
+                // My contention is that a request that fails also generates a response (albeit a special kind) that encapsulates an exception.
+                // If an IServiceRemotingResponseMessage can encapsulate a response in either case - this allows us to use response headers in either case for communication (think http 4XX / 5XX responses have standard headers)
+                // The proxy on the caller side can always deserialize the exception and throw it, so user experience won't have to change due to this suggested architectural change.
+                ServiceRemotingServiceEvents.RaiseExceptionResponse(e, requestMessage);
+
                 var info = ExceptionDispatchInfo.Capture(e);
                 this.servicePerformanceCounterProvider.OnServiceMethodFinish(
                     requestMessageHeaders.InterfaceId,
@@ -220,6 +230,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                     }
                     catch (Exception e)
                     {
+                        ServiceRemotingServiceEvents.RaiseExceptionResponse(e, requestMessage);
+
                         var info = ExceptionDispatchInfo.Capture(e);
 
                         this.servicePerformanceCounterProvider.OnServiceMethodFinish(
@@ -234,9 +246,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                         requestMessageHeaders.InterfaceId,
                         requestMessageHeaders.MethodId,
                         stopwatch.Elapsed);
-                    return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(
-                        null,
-                        (IServiceRemotingResponseMessageBody)responseBody);
+
+                    var response = new ServiceRemotingResponseMessage(new ServiceRemotingResponseMessageHeader(), (IServiceRemotingResponseMessageBody)responseBody);
+                    ServiceRemotingServiceEvents.RaiseSendResponse(response, requestMessage);
+
+                    return (IServiceRemotingResponseMessage)response;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);
         }

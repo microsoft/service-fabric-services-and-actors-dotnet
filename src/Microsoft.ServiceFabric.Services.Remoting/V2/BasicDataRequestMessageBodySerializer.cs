@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 });
         }
 
-        public OutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
+        public IOutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
         {
             if (serviceRemotingRequestMessageBody == null)
             {
@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             }
         }
 
-        public IServiceRemotingRequestMessageBody Deserialize(IncomingMessageBody messageBody)
+        public IServiceRemotingRequestMessageBody Deserialize(IIncomingMessageBody messageBody)
         {
             if ((messageBody == null) || (messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0))
             {

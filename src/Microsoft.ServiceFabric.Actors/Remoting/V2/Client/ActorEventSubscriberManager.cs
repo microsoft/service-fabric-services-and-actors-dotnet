@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
 
     internal class ActorEventSubscriberManager : IServiceRemotingCallbackMessageHandler
     {
-        public static readonly ActorEventSubscriberManager Singleton = new ActorEventSubscriberManager();
+        public static readonly ActorEventSubscriberManager Instance = new ActorEventSubscriberManager();
 
         private readonly ConcurrentDictionary<Subscriber, SubscriptionInfo> eventKeyToInfoMap;
         private readonly ConcurrentDictionary<Guid, SubscriptionInfo> subscriptionIdToInfoMap;

@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
 
     internal class ActorCodeBuilder : CodeBuilder
     {
-        private static ICodeBuilder singleton = new ActorCodeBuilder();
+        private static readonly ICodeBuilder Instance = new ActorCodeBuilder();
         private static object buildLock = new object();
 
         private readonly ICodeBuilder eventCodeBuilder;
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
         {
             lock (buildLock)
             {
-                return (ActorProxyGeneratorWith)singleton.GetOrBuildProxyGenerator(actorInterfaceType).ProxyGenerator;
+                return (ActorProxyGeneratorWith)Instance.GetOrBuildProxyGenerator(actorInterfaceType).ProxyGenerator;
             }
         }
 
@@ -46,13 +46,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
         {
             lock (buildLock)
             {
-                return (ActorMethodDispatcherBase)singleton.GetOrBuilderMethodDispatcher(actorInterfaceType).MethodDispatcher;
+                return (ActorMethodDispatcherBase)Instance.GetOrBuilderMethodDispatcher(actorInterfaceType).MethodDispatcher;
             }
         }
 
         public static ActorEventProxyGeneratorWith GetOrCreateEventProxyGenerator(Type actorEventInterfaceType)
         {
-            var eventCodeBuilder = ((ActorCodeBuilder)singleton).eventCodeBuilder;
+            var eventCodeBuilder = ((ActorCodeBuilder)Instance).eventCodeBuilder;
             lock (buildLock)
             {
                 return (ActorEventProxyGeneratorWith)eventCodeBuilder.GetOrBuildProxyGenerator(actorEventInterfaceType).ProxyGenerator;
@@ -79,7 +79,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
                                     actorEventDispatchers.Cast<ActorMethodDispatcherBase>();
 
             // register them with the event subscriber manager
-            ActorEventSubscriberManager.Singleton.RegisterEventDispatchers(actorMethodDispatcherBases);
+            ActorEventSubscriberManager.Instance.RegisterEventDispatchers(actorMethodDispatcherBases);
 
             // create all actor interfaces that this interface derives from
             var actorInterfaces = new List<Type>() { interfaceType };

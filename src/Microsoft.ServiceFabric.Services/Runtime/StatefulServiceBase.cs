@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     {
         private readonly RestoreContext restoreContext;
         private readonly StatefulServiceContext serviceContext;
-        private readonly IStateProviderReplica2 stateProviderReplica;
+        private readonly IStateProviderReplica stateProviderReplica;
 
         private IReadOnlyDictionary<string, string> addresses;
 
@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// </param>
         protected StatefulServiceBase(
             StatefulServiceContext serviceContext,
-            IStateProviderReplica2 stateProviderReplica)
+            IStateProviderReplica stateProviderReplica)
         {
             if (serviceContext == null)
             {
@@ -51,7 +51,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.stateProviderReplica = stateProviderReplica;
             this.stateProviderReplica.OnDataLossAsync = this.OnDataLossAsync;
-            this.stateProviderReplica.OnRestoreCompletedAsync = this.OnRestoreCompletedAsync;
+            if (this.stateProviderReplica is IStateProviderReplica2)
+            {
+                ((IStateProviderReplica2)this.stateProviderReplica).OnRestoreCompletedAsync = this.OnRestoreCompletedAsync;
+            }
+
             this.restoreContext = new RestoreContext(this.stateProviderReplica);
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
@@ -70,18 +74,18 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <inheritdoc/>
-        IReadOnlyDictionary<string, string> IStatefulUserServiceReplica.Addresses
-        {
-            set { Volatile.Write(ref this.addresses, value); }
-        }
-
-        /// <inheritdoc/>
         IStatefulServicePartition IStatefulUserServiceReplica.Partition
         {
             set { this.Partition = value; }
         }
 
-        internal IStateProviderReplica2 StateProviderReplica
+        /// <inheritdoc/>
+        IReadOnlyDictionary<string, string> IStatefulUserServiceReplica.Addresses
+        {
+            set { Volatile.Write(ref this.addresses, value); }
+        }
+
+        internal IStateProviderReplica StateProviderReplica
         {
             get { return this.stateProviderReplica; }
         }
@@ -93,53 +97,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// An <see cref="IStatefulServicePartition"/> that represents the
         /// partition to which this service replica belongs.
         /// </value>
-        protected IStatefulServicePartition Partition
-        {
-            get;
-            private set;
-        }
+        protected IStatefulServicePartition Partition { get; private set; }
 
-        /// <inheritdoc/>
-        IStateProviderReplica2 IStatefulUserServiceReplica.CreateStateProviderReplica()
-        {
-            return this.StateProviderReplica;
-        }
-
-        /// <inheritdoc/>
-        IEnumerable<ServiceReplicaListener> IStatefulUserServiceReplica.CreateServiceReplicaListeners()
-        {
-            return this.CreateServiceReplicaListeners();
-        }
-
-        /// <inheritdoc/>
-        Task IStatefulUserServiceReplica.OnOpenAsync(ReplicaOpenMode openMode, CancellationToken cancellationToken)
-        {
-            return this.OnOpenAsync(openMode, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        Task IStatefulUserServiceReplica.RunAsync(CancellationToken cancellationToken)
-        {
-            return this.RunAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        Task IStatefulUserServiceReplica.OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
-        {
-            return this.OnChangeRoleAsync(newRole, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        Task IStatefulUserServiceReplica.OnCloseAsync(CancellationToken cancellationToken)
-        {
-            return this.OnCloseAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        void IStatefulUserServiceReplica.OnAbort()
-        {
-            this.OnAbort();
-        }
+        #region Backup and Restore APIs
 
         /// <summary>
         /// Performs a backup of all reliable state managed by this <see cref="StatefulServiceBase"/>.
@@ -179,6 +139,50 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 timeout,
                 cancellationToken,
                 backupDescription.BackupCallback);
+        }
+
+        #endregion
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.RunAsync(CancellationToken cancellationToken)
+        {
+            return this.RunAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
+        {
+            return this.OnChangeRoleAsync(newRole, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.OnCloseAsync(CancellationToken cancellationToken)
+        {
+            return this.OnCloseAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        void IStatefulUserServiceReplica.OnAbort()
+        {
+            this.OnAbort();
+        }
+
+        /// <inheritdoc/>
+        IEnumerable<ServiceReplicaListener> IStatefulUserServiceReplica.CreateServiceReplicaListeners()
+        {
+            return this.CreateServiceReplicaListeners();
+        }
+
+        /// <inheritdoc/>
+        IStateProviderReplica IStatefulUserServiceReplica.CreateStateProviderReplica()
+        {
+            return this.StateProviderReplica;
+        }
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.OnOpenAsync(ReplicaOpenMode openMode, CancellationToken cancellationToken)
+        {
+            return this.OnOpenAsync(openMode, cancellationToken);
         }
 
         /// <summary>
@@ -366,7 +370,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// This method is called when replica's state has been restored successfully via the Backup Restore service
+        /// This method is called when replica's state has been restored successfully via the Backup Restore service.
+        /// This is only supported when the reliable state provider replica object passed in the constructor is derived from <see cref="IStateProviderReplica2"/>.
         /// </summary>
         /// <param name="cancellationToken">
         /// <see cref="CancellationToken"/> to monitor for cancellation requests.
@@ -378,6 +383,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             return Task.FromResult(0);
         }
+
+        #region OnDataLoss
 
         /// <summary>
         /// This method is called during suspected data-loss.
@@ -391,5 +398,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             return this.OnDataLossAsync(this.restoreContext, cancellationToken);
         }
+
+        #endregion
     }
 }

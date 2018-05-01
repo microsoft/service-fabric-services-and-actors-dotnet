@@ -168,6 +168,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
             int interfaceId,
             int methodId,
+            string methodName,
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
@@ -182,13 +183,15 @@ namespace Microsoft.ServiceFabric.Actors.Client
             return this.servicePartitionClientV2.InvokeAsync(
                 new ServiceRemotingRequestMessage(
                 headers,
-                requestMsgBodyValue), cancellationToken);
+                requestMsgBodyValue),
+                methodName,
+                cancellationToken);
         }
 
         internal async Task SubscribeAsyncV2(Type eventType, object subscriber, TimeSpan resubscriptionInterval)
         {
             var actorId = this.servicePartitionClientV2.ActorId;
-            var info = Remoting.V2.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(
+            var info = Remoting.V2.Client.ActorEventSubscriberManager.Instance.RegisterSubscriber(
                 actorId,
                 eventType,
                 subscriber);
@@ -223,7 +226,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         internal async Task UnsubscribeAsyncV2(Type eventType, object subscriber)
         {
             var actorId = this.servicePartitionClientV2.ActorId;
-            if (Remoting.V2.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(
+            if (Remoting.V2.Client.ActorEventSubscriberManager.Instance.TryUnregisterSubscriber(
                 actorId,
                 eventType,
                 subscriber,
@@ -304,10 +307,10 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
-            var info = Remoting.V1.Client.ActorEventSubscriberManager.Singleton.RegisterSubscriber(
-                actorId,
-                eventType,
-                subscriber);
+            var info = Remoting.V1.Client.ActorEventSubscriberManager.Instance.RegisterSubscriber(
+            actorId,
+            eventType,
+            subscriber);
 
             Exception error = null;
             try
@@ -346,7 +349,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
-            if (Remoting.V1.Client.ActorEventSubscriberManager.Singleton.TryUnregisterSubscriber(
+            if (Remoting.V1.Client.ActorEventSubscriberManager.Instance.TryUnregisterSubscriber(
                 actorId,
                 eventType,
                 subscriber,

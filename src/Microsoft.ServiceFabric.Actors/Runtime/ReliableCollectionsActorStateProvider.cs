@@ -21,7 +21,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>
-    /// <see cref="ReliableCollectionsActorStateProvider"/> is currently in PREVIEW.
     /// Provides an implementation of <see cref="IActorStateProvider"/> which
     /// uses <see cref="IReliableStateManager"/> to store and persist the actor state.
     /// </summary>
@@ -112,16 +111,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             int actorStateDictionaryCount,
             int reminderDictionaryCount)
         {
-#if DotNetCoreClrLinux
-            // Initializing variables to suppress uninitialized_variables build_warnings.
-            this.userDefinedActorStateDictionaryCount = actorStateDictionaryCount;
-            this.userDefinedReminderDictionaryCount = reminderDictionaryCount;
-            this.userDefinedStateManagerConfig = null;
-            this.logicalTimeManager = null;
-            this.actorStateSerializer = null;
-            this.stateProviderHelper = null;
-            throw new PlatformNotSupportedException("ReliableCollectionsActorStateProvider is not supported on Unix platform.");
-#else
             if (actorStateDictionaryCount < 1)
             {
                 throw new ArgumentException("Value for actorStateDictionaryCount cannot be less than 1.");
@@ -143,7 +132,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.logicalTimeManager = new VolatileLogicalTimeManager(this);
             this.actorStateSerializer = new ActorStateProviderSerializer();
             this.stateProviderHelper = new ActorStateProviderHelper(this);
-#endif
         }
 
         /// <inheritdoc/>

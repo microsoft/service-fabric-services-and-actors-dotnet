@@ -18,27 +18,45 @@
     <AssemblyClsCompliant>true</AssemblyClsCompliant>
   </PropertyGroup>
 
-  <!-- AllowUnsafeBlocks -->
+  <!-- set DebugType to full -->
+  <PropertyGroup>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <!-- Enable /highentropyva flag -->
+  <PropertyGroup>
+    <HighEntropyVA>true</HighEntropyVA>
+  </PropertyGroup>
+
+  <!-- Set AllowUnsafeBlocks to false -->
   <PropertyGroup>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
-  <!-- Enable signing with Key.snk -->
+  <!-- Enable delay signing with Key.snk -->
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   
   <!-- Set Version numbers. These are used for generating Assemblies and Nuget packages. -->
   <PropertyGroup>
     <MajorVersion>3</MajorVersion>
-    <MinorVersion>0</MinorVersion>
+    <MinorVersion>1</MinorVersion>
     <BuildVersion>0</BuildVersion>
     <Revision>0</Revision>
 
     <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <AssemblyFileVersion>$(Version)</AssemblyFileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Microsoft Azure Service Fabric</Product>
+    <Copyright>Copyright (c) Microsoft Corporation.  All rights reserved.</Copyright>
+    <Company>Microsoft</Company>
+    <Authors>Microsoft</Authors>
   </PropertyGroup>
   
   <!-- Setting Paths -->

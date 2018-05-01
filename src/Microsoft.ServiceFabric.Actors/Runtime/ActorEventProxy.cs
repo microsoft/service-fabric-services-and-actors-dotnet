@@ -83,6 +83,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.subscriberProxiesV2.TryRemove(subscriberId, out var removedV2);
         }
 
+        // V2 Stack Api
+        internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
+            int interfaceId,
+            int methodId,
+            string methodName,
+            IServiceRemotingRequestMessageBody requestMsgBodyValue,
+            CancellationToken cancellationToken)
+        {
+            // async methods are not supported for actor event interface
+            throw new NotImplementedException();
+        }
+
 #if !DotNetCoreClr
         internal void Initialize(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
         {

@@ -19,9 +19,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     internal class ActorCodeBuilder : CodeBuilder
     {
         internal static readonly InterfaceDetailsStore InterfaceDetailsStore = new InterfaceDetailsStore();
+        private static readonly ICodeBuilder Instance = new ActorCodeBuilder();
+        private static readonly object BuildLock = new object();
         private static ICodeBuilder singleton = new ActorCodeBuilder();
         private static object buildLock = new object();
-
         private readonly ICodeBuilder eventCodeBuilder;
         private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
         private readonly MethodDispatcherBuilder<ActorMethodDispatcherBase> methodDispatcherBuilder;
@@ -40,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         {
             lock (buildLock)
             {
-                return (ActorProxyGenerator)singleton.GetOrBuildProxyGenerator(actorInterfaceType).ProxyGenerator;
+                return (ActorProxyGenerator)Instance.GetOrBuildProxyGenerator(actorInterfaceType).ProxyGenerator;
             }
         }
 
@@ -48,14 +49,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         {
             lock (buildLock)
             {
-                return (ActorMethodDispatcherBase)singleton.GetOrBuilderMethodDispatcher(actorInterfaceType).MethodDispatcher;
+                return (ActorMethodDispatcherBase)Instance.GetOrBuilderMethodDispatcher(actorInterfaceType).MethodDispatcher;
             }
         }
 
         public static ActorEventProxyGenerator GetOrCreateEventProxyGenerator(Type actorEventInterfaceType)
         {
-            var eventCodeBuilder = ((ActorCodeBuilder)singleton).eventCodeBuilder;
-            lock (buildLock)
+            var eventCodeBuilder = ((ActorCodeBuilder)Instance).eventCodeBuilder;
+            lock (BuildLock)
             {
                 return (ActorEventProxyGenerator)eventCodeBuilder.GetOrBuildProxyGenerator(actorEventInterfaceType).ProxyGenerator;
             }
@@ -95,7 +96,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 actorEventDispatchers.Cast<ActorMethodDispatcherBase>();
 
             // register them with the event subscriber manager
-            ActorEventSubscriberManager.Singleton.RegisterEventDispatchers(actorMethodDispatcherBases);
+            ActorEventSubscriberManager.Instance.RegisterEventDispatchers(actorMethodDispatcherBases);
 
             // create all actor interfaces that this interface derives from
             var actorInterfaces = new List<Type>() { interfaceType };

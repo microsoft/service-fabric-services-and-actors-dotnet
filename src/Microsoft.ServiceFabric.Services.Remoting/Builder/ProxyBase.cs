@@ -70,6 +70,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             int methodId,
             IServiceRemotingRequestMessageBody requestMsgBodyValue);
 
+        internal abstract Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
+            int interfaceId,
+            int methodId,
+            string methodName,
+            IServiceRemotingRequestMessageBody requestMsgBodyValue,
+            CancellationToken cancellationToken);
+
 #if !DotNetCoreClr
         /// <summary>
         /// Called by the generated proxy class to send the message to the remote object.
@@ -208,18 +215,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// </summary>
         /// <param name="interfaceId">Id of the remote interface.</param>
         /// <param name="methodId">Id of the remote method to be invokved.</param>
+        /// <param name="methodName">Name of the remoting method to be invoked</param>
         /// <param name="requestMsgBodyValue">Request body.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>A task that represents the asynchronous operation async call to remote object.</returns>
         protected async Task<IServiceRemotingResponseMessageBody> InvokeAsyncV2(
             int interfaceId,
             int methodId,
+            string methodName,
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
             var responseMsg = await this.InvokeAsyncImplV2(
                 interfaceId,
                 methodId,
+                methodName,
                 requestMsgBodyValue,
                 cancellationToken);
 

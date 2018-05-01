@@ -11,7 +11,8 @@
     <TargetFramework>net45</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.0.456" />
-    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="3.0.456" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="6.2.262" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.1.262" />
+    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="3.1.262" />
   </ItemGroup>
 </Project>

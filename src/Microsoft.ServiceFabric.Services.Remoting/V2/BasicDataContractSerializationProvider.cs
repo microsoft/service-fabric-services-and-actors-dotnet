@@ -7,6 +7,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Xml;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     internal class BasicDataContractSerializationProvider : IServiceRemotingMessageSerializationProvider
     {

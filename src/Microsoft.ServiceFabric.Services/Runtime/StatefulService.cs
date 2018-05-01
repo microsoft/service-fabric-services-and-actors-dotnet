@@ -35,9 +35,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// A <see cref="StatefulServiceContext"/> describes the stateful service context, which it provides information like replica ID, partition ID, and service name.
         /// </param>
         /// <param name="reliableStateManagerReplica">
-        /// A <see cref="IReliableStateManagerReplica2"/> represents a reliable state provider replica.
+        /// A <see cref="IReliableStateManagerReplica"/> represents a reliable state provider replica.
         /// </param>
-        protected StatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica2 reliableStateManagerReplica)
+        protected StatefulService(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
             : base(serviceContext, reliableStateManagerReplica)
         {
             this.stateManager = reliableStateManagerReplica;

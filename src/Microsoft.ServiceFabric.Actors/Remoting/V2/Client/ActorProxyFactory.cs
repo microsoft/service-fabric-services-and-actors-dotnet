@@ -199,22 +199,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 factory.GetRemotingMessageBodyFactory());
         }
 
-        /// <summary>
-        /// Creates service remoting client factory.
-        /// </summary>
-        /// <param name="callbackClient">Callback from the remoting listener to the client.</param>
-        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/></returns>
-        protected virtual IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            IServiceRemotingCallbackMessageHandler callbackClient)
-        {
-            if (this.createServiceRemotingClientFactory != null)
-            {
-                return this.createServiceRemotingClientFactory(callbackClient);
-            }
-
-            return null;
-        }
-
         private IServiceRemotingClientFactory GetOrCreateServiceRemotingClientFactory(Type actorInterfaceType)
         {
             if (this.remotingClientFactory != null)
@@ -235,7 +219,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
 
         private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type actorInterfaceType)
         {
-            var factory = this.CreateServiceRemotingClientFactory(ActorEventSubscriberManager.Singleton);
+            var factory = this.createServiceRemotingClientFactory(ActorEventSubscriberManager.Instance);
             if (factory == null)
             {
                 throw new NotSupportedException("ClientFactory can't be null");
