@@ -13,6 +13,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             ref string lastSeenExceptionId,
             ref int currentRetryCount)
         {
+            if (maxRetryCount == 0)
+            {
+                return false;
+            }
+
             if (currentExceptionId == lastSeenExceptionId)
             {
                 if (currentRetryCount >= maxRetryCount)
@@ -28,7 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             // The current retriable exception is different from the exception that was last seen,
             // reset the retry tracking variables
             lastSeenExceptionId = currentExceptionId;
-            currentRetryCount = 0;
+            currentRetryCount = 1;
             return true;
         }
     }
