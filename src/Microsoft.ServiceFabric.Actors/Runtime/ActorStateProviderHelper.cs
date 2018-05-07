@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -9,11 +9,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Fabric;
+    using System.Fabric.Description;
     using System.Globalization;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Fabric.Description;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
@@ -25,9 +25,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// </summary>
     internal sealed class ActorStateProviderHelper
     {
+        internal const string ActorPresenceStorageKeyPrefix = "@@";
+        internal const string ReminderCompletedStorageKeyPrefix = "RC@@";
         private const long DefaultMaxPrimaryReplicationQueueSize = 8192;
         private const long DefaultMaxSecondaryReplicationQueueSize = 16384;
-
         private readonly IActorStateProviderInternal owner;
 
         internal ActorStateProviderHelper(IActorStateProviderInternal owner)
@@ -35,8 +36,217 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.owner = owner;
         }
 
-        internal const string ActorPresenceStorageKeyPrefix = "@@";
-        internal const string ReminderCompletedStorageKeyPrefix = "RC@@";
+        private bool CurrentReplicaRoleNotPrimary
+        {
+            get
+            {
+                return (this.owner.CurrentReplicaRole != ReplicaRole.Primary);
+            }
+        }
+
+        #region Static Methods
+
+        internal static IActorStateProvider GetActorStateProviderOverride()
+        {
+            IActorStateProvider stateProvider = null;
+
+            try
+            {
+                var configurationPackageName = ActorNameFormat.GetConfigPackageName();
+                var stateProviderOverrideSectionName = ActorNameFormat.GetActorStateProviderOverrideSectionName();
+                var attributeTypeKey = ActorNameFormat.GetActorStateProviderOverrideKeyName();
+
+                // Load the ActorStateProviderAttribute Type from the Configuration settings
+                var context = FabricRuntime.GetActivationContext();
+                var config = context.GetConfigurationPackageObject(configurationPackageName);
+
+                if ((config.Settings.Sections != null) &&
+                    (config.Settings.Sections.Contains(stateProviderOverrideSectionName)))
+                {
+                    var section = config.Settings.Sections[stateProviderOverrideSectionName];
+                    var stateProviderType = section.Parameters[attributeTypeKey].Value;
+
+                    ActorTrace.Source.WriteInfo(
+                        "ActorStateProviderHelper",
+                        "Overridding actor state provider: '{0}'",
+                        stateProviderType);
+
+                    stateProvider = Activator.CreateInstance(Type.GetType(stateProviderType)) as IActorStateProvider;
+                }
+            }
+            catch (Exception)
+            {
+                // ignore
+            }
+
+            return stateProvider;
+        }
+
+        internal static string CreateActorPresenceStorageKey(ActorId actorId)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}_{1}",
+                ActorPresenceStorageKeyPrefix,
+                actorId.GetStorageKey());
+        }
+
+        internal static DataContractSerializer CreateDataContractSerializer(Type actorStateType)
+        {
+            var dataContractSerializer = new DataContractSerializer(
+                actorStateType,
+                new DataContractSerializerSettings
+                {
+                    MaxItemsInObjectGraph = int.MaxValue,
+#if !DotNetCoreClr
+                    DataContractSurrogate = ActorDataContractSurrogate.Instance,
+#endif
+                    KnownTypes = new[]
+                    {
+                        typeof(ActorReference),
+                    },
+                });
+#if DotNetCoreClr
+            dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Instance);
+#endif
+            return dataContractSerializer;
+        }
+
+        internal static bool TryGetConfigSection(
+            ICodePackageActivationContext activationContext,
+            string configPackageName,
+            string sectionName,
+            out ConfigurationSection section)
+        {
+            section = null;
+
+            var config = activationContext.GetConfigurationPackageObject(configPackageName);
+
+            if ((config.Settings.Sections == null) || (!config.Settings.Sections.Contains(sectionName)))
+            {
+                return false;
+            }
+
+            section = config.Settings.Sections[sectionName];
+
+            return true;
+        }
+
+        internal static TimeSpan GetTimeConfigInSecondsAsTimeSpan(ConfigurationSection section, string parameterName, TimeSpan defaultValue)
+        {
+            if (section.Parameters.Contains(parameterName) &&
+               !string.IsNullOrWhiteSpace(section.Parameters[parameterName].Value))
+            {
+                var timeInSeconds = double.Parse(section.Parameters[parameterName].Value);
+                return TimeSpan.FromSeconds(timeInSeconds);
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Used by Kvs and Volatile actor state provider.
+        /// </summary>
+        /// <param name="codePackage">The code package.</param>
+        /// <param name="actorImplType">The type of actor.</param>
+        internal static ReplicatorSettings GetActorReplicatorSettings(CodePackageActivationContext codePackage, Type actorImplType)
+        {
+            var settings = ReplicatorSettings.LoadFrom(
+                codePackage,
+                ActorNameFormat.GetConfigPackageName(actorImplType),
+                ActorNameFormat.GetFabricServiceReplicatorConfigSectionName(actorImplType));
+
+            settings.SecurityCredentials = SecurityCredentials.LoadFrom(
+                codePackage,
+                ActorNameFormat.GetConfigPackageName(actorImplType),
+                ActorNameFormat.GetFabricServiceReplicatorSecurityConfigSectionName(actorImplType));
+
+            var nodeContext = FabricRuntime.GetNodeContext();
+            var endpoint = codePackage.GetEndpoint(ActorNameFormat.GetFabricServiceReplicatorEndpointName(actorImplType));
+
+            settings.ReplicatorAddress = string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}:{1}",
+                nodeContext.IPAddressOrFQDN,
+                endpoint.Port);
+
+            if (!settings.MaxPrimaryReplicationQueueSize.HasValue)
+            {
+                settings.MaxPrimaryReplicationQueueSize = DefaultMaxPrimaryReplicationQueueSize;
+            }
+
+            if (!settings.MaxSecondaryReplicationQueueSize.HasValue)
+            {
+                settings.MaxSecondaryReplicationQueueSize = DefaultMaxSecondaryReplicationQueueSize;
+            }
+
+            return settings;
+        }
+
+        internal static string CreateReminderCompletedStorageKey(ActorId actorId, string reminderName)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}_{1}_{2}",
+                ReminderCompletedStorageKeyPrefix,
+                actorId.GetStorageKey(),
+                reminderName);
+        }
+
+        internal static string CreateReminderCompletedStorageKeyPrefix(ActorId actorId)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}_{1}_",
+                ReminderCompletedStorageKeyPrefix,
+                actorId.GetStorageKey());
+        }
+
+        internal static ActorId GetActorIdFromPresenceStorageKey(string presenceStorageKey)
+        {
+            // ActorPresenceStoragekey is of following format:
+            // @@_<actor Kind>_<actor ID>
+            //
+            // See CreateActorPresenceStorageKey for how it is generated.
+            var storageKey = presenceStorageKey.Substring(ActorPresenceStorageKeyPrefix.Length + 1);
+            return ActorId.TryGetActorIdFromStorageKey(storageKey);
+        }
+
+        internal static IActorStateProvider CreateDefaultStateProvider(ActorTypeInformation actorTypeInfo)
+        {
+            // KvsActorStateProvider is used only when:
+            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
+            // VolatileActorStateProvider is used when:
+            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Volatile
+            // NullActorStateProvider is used when:
+            //    2. Actor's [StatePersistenceAttribute] attribute has StatePersistence.None OR
+            //    3. Actor doesn't have [StatePersistenceAttribute] attribute.
+            IActorStateProvider stateProvider = new NullActorStateProvider();
+            if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
+            {
+#if DotNetCoreClrLinux
+                stateProvider = new ReliableCollectionsActorStateProvider();
+#else
+                stateProvider = new KvsActorStateProvider();
+#endif
+            }
+            else if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Volatile))
+            {
+                stateProvider = new VolatileActorStateProvider();
+            }
+
+            // Get state provider override from settings if specified, used by tests to override state providers.
+            var stateProviderOverride = Runtime.ActorStateProviderHelper.GetActorStateProviderOverride();
+
+            if (stateProviderOverride != null)
+            {
+                stateProvider = stateProviderOverride;
+            }
+
+            return stateProvider;
+        }
+
+        #endregion Static Methods
 
         internal Task ExecuteWithRetriesAsync(
             Func<Task> func,
@@ -69,18 +279,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 try
                 {
-                    //
-                    // Actor operations only happen on a primary replica and are required not to span role 
-                    // change boundaries. This is required to ensure that for a given ActorId on a primary 
+                    // Actor operations only happen on a primary replica and are required not to span role
+                    // change boundaries. This is required to ensure that for a given ActorId on a primary
                     // replica only one thread can make any state change. Any operation active for this ActorId
                     // when current replica was primary previously should fail to make any state change.
-                    // 
-                    // When primary replica becomes secondary, all in-flight operations fail as replica do not 
-                    // have write status. However, in rare cases, it may happen that replica undergoes a P -> S -> P
-                    // role change very quickly while an in-flight operation was undergoing back-off before next retry. 
-                    // 
-                    // Fail the operation if primary replica of partition has changed.
                     //
+                    // When primary replica becomes secondary, all in-flight operations fail as replica do not
+                    // have write status. However, in rare cases, it may happen that replica undergoes a P -> S -> P
+                    // role change very quickly while an in-flight operation was undergoing back-off before next retry.
+                    //
+                    // Fail the operation if primary replica of partition has changed.
                     this.EnsureSamePrimary(roleChangeTracker);
 
                     useLinearBackoff = false;
@@ -120,7 +328,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 catch (FabricObjectClosedException)
                 {
-                    // During close of a primary replica, the user code may try to use the 
+                    // During close of a primary replica, the user code may try to use the
                     // KVS after it has been closed. This causes KVS to throw FabricObjectClosedException.
                     // RC already converts it to FabricNotPrimaryException.
                     if (this.owner is KvsActorStateProvider)
@@ -171,6 +379,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
 
                     lastExceptionTag = "TransactionFaulted";
+
                     // fall-through and retry
                 }
 
@@ -201,7 +410,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<T, string> getStorageKeyFunc,
             CancellationToken cancellationToken)
         {
-            var previousActorCount = continuationToken == null ? 0 : Int64.Parse((string)continuationToken.Marker);
+            var previousActorCount = continuationToken == null ? 0 : long.Parse((string)continuationToken.Marker);
 
             long currentActorCount = 0;
             var actorIdList = new List<ActorId>();
@@ -270,219 +479,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            // We are here means 'actorIdList' contains less than 'itemsCount' 
+            // We are here means 'actorIdList' contains less than 'itemsCount'
             // item or it is empty. The continuation token will remain null.
             actorQueryResult.Items = actorIdList.AsReadOnly();
 
             return Task.FromResult(actorQueryResult);
         }
-
-        #region Static Methods
-
-        internal static IActorStateProvider GetActorStateProviderOverride()
-        {
-            IActorStateProvider stateProvider = null;
-
-            try
-            {
-                var configurationPackageName = ActorNameFormat.GetConfigPackageName();
-                var stateProviderOverrideSectionName = ActorNameFormat.GetActorStateProviderOverrideSectionName();
-                var attributeTypeKey = ActorNameFormat.GetActorStateProviderOverrideKeyName();
-
-                // Load the ActorStateProviderAttribute Type from the Configuration settings
-                var context = FabricRuntime.GetActivationContext();
-                var config = context.GetConfigurationPackageObject(configurationPackageName);
-
-                if ((config.Settings.Sections != null) &&
-                    (config.Settings.Sections.Contains(stateProviderOverrideSectionName)))
-                {
-                    var section = config.Settings.Sections[stateProviderOverrideSectionName];
-                    var stateProviderType = section.Parameters[attributeTypeKey].Value;
-
-                    ActorTrace.Source.WriteInfo(
-                        "ActorStateProviderHelper",
-                        "Overridding actor state provider: '{0}'",
-                        stateProviderType);
-
-                    stateProvider = Activator.CreateInstance(Type.GetType(stateProviderType)) as IActorStateProvider;
-                }
-            }
-            catch (Exception)
-            {
-                // ignore
-            }
-
-            return stateProvider;
-        }
-
-        /// <summary>
-        /// Used by Kvs and Volatile actor state provider.
-        /// </summary>
-        /// <param name="codePackage">The code package.</param>
-        /// <param name="actorImplType">The type of actor.</param>
-        /// <returns></returns>
-        internal static ReplicatorSettings GetActorReplicatorSettings(CodePackageActivationContext codePackage, Type actorImplType)
-        {
-            var settings = ReplicatorSettings.LoadFrom(
-                codePackage,
-                ActorNameFormat.GetConfigPackageName(actorImplType),
-                ActorNameFormat.GetFabricServiceReplicatorConfigSectionName(actorImplType));
-
-            settings.SecurityCredentials = SecurityCredentials.LoadFrom(
-                codePackage,
-                ActorNameFormat.GetConfigPackageName(actorImplType),
-                ActorNameFormat.GetFabricServiceReplicatorSecurityConfigSectionName(actorImplType));
-
-            var nodeContext = FabricRuntime.GetNodeContext();
-            var endpoint = codePackage.GetEndpoint(ActorNameFormat.GetFabricServiceReplicatorEndpointName(actorImplType));
-
-            settings.ReplicatorAddress = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}:{1}",
-                nodeContext.IPAddressOrFQDN,
-                endpoint.Port);
-
-            if (!settings.MaxPrimaryReplicationQueueSize.HasValue)
-            {
-                settings.MaxPrimaryReplicationQueueSize = DefaultMaxPrimaryReplicationQueueSize;
-            }
-
-            if (!settings.MaxSecondaryReplicationQueueSize.HasValue)
-            {
-                settings.MaxSecondaryReplicationQueueSize = DefaultMaxSecondaryReplicationQueueSize;
-            }
-
-            return settings;
-        }
-
-        internal static string CreateActorPresenceStorageKey(ActorId actorId)
-        {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}_{1}",
-                ActorPresenceStorageKeyPrefix,
-                actorId.GetStorageKey());
-        }
-
-        internal static string CreateReminderCompletedStorageKey(ActorId actorId, string reminderName)
-        {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}_{1}_{2}",
-                ReminderCompletedStorageKeyPrefix,
-                actorId.GetStorageKey(),
-                reminderName);
-        }
-
-        internal static string CreateReminderCompletedStorageKeyPrefix(ActorId actorId)
-        {
-            return string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}_{1}_",
-                ReminderCompletedStorageKeyPrefix,
-                actorId.GetStorageKey());
-        }
-
-        internal static ActorId GetActorIdFromPresenceStorageKey(string presenceStorageKey)
-        {
-            // ActorPresenceStoragekey is of following format:
-            // @@_<actor Kind>_<actor ID>
-            //
-            // See CreateActorPresenceStorageKey for how it is generated.
-
-            var storageKey = presenceStorageKey.Substring(ActorPresenceStorageKeyPrefix.Length + 1);
-            return ActorId.TryGetActorIdFromStorageKey(storageKey);
-        }
-
-        internal static DataContractSerializer CreateDataContractSerializer(Type actorStateType)
-        {
-            var dataContractSerializer = new DataContractSerializer(
-                actorStateType,
-                new DataContractSerializerSettings
-                {
-                    MaxItemsInObjectGraph = Int32.MaxValue,
-#if !DotNetCoreClr
-                    DataContractSurrogate = ActorDataContractSurrogate.Instance,
-#endif
-                    KnownTypes = new[]
-                    {
-                        typeof(ActorReference)
-                    }
-                });
-#if DotNetCoreClr
-			dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Instance);
-#endif
-            return dataContractSerializer;
-        }
-
-        internal static IActorStateProvider CreateDefaultStateProvider(ActorTypeInformation actorTypeInfo)
-        {
-            // KvsActorStateProvider is used only when: 
-            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
-            // VolatileActorStateProvider is used when:
-            //    1. Actor's [StatePersistenceAttribute] attribute has StatePersistence.Volatile
-            // NullActorStateProvider is used when:
-            //    2. Actor's [StatePersistenceAttribute] attribute has StatePersistence.None OR
-            //    3. Actor doesn't have [StatePersistenceAttribute] attribute.
-
-            IActorStateProvider stateProvider = new NullActorStateProvider();
-            if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
-            {
-#if DotNetCoreClrLinux
-                stateProvider = new ReliableCollectionsActorStateProvider();
-#else
-                stateProvider = new KvsActorStateProvider();
-#endif
-            }
-            else if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Volatile))
-            {
-                stateProvider = new VolatileActorStateProvider();
-            }
-
-            // Get state provider override from settings if specified, used by tests to override state providers.
-            var stateProviderOverride = Runtime.ActorStateProviderHelper.GetActorStateProviderOverride();
-
-            if (stateProviderOverride != null)
-            {
-                stateProvider = stateProviderOverride;
-            }
-
-            return stateProvider;
-        }
-
-        internal static bool TryGetConfigSection(
-            ICodePackageActivationContext activationContext,
-            string configPackageName,
-            string sectionName,
-            out ConfigurationSection section)
-        {
-            section = null;
-
-            var config = activationContext.GetConfigurationPackageObject(configPackageName);
-
-            if ((config.Settings.Sections == null) || (!config.Settings.Sections.Contains(sectionName)))
-            {
-                return false;
-            }
-
-            section = config.Settings.Sections[sectionName];
-
-            return true;
-        }
-
-        internal static TimeSpan GetTimeConfigInSecondsAsTimeSpan(ConfigurationSection section, string parameterName, TimeSpan defaultValue)
-        {
-            if (section.Parameters.Contains(parameterName) &&
-               !string.IsNullOrWhiteSpace(section.Parameters[parameterName].Value))
-            {
-                var timeInSeconds = double.Parse(section.Parameters[parameterName].Value);
-                return TimeSpan.FromSeconds(timeInSeconds);
-            }
-
-            return defaultValue;
-        }
-
-        #endregion Static Methods
 
         #region Private Helpers
 
@@ -494,18 +496,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private bool CurrentReplicaRoleNotPrimary
-        {
-            get
-            {
-                return (this.owner.CurrentReplicaRole != ReplicaRole.Primary);
-            }
-        }
-
         #endregion
     }
 
+#pragma warning disable SA1201 // Elements should appear in the correct order
     internal struct TimeoutHelper
+#pragma warning restore SA1201 // Elements should appear in the correct order
     {
         private readonly Stopwatch stopWatch;
         private readonly TimeSpan originalTimeout;

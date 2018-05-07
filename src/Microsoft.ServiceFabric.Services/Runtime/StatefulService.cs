@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Runtime
@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
     /// <summary>
     /// Represents the base class for Microsoft Service Fabric based stateful reliable service
-    /// which provides an <see cref="IReliableStateManager"/> to manage service's state. 
+    /// which provides an <see cref="IReliableStateManager"/> to manage service's state.
     /// Derive from this class to implement a Microsoft Service Fabric based stateful reliable service.
     /// </summary>
     public abstract class StatefulService : StatefulServiceBase
@@ -18,16 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private readonly IReliableStateManager stateManager;
 
         /// <summary>
-        /// Gets this replica's <see cref="IReliableStateManager"/>.
-        /// </summary>
-        /// <value>The <see cref="IReliableStateManager"/> of the replica.</value>
-        public IReliableStateManager StateManager
-        {
-            get { return this.stateManager; }
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="StatefulService"/> with default <see cref="IReliableStateManager"/>: <see cref="ReliableStateManager"/>.
+        /// Initializes a new instance of the <see cref="StatefulService"/> class with default reliable state manager (<see cref="ReliableStateManager"/>).
         /// </summary>
         /// <param name="serviceContext">
         /// A <see cref="StatefulServiceContext"/> describes the stateful service context, which it provides information like replica ID, partition ID, and service name.
@@ -38,8 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// Creates a new stateful service. 
-        /// Override this method to create a new stateful service with non-default state manager replica.
+        /// Initializes a new instance of the <see cref="StatefulService"/> class with non-default reliable state manager replica.
         /// </summary>
         /// <param name="serviceContext">
         /// A <see cref="StatefulServiceContext"/> describes the stateful service context, which it provides information like replica ID, partition ID, and service name.
@@ -51,6 +41,15 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             : base(serviceContext, reliableStateManagerReplica)
         {
             this.stateManager = reliableStateManagerReplica;
+        }
+
+        /// <summary>
+        /// Gets this replica's <see cref="IReliableStateManager"/>.
+        /// </summary>
+        /// <value>The <see cref="IReliableStateManager"/> of the replica.</value>
+        public IReliableStateManager StateManager
+        {
+            get { return this.stateManager; }
         }
     }
 }

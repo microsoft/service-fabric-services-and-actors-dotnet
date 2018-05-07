@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -15,18 +15,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
     internal class EventSourceProvider
     {
-        internal class ActorMethodInfo
-        {
-            internal string MethodName;
-            internal string MethodSignature;
-        }
-
+        private readonly ActorTypeInformation actorTypeInformation;
         private readonly string actorType;
         private readonly ServiceContext serviceContext;
-
-        private Dictionary<long, ActorMethodInfo> actorMethodInfo;
         private readonly ActorFrameworkEventSource writer;
-        internal readonly ActorTypeInformation actorTypeInformation;
+        private Dictionary<long, ActorMethodInfo> actorMethodInfo;
 
         internal EventSourceProvider(ServiceContext serviceContext, ActorTypeInformation actorTypeInformation)
         {
@@ -37,60 +30,69 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.writer = ActorFrameworkEventSource.Writer;
         }
 
+        internal ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;
+
         internal void RegisterWithDiagnosticsEventManager(DiagnosticsEventManager diagnosticsEventManager)
         {
             this.InitializeActorMethodInfo(diagnosticsEventManager);
 
-            diagnosticsEventManager.onActorChangeRole += this.OnActorChangeRole;
-            diagnosticsEventManager.onActorActivated += this.OnActorActivated;
-            diagnosticsEventManager.onActorDeactivated += this.OnActorDeactivated;
-            diagnosticsEventManager.onActorMethodStart += this.OnActorMethodStart;
-            diagnosticsEventManager.onActorMethodFinish += this.OnActorMethodFinish;
-            diagnosticsEventManager.onSaveActorStateStart += this.OnSaveActorStateStart;
-            diagnosticsEventManager.onSaveActorStateFinish += this.OnSaveActorStateFinish;
-            diagnosticsEventManager.onPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
+            diagnosticsEventManager.OnActorChangeRole += this.OnActorChangeRole;
+            diagnosticsEventManager.OnActorActivated += this.OnActorActivated;
+            diagnosticsEventManager.OnActorDeactivated += this.OnActorDeactivated;
+            diagnosticsEventManager.OnActorMethodStart += this.OnActorMethodStart;
+            diagnosticsEventManager.OnActorMethodFinish += this.OnActorMethodFinish;
+            diagnosticsEventManager.OnSaveActorStateStart += this.OnSaveActorStateStart;
+            diagnosticsEventManager.OnSaveActorStateFinish += this.OnSaveActorStateFinish;
+            diagnosticsEventManager.OnPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
         }
 
         internal virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
             this.actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
 
-            foreach (var actorInterfaceType in this.actorTypeInformation.InterfaceTypes)
+            foreach (var actorInterfaceType in this.ActorTypeInformation.InterfaceTypes)
             {
                 diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
                     actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 this.InitializeActorMethodInfo(actorInterfaceMethodDescriptions, interfaceId, this.actorMethodInfo);
-
             }
         }
 
-        internal void InitializeActorMethodInfo(MethodDescription[] actorInterfaceMethodDescriptions, int interfaceId,
+        internal void InitializeActorMethodInfo(
+            MethodDescription[] actorInterfaceMethodDescriptions,
+            int interfaceId,
             Dictionary<long, ActorMethodInfo> actorMethodInfos)
         {
-
             foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
             {
                 var methodInfo = actorInterfaceMethodDescription.MethodInfo;
                 var ami = new ActorMethodInfo()
                 {
                     MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
-                    MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString()
+                    MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString(),
                 };
 
                 var key =
-                    DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId,
+                    DiagnosticsEventManager.GetInterfaceMethodKey(
+                        (uint)interfaceId,
                         (uint)actorInterfaceMethodDescription.Id);
                 actorMethodInfos[key] = ami;
             }
         }
 
+        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
+        {
+            var methodInfo = this.actorMethodInfo[key];
+            return methodInfo;
+        }
+
         private void OnActorChangeRole(ChangeRoleDiagnosticData changeRoleData)
         {
-            if (ReplicaRole.Primary == changeRoleData.NewRole)
+            if (changeRoleData.NewRole == ReplicaRole.Primary)
             {
                 this.writer.ReplicaChangeRoleToPrimary(this.serviceContext);
             }
-            else if (ReplicaRole.Primary == changeRoleData.CurrentRole)
+            else if (changeRoleData.CurrentRole == ReplicaRole.Primary)
             {
                 this.writer.ReplicaChangeRoleFromPrimary(this.serviceContext);
             }
@@ -129,16 +131,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
-        {
-            var methodInfo = this.actorMethodInfo[key];
-            return methodInfo;
-        }
-
-        [SuppressMessage("ReSharper", "PossibleInvalidOperationException")]
         private void OnActorMethodFinish(ActorMethodDiagnosticData methodData)
         {
-            if (null == methodData.Exception)
+            if (methodData.Exception == null)
             {
                 if (this.writer.IsActorMethodStopEventEnabled())
                 {
@@ -199,14 +194,18 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 var actorId = stateData.ActorId;
                 this.writer.ActorSaveStateStop(
-                    // ReSharper disable once PossibleInvalidOperationException
                     stateData.OperationTime.Value.Ticks,
                     this.actorType,
                     actorId,
                     this.serviceContext);
             }
         }
+
+        internal class ActorMethodInfo
+        {
+            internal string MethodName { get; set; }
+
+            internal string MethodSignature { get; set; }
+        }
     }
 }
-
-

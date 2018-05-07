@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Tests
@@ -9,40 +9,22 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Health;
-    using System.Threading.Tasks;
     using System.Threading;
-    using Microsoft.ServiceFabric.Services.Runtime;
+    using System.Threading.Tasks;
+    using Communication.Runtime;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Services.Runtime;
     using Moq;
     using Xunit;
-    using Communication.Runtime;
 
+    /// <summary>
+    /// Class for StatelessService lifecycle tests.
+    /// </summary>
     public class StatelessServiceLifeCycleTests
     {
-        private class RunAsyncBlockingCallTestService : StatelessService
-        {
-            public RunAsyncBlockingCallTestService(StatelessServiceContext context)
-                : base(context)
-            {
-                this.RunAsyncInvoked = false;
-            }
-
-            public bool RunAsyncInvoked { get; private set; }
-
-            protected override Task RunAsync(CancellationToken cancellationToken)
-            {
-                this.RunAsyncInvoked = true;
-
-                long i = 0;
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    i++;
-                }
-
-                return Task.FromResult(i);
-            }
-        }
-
+        /// <summary>
+        /// Tests RunAsync blocking call.
+        /// </summary>
         [Fact]
         public void RunAsyncBlockingCall()
         {
@@ -69,28 +51,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
         }
 
-        private class RunAsyncCancellationTestService : StatelessService
-        {
-            private const int ToWait = 100;
-
-            public bool StartedWaiting = false;
-
-            public RunAsyncCancellationTestService(StatelessServiceContext context)
-                : base(context)
-            {
-            }
-
-            protected override async Task RunAsync(CancellationToken cancellationToken)
-            {
-                this.StartedWaiting = true;
-                while (true)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    await Task.Delay(ToWait, cancellationToken);
-                }
-            }
-        }
-
+        /// <summary>
+        /// Tests RunAsync cancellation.
+        /// </summary>
         [Fact]
         public void RunAsyncCancellation()
         {
@@ -110,30 +73,16 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 Task.Delay(100, source.Token).GetAwaiter().GetResult();
             }
 
-            // This will throw if cancellation propagates out, as canceling of RunAsync is 
+            // This will throw if cancellation propagates out, as canceling of RunAsync is
             // awaited during close of stateless serice instance.
             testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
 
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        private class RunAsyncSlowCancellationTestService : StatelessService
-        {
-            public RunAsyncSlowCancellationTestService(StatelessServiceContext context)
-                : base(context)
-            {
-                this.RunAsyncInvoked = false;
-            }
-
-            public bool RunAsyncInvoked { get; private set; }
-
-            protected override async Task RunAsync(CancellationToken cancellationToken)
-            {
-                this.RunAsyncInvoked = true;
-                await Task.Delay(TimeSpan.FromSeconds(30), CancellationToken.None);
-            }
-        }
-
+        /// <summary>
+        /// Tests slow cancellation of RunAsync.
+        /// </summary>
         [Fact]
         public void RunAsyncSlowCancellation()
         {
@@ -161,19 +110,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncSlowCancellationHealthInformation(hinfo))), Times.AtLeastOnce);
         }
 
-        private class RunAsyncFailTestService : StatelessService
-        {
-            public RunAsyncFailTestService(StatelessServiceContext context)
-                : base(context)
-            {
-            }
-
-            protected override Task RunAsync(CancellationToken cancellationToken)
-            {
-                return Task.Run(() => { throw new FabricException(); }, CancellationToken.None);
-            }
-        }
-
+        /// <summary>
+        /// Tests exceptions from RunAsync.
+        /// </summary>
         [Fact]
         public void RunAsyncFail()
         {
@@ -212,6 +151,73 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncUnhandledExceptionHealthInformation(hinfo))), Times.Once());
         }
 
+        /// <summary>
+        /// Tests exception from Listener on Abort.
+        /// </summary>
+        [Fact]
+        public void ListenerExceptionOnAbort()
+        {
+            Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: RunAsyncFail()");
+
+            var serviceContext = TestMocksRepository.GetMockStatelessServiceContext();
+
+            IStatelessServiceInstance testServiceInstance =
+                new StatelessServiceInstanceAdapter(serviceContext, new ListenerExceptionOnAbortService(serviceContext));
+
+            var partition = new Mock<IStatelessServicePartition>();
+
+            testServiceInstance.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+
+            // This will throw if listener exception propagates out
+            testServiceInstance.Abort();
+        }
+
+        private class RunAsyncBlockingCallTestService : StatelessService
+        {
+            public RunAsyncBlockingCallTestService(StatelessServiceContext context)
+                : base(context)
+            {
+                this.RunAsyncInvoked = false;
+            }
+
+            public bool RunAsyncInvoked { get; private set; }
+
+            protected override Task RunAsync(CancellationToken cancellationToken)
+            {
+                this.RunAsyncInvoked = true;
+
+                long i = 0;
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    i++;
+                }
+
+                return Task.FromResult(i);
+            }
+        }
+
+        private class RunAsyncCancellationTestService : StatelessService
+        {
+            private const int ToWait = 100;
+
+            public RunAsyncCancellationTestService(StatelessServiceContext context)
+                : base(context)
+            {
+            }
+
+            public bool StartedWaiting { get; internal set; } = false;
+
+            protected override async Task RunAsync(CancellationToken cancellationToken)
+            {
+                this.StartedWaiting = true;
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await Task.Delay(ToWait, cancellationToken);
+                }
+            }
+        }
+
         private class ListenerExceptionOnAbortService : StatelessService
         {
             public ListenerExceptionOnAbortService(StatelessServiceContext context)
@@ -238,22 +244,34 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
         }
 
-        [Fact]
-        public void ListenerExceptionOnAbort()
+        private class RunAsyncFailTestService : StatelessService
         {
-            Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: RunAsyncFail()");
+            public RunAsyncFailTestService(StatelessServiceContext context)
+                : base(context)
+            {
+            }
 
-            var serviceContext = TestMocksRepository.GetMockStatelessServiceContext();
+            protected override Task RunAsync(CancellationToken cancellationToken)
+            {
+                return Task.Run(() => { throw new FabricException(); }, CancellationToken.None);
+            }
+        }
 
-            IStatelessServiceInstance testServiceInstance =
-                new StatelessServiceInstanceAdapter(serviceContext, new ListenerExceptionOnAbortService(serviceContext));
+        private class RunAsyncSlowCancellationTestService : StatelessService
+        {
+            public RunAsyncSlowCancellationTestService(StatelessServiceContext context)
+                : base(context)
+            {
+                this.RunAsyncInvoked = false;
+            }
 
-            var partition = new Mock<IStatelessServicePartition>();
+            public bool RunAsyncInvoked { get; private set; }
 
-            testServiceInstance.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
-
-            // This will throw if listener exception propagates out
-            testServiceInstance.Abort();
+            protected override async Task RunAsync(CancellationToken cancellationToken)
+            {
+                this.RunAsyncInvoked = true;
+                await Task.Delay(TimeSpan.FromSeconds(30), CancellationToken.None);
+            }
         }
     }
 }

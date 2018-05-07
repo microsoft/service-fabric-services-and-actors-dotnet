@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
@@ -36,6 +36,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
         /// <param name="requestBody"> Message Body contains a serialized message.</param>
         [OperationContract(IsOneWay = true)]
         void OneWayMessage(ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody);
-
     }
 }

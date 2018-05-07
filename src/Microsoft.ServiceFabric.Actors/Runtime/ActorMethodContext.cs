@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -18,21 +18,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             this.actorMethodName = methodName;
             this.actorCallType = callType;
-        }
-
-        internal static ActorMethodContext CreateForActor(string methodName)
-        {
-            return new ActorMethodContext(methodName, ActorCallType.ActorInterfaceMethod);
-        }
-
-        internal static ActorMethodContext CreateForTimer(string methodName)
-        {
-            return new ActorMethodContext(methodName, ActorCallType.TimerMethod);
-        }
-
-        internal static ActorMethodContext CreateForReminder(string methodName)
-        {
-            return new ActorMethodContext(methodName, ActorCallType.ReminderMethod);
         }
 
         /// <summary>
@@ -53,6 +38,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public ActorCallType CallType
         {
             get { return this.actorCallType; }
+        }
+
+        internal static ActorMethodContext CreateForActor(string methodName)
+        {
+            return new ActorMethodContext(methodName, ActorCallType.ActorInterfaceMethod);
+        }
+
+        internal static ActorMethodContext CreateForTimer(string methodName)
+        {
+            return new ActorMethodContext(methodName, ActorCallType.TimerMethod);
+        }
+
+        internal static ActorMethodContext CreateForReminder(string methodName)
+        {
+            return new ActorMethodContext(methodName, ActorCallType.ReminderMethod);
         }
     }
 }

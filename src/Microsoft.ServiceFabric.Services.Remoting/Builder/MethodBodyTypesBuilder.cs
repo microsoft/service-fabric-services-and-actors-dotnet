@@ -1,14 +1,14 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
     using System;
     using System.Collections.Generic;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
     using System.Reflection;
+    using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     internal class MethodBodyTypesBuilder : CodeBuilderModule
     {
@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
             var result = new MethodBodyTypesBuildResult(context)
             {
-                MethodBodyTypesMap = new Dictionary<string, MethodBodyTypes>()
+                MethodBodyTypesMap = new Dictionary<string, MethodBodyTypes>(),
             };
             foreach (var method in interfaceDescription.Methods)
             {
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             {
                 RequestBodyType = null,
                 ResponseBodyType = null,
-                HasCancellationTokenArgument = methodDescription.HasCancellationToken
+                HasCancellationTokenArgument = methodDescription.HasCancellationToken,
             };
 
             if ((methodDescription.Arguments != null) && (methodDescription.Arguments.Length != 0))
@@ -97,13 +97,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 typeName: codeBuilderNames.GetResponseBodyTypeName(methodDescription.Name),
                 dcNamespace: codeBuilderNames.GetDataContractNamespace());
 
-
             var returnDataType = methodDescription.ReturnType.GetGenericArguments()[0];
             CodeBuilderUtils.AddDataMemberField(
                 dcTypeBuilder: responseBodyTypeBuilder,
                 fieldType: returnDataType,
                 fieldName: codeBuilderNames.RetVal);
-
 
             return responseBodyTypeBuilder.CreateTypeInfo().AsType();
         }

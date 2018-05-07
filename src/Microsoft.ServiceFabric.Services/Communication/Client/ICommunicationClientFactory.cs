@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -29,9 +29,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         event EventHandler<CommunicationClientEventArgs<TCommunicationClient>> ClientDisconnected;
 
         /// <summary>
-        /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate 
-        /// to the endpoint corresponding to the given listenerName. 
-        /// 
+        /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
+        /// to the endpoint corresponding to the given listenerName.
+        ///
         /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// </summary>
         /// <param name="serviceUri">Uri of the service to resolve</param>
@@ -53,9 +53,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// Re-resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate 
-        /// to the endpoint corresponding to the given listenerName. 
-        /// 
+        /// Re-resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
+        /// to the endpoint corresponding to the given listenerName.
+        ///
         /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// </summary>
         /// <param name="previousRsp">Previous ResolvedServicePartition value</param>

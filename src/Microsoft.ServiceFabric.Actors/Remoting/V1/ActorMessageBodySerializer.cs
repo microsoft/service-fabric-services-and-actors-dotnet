@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1
@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
     {
         private static readonly IEnumerable<Type> DefaultKnownTypes = new[]
         {
-            typeof(ActorReference)
+            typeof(ActorReference),
         };
 
         public static DataContractSerializer GetActorMessageSerializer(IEnumerable<Type> knownTypes)
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
                 {
                     DataContractSurrogate = new ActorDataContractSurrogate(),
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = types
+                    KnownTypes = types,
                 });
 #endif
 

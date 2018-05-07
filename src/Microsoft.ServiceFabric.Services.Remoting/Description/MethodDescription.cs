@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Description
@@ -24,14 +24,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
         private MethodDescription(
             MethodInfo methodInfo,
             MethodArgumentDescription[] arguments,
-            bool hasCancellationToken, bool useCRCIdGeneration)
+            bool hasCancellationToken,
+            bool useCRCIdGeneration)
         {
             this.methodInfo = methodInfo;
             this.useCRCIdGeneration = useCRCIdGeneration;
             if (this.useCRCIdGeneration)
             {
                 this.methodId = IdUtil.ComputeIdWithCRC(methodInfo);
-                //This is needed for backward compatibility support to V1 Stack like ActorEventproxy where Code-gen happens only once.
+
+                // This is needed for backward compatibility support to V1 Stack like ActorEventproxy where Code-gen happens only once.
                 this.methodIdV1 = IdUtil.ComputeId(methodInfo);
             }
             else
@@ -41,7 +43,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
 
             this.arguments = arguments;
             this.hasCancellationToken = hasCancellationToken;
-
         }
 
         public int Id
@@ -89,9 +90,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
             {
                 if (hasCancellationToken)
                 {
-                    //
                     // If the method has a cancellation token, then it must be the last argument.
-                    //
                     throw new ArgumentException(
                         string.Format(
                             CultureInfo.CurrentCulture,

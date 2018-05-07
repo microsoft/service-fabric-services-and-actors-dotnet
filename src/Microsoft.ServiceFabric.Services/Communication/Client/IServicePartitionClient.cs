@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -13,7 +13,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// Defines the interface for the client that can communicate with replicas of a particular service partition.
     /// </summary>
     /// <typeparam name="TCommunicationClient">Type of ICommunicationClient</typeparam>
-    public interface IServicePartitionClient<TCommunicationClient> where TCommunicationClient : ICommunicationClient
+    public interface IServicePartitionClient<TCommunicationClient>
+        where TCommunicationClient : ICommunicationClient
     {
         /// <summary>
         /// Gets the name of the service
@@ -22,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         Uri ServiceUri { get; }
 
         /// <summary>
-        /// Gets the key of the partition the client is communicating with. 
+        /// Gets the key of the partition the client is communicating with.
         /// </summary>
         /// <value>Partition key</value>
         ServicePartitionKey PartitionKey { get; }

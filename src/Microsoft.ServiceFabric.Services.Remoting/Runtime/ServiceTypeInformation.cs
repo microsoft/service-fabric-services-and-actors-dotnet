@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
@@ -17,26 +17,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     public sealed class ServiceTypeInformation
     {
         /// <summary>
-        /// Initializes a new instance of the ServiceTypeInformation class.
+        /// Initializes a new instance of the <see cref="ServiceTypeInformation"/> class.
         /// </summary>
         private ServiceTypeInformation()
         {
         }
 
         /// <summary>
-        /// Gets or sets the interface types implemented.
+        /// Gets the interface types implemented.
         /// </summary>
         /// <value>List of interface types</value>
         public IEnumerable<Type> InterfaceTypes { get; private set; }
 
         /// <summary>
-        /// Gets or sets the type of the class implementing the service interface.
+        /// Gets the type of the class implementing the service interface.
         /// </summary>
         /// <value><see cref="System.Type"/> of the class implementing the service interface.</value>
         public Type ImplementationType { get; private set; }
 
         /// <summary>
-        /// Gets or sets if class implementing service interface is abstract.
+        /// Gets a value indicating whether class implementing service interface is abstract.
         /// </summary>
         /// <value>true if class implementing service interface is abstract, otherwise false.</value>
         public bool IsAbstract { get; private set; }

@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
@@ -13,24 +13,30 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using ActorStateTable = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
-        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
-        string,
-        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>;
+    using Moq;
+    using Xunit;
     using ActorStateDataWrapper = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
         Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
         string,
         Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>.ActorStateDataWrapper;
+    using ActorStateTable = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
+        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
+        string,
+        Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>;
     using ActorStateType = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType;
-    using SecondaryPump = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.SecondaryPump;
     using CopyStateEnumerator = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.CopyStateEnumerator;
-    using Moq;
-  
-    using Xunit;
+    using SecondaryPump = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.SecondaryPump;
 
 #pragma warning disable xUnit1024
+
+    /// <summary>
+    /// Contains tests for replciation pump for VolatileStateProvider.
+    /// </summary>
     public class SecondaryPumpTests : VolatileStateProviderTestBase
     {
+        /// <summary>
+        /// Tests copy and replciaiton.
+        /// </summary>
         [Fact]
         public void TestCopyAndReplication()
         {
@@ -38,6 +44,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             this.TestCopyAndReplication(GetStatesPerReplication(4));
         }
 
+        /// <summary>
+        /// Tests CopyUpToSequenceNumber
+        /// </summary>
         [Fact]
         public void TestCopyUpToSequenceNumber()
         {
@@ -45,6 +54,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             this.TestCopyUpToSequenceNumber(GetStatesPerReplication(4));
         }
 
+        /// <summary>
+        /// Test CopyAndReplicationDelete
+        /// </summary>
         [Fact]
         public void TestCopyAndReplicationDelete()
         {
@@ -52,6 +64,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             this.TestCopyAndReplicationDelete(GetStatesPerReplication(4));
         }
 
+        /// <summary>
+        /// Tests Replicaiton.
+        /// </summary>
         [Fact]
         public void TestReplication()
         {
@@ -59,11 +74,19 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             this.TestReplication(GetStatesPerReplication(4));
         }
 
+        private static Task<T> CreateCompletedTask<T>(T value)
+        {
+            var tcs = new TaskCompletionSource<T>();
+            tcs.SetResult(value);
+            return tcs.Task;
+        }
+
         private void TestCopyAndReplication(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("### TestCopyAndReplication ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -232,7 +255,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         {
             TestCase("### TestCopyUpToSequenceNumber ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -308,7 +332,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     primarySequenceNumber * statesPerReplication[ActorStateType.Actor]);
             }
 
-            var upToSequenceNumber = copyKeyPrefixes.Length + replicationKeyPrefixes.Length / 2;
+            var upToSequenceNumber = copyKeyPrefixes.Length + (replicationKeyPrefixes.Length / 2);
             var copyStateEnumerator = new CopyStateEnumerator(
                 primaryStateTable.GetShallowCopiesEnumerator(upToSequenceNumber),
                 copyOrReplicationSerializer,
@@ -401,7 +425,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         {
             TestCase("### TestCopyAndReplicationDelete ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -545,7 +570,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             FailTestIf(
                 pumpCompletionTask.IsCompleted,
-                "pumpCompletionTask.IsCompleted. Expected: false Actual: {0}.", pumpCompletionTask.IsCompleted);
+                "pumpCompletionTask.IsCompleted. Expected: false Actual: {0}.",
+                pumpCompletionTask.IsCompleted);
 
             foreach (var keyPrefix in copyKeyPrefixes)
             {
@@ -559,7 +585,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     dataLength,
                     copyKeyPrefixes.Length + deletedCopyKeyPrefixes.Length,
                     copyKeyPrefixes.Length + deletedCopyKeyPrefixes.Length,
-                    (copyKeyPrefixes.Length - deletedCopyKeyPrefixes.Length) * statesPerReplication[ActorStateType.Actor] + 1);
+                    ((copyKeyPrefixes.Length - deletedCopyKeyPrefixes.Length) * statesPerReplication[ActorStateType.Actor]) + 1);
             }
 
             TestCase("# Signal replication stream to be ready.");
@@ -568,11 +594,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             pumpCompletionTask.Wait();
 
             expectedCount =
-                (copyKeyPrefixes.Length
+                ((copyKeyPrefixes.Length
                 + replicationKeyPrefixes.Length
                 - deletedCopyKeyPrefixes.Length
                 - deletedReplicationKeyPrefixes.Length)
-                * statesPerReplication[ActorStateType.Actor] + 1;
+                * statesPerReplication[ActorStateType.Actor]) + 1;
 
             foreach (var keyPrefix in replicationKeyPrefixes)
             {
@@ -616,7 +642,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         {
             TestCase("### TestReplication ###");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -735,12 +762,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        #region Helper inner classes
-
         private class MockStateReplicator : IStateReplicator
         {
-            private readonly MockCopyOperationStream _copyStream;
-            private readonly MockReplicationOperationStream _replicationStream;
+            private readonly MockCopyOperationStream copyStream;
+            private readonly MockReplicationOperationStream replicationStream;
 
             public MockStateReplicator(
                 DataContractSerializer replicationSerializer,
@@ -748,8 +773,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 List<List<ActorStateDataWrapper>> replicationList,
                 Task replicationStreamReadySignal)
             {
-                this._copyStream = new MockCopyOperationStream(copyStateEnumerator);
-                this._replicationStream = new MockReplicationOperationStream(
+                this.copyStream = new MockCopyOperationStream(copyStateEnumerator);
+                this.replicationStream = new MockReplicationOperationStream(
                     replicationSerializer,
                     replicationList,
                     replicationStreamReadySignal);
@@ -757,12 +782,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             IOperationStream IStateReplicator.GetCopyStream()
             {
-                return this._copyStream;
+                return this.copyStream;
             }
 
             IOperationStream IStateReplicator.GetReplicationStream()
             {
-                return this._replicationStream;
+                return this.replicationStream;
             }
 
             Task<long> IStateReplicator.ReplicateAsync(OperationData operationData, System.Threading.CancellationToken cancellationToken, out long sequenceNumber)
@@ -778,21 +803,21 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
         private class MockCopyOperationStream : IOperationStream
         {
-            private readonly IOperationDataStream _copyStateEnumerator;
-            private long _sequenceNumber;
+            private readonly IOperationDataStream copyStateEnumerator;
+            private long sequenceNumber;
 
             public MockCopyOperationStream(IOperationDataStream copyStateEnumerator)
             {
-                this._copyStateEnumerator = copyStateEnumerator;
-                this._sequenceNumber = 0;
+                this.copyStateEnumerator = copyStateEnumerator;
+                this.sequenceNumber = 0;
             }
 
             Task<IOperation> IOperationStream.GetOperationAsync(System.Threading.CancellationToken cancellationToken)
             {
-                var operationData = this._copyStateEnumerator.GetNextAsync(cancellationToken).Result;
+                var operationData = this.copyStateEnumerator.GetNextAsync(cancellationToken).Result;
 
                 // Secondary pump should take sequence number off each operation data itself
-                var copySequenceNumber = ++this._sequenceNumber;
+                var copySequenceNumber = ++this.sequenceNumber;
 
                 return CreateCompletedTask<IOperation>(
                     operationData == null ? null : new MockOperation(operationData, copySequenceNumber));
@@ -801,35 +826,34 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
         private class MockReplicationOperationStream : IOperationStream
         {
-            private readonly DataContractSerializer _replicationSerializer;
-            private readonly List<List<ActorStateDataWrapper>> _replicationData;
-            private readonly Task _replicationStreamReadySignal;
-            private int _replicationDataIndex;
+            private readonly DataContractSerializer replicationSerializer;
+            private readonly List<List<ActorStateDataWrapper>> replicationData;
+            private readonly Task replicationStreamReadySignal;
+            private int replicationDataIndex;
 
             public MockReplicationOperationStream(
                 DataContractSerializer replicationSerializer,
                 List<List<ActorStateTable.ActorStateDataWrapper>> replicationData,
                 Task replicationStreamReadySignal)
             {
-                this._replicationSerializer = replicationSerializer;
-                this._replicationData = replicationData;
-                this._replicationStreamReadySignal = replicationStreamReadySignal;
-                this._replicationDataIndex = 0;
+                this.replicationSerializer = replicationSerializer;
+                this.replicationData = replicationData;
+                this.replicationStreamReadySignal = replicationStreamReadySignal;
+                this.replicationDataIndex = 0;
             }
 
             async Task<IOperation> IOperationStream.GetOperationAsync(System.Threading.CancellationToken cancellationToken)
             {
-                await this._replicationStreamReadySignal;
+                await this.replicationStreamReadySignal;
 
-                if (this._replicationDataIndex < this._replicationData.Count)
+                if (this.replicationDataIndex < this.replicationData.Count)
                 {
-                    var actorStateDataWrapperList = this._replicationData[this._replicationDataIndex++];
+                    var actorStateDataWrapperList = this.replicationData[this.replicationDataIndex++];
                     var replicationSequenceNumber = actorStateDataWrapperList[0].SequenceNumber;
                     var replicationOperation = new VolatileActorStateProvider.CopyOrReplicationOperation(actorStateDataWrapperList);
 
                     // Secondary pump should take sequence number off the replication operation
                     // rather than the data
-                    //
                     foreach (var actorStateDataWrapper in actorStateDataWrapperList)
                     {
                         actorStateDataWrapper.UpdateSequenceNumber(0);
@@ -837,7 +861,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
                     return new MockOperation(
                         VolatileActorStateProvider.SerializeToOperationData(
-                            this._replicationSerializer,
+                            this.replicationSerializer,
                             replicationOperation),
                         replicationSequenceNumber);
                 }
@@ -848,20 +872,15 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
         private class MockOperation : IOperation
         {
-            private readonly OperationData _operationData;
-            private readonly long _sequenceNumber;
+            private readonly OperationData operationData;
+            private readonly long sequenceNumber;
 
             public MockOperation(
                 OperationData operationData,
                 long sequenceNumber)
             {
-                this._operationData = operationData;
-                this._sequenceNumber = sequenceNumber;
-            }
-
-            void IOperation.Acknowledge()
-            {
-                // no-op
+                this.operationData = operationData;
+                this.sequenceNumber = sequenceNumber;
             }
 
             long IOperation.AtomicGroupId
@@ -871,7 +890,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             OperationData IOperation.Data
             {
-                get { return this._operationData; }
+                get { return this.operationData; }
             }
 
             OperationType IOperation.OperationType
@@ -881,7 +900,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             long IOperation.SequenceNumber
             {
-                get { return this._sequenceNumber; }
+                get { return this.sequenceNumber; }
+            }
+
+            void IOperation.Acknowledge()
+            {
+                // no-op
             }
         }
 
@@ -893,14 +917,5 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 return CreateCompletedTask<object>(null);
             }
         }
-
-        private static Task<T> CreateCompletedTask<T>(T value)
-        {
-            var tcs = new TaskCompletionSource<T>();
-            tcs.SetResult(value);
-            return tcs.Task;
-        }
-
-        #endregion Helper inner classes
     }
 }

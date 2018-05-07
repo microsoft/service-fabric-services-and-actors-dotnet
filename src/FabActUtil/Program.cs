@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace FabActUtil
@@ -12,6 +12,8 @@ namespace FabActUtil
 
     internal class Program
     {
+        private static string assemblyResolvePath;
+
         private static int Main(string[] args)
         {
             var parsedArguments = new ToolArguments();
@@ -23,7 +25,7 @@ namespace FabActUtil
 
             try
             {
-                AssemblyResolvePath = parsedArguments.AssemblyResolvePath;
+                assemblyResolvePath = parsedArguments.AssemblyResolvePath;
                 var currentDomain = AppDomain.CurrentDomain;
                 currentDomain.AssemblyResolve += new ResolveEventHandler(ResolveHandler);
 
@@ -38,18 +40,16 @@ namespace FabActUtil
             return 0;
         }
 
-        internal static string AssemblyResolvePath;
-
         private static Assembly ResolveHandler(object sender, ResolveEventArgs args)
         {
             // The ResolveHandler is called if the dependencies are not in same location as the executable.
-            if (AssemblyResolvePath != null)
+            if (assemblyResolvePath != null)
             {
-                if (Directory.Exists(AssemblyResolvePath))
+                if (Directory.Exists(assemblyResolvePath))
                 {
                     // try to load dll and then exe
                     var assemblyName = new AssemblyName(args.Name).Name;
-                    var assemblyPath = Path.Combine(AssemblyResolvePath, assemblyName + ".dll");
+                    var assemblyPath = Path.Combine(assemblyResolvePath, assemblyName + ".dll");
 
                     if (File.Exists(assemblyPath))
                     {
@@ -57,7 +57,7 @@ namespace FabActUtil
                     }
                     else
                     {
-                        assemblyPath = Path.Combine(AssemblyResolvePath, assemblyName + ".exe");
+                        assemblyPath = Path.Combine(assemblyResolvePath, assemblyName + ".exe");
                         if (File.Exists(assemblyPath))
                         {
                             return Assembly.LoadFrom(assemblyPath);
@@ -68,6 +68,5 @@ namespace FabActUtil
 
             return null;
         }
-
     }
 }

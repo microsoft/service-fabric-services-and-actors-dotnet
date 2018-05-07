@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Runtime
@@ -18,9 +18,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     internal class StatefulServiceReplicaAdapter : IStatefulServiceReplica
     {
         private const string TraceType = "StatefulServiceReplicaAdapter";
-        private readonly string traceId;
-
         private const int PrimaryStatusCheckRetryIntervalInMillis = 512;
+
+        private readonly string traceId;
 
         private readonly ServiceHelper serviceHelper;
         private readonly StatefulServiceContext serviceContext;
@@ -59,7 +59,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.userServiceReplica = userServiceReplica;
             this.userServiceReplica.Addresses = this.endpointCollection.ToReadOnlyDictionary();
 
-            // The state provider replica should ideally be initialized 
+            // The state provider replica should ideally be initialized
             // here (this.stateProviderReplica.Initialize()) with ServiceContext.
             // However the initialize function takes in StatefulServiceInitializationParameter
             // and resides in the DATA layer. DATA layer lies below SERVICES layer
@@ -70,7 +70,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// This is exposed only for testing use.
+        /// Gets the communication listener that this service is using. This is only for used for testing.
         /// </summary>
         internal IList<ICommunicationListener> Test_CommunicationListeners
         {
@@ -154,12 +154,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
 
-            //
             // ChangeRole (CR) on user service replica should be invoked after CR has been invoked
             //  on StateProvider (SP) to ensure consistent experience for user service replica
             // accross out-of-box SPs (ReliableCollection, KVS etc.) provided by Service Fabric
             // and custom SPs provided by users.
-            // 
+            //
             // SF's out-of-box SPs are based on local state and use SF's replicator to replicate state changes
             // to secondary replicas. A custom state provider may be based on some external store
             // (e.g. custom implementation of IActorStateProvider) and may not use replicator for replication.
@@ -168,10 +167,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             // (for a P->S CR) before invoking CR on service replica (i.e IStatefulServiceReplica.ChangeRoleAsync).
             // Hence, even if CR has not been invoked on SP, it will not be able to replicate and effectively has
             // write permission revoked.
-            // 
-            // However, a custom SP which does not uses replication, needs to be notified of CR (P->S) so that 
-            // it does not allow further writes when CR is invoked for user service replica.
             //
+            // However, a custom SP which does not uses replication, needs to be notified of CR (P->S) so that
+            // it does not allow further writes when CR is invoked for user service replica.
             ServiceTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.traceId,
@@ -226,6 +224,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         #endregion
 
+        internal bool Test_IsRunAsyncTaskRunning()
+        {
+            return (!this.executeRunAsyncTask.IsCompleted &&
+                    !this.executeRunAsyncTask.IsCanceled &&
+                    !this.executeRunAsyncTask.IsFaulted);
+        }
+
         #region RunAsync Management
 
         private Task ScheduleRunAsync(CancellationToken runAsyncCancellationToken)
@@ -237,7 +242,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             // directly in current thread, then user can block the current thread and
             // ChangeRoleAsync() call will not complete.
             //
-            // Explicitly passing CancellationToken.None to Task.Run() to ensure that user's 
+            // Explicitly passing CancellationToken.None to Task.Run() to ensure that user's
             // RunAsync() does get invoked. Passing 'runAsyncCancellationToken' to Task.Run()
             // means that if 'runAsyncCancellationToken' is signaled before RunAsync() is actually
             // scheduled, awaiting 'executeRunAsyncTask' in CancelRunAsync() will throw
@@ -257,7 +262,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             // 'writeStatusGranted' will be false only when:
             // 1) This replica is no longer primary.
             // 2) This replica is closing.
-            // 3) Checking for partition write status has thrown an unexpected exception 
+            // 3) Checking for partition write status has thrown an unexpected exception
             //    in which fault transient is reported (see method WaitForWriteStatusAsync()).
             if (!writeStatusGranted)
             {
@@ -322,11 +327,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         /// <summary>
         /// This gets called in three cases:
-        /// 
+        ///
         /// 1) When replica is changing role from primary to secondary.
         /// 2) When replica is being closed.
         /// 3) When replica is being aborted.
-        /// 
+        ///
         /// </summary>
         private async Task CancelRunAsync()
         {
@@ -355,14 +360,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                         // on awaiting it is OperationCanceledException (whose cancellation token matches
                         // 'this.runAsynCancellationTokenSource') since we check for cancellation requested
                         // during and right after write status is acquired and RunAsync is actually invoked.
-                        // Any other exception is unexpected and should be re-thrown. 
-                        // 
+                        // Any other exception is unexpected and should be re-thrown.
+                        //
                         // When CancelRunAsync() is invoked as part of replica role change from primary
-                        // to secondary (see method IStatefulServiceReplica.ChangeRoleAsync()) or when 
+                        // to secondary (see method IStatefulServiceReplica.ChangeRoleAsync()) or when
                         // replica is closing (see method IStatefulServiceReplica.CloseAsync) it is awaited
-                        // by the caller and re-thrown exception will then propagate to RA which will take 
+                        // by the caller and re-thrown exception will then propagate to RA which will take
                         // appropriate actions.
-                        // 
+                        //
                         // When CancelRunAsync() is invoked as part of replica aborting, the caller does
                         // not await it and exception is ignored as replica is anyway aborting.
                         await this.serviceHelper.AwaitRunAsyncWithHealthReporting(this.servicePartition, this.executeRunAsyncTask);
@@ -379,6 +384,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                             ex.ToString());
                         throw;
                     }
+
                     ServiceTrace.Source.WriteNoiseWithId(TraceType, this.traceId, "executeRunAsyncTask canceled cooperatively");
                 }
                 catch (Exception ex)
@@ -467,7 +473,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.communicationListeners.Add(communicationListener);
         }
 
-        private async Task<ServiceEndpointCollection> OpenCommunicationListenersAsync(ReplicaRole replicaRole,
+        private async Task<ServiceEndpointCollection> OpenCommunicationListenersAsync(
+            ReplicaRole replicaRole,
             CancellationToken cancellationToken)
         {
             ServiceTrace.Source.WriteInfoWithId(
@@ -521,7 +528,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 {
                     foreach (var entry in this.communicationListeners)
                     {
-
                         await entry.CloseAsync(cancellationToken);
                     }
                 }
@@ -567,6 +573,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                         {
                             exceptions = new List<Exception>();
                         }
+
                         exceptions.Add(e);
                     }
                 }
@@ -577,7 +584,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     // Trace the exception and continue. Do not bubble up exception as abort path
                     // should do best effort cleanup and continue. This allows other component in
                     // abort path to perform their best effort cleanup.
-
                     var aggregateException = new AggregateException(exceptions);
 
                     ServiceTrace.Source.WriteWarningWithId(
@@ -591,15 +597,5 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         #endregion
 
-        #region Test Hooks
-
-        internal bool Test_IsRunAsyncTaskRunning()
-        {
-            return (!this.executeRunAsyncTask.IsCompleted &&
-                    !this.executeRunAsyncTask.IsCanceled &&
-                    !this.executeRunAsyncTask.IsFaulted);
-        }
-
-        #endregion
     }
 }

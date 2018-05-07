@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -26,7 +26,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public TimeSpan LogicalTime
         {
             get { return this.logicalTime; }
-
         }
 
         public DateTime UtcTime

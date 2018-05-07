@@ -1,14 +1,14 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Numerics;
     using System.Fabric;
+    using System.Numerics;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -20,49 +20,65 @@ namespace Microsoft.ServiceFabric.Actors.Tests
     internal static class TestMocksRepository
     {
         // For Service Context
-        internal static Guid MockPartitionID = Guid.NewGuid();
-        internal static long MockReplicaOrInstanceID = 99999999999;
-        internal static Uri MockServiceUri = new Uri("fabric:/MockServiceName");
-        internal static string MockServiceTypeName = "MockServiceTypeName";
+        private static Guid mockPartitionID = Guid.NewGuid();
+        private static long mockReplicaOrInstanceID = 99999999999;
+        private static Uri mockServiceUri = new Uri("fabric:/MockServiceName");
+        private static string mockServiceTypeName = "MockServiceTypeName";
 
         // For NodeContext
-        internal static string MockFQDN = "MockFQDN";
-        internal static string MockNodeName = "MockNodeName";
-        internal static string MockNodeType = "MockNodeType";
+        private static string mockFQDN = "MockFQDN";
+        private static string mockNodeName = "MockNodeName";
+        private static string mockNodeType = "MockNodeType";
 
         // For CodePackageActiviationContext
-        internal static string MockWorkDirectory = "MockWorkDirectory";
-        internal static string MockLogDirectory = "MockLogDirectory";
-        internal static string MockTempDirectory = "MockTempDirectory";
-        internal static string MockContextId = "MockContextId";
-        internal static string MockCodePackageName = "MockCodePackageName";
-        internal static string MockCodePackageVersion = "MockCodePackageVersion";
-        internal static string MockApplciationName = "MockApplicationName";
-        internal static string MockApplicationTypeName = "MockApplicationTypeName";
+        private static string mockWorkDirectory = "MockWorkDirectory";
+        private static string mockLogDirectory = "MockLogDirectory";
+        private static string mockTempDirectory = "MockTempDirectory";
+        private static string mockContextId = "MockContextId";
+        private static string mockCodePackageName = "MockCodePackageName";
+        private static string mockCodePackageVersion = "MockCodePackageVersion";
+        private static string mockApplciationName = "MockApplicationName";
+        private static string mockApplicationTypeName = "MockApplicationTypeName";
 
+        /// <summary>
+        /// Gets a mock StatefulServiceContext.
+        /// </summary>
+        /// <returns>A mock StatefulServiceContext.</returns>
         internal static StatefulServiceContext GetMockStatefulServiceContext()
         {
-            return new StatefulServiceContext(GetNodeContext(),
+            return new StatefulServiceContext(
+                GetNodeContext(),
                 GetCodePackageActivationContext(),
-                MockServiceTypeName,
-                MockServiceUri,
+                mockServiceTypeName,
+                mockServiceUri,
                 null,
-                MockPartitionID,
-                MockReplicaOrInstanceID);
+                mockPartitionID,
+                mockReplicaOrInstanceID);
         }
 
+        /// <summary>
+        /// Geta a mock StatelessServiceContext.
+        /// </summary>
+        /// <returns>A mock StatelessServiceContext.</returns>
         internal static StatelessServiceContext GetMockStatelessServiceContext()
         {
-            return new StatelessServiceContext(GetNodeContext(),
+            return new StatelessServiceContext(
+                GetNodeContext(),
                 GetCodePackageActivationContext(),
-                MockServiceTypeName,
-                MockServiceUri,
+                mockServiceTypeName,
+                mockServiceUri,
                 null,
-                MockPartitionID,
-                MockReplicaOrInstanceID);
+                mockPartitionID,
+                mockReplicaOrInstanceID);
         }
 
-        internal static ActorService GetActorService<T>() where T : Actor
+        /// <summary>
+        /// Gets mock Actor Service.
+        /// </summary>
+        /// <typeparam name="T">Type of Actor.</typeparam>
+        /// <returns>Actor Service.</returns>
+        internal static ActorService GetActorService<T>()
+            where T : Actor
         {
             return new ActorService(
                 GetMockStatefulServiceContext(),
@@ -72,6 +88,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 GetMockActorStateProvider());
         }
 
+        /// <summary>
+        /// Gets a mock ActorTimer.
+        /// </summary>
+        /// <returns>A mock ActorTime.</returns>
         internal static IActorTimer GetMockActorTimer()
         {
             // Create mock StateProvider and setup required things needed by tests.
@@ -80,31 +100,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             return mockTimer.Object;
         }
 
-        private static NodeContext GetNodeContext()
-        {
-            return new NodeContext(MockNodeName,
-                new NodeId(BigInteger.Zero, BigInteger.Zero),
-                BigInteger.Zero,
-                MockNodeType,
-                MockFQDN);
-        }
-
-        private static ICodePackageActivationContext GetCodePackageActivationContext()
-        {
-            // Create mock Context and setup required things needed by tests.
-            var mockContext = new Mock<ICodePackageActivationContext>();
-            mockContext.SetupAllProperties();
-            mockContext.Setup(x => x.WorkDirectory).Returns(MockWorkDirectory);
-            mockContext.Setup(x => x.LogDirectory).Returns(MockLogDirectory);
-            mockContext.Setup(x => x.TempDirectory).Returns(MockTempDirectory);
-            mockContext.Setup(x => x.ContextId).Returns(MockContextId);
-            mockContext.Setup(x => x.CodePackageName).Returns(MockCodePackageName);
-            mockContext.Setup(x => x.CodePackageVersion).Returns(MockCodePackageVersion);
-            mockContext.Setup(x => x.ApplicationName).Returns(MockApplciationName);
-            mockContext.Setup(x => x.ApplicationTypeName).Returns(MockApplicationTypeName);
-            return mockContext.Object;
-        }
-
+        /// <summary>
+        /// Gets a mock ActorStateProvider.
+        /// </summary>
+        /// <returns>Mock ActorStateProvider.</returns>
         internal static IActorStateProvider GetMockActorStateProvider()
         {
             // Create mock StateProvider and setup required things needed by tests.
@@ -114,27 +113,37 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             // for IActorStateProvider
             mockStateProvider.Setup(
                 x =>
-                    x.SaveStateAsync(It.IsAny<ActorId>(), It.IsAny<IReadOnlyCollection<ActorStateChange>>(),
+                    x.SaveStateAsync(
+                        It.IsAny<ActorId>(),
+                        It.IsAny<IReadOnlyCollection<ActorStateChange>>(),
                         It.IsAny<CancellationToken>())).Returns(Task.FromResult(true));
 
             mockStateProvider.Setup(
                 x =>
-                    x.ContainsStateAsync(It.IsAny<ActorId>(), It.IsAny<string>(),
+                    x.ContainsStateAsync(
+                        It.IsAny<ActorId>(),
+                        It.IsAny<string>(),
                         It.IsAny<CancellationToken>())).Returns(Task.FromResult(false));
 
             mockStateProvider.Setup(
                 x =>
-                    x.RemoveActorAsync(It.IsAny<ActorId>(), It.IsAny<CancellationToken>()))
+                    x.RemoveActorAsync(
+                        It.IsAny<ActorId>(),
+                        It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(true));
 
             mockStateProvider.Setup(
                 x =>
-                    x.SaveReminderAsync(It.IsAny<ActorId>(), It.IsAny<IActorReminder>(),
+                    x.SaveReminderAsync(
+                        It.IsAny<ActorId>(),
+                        It.IsAny<IActorReminder>(),
                         It.IsAny<CancellationToken>())).Returns(Task.FromResult(true));
 
             mockStateProvider.Setup(
                 x =>
-                    x.DeleteReminderAsync(It.IsAny<ActorId>(), It.IsAny<string>(),
+                    x.DeleteReminderAsync(
+                        It.IsAny<ActorId>(),
+                        It.IsAny<string>(),
                         It.IsAny<CancellationToken>())).Returns(Task.FromResult(true));
 
             mockStateProvider.Setup(
@@ -143,6 +152,32 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 .Returns(Task.FromResult(new List<string>() as IEnumerable<string>));
 
             return mockStateProvider.Object;
+        }
+
+        private static NodeContext GetNodeContext()
+        {
+            return new NodeContext(
+                mockNodeName,
+                new NodeId(BigInteger.Zero, BigInteger.Zero),
+                BigInteger.Zero,
+                mockNodeType,
+                mockFQDN);
+        }
+
+        private static ICodePackageActivationContext GetCodePackageActivationContext()
+        {
+            // Create mock Context and setup required things needed by tests.
+            var mockContext = new Mock<ICodePackageActivationContext>();
+            mockContext.SetupAllProperties();
+            mockContext.Setup(x => x.WorkDirectory).Returns(mockWorkDirectory);
+            mockContext.Setup(x => x.LogDirectory).Returns(mockLogDirectory);
+            mockContext.Setup(x => x.TempDirectory).Returns(mockTempDirectory);
+            mockContext.Setup(x => x.ContextId).Returns(mockContextId);
+            mockContext.Setup(x => x.CodePackageName).Returns(mockCodePackageName);
+            mockContext.Setup(x => x.CodePackageVersion).Returns(mockCodePackageVersion);
+            mockContext.Setup(x => x.ApplicationName).Returns(mockApplciationName);
+            mockContext.Setup(x => x.ApplicationTypeName).Returns(mockApplicationTypeName);
+            return mockContext.Object;
         }
     }
 }

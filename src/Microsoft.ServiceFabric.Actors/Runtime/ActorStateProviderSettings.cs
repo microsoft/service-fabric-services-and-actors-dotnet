@@ -1,14 +1,14 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
-    using System.Text;
     using System.Fabric;
     using System.Fabric.Description;
+    using System.Text;
 
     internal abstract class ActorStateProviderSettings
     {
@@ -19,6 +19,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             this.TransientErrorRetryDelay = TimeSpan.FromSeconds(1);
             this.OperationTimeout = TimeSpan.FromMinutes(5);
+        }
+
+        public TimeSpan TransientErrorRetryDelay { get; set; }
+
+        public TimeSpan OperationTimeout { get; set; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.Append($"TransientErrorRetryDelay: {this.TransientErrorRetryDelay.TotalSeconds}, ");
+            sb.Append($"OperationTimeout: {this.OperationTimeout.TotalSeconds}");
+
+            return sb.ToString();
         }
 
         protected virtual void LoadFromSection(ConfigurationSection section)
@@ -43,20 +57,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 this.LoadFromSection(section);
             }
-        }
-
-        public TimeSpan TransientErrorRetryDelay { get; set; }
-
-        public TimeSpan OperationTimeout { get; set; }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-
-            sb.Append($"TransientErrorRetryDelay: {this.TransientErrorRetryDelay.TotalSeconds}, ");
-            sb.Append($"OperationTimeout: {this.OperationTimeout.TotalSeconds}");
-
-            return sb.ToString();
         }
     }
 }

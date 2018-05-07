@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
@@ -19,9 +19,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         private bool isDisposed;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="OutgoingMessageBody"/> class.
         /// Creates OutgoingMessageBody with list of pooled Buffers
         /// </summary>
-        /// <param name="outgoingPooledBodyBuffers"></param>
+        /// <param name="outgoingPooledBodyBuffers"> List of Pooled Buffers</param>
         public OutgoingMessageBody(IEnumerable<IPooledBuffer> outgoingPooledBodyBuffers)
         {
             this.pooledBodyBuffers = outgoingPooledBodyBuffers;
@@ -33,8 +34,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="OutgoingMessageBody"/> class.
         /// Creates OutgoingMessageBody with list of segments.
         /// </summary>
+        /// <param name="outgoingBodyBuffers">List of ArraySegment </param>
         public OutgoingMessageBody(IEnumerable<ArraySegment<byte>> outgoingBodyBuffers)
         {
             this.pooledBodyBuffers = null;
@@ -44,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Returns the Buffers to be sent over the wire.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>List of ArraySegment</returns>
         public IEnumerable<ArraySegment<byte>> GetSendBuffers()
         {
             return this.bodyBuffers;

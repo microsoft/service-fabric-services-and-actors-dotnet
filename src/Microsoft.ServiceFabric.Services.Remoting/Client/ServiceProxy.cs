@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
@@ -35,18 +35,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private V2.Client.ServiceRemotingPartitionClient partitionClientV2;
 
         /// <summary>
-        /// The interface type that is being remoted.
+        /// Gets the interface type that is being remoted.
         /// </summary>
         /// <value>Service interface type</value>
-
         public Type ServiceInterfaceType { get; private set; }
-
-
 
 #if !DotNetCoreClr
 
         /// <summary>
-        /// The V1 Service partition client used to send requests to the service.
+        /// Gets the V1 Service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
         public IServiceRemotingPartitionClient ServicePartitionClient
@@ -56,18 +53,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 #endif
 
         /// <summary>
-        /// The V2 Service partition client used to send requests to the service.
+        /// Gets the V2 Service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
-
         public V2.Client.IServiceRemotingPartitionClient ServicePartitionClient2
         {
             get { return this.partitionClientV2; }
         }
 
         /// <summary>
-        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that 
+        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
+        /// </summary>
         /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
         /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy</param>
@@ -77,12 +74,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// identifies which of those endpoints to use for the remoting communication.
         /// </param>
         /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="IServiceProxy"/> interface.</returns>
-        /// </summary>
         public static TServiceInterface Create<TServiceInterface>(
             Uri serviceUri,
             ServicePartitionKey partitionKey = null,
             TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default,
-            string listenerName = null) where TServiceInterface : IService
+            string listenerName = null)
+            where TServiceInterface : IService
         {
             return DefaultProxyFactory.CreateServiceProxy<TServiceInterface>(
                 serviceUri,
@@ -119,7 +116,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         {
             return new ServiceRemotingMessageBody()
             {
-                Value = requestMessageBodyValue
+                Value = requestMessageBodyValue,
             };
         }
 
@@ -132,7 +129,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             var headers = new ServiceRemotingMessageHeaders()
             {
                 InterfaceId = interfaceId,
-                MethodId = methodId
+                MethodId = methodId,
             };
 
             return this.partitionClient.InvokeAsync(
@@ -147,7 +144,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
 
 #endif
-        //V2 APi
+
+        // V2 APi
         internal void Initialize(
             ServiceFabric.Services.Remoting.V2.Builder.ServiceProxyGenerator proxyGenerator,
             ServiceFabric.Services.Remoting.V2.Client.ServiceRemotingPartitionClient client,
@@ -155,7 +153,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         {
             this.partitionClientV2 = client;
             this.ServiceInterfaceType = proxyGenerator.ProxyInterfaceType;
-            base.InitializeV2(serviceRemotingMessageBodyFactory);
+            this.InitializeV2(serviceRemotingMessageBodyFactory);
         }
 
         internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
@@ -168,7 +166,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             var headers = new ServiceRemotingRequestMessageHeader()
             {
                 InterfaceId = interfaceId,
-                MethodId = methodId
+                MethodId = methodId,
             };
             return this.partitionClientV2.InvokeAsync(
                 new ServiceRemotingRequestMessage(headers, requestMsgBodyValue),
@@ -185,4 +183,3 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         }
     }
 }
-

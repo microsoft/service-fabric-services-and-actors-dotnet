@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
-    /// A WCF client created by <see cref="WcfCommunicationClientFactory{TServiceContract}"/> to communicate 
+    /// A WCF client created by <see cref="WcfCommunicationClientFactory{TServiceContract}"/> to communicate
     /// with a Service Fabric service using <see cref="Runtime.WcfCommunicationListener{TServiceContract}"/>.
     /// </summary>
     /// <typeparam name="TServiceContract">WCF service contract</typeparam>
@@ -22,6 +22,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         internal WcfCommunicationClient(TServiceContract channel)
         {
             this.channel = channel;
+        }
+
+        /// <summary>
+        /// Finalizes an instance of the <see cref="WcfCommunicationClient{TServiceContract}"/> class.
+        /// </summary>
+        ~WcfCommunicationClient()
+        {
+            this.ClientChannel.Abort();
         }
 
         /// <summary>
@@ -57,14 +65,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         internal IClientChannel ClientChannel
         {
             get { return (IClientChannel)this.Channel; }
-        }
-
-        /// <summary>
-        /// Allows an object to try to free resources and perform other cleanup operations before it is reclaimed by garbage collection.
-        /// </summary>
-        ~WcfCommunicationClient()
-        {
-            this.ClientChannel.Abort();
         }
     }
 }

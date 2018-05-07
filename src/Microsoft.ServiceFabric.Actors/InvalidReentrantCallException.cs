@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors
     /// This exception is thrown by actor runtime when more than one reentrant call chain is active for an
     /// actor at the same time.
     /// <para>
-    /// This can happen in scenario where actor A calls actor B, C and D in parallel and then B, C and D 
+    /// This can happen in scenario where actor A calls actor B, C and D in parallel and then B, C and D
     /// try to call back A at the same time.
     /// </para>
     /// </summary>
@@ -23,7 +23,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidReentrantCallException"/> class.
         /// </summary>
-        public InvalidReentrantCallException() : base(SR.InvalidReentrantCall)
+        public InvalidReentrantCallException()
+            : base(SR.InvalidReentrantCall)
         {
         }
 
@@ -31,7 +32,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// Initializes a new instance of the <see cref="InvalidReentrantCallException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
-        public InvalidReentrantCallException(string message) : base(message)
+        public InvalidReentrantCallException(string message)
+            : base(message)
         {
         }
 

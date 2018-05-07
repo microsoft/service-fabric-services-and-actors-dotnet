@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -13,12 +13,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
     /// <summary>
     /// This is the cache used by CommunicationClientFactory base class to store the communication channel's
-    /// for the replicas or instances of a partition. 
+    /// for the replicas or instances of a partition.
     /// This is a 2 level cache of Partition Id->Endpoint Address->Client channel. The client channels are
     /// maintained as a weak reference and the cache entries whose weak references are not alive are cleaned
     /// up periodically.
     /// </summary>
-    /// <typeparam name="TCommunicationClient"></typeparam>
+    /// <typeparam name="TCommunicationClient">The type of the communication client.</typeparam>
     internal class CommunicationClientCache<TCommunicationClient>
         where TCommunicationClient : ICommunicationClient
     {
@@ -72,7 +72,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         public void ClearClientCacheEntries(Guid partitionId)
         {
-            // Currently no op. To implement when we register for service change notifications.            
+            // Currently no op. To implement when we register for service change notifications.
         }
 
         // Returns a random value between 120 and 150 seconds.
@@ -113,19 +113,20 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     totalItemsCleaned,
                     totalItemsInCache);
             }
+
             // Re-arm the clean-up timer.
             this.cacheCleanupTimer.Change(this.GetNextCleanupTimerDueTimeSeconds(), TimeSpan.FromMilliseconds(-1));
         }
 
         private sealed class PartitionClientCache
         {
-            private TimeSpan cacheEntryLockWaitTimeForCleanup = TimeSpan.FromMilliseconds(500);
             private readonly string traceId;
             private readonly Guid partitionId;
-            //
-            // The max size of the dictionary is 
+
+            private TimeSpan cacheEntryLockWaitTimeForCleanup = TimeSpan.FromMilliseconds(500);
+
+            // The max size of the dictionary is
             // the number of Listeners per replica * number of replicas in a partition.
-            //
             private ConcurrentDictionary<PartitionClientCacheKey, CommunicationClientCacheEntry<TCommunicationClient>> cache;
 
             public PartitionClientCache(Guid partitionId, string traceId)
@@ -148,7 +149,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     {
                         Endpoint = endpoint,
                         ListenerName = listenerName,
-                        Rsp = rsp
+                        Rsp = rsp,
                     });
             }
 
@@ -162,12 +163,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     out cacheEntry);
             }
 
-            //
-            // Cleaning up of cache entries needs to synchronize with the code that uses the cache entry and sets the 
+            // Cleaning up of cache entries needs to synchronize with the code that uses the cache entry and sets the
             // communicationClient inside the cache entry. So the removal of the cache-entry should set entry.IsInCache to false
-            // and also remove the entry while holding the entry's semaphore, so that we don't purge a cache entry that has a valid 
+            // and also remove the entry while holding the entry's semaphore, so that we don't purge a cache entry that has a valid
             // communication client.
-            //
             public void CleanupCacheEntries(out int totalNumberOfItems, out int numberOfEntriesCleaned)
             {
                 totalNumberOfItems = 0;
@@ -197,6 +196,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         this.cache.TryRemove(entry.Key, out var removedValue);
                         ++numberOfEntriesCleaned;
                     }
+
                     entry.Value.Semaphore.Release();
                 }
             }
@@ -204,13 +204,29 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private sealed class PartitionClientCacheKey
         {
-            public readonly ResolvedServiceEndpoint Endpoint;
-            public readonly string ListenerName;
+            private readonly ResolvedServiceEndpoint endpoint;
+            private readonly string listenerName;
 
             public PartitionClientCacheKey(ResolvedServiceEndpoint endpoint, string listenerName)
             {
-                this.Endpoint = endpoint;
-                this.ListenerName = listenerName;
+                this.endpoint = endpoint;
+                this.listenerName = listenerName;
+            }
+
+            public ResolvedServiceEndpoint Endpoint
+            {
+                get
+                {
+                    return this.endpoint;
+                }
+            }
+
+            public string ListenerName
+            {
+                get
+                {
+                    return this.listenerName;
+                }
             }
 
             public override bool Equals(object obj)

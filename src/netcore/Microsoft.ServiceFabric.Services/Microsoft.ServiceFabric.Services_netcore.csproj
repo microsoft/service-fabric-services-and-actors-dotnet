@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="..\..\..\properties\service_fabric_managed_dotnetcore.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <Description>Microsoft.ServiceFabric.Services Library</Description>
     <AssemblyName>Microsoft.ServiceFabric.Services</AssemblyName>
@@ -7,6 +8,7 @@
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ProjectGuid>e93a1cc5-c164-4c4d-8314-a35b4b3af633</ProjectGuid>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>

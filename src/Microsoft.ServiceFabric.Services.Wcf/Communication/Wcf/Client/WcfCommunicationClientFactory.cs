@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     /// <summary>
     /// An <see cref="Microsoft.ServiceFabric.Services.Communication.Client.ICommunicationClientFactory{TCommunicationClient}"/> that uses
     /// Windows Communication Foundation to create <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfCommunicationClient{TServiceContract}"/>
-    /// to communicate with stateless and stateful services that are using 
+    /// to communicate with stateless and stateful services that are using
     /// <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime.WcfCommunicationListener{TServiceContract}"/>.
     /// </summary>
     /// <typeparam name="TServiceContract">WCF based service contract</typeparam>
@@ -31,19 +31,19 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         private readonly object callbackObject;
 
         /// <summary>
-        /// Constructs a factory to create clients using WCF to communicate with the services.
+        /// Initializes a new instance of the <see cref="WcfCommunicationClientFactory{TServiceContract}"/> class.
         /// </summary>
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is not specified or null,
-        ///     a default client binding is created using 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method 
+        ///     a default client binding is created using
+        ///     <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method
         ///     which creates a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
         /// <param name="exceptionHandlers">
         ///     Exception handlers to handle the exceptions encountered in communicating with the service.
         /// </param>
         /// <param name="servicePartitionResolver">
-        ///     Service partition resolver to resolve the service endpoints. If not specified, a default 
+        ///     Service partition resolver to resolve the service endpoints. If not specified, a default
         ///     service partition resolver returned by <see cref="ServicePartitionResolver.GetDefault"/> is used.
         /// </param>
         /// <param name="traceId">
@@ -126,6 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             {
                 connectionTimeoutException = te;
             }
+
             if (connectionTimeoutException != null)
             {
                 throw new EndpointNotFoundException(
@@ -178,6 +179,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new WcfExceptionHandler());
             return handlers;
         }

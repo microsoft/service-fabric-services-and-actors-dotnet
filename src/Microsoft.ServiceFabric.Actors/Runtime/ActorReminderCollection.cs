@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -21,6 +21,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.reminderCollectionsByActorId = new ConcurrentDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>();
         }
 
+        IEnumerable<ActorId> IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.Keys
+        {
+            get { return this.reminderCollectionsByActorId.Keys; }
+        }
+
+        IEnumerable<IReadOnlyCollection<IActorReminderState>>
+            IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.Values
+        {
+            get { return this.reminderCollectionsByActorId.Values; }
+        }
+
+        int IReadOnlyCollection<KeyValuePair<ActorId, IReadOnlyCollection<IActorReminderState>>>.Count
+        {
+            get { return this.reminderCollectionsByActorId.Count; }
+        }
+
+        IReadOnlyCollection<IActorReminderState> IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.
+            this[ActorId key]
+        {
+            get { return this.reminderCollectionsByActorId[key]; }
+        }
+
         public void Add(ActorId actorId, IActorReminderState reminderState)
         {
             var collection = this.reminderCollectionsByActorId.GetOrAdd(
@@ -34,32 +56,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.reminderCollectionsByActorId.ContainsKey(key);
         }
 
-        IEnumerable<ActorId> IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.Keys
-        {
-            get { return this.reminderCollectionsByActorId.Keys; }
-        }
-
-        bool IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.TryGetValue(ActorId key,
+        bool IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.TryGetValue(
+            ActorId key,
             out IReadOnlyCollection<IActorReminderState> value)
         {
             return this.reminderCollectionsByActorId.TryGetValue(key, out value);
-        }
-
-        IEnumerable<IReadOnlyCollection<IActorReminderState>>
-            IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.Values
-        {
-            get { return this.reminderCollectionsByActorId.Values; }
-        }
-
-        IReadOnlyCollection<IActorReminderState> IReadOnlyDictionary<ActorId, IReadOnlyCollection<IActorReminderState>>.
-            this[ActorId key]
-        {
-            get { return this.reminderCollectionsByActorId[key]; }
-        }
-
-        int IReadOnlyCollection<KeyValuePair<ActorId, IReadOnlyCollection<IActorReminderState>>>.Count
-        {
-            get { return this.reminderCollectionsByActorId.Count; }
         }
 
         IEnumerator<KeyValuePair<ActorId, IReadOnlyCollection<IActorReminderState>>>
@@ -84,17 +85,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.concurrentBag = new ConcurrentBag<T>();
             }
 
-            public void Add(T item)
-            {
-                this.concurrentBag.Add(item);
-            }
-
             int IReadOnlyCollection<T>.Count
             {
                 get
                 {
                     return this.concurrentBag.Count;
                 }
+            }
+
+            public void Add(T item)
+            {
+                this.concurrentBag.Add(item);
             }
 
             IEnumerator IEnumerable.GetEnumerator()

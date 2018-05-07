@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -19,11 +19,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ActorMethodContext callbackMethodContext;
 
         private Timer timer;
-        private Func<Object, Task> asyncCallback;
+        private Func<object, Task> asyncCallback;
 
         public ActorTimer(
             ActorBase owner,
-            Func<Object, Task> asyncCallback,
+            Func<object, Task> asyncCallback,
             object state,
             TimeSpan dueTime,
             TimeSpan period)
@@ -37,6 +37,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.timer = new Timer(this.OnTimerCallback);
 
             this.ArmTimer(dueTime);
+        }
+
+        ~ActorTimer()
+        {
+            this.Dispose(false);
+        }
+
+        public TimeSpan DueTime
+        {
+            get { return this.dueTime; }
+        }
+
+        public TimeSpan Period
+        {
+            get { return this.period; }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         private void OnTimerCallback(object state)
@@ -121,17 +142,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~ActorTimer()
-        {
-            this.Dispose(false);
-        }
-
         private void Dispose(bool disposing)
         {
             if (!disposing)
@@ -140,16 +150,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             this.CancelTimer();
-        }
-
-        public TimeSpan DueTime
-        {
-            get { return this.dueTime; }
-        }
-
-        public TimeSpan Period
-        {
-            get { return this.period; }
         }
     }
 }

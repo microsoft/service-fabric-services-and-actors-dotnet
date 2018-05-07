@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -20,12 +20,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// </summary>
     public abstract class ActorEventProxy : ProxyBase
     {
-#if !DotNetCoreClr
-        private Remoting.V1.Builder.ActorEventProxyGeneratorWith proxyGeneratorWith;
-        private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV1;
-#endif
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV2;
-
+#if !DotNetCoreClr
+        private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV1;
+        private Remoting.V1.Builder.ActorEventProxyGeneratorWith proxyGeneratorWith;
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorEventProxy"/> class.
@@ -38,25 +37,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.subscriberProxiesV2 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
         }
 
-        /// <inheritdoc />
-        protected override IServiceRemotingRequestMessageBody CreateRequestMessageBodyV2(string interfaceName, string methodName,
-            int parameterCount)
+        internal override void InvokeImplV2(
+            int interfaceId,
+            int methodId,
+            IServiceRemotingRequestMessageBody requestMsgBodyValue)
         {
-            //This cna happen in case someone trries to raiseEvent but no subscribers registered.
-            if (this.serviceRemotingMessageBodyFactory == null)
-            {
-                return new DummyServiceRemoingRequestMessageBody();
-            }
-            return this.serviceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount);
+            this.SendToSubscribers(interfaceId, methodId, requestMsgBodyValue);
         }
 
         internal void AddSubscriber(IActorEventSubscriberProxy subscriber)
         {
             if (subscriber.RemotingListener.Equals(RemotingListener.V2Listener))
             {
-                if (this.serviceRemotingMessageBodyFactory == null)
+                if (this.ServiceRemotingMessageBodyFactory == null)
                 {
-                    this.serviceRemotingMessageBodyFactory = subscriber.GetRemotingMessageBodyFactory();
+                    this.ServiceRemotingMessageBodyFactory = subscriber.GetRemotingMessageBodyFactory();
                 }
 
                 this.subscriberProxiesV2.AddOrUpdate(subscriber.Id, subscriber, (id, existing) => subscriber);
@@ -67,7 +62,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.subscriberProxiesV1.AddOrUpdate(subscriber.Id, subscriber, (id, existing) => subscriber);
 #endif
             }
-
         }
 
         internal void RemoveSubscriber(Guid subscriberId)
@@ -76,6 +70,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.subscriberProxiesV1.TryRemove(subscriberId, out var removedV1);
 #endif
             this.subscriberProxiesV2.TryRemove(subscriberId, out var removedV2);
+        }
+
+        // V2 Stack Api
+        internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
+            int interfaceId,
+            int methodId,
+            string methodName,
+            IServiceRemotingRequestMessageBody requestMsgBodyValue,
+            CancellationToken cancellationToken)
+        {
+            // async methods are not supported for actor event interface
+            throw new NotImplementedException();
         }
 
 #if !DotNetCoreClr
@@ -122,6 +128,43 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.SendToSubscribers(interfaceId, methodId, requestMsgBodyBytes);
         }
 
+#endif
+
+        /// <inheritdoc />
+        protected override IServiceRemotingRequestMessageBody CreateRequestMessageBodyV2(
+            string interfaceName,
+            string methodName,
+            int parameterCount)
+        {
+            // This can happen in case someone trries to raiseEvent but no subscribers registered.
+            if (this.ServiceRemotingMessageBodyFactory == null)
+            {
+                return new DummyServiceRemoingRequestMessageBody();
+            }
+
+            return this.ServiceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount);
+        }
+
+        private static void SendTo(
+            IActorEventSubscriberProxy subscriberProxy,
+            int eventInterfaceId,
+            int eventMethodId,
+            IServiceRemotingRequestMessageBody messageBody)
+        {
+            subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, messageBody);
+        }
+
+#if !DotNetCoreClr
+
+        private static void SendTo(
+            IActorEventSubscriberProxy subscriberProxy,
+            int eventInterfaceId,
+            int eventMethodId,
+            byte[] eventMsgBytes)
+        {
+            subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, eventMsgBytes);
+        }
+
         private void SendToSubscribers(int eventInterfaceId, int eventMethodId, byte[] eventMsgBytes)
         {
             IList<Guid> subscribersToRemove = null;
@@ -159,28 +202,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 #endif
 
-        //V2 Stack Api
-
-        internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
-            int interfaceId,
-            int methodId,
-            string methodName,
-            IServiceRemotingRequestMessageBody requestMsgBodyValue,
-            CancellationToken cancellationToken)
-        {
-            // async methods are not supported for actor event interface
-            throw new NotImplementedException();
-        }
-
-        internal override void InvokeImplV2(
-            int interfaceId,
-            int methodId,
-            IServiceRemotingRequestMessageBody requestMsgBodyValue)
-        {
-            this.SendToSubscribers(interfaceId, methodId, requestMsgBodyValue);
-        }
-
-
         private void SendToSubscribers(int eventInterfaceId, int eventMethodId, IServiceRemotingRequestMessageBody messageBody)
         {
             IList<Guid> subscribersToRemove = null;
@@ -215,35 +236,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     this.subscriberProxiesV2.TryRemove(subscriberKey, out var eventProxy);
                 }
             }
-        }
-
-        private static void SendTo(
-            IActorEventSubscriberProxy subscriberProxy, int eventInterfaceId, int eventMethodId,
-            IServiceRemotingRequestMessageBody messageBody)
-        {
-            subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, messageBody);
-        }
-
-#if !DotNetCoreClr
-
-        private static void SendTo(
-            IActorEventSubscriberProxy subscriberProxy, int eventInterfaceId, int eventMethodId,
-            byte[] eventMsgBytes)
-        {
-            subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, eventMsgBytes);
-        }
-#endif
-    }
-    internal class DummyServiceRemoingRequestMessageBody : IServiceRemotingRequestMessageBody
-    {
-        public void SetParameter(int position, string parameName, object parameter)
-        {
-            //no-op
-        }
-
-        public object GetParameter(int position, string parameName, Type paramType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

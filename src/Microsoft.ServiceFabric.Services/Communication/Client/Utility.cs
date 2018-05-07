@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -13,6 +13,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             ref string lastSeenExceptionId,
             ref int currentRetryCount)
         {
+            if (maxRetryCount == 0)
+            {
+                return false;
+            }
+
             if (currentExceptionId == lastSeenExceptionId)
             {
                 if (currentRetryCount >= maxRetryCount)
@@ -25,10 +30,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 return true;
             }
 
-            // The current retriable exception is different from the exception that was last seen, 
+            // The current retriable exception is different from the exception that was last seen,
             // reset the retry tracking variables
             lastSeenExceptionId = currentExceptionId;
-            currentRetryCount = 0;
+            currentRetryCount = 1;
             return true;
         }
     }

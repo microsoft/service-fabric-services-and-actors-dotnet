@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors
     public enum ActorIdKind
     {
         /// <summary>
-        /// Represents ID value of type <see cref="System.Int64"/>.
+        /// Represents ID value of type <see cref="long"/>.
         /// </summary>
         Long = 0,
 
@@ -21,8 +21,8 @@ namespace Microsoft.ServiceFabric.Actors
         Guid = 1,
 
         /// <summary>
-        /// Represents ID value of type <see cref="System.String"/>.
+        /// Represents ID value of type <see cref="string"/>.
         /// </summary>
-        String = 2
+        String = 2,
     }
 }

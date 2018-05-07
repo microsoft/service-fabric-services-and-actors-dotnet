@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Client
@@ -24,15 +24,6 @@ namespace Microsoft.ServiceFabric.Services.Client
     /// </summary>
     public class ServicePartitionResolver : IServicePartitionResolver
     {
-        private static ServicePartitionResolver DefaultResolver;
-        private static readonly object StaticLock = new object();
-        private static readonly Random Rand = new Random();
-
-        private readonly object thisLock = new object();
-        private readonly CreateFabricClientDelegate createFabricClient;
-        private readonly CreateFabricClientDelegate recreateFabricClient;
-        private FabricClient fabricClient;
-
         /// <summary>
         /// The default resolve timeout per try used by the ResolveAsync method of <see cref="ServicePartitionResolver"/> when it is
         /// invoked without explicitly specifying the resolveTimeoutPerTry argument. The default value is 30 seconds.
@@ -45,16 +36,26 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// </summary>
         public static readonly TimeSpan DefaultMaxRetryBackoffInterval = TimeSpan.FromSeconds(5);
 
+        private static readonly object StaticLock = new object();
+        private static readonly Random Rand = new Random();
+
+        private static ServicePartitionResolver defaultResolver;
+
+        private readonly object thisLock = new object();
+        private readonly CreateFabricClientDelegate createFabricClient;
+        private readonly CreateFabricClientDelegate recreateFabricClient;
+        private FabricClient fabricClient;
+
         /// <summary>
-        /// <para>
-        /// Instantiates a ServicePartionResolver, invoking the first delegate to get the <see cref="System.Fabric.FabricClient">FabricClient.</see>.
-        /// During partition resolution if FabricClient object gets disposed and second delegate is provided,
-        /// it uses the second delegate to get the FabricClient again. The second delegate provides a way to specify
-        /// an alternate way to get or create FabricClient if FabricClient created with first delegate get disposed.
-        /// </para>
+        /// Initializes a new instance of the <see cref="ServicePartitionResolver"/> class.
         /// </summary>
         /// <param name="createFabricClient">Delegate to create the fabric client.</param>
         /// <param name="recreateFabricClient">Delegate to re-create the fabric client.</param>
+        /// <remarks>The first delegate is used to create <see cref="System.Fabric.FabricClient">FabricClient.</see>.
+        /// During partition resolution if FabricClient object gets disposed and second delegate is provided,
+        /// it uses the second delegate to create the FabricClient again. The second delegate provides a way to specify
+        /// an alternate way to get or create FabricClient if FabricClient created with first delegate get disposed.
+        /// </remarks>
         public ServicePartitionResolver(
             CreateFabricClientDelegate createFabricClient,
             CreateFabricClientDelegate recreateFabricClient)
@@ -64,7 +65,9 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// Instantiates a ServicePartitionResolver, invoking the given delegate to instantiate FabricClient.
+        /// Initializes a new instance of the <see cref="ServicePartitionResolver"/> class.
+        /// The constructor invokes the given delegate to create an instance of <see cref="System.Fabric.FabricClient">FabricClient</see>
+        /// that is used for connecting to a Service Fabric cluster and perform service resolution.
         /// </summary>
         /// <param name="createFabricClient">Delegate to create fabric client.</param>
         public ServicePartitionResolver(
@@ -74,7 +77,9 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// Instantiates a ServicePartitionResolver, uses the given connectionEndpoints to create a new instance of the FabricClient.
+        /// Initializes a new instance of the <see cref="ServicePartitionResolver"/> class.
+        /// The constructor uses given connectionEndpoints to create an instance of <see cref="System.Fabric.FabricClient">FabricClient</see>
+        /// that is used for connecting to a Service Fabric cluster and perform service resolution.
         /// </summary>
         /// <param name="connectionEndpoints">Array of management endpoints of the cluster.</param>
         public ServicePartitionResolver(params string[] connectionEndpoints)
@@ -83,8 +88,9 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// Instantiates a ServicePartitionResolver, uses the given FabricClient Settings and the connectionEndpoints to create
-        /// a new instance of FabricClient.
+        /// Initializes a new instance of the <see cref="ServicePartitionResolver"/> class.
+        /// The constructor uses given settings and connectionEndpoints to create an instance of <see cref="System.Fabric.FabricClient">FabricClient</see>
+        /// that is used for connecting to a Service Fabric cluster and perform service resolution.
         /// </summary>
         /// <param name="settings">Fabric client Settings.</param>
         /// <param name="connectionEndpoints">Array of management endpoints of the cluster.</param>
@@ -96,8 +102,9 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// Instantiates a ServicePartitionResolver, uses the given security credentials and the connectionEndpoints to create
-        /// a new instance of FabricClient.
+        /// Initializes a new instance of the <see cref="ServicePartitionResolver"/> class.
+        /// The constructor uses the given security credentials and the connectionEndpoints to create an instance of <see cref="System.Fabric.FabricClient">FabricClient</see>
+        /// that is used for connecting to a Service Fabric cluster and perform service resolution.
         /// </summary>
         /// <param name="credential">Security credentials for the fabric client.</param>
         /// <param name="connectionEndpoints">Array of management endpoints of the cluster.</param>
@@ -109,8 +116,9 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// Instantiates a ServicePartitionResolver, uses the given security credentials, FabricClient Settings and the connectionEndpoints
-        /// to create a new instance of FabricClient.
+        /// Initializes a new instance of the <see cref="ServicePartitionResolver"/> class.
+        /// The constructor uses the given security credentials, settings and the connectionEndpoints to create an instance of <see cref="System.Fabric.FabricClient">FabricClient</see>
+        /// that is used for connecting to a Service Fabric cluster and perform service resolution.
         /// </summary>
         /// <param name="credential">Security credentials for the fabric client.</param>
         /// <param name="settings">Fabric client Settings.</param>
@@ -121,6 +129,48 @@ namespace Microsoft.ServiceFabric.Services.Client
             params string[] connectionEndpoints)
             : this(() => new FabricClient(credential, settings, connectionEndpoints))
         {
+        }
+
+        /// <summary>
+        /// Updates the default ServicePartitionResolver.
+        /// </summary>
+        /// <param name="defaultServiceResolver">The new default value</param>
+        public static void SetDefault(ServicePartitionResolver defaultServiceResolver)
+        {
+            lock (StaticLock)
+            {
+                defaultResolver = defaultServiceResolver;
+            }
+        }
+
+        /// <summary>
+        /// Gets the default ServicePartitionResolver.
+        /// <remarks>
+        /// <para>
+        /// The default service partition resolver instance uses the local <see href="https://docs.microsoft.com/en-us/dotnet/api/system.fabric.fabricclient#System_Fabric_FabricClient__ctor">fabric client</see>.
+        /// If you are using the ServicePartitionResolver to resolve services that are running on a remote cluster, the recommended practice is to create a ServicePartitionResolver using the appropriate endpoints or FabricClient and then update
+        /// the default ServicePartitionResolver.
+        /// </para>
+        /// </remarks>
+        /// </summary>
+        /// <returns>Default <see cref="ServicePartitionResolver"/></returns>
+        public static ServicePartitionResolver GetDefault()
+        {
+            lock (StaticLock)
+            {
+                if (defaultResolver == null)
+                {
+                    defaultResolver = new ServicePartitionResolver(
+                        () => new FabricClient(
+                            new FabricClientSettings()
+                            {
+                                PartitionLocationCacheBucketCount = 4096,
+                                PartitionLocationCacheLimit = 4096,
+                            }));
+                }
+
+                return defaultResolver;
+            }
         }
 
         /// <summary>
@@ -147,12 +197,12 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// the task is the <see cref="System.Fabric.ResolvedServicePartition" /> object, that contains the information
         /// about the resolved service partition including the service endpoints.
         /// </returns>
-        /// <exception cref="System.Fabric.FabricServiceNotFoundException"> 
+        /// <exception cref="System.Fabric.FabricServiceNotFoundException">
         /// <para>
         /// This method can throw a FabricServiceNotFoundExcepion if there is no service instance in the cluster matching the specified serviceUri.
         /// </para>
         /// </exception>
-        /// <exception cref="System.Fabric.FabricException"> 
+        /// <exception cref="System.Fabric.FabricException">
         /// <para>
         /// This method can throw a FabricException if the scheme specified in the ServicePartitionKey doesn't match the scheme used to create the service instance.
         /// See also <see href="https://azure.microsoft.com/documentation/articles/service-fabric-errors-and-exceptions/">Errors and Exceptions</see> for handling common FabricClient failures.
@@ -191,7 +241,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <param name="resolveTimeoutPerTry">The timeout passed to FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method.</param>
         /// <param name="maxRetryBackoffInterval">
         /// <para>
-        /// The max interval to back-off before retrying when FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method fails with a retry-able exception. 
+        /// The max interval to back-off before retrying when FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method fails with a retry-able exception.
         /// The actual back off interval is a random time interval which is less than or equal to the specified maxRetryBackoffInterval.
         /// </para>
         /// </param>
@@ -205,12 +255,12 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// the task is the <see cref="System.Fabric.ResolvedServicePartition" /> object, that contains the information
         /// about the resolved service partition including the service endpoints.
         /// </returns>
-        /// <exception cref="System.Fabric.FabricServiceNotFoundException"> 
+        /// <exception cref="System.Fabric.FabricServiceNotFoundException">
         /// <para>
         /// This method can throw a FabricServiceNotFoundExcepion if there is no service instance in the cluster matching the specified serviceUri.
         /// </para>
         /// </exception>
-        /// <exception cref="System.Fabric.FabricException"> 
+        /// <exception cref="System.Fabric.FabricException">
         /// <para>
         /// This can throw a FabricException if the scheme specified in the ServicePartitionKey doesn't match the scheme used to create the service instance.
         /// See also <see href="https://azure.microsoft.com/documentation/articles/service-fabric-errors-and-exceptions/">Errors and Exceptions</see> for more information.
@@ -250,6 +300,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                             maxRetryBackoffInterval,
                             cancellationToken);
                     }
+
                 case ServicePartitionKind.Named:
                     {
                         return this.ResolveHelperAsync(
@@ -265,6 +316,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                             maxRetryBackoffInterval,
                             cancellationToken);
                     }
+
                 case ServicePartitionKind.Int64Range:
                     {
                         return this.ResolveHelperAsync(
@@ -280,6 +332,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                             maxRetryBackoffInterval,
                             cancellationToken);
                     }
+
                 default:
                     throw new ArgumentOutOfRangeException("partitionKey");
             }
@@ -287,8 +340,8 @@ namespace Microsoft.ServiceFabric.Services.Client
 
         /// <summary>
         /// Resolves a partition of the specified service by invoking FabricClient's
-        /// <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method with back-off/retry on retry-able errors. This takes in 
-        /// the resolved service partition that was got via an earlier invocation of the ResolveAsync() method. 
+        /// <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method with back-off/retry on retry-able errors. This takes in
+        /// the resolved service partition that was got via an earlier invocation of the ResolveAsync() method.
         /// This method overload is used in cases where the client knows that the resolved service partition that it has is no longer valid.
         /// </summary>
         /// <param name="previousRsp">The resolved service partition that the client got from the earlier invocation of the ResolveAsync() method.</param>
@@ -302,7 +355,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// the task is the <see cref="System.Fabric.ResolvedServicePartition" /> object, that contains the information
         /// about the resolved service partition including the service endpoints.
         /// </returns>
-        /// <exception cref="System.Fabric.FabricServiceNotFoundException"> 
+        /// <exception cref="System.Fabric.FabricServiceNotFoundException">
         /// <para>
         /// This method can throw a FabricServiceNotFoundExcepion if the service which was resolved previously is no longer present in the cluster.
         /// </para>
@@ -326,15 +379,15 @@ namespace Microsoft.ServiceFabric.Services.Client
 
         /// <summary>
         /// Resolves a partition of the specified service by invoking FabricClient's
-        /// <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method with back-off/retry on retry-able errors. This takes in 
-        /// the resolved service partition that was got via an earlier invocation of the ResolveAsync() method. 
+        /// <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method with back-off/retry on retry-able errors. This takes in
+        /// the resolved service partition that was got via an earlier invocation of the ResolveAsync() method.
         /// This method overload is used in cases where the client knows that the resolved service partition that it has is no longer valid.
         /// </summary>
         /// <param name="previousRsp">The resolved service partition that the client got from the earlier invocation of the ResolveAsync() method.</param>
         /// <param name="resolveTimeoutPerTry">The timeout passed to FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method </param>
         /// <param name="maxRetryBackoffInterval">
         /// <para>
-        /// The max interval to back-off before retrying when FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method fails with a retry-able exception. 
+        /// The max interval to back-off before retrying when FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method fails with a retry-able exception.
         /// The actual back off interval is a random time interval which is less than or equal to the specified maxRetryBackoffInterval.
         /// </para>
         /// </param>
@@ -348,7 +401,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// the task is the <see cref="System.Fabric.ResolvedServicePartition" /> object, that contains the information
         /// about the resolved service partition including the service endpoints.
         /// </returns>
-        /// <exception cref="System.Fabric.FabricServiceNotFoundException"> 
+        /// <exception cref="System.Fabric.FabricServiceNotFoundException">
         /// <para>
         /// This method can throw a FabricServiceNotFoundExcepion if the service which was resolved previously is no longer present in the cluster.
         /// </para>
@@ -382,6 +435,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                             maxRetryBackoffInterval,
                             cancellationToken);
                     }
+
                 case ServicePartitionKind.Named:
                     {
                         var partitionName = ((NamedPartitionInformation)previousRsp.Info).Name;
@@ -398,6 +452,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                             maxRetryBackoffInterval,
                             cancellationToken);
                     }
+
                 case ServicePartitionKind.Int64Range:
                     {
                         var partitionKey = ((Int64RangePartitionInformation)previousRsp.Info).LowKey;
@@ -414,50 +469,9 @@ namespace Microsoft.ServiceFabric.Services.Client
                             maxRetryBackoffInterval,
                             cancellationToken);
                     }
+
                 default:
                     throw new ArgumentOutOfRangeException("previousRsp");
-            }
-        }
-
-        /// <summary>
-        /// Updates the default ServicePartitionResolver.
-        /// </summary>
-        /// <param name="defaultServiceResolver">The new default value</param>
-        public static void SetDefault(ServicePartitionResolver defaultServiceResolver)
-        {
-            lock (StaticLock)
-            {
-                DefaultResolver = defaultServiceResolver;
-            }
-        }
-
-        /// <summary>
-        /// Gets the default ServicePartitionResolver.
-        /// <remarks>
-        /// <para>
-        /// The default service partition resolver instance uses the local <see href="https://docs.microsoft.com/en-us/dotnet/api/system.fabric.fabricclient#System_Fabric_FabricClient__ctor">fabric client</see>.
-        /// If you are using the ServicePartitionResolver to resolve services that are running on a remote cluster, the recommended practice is to create a ServicePartitionResolver using the appropriate endpoints or FabricClient and then update
-        /// the default ServicePartitionResolver.
-        /// </para>
-        /// </remarks>
-        /// </summary>
-        /// <returns>Default <see cref="ServicePartitionResolver"/></returns>
-        public static ServicePartitionResolver GetDefault()
-        {
-            lock (StaticLock)
-            {
-                if (DefaultResolver == null)
-                {
-                    DefaultResolver = new ServicePartitionResolver(
-                        () => new FabricClient(
-                            new FabricClientSettings()
-                            {
-                                PartitionLocationCacheBucketCount = 4096,
-                                PartitionLocationCacheLimit = 4096
-                            }));
-                }
-
-                return DefaultResolver;
             }
         }
 

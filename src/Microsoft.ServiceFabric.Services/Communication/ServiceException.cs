@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication
@@ -14,16 +14,11 @@ namespace Microsoft.ServiceFabric.Services.Communication
     public class ServiceException : Exception
     {
         /// <summary>
-        /// <para>Initializes a new instance of the <see cref="ServiceException" /> class.</para>
+        /// Initializes a new instance of the <see cref="ServiceException"/> class.
         /// </summary>
         public ServiceException()
         {
         }
-
-        /// <summary>
-        /// Gets the ActualExceptionType is the type of actual exception thrown.
-        /// </summary>
-        public string ActualExceptionType { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceException" /> class with appropriate message.
@@ -36,5 +31,10 @@ namespace Microsoft.ServiceFabric.Services.Communication
         {
             this.ActualExceptionType = actualExceptionType;
         }
+
+        /// <summary>
+        /// Gets the ActualExceptionType is the type of actual exception thrown.
+        /// </summary>
+        public string ActualExceptionType { get; private set; }
     }
 }

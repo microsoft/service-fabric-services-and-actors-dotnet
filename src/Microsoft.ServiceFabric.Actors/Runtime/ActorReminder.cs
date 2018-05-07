@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private const string TraceType = "ActorReminder";
 
-        private readonly TimeSpan MinTimePeriod = Timeout.InfiniteTimeSpan;
+        private readonly TimeSpan minTimePeriod = Timeout.InfiniteTimeSpan;
         private readonly ActorId ownerActorId;
         private readonly IActorManager actorManager;
         private readonly string name;
@@ -43,8 +43,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             TimeSpan reminderDueTime,
             TimeSpan reminderPeriod)
         {
-            ValidateDueTime("DueTime", reminderDueTime);
-            ValidatePeriod("Period", reminderPeriod);
+            this.ValidateDueTime("DueTime", reminderDueTime);
+            this.ValidatePeriod("Period", reminderPeriod);
 
             this.actorManager = actorManager;
             this.ownerActorId = actorId;
@@ -56,17 +56,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.timer = new Timer(this.OnReminderCallback);
         }
 
-        internal ActorId OwnerActorId
+        ~ActorReminder()
         {
-            get { return this.ownerActorId; }
+            this.Dispose(false);
         }
-
-        internal bool IsValid()
-        {
-            return (this.timer != null);
-        }
-
-        #region IActorReminder Members
 
         public string Name
         {
@@ -88,7 +81,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.period; }
         }
 
-        #endregion
+        internal ActorId OwnerActorId
+        {
+            get { return this.ownerActorId; }
+        }
 
         public void Dispose()
         {
@@ -96,33 +92,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             GC.SuppressFinalize(this);
         }
 
-        ~ActorReminder()
+        internal bool IsValid()
         {
-            this.Dispose(false);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposing)
-            {
-                return;
-            }
-
-            this.CancelTimer();
-        }
-
-        internal void CancelTimer()
-        {
-            if (this.timer != null)
-            {
-                this.timer.Dispose();
-                this.timer = null;
-            }
-        }
-
-        private void OnReminderCallback(object reminderState)
-        {
-            Task.Run(() => { this.actorManager.FireReminderAsync(this); });
+            return (this.timer != null);
         }
 
         internal void ArmTimer(TimeSpan newDueTime)
@@ -146,6 +118,30 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        internal void CancelTimer()
+        {
+            if (this.timer != null)
+            {
+                this.timer.Dispose();
+                this.timer = null;
+            }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposing)
+            {
+                return;
+            }
+
+            this.CancelTimer();
+        }
+
+        private void OnReminderCallback(object reminderState)
+        {
+            Task.Run(() => { this.actorManager.FireReminderAsync(this); });
+        }
+
         private void ValidateDueTime(string argName, TimeSpan value)
         {
             if (value < TimeSpan.Zero)
@@ -155,21 +151,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     string.Format(
                         CultureInfo.CurrentCulture,
                         SR.TimerArgumentOutOfRange,
-                        this.MinTimePeriod.TotalMilliseconds,
+                        this.minTimePeriod.TotalMilliseconds,
                         TimeSpan.MaxValue.TotalMilliseconds));
             }
         }
 
         private void ValidatePeriod(string argName, TimeSpan value)
         {
-            if (value < this.MinTimePeriod)
+            if (value < this.minTimePeriod)
             {
                 throw new ArgumentOutOfRangeException(
                     argName,
                     string.Format(
                         CultureInfo.CurrentCulture,
                         SR.TimerArgumentOutOfRange,
-                        this.MinTimePeriod.TotalMilliseconds,
+                        this.minTimePeriod.TotalMilliseconds,
                         TimeSpan.MaxValue.TotalMilliseconds));
             }
         }

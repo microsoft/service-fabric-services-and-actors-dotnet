@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
@@ -21,9 +21,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     {
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
         private readonly FabricTransportClient fabricTransportClient;
-        // we need to pass a cache of the serializers here rather than the known types, 
-        // the serializer cache should be maintained by the factor
 
+        // we need to pass a cache of the serializers here rather than the known types,
+        // the serializer cache should be maintained by the factor
         internal FabricTransportServiceRemotingClient(
             ServiceRemotingMessageSerializersManager serializersManager,
             FabricTransportClient fabricTransportClient)
@@ -31,6 +31,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.fabricTransportClient = fabricTransportClient;
             this.serializersManager = serializersManager;
             this.IsValid = true;
+        }
+
+        ~FabricTransportServiceRemotingClient()
+        {
+            if (this.fabricTransportClient != null)
+            {
+                this.fabricTransportClient.Dispose();
+            }
+        }
+
+        public bool IsValid { get; private set; }
+
+        public object ConnectionAddress
+        {
+            get { return this.fabricTransportClient.ConnectionAddress; }
         }
 
         public ResolvedServicePartition ResolvedServicePartition { get; set; }
@@ -53,19 +68,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             var msgBodySeriaizer = this.serializersManager.GetRequestBodySerializer(interfaceId);
             var serializedMsgBody = msgBodySeriaizer.Serialize(remotingRequestRequestMessage.GetBody());
             var fabricTransportRequestBody = serializedMsgBody != null
-                ? new FabricTransportRequestBody(serializedMsgBody.GetSendBuffers(),
+                ? new FabricTransportRequestBody(
+                    serializedMsgBody.GetSendBuffers(),
                     serializedMsgBody.Dispose)
                 : new FabricTransportRequestBody(new List<ArraySegment<byte>>(), null);
 
-
-            //Send Request
+            // Send Request
             using (var retval = await this.fabricTransportClient.RequestResponseAsync(
                 new FabricTransportMessage(
                     new FabricTransportRequestHeader(serializedHeader.GetSendBuffer(), serializedHeader.Dispose),
                     fabricTransportRequestBody),
                 this.fabricTransportClient.Settings.OperationTimeout))
             {
-
                 var incomingHeader = (retval != null && retval.GetHeader() != null)
                     ? new IncomingMessageHeader(retval.GetHeader().GetRecievedStream())
                     : null;
@@ -79,7 +93,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
                     var isDeserialzied =
-                        RemoteException.ToException(retval.GetBody().GetRecievedStream(),
+                        RemoteException.ToException(
+                            retval.GetBody().GetRecievedStream(),
                             out var e);
                     if (isDeserialzied)
                     {
@@ -93,6 +108,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                             e.ToString()));
                     }
                 }
+
                 var responseSerializer = this.serializersManager.GetResponseBodySerializer(interfaceId);
                 IServiceRemotingResponseMessageBody responseMessageBody = null;
                 if (retval != null && retval.GetBody() != null)
@@ -103,7 +119,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(header, responseMessageBody);
             }
-
         }
 
         public void SendOneWay(IServiceRemotingRequestMessage requestMessage)
@@ -115,21 +130,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         {
             this.IsValid = false;
             this.fabricTransportClient.Abort();
-        }
-
-        public bool IsValid { get; private set; }
-
-        public object ConnectionAddress
-        {
-            get { return this.fabricTransportClient.ConnectionAddress; }
-        }
-
-        ~FabricTransportServiceRemotingClient()
-        {
-            if (this.fabricTransportClient != null)
-            {
-                this.fabricTransportClient.Dispose();
-            }
         }
     }
 }

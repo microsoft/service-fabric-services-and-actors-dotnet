@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
     /// <summary>
     /// This class adds extensions methods to create <see cref="IServiceRemotingListener"/>
-    /// for remoting methods of the service interfaces that are derived from 
+    /// for remoting methods of the service interfaces that are derived from
     /// <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.
     /// </summary>
     public static class ServiceRemotingExtensions
@@ -32,7 +32,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatefulService>(
             this TStatefulService serviceImplementation,
-            StatefulServiceContext serviceContext) where TStatefulService : StatefulServiceBase, IService
+            StatefulServiceContext serviceContext)
+            where TStatefulService : StatefulServiceBase, IService
         {
             return CreateServiceRemotingListener(serviceContext, serviceImplementation);
         }
@@ -50,26 +51,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatelessService>(
             this TStatelessService serviceImplementation,
-            StatelessServiceContext serviceContext) where TStatelessService : StatelessService, IService
+            StatelessServiceContext serviceContext)
+            where TStatelessService : StatelessService, IService
         {
             return CreateServiceRemotingListener(serviceContext, serviceImplementation);
         }
 
 #endif
+
         /// <summary>
-        /// An extension method that creates an <see cref="IServiceRemotingListener"/>
+        ///  An extension method that creates an <see cref="IServiceRemotingListener"/>
         /// for a stateful service implementation.
+        /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
         /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
-        ///</summary>
         /// <param name="serviceImplementation">A stateful service implementation.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         public static IEnumerable<ServiceReplicaListener> CreateServiceRemotingReplicaListeners<TStatefulService>(
             this TStatefulService serviceImplementation)
             where TStatefulService : StatefulServiceBase, IService
-
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
@@ -84,8 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
             }
 
@@ -96,14 +97,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                     new ServiceReplicaListener((t) =>
                         {
                             return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
-                        }
-                    ),
+                        }),
                     new ServiceReplicaListener(
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
             }
             else
@@ -113,8 +112,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                     new ServiceReplicaListener((t) =>
                         {
                             return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
-                        }
-                    )
+                        }),
                 };
             }
 
@@ -125,8 +123,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
 #endif
         }
@@ -144,7 +141,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         public static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
             this TStatelessService serviceImplementation)
             where TStatelessService : StatelessService, IService
-
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
@@ -159,10 +155,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    ),
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
             }
+
             if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
             {
                 return new[]
@@ -170,14 +166,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                     new ServiceInstanceListener((t) =>
                         {
                             return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
-                        }
-                    ),
+                        }),
                     new ServiceInstanceListener(
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    )
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
             }
             else
@@ -187,8 +181,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                     new ServiceInstanceListener((t) =>
                         {
                             return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
-                        }
-                    )
+                        }),
                 };
             }
 #else
@@ -198,11 +191,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         (t) =>
                         {
                             return provider.CreateServiceRemotingListenerV2(serviceImplementation.Context, impl);
-                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName
-                    ),
+                        }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
                 };
 #endif
         }
+
 #if !DotNetCoreClr
         private static IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
@@ -217,6 +210,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 throw new NotSupportedException(
                     "This extension method doesnt support V2Listener or CompatListener. Use CreateServiceRemotingReplicaListeners for using V2Stack ");
             }
+
             return provider.CreateServiceRemotingListener(serviceContext, (IService)serviceImplementation);
         }
 #endif

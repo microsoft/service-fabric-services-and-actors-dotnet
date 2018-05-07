@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
@@ -12,6 +12,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
     internal class FabricTransportRemotingClientEventHandler : IFabricTransportClientEventHandler
     {
+        private readonly FabricTransportServiceRemotingClient remotingClient;
+
+        public FabricTransportRemotingClientEventHandler()
+        {
+            this.remotingClient = new DummyFabricTransportRemotingClient(null, null);
+        }
+
+        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientConnected;
+
+        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientDisconnected;
+
         public string ListenerName
         {
             set { this.remotingClient.ListenerName = value; }
@@ -27,17 +38,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             set { this.remotingClient.Endpoint = value; }
         }
 
-        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientConnected;
-
-        public event EventHandler<CommunicationClientEventArgs<FabricTransportServiceRemotingClient>> ClientDisconnected;
-
-        private readonly FabricTransportServiceRemotingClient remotingClient;
-
-        public FabricTransportRemotingClientEventHandler()
-        {
-            this.remotingClient = new DummyFabricTransportRemotingClient(null, null);
-        }
-
         void IFabricTransportClientEventHandler.OnConnected()
         {
             var handlers = this.ClientConnected;
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     this,
                     new CommunicationClientEventArgs<FabricTransportServiceRemotingClient>()
                     {
-                        Client = this.remotingClient
+                        Client = this.remotingClient,
                     });
             }
         }
@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     this,
                     new CommunicationClientEventArgs<FabricTransportServiceRemotingClient>()
                     {
-                        Client = this.remotingClient
+                        Client = this.remotingClient,
                     });
             }
         }

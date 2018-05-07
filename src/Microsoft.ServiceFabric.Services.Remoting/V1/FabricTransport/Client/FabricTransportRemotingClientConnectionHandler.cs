@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
@@ -9,13 +9,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
     using System.Fabric;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.FabricTransport.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
     using SR = Microsoft.ServiceFabric.Services.Remoting.SR;
 
     internal class FabricTransportRemotingClientConnectionHandler : IFabricTransportClientConnectionHandler
     {
+        private IServiceRemotingClient remotingClient;
+
+        public FabricTransportRemotingClientConnectionHandler()
+        {
+            this.remotingClient = new FabricTransportServiceRemotingClient(new DummyNativeClient(), null);
+        }
+
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
+
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
+
         public string ListenerName
         {
             set { this.remotingClient.ListenerName = value; }
@@ -31,17 +42,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             set { this.remotingClient.Endpoint = value; }
         }
 
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
-
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
-
-        private IServiceRemotingClient remotingClient;
-
-        public FabricTransportRemotingClientConnectionHandler()
-        {
-            this.remotingClient = new FabricTransportServiceRemotingClient(new DummyNativeClient(), null);
-        }
-
         void IFabricTransportClientConnectionHandler.OnConnected()
         {
             var handlers = this.ClientConnected;
@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = this.remotingClient
+                        Client = this.remotingClient,
                     });
             }
         }
@@ -65,27 +65,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = this.remotingClient
+                        Client = this.remotingClient,
                     });
             }
-        }
-    }
-
-    internal class DummyNativeClient : FabricTransportClient
-    {
-        public DummyNativeClient()
-        {
-            this.settings = new FabricTransportSettings();
-        }
-
-        public override Task<FabricTransportReplyMessage> RequestResponseAsync(byte[] header, byte[] requestBody, TimeSpan timeout)
-        {
-            throw new ArgumentException(SR.Error_InvalidOperation);
-        }
-
-        public override void SendOneWay(byte[] messageHeaders, byte[] requestBody)
-        {
-            throw new ArgumentException(SR.Error_InvalidOperation);
         }
     }
 }

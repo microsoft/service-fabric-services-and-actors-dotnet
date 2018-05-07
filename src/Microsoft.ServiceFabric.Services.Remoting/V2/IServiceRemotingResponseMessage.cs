@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -11,15 +11,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public interface IServiceRemotingResponseMessage
     {
         /// <summary>
-        /// Gets the Response Message Header.
+        /// Gets the header of the response message.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The header of this response message.</returns>
         IServiceRemotingResponseMessageHeader GetHeader();
 
         /// <summary>
-        /// Gets the Response Message Body.
+        /// Gets the body of the response message.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The body of this response message.</returns>
         IServiceRemotingResponseMessageBody GetBody();
     }
 }

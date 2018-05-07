@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly StateChangeKind changeKind;
 
         /// <summary>
-        /// Creates an instance of ActorStateChange class.
+        /// Initializes a new instance of the <see cref="ActorStateChange"/> class.
         /// </summary>
         /// <param name="stateName">The name of the actor state.</param>
         /// <param name="type">The type of value associated with given actor state name.</param>

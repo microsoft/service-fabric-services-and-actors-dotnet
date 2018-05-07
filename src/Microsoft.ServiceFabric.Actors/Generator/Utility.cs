@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Generator
@@ -13,6 +13,9 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
     internal static class Utility
     {
+        private const int FileAttributeDirectory = 0x10;
+        private const int FileAttributeNormal = 0x80;
+
         public static StreamReader CreateStreamReader(FileStream fileStream)
         {
             return new StreamReader(fileStream, Encoding.UTF8, true, 4096, true);
@@ -30,7 +33,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 return string.Empty;
             }
 
-            using (var fileStream = ExclusiveFileStream.Acquire(filePath, FileMode.Open, FileShare.Read,
+            using (var fileStream = ExclusiveFileStream.Acquire(
+                filePath,
+                FileMode.Open,
+                FileShare.Read,
                 FileAccess.Read))
             {
                 fileStream.Value.Seek(0, SeekOrigin.Begin);
@@ -67,14 +73,18 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 return;
             }
 
-            using (var fileStream = ExclusiveFileStream.Acquire(filePath, FileMode.OpenOrCreate, FileShare.Read,
+            using (var fileStream = ExclusiveFileStream.Acquire(
+                filePath,
+                FileMode.OpenOrCreate,
+                FileShare.Read,
                 FileAccess.ReadWrite))
             {
                 WriteContents(fileStream.Value, newContents);
             }
         }
 
-        public static void PerformPlaceholderReplacements(StringBuilder template,
+        public static void PerformPlaceholderReplacements(
+            StringBuilder template,
             IDictionary<string, string> placeHolders)
         {
             foreach (var p in placeHolders)
@@ -82,7 +92,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 template.Replace(p.Key, p.Value);
             }
         }
-
 
         public static void WriteFile(string filePath, string fileContents)
         {
@@ -140,11 +149,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             throw new FileNotFoundException();
         }
 
-        private const int FileAttributeDirectory = 0x10;
-        private const int FileAttributeNormal = 0x80;
-
         [DllImport("shlwapi.dll", SetLastError = true)]
-        private static extern int PathRelativePathTo(StringBuilder pszPath,
-            string pszFrom, int dwAttrFrom, string pszTo, int dwAttrTo);
+        private static extern int PathRelativePathTo(
+            StringBuilder pszPath,
+            string pszFrom,
+            int dwAttrFrom,
+            string pszTo,
+            int dwAttrTo);
     }
 }

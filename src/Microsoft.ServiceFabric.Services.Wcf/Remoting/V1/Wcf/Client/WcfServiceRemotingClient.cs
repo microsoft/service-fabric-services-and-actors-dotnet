@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
@@ -19,14 +19,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
     {
         private readonly WcfCommunicationClient<IServiceRemotingContract> wcfClient;
 
-        public WcfCommunicationClient<IServiceRemotingContract> WcfClient
-        {
-            get { return this.wcfClient; }
-        }
-
         public WcfServiceRemotingClient(WcfCommunicationClient<IServiceRemotingContract> wcfClient)
         {
             this.wcfClient = wcfClient;
+        }
+
+        public WcfCommunicationClient<IServiceRemotingContract> WcfClient
+        {
+            get { return this.wcfClient; }
         }
 
         /// <summary>

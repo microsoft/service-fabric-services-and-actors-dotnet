@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
@@ -16,25 +16,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         private bool isDisposed;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="IncomingMessageBody"/> class.
         /// Creates an incoming Message Body with the received stream .
         /// </summary>
-        /// <param name="receivedBufferStream"></param>
+        /// <param name="receivedBufferStream">Recieved Stream </param>
         public IncomingMessageBody(Stream receivedBufferStream)
         {
             this.receivedBufferStream = receivedBufferStream;
         }
 
         /// <summary>
-        /// Return the Received Buffer Stream 
+        /// Return the Received Buffer Stream
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Stream</returns>
         public Stream GetReceivedBuffer()
         {
             return this.receivedBufferStream;
         }
 
         /// <summary>
-        /// Dispose the Received Buffer stream 
+        /// Dispose the Received Buffer stream
         /// </summary>
         public void Dispose()
         {

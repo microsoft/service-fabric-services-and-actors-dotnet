@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
@@ -11,19 +11,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
+
     /// <summary>
-    ///Settings that configures the  FabricTransport Listener.
+    /// Settings that configures the  FabricTransport Listener.
     /// </summary>
     public class FabricTransportRemotingListenerSettings
     {
+        private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
 
-        private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
-
         /// <summary>
-        /// Creates a new instance of FabricTransportRemotingListenerSettings and initializes properties with default Values.
+        /// Initializes a new instance of the <see cref="FabricTransportRemotingListenerSettings"/> class with default values.
         /// </summary>
         public FabricTransportRemotingListenerSettings()
         {
@@ -38,14 +38,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.listenerSettings = listenerSettings;
         }
 
-        internal FabricTransportListenerSettings GetInternalSettings()
-        {
-            return this.listenerSettings;
-        }
-
         /// <summary>
-        /// EndpointResourceName is name of the endpoint resource specified in ServiceManifest .This is used to obtain the port number on which to
-        /// service will listen. 
+        /// Gets or sets the name of the endpoint resource specified in ServiceManifest.
+        /// This is used to obtain the port number on which to service will listen.
         /// </summary>
         /// <value>
         /// EndpointResourceName is  name of the  endpoint resource defined in the service manifest.
@@ -59,7 +54,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Operation Timeout  which governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
+        /// Gets or sets operation Timeout  which governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
         ///  This timeout also applies when sending reply messages from a callback contract method.
         /// </summary>
         /// <value>OperationTimeout as <see cref="System.TimeSpan"/></value>
@@ -70,9 +65,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             set { this.listenerSettings.OperationTimeout = value; }
         }
 
-
         /// <summary>
-        /// KeepAliveTimeout is provides a way to configure  Tcp keep-alive option.
+        /// Gets or sets keepAliveTimeout which provides a way to configure  Tcp keep-alive option.
         /// </summary>
         /// <value>KeepAliveTimeout as <see cref="System.TimeSpan"/></value>
         /// <remarks>Default Value for KeepAliveTimeout Timeout is set as TimeSpan.Zero. which indicates we disable the tcp keepalive option.
@@ -84,7 +78,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// MaxMessageSize represents  the maximum size for a message that can be received on a channel configured with this setting.
+        /// Gets or sets Max MessageSize  for a message that can be received on a channel configured with this setting.
         /// </summary>
         /// <value>Maximum size of the message in bytes.
         /// </value>
@@ -98,9 +92,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// The maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting. 
+        /// Gets or sets the maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting.
         /// </summary>
-        /// <value> Max Size for a Queue that receives messages from the channel 
+        /// <value> Max Size for a Queue that receives messages from the channel
         /// </value>
         /// <remarks>
         /// Default value is 10,000 messages</remarks>
@@ -110,11 +104,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             set { this.listenerSettings.MaxQueueSize = value; }
         }
 
-        ///<summary>
-        ///MaxConcurrentCalls represents maximum number of messages actively service processes at one time.
+        /// <summary>
+        /// Gets or sets the maxConcurrentCalls which represents maximum number of messages actively service processes at one time.
         /// </summary>
         /// <value>
-        ///MaxConcurrentCalls is  the upper limit of active messages in the service.
+        /// MaxConcurrentCalls is  the upper limit of active messages in the service.
         /// </value>
         /// <remarks>
         ///    Defaults  value for the MaxConcurrentCalls is to the Number of processors.
@@ -125,8 +119,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             set { this.listenerSettings.MaxConcurrentCalls = value; }
         }
 
-        ///<summary>
-        ///HeaderBufferSize represents size of each header buffer in the bufferPool .
+        /// <summary>
+        ///  Gets or sets headerBufferSize which represents size of each header buffer in the bufferPool .
+        /// Default Remoting Serialization is using BufferPooling to avoid allocation every time.
+        /// So If you are adding any header in <see cref="ServiceRemotingRequestMessageHeader"/> , which can increase the headerSize to be
+        /// larger than BufferSize, it is recomended then to change this value to higher value .If bufferSize is less than serialized header bytes,
+        /// we copy the header to larger buffer.
         /// </summary>
         /// <remarks>
         ///    Defaults  value for the HeaderBufferSize is 1024 bytes.
@@ -137,8 +135,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             set { this.headerBufferSize = value; }
         }
 
-        ///<summary>
-        ///HeaderMaxBufferCount represents the maximum number of header buffers assigned  to the BufferPool.
+        /// <summary>
+        ///  Gets or sets headerMaxBufferCount which represents the maximum number of header buffers assigned  to the BufferPool.
         /// </summary>
         /// <remarks>
         ///    Defaults  value for the HeaderMaxBufferCount is 1000.
@@ -149,17 +147,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             set { this.headerMaxBufferCount = value; }
         }
 
-
         /// <summary>
-        /// Security credentials for securing the communication 
+        /// Gets or sets security credentials for securing the communication
         /// </summary>
         /// <value>SecurityCredentials as  <see cref=" System.Fabric.SecurityCredentials"/>
         /// </value>
         /// <remarks>
         /// Default Value for SecurityCredentials is None
         /// SecurityCredential can be of type x509SecurityCredentail <seealso cref="System.Fabric.X509Credentials"/>or
-        ///  WindowsCredentials <seealso cref="System.Fabric.WindowsCredentials"/>
-        ///</remarks>
+        /// WindowsCredentials <seealso cref="System.Fabric.WindowsCredentials"/> </remarks>
         public SecurityCredentials SecurityCredentials
         {
             get { return this.listenerSettings.SecurityCredentials; }
@@ -172,15 +168,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Loads the FabricTransport settings from a section specified in the service settings configuration file - settings.xml 
+        /// Loads the FabricTransport settings from a section specified in the service settings configuration file - settings.xml
         /// </summary>
         /// <param name="sectionName">Name of the section within the configuration file. if not found , it throws ArgumentException.</param>
-        /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it throws ArgumentException. 
+        /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it throws ArgumentException.
         /// If not specified, default name is "Config"</param>
         /// <returns>FabricTransportRemotingListenerSettings</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
-        ///     
+        ///
         ///     1. MaxQueueSize - <see cref="FabricTransportRemotingSettings.MaxQueueSize"/>value in long.
         ///     2. MaxMessageSize - <see cref="FabricTransportRemotingSettings.MaxMessageSize"/>value in bytes.
         ///     3. MaxConcurrentCalls - <see cref="FabricTransportRemotingSettings.MaxConcurrentCalls"/>value in long.
@@ -188,26 +184,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         ///     5. OperationTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.OperationTimeout"/> value in seconds.
         ///     6. KeepAliveTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.KeepAliveTimeout"/> value in seconds.
         /// </remarks>
-        public static FabricTransportRemotingListenerSettings LoadFrom(string sectionName,
+        public static FabricTransportRemotingListenerSettings LoadFrom(
+            string sectionName,
             string configPackageName = null)
         {
             var listenerSettings = FabricTransportListenerSettings.LoadFrom(sectionName, configPackageName);
             return new FabricTransportRemotingListenerSettings(listenerSettings);
         }
 
-
         /// <summary>
-        /// Try to load the FabricTransport settings from a section specified in the service settings configuration file - settings.xml 
+        /// Try to load the FabricTransport settings from a section specified in the service settings configuration file - settings.xml
         /// </summary>
         /// <param name="sectionName">Name of the section within the configuration file. if not found , it return false</param>
-        /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it return false. 
-        /// If not specified, default name is "Config"</param>
         /// <param name="remotingListenerSettings">When this method returns it sets the <see cref="FabricTransportRemotingListenerSettings"/> listenersettings if load from Config succeeded. If fails ,its sets listenerSettings to null/> </param>
+        /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it return false.
+        /// If not specified, default name is "Config"</param>
         /// <returns> <see cref="bool"/> specifies whether the settings get loaded successfully from Config.
         /// It returns true when load from Config succeeded, else return false.</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
-        ///     
+        ///
         ///     1. MaxQueueSize - <see cref="FabricTransportRemotingSettings.MaxQueueSize"/>value in long.
         ///     2. MaxMessageSize - <see cref="FabricTransportRemotingSettings.MaxMessageSize"/>value in bytes.
         ///     3. MaxConcurrentCalls - <see cref="FabricTransportRemotingSettings.MaxConcurrentCalls"/>value in long.
@@ -215,26 +211,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         ///     5. OperationTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.OperationTimeout"/> value in seconds.
         ///     6. KeepAliveTimeoutInSeconds - <see cref="FabricTransportRemotingSettings.KeepAliveTimeout"/> value in seconds.
         /// </remarks>
-        public static bool TryLoadFrom(string sectionName,
+        public static bool TryLoadFrom(
+            string sectionName,
             out FabricTransportRemotingListenerSettings remotingListenerSettings,
             string configPackageName = null)
         {
-            var isSucceded = FabricTransportListenerSettings.TryLoadFrom(sectionName, out var listenerSettings,
-                configPackageName);
+            var isSucceded =
+                FabricTransportListenerSettings.TryLoadFrom(sectionName, out var listenerSettings, configPackageName);
             if (isSucceded)
             {
                 remotingListenerSettings = new FabricTransportRemotingListenerSettings(listenerSettings);
                 return true;
             }
+
             remotingListenerSettings = null;
             return false;
         }
 
-        /// <summary>
-        /// FabricTransportRemotingListenerSettings returns the default Settings .Loads the configuration file from default Config Package"Config" .
-        ///</summary>
-        /// <param name="sectionName">Name of the section within the configuration file. If not found section in configuration file, it will return the default Settings</param>
-        /// <returns></returns>
         internal static FabricTransportRemotingListenerSettings GetDefault(
             string sectionName = FabricTransportSettings.DefaultSectionName)
         {
@@ -244,8 +237,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
             AppTrace.TraceSource.WriteInfo(
                 Tracetype,
-                "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," +
-                "HeaderBufferCount {7} ",
+                "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," + "HeaderBufferCount {7} ",
                 settings.MaxMessageSize,
                 settings.MaxConcurrentCalls,
                 settings.MaxQueueSize,
@@ -255,8 +247,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 settings.HeaderBufferSize,
                 settings.HeaderMaxBufferCount);
 
-
             return settings;
+        }
+
+        internal FabricTransportListenerSettings GetInternalSettings()
+        {
+            return this.listenerSettings;
         }
     }
 }

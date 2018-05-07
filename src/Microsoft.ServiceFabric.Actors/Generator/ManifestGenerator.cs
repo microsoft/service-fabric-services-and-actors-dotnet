@@ -1,18 +1,18 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System;
     using System.Collections.Generic;
+    using System.Fabric.Management.ServiceModel;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Xml;
-    using System.Fabric.Management.ServiceModel;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
 
@@ -53,43 +53,44 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private const char GeneratedIdDelimiter = '|';
 
         private const string DefaultSemanticVersion = "1.0.0";
-        private static Context ToolContext;
 
         private static readonly Dictionary<string, Func<ActorTypeInformation, string>> GeneratedNameFunctions = new Dictionary
             <string, Func<ActorTypeInformation, string>>
-        {
-            {GeneratedDefaultServiceName, GetFabricServiceName},
-            {GeneratedReplicatorEndpointName, GetFabricServiceReplicatorEndpointName},
-            {GeneratedReplicatorConfigSectionName, GetFabricServiceReplicatorConfigSectionName},
-            {GeneratedReplicatorSecurityConfigSectionName, GetFabricServiceReplicatorSecurityConfigSectionName},
-            {GeneratedStoreConfigSectionName, GetLocalEseStoreConfigSectionName}
-        };
+            {
+                { GeneratedDefaultServiceName, GetFabricServiceName },
+                { GeneratedReplicatorEndpointName, GetFabricServiceReplicatorEndpointName },
+                { GeneratedReplicatorConfigSectionName, GetFabricServiceReplicatorConfigSectionName },
+                { GeneratedReplicatorSecurityConfigSectionName, GetFabricServiceReplicatorSecurityConfigSectionName },
+                { GeneratedStoreConfigSectionName, GetLocalEseStoreConfigSectionName },
+            };
+
+        private static Context toolContext;
 
         internal static void Generate(Arguments arguments)
         {
-            ToolContext = new Context(arguments);
-            ToolContext.LoadExistingContents();
+            toolContext = new Context(arguments);
+            toolContext.LoadExistingContents();
             var serviceManifest = CreateServiceManifest();
             var configSettings = CreateConfigSettings();
             var mergedServiceManifest = MergeServiceManifest(serviceManifest);
 
             InsertXmlCommentsAndWriteIfNeeded(
-                ToolContext.ServiceManifestFilePath,
-                ToolContext.ExistingServiceManifestContents,
+                toolContext.ServiceManifestFilePath,
+                toolContext.ExistingServiceManifestContents,
                 mergedServiceManifest);
 
             InsertXmlCommentsAndWriteIfNeeded(
-                ToolContext.ConfigSettingsFilePath,
-                ToolContext.ExistingConfigSettingsContents,
+                toolContext.ConfigSettingsFilePath,
+                toolContext.ExistingConfigSettingsContents,
                 MergeConfigSettings(configSettings));
 
-            if (ToolContext.ShouldGenerateApplicationManifest())
+            if (toolContext.ShouldGenerateApplicationManifest())
             {
                 var applicationManifest = CreateApplicationManifest(mergedServiceManifest);
 
                 InsertXmlCommentsAndWriteIfNeeded(
-                    ToolContext.ApplicationManifestFilePath,
-                    ToolContext.ExistingApplicationManifestContents,
+                    toolContext.ApplicationManifestFilePath,
+                    toolContext.ExistingApplicationManifestContents,
                     MergeApplicationManifest(applicationManifest));
             }
         }
@@ -101,7 +102,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var settings = new SettingsType();
 
             var sections = new List<SettingsTypeSection>();
-            foreach (var actorTypeInfo in ToolContext.Arguments.ActorTypes)
+            foreach (var actorTypeInfo in toolContext.Arguments.ActorTypes)
             {
                 sections.AddRange(CreateConfigSections(actorTypeInfo));
             }
@@ -112,13 +113,13 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static SettingsType MergeConfigSettings(SettingsType configSettings)
         {
-            if (string.IsNullOrEmpty(ToolContext.ExistingConfigSettingsContents))
+            if (string.IsNullOrEmpty(toolContext.ExistingConfigSettingsContents))
             {
                 return configSettings;
             }
 
             var existingConfigSettings = XmlSerializationUtility.Deserialize<SettingsType>(
-                ToolContext.ExistingConfigSettingsContents);
+                toolContext.ExistingConfigSettingsContents);
             existingConfigSettings.Section = MergeConfigSections(existingConfigSettings.Section, configSettings.Section);
 
             return existingConfigSettings;
@@ -139,13 +140,13 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 new SettingsTypeSectionParameter
                 {
                     Name = "ReplicatorEndpoint",
-                    Value = GetFabricServiceReplicatorEndpointName(actorTypeInfo)
+                    Value = GetFabricServiceReplicatorEndpointName(actorTypeInfo),
                 },
                 new SettingsTypeSectionParameter
                 {
                     Name = "BatchAcknowledgementInterval",
-                    Value = "0.005" // in seconds, default to 5 milliseconds to match reliable services.
-                }
+                    Value = "0.005", // in seconds, default to 5 milliseconds to match reliable services.
+                },
             };
             replicatorConfigSection.Parameter = replicatorConfigSectionParameters.ToArray();
 
@@ -158,7 +159,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 new SettingsTypeSectionParameter
                 {
                     Name = ActorNameFormat.GetFabricServiceReplicatorSecurityCredentialTypeName(),
-                    Value = "None"
+                    Value = "None",
                 },
             };
 
@@ -198,7 +199,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 newItems,
                 (i1, i2) => (string.CompareOrdinal(i1.Name, i2.Name) == 0),
                 MergeConfigSection,
-                i1 => ToolContext.ShouldKeepConfigSection(i1.Name));
+                i1 => toolContext.ShouldKeepConfigSection(i1.Name));
         }
 
         private static SettingsTypeSectionParameter MergeConfigParameter(
@@ -227,14 +228,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var serviceManifest = new ServiceManifestType
             {
-                Name = ActorNameFormat.GetFabricServicePackageName(ToolContext.Arguments.ServicePackageNamePrefix),
-                Version = GetVersion()
+                Name = ActorNameFormat.GetFabricServicePackageName(toolContext.Arguments.ServicePackageNamePrefix),
+                Version = GetVersion(),
             };
 
             var serviceTypeList = new List<ServiceTypeType>();
             var endpointResourceList = new List<EndpointType>();
 
-            foreach (var actorTypeInfo in ToolContext.Arguments.ActorTypes)
+            foreach (var actorTypeInfo in toolContext.Arguments.ActorTypes)
             {
                 serviceTypeList.Add(CreateServiceTypeType(actorTypeInfo));
                 endpointResourceList.AddRange(CreateEndpointResources(actorTypeInfo));
@@ -251,7 +252,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             serviceManifest.Resources = new ResourcesType
             {
-                Endpoints = endpointResourceList.ToArray()
+                Endpoints = endpointResourceList.ToArray(),
             };
 
             return serviceManifest;
@@ -259,12 +260,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static ServiceManifestType MergeServiceManifest(ServiceManifestType serviceManifest)
         {
-            if (string.IsNullOrEmpty(ToolContext.ExistingServiceManifestContents))
+            if (string.IsNullOrEmpty(toolContext.ExistingServiceManifestContents))
             {
                 return serviceManifest;
             }
 
-            var existingServiceManifest = ToolContext.ExistingServiceManifestType;
+            var existingServiceManifest = toolContext.ExistingServiceManifestType;
 
             // basic properties of the service manifest
             // Use new version, only when it doesn't exist.
@@ -301,7 +302,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     serviceManifest.Resources.Endpoints);
             }
 
-
             return existingServiceManifest;
         }
 
@@ -320,7 +320,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                            string.CompareOrdinal(casted1.ServiceTypeName, casted2.ServiceTypeName) == 0;
                 },
                 MergeServiceType,
-                i1 => ToolContext.ShouldKeepItem(GeneratedServiceTypeExtensionName, ((ServiceTypeType)i1).ServiceTypeName));
+                i1 => toolContext.ShouldKeepItem(GeneratedServiceTypeExtensionName, ((ServiceTypeType)i1).ServiceTypeName));
         }
 
         private static object MergeServiceType(
@@ -395,13 +395,13 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private static ServiceTypeType CreateServiceTypeType(
             ActorTypeInformation actorTypeInfo)
         {
-            // HasPersistedState flag in service manifest is set to true only when 
+            // HasPersistedState flag in service manifest is set to true only when
             //    1. Actor [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
             return new StatefulServiceTypeType
             {
                 HasPersistedState = actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted),
                 ServiceTypeName = ActorNameFormat.GetFabricServiceTypeName(actorTypeInfo.ImplementationType),
-                Extensions = CreateServiceTypeExtensions(actorTypeInfo)
+                Extensions = CreateServiceTypeExtensions(actorTypeInfo),
             };
         }
 
@@ -440,19 +440,18 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     endpoints.Add(
                         new EndpointType()
                         {
-                            Name = GetFabricServiceV2EndpointName(actorTypeInfo)
-                        }
-                    );
+                            Name = GetFabricServiceV2EndpointName(actorTypeInfo),
+                        });
                     break;
                 case RemotingListener.CompatListener:
                     endpoints.Add(
                         new EndpointType()
                         {
-                            Name = GetFabricServiceV2EndpointName(actorTypeInfo)
+                            Name = GetFabricServiceV2EndpointName(actorTypeInfo),
                         });
                     endpoints.Add(new EndpointType()
                     {
-                        Name = GetFabricServiceEndpointName(actorTypeInfo)
+                        Name = GetFabricServiceEndpointName(actorTypeInfo),
                     });
 
                     break;
@@ -461,9 +460,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                         endpoints.Add(
                             new EndpointType()
                             {
-                                Name = GetFabricServiceEndpointName(actorTypeInfo)
-                            }
-                        );
+                                Name = GetFabricServiceEndpointName(actorTypeInfo),
+                            });
                         break;
                     }
             }
@@ -471,16 +469,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             endpoints.Add(
                       new EndpointType()
                       {
-                          Name = GetFabricServiceV2EndpointName(actorTypeInfo)
-                      }
-                  );
+                          Name = GetFabricServiceV2EndpointName(actorTypeInfo),
+                      });
 #endif
             return endpoints;
         }
 
         private static ExtensionsTypeExtension[] CreateServiceTypeExtensions(ActorTypeInformation actorTypeInfo)
         {
-
             var generatedNameFunctions = GeneratedNameFunctions.Concat(GetGeneratedNameFunctionForServiceEndpoint(actorTypeInfo)).ToDictionary(d => d.Key, d => d.Value);
 
             var xml = CreateServiceTypeExtension(actorTypeInfo, generatedNameFunctions);
@@ -488,13 +484,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var extension = new ExtensionsTypeExtension
             {
                 Name = GeneratedServiceTypeExtensionName,
+
                 // GeneratedId is of format Guid|StatePersistenceAttributeValue.
                 GeneratedId =
                     string.Format(
                         GeneratedIdFormat,
                         Guid.NewGuid(),
                         actorTypeInfo.StatePersistence),
-                Any = xml.DocumentElement
+                Any = xml.DocumentElement,
             };
 
             return new List<ExtensionsTypeExtension> { extension }.ToArray();
@@ -524,15 +521,15 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static CodePackageType CreateCodePackage()
         {
-            var assembly = ToolContext.Arguments.InputAssembly;
+            var assembly = toolContext.Arguments.InputAssembly;
             var codePackage = new CodePackageType
             {
                 Name = ActorNameFormat.GetCodePackageName(),
                 Version = GetVersion(),
                 EntryPoint = new EntryPointDescriptionType
                 {
-                    Item = CreateExeHostEntryPoint(assembly)
-                }
+                    Item = CreateExeHostEntryPoint(assembly),
+                },
             };
 
             return codePackage;
@@ -543,7 +540,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             return new EntryPointDescriptionTypeExeHost
             {
-                Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe"
+                Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe",
             };
         }
 
@@ -593,7 +590,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var configPackage = new ConfigPackageType
             {
                 Name = ActorNameFormat.GetConfigPackageName(),
-                Version = GetVersion()
+                Version = GetVersion(),
             };
 
             return configPackage;
@@ -635,7 +632,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             endpoints.Add(
                 new EndpointType
                 {
-                    Name = GetFabricServiceReplicatorEndpointName(actorTypeInfo)
+                    Name = GetFabricServiceReplicatorEndpointName(actorTypeInfo),
                 });
 
             return endpoints;
@@ -651,12 +648,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             return ActorNameFormat.GetFabricServiceEndpointName(actorTypeInfo.ImplementationType);
         }
 
-
         private static string GetFabricServiceV2EndpointName(ActorTypeInformation actorTypeInfo)
         {
             return ActorNameFormat.GetFabricServiceV2EndpointName(actorTypeInfo.ImplementationType);
         }
-
 
         private static EndpointType MergeEndpointResource(
             EndpointType existingItem,
@@ -674,7 +669,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 newItems,
                 (i1, i2) => (string.CompareOrdinal(i1.Name, i2.Name) == 0),
                 MergeEndpointResource,
-                i1 => ToolContext.ShouldKeepEndpointResource(i1.Name));
+                i1 => toolContext.ShouldKeepEndpointResource(i1.Name));
         }
 
         #endregion
@@ -688,9 +683,9 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             // application manifest properties
             var applicationManifest = new ApplicationManifestType
             {
-                ApplicationTypeName = ActorNameFormat.GetFabricApplicationTypeName(ToolContext.Arguments.ApplicationPrefix),
+                ApplicationTypeName = ActorNameFormat.GetFabricApplicationTypeName(toolContext.Arguments.ApplicationPrefix),
                 ApplicationTypeVersion = GetVersion(),
-                ServiceManifestImport = new ApplicationManifestTypeServiceManifestImport[1]
+                ServiceManifestImport = new ApplicationManifestTypeServiceManifestImport[1],
             };
 
             // service manifest import
@@ -699,11 +694,11 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 ServiceManifestRef = new ServiceManifestRefType
                 {
                     ServiceManifestName = serviceManifest.Name,
-                    ServiceManifestVersion = serviceManifest.Version
-                }
+                    ServiceManifestVersion = serviceManifest.Version,
+                },
             };
 
-            // default parameters 
+            // default parameters
             var defaultParameters = CreateDefaultParameter();
             if (defaultParameters != null && defaultParameters.Count > 0)
             {
@@ -714,7 +709,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             var defaultServices = CreateDefaultServices(serviceManifest);
             applicationManifest.DefaultServices = new DefaultServicesType
             {
-                Items = new object[defaultServices.Count]
+                Items = new object[defaultServices.Count],
             };
             defaultServices.ToArray().CopyTo(applicationManifest.DefaultServices.Items, 0);
 
@@ -723,12 +718,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static ApplicationManifestType MergeApplicationManifest(ApplicationManifestType applicationManifest)
         {
-            if (string.IsNullOrEmpty(ToolContext.ExistingApplicationManifestContents))
+            if (string.IsNullOrEmpty(toolContext.ExistingApplicationManifestContents))
             {
                 return applicationManifest;
             }
 
-            var existingApplicationManifest = ToolContext.ExistingApplicationManifestType;
+            var existingApplicationManifest = toolContext.ExistingApplicationManifestType;
 
             // Use new version, only when it doesn't exist.
             if (string.IsNullOrEmpty(existingApplicationManifest.ApplicationTypeVersion))
@@ -753,12 +748,12 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static IList<DefaultServicesTypeService> CreateDefaultServices(ServiceManifestType serviceManifest)
         {
-            return ToolContext.Arguments.ActorTypes.Select(x => CreateDefaultService(x, serviceManifest)).ToList();
+            return toolContext.Arguments.ActorTypes.Select(x => CreateDefaultService(x, serviceManifest)).ToList();
         }
 
         private static IList<ApplicationManifestTypeParameter> CreateDefaultParameter()
         {
-            var parameterlists = ToolContext.Arguments.ActorTypes.Select(
+            var parameterlists = toolContext.Arguments.ActorTypes.Select(
                 CreateDefaultParameter).ToList();
             var parametes = new List<ApplicationManifestTypeParameter>();
 
@@ -804,7 +799,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     },
                     i1 =>
                     {
-                        return ToolContext.ShouldKeepItem(
+                        return toolContext.ShouldKeepItem(
                             GeneratedDefaultServiceName,
                             ((DefaultServicesTypeService)i1).Name);
                     });
@@ -818,14 +813,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var defaultService = new DefaultServicesTypeService
             {
-                Name = GetFabricServiceName(actorTypeInfo)
+                Name = GetFabricServiceName(actorTypeInfo),
             };
 
             var partition = new ServiceTypeUniformInt64Partition
             {
                 LowKey = long.MinValue.ToString(CultureInfo.InvariantCulture),
                 HighKey = long.MaxValue.ToString(CultureInfo.InvariantCulture),
-                PartitionCount = string.Format(ParamNameUsageFormat, defaultService.Name, PartitionCountParamName)
+                PartitionCount = string.Format(ParamNameUsageFormat, defaultService.Name, PartitionCountParamName),
             };
 
             var service = CreateStatefulDefaultService(actorTypeInfo);
@@ -862,6 +857,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             return ActorNameFormat.GetFabricServiceName(actorTypeInfo.InterfaceTypes.First(), actorTypeInfo.ServiceName);
         }
+
         private static ServiceType CreateStatefulDefaultService(
             ActorTypeInformation actorTypeInfo)
         {
@@ -870,7 +866,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             return new StatefulServiceType
             {
                 MinReplicaSetSize = string.Format(ParamNameUsageFormat, name, MinReplicaSetSizeParamName),
-                TargetReplicaSetSize = string.Format(ParamNameUsageFormat, name, TargetReplicaSetSizeParamName)
+                TargetReplicaSetSize = string.Format(ParamNameUsageFormat, name, TargetReplicaSetSizeParamName),
             };
         }
 
@@ -878,10 +874,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             ActorTypeInformation actorTypeInfo, IList<ApplicationManifestTypeParameter> applicationManifestTypeParameters)
         {
             var name = GetFabricServiceName(actorTypeInfo);
-            applicationManifestTypeParameters.Add
-                (GetApplicationManifestTypeParameter
-                (string.Format(ParamNameFormat, name, PartitionCountParamName),
-                DefaultPartitionCount));
+            applicationManifestTypeParameters.Add(
+                GetApplicationManifestTypeParameter(
+                    string.Format(ParamNameFormat, name, PartitionCountParamName),
+                    DefaultPartitionCount));
 
             applicationManifestTypeParameters.Add(
                 GetApplicationManifestTypeParameter(
@@ -903,7 +899,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             // MinReplicaSetSize is 3 when:
             //   1. Actor [StatePersistenceAttribute] attribute has StatePersistence.Volatile OR
             //   2. Actor [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
-
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.None))
             {
                 return NoneStatePersistenceMinReplicaDefaultValue;
@@ -923,7 +918,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             // TargetReplicaSetSize is 3 when:
             //   1. Actor [StatePersistenceAttribute] attribute has StatePersistence.Volatile OR
             //   2. Actor [StatePersistenceAttribute] attribute has StatePersistence.Persisted.
-
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.None))
             {
                 return NoneStatePersistenceTargetReplicaDefaultValue;
@@ -952,7 +946,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             existingItem.GeneratedIdRef = newItem.GeneratedIdRef;
 
             // Merged type-agnostic values before (potentially) swapping the type
-            //
             var mergedPartition = MergeDefaultServicePartition(
                 existingService.UniformInt64Partition,
                 newService.UniformInt64Partition);
@@ -994,8 +987,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             }
         }
 
-        private static ApplicationManifestTypeServiceManifestImport MergeServiceManifestImport
-            (
+        private static ApplicationManifestTypeServiceManifestImport MergeServiceManifestImport(
             ApplicationManifestTypeServiceManifestImport existingItem,
             ApplicationManifestTypeServiceManifestImport newItem)
         {
@@ -1018,7 +1010,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 newItems,
                 (i1, i2) =>
                     ((i1.ServiceManifestRef != null) && (i2.ServiceManifestRef != null) &&
-                     (string.CompareOrdinal(i1.ServiceManifestRef.ServiceManifestName,
+                     (string.CompareOrdinal(
+                         i1.ServiceManifestRef.ServiceManifestName,
                          i2.ServiceManifestRef.ServiceManifestName) == 0)),
                 MergeServiceManifestImport);
         }
@@ -1030,8 +1023,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             // Following scenario must be handled while merging parameters values for TargetReplicaSetSize and MinReplicaSetSize
             // 1. User could change StatePrersistence from Persisted/Volatile to None, in this case
             //    overwrite the existing parameter value.
-
-            foreach (var actorTypeInfo in ToolContext.Arguments.ActorTypes)
+            foreach (var actorTypeInfo in toolContext.Arguments.ActorTypes)
             {
                 var name = GetFabricServiceName(actorTypeInfo);
 
@@ -1039,11 +1031,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     existingItem.Name.Equals(string.Format(ParamNameFormat, name, TargetReplicaSetSizeParamName)))
                 {
                     // Get GeneratedId Ref from the Default services for this actor.
-                    if (ToolContext.TryGetGeneratedIdRefForActorService(name, out var generatedIdRef))
+                    if (toolContext.TryGetGeneratedIdRefForActorService(name, out var generatedIdRef))
                     {
                         // GeneratedIdRef is of format "Guid|StatePersistenceAttributeValue"
                         // If StatePersistence Value from GeneratedIdRef is different from the current value then override the param value.
-
                         var splitted = generatedIdRef.Split(GeneratedIdDelimiter);
                         if (splitted.Length == 2)
                         {
@@ -1072,8 +1063,9 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 existingItems,
                 newItems,
                 (i1, i2) =>
-                    (string.CompareOrdinal(i1.Name,
-                         i2.Name) == 0),
+                    (string.CompareOrdinal(
+                        i1.Name,
+                        i2.Name) == 0),
                 MergeParameters);
         }
 
@@ -1129,7 +1121,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             return mergedList.ToArray();
         }
 
-        private static void InsertXmlCommentsAndWriteIfNeeded<T>(string filePath, string existingContents, T value) where T : class
+        private static void InsertXmlCommentsAndWriteIfNeeded<T>(string filePath, string existingContents, T value)
+            where T : class
         {
             var newContent = XmlSerializationUtility.InsertXmlComments(existingContents, value);
             Utility.WriteIfNeeded(filePath, existingContents, newContent);
@@ -1137,14 +1130,14 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private static string GetVersion()
         {
-            return !string.IsNullOrEmpty(ToolContext.Arguments.Version)
-                ? ToolContext.Arguments.Version
+            return !string.IsNullOrEmpty(toolContext.Arguments.Version)
+                ? toolContext.Arguments.Version
                 : DefaultSemanticVersion;
         }
 
         private static string GetStatePersistenceValueForActorService(string actorService)
         {
-            foreach (var actorTypeInfo in ToolContext.Arguments.ActorTypes)
+            foreach (var actorTypeInfo in toolContext.Arguments.ActorTypes)
             {
                 var serviceName = GetFabricServiceName(actorTypeInfo);
 
@@ -1178,15 +1171,29 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private class Context
         {
+            private readonly Dictionary<string, HashSet<string>> existingGeneratedNames;
+
+            private readonly Dictionary<string, string> existingActorServiceGeneratedIdRefNamesMap;
+
+            public Context(Arguments arguments)
+            {
+                this.Arguments = arguments;
+                if (this.ShouldGenerateApplicationManifest())
+                {
+                    this.ApplicationManifestFilePath = this.GetApplicationManifestFilePath();
+                }
+
+                this.ServiceManifestFilePath = this.GetServiceManifestFilePath();
+                this.ConfigSettingsFilePath = this.GetConfigSettingsFilePath();
+                this.existingGeneratedNames = new Dictionary<string, HashSet<string>>();
+                this.existingActorServiceGeneratedIdRefNamesMap = new Dictionary<string, string>();
+            }
+
             public string ApplicationManifestFilePath { get; private set; }
 
             public string ServiceManifestFilePath { get; private set; }
 
             public string ConfigSettingsFilePath { get; private set; }
-
-            private readonly Dictionary<string, HashSet<string>> existingGeneratedNames;
-
-            private readonly Dictionary<string, string> existingActorServiceGeneratedIdRefNamesMap;
 
             public string ExistingApplicationManifestContents { get; private set; }
 
@@ -1199,19 +1206,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             public ServiceManifestType ExistingServiceManifestType { get; private set; }
 
             public Arguments Arguments { get; private set; }
-
-            public Context(Arguments arguments)
-            {
-                this.Arguments = arguments;
-                if (this.ShouldGenerateApplicationManifest())
-                {
-                    this.ApplicationManifestFilePath = this.GetApplicationManifestFilePath();
-                }
-                this.ServiceManifestFilePath = this.GetServiceManifestFilePath();
-                this.ConfigSettingsFilePath = this.GetConfigSettingsFilePath();
-                this.existingGeneratedNames = new Dictionary<string, HashSet<string>>();
-                this.existingActorServiceGeneratedIdRefNamesMap = new Dictionary<string, string>();
-            }
 
             public void LoadExistingContents()
             {
@@ -1281,6 +1275,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                                         extension.Name,
                                         existingTypes);
                                 }
+
                                 existingTypes.Add(castedServiceType.ServiceTypeName);
 
                                 var xmlEnumerator = extension.Any.ChildNodes.GetEnumerator();
@@ -1345,6 +1340,19 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     string.IsNullOrEmpty(this.Arguments.ServicePackagePath);
             }
 
+            public bool TryGetGeneratedIdRefForActorService(string actorService, out string generatedIdRef)
+            {
+                if (this.existingActorServiceGeneratedIdRefNamesMap.TryGetValue(actorService, out generatedIdRef))
+                {
+                    return true;
+                }
+                else
+                {
+                    generatedIdRef = null;
+                    return false;
+                }
+            }
+
             private bool IsExistingGeneratedName(
                 string name,
                 string value)
@@ -1355,19 +1363,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 }
                 else
                 {
-                    return false;
-                }
-            }
-
-            public bool TryGetGeneratedIdRefForActorService(string actorService, out string generatedIdRef)
-            {
-                if (this.existingActorServiceGeneratedIdRefNamesMap.TryGetValue(actorService, out generatedIdRef))
-                {
-                    return true;
-                }
-                else
-                {
-                    generatedIdRef = null;
                     return false;
                 }
             }
@@ -1383,7 +1378,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     var appManifestFilePath = Path.Combine(this.Arguments.OutputPath, ApplicationManifestFileName);
                     if (!File.Exists(appManifestFilePath))
                     {
-                        appManifestFilePath = Path.Combine(this.Arguments.OutputPath,
+                        appManifestFilePath = Path.Combine(
+                            this.Arguments.OutputPath,
                             ActorNameFormat.GetFabricApplicationPackageName(this.Arguments.ApplicationPrefix),
                             ApplicationManifestFileName);
                     }
@@ -1402,7 +1398,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     var appManifestFilePath = this.GetApplicationManifestFilePath();
 
                     var appPackageFolder = Path.GetDirectoryName(appManifestFilePath) ??
-                                           Path.Combine(this.Arguments.OutputPath,
+                                           Path.Combine(
+                                               this.Arguments.OutputPath,
                                                ActorNameFormat.GetFabricApplicationPackageName(
                                                    this.Arguments.ApplicationPrefix));
 
@@ -1410,6 +1407,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                         appPackageFolder,
                         ActorNameFormat.GetFabricServicePackageName(this.Arguments.ServicePackageNamePrefix));
                 }
+
                 var manifestFilePath = Path.Combine(
                     servicePackagePath,
                     ServiceManifestFileName);

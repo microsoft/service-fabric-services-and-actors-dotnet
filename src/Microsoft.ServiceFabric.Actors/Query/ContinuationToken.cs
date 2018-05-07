@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Query
@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
     /// <summary>
     /// Represents a continuation token for query operations.
     /// </summary>
-    /// <remarks>A method that may return a partial set of results via a 
+    /// <remarks>A method that may return a partial set of results via a
     /// <see cref="PagedResult{T}"/> object also returns a continuation token
     /// in the object, which can be used in a subsequent call to return the next set of available results.</remarks>
     [DataContract(Name = "ContinuationToken", Namespace = Constants.Namespace)]
@@ -31,6 +31,6 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// </summary>
         /// <value>A marker used to fetch the next set of available results.</value>
         [DataMember(Name = "Marker", Order = 0, IsRequired = true)]
-        public object Marker { private set; get; }
+        public object Marker { get; private set; }
     }
 }

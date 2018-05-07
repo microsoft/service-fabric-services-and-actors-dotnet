@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -23,18 +23,19 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private readonly ICommunicationClientFactory<TCommunicationClient> communicationClientFactory;
         private readonly SemaphoreSlim communicationClientLock;
-        private TCommunicationClient communicationClient;
+
         private readonly string traceId;
         private readonly Uri serviceUri;
         private readonly ServicePartitionKey partitionKey;
         private readonly TargetReplicaSelector targetReplicaSelector;
         private readonly string listenerName;
-        private volatile ResolvedServicePartition lastRsp;
-
         private readonly OperationRetrySettings retrySettings;
 
+        private TCommunicationClient communicationClient;
+        private volatile ResolvedServicePartition lastRsp;
+
         /// <summary>
-        /// Instantiates a service partition client that uses the specified communication client factory to create
+        /// Initializes a new instance of the <see cref="ServicePartitionClient{TCommunicationClient}"/> class that uses the specified communication client factory to create
         /// a client to talk to the service endpoint identified by the service uri, partitionkey, replica and listener
         /// arguments.
         /// </summary>
@@ -122,7 +123,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         /// <summary>
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
+        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
@@ -144,11 +145,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         /// <summary>
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
+        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         ///  If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
-        ///  2 Or To  invoke this Api  in a threadpool thread using Task.Run. 
+        ///  2 Or To  invoke this Api  in a threadpool thread using Task.Run.
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
         /// <param name="func">Function being invoked</param>
@@ -173,9 +174,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
                 try
                 {
-                    //
                     // throw if cancellation has been requested.
-                    //
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var result = await func.Invoke(client);
@@ -204,10 +203,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     {
                         throw;
                     }
+
                     exception = e;
                 }
 
-                // The exception that is being processed by the factory could be because of the cancellation 
+                // The exception that is being processed by the factory could be because of the cancellation
                 // requested to the remote call, so not passing the same cancellation token to the api below
                 // to not let the regular exception processing be interrupted.
                 var exceptionReportResult = await this.communicationClientFactory.ReportOperationExceptionAsync(
@@ -245,11 +245,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         /// <summary>
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
+        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
-        ///  2 Or To  invoke this Api in a threadpool thread using Task.Run. 
+        ///  2 Or To  invoke this Api in a threadpool thread using Task.Run.
         /// </summary>
         /// <param name="func">Function being invoked</param>
         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
@@ -263,11 +263,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         /// <summary>
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
+        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         /// If you are invoking this method in Asp.Net / UI thread, these are recommendations to avoid deadlock:
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
-        ///  2 Or To  invoke this Api in a threadpool thread using Task.Run. 
+        ///  2 Or To  invoke this Api in a threadpool thread using Task.Run.
         /// </summary>
         /// <param name="func">Function being invoked</param>
         /// <param name="cancellationToken">Cancellation token</param>
@@ -292,7 +292,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         /// <summary>
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
+        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         /// </summary>
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
@@ -318,7 +318,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         /// <summary>
         /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method 
+        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         /// </summary>
         /// <param name="func">Function being invoked</param>
@@ -371,12 +371,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             }
             finally
             {
-                //
                 // Release the lock incase of exceptions from the GetClientAsync method, which can
                 // happen if there are non retriable exceptions in that method. Eg: There can be
                 // ServiceNotFoundException if the GetClientAsync client is called before the
                 // service creation completes.
-                //
                 this.communicationClientLock.Release();
             }
 

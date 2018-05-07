@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
@@ -18,10 +18,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 
     internal class ActorCodeBuilder : CodeBuilder
     {
+        internal static readonly InterfaceDetailsStore InterfaceDetailsStore = new InterfaceDetailsStore();
         private static readonly ICodeBuilder Instance = new ActorCodeBuilder();
         private static readonly object BuildLock = new object();
-        internal static readonly InterfaceDetailsStore InterfaceDetailsStore = new InterfaceDetailsStore();
-
+        private static ICodeBuilder singleton = new ActorCodeBuilder();
+        private static object buildLock = new object();
         private readonly ICodeBuilder eventCodeBuilder;
         private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
         private readonly MethodDispatcherBuilder<ActorMethodDispatcherBase> methodDispatcherBuilder;
@@ -36,20 +37,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             this.proxyGeneratorBuilder = new ActorProxyGeneratorBuilder(this);
         }
 
-        internal static bool TryGetKnownTypes(int interfaceId, out InterfaceDetails interfaceDetails)
-        {
-            return InterfaceDetailsStore.TryGetKnownTypes(interfaceId, out interfaceDetails);
-        }
-
-
-        internal static bool TryGetKnownTypes(string interfaceName, out InterfaceDetails interfaceDetails)
-        {
-            return InterfaceDetailsStore.TryGetKnownTypes(interfaceName, out interfaceDetails);
-        }
-
         public static ActorProxyGenerator GetOrCreateProxyGenerator(Type actorInterfaceType)
         {
-            lock (BuildLock)
+            lock (buildLock)
             {
                 return (ActorProxyGenerator)Instance.GetOrBuildProxyGenerator(actorInterfaceType).ProxyGenerator;
             }
@@ -57,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 
         public static ActorMethodDispatcherBase GetOrCreateMethodDispatcher(Type actorInterfaceType)
         {
-            lock (BuildLock)
+            lock (buildLock)
             {
                 return (ActorMethodDispatcherBase)Instance.GetOrBuilderMethodDispatcher(actorInterfaceType).MethodDispatcher;
             }
@@ -70,6 +60,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             {
                 return (ActorEventProxyGenerator)eventCodeBuilder.GetOrBuildProxyGenerator(actorEventInterfaceType).ProxyGenerator;
             }
+        }
+
+        internal static bool TryGetKnownTypes(int interfaceId, out InterfaceDetails interfaceDetails)
+        {
+            return InterfaceDetailsStore.TryGetKnownTypes(interfaceId, out interfaceDetails);
+        }
+
+        internal static bool TryGetKnownTypes(string interfaceName, out InterfaceDetails interfaceDetails)
+        {
+            return InterfaceDetailsStore.TryGetKnownTypes(interfaceName, out interfaceDetails);
         }
 
         protected override MethodDispatcherBuildResult BuildMethodDispatcher(Type interfaceType)
@@ -94,6 +94,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 t => this.eventCodeBuilder.GetOrBuilderMethodDispatcher(t).MethodDispatcher);
             var actorMethodDispatcherBases =
                 actorEventDispatchers.Cast<ActorMethodDispatcherBase>();
+
             // register them with the event subscriber manager
             ActorEventSubscriberManager.Instance.RegisterEventDispatchers(actorMethodDispatcherBases);
 
@@ -116,9 +117,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             private readonly ActorEventProxyGeneratorBuilder proxyGeneratorBuilder;
             private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
 
-
-            public ActorEventCodeBuilder() :
-                base(new ActorEventCodeBuilderNames())
+            public ActorEventCodeBuilder()
+                : base(new ActorEventCodeBuilderNames())
             {
                 this.methodBodyTypesBuilder = new MethodBodyTypesBuilder(this);
                 this.methodDispatcherBuilder = new MethodDispatcherBuilder<ActorMethodDispatcherBase>(this);
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 return res;
             }
 
-            //This needed to support Server Compact mode where some clients will be in V1 Stack
+            // This needed to support Server Compact mode where some clients will be in V1 Stack
             protected override MethodBodyTypesBuildResult BuildMethodBodyTypes(Type interfaceType)
             {
                 return this.methodBodyTypesBuilder.Build(ActorEventInterfaceDescription.Create(interfaceType));

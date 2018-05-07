@@ -1,6 +1,6 @@
-﻿// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
@@ -34,7 +34,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
             if (sendRequest != null)
             {
-                sendRequest(null, // sender is null for static events.
+                sendRequest(
+                    null, // sender is null for static events.
                     new ServiceRemotingRequestEventArgs(request, serviceUri, methodName));
             }
         }
@@ -50,7 +51,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
             if (receiveResponse != null)
             {
-                receiveResponse(null, // sender is null for static events
+                receiveResponse(
+                    null, // sender is null for static events
                     new ServiceRemotingResponseEventArgs(response, request));
             }
         }
@@ -66,7 +68,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
             if (receiveResponse != null)
             {
-                receiveResponse(null, // sender is null for static events
+                receiveResponse(
+                    null, // sender is null for static events
                     new ServiceRemotingFailedResponseEventArgs(ex, request));
             }
         }

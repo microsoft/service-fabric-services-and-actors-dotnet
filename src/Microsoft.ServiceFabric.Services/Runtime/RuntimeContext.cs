@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Runtime
@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     internal class RuntimeContext : IDisposable
     {
         private static readonly object SharedContextLock = new object();
-        private static RuntimeContext SharedContext;
+        private static RuntimeContext sharedContext;
 
         public FabricRuntime Runtime { get; private set; }
 
@@ -27,21 +27,20 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             // check if the context exist using double lock pattern if so return it.
             // shared context is never set to null, so the following check is safe
-            if (SharedContext != null)
+            if (sharedContext != null)
             {
-                return SharedContext;
+                return sharedContext;
             }
 
             lock (SharedContextLock)
             {
-                if (SharedContext != null)
+                if (sharedContext != null)
                 {
-                    return SharedContext;
+                    return sharedContext;
                 }
             }
 
             // shared context does not exist, create it
-
             ICodePackageActivationContext codePackageContext = null;
             NodeContext nodeContext;
             FabricRuntime fabricRuntime = null;
@@ -57,6 +56,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 {
                     fabricRuntime.Dispose();
                 }
+
                 if (codePackageContext != null)
                 {
                     codePackageContext.Dispose();
@@ -65,32 +65,32 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 throw;
             }
 
-            // set the shared context 
+            // set the shared context
             lock (SharedContextLock)
             {
-                if (SharedContext == null)
+                if (sharedContext == null)
                 {
-                    SharedContext = new RuntimeContext()
+                    sharedContext = new RuntimeContext()
                     {
                         Runtime = fabricRuntime,
                         CodePackageContext = codePackageContext,
-                        NodeContext = nodeContext
+                        NodeContext = nodeContext,
                     };
                 }
             }
 
             // dispose the newly created runtime and context if they do not become the shared
-            if (!object.ReferenceEquals(SharedContext.Runtime, fabricRuntime))
+            if (!object.ReferenceEquals(sharedContext.Runtime, fabricRuntime))
             {
                 fabricRuntime.Dispose();
             }
 
-            if (!object.ReferenceEquals(SharedContext.CodePackageContext, codePackageContext))
+            if (!object.ReferenceEquals(sharedContext.CodePackageContext, codePackageContext))
             {
                 codePackageContext.Dispose();
             }
 
-            return SharedContext;
+            return sharedContext;
         }
 
         public void Dispose()

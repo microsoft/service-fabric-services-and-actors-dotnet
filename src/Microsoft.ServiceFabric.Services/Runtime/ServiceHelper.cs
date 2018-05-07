@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Runtime
@@ -18,13 +18,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         internal const string ApiErrorTraceTypeSuffix = ".Api.Error";
         internal const string ApiSlowTraceTypeSuffix = ".Api.Slow";
 
+        internal static readonly TimeSpan RunAsyncExpectedCancellationTimeSpan = TimeSpan.FromSeconds(15);
+
         private const string RunAsyncHealthSourceId = "RunAsync";
         private const string RunAsyncHealthUnhandledExceptionProperty = "RunAsyncUnhandledException";
         private const string RunAsyncHealthSlowCanecellationProperty = "RunAsyncSlowCancellation";
-        private const int MaxHealthDescriptionLength = 4 * 1024 - 1;
+        private const int MaxHealthDescriptionLength = (4 * 1024) - 1;
 
         private static readonly TimeSpan HealthInformationTimeToLive = TimeSpan.FromMinutes(5);
-        internal static readonly TimeSpan RunAsyncExpectedCancellationTimeSpan = TimeSpan.FromSeconds(15);
 
         private readonly string traceType;
         private readonly string traceId;
@@ -33,6 +34,77 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             this.traceType = traceType;
             this.traceId = traceId;
+        }
+
+        internal static void ObserveExceptionIfAny(Task tsk)
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await tsk.ConfigureAwait(false);
+                }
+                catch
+                {
+                    // ignored
+                }
+            });
+        }
+
+        internal void HandleRunAsyncUnexpectedFabricException(IServicePartition partition, FabricException fex)
+        {
+            ServiceTrace.Source.WriteErrorWithId(
+                this.traceType + ApiErrorTraceTypeSuffix,
+                this.traceId,
+                "RunAsync failed due to an unhandled FabricException causing replica to fault: {0}",
+                fex.ToString());
+
+            this.ReportRunAsyncUnexpectedExceptionHealth(partition, fex);
+            partition.ReportFault(FaultType.Transient);
+        }
+
+        internal void HandleRunAsyncUnexpectedException(IServicePartition partition, Exception ex)
+        {
+            // ReSharper disable once UseStringInterpolation
+            var msg = $"RunAsync failed due to an unhandled exception causing the host process to crash: {ex}";
+
+            ServiceTrace.Source.WriteErrorWithId(this.traceType + ApiErrorTraceTypeSuffix, this.traceId, msg);
+
+            this.ReportRunAsyncUnexpectedExceptionHealth(partition, ex);
+
+            // In LRC test we have observed that sometimes FailFast takes time to write error
+            // details to WER and bring down the service host. This causes delays in failover
+            // and availibility loss to service.
+            //
+            // Report fault transient and post FailFast on another thread to unblock ChangeRole.
+            // Service host will come down once FailFast completes.
+            partition.ReportFault(FaultType.Transient);
+            Task.Run(() => Environment.FailFast(msg));
+        }
+
+        internal async Task AwaitRunAsyncWithHealthReporting(IServicePartition partition, Task runAsyncTask)
+        {
+            while (true)
+            {
+                var delayTaskCts = new CancellationTokenSource();
+                var delayTask = Task.Delay(RunAsyncExpectedCancellationTimeSpan, delayTaskCts.Token);
+
+                var finishedTask = await Task.WhenAny(runAsyncTask, delayTask);
+
+                if (finishedTask == runAsyncTask)
+                {
+                    delayTaskCts.Cancel();
+                    ObserveExceptionIfAny(delayTask);
+
+                    await runAsyncTask;
+                    break;
+                }
+
+                var msg = $"RunAsync is taking longer than expected time ({RunAsyncExpectedCancellationTimeSpan.TotalSeconds}s) to cancel.";
+
+                ServiceTrace.Source.WriteWarningWithId(this.traceType + ApiSlowTraceTypeSuffix, this.traceId, msg);
+                this.ReportRunAsyncSlowCancellationHealth(partition, msg);
+            }
         }
 
         private static string TrimToLength(string str, int length)
@@ -51,7 +123,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 TimeToLive = HealthInformationTimeToLive,
                 RemoveWhenExpired = true,
-                Description = healthDescription
+                Description = healthDescription,
             };
 
             return healthInfo;
@@ -63,7 +135,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 TimeToLive = HealthInformationTimeToLive,
                 RemoveWhenExpired = true,
-                Description = TrimToLength(description, MaxHealthDescriptionLength)
+                Description = TrimToLength(description, MaxHealthDescriptionLength),
             };
 
             return healthInfo;
@@ -96,78 +168,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             var healthInfo = GetRunAsyncUnexpectedExceptionHealthInformation(unexpectedException);
             this.ReportPartitionHealth(partition, healthInfo);
-        }
-
-        internal void HandleRunAsyncUnexpectedFabricException(IServicePartition partition, FabricException fex)
-        {
-            ServiceTrace.Source.WriteErrorWithId(
-                this.traceType + ApiErrorTraceTypeSuffix,
-                this.traceId,
-                "RunAsync failed due to an unhandled FabricException causing replica to fault: {0}",
-                fex.ToString());
-
-            this.ReportRunAsyncUnexpectedExceptionHealth(partition, fex);
-            partition.ReportFault(FaultType.Transient);
-        }
-
-        internal void HandleRunAsyncUnexpectedException(IServicePartition partition, Exception ex)
-        {
-            // ReSharper disable once UseStringInterpolation
-            var msg = $"RunAsync failed due to an unhandled exception causing the host process to crash: {ex}";
-
-            ServiceTrace.Source.WriteErrorWithId(this.traceType + ApiErrorTraceTypeSuffix, this.traceId, msg);
-
-            this.ReportRunAsyncUnexpectedExceptionHealth(partition, ex);
-
-            // In LRC test we have observed that sometimes FailFast takes time to write error
-            // details to WER and bring down the service host. This causes delays in failover
-            // and availibility loss to service.
-            //
-            // Report fault transient and post FailFast on another thread to unblock ChangeRole.
-            // Service host will come down once FailFast completes.
-            //
-            partition.ReportFault(FaultType.Transient);
-            Task.Run(() => Environment.FailFast(msg));
-        }
-
-        internal async Task AwaitRunAsyncWithHealthReporting(IServicePartition partition, Task runAsyncTask)
-        {
-            while (true)
-            {
-                var delayTaskCts = new CancellationTokenSource();
-                var delayTask = Task.Delay(RunAsyncExpectedCancellationTimeSpan, delayTaskCts.Token);
-
-                var finishedTask = await Task.WhenAny(runAsyncTask, delayTask);
-
-                if (finishedTask == runAsyncTask)
-                {
-                    delayTaskCts.Cancel();
-                    ObserveExceptionIfAny(delayTask);
-
-                    await runAsyncTask;
-                    break;
-                }
-
-                var msg = $"RunAsync is taking longer than expected time ({RunAsyncExpectedCancellationTimeSpan.TotalSeconds}s) to cancel.";
-
-                ServiceTrace.Source.WriteWarningWithId(this.traceType + ApiSlowTraceTypeSuffix, this.traceId, msg);
-                this.ReportRunAsyncSlowCancellationHealth(partition, msg);
-            }
-        }
-
-        internal static void ObserveExceptionIfAny(Task tsk)
-        {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await tsk.ConfigureAwait(false);
-                }
-                catch
-                {
-                    // ignored
-                }
-            });
         }
     }
 }

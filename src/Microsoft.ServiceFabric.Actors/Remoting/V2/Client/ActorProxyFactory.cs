@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
@@ -22,12 +22,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
     internal class ActorProxyFactory : IActorProxyFactory
     {
         private readonly object thisLock;
-
+        private readonly OperationRetrySettings retrySettings;
         private readonly Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory>
             createServiceRemotingClientFactory;
 
         private volatile IServiceRemotingClientFactory remotingClientFactory;
-        private readonly OperationRetrySettings retrySettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorProxyFactory"/> class.
@@ -49,19 +48,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         /// Creates a proxy to the actor object that implements an actor interface.
         /// </summary>
         /// <typeparam name="TActorInterface">
-        /// The actor interface implemented by the remote actor object. 
+        /// The actor interface implemented by the remote actor object.
         /// The returned proxy object will implement this interface.
         /// </typeparam>
-        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests 
+        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests
         /// being sent to the actor with this id.</param>
         /// <param name="applicationName">
         /// Name of the Service Fabric application that contains the actor service hosting the actor objects.
-        /// This parameter can be null if the client is running as part of that same Service Fabric application. For more information, see Remarks. 
+        /// This parameter can be null if the client is running as part of that same Service Fabric application. For more information, see Remarks.
         /// </param>
         /// <param name="serviceName">
         /// Name of the Service Fabric service as configured by <see cref="Microsoft.ServiceFabric.Actors.Runtime.ActorServiceAttribute"/> on the actor implementation.
         /// By default, the name of the service is derived from the name of the actor interface. However <see cref="Microsoft.ServiceFabric.Actors.Runtime.ActorServiceAttribute"/>
-        /// is required when an actor implements more than one actor interfaces or an actor interface derives from another actor interface as the determination of the 
+        /// is required when an actor implements more than one actor interfaces or an actor interface derives from another actor interface as the determination of the
         /// serviceName cannot be made automatically.
         /// </param>
         /// <param name="listenerName">
@@ -69,13 +68,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
         /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
-        public TActorInterface CreateActorProxy<TActorInterface>(ActorId actorId, string applicationName = null,
-            string serviceName = null, string listenerName = null) where TActorInterface : IActor
+        public TActorInterface CreateActorProxy<TActorInterface>(
+            ActorId actorId,
+            string applicationName = null,
+            string serviceName = null,
+            string listenerName = null)
+            where TActorInterface : IActor
         {
             if (string.IsNullOrEmpty(applicationName))
             {
                 applicationName = ActorNameFormat.GetCurrentFabricApplicationName();
             }
+
             var actorInterfaceType = typeof(TActorInterface);
             var serviceUri = ActorNameFormat.GetFabricServiceUri(actorInterfaceType, applicationName, serviceName);
             return this.CreateActorProxy<TActorInterface>(serviceUri, actorId, listenerName);
@@ -85,24 +89,26 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         /// Creates a proxy to the actor object that implements an actor interface.
         /// </summary>
         /// <typeparam name="TActorInterface">
-        /// The actor interface implemented by the remote actor object. 
+        /// The actor interface implemented by the remote actor object.
         /// The returned proxy object will implement this interface.
         /// </typeparam>
         /// <param name="serviceUri">Uri of the actor service.</param>
-        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests 
+        /// <param name="actorId">Actor Id of the proxy actor object. Methods called on this proxy will result in requests
         /// being sent to the actor with this id.</param>
         /// <param name="listenerName">
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
         /// <returns>An actor proxy object that implements <see cref="IActorProxy"/> and TActorInterface.</returns>
-        public TActorInterface CreateActorProxy<TActorInterface>(Uri serviceUri, ActorId actorId,
-            string listenerName = null) where TActorInterface : IActor
+        public TActorInterface CreateActorProxy<TActorInterface>(
+            Uri serviceUri,
+            ActorId actorId,
+            string listenerName = null)
+            where TActorInterface : IActor
         {
             var actorInterfaceType = typeof(TActorInterface);
 
             var factory = this.GetOrCreateServiceRemotingClientFactory(actorInterfaceType);
-
 
             var proxyGenerator = ActorCodeBuilder.GetOrCreateProxyGenerator(actorInterfaceType);
             var actorServicePartitionClient = new ActorServicePartitionClient(
@@ -111,7 +117,85 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 actorId,
                 listenerName,
                 this.retrySettings);
-            return (TActorInterface)(object)proxyGenerator.CreateActorProxy(actorServicePartitionClient,
+            return (TActorInterface)(object)proxyGenerator.CreateActorProxy(
+                actorServicePartitionClient,
+                factory.GetRemotingMessageBodyFactory());
+        }
+
+        /// <summary>
+        /// Create a proxy to the actor service that is hosting the specified actor id and implementing specified type of the service interface.
+        /// </summary>
+        /// <typeparam name="TServiceInterface">The service interface implemented by the actor service.</typeparam>
+        /// <param name="serviceUri">Uri of the actor service to connect to.</param>
+        /// <param name="actorId">Id of the actor. The created proxy will be connected to the partition of the actor service hosting actor with this id.</param>
+        /// <param name="listenerName">
+        /// By default an actor service has only one listener for clients to connect to and communicate with.
+        /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
+        /// </param>
+        /// <returns>A service proxy object that implements <see cref="IServiceProxy"/> and TServiceInterface.</returns>
+        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(
+            Uri serviceUri,
+            ActorId actorId,
+            string listenerName = null)
+            where TServiceInterface : IService
+        {
+            return this.CreateActorServiceProxy<TServiceInterface>(
+                serviceUri,
+                actorId.GetPartitionKey(),
+                listenerName);
+        }
+
+        /// <summary>
+        /// Create a proxy to the actor service that is hosting the specified actor id and implementing specified type of the service interface.
+        /// </summary>
+        /// <typeparam name="TServiceInterface">The service interface implemented by the actor service.</typeparam>
+        /// <param name="serviceUri">Uri of the actor service to connect to.</param>
+        /// <param name="partitionKey">The key of the actor service partition to connect to.</param>
+        /// <param name="listenerName">
+        /// By default an actor service has only one listener for clients to connect to and communicate with.
+        /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
+        /// </param>
+        /// <returns>A service proxy object that implements <see cref="IServiceProxy"/> and TServiceInterface.</returns>
+        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(
+            Uri serviceUri,
+            long partitionKey,
+            string listenerName = null)
+            where TServiceInterface : IService
+        {
+            var serviceInterfaceType = typeof(TServiceInterface);
+            var factory = this.GetOrCreateServiceRemotingClientFactory(serviceInterfaceType);
+
+            var proxyGenerator = ServiceCodeBuilder.GetOrCreateProxyGenerator(serviceInterfaceType);
+            var serviceRemotingPartitionClient = new ServiceRemotingPartitionClient(
+                factory,
+                serviceUri,
+                new ServicePartitionKey(partitionKey),
+                TargetReplicaSelector.Default,
+                listenerName,
+                this.retrySettings);
+
+            return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(
+                serviceRemotingPartitionClient,
+                factory.GetRemotingMessageBodyFactory());
+        }
+
+        internal object CreateActorProxy(
+            Type actorInterfaceType,
+            Uri serviceUri,
+            ActorId actorId,
+            string listenerName = null)
+        {
+            var proxyGenerator = ActorCodeBuilder.GetOrCreateProxyGenerator(actorInterfaceType);
+            var factory = this.GetOrCreateServiceRemotingClientFactory(actorInterfaceType);
+            var actorServicePartitionClient = new ActorServicePartitionClient(
+                factory,
+                serviceUri,
+                actorId,
+                listenerName,
+                this.retrySettings);
+
+            return proxyGenerator.CreateActorProxy(
+                actorServicePartitionClient,
                 factory.GetRemotingMessageBodyFactory());
         }
 
@@ -133,103 +217,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
             return this.remotingClientFactory;
         }
 
-        /// <summary>
-        /// Create a proxy to the actor service that is hosting the specified actor id and implementing specified type of the service interface.
-        /// </summary>
-        /// <typeparam name="TServiceInterface">The service interface implemented by the actor service.</typeparam>
-        /// <param name="serviceUri">Uri of the actor service to connect to.</param>
-        /// <param name="actorId">Id of the actor. The created proxy will be connected to the partition of the actor service hosting actor with this id.</param>
-        /// <param name="listenerName">
-        /// By default an actor service has only one listener for clients to connect to and communicate with.
-        /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
-        /// </param>
-        /// <returns>A service proxy object that implements <see cref="IServiceProxy"/> and TServiceInterface.</returns>
-        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(Uri serviceUri,
-            ActorId actorId,
-            string listenerName = null) where TServiceInterface : IService
-        {
-            return this.CreateActorServiceProxy<TServiceInterface>(
-                serviceUri,
-                actorId.GetPartitionKey(),
-                listenerName);
-        }
-
-
-        /// <summary>
-        /// Create a proxy to the actor service that is hosting the specified actor id and implementing specified type of the service interface.
-        /// </summary>
-        /// <typeparam name="TServiceInterface">The service interface implemented by the actor service.</typeparam>
-        /// <param name="serviceUri">Uri of the actor service to connect to.</param>
-        /// <param name="partitionKey">The key of the actor service partition to connect to.</param>
-        /// <param name="listenerName">
-        /// By default an actor service has only one listener for clients to connect to and communicate with.
-        /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
-        /// </param>
-        /// <returns>A service proxy object that implements <see cref="IServiceProxy"/> and TServiceInterface.</returns>
-        public TServiceInterface CreateActorServiceProxy<TServiceInterface>(Uri serviceUri,
-            long partitionKey,
-            string listenerName = null) where TServiceInterface : IService
-        {
-            var serviceInterfaceType = typeof(TServiceInterface);
-            var factory = this.GetOrCreateServiceRemotingClientFactory(serviceInterfaceType);
-
-            var proxyGenerator = ServiceCodeBuilder.GetOrCreateProxyGenerator(serviceInterfaceType);
-            var serviceRemotingPartitionClient = new ServiceRemotingPartitionClient(
-                factory,
-                serviceUri,
-                new ServicePartitionKey(partitionKey),
-                TargetReplicaSelector.Default,
-                listenerName,
-                this.retrySettings);
-
-            return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient,
-                factory.GetRemotingMessageBodyFactory());
-        }
-
-        internal object CreateActorProxy(
-            Type actorInterfaceType,
-            Uri serviceUri,
-            ActorId actorId,
-            string listenerName = null)
-        {
-            var proxyGenerator = ActorCodeBuilder.GetOrCreateProxyGenerator(actorInterfaceType);
-            var factory = this.GetOrCreateServiceRemotingClientFactory(actorInterfaceType);
-            var actorServicePartitionClient = new ActorServicePartitionClient(
-                factory,
-                serviceUri,
-                actorId,
-                listenerName,
-                this.retrySettings);
-
-            return proxyGenerator.CreateActorProxy(actorServicePartitionClient,
-                factory.GetRemotingMessageBodyFactory());
-        }
-
         private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type actorInterfaceType)
         {
-            var factory = this.CreateServiceRemotingClientFactory(ActorEventSubscriberManager.Instance);
+            var factory = this.createServiceRemotingClientFactory(ActorEventSubscriberManager.Instance);
             if (factory == null)
             {
                 throw new NotSupportedException("ClientFactory can't be null");
             }
 
             return factory;
-        }
-
-        /// <summary>
-        /// Creates service remoting client factory.
-        /// </summary>
-        /// <param name="callbackClient">Callback from the remoting listener to the client.</param>
-        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/></returns>
-        protected virtual IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            IServiceRemotingCallbackMessageHandler callbackClient)
-        {
-            if (this.createServiceRemotingClientFactory != null)
-            {
-                return this.createServiceRemotingClientFactory(callbackClient);
-            }
-
-            return null;
         }
     }
 }

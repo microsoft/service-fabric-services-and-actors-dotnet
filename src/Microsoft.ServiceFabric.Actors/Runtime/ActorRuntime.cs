@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private static readonly string NodeName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActorRuntime"/> class.
+        /// Initializes static members of the <see cref="ActorRuntime"/> class.
         /// </summary>
         static ActorRuntime()
         {
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="actorServiceFactory">The delegate that creates new actor service.</param>
         /// <param name="timeout">A timeout period after which the registration operation will be canceled.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>A task that represents the asynchronous operation to register actor service with Service Fabric runtime.</returns>        
+        /// <returns>A task that represents the asynchronous operation to register actor service with Service Fabric runtime.</returns>
         public static async Task RegisterActorAsync<TActor>(
             Func<StatefulServiceContext, ActorTypeInformation, ActorService> actorServiceFactory,
             TimeSpan timeout = default(TimeSpan),
@@ -97,6 +97,5 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw;
             }
         }
-
     }
 }

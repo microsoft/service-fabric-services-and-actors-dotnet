@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="..\..\..\properties\service_fabric_managed_dotnetcore.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <Description>Microsoft.ServiceFabric.Services.Remoting Library</Description>
     <AssemblyName>Microsoft.ServiceFabric.Services.Remoting</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <SourceCodeDir>$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\</SourceCodeDir>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>

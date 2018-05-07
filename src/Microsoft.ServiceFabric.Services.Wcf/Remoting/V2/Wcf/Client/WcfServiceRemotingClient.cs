@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
@@ -21,8 +21,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     {
         private ServiceRemotingMessageSerializersManager serializersManager;
 
-        public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }
-
         public WcfServiceRemotingClient(
             WcfCommunicationClient<IServiceRemotingContract> wcfClient,
             ServiceRemotingMessageSerializersManager serializersManager)
@@ -30,6 +28,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             this.serializersManager = serializersManager;
             this.WcfClient = wcfClient;
         }
+
+        public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }
 
         /// <summary>
         /// Gets or Sets the Resolved service partition which was used when this client was created.
@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
             try
             {
-                //Find the Serializer
+                // Find the Serializer
                 var interfaceId = requestMessage.GetHeader().InterfaceId;
                 serializedHeader = this.serializersManager.GetHeaderSerializer()
                     .SerializeRequestHeader(requestMessage.GetHeader());
@@ -108,14 +108,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 var msgBody =
                     responseSerializer.Deserialize(incomingMsgBody);
-                //Create Response Message
-                return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(header,
-                    msgBody);
 
+                // Create Response Message
+                return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(
+                    header,
+                    msgBody);
             }
             catch (FaultException<RemoteException> faultException)
             {
-                if (RemoteException.ToException(new SegmentedReadMemoryStream(faultException.Detail.Data),
+                if (RemoteException.ToException(
+                    new SegmentedReadMemoryStream(faultException.Detail.Data),
                     out var remoteException))
                 {
                     throw new AggregateException(remoteException);

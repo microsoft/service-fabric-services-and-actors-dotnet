@@ -1,17 +1,16 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting
 {
-
 #if DotNetCoreClr
     using System.Threading;
 
     internal static class ActorLogicalCallContext
     {
-        internal static AsyncLocal<string> fabActAsyncLocal = new AsyncLocal<string>();
+        private static AsyncLocal<string> fabActAsyncLocal = new AsyncLocal<string>();
 
         public static bool IsPresent()
         {
@@ -39,7 +38,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 
     internal static class ActorLogicalCallContext
     {
-
         internal const string CallContextKey = "_FabActCallContext_";
 
         public static bool IsPresent()

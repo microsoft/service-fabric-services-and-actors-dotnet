@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -13,12 +13,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Generator;
 
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
-    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
+    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
 
     /// <summary>
-    /// Provides an implementation of <see cref="IActorStateProvider"/> which 
+    /// Provides an implementation of <see cref="IActorStateProvider"/> which
     /// uses <see cref="KeyValueStoreReplica"/> to store and persist the actor state.
     /// </summary>
     public sealed class KvsActorStateProvider : KvsActorStateProviderBase
@@ -30,6 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         #region C'tors
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class.
         /// Creates an instance of <see cref="KvsActorStateProvider"/> with default settings.
         /// </summary>
         public KvsActorStateProvider()
@@ -38,8 +39,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="KvsActorStateProvider"/> with specified
-        /// replicator and local key-value store settings.
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class
+        /// with specified replicator and local key-value store settings.
         /// </summary>
         /// <param name="replicatorSettings">
         /// A <see cref="ReplicatorSettings"/> that describes replicator settings.
@@ -53,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="KvsActorStateProvider"/> with specified settings.
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class with specified settings.
         /// </summary>
         /// <param name="enableIncrementalBackup">
         /// Indicates whether to enable incremental backup feature.
@@ -65,7 +66,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Creates an instance of <see cref="KvsActorStateProvider"/> with specified settings.
+        /// Initializes a new instance of the <see cref="KvsActorStateProvider"/> class with specified settings.
         /// </summary>
         /// <param name="enableIncrementalBackup">
         /// Indicates whether to enable incremental backup feature.
@@ -128,7 +129,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             if (settings == null)
             {
-                // try load from configuration                
+                // try load from configuration
                 var configPackageName = ActorNameFormat.GetConfigPackageName(this.ActorTypeInformation.ImplementationType);
                 var localEseStoreConfigSectionName = ActorNameFormat.GetLocalEseStoreConfigSectionName(this.ActorTypeInformation.ImplementationType);
                 var configPackageObj = this.InitParams.CodePackageActivationContext.GetConfigurationPackageObject(configPackageName);
@@ -148,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     MaxAsyncCommitDelay = TimeSpan.FromMilliseconds(100),
                     MaxVerPages = 8192 * 4,
-                    EnableIncrementalBackup = this.userDefinedEnableIncrementalBackup
+                    EnableIncrementalBackup = this.userDefinedEnableIncrementalBackup,
                 };
             }
 
@@ -167,7 +168,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var kvsReplicaSettings = new KeyValueStoreReplicaSettings
             {
-                SecondaryNotificationMode = KeyValueStoreReplica.SecondaryNotificationMode.NonBlockingQuorumAcked
+                SecondaryNotificationMode = KeyValueStoreReplica.SecondaryNotificationMode.NonBlockingQuorumAcked,
             };
 
             if (this.userDefinedLogTruncationInterval.HasValue)

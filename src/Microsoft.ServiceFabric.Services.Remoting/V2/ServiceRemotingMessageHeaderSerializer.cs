@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -17,21 +17,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         public ServiceRemotingMessageHeaderSerializer(
             IBufferPoolManager bufferPoolManager)
-            : this(bufferPoolManager,
-                 new DataContractSerializer(
-                typeof(IServiceRemotingRequestMessageHeader),
-                new DataContractSerializerSettings()
-                {
-                    MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader) }
-                }))
-        { }
-
+            : this(
+                bufferPoolManager,
+                new DataContractSerializer(
+                    typeof(IServiceRemotingRequestMessageHeader),
+                    new DataContractSerializerSettings()
+                    {
+                        MaxItemsInObjectGraph = int.MaxValue,
+                        KnownTypes = new[] { typeof(ServiceRemotingRequestMessageHeader) },
+                    }))
+        {
+        }
 
         public ServiceRemotingMessageHeaderSerializer(
             IBufferPoolManager bufferPoolManager,
-            DataContractSerializer headerRequestSerializer
-        )
+            DataContractSerializer headerRequestSerializer)
         {
             this.bufferPoolManager = bufferPoolManager;
             this.requestHeaderSerializer = headerRequestSerializer;
@@ -40,20 +40,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new[] { typeof(ServiceRemotingResponseMessageHeader) }
+                    KnownTypes = new[] { typeof(ServiceRemotingResponseMessageHeader) },
                 });
-
         }
-
 
         public IMessageHeader SerializeRequestHeader(IServiceRemotingRequestMessageHeader serviceRemotingRequestMessageHeader)
         {
-
             if (serviceRemotingRequestMessageHeader == null)
             {
                 return null;
             }
-
 
             using (var stream = new SegmentedPoolMemoryStream(this.bufferPoolManager))
             {
@@ -88,7 +84,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 return null;
             }
-
 
             using (var stream = new SegmentedPoolMemoryStream(this.bufferPoolManager))
             {

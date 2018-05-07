@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
@@ -21,18 +21,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     /// </summary>
     public class FabricTransportServiceRemotingListener : IServiceRemotingListener
     {
-        private FabricTransportListener fabricTransportlistener;
-        private static string DefaultV2ListenerEndpointResourceName = "ServiceEndpointV2";
+        private static readonly string DefaultV2ListenerEndpointResourceName = "ServiceEndpointV2";
         private readonly FabricTransportMessageHandler transportMessageHandler;
-        private string listenAddress;
-        private string publishAddress;
-
+        private readonly string listenAddress;
+        private readonly string publishAddress;
+        private FabricTransportListener fabricTransportlistener;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener .
         /// </summary>
         /// <param name="serviceContext">
-        ///     The context of the service for which the remoting listener is being constructed. 
+        ///     The context of the service for which the remoting listener is being constructed.
         /// </param>
         /// <param name="serviceImplementation">
         ///     The service implementation object used to construct <see cref="ServiceRemotingMessageDispatcher"/>
@@ -44,22 +44,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             ServiceContext serviceContext,
             IService serviceImplementation,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null
-            )
-            : this(serviceContext,
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            : this(
+                serviceContext,
                 new ServiceRemotingMessageDispatcher(
                     serviceContext,
                     serviceImplementation,
-                    serializationProvider != null ? serializationProvider.CreateMessageBodyFactory() :
-                    new DataContractRemotingMessageFactory()),
+                    serializationProvider != null ? serializationProvider.CreateMessageBodyFactory() : new DataContractRemotingMessageFactory()),
                 remotingListenerSettings,
-                serializationProvider
-                )
+                serializationProvider)
         {
         }
 
-
         /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
         ///     Constructs a fabric transport based service remoting listener.
         /// </summary>
         /// <param name="serviceContext">
@@ -75,31 +73,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null
-            ) : this(serviceContext,
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            : this(
+                serviceContext,
                 serviceRemotingMessageHandler,
                 InitializeSerializersManager(serializationProvider, remotingListenerSettings),
                 remotingListenerSettings)
         {
         }
 
-        private static ServiceRemotingMessageSerializersManager InitializeSerializersManager(IServiceRemotingMessageSerializationProvider serializationProvider,
-            FabricTransportRemotingListenerSettings listenerSettings)
-        {
-            listenerSettings = listenerSettings ??
-                FabricTransportRemotingListenerSettings.GetDefault();
-
-            return new ServiceRemotingMessageSerializersManager(serializationProvider, new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(listenerSettings.HeaderBufferSize,
-                listenerSettings.HeaderMaxBufferCount)));
-        }
-
-
         internal FabricTransportServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
-            FabricTransportRemotingListenerSettings remotingListenerSettings = null
-        )
+            FabricTransportRemotingListenerSettings remotingListenerSettings = null)
         {
             Requires.ThrowIfNull(serviceContext, "serviceContext");
 
@@ -114,17 +101,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 remotingSettings.EndpointResourceName = DefaultV2ListenerEndpointResourceName;
             }
 
-            this.transportMessageHandler = new FabricTransportMessageHandler(serviceRemotingMessageHandler,
+            this.transportMessageHandler = new FabricTransportMessageHandler(
+                serviceRemotingMessageHandler,
                 serializersManager,
                 serviceContext.PartitionId,
                 serviceContext.ReplicaOrInstanceId);
 
-            this.fabricTransportlistener = new FabricTransportListener(remotingSettings.GetInternalSettings(),
+            this.fabricTransportlistener = new FabricTransportListener(
+                remotingSettings.GetInternalSettings(),
                 remotingSettings.GetInternalSettings().GetListenerAddress(serviceContext),
                 this.transportMessageHandler,
                 new FabricTransportRemotingConnectionHandler());
         }
-
 
         /// <summary>
         /// This method causes the communication listener to be opened. Once the Open
@@ -137,19 +125,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// </returns>
         public Task<string> OpenAsync(CancellationToken cancellationToken)
         {
-            return Task.Run(async () =>
-            {
-                var listenUri = await this.fabricTransportlistener.OpenAsync(cancellationToken);
-                var publishUri = listenUri.Replace(this.listenAddress, this.publishAddress);
+            return Task.Run(
+                async () =>
+                {
+                    var listenUri = await this.fabricTransportlistener.OpenAsync(cancellationToken);
+                    var publishUri = listenUri.Replace(this.listenAddress, this.publishAddress);
 
-                System.Fabric.Common.AppTrace.TraceSource.WriteInfo("FabricTransportServiceRemotingListenerV2.OpenAsync", "ListenURI = {0} PublishURI = {1}", listenUri, publishUri);
+                    System.Fabric.Common.AppTrace.TraceSource.WriteInfo(
+                        "FabricTransportServiceRemotingListenerV2.OpenAsync",
+                        "ListenURI = {0} PublishURI = {1}",
+                        listenUri,
+                        publishUri);
 
-                return publishUri;
-            }, cancellationToken);
+                    return publishUri;
+                }, cancellationToken);
         }
 
         /// <summary>
-        /// This method causes the communication listener to close. Close is a terminal state and 
+        /// This method causes the communication listener to close. Close is a terminal state and
         /// this method allows the communication listener to transition to this state in a
         /// graceful manner.
         /// </summary>
@@ -175,6 +168,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.Dispose();
         }
 
+        private static ServiceRemotingMessageSerializersManager InitializeSerializersManager(
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            FabricTransportRemotingListenerSettings listenerSettings)
+        {
+            listenerSettings = listenerSettings ??
+                               FabricTransportRemotingListenerSettings.GetDefault();
+
+            return new ServiceRemotingMessageSerializersManager(
+                serializationProvider,
+                new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(
+                    listenerSettings.HeaderBufferSize,
+                    listenerSettings.HeaderMaxBufferCount)));
+        }
+
         private void Dispose()
         {
             if (this.fabricTransportlistener != null)
@@ -184,7 +191,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             }
 
             this.transportMessageHandler.Dispose();
-
         }
     }
 }

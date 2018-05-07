@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.Description
@@ -13,12 +13,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
 
     internal class ActorInterfaceDescription : InterfaceDescription
     {
-
         private ActorInterfaceDescription(Type actorInterfaceType, bool useCRCIdGeneration)
             : base("actor", actorInterfaceType, useCRCIdGeneration, MethodReturnCheck.EnsureReturnsTask)
         {
         }
-
 
         public static ActorInterfaceDescription Create(Type actorInterfaceType)
         {
@@ -38,7 +36,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
             if (!actorInterfaceType.GetTypeInfo().IsInterface)
             {
                 throw new ArgumentException(
-                    string.Format(CultureInfo.CurrentCulture,
+                    string.Format(
+                        CultureInfo.CurrentCulture,
                         SR.ErrorNotAnActorInterface_InterfaceCheck,
                         actorInterfaceType.FullName,
                         typeof(IActor).FullName),
@@ -51,7 +50,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
                 if (nonActorParentInterface == actorInterfaceType)
                 {
                     throw new ArgumentException(
-                        string.Format(CultureInfo.CurrentCulture,
+                        string.Format(
+                            CultureInfo.CurrentCulture,
                             SR.ErrorNotAnActorInterface_DerivationCheck1,
                             actorInterfaceType.FullName,
                             typeof(IActor).FullName),
@@ -60,7 +60,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
                 else
                 {
                     throw new ArgumentException(
-                       string.Format(CultureInfo.CurrentCulture,
+                       string.Format(
+                           CultureInfo.CurrentCulture,
                            SR.ErrorNotAnActorInterface_DerivationCheck1,
                            actorInterfaceType.FullName,
                            nonActorParentInterface.FullName,

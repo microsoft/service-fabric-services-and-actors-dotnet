@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -13,17 +13,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public interface IServiceRemotingResponseMessageBodySerializer
     {
         /// <summary>
-        /// Serialize the Remoting Response Body before sending message over the wire.
+        /// Serialize the remoting response body object to a message body that can be sent over the wire.
         /// </summary>
-        /// <param name="serviceRemotingRequestMessageBody"></param>
-        /// <returns>IOutgoingMessageBody</returns>
-        IOutgoingMessageBody Serialize(IServiceRemotingResponseMessageBody serviceRemotingRequestMessageBody);
+        /// <param name="serviceRemotingResponseMessageBody">Remoting response message body object.</param>
+        /// <returns>Serialized message body.</returns>
+        IOutgoingMessageBody Serialize(IServiceRemotingResponseMessageBody serviceRemotingResponseMessageBody);
 
         /// <summary>
-        /// Deserialize the incoming Message to a Remoting ResponseMessageBody before sending it to Client Api
+        /// Deserializes an incoming message body to remoting response body object.
         /// </summary>
-        /// <param name="messageBody">serialized Message</param>
-        /// <returns>IServiceRemotingResponseMessageBody</returns>
+        /// <param name="messageBody">Serialized message body.</param>
+        /// <returns>Deserialized remoting response message body object.</returns>
         IServiceRemotingResponseMessageBody Deserialize(IIncomingMessageBody messageBody);
     }
 }

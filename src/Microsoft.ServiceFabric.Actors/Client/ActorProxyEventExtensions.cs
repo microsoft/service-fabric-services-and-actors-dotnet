@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Client
@@ -29,7 +29,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// </exception>
         public static Task SubscribeAsync<TEvent>(
             this IActorEventPublisher actorProxy,
-            TEvent subscriber) where TEvent : IActorEvents
+            TEvent subscriber)
+            where TEvent : IActorEvents
         {
             return SubscribeAsync(actorProxy, subscriber, DefaultResubscriptionInternal);
         }
@@ -48,7 +49,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
         public static Task SubscribeAsync<TEvent>(
             this IActorEventPublisher actorProxy,
             TEvent subscriber,
-            TimeSpan resubscriptionInterval) where TEvent : IActorEvents
+            TimeSpan resubscriptionInterval)
+            where TEvent : IActorEvents
         {
             var proxy = actorProxy as ActorProxy;
             if (proxy == null)
@@ -61,6 +63,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 throw new ArgumentException(SR.ErrorEventInterface);
             }
+
             return proxy.SubscribeAsync(eventInterfaceType, subscriber, resubscriptionInterval);
         }
 
@@ -82,11 +85,13 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 throw new ArgumentException(SR.ActorProxyOnlyMethod, "actorProxy");
             }
+
             var eventInterfaceType = GetEventInterface(typeof(TEvent));
             if (eventInterfaceType == null)
             {
                 throw new ArgumentException(SR.ErrorEventInterface);
             }
+
             return proxy.UnsubscribeAsync(eventInterfaceType, subscriber);
         }
 

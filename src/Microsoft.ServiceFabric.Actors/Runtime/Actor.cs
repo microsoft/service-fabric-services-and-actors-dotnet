@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -46,17 +46,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.stateManager; }
         }
 
-        /// <summary>
-        /// Saves all the state changes (add/update/remove) that were made since last call to
-        /// <see cref="Actor.SaveStateAsync"/>,
-        /// to the actor state provider associated with the actor.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous save operation.</returns>
-        protected Task SaveStateAsync()
-        {
-            return this.DoSaveStateAsync();
-        }
-
         internal override Task OnResetStateAsyncInternal()
         {
             return this.stateManager.ClearCacheAsync();
@@ -76,6 +65,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             await this.stateManager.ClearCacheAsync();
             await base.OnDeactivateInternalAsync();
+        }
+
+        /// <summary>
+        /// Saves all the state changes (add/update/remove) that were made since last call to
+        /// <see cref="Actor.SaveStateAsync"/>,
+        /// to the actor state provider associated with the actor.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
+        protected Task SaveStateAsync()
+        {
+            return this.DoSaveStateAsync();
         }
 
         private async Task DoSaveStateAsync()

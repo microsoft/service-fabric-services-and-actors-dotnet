@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
@@ -13,13 +13,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Gets the Buffer from the Pool.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>IPooledBuffer</returns>
         IPooledBuffer TakeBuffer();
 
         /// <summary>
         /// Return the Buffer to the Pool.
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">Represents Buffer to be returned to the pool</param>
+        /// <returns>True If returned to the pool succeded otherwise false.</returns>
         bool ReturnBuffer(IPooledBuffer buffer);
     }
 }

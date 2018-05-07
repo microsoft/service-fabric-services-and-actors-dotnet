@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
@@ -21,11 +21,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         private readonly MethodInfo invokeMethodInfoV1;
         private readonly V1.Builder.ActorEventProxyGeneratorBuilder proxyGeneratorBuilderV1;
 #endif
-        public ActorEventProxyGeneratorBuilder(ICodeBuilder codeBuilder) : base(codeBuilder)
+
+        public ActorEventProxyGeneratorBuilder(ICodeBuilder codeBuilder)
+            : base(codeBuilder)
         {
 #if !DotNetCoreClr
 
-            this.invokeMethodInfoV1 = this.proxyBaseType.GetMethod(
+            this.invokeMethodInfoV1 = this.ProxyBaseType.GetMethod(
                 "Invoke",
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
@@ -40,17 +42,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             Type proxyInterfaceType,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
         {
-
             var result = base.Build(proxyInterfaceType, interfaceDescriptions);
 
 #if !DotNetCoreClr
+
             // This code is to support V1 stack serialization logic
-
-
             var methodBodyTypesResultsMap = interfaceDescriptions.ToDictionary(
                 d => d,
                 d => this.CodeBuilder.GetOrBuildMethodBodyTypes(d.InterfaceType));
-
 
             var requestBodyTypes = methodBodyTypesResultsMap.ToDictionary(
                 item => item.Key.V1Id,
@@ -71,13 +70,58 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             return result;
         }
 
+        internal override void AddInterfaceImplementations(
+            TypeBuilder classBuilder,
+            IEnumerable<InterfaceDescription> interfaceDescriptions)
+        {
+            // ensure that method data types are built for each of the remote interfaces
+            var methodBodyTypesResultsMap = interfaceDescriptions.ToDictionary(
+                d => d,
+                d => this.CodeBuilder.GetOrBuildMethodBodyTypes(d.InterfaceType));
+
+            foreach (var item in methodBodyTypesResultsMap)
+            {
+                var interfaceDescription = item.Key;
+                var methodBodyTypesMap = item.Value.MethodBodyTypesMap;
+
+                foreach (var methodDescription in interfaceDescription.Methods)
+                {
+                    var methodBodyTypes = methodBodyTypesMap[methodDescription.Name];
+
+                    if (TypeUtility.IsVoidType(methodDescription.ReturnType))
+                    {
+                        var interfaceMethod = methodDescription.MethodInfo;
+
+                        var methodBuilder = CodeBuilderUtils.CreateExplitInterfaceMethodBuilder(
+                            classBuilder,
+                            interfaceMethod);
+
+                        var ilGen = methodBuilder.GetILGenerator();
+
+                        this.AddVoidMethodImplementation2(
+                            ilGen,
+                            interfaceDescription.Id,
+                            methodDescription,
+                            interfaceDescription.InterfaceType.FullName);
+#if !DotNetCoreClr
+
+                        this.AddVoidMethodImplementationV1(
+                            ilGen,
+                            interfaceDescription.V1Id,
+                            methodDescription,
+                            methodBodyTypes);
+#endif
+                        ilGen.Emit(OpCodes.Ret);
+                    }
+                }
+            }
+        }
 
         protected override ActorEventProxyGenerator CreateProxyGenerator(Type proxyInterfaceType, Type proxyActivatorType)
         {
             return new ActorEventProxyGenerator(
                 proxyInterfaceType,
-                (IProxyActivator)Activator.CreateInstance(proxyActivatorType)
-                );
+                (IProxyActivator)Activator.CreateInstance(proxyActivatorType));
         }
 
 #if !DotNetCoreClr
@@ -126,55 +170,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             }
 
             ilGen.EmitCall(OpCodes.Call, this.invokeMethodInfoV1, null);
-
         }
 #endif
-
-        internal override void AddInterfaceImplementations(
-            TypeBuilder classBuilder,
-            IEnumerable<InterfaceDescription> interfaceDescriptions)
-        {
-            // ensure that method data types are built for each of the remote interfaces
-            var methodBodyTypesResultsMap = interfaceDescriptions.ToDictionary(
-                d => d,
-                d => this.CodeBuilder.GetOrBuildMethodBodyTypes(d.InterfaceType));
-
-
-            foreach (var item in methodBodyTypesResultsMap)
-            {
-                var interfaceDescription = item.Key;
-                var methodBodyTypesMap = item.Value.MethodBodyTypesMap;
-
-                foreach (var methodDescription in interfaceDescription.Methods)
-                {
-                    var methodBodyTypes = methodBodyTypesMap[methodDescription.Name];
-
-
-                    if (TypeUtility.IsVoidType(methodDescription.ReturnType))
-                    {
-                        var interfaceMethod = methodDescription.MethodInfo;
-
-                        var methodBuilder = CodeBuilderUtils.CreateExplitInterfaceMethodBuilder(
-                            classBuilder,
-                            interfaceMethod);
-
-                        var ilGen = methodBuilder.GetILGenerator();
-
-                        base.AddVoidMethodImplementation2(ilGen, interfaceDescription.Id, methodDescription,
-                            interfaceDescription.InterfaceType.FullName);
-#if !DotNetCoreClr
-
-                        this.AddVoidMethodImplementationV1(ilGen,
-                                                            interfaceDescription.V1Id,
-                                                            methodDescription,
-                                                            methodBodyTypes);
-#endif
-                        ilGen.Emit(OpCodes.Ret);
-
-                    }
-                }
-            }
-        }
-
     }
 }

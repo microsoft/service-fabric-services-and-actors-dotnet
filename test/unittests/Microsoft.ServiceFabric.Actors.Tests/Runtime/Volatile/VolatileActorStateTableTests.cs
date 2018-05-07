@@ -1,67 +1,91 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using Xunit;
     using ActorStateTable = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateTable<
         Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType,
         string,
         Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateData>;
     using ActorStateType = Microsoft.ServiceFabric.Actors.Runtime.VolatileActorStateProvider.ActorStateType;
-    using Xunit;
 
 #pragma warning disable xUnit1024
+    /// <summary>
+    /// Contains tests for VolatileActorStateTable.
+    /// </summary>
     public class VolatileActorStateTableTests : VolatileStateProviderTestBase
     {
+        /// <summary>
+        /// Tests PrepareCommit.
+        /// </summary>
         [Fact]
         public void TestPrepareCommit()
         {
-            TestPrepareCommitInternal(GetStatesPerReplication());
-            TestPrepareCommitInternal(GetStatesPerReplication(3));
+            this.TestPrepareCommitInternal(GetStatesPerReplication());
+            this.TestPrepareCommitInternal(GetStatesPerReplication(3));
         }
 
+        /// <summary>
+        /// Tests enumerating MaxSequenceNumber.
+        /// </summary>
         [Fact]
         public void TestEnumerateMaxSequenceNumber()
         {
-            TestEnumerateMaxSequenceNumberInternal(GetStatesPerReplication());
-            TestEnumerateMaxSequenceNumberInternal(GetStatesPerReplication(3));
+            this.TestEnumerateMaxSequenceNumberInternal(GetStatesPerReplication());
+            this.TestEnumerateMaxSequenceNumberInternal(GetStatesPerReplication(3));
         }
 
+        /// <summary>
+        /// Tests Apply.
+        /// </summary>
         [Fact]
         public void TestApply()
         {
-            TestApplyInternal(GetStatesPerReplication());
-            TestApplyInternal(GetStatesPerReplication(3));
+            this.TestApplyInternal(GetStatesPerReplication());
+            this.TestApplyInternal(GetStatesPerReplication(3));
         }
 
+        /// <summary>
+        /// TestUpdateApply
+        /// </summary>
         [Fact]
         public void TestUpdateApply()
         {
-            TestUpdateApplyInternal(GetStatesPerReplication());
-            TestUpdateApplyInternal(GetStatesPerReplication(3));
+            this.TestUpdateApplyInternal(GetStatesPerReplication());
+            this.TestUpdateApplyInternal(GetStatesPerReplication(3));
         }
 
+        /// <summary>
+        /// TestUpdateCommit
+        /// </summary>
         [Fact]
         public void TestUpdateCommit()
         {
-            TestUpdateCommitInternal(GetStatesPerReplication());
-            TestUpdateCommitInternal(GetStatesPerReplication(3));
+            this.TestUpdateCommitInternal(GetStatesPerReplication());
+            this.TestUpdateCommitInternal(GetStatesPerReplication(3));
         }
 
+        /// <summary>
+        /// TestSnapshot
+        /// </summary>
         [Fact]
         public void TestSnapshot()
         {
-            TestSnapshotInternal(GetStatesPerReplication());
-            TestSnapshotInternal(GetStatesPerReplication(3));
+            this.TestSnapshotInternal(GetStatesPerReplication());
+            this.TestSnapshotInternal(GetStatesPerReplication(3));
         }
 
+        /// <summary>
+        /// TestSnapshotScale
+        /// </summary>
         [Fact]
         public void TestSnapshotScale()
         {
@@ -109,7 +133,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             stopwatch.Stop();
 
-            TestLog("Snapshot {0} keys in {1}: committed={2} uncommitted={3}",
+            TestLog(
+                "Snapshot {0} keys in {1}: committed={2} uncommitted={3}",
                 targetReplicationCount * statesPerReplication[ActorStateType.Actor],
                 stopwatch.Elapsed,
                 snapshot.CommittedCount,
@@ -118,27 +143,34 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
+        /// <summary>
+        /// TestMultipleTypes
+        /// </summary>
         [Fact]
         public void TestMultipleTypes()
         {
-            TestMultipleTypesInternal(GetStatesPerReplication());
-            TestMultipleTypesInternal(GetStatesPerReplication(3));
+            this.TestMultipleTypesInternal(GetStatesPerReplication());
+            this.TestMultipleTypesInternal(GetStatesPerReplication(3));
         }
 
+        /// <summary>
+        /// TestDelete
+        /// </summary>
         [Fact]
         public void TestDelete()
         {
-            TestDeleteInternal(GetStatesPerReplication());
-            TestDeleteInternal(GetStatesPerReplication(3));
+            this.TestDeleteInternal(GetStatesPerReplication());
+            this.TestDeleteInternal(GetStatesPerReplication(3));
         }
 
-        internal void TestPrepareCommitInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestPrepareCommitInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("#########################");
             TestCase("### TestPrepareCommit ###");
             TestCase("#########################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -273,7 +305,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 sequenceNumber,
                 sequenceNumber * statesPerReplication[ActorStateType.Actor]);
 
-            var commitSequenceNumber2 = (commitSequenceNumber1 - 1);
+            var commitSequenceNumber2 = commitSequenceNumber1 - 1;
             Task.Factory.StartNew(() => { TestCommitUpdate(stateTable, commitSequenceNumber2); });
             Thread.Sleep(500);
             VerifyReads(
@@ -286,7 +318,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 sequenceNumber,
                 sequenceNumber * statesPerReplication[ActorStateType.Actor]);
 
-            var commitSequenceNumber3 = (commitSequenceNumber2 - 1);
+            var commitSequenceNumber3 = commitSequenceNumber2 - 1;
             TestCommitUpdate(stateTable, commitSequenceNumber3);
             Thread.Sleep(500);
 
@@ -306,13 +338,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        internal void TestEnumerateMaxSequenceNumberInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestEnumerateMaxSequenceNumberInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("######################################");
             TestCase("### TestEnumerateMaxSequenceNumber ###");
             TestCase("######################################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -402,13 +435,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        internal void TestApplyInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestApplyInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("#################");
             TestCase("### TestApply ###");
             TestCase("#################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -489,13 +523,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        internal void TestUpdateApplyInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestUpdateApplyInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("#######################");
             TestCase("### TestUpdateApply ###");
             TestCase("#######################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -576,13 +611,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        internal void TestUpdateCommitInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestUpdateCommitInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("########################");
             TestCase("### TestUpdateCommit ###");
             TestCase("########################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -672,13 +708,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        internal void TestSnapshotInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestSnapshotInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("####################");
             TestCase("### TestSnapshot ###");
             TestCase("####################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -817,13 +854,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        internal void TestMultipleTypesInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestMultipleTypesInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("#######################################################");
             TestCase("### TestMultipleTypes ###");
             TestCase("#######################################################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -836,7 +874,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             var uncommittedEntriesCount = 0;
 
             TestCase("# Testcase 1: In order prepare, commit, prepare, commit ...");
-
             {
                 ++sequenceNumber;
 
@@ -965,7 +1002,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Testcase 2: Duplicate keys per type ...");
 
             var expectedCount = sequenceNumber;
-
             {
                 ++sequenceNumber;
 
@@ -1093,7 +1129,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Testcase 3: Duplicate keys across types ...");
 
             var duplicateKey = "Dupe";
-
             {
                 ++sequenceNumber;
 
@@ -1272,7 +1307,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 sequenceNumber,
                 sequenceNumber,
                 baseCountActorType * statesPerReplication[ActorStateType.Actor]);
-
             {
                 ++sequenceNumber;
 
@@ -1334,13 +1368,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             TestCase("# Passed");
         }
 
-        internal void TestDeleteInternal(Dictionary<ActorStateType, int> statesPerReplication)
+        private void TestDeleteInternal(Dictionary<ActorStateType, int> statesPerReplication)
         {
             TestCase("##################");
             TestCase("### TestDelete ###");
             TestCase("##################");
 
-            TestCase("### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
+            TestCase(
+                "### StatesPerReplication (Actor:{0}, TimeStamp:{1}, Reminder:{2}) ###",
                 statesPerReplication[ActorStateType.Actor],
                 statesPerReplication[ActorStateType.LogicalTimestamp],
                 statesPerReplication[ActorStateType.Reminder]);
@@ -1357,7 +1392,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             var reminderReplicationUnitDict = new Dictionary<string, ReplicationUnit>();
 
             TestCase("# Testcase 1: Single create/delete ...");
-
             {
                 ++sequenceNumber;
 
@@ -1422,7 +1456,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
-                committedEntriesCount -= (statesPerReplication[ActorStateType.Actor] - 1);
+                committedEntriesCount -= statesPerReplication[ActorStateType.Actor] - 1;
 
                 VerifyReads(
                     stateTable,
@@ -1459,7 +1493,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
-                committedEntriesCount += (statesPerReplication[ActorStateType.Actor] - 1);
+                committedEntriesCount += statesPerReplication[ActorStateType.Actor] - 1;
 
                 VerifyReads(
                     stateTable,
@@ -1545,7 +1579,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 if (firstIteration)
                 {
                     firstIteration = false;
-                    committedEntriesCount -= (statesPerReplication[ActorStateType.Actor] - 1);
+                    committedEntriesCount -= statesPerReplication[ActorStateType.Actor] - 1;
                 }
                 else
                 {
@@ -1613,7 +1647,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 TestCommitUpdate(stateTable, sequenceNumber - 1);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
-                committedEntriesCount += (statesPerReplication[ActorStateType.Actor] - 1);
+                committedEntriesCount += statesPerReplication[ActorStateType.Actor] - 1;
 
                 VerifyReads(
                     stateTable,
@@ -1628,7 +1662,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
-                committedEntriesCount -= (statesPerReplication[ActorStateType.Actor] - 1);
+                committedEntriesCount -= statesPerReplication[ActorStateType.Actor] - 1;
 
                 VerifyReads(
                     stateTable,
@@ -1642,7 +1676,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             }
 
             TestCase("# Testcase 4: Delete non-existent key ...");
-
             {
                 ++sequenceNumber;
 
@@ -1712,7 +1745,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.Actor];
-                committedEntriesCount += (statesPerReplication[ActorStateType.Actor] - 1);
+                committedEntriesCount += statesPerReplication[ActorStateType.Actor] - 1;
 
                 VerifyReads(
                     stateTable,
@@ -1779,7 +1812,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             var timestamp = TimeSpan.FromSeconds(42);
             var reminderName = "Reminder-Exists";
-
             {
                 ++sequenceNumber;
 
@@ -1810,7 +1842,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.LogicalTimestamp];
-                committedEntriesCount += (statesPerReplication[ActorStateType.LogicalTimestamp] - 1);
+                committedEntriesCount += statesPerReplication[ActorStateType.LogicalTimestamp] - 1;
 
                 VerifyReads(
                     stateTable,
@@ -1893,7 +1925,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 TestCommitUpdate(stateTable, sequenceNumber);
 
                 uncommittedEntriesCount -= statesPerReplication[ActorStateType.LogicalTimestamp];
-                uncommittedEntriesCount -= (statesPerReplication[ActorStateType.LogicalTimestamp] - 1);
+                uncommittedEntriesCount -= statesPerReplication[ActorStateType.LogicalTimestamp] - 1;
 
                 TryReadAndVerify(stateTable, timeStampReplicationUnitDict[keyPrefix], false, timestamp);
                 TryReadAndVerify(stateTable, reminderReplicationUnitDict[keyPrefix], true, reminderName);

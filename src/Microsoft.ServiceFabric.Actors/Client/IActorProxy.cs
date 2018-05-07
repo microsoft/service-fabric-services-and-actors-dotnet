@@ -1,11 +1,10 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Client
 {
-
     /// <summary>
     /// Provides the interface for implementation of proxy access for actor service.
     /// </summary>
@@ -24,6 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <value><see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
         Remoting.V1.Client.IActorServicePartitionClient ActorServicePartitionClient { get; }
 #endif
+
         /// <summary>
         /// Gets <see cref="Remoting.V2.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.
         /// </summary>

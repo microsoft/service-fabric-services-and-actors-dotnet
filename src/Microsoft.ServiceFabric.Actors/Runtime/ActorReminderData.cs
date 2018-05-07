@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -11,6 +11,26 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     [DataContract]
     internal sealed class ActorReminderData
     {
+        public ActorReminderData(ActorId actorId, string name, TimeSpan dueTime, TimeSpan period, byte[] state, TimeSpan logicalCreationTime)
+        {
+            this.ActorId = actorId;
+            this.Name = name;
+            this.DueTime = dueTime;
+            this.Period = period;
+            this.State = state;
+            this.LogicalCreationTime = logicalCreationTime;
+        }
+
+        public ActorReminderData(ActorId actorId, IActorReminder reminder, TimeSpan logicalCreationTime)
+        {
+            this.ActorId = actorId;
+            this.Name = reminder.Name;
+            this.DueTime = reminder.DueTime;
+            this.Period = reminder.Period;
+            this.State = reminder.State;
+            this.LogicalCreationTime = logicalCreationTime;
+        }
+
         [DataMember]
         internal ActorId ActorId { get; private set; }
 
@@ -31,26 +51,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         [DataMember]
         internal bool IsReadOnly { get; private set; } // Redundant. Not used anymore.
-
-        public ActorReminderData(ActorId actorId, string name, TimeSpan dueTime, TimeSpan period, byte[] state, TimeSpan logicalCreationTime)
-        {
-            this.ActorId = actorId;
-            this.Name = name;
-            this.DueTime = dueTime;
-            this.Period = period;
-            this.State = state;
-            this.LogicalCreationTime = logicalCreationTime;
-        }
-
-        public ActorReminderData(ActorId actorId, IActorReminder reminder, TimeSpan logicalCreationTime)
-        {
-            this.ActorId = actorId;
-            this.Name = reminder.Name;
-            this.DueTime = reminder.DueTime;
-            this.Period = reminder.Period;
-            this.State = reminder.State;
-            this.LogicalCreationTime = logicalCreationTime;
-        }
 
         public long EstimateDataLength()
         {

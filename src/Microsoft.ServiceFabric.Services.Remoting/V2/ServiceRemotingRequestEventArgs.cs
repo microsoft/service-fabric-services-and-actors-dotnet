@@ -1,6 +1,6 @@
-﻿// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -13,22 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     internal class ServiceRemotingRequestEventArgs : EventArgs
     {
         /// <summary>
-        /// The actual request object the the EventArgs provide.
-        /// </summary>
-        public IServiceRemotingRequestMessage Request { get; private set; }
-
-        /// <summary>
-        /// The target service uri.
-        /// </summary>
-        public Uri ServiceUri { get; private set; }
-
-        /// <summary>
-        /// Target method being called.
-        /// </summary>
-        public string MethodName { get; private set; }
-
-        /// <summary>
-        /// Creates a new object of type <see cref="ServiceRemotingRequestEventArgs"/>
+        /// Initializes a new instance of the <see cref="ServiceRemotingRequestEventArgs"/> class.
         /// </summary>
         /// <param name="request">The request object.</param>
         /// <param name="methodName">The method that is being called.</param>
@@ -39,6 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceRemotingRequestEventArgs"/> class.
         /// Creates a new object of type <see cref="ServiceRemotingRequestEventArgs"/>
         /// </summary>
         /// <param name="request">The request object.</param>
@@ -50,5 +36,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             this.ServiceUri = targetUri;
             this.MethodName = methodName;
         }
+
+        /// <summary>
+        /// Gets the actual request object the the EventArgs provide.
+        /// </summary>
+        public IServiceRemotingRequestMessage Request { get; private set; }
+
+        /// <summary>
+        /// Gets the target service uri.
+        /// </summary>
+        public Uri ServiceUri { get; private set; }
+
+        /// <summary>
+        /// Gets target method being called.
+        /// </summary>
+        public string MethodName { get; private set; }
     }
 }

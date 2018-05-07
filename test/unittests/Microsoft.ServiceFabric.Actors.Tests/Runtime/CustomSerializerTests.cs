@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
@@ -8,13 +8,19 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using FluentAssertions;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Xunit;
-    using FluentAssertions;
 
+    /// <summary>
+    /// Class containing tests for ActorReminderDataSerializer.
+    /// </summary>
     public class CustomSerializerTests
     {
+        /// <summary>
+        /// Tests ActorReminderDataSerialization.
+        /// </summary>
         [Fact]
         public void VerifyActorReminderDataSerialization()
         {
@@ -47,6 +53,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             }
         }
 
+        /// <summary>
+        /// Tests ReminderCompletedDataSerialization.
+        /// </summary>
         [Fact]
         public void VerifyReminderCompletedDataSerialization()
         {
@@ -61,6 +70,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             deserializedData.UtcTime.Should().Be(data.UtcTime, "ReminderCompletedData.UtcTime.");
         }
 
+        /// <summary>
+        /// Tests LogicalTimestampSerialization.
+        /// </summary>
         [Fact]
         public void VerifyLogicalTimestampSerialization()
         {

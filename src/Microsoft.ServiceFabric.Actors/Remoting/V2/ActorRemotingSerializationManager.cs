@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2
@@ -13,12 +13,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 
     internal class ActorRemotingSerializationManager : ServiceRemotingMessageSerializersManager
     {
-        public ActorRemotingSerializationManager(IServiceRemotingMessageSerializationProvider serializationProvider,
-            IServiceRemotingMessageHeaderSerializer headerSerializer) : base(serializationProvider, headerSerializer)
+        public ActorRemotingSerializationManager(
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            IServiceRemotingMessageHeaderSerializer headerSerializer)
+            : base(serializationProvider, headerSerializer)
         {
         }
 
-        //Custom Serializer needs to be used only for ActorDispatch scenario
+        // Custom Serializer needs to be used only for ActorDispatch scenario
         internal override CacheEntry CreateSerializers(int interfaceId)
         {
             if (interfaceId == ActorEventSubscription.InterfaceId)
@@ -27,14 +29,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
                     new BasicDataRequestMessageBodySerializer(
                         new[]
                         {
-                            typeof(EventSubscriptionRequestBody)
+                            typeof(EventSubscriptionRequestBody),
                         }),
                     new BasicDataResponsetMessageBodySerializer(
                         new[]
                         {
-                            typeof(EventSubscriptionRequestBody)
+                            typeof(EventSubscriptionRequestBody),
                         }));
-
             }
 
             return base.CreateSerializers(interfaceId);
@@ -46,7 +47,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
             {
                 return interfaceDetails;
             }
-            //if not found in Actor Store, Check if its there in service store for actor service request
+
+            // if not found in Actor Store, Check if its there in service store for actor service request
             return base.GetInterfaceDetails(interfaceId);
         }
     }

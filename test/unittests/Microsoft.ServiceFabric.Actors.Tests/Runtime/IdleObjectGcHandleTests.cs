@@ -1,16 +1,19 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Runtime;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Xunit;
 
+    /// <summary>
+    /// Tests for IdleObjectGcHandle.
+    /// </summary>
     public class IdleObjectGcHandleTests
     {
         /// <summary>
@@ -33,13 +36,17 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             gchandle.TryCollect().Should().BeTrue();
         }
 
+        /// <summary>
+        /// Verify UseUnuseCollect
+        /// </summary>
+        /// <param name="n">MaxIdleCount for IdleObjectGcHandle.</param>
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(5)]
         [InlineData(10)]
 
-        public void VerifyUseUnuseCollect(int N)
+        public void VerifyUseUnuseCollect(int n)
         {
             // 1. Set MaxIdleCount for IdleObjectGcHandle to N.
             // 2. Call TryUse Once.
@@ -48,13 +55,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             // 5. Call Unuse to un-use the object in step 1.
             // 6. Then perform interleaved TryCollect N times, which should always result in false for TryCollect as its counting to maxIdleTicks.
             // 7. Final call to TryCollect must return true.
-
-
-            var gchandle = new IdleObjectGcHandle(N);
+            var gchandle = new IdleObjectGcHandle(n);
             gchandle.TryUse(false).Should().BeTrue();
             var tasks = new List<Task>();
 
-            for (var i = 0; i < N; i++)
+            for (var i = 0; i < n; i++)
             {
                 tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(false))));
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
@@ -63,7 +68,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             Task.WaitAll(tasks.ToArray());
             tasks.Clear();
 
-            for (var i = 0; i < N; i++)
+            for (var i = 0; i < n; i++)
             {
                 tasks.Add(Task.Run(() => gchandle.Unuse(false)));
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
@@ -73,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             tasks.Clear();
 
             gchandle.Unuse(false);
-            for (var i = 0; i < N; i++)
+            for (var i = 0; i < n; i++)
             {
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
@@ -82,12 +87,16 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             gchandle.TryCollect().Should().BeTrue();
         }
 
+        /// <summary>
+        /// Tests UseUnuseCollectWithTimerCalls
+        /// </summary>
+        /// <param name="n">MaxIdleCount for IdleObjectGcHandle.</param>
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(5)]
         [InlineData(10)]
-        public void VerifyUseUnuseCollectWithTimerCalls(int N)
+        public void VerifyUseUnuseCollectWithTimerCalls(int n)
         {
             // 1. Set MaxIdleCount for IdleObjectGcHandle to N.
             // 2. Call TryUse Once.
@@ -100,13 +109,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             // 9. Call UnUse to unuse object in step8.
             // 10. Then perform TryCollect 1 times, which should result in false for TryCollect as its counting towards GC.
             // 11. Final call to TryCollect must return true.
-
-
-            var gchandle = new IdleObjectGcHandle(N);
+            var gchandle = new IdleObjectGcHandle(n);
             gchandle.TryUse(false).Should().BeTrue();
             var tasks = new List<Task>();
 
-            for (var i = 0; i < N; i++)
+            for (var i = 0; i < n; i++)
             {
                 tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(false))));
                 tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(true))));
@@ -116,7 +123,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             Task.WaitAll(tasks.ToArray());
             tasks.Clear();
 
-            for (var i = 0; i < N; i++)
+            for (var i = 0; i < n; i++)
             {
                 tasks.Add(Task.Run(() => gchandle.Unuse(false)));
                 tasks.Add(Task.Run(() => gchandle.Unuse(true)));
@@ -128,7 +135,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             gchandle.Unuse(false);
 
-            for (var i = 0; i < N - 1; i++)
+            for (var i = 0; i < n - 1; i++)
             {
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
@@ -137,7 +144,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             tasks.Clear();
             gchandle.TryUse(true).Should().BeTrue();
 
-            for (var i = 0; i < N; i++)
+            for (var i = 0; i < n; i++)
             {
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }

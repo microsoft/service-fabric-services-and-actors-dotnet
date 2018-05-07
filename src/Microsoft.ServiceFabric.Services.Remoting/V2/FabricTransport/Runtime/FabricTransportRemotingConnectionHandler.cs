@@ -1,13 +1,13 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
     using System;
-    using System.Threading.Tasks;
     using System.Collections.Concurrent;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
 
     internal class FabricTransportRemotingConnectionHandler : IFabricTransportConnectionHandler
@@ -17,6 +17,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         public FabricTransportRemotingConnectionHandler()
         {
             this.clientCallbackConnection = new ConcurrentDictionary<string, FabricTransportCallbackClient>();
+        }
+
+        ~FabricTransportRemotingConnectionHandler()
+        {
+            this.clientCallbackConnection.Clear();
         }
 
         public Task ConnectAsync(FabricTransportCallbackClient fabricTransportServiceRemotingCallback, TimeSpan timeout)
@@ -49,11 +54,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 fabricTransportCallbackClient.Dispose();
             }
-        }
-
-        ~FabricTransportRemotingConnectionHandler()
-        {
-            this.clientCallbackConnection.Clear();
         }
     }
 }

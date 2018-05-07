@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Runtime
@@ -27,15 +27,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private IReadOnlyDictionary<string, string> addresses;
 
         /// <summary>
-        /// Creates a new stateful service.
+        /// Initializes a new instance of the <see cref="StatefulServiceBase"/> class.
         /// </summary>
         /// <param name="serviceContext">
-        /// A <see cref="StatefulServiceContext"/> describes the service context, which it provides information like replica ID, partition ID, and service name.
+        /// A <see cref="StatefulServiceContext"/> that this service is created under. The context provides information like replica ID, partition ID, and service name.
         /// </param>
         /// <param name="stateProviderReplica">
-        /// A <see cref="IStateProviderReplica"/> represents a reliable state provider replica.
+        /// A <see cref="IStateProviderReplica2"/> represents a reliable state provider replica.
         /// </param>
-        /// <exception cref="ArgumentNullException"></exception>
         protected StatefulServiceBase(
             StatefulServiceContext serviceContext,
             IStateProviderReplica stateProviderReplica)
@@ -56,15 +55,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 ((IStateProviderReplica2)this.stateProviderReplica).OnRestoreCompletedAsync = this.OnRestoreCompletedAsync;
             }
-            
+
             this.restoreContext = new RestoreContext(this.stateProviderReplica);
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
-        }
-
-        internal IStateProviderReplica StateProviderReplica
-        {
-            get { return this.stateProviderReplica; }
         }
 
         /// <summary>
@@ -77,6 +71,118 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         public StatefulServiceContext Context
         {
             get { return this.serviceContext; }
+        }
+
+        /// <inheritdoc/>
+        IStatefulServicePartition IStatefulUserServiceReplica.Partition
+        {
+            set { this.Partition = value; }
+        }
+
+        /// <inheritdoc/>
+        IReadOnlyDictionary<string, string> IStatefulUserServiceReplica.Addresses
+        {
+            set { Volatile.Write(ref this.addresses, value); }
+        }
+
+        internal IStateProviderReplica StateProviderReplica
+        {
+            get { return this.stateProviderReplica; }
+        }
+
+        /// <summary>
+        /// Gets the service partition to which current service replica belongs.
+        /// </summary>
+        /// <value>
+        /// An <see cref="IStatefulServicePartition"/> that represents the
+        /// partition to which this service replica belongs.
+        /// </value>
+        protected IStatefulServicePartition Partition { get; private set; }
+
+        #region Backup and Restore APIs
+
+        /// <summary>
+        /// Performs a backup of all reliable state managed by this <see cref="StatefulServiceBase"/>.
+        /// </summary>
+        /// <param name="backupDescription">
+        /// A <see cref="BackupDescription"/> describing the backup request.
+        /// </param>
+        /// <returns>Task that represents the asynchronous backup operation.</returns>
+        public Task BackupAsync(BackupDescription backupDescription)
+        {
+            return this.StateProviderReplica.BackupAsync(
+                backupDescription.Option,
+                TimeSpan.FromHours(1),
+                CancellationToken.None,
+                backupDescription.BackupCallback);
+        }
+
+        /// <summary>
+        /// Performs a backup of all reliable state managed by this <see cref="StatefulServiceBase"/>.
+        /// </summary>
+        /// <param name="backupDescription">A <see cref="BackupDescription"/> describing the backup request.</param>
+        /// <param name="timeout">The timeout for this operation.</param>
+        /// <param name="cancellationToken">The cancellation token is used to monitor for cancellation requests.</param>
+        /// <returns>Task that represents the asynchronous backup operation.</returns>
+        /// <remarks>
+        /// Boolean returned by the backupCallback indicate whether the service was able to successfully move the backup folder to an external location.
+        /// If false is returned, BackupAsync throws InvalidOperationException with the relevant message indicating backupCallback returned false.
+        /// Also, backup will be marked as unsuccessful.
+        /// </remarks>
+        public Task BackupAsync(
+            BackupDescription backupDescription,
+            TimeSpan timeout,
+            CancellationToken cancellationToken)
+        {
+            return this.StateProviderReplica.BackupAsync(
+                backupDescription.Option,
+                timeout,
+                cancellationToken,
+                backupDescription.BackupCallback);
+        }
+
+        #endregion
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.RunAsync(CancellationToken cancellationToken)
+        {
+            return this.RunAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
+        {
+            return this.OnChangeRoleAsync(newRole, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.OnCloseAsync(CancellationToken cancellationToken)
+        {
+            return this.OnCloseAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        void IStatefulUserServiceReplica.OnAbort()
+        {
+            this.OnAbort();
+        }
+
+        /// <inheritdoc/>
+        IEnumerable<ServiceReplicaListener> IStatefulUserServiceReplica.CreateServiceReplicaListeners()
+        {
+            return this.CreateServiceReplicaListeners();
+        }
+
+        /// <inheritdoc/>
+        IStateProviderReplica IStatefulUserServiceReplica.CreateStateProviderReplica()
+        {
+            return this.StateProviderReplica;
+        }
+
+        /// <inheritdoc/>
+        Task IStatefulUserServiceReplica.OnOpenAsync(ReplicaOpenMode openMode, CancellationToken cancellationToken)
+        {
+            return this.OnOpenAsync(openMode, cancellationToken);
         }
 
         /// <summary>
@@ -93,17 +199,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
-        /// The service partition to which current service replica belongs. 
-        /// </summary>
-        /// <value>
-        /// An <see cref="IStatefulServicePartition"/> that represents the 
-        /// partition to which this service replica belongs.
-        /// </value>
-        protected IStatefulServicePartition Partition { get; private set; }
-
-        /// <summary>
         /// Override this method to supply the communication listeners for the service replica. The endpoints returned by the communication listener
-        /// are stored as a JSON string of ListenerName, Endpoint string pairs like 
+        /// are stored as a JSON string of ListenerName, Endpoint string pairs like
         /// <code>{"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}</code>
         /// <para>
         /// For information about Reliable Services life cycle please see
@@ -154,7 +251,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         /// <summary>
         /// This method is implemented as a processing loop and will only be called when the replica is primary with write status.
-        /// Override this method with the application logic. 
+        /// Override this method with the application logic.
         /// <para>
         /// For information about Reliable Services life cycle please see
         /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
@@ -169,9 +266,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <list type="bullet">
         ///     <item>
         ///         <description>
-        ///         Make sure <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/> is honored and once 
+        ///         Make sure <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/> is honored and once
         ///         it has been signaled, <see cref="RunAsync"/> exits gracefully as soon as possible. Please note that
-        ///         if <see cref="RunAsync"/> has finished its intended work, it does not need to wait for 
+        ///         if <see cref="RunAsync"/> has finished its intended work, it does not need to wait for
         ///         <paramref name="cancellationToken"/> to be signaled and can return gracefully.
         ///         </description>
         ///     </item>
@@ -182,7 +279,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         ///         <list type="bullet">
         ///             <item>
         ///                 <description>
-        ///                 If a <see cref="FabricException"/> (or one of its derived exception) escapes from <see cref="RunAsync"/>, 
+        ///                 If a <see cref="FabricException"/> (or one of its derived exception) escapes from <see cref="RunAsync"/>,
         ///                 Service Fabric runtime will restart this service replica. A health warning will be appear in Service Fabric
         ///                 Explorer containing details about unhandled exception.
         ///                 </description>
@@ -198,7 +295,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         ///                 <description>
         ///                 If an <see cref="OperationCanceledException"/> escapes from <see cref="RunAsync"/> and Service Fabric runtime
         ///                 has NOT requested cancellation by signaling <paramref name="cancellationToken"/> passed to <see cref="RunAsync"/>,
-        ///                 the process that is hosting this service replica is brought down. This will impact all other service replicas 
+        ///                 the process that is hosting this service replica is brought down. This will impact all other service replicas
         ///                 that are hosted by the same process. The details about unhandled exceptions can be viewed in Windows Event Viewer.
         ///                 </description>
         ///             </item>
@@ -242,7 +339,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         /// <summary>
         /// The notification that the service is being aborted. RunAsync MAY be running concurrently
-        /// with the execution of this method, as cancellation is not awaited on the abort path. 
+        /// with the execution of this method, as cancellation is not awaited on the abort path.
         /// <para>
         /// For information about Reliable Services life cycle please see
         /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
@@ -252,53 +349,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
         }
 
-        IReadOnlyDictionary<string, string> IStatefulUserServiceReplica.Addresses
-        {
-            set { Volatile.Write(ref this.addresses, value); }
-        }
-
-        IStatefulServicePartition IStatefulUserServiceReplica.Partition
-        {
-            set { this.Partition = value; }
-        }
-
-        IStateProviderReplica IStatefulUserServiceReplica.CreateStateProviderReplica()
-        {
-            return this.StateProviderReplica;
-        }
-
-        IEnumerable<ServiceReplicaListener> IStatefulUserServiceReplica.CreateServiceReplicaListeners()
-        {
-            return this.CreateServiceReplicaListeners();
-        }
-
-        Task IStatefulUserServiceReplica.OnOpenAsync(ReplicaOpenMode openMode, CancellationToken cancellationToken)
-        {
-            return this.OnOpenAsync(openMode, cancellationToken);
-        }
-
-        Task IStatefulUserServiceReplica.RunAsync(CancellationToken cancellationToken)
-        {
-            return this.RunAsync(cancellationToken);
-        }
-
-        Task IStatefulUserServiceReplica.OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
-        {
-            return this.OnChangeRoleAsync(newRole, cancellationToken);
-        }
-
-        Task IStatefulUserServiceReplica.OnCloseAsync(CancellationToken cancellationToken)
-        {
-            return this.OnCloseAsync(cancellationToken);
-        }
-
-        void IStatefulUserServiceReplica.OnAbort()
-        {
-            this.OnAbort();
-        }
-
         /// <summary>
-        /// This method is called during suspected data loss. 
+        /// This method is called during suspected data loss.
         /// You can override this method to restore the service in case of data loss.
         /// </summary>
         /// <param name="restoreCtx">
@@ -332,56 +384,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             return Task.FromResult(0);
         }
 
-        #region Backup and Restore APIs
-
-        /// <summary>
-        /// Performs a backup of all reliable state managed by this <see cref="StatefulServiceBase"/>.
-        /// </summary>
-        /// <param name="backupDescription">
-        /// A <see cref="BackupDescription"/> describing the backup request.
-        /// </param>
-        /// <returns>Task that represents the asynchronous backup operation.</returns>
-        public Task BackupAsync(BackupDescription backupDescription)
-        {
-            return this.StateProviderReplica.BackupAsync(
-                backupDescription.Option,
-                TimeSpan.FromHours(1),
-                CancellationToken.None,
-                backupDescription.BackupCallback);
-        }
-
-        /// <summary>
-        /// Performs a backup of all reliable state managed by this <see cref="StatefulServiceBase"/>.
-        /// </summary>
-        /// <param name="backupDescription">A <see cref="BackupDescription"/> describing the backup request.</param>
-        /// <param name="timeout">The timeout for this operation.</param>
-        /// <param name="cancellationToken">The cancellation token is used to monitor for cancellation requests.</param>
-        /// <returns>Task that represents the asynchronous backup operation.</returns>
-        /// <remarks>
-        /// Boolean returned by the backupCallback indicate whether the service was able to successfully move the backup folder to an external location.
-        /// If false is returned, BackupAsync throws InvalidOperationException with the relevant message indicating backupCallback returned false.
-        /// Also, backup will be marked as unsuccessful.
-        /// </remarks>
-        public Task BackupAsync(
-            BackupDescription backupDescription,
-            TimeSpan timeout,
-            CancellationToken cancellationToken)
-        {
-            return this.StateProviderReplica.BackupAsync(
-                backupDescription.Option,
-                timeout,
-                cancellationToken,
-                backupDescription.BackupCallback);
-        }
-
-        #endregion
-
         #region OnDataLoss
 
         /// <summary>
         /// This method is called during suspected data-loss.
         /// </summary>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">The cancellation token which will be signaled if the runtime cancels the execution of this API.</param>
         /// <returns>
         /// Task that represents the asynchronous operation.
         /// True indicates that the state has been restored.

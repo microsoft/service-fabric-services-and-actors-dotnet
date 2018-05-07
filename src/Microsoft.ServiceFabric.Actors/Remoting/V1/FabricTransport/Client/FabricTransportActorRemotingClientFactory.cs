@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
@@ -17,14 +17,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
 
     /// <summary>
     /// An <see cref="IServiceRemotingClientFactory"/> that uses
-    /// Fabric TCP transport to create <see cref="IServiceRemotingClient"/> that communicate with 
-    /// actors over interfaces that are remoted via 
+    /// Fabric TCP transport to create <see cref="IServiceRemotingClient"/> that communicate with
+    /// actors over interfaces that are remoted via
     /// <see cref="FabricTransportServiceRemotingListener"/>.
     /// </summary>
     public class FabricTransportActorRemotingClientFactory : FabricTransportServiceRemotingClientFactory
     {
         /// <summary>
-        /// Constructs a fabric transport based actor remoting client factory.
+        /// Initializes a new instance of the <see cref="FabricTransportActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="callbackClient">
         ///     The callback client that receives the callbacks from the service.
@@ -36,17 +36,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
         }
 
         /// <summary>
-        /// Constructs a fabric transport based actor remoting client factory.
+        /// Initializes a new instance of the <see cref="FabricTransportActorRemotingClientFactory"/> class.
         /// </summary>
         /// <param name="fabricTransportRemotingSettings">
-        ///     The settings for the fabric transport. If the settings are not provided or null, default settings 
+        ///     The settings for the fabric transport. If the settings are not provided or null, default settings
         ///     with no security.
         /// </param>
         /// <param name="callbackClient">
         ///     The callback client that receives the callbacks from the service.
         /// </param>
         /// <param name="servicePartitionResolver">
-        ///     Service partition resolver to resolve the service endpoints. If not specified, a default 
+        ///     Service partition resolver to resolve the service endpoints. If not specified, a default
         ///     service partition resolver returned by <see cref="ServicePartitionResolver.GetDefault"/> is used.
         /// </param>
         /// <param name="exceptionHandlers">
@@ -60,8 +60,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
             IServiceRemotingCallbackClient callbackClient,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            string traceId = null) :
-            base(
+            string traceId = null)
+            : base(
                 fabricTransportRemotingSettings,
                 callbackClient,
                 servicePartitionResolver,
@@ -78,6 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
             {
                 handlers.AddRange(exceptionHandlers);
             }
+
             handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
         }

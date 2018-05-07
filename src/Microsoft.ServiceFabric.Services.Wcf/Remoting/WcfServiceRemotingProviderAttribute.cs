@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     /// <summary>
-    ///     Sets WCF as the default service remoting transport provider in the assembly.
+    /// This attributes allows to set WCF transport as the default service remoting transport provider in the assembly and customization for it.
     /// </summary>
     [AttributeUsage(AttributeTargets.Assembly)]
     public sealed class WcfServiceRemotingProviderAttribute : ServiceRemotingProviderAttribute
@@ -21,13 +21,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         private static readonly TimeSpan DefaultOpenCloseTimeout = TimeSpan.FromMilliseconds(5000);
 
         /// <summary>
-        /// Constructs a <see cref="WcfServiceRemotingProviderAttribute"/> which can be used
-        /// to set WCF transport as the default service remoting transport provider in the assembly.
+        /// Initializes a new instance of the <see cref="WcfServiceRemotingProviderAttribute"/> class.
         /// </summary>
         public WcfServiceRemotingProviderAttribute()
         {
-
         }
+
         /// <summary>
         ///     Gets or Sets the maximum message size that can be transferred over remoting.
         /// </summary>
@@ -89,10 +88,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
                     this.GetCloseTimeout()));
         }
 
-
         /// <summary>
-        ///     Creates a V1 service remoting client factory that can be used by the 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/> 
+        ///     Creates a V1 service remoting client factory that can be used by the
+        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/>
         ///     to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackClient">
@@ -109,12 +107,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
                     this.GetMaxMessageSize(),
                     this.GetOpenTimeout(),
                     this.GetCloseTimeout()),
-                    callbackClient);
+                callbackClient);
         }
 
         /// <summary>
-        ///     Creates a service remoting client factory that can be used by the 
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/> 
+        ///     Creates a service remoting client factory that can be used by the
+        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceProxyFactory"/>
         ///     to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">

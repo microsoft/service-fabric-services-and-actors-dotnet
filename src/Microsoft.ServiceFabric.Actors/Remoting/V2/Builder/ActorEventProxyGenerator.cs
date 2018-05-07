@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
@@ -12,23 +12,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     internal class ActorEventProxyGenerator : ProxyGenerator
     {
         private readonly IProxyActivator proxyActivator;
+
 #if !DotNetCoreClr
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith actorV1EventProxyGeneratorW;
 #endif
-        public ActorEventProxyGenerator(Type proxyInterfaceType,
-            IProxyActivator proxyActivator
-            ) : base(proxyInterfaceType)
+
+        public ActorEventProxyGenerator(
+            Type proxyInterfaceType,
+            IProxyActivator proxyActivator)
+            : base(proxyInterfaceType)
         {
             this.proxyActivator = proxyActivator;
         }
-
-#if !DotNetCoreClr
-        internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
-        {
-            this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;
-        }
-#endif
-
 
         public ActorEventProxy CreateActorEventProxy()
         {
@@ -38,5 +33,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 #endif
             return actorEventProxy;
         }
+
+#if !DotNetCoreClr
+        internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
+        {
+            this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;
+        }
+#endif
     }
 }

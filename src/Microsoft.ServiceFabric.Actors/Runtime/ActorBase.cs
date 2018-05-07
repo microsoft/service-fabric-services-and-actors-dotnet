@@ -1,16 +1,16 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Services.Common;
-    using System.Globalization;
 
     /// <summary>
     /// Represents the base class for actors.
@@ -19,17 +19,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// The base type for actors, that provides the common functionality
     /// for actors that derive from <see cref="Actor"/>.
     /// The state is preserved across actor garbage collections and fail-overs.
-    /// The storage and retrieval of the state is provided by the actor state provider. See 
+    /// The storage and retrieval of the state is provided by the actor state provider. See
     /// <see cref="IActorStateProvider"/> for more information.
     /// </remarks>
     /// <seealso cref="Actor"/>
     public abstract class ActorBase
     {
+        private const string TraceType = "ActorBase";
         private readonly IActorManager actorManager;
         private readonly ActorId actorId;
         private readonly DiagnosticsManagerActorContext diagnosticsContext;
-
-        private const string TraceType = "ActorBase";
         private readonly string traceId;
         private List<IActorTimer> timers;
         private volatile bool markedForDeletion;
@@ -117,6 +116,64 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             get { return this.actorManager; }
         }
+
+        internal async Task OnActivateInternalAsync()
+        {
+            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncStart(this);
+            await this.OnActivateAsync();
+            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncFinish(this);
+
+            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Activated");
+        }
+
+        internal virtual async Task OnDeactivateInternalAsync()
+        {
+            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Deactivating ...");
+            if (this.timers != null)
+            {
+                var toDispose = this.timers.ToArray();
+                this.timers.Clear();
+
+                foreach (var t in toDispose)
+                {
+                    t.Dispose();
+                }
+            }
+
+            await this.OnDeactivateAsync();
+            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Deactivated");
+        }
+
+        internal void OnInvokeFailedInternal()
+        {
+            this.IsDirty = true;
+        }
+
+        internal Task ResetStateAsyncInternal()
+        {
+            return this.OnResetStateAsyncInternal();
+        }
+
+        internal Task SaveStateAsyncInternal()
+        {
+            return this.OnSaveStateAsyncInternal();
+        }
+
+        internal Task OnPreActorMethodAsyncInternal(ActorMethodContext actorMethodContext)
+        {
+            return this.OnPreActorMethodAsync(actorMethodContext);
+        }
+
+        internal Task OnPostActorMethodAsyncInternal(ActorMethodContext actorMethodContext)
+        {
+            return this.OnPostActorMethodAsync(actorMethodContext);
+        }
+
+        internal abstract Task OnResetStateAsyncInternal();
+
+        internal abstract Task OnSaveStateAsyncInternal();
+
+        internal abstract Task OnPostActivateAsync();
 
         /// <summary>
         /// Override this method to initialize the members, initialize state or register timers. This method is called right after the actor is activated
@@ -248,12 +305,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// It returns a <see cref="System.Threading.Tasks.Task"/> representing the asynchronous operation.
         /// </param>
         /// <param name="state">An object containing information to be used by the callback method, or null.</param>
-        /// <param name="dueTime">The amount of time to delay before the async callback is first invoked. 
-        /// Specify negative one (-1) milliseconds to prevent the timer from starting. 
+        /// <param name="dueTime">The amount of time to delay before the async callback is first invoked.
+        /// Specify negative one (-1) milliseconds to prevent the timer from starting.
         /// Specify zero (0) to start the timer immediately.
         /// </param>
         /// <param name="period">
-        /// The time interval between invocations of the async callback. 
+        /// The time interval between invocations of the async callback.
         /// Specify negative one (-1) milliseconds to disable periodic signaling.</param>
         /// <returns>Returns IActorTimer object.</returns>
         protected IActorTimer RegisterTimer(
@@ -317,63 +374,5 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw new ReminderLoadInProgressException(string.Format(CultureInfo.CurrentCulture, SR.UnregisterReminderConflict, reminderName, this.Id));
             }
         }
-
-        internal async Task OnActivateInternalAsync()
-        {
-            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncStart(this);
-            await this.OnActivateAsync();
-            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncFinish(this);
-
-            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Activated");
-        }
-
-        internal virtual async Task OnDeactivateInternalAsync()
-        {
-            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Deactivating ...");
-            if (this.timers != null)
-            {
-                var toDispose = this.timers.ToArray();
-                this.timers.Clear();
-
-                foreach (var t in toDispose)
-                {
-                    t.Dispose();
-                }
-            }
-
-            await this.OnDeactivateAsync();
-            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Deactivated");
-        }
-
-        internal void OnInvokeFailedInternal()
-        {
-            this.IsDirty = true;
-        }
-
-        internal Task ResetStateAsyncInternal()
-        {
-            return this.OnResetStateAsyncInternal();
-        }
-
-        internal Task SaveStateAsyncInternal()
-        {
-            return this.OnSaveStateAsyncInternal();
-        }
-
-        internal Task OnPreActorMethodAsyncInternal(ActorMethodContext actorMethodContext)
-        {
-            return this.OnPreActorMethodAsync(actorMethodContext);
-        }
-
-        internal Task OnPostActorMethodAsyncInternal(ActorMethodContext actorMethodContext)
-        {
-            return this.OnPostActorMethodAsync(actorMethodContext);
-        }
-
-        internal abstract Task OnResetStateAsyncInternal();
-
-        internal abstract Task OnSaveStateAsyncInternal();
-
-        internal abstract Task OnPostActivateAsync();
     }
 }

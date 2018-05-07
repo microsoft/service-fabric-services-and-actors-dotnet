@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class ActorTypeInformation
     {
         /// <summary>
-        /// Initializes a new instance of the ActorTypeInformation class.
+        /// Initializes a new instance of the <see cref="ActorTypeInformation"/> class.
         /// </summary>
         public ActorTypeInformation()
         {
@@ -51,13 +51,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public string ServiceName { get; private set; }
 
         /// <summary>
-        /// Gets a value whether the class implementing actor is abstract.
+        /// Gets a value indicating whether the class implementing actor is abstract.
         /// </summary>
         /// <value>true if the class implementing actor is abstract, otherwise false.</value>
         public bool IsAbstract { get; private set; }
 
         /// <summary>
-        /// Gets a value whether the actor class implements <see cref="IRemindable"/>.
+        /// Gets a value indicating whether the actor class implements <see cref="IRemindable"/>.
         /// </summary>
         /// <value>true if the actor class implements <see cref="IRemindable"/>, otherwise false.</value>
         public bool IsRemindable { get; private set; }
@@ -79,10 +79,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// The creation fails if the actorType parameter is null or it does not implement an actor.</param>
         /// <returns>true if ActorTypeInformation was successfully created for actorType; otherwise, false.</returns>
         /// <remarks>
-        /// <para>Creation of ActorTypeInformation from actorType will fail when </para> 
+        /// <para>Creation of ActorTypeInformation from actorType will fail when </para>
         /// <para>1. <see cref="System.Type.BaseType"/> for actorType is not of type <see cref="Actor"/>.</para>
         /// <para>2. actorType does not implement an interface deriving from <see cref="IActor"/> and is not marked as abstract.</para>
-        /// <para>3. actorType implements more than one interface which derives from <see cref="IActor"/> 
+        /// <para>3. actorType implements more than one interface which derives from <see cref="IActor"/>
         /// but doesn't have <see cref="ActorServiceAttribute"/>.</para>
         /// </remarks>
         public static bool TryGet(Type actorType, out ActorTypeInformation actorTypeInformation)
@@ -106,9 +106,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns><see cref="ActorTypeInformation"/> created from actorType.</returns>
         /// <exception cref="System.ArgumentException">
         /// <para>When <see cref="System.Type.BaseType"/> for actorType is not of type <see cref="Actor"/>.</para>
-        /// <para>When actorType does not implement an interface deriving from <see cref="IActor"/> 
+        /// <para>When actorType does not implement an interface deriving from <see cref="IActor"/>
         /// and is not marked as abstract.</para>
-        /// <para>When actorType implements more than one interface which derives from <see cref="IActor"/> 
+        /// <para>When actorType implements more than one interface which derives from <see cref="IActor"/>
         /// but doesn't have <see cref="ActorServiceAttribute"/>.</para>
         /// </exception>
         public static ActorTypeInformation Get(Type actorType)
@@ -189,7 +189,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 remotingserver = remotingserverAttribuite.RemotingListener;
             }
 
-
             return new ActorTypeInformation()
             {
                 InterfaceTypes = actorInterfaces,
@@ -199,9 +198,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 IsRemindable = actorType.IsRemindableActor(),
                 EventInterfaceTypes = eventInterfaces,
                 StatePersistence = StatePersistenceAttribute.Get(actorType).StatePersistence,
-                RemotingListener = remotingserver
+                RemotingListener = remotingserver,
             };
         }
-
     }
 }

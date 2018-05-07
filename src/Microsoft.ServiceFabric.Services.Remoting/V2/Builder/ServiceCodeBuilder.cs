@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
@@ -16,8 +16,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     /// </summary>
     internal class ServiceCodeBuilder : CodeBuilder
     {
-        private static readonly ICodeBuilder Instance = new ServiceCodeBuilder();
         internal static readonly InterfaceDetailsStore InterfaceDetailsStore = new InterfaceDetailsStore();
+        private static readonly ICodeBuilder Instance = new ServiceCodeBuilder();
         private static readonly object BuildLock = new object();
 
         private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
@@ -30,6 +30,35 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             this.methodBodyTypesBuilder = new MethodBodyTypesBuilder(this);
             this.methodDispatcherBuilder = new MethodDispatcherBuilder<MethodDispatcherBase>(this);
             this.proxyGeneratorBuilder = new ServiceProxyGeneratorBuilder(this);
+        }
+
+        public static MethodDispatcherBase GetOrCreateMethodDispatcher(Type serviceInterfaceType)
+        {
+            lock (BuildLock)
+            {
+                return
+                    (MethodDispatcherBase)Instance.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
+            }
+        }
+
+        public static MethodDispatcherBase GetOrCreateMethodDispatcherForNonMarkerInterface(Type serviceInterfaceType)
+        {
+            lock (BuildLock)
+            {
+                var codebuilder = (ServiceCodeBuilder)Instance;
+
+                if (codebuilder.TryGetMethodDispatcher(serviceInterfaceType, out var result))
+                {
+                    return
+                        (MethodDispatcherBase)result.MethodDispatcher;
+                }
+
+                result = codebuilder.BuildMethodDispatcherForNonServiceInterface(serviceInterfaceType);
+                codebuilder.UpdateMethodDispatcherBuildMap(serviceInterfaceType, result);
+
+                return
+                    (MethodDispatcherBase)result.MethodDispatcher;
+            }
         }
 
         internal static ServiceProxyGenerator GetOrCreateProxyGenerator(Type serviceInterfaceType)
@@ -68,37 +97,45 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             return InterfaceDetailsStore.TryGetKnownTypes(interfaceName, out interfaceDetails);
         }
 
-        public static MethodDispatcherBase GetOrCreateMethodDispatcher(Type serviceInterfaceType)
+        internal ProxyGeneratorBuildResult BuildProxyGeneratorForNonMarkerInterface(Type interfaceType)
         {
-            lock (BuildLock)
-            {
-                return
-                    (MethodDispatcherBase)
-                    Instance.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
-            }
+            // create all base interfaces that this interface derives from
+            var serviceInterfaces = new List<Type>() { };
+            serviceInterfaces.AddRange(interfaceType.GetAllBaseInterfaces());
+
+            // create interface descriptions for all interfaces
+            var servicenterfaceDescriptions = serviceInterfaces.Select<Type, InterfaceDescription>(
+                (t) => ServiceInterfaceDescription.CreateUsingCRCId(t, false));
+
+            var res = this.CreateProxyGeneratorBuildResult(interfaceType, servicenterfaceDescriptions);
+
+            return res;
         }
 
-        public static MethodDispatcherBase GetOrCreateMethodDispatcherForNonMarkerInterface(Type serviceInterfaceType)
+        protected override MethodDispatcherBuildResult BuildMethodDispatcher(Type interfaceType)
         {
-            lock (BuildLock)
-            {
-                var codebuilder = (ServiceCodeBuilder)Instance;
+            var servicenterfaceDescription = ServiceInterfaceDescription.CreateUsingCRCId(interfaceType, true);
+            var res = this.BuildMethodDispatcherResult(servicenterfaceDescription);
+            return res;
+        }
 
-                if (codebuilder.TryGetMethodDispatcher(serviceInterfaceType, out var result))
-                {
-                    return
-                        (MethodDispatcherBase)
-                        result.MethodDispatcher;
-                }
+        protected override MethodBodyTypesBuildResult BuildMethodBodyTypes(Type interfaceType)
+        {
+            throw new NotImplementedException("This is not Implemented for V2 Stack");
+        }
 
-                result = codebuilder.BuildMethodDispatcherForNonServiceInterface(serviceInterfaceType);
-                codebuilder.UpdateMethodDispatcherBuildMap(serviceInterfaceType, result);
+        protected override ProxyGeneratorBuildResult BuildProxyGenerator(Type interfaceType)
+        {
+            // create all service interfaces that this interface derives from
+            var serviceInterfaces = new List<Type>() { interfaceType };
+            serviceInterfaces.AddRange(interfaceType.GetServiceInterfaces());
 
-                return
-                    (MethodDispatcherBase)
-                    result.MethodDispatcher;
+            // create interface descriptions for all interfaces
+            var servicenterfaceDescriptions = serviceInterfaces.Select<Type, InterfaceDescription>(
+                (t) => ServiceInterfaceDescription.CreateUsingCRCId(t, true));
 
-            }
+            var res = this.CreateProxyGeneratorBuildResult(interfaceType, servicenterfaceDescriptions);
+            return res;
         }
 
         private MethodDispatcherBuildResult BuildMethodDispatcherForNonServiceInterface(Type interfaceType)
@@ -114,49 +151,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             return res;
         }
 
-
-        protected override MethodDispatcherBuildResult BuildMethodDispatcher(Type interfaceType)
-        {
-            var servicenterfaceDescription = ServiceInterfaceDescription.CreateUsingCRCId(interfaceType, true);
-            var res = this.BuildMethodDispatcherResult(servicenterfaceDescription);
-            return res;
-        }
-
-
-        protected override MethodBodyTypesBuildResult BuildMethodBodyTypes(Type interfaceType)
-        {
-            throw new NotImplementedException("This is not Implemented for V2 Stack");
-        }
-
-        internal ProxyGeneratorBuildResult BuildProxyGeneratorForNonMarkerInterface(Type interfaceType)
-        {
-            // create all base interfaces that this interface derives from
-            var serviceInterfaces = new List<Type>() { };
-            serviceInterfaces.AddRange(interfaceType.GetAllBaseInterfaces());
-
-            // create interface descriptions for all interfaces
-            var servicenterfaceDescriptions = serviceInterfaces.Select<Type, InterfaceDescription>(
-                (t) => ServiceInterfaceDescription.CreateUsingCRCId(t, false));
-
-            var res = this.CreateProxyGeneratorBuildResult(interfaceType, servicenterfaceDescriptions);
-
-            return res;
-        }
-        protected override ProxyGeneratorBuildResult BuildProxyGenerator(Type interfaceType)
-        {
-            // create all service interfaces that this interface derives from
-            var serviceInterfaces = new List<Type>() { interfaceType };
-            serviceInterfaces.AddRange(interfaceType.GetServiceInterfaces());
-
-            // create interface descriptions for all interfaces
-            var servicenterfaceDescriptions = serviceInterfaces.Select<Type, InterfaceDescription>(
-                (t) => ServiceInterfaceDescription.CreateUsingCRCId(t, true));
-
-            var res = this.CreateProxyGeneratorBuildResult(interfaceType, servicenterfaceDescriptions);
-            return res;
-        }
-
-        private ProxyGeneratorBuildResult CreateProxyGeneratorBuildResult(Type interfaceType,
+        private ProxyGeneratorBuildResult CreateProxyGeneratorBuildResult(
+            Type interfaceType,
             IEnumerable<InterfaceDescription> servicenterfaceDescriptions)
         {
             var res = this.proxyGeneratorBuilder.Build(interfaceType, servicenterfaceDescriptions);

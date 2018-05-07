@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
@@ -26,11 +26,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
     public class ServiceRemotingDispatcher : IServiceRemotingMessageHandler, IDisposable
     {
         private readonly IService service;
+
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
+
         private readonly Dictionary<int, ServiceMethodDispatcherBase> methodDispatcherMap;
+
         private readonly ServicePerformanceCounterProvider servicePerformanceCounterProvider;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceRemotingDispatcher"/> class.
         /// Instantiates the ServiceRemotingDispatcher that uses the given service context and
         /// dispatches messages to the given service implementation.
         /// </summary>
@@ -55,11 +59,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                     var methodDispatcher = ServiceCodeBuilder.GetOrCreateMethodDispatcher(interfaceType);
                     this.methodDispatcherMap.Add(methodDispatcher.InterfaceId, methodDispatcher);
                     interfaceDescriptions.Add(ServiceInterfaceDescription.Create(interfaceType));
-
                 }
 
                 this.servicePerformanceCounterProvider =
-                    new ServicePerformanceCounterProvider(serviceContext.PartitionId,
+                    new ServicePerformanceCounterProvider(
+                        serviceContext.PartitionId,
                         serviceContext.ReplicaOrInstanceId,
                         interfaceDescriptions);
             }
@@ -79,17 +83,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         {
             if (this.IsCancellationRequest(messageHeaders))
             {
-
                 await
-                    this.cancellationHelper.CancelRequestAsync(messageHeaders.InterfaceId, messageHeaders.MethodId,
-                        messageHeaders.InvocationId);
+                    this.cancellationHelper.CancelRequestAsync(messageHeaders.InterfaceId, messageHeaders.MethodId, messageHeaders.InvocationId);
                 return null;
             }
             else
             {
-                if (null != this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
+                if (this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
                 {
-                    this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
+                    this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
                 }
 
                 var requestStopWatch = Stopwatch.StartNew();
@@ -104,19 +106,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                 }
                 finally
                 {
-                    if (null != this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter)
+                    if (this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
                     {
-                        this.servicePerformanceCounterProvider.serviceOutstandingRequestsCounterWriter
+                        this.servicePerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
                             .UpdateCounterValue(-1);
                     }
 
-                    if (null != this.servicePerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter)
+                    if (this.servicePerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter != null)
                     {
-                        this.servicePerformanceCounterProvider.serviceRequestProcessingTimeCounterWriter
+                        this.servicePerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter
                             .UpdateCounterValue(
                                 requestStopWatch.ElapsedMilliseconds);
                     }
                 }
+
                 return retval;
             }
         }
@@ -127,44 +130,94 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         /// <param name="requestContext">Request context - contains additional information about the request</param>
         /// <param name="messageHeaders">Request message headers</param>
         /// <param name="requestBody">Request message body</param>
-        public virtual void HandleOneWay(IServiceRemotingRequestContext requestContext,
-            ServiceRemotingMessageHeaders messageHeaders, byte[] requestBody)
+        public virtual void HandleOneWay(
+            IServiceRemotingRequestContext requestContext,
+            ServiceRemotingMessageHeaders messageHeaders,
+            byte[] requestBody)
         {
-            throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, SR.ErrorMethodNotImplemented,
-                this.GetType().Name, "HandleOneWay"));
+            throw new NotImplementedException(string.Format(
+                                                CultureInfo.CurrentCulture,
+                                                SR.ErrorMethodNotImplemented,
+                                                this.GetType().Name,
+                                                "HandleOneWay"));
         }
 
-        private Task<byte[]> OnDispatch(ServiceRemotingMessageHeaders headers, byte[] requestBodyBytes,
-            CancellationToken cancellationToken)
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
+        {
+            if (this.servicePerformanceCounterProvider != null)
+            {
+                this.servicePerformanceCounterProvider.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// The IsCancellationRequest
+        /// </summary>
+        /// <param name="messageHeaders">The <see cref="ServiceRemotingMessageHeaders"/></param>
+        /// <returns>The <see cref="bool"/></returns>
+        internal bool IsCancellationRequest(ServiceRemotingMessageHeaders messageHeaders)
+        {
+            if (messageHeaders.InvocationId != null &&
+                messageHeaders.TryGetHeaderValue(ServiceRemotingMessageHeaders.CancellationHeaderName, out var headerValue))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// The OnDispatch
+        /// </summary>
+        /// <param name="headers">The <see cref="ServiceRemotingMessageHeaders"/></param>
+        /// <param name="requestBodyBytes">Serialized Bytes to be dispatched/></param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the dispatch task/></param>
+        /// <returns>Task represents </returns>
+        private Task<byte[]> OnDispatch(
+                            ServiceRemotingMessageHeaders headers,
+                            byte[] requestBodyBytes,
+                            CancellationToken cancellationToken)
         {
             if (!this.methodDispatcherMap.TryGetValue(headers.InterfaceId, out var methodDispatcher))
             {
-                throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture,
-                    SR.ErrorInterfaceNotImplemented, headers.InterfaceId, this.service));
+                throw new NotImplementedException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    SR.ErrorInterfaceNotImplemented,
+                    headers.InterfaceId,
+                    this.service));
             }
+
             Task<object> dispatchTask = null;
             var stopwatch = Stopwatch.StartNew();
             var requestBody = methodDispatcher.DeserializeRequestMessageBody(requestBodyBytes);
 
-            if (this.servicePerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter != null)
+            if (this.servicePerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
             {
-                this.servicePerformanceCounterProvider.serviceRequestDeserializationTimeCounterWriter.UpdateCounterValue
-                (
+                this.servicePerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
                     stopwatch.ElapsedMilliseconds);
             }
+
             stopwatch.Restart();
             try
             {
-                dispatchTask = methodDispatcher.DispatchAsync(this.service, headers.MethodId, requestBody,
+                dispatchTask = methodDispatcher.DispatchAsync(
+                    this.service,
+                    headers.MethodId,
+                    requestBody,
                     cancellationToken);
             }
             catch (Exception e)
             {
                 var info = ExceptionDispatchInfo.Capture(e);
-                this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                (headers.InterfaceId,
+                this.servicePerformanceCounterProvider.OnServiceMethodFinish(
+                    headers.InterfaceId,
                     headers.MethodId,
-                    stopwatch.Elapsed, e);
+                    stopwatch.Elapsed,
+                    e);
                 info.Throw();
             }
 
@@ -180,51 +233,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
                     {
                         var info = ExceptionDispatchInfo.Capture(e);
 
-                        this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                        (headers.InterfaceId,
+                        this.servicePerformanceCounterProvider.OnServiceMethodFinish(
+                            headers.InterfaceId,
                             headers.MethodId,
-                            stopwatch.Elapsed, e);
+                            stopwatch.Elapsed,
+                            e);
                         info.Throw();
                     }
 
-                    this.servicePerformanceCounterProvider.OnServiceMethodFinish
-                    (headers.InterfaceId,
+                    this.servicePerformanceCounterProvider.OnServiceMethodFinish(
+                        headers.InterfaceId,
                         headers.MethodId,
                         stopwatch.Elapsed);
 
                     stopwatch.Restart();
                     var response = methodDispatcher.SerializeResponseMessageBody(responseBody);
-                    if (this.servicePerformanceCounterProvider.serviceResponseSerializationTimeCounterWriter != null)
+                    if (this.servicePerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
                     {
-                        this.servicePerformanceCounterProvider.serviceResponseSerializationTimeCounterWriter
+                        this.servicePerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter
                             .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
                     }
+
                     return response;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            if (this.servicePerformanceCounterProvider != null)
-            {
-                this.servicePerformanceCounterProvider.Dispose();
-            }
-        }
-
-        internal bool IsCancellationRequest(ServiceRemotingMessageHeaders messageHeaders)
-        {
-            if (messageHeaders.InvocationId != null &&
-                messageHeaders.TryGetHeaderValue(ServiceRemotingMessageHeaders.CancellationHeaderName, out var headerValue))
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

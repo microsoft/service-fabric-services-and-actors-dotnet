@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.Description
@@ -11,12 +11,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
 
     internal class ActorEventInterfaceDescription : InterfaceDescription
     {
-
         private ActorEventInterfaceDescription(Type actorEventInterfaceType, bool useCRCIdForGeneration)
             : base("actorEvent", actorEventInterfaceType, useCRCIdForGeneration, MethodReturnCheck.EnsureReturnsVoid)
         {
         }
-
 
         public static ActorEventInterfaceDescription Create(Type actorEventInterfaceType)
         {
@@ -29,7 +27,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
             EnsureActorEventInterface(actorEventInterfaceType);
             return new ActorEventInterfaceDescription(actorEventInterfaceType, true);
         }
-
 
         private static void EnsureActorEventInterface(Type actorEventInterfaceType)
         {

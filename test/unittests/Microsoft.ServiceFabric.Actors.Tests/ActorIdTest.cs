@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Tests
@@ -11,32 +11,51 @@ namespace Microsoft.ServiceFabric.Actors.Tests
     using Xunit;
 
 #pragma warning disable xUnit1024
+
+    /// <summary>
+    /// ActorId tests.
+    /// </summary>
     public class ActorIdTest
     {
+        private enum ExpectedComparisionResult
+        {
+            Less,
+            Equals,
+            More,
+        }
 
+        /// <summary>
+        /// Tests two actor ids for null equality.
+        /// </summary>
         [Fact]
         public void TestBothNullEquality()
         {
             ActorId x = null;
             ActorId y = null;
 
-            Assert.True((x == y), "Verify null == null is true");
-            Assert.False((x != y), "Verify null != null is false");
+            Assert.True(x == y, "Verify null == null is true");
+            Assert.False(x != y, "Verify null != null is false");
         }
 
+        /// <summary>
+        /// Tests ActorId for null equality.
+        /// </summary>
         [Fact]
         public void TestNullEquality()
         {
             ActorId x = null;
             var y = new ActorId(1);
 
-            Assert.False((x == y), "Verify null == ActorId(1) is false");
-            Assert.True((x != y), "Verify null != ActorId(1) is false");
+            Assert.False(x == y, "Verify null == ActorId(1) is false");
+            Assert.True(x != y, "Verify null != ActorId(1) is false");
 
             Assert.False(y.Equals(x), "Verify ActorId(1).Equals(null) is false");
             Assert.True(y.CompareTo(x) != 0, "Verify ActorId(1).CompareTo(null) is not zero");
         }
 
+        /// <summary>
+        /// Tests ActorIds for equality.
+        /// </summary>
         [Fact]
         public void TestEquality()
         {
@@ -55,10 +74,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             catch (ArgumentNullException)
             {
             }
+
             TestEqualityString("Id1", "Id1");
             TestEqualityString("0", "0");
         }
 
+        /// <summary>
+        /// Tests aCtorIds for Inequality.
+        /// </summary>
         [Fact]
         public void TestInEquality()
         {
@@ -73,6 +96,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             TestInEquality(new ActorId(long.MaxValue), new ActorId(Guid.Empty));
         }
 
+        /// <summary>
+        /// Tests ActorId comparisons.
+        /// </summary>
         [Fact]
         public void TestCompareTo()
         {
@@ -88,7 +114,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             TestCompareTo(new ActorId("0"), new ActorId("-234"), ExpectedComparisionResult.More);
 
             TestCompareTo(new ActorId(Guid.Empty), new ActorId(Guid.Empty.ToString()), ExpectedComparisionResult.Less);
-
         }
 
         private static void TestEqualityLong(long lx, long ly)
@@ -124,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         private static void TestEquality(ActorId x, ActorId y)
         {
             Assert.True(
-                (x == y),
+                x == y,
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Verify {0} == {1} is true",
@@ -132,7 +157,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     ToStringWithKind(y)));
 
             Assert.False(
-                (x != y),
+                x != y,
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Verify {0} != {1} is false",
@@ -168,7 +193,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         private static void TestInEquality(ActorId x, ActorId y)
         {
             Assert.False(
-                (x == y),
+                x == y,
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Verify {0} == {1} is false",
@@ -176,7 +201,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     ToStringWithKind(y)));
 
             Assert.True(
-                (x != y),
+                x != y,
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Verify {0} != {1} is true",
@@ -214,7 +239,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             if (expected == ExpectedComparisionResult.Equals)
             {
                 Assert.True(
-                    (x == y),
+                    x == y,
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "Verify {0} == {1} is true",
@@ -233,7 +258,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             if (expected == ExpectedComparisionResult.Less)
             {
                 Assert.True(
-                    (x != y),
+                    x != y,
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "Verify {0} != {1} is true",
@@ -252,7 +277,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             if (expected == ExpectedComparisionResult.More)
             {
                 Assert.True(
-                    (x != y),
+                    x != y,
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "Verify {0} != {1} is true",
@@ -272,13 +297,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         private static string ToStringWithKind(ActorId id)
         {
             return string.Format(CultureInfo.InvariantCulture, "{0}_{1}", id.Kind.ToString(), id.ToString());
-        }
-
-        private enum ExpectedComparisionResult
-        {
-            Less,
-            Equals,
-            More
         }
     }
 }

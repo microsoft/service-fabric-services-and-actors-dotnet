@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -10,10 +10,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     internal class IdleObjectGcHandle
     {
         private readonly long maxIdleCount;
+        private readonly object locker = new object();
         private long idleCount;
         private long useCount;
         private long timerCount; // tracks calls from timers.
-        private readonly object locker = new object();
         private bool collected;
 
         /// <summary>
@@ -32,6 +32,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.idleCount = 0;
             this.useCount = 0;
             this.timerCount = 0;
+        }
+
+        public bool IsGarbageCollected
+        {
+            get { return this.collected; }
         }
 
         public bool TryUse(bool timerCall)
@@ -106,11 +111,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             // Mark for early collection, so that TryCollect can return true for early collection rather than waiting until idleCount == maxIdleCount.
             this.collectEarly = true;
-        }
-
-        public bool IsGarbageCollected
-        {
-            get { return this.collected; }
         }
     }
 }

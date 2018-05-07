@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
@@ -19,8 +19,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         where TProxyGenerator : ProxyGenerator
         where TProxy : ProxyBase
     {
+        private readonly Type proxyBaseType;
         private readonly MethodInfo createMessage;
-        protected readonly Type proxyBaseType;
         private readonly MethodInfo invokeAsyncMethodInfo;
         private readonly MethodInfo invokeMethodInfo;
         private readonly MethodInfo continueWithResultMethodInfo;
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
                 CallingConventions.Any,
-                new[] {typeof(int), typeof(int), typeof(string), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken)},
+                new[] { typeof(int), typeof(int), typeof(string), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken) },
                 null);
 
             this.createMessage = this.proxyBaseType.GetMethod(
@@ -68,46 +68,127 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 BindingFlags.Instance | BindingFlags.NonPublic);
         }
 
+        protected Type ProxyBaseType => this.proxyBaseType;
+
         public virtual ProxyGeneratorBuildResult Build(
             Type proxyInterfaceType,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
         {
-            // create the context to build the proxy 
+            // create the context to build the proxy
             var context = new CodeBuilderContext(
                 assemblyName: this.CodeBuilder.Names.GetProxyAssemblyName(proxyInterfaceType),
                 assemblyNamespace: this.CodeBuilder.Names.GetProxyAssemblyNamespace(proxyInterfaceType),
                 enableDebugging: CodeBuilderAttribute.IsDebuggingEnabled(proxyInterfaceType));
-            var result = new ProxyGeneratorBuildResult(context);
 
-
-            // build the proxy class that implements all of the interfaces explicitly
-            result.ProxyType = this.BuildProxyType(context, proxyInterfaceType, interfaceDescriptions);
+            var result = new ProxyGeneratorBuildResult(context)
+            {
+                // build the proxy class that implements all of the interfaces explicitly
+                ProxyType = this.BuildProxyType(context, proxyInterfaceType, interfaceDescriptions),
+            };
 
             // build the activator type to create instances of the proxy
             result.ProxyActivatorType = this.BuildProxyActivatorType(context, proxyInterfaceType, result.ProxyType);
 
             // build the proxy generator
-            result.ProxyGenerator = this.CreateProxyGenerator(proxyInterfaceType,
+            result.ProxyGenerator = this.CreateProxyGenerator(
+                proxyInterfaceType,
                 result.ProxyActivatorType);
 
             context.Complete();
             return result;
         }
 
-        private Type BuildProxyActivatorType(
-            CodeBuilderContext context,
-            Type proxyInterfaceType,
-            Type proxyType)
+        internal void AddVoidMethodImplementation2(
+            ILGenerator ilGen,
+            int interfaceDescriptionId,
+            MethodDescription methodDescription,
+            string interfaceName)
         {
-            var classBuilder = CodeBuilderUtils.CreateClassBuilder(
-                context.ModuleBuilder,
-                ns: context.AssemblyNamespace,
-                className: this.CodeBuilder.Names.GetProxyActivatorClassName(proxyInterfaceType),
-                interfaces: new[] { typeof(IProxyActivator) });
+            var interfaceMethod = methodDescription.MethodInfo;
 
-            AddCreateInstanceMethod(classBuilder, proxyType);
-            return classBuilder.CreateTypeInfo().AsType();
+            var parameters = interfaceMethod.GetParameters();
+
+            LocalBuilder requestBody = null;
+
+            if (parameters.Length > 0)
+            {
+                ilGen.Emit(OpCodes.Ldarg_0); // base
+                requestBody = ilGen.DeclareLocal(typeof(IServiceRemotingRequestMessageBody));
+                ilGen.Emit(OpCodes.Ldstr, interfaceName);
+                ilGen.Emit(OpCodes.Ldstr, methodDescription.Name);
+                ilGen.Emit(OpCodes.Ldc_I4, parameters.Length);
+
+                ilGen.EmitCall(OpCodes.Call, this.createMessage, null);
+                ilGen.Emit(OpCodes.Stloc, requestBody);
+
+                var setMethod = typeof(IServiceRemotingRequestMessageBody).GetMethod("SetParameter");
+
+                // Add to Dictionary
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    ilGen.Emit(OpCodes.Ldloc, requestBody);
+                    ilGen.Emit(OpCodes.Ldc_I4, i);
+                    ilGen.Emit(OpCodes.Ldstr, parameters[i].Name);
+                    ilGen.Emit(OpCodes.Ldarg, i + 1);
+                    if (!parameters[i].ParameterType.IsClass)
+                    {
+                        ilGen.Emit(OpCodes.Box, parameters[i].ParameterType);
+                    }
+
+                    ilGen.Emit(OpCodes.Callvirt, setMethod);
+                }
+            }
+
+            // call the base Invoke method
+            ilGen.Emit(OpCodes.Ldarg_0); // base
+            ilGen.Emit(OpCodes.Ldc_I4, interfaceDescriptionId); // interfaceId
+            ilGen.Emit(OpCodes.Ldc_I4, methodDescription.Id); // methodId
+
+            if (parameters.Length > 0)
+            {
+                ilGen.Emit(OpCodes.Ldloc, requestBody);
+            }
+            else
+            {
+                ilGen.Emit(OpCodes.Ldnull);
+            }
+
+            ilGen.EmitCall(OpCodes.Call, this.invokeMethodInfo, null);
         }
+
+        internal virtual void AddInterfaceImplementations(
+            TypeBuilder classBuilder,
+            IEnumerable<InterfaceDescription> interfaceDescriptions)
+        {
+            foreach (var item in interfaceDescriptions)
+            {
+                var interfaceDescription = item;
+
+                foreach (var methodDescription in interfaceDescription.Methods)
+                {
+                    if (TypeUtility.IsTaskType(methodDescription.ReturnType))
+                    {
+                        this.AddAsyncMethodImplementation(
+                            classBuilder,
+                            interfaceDescription.Id,
+                            methodDescription,
+                            interfaceDescription.InterfaceType.FullName);
+                    }
+                    else if (TypeUtility.IsVoidType(methodDescription.ReturnType))
+                    {
+                        this.AddVoidMethodImplementation(
+                            classBuilder,
+                            interfaceDescription.Id,
+                            methodDescription,
+                            interfaceDescription.InterfaceType.FullName);
+                    }
+                }
+            }
+        }
+
+        protected abstract TProxyGenerator CreateProxyGenerator(
+            Type proxyInterfaceType,
+            Type proxyActivatorType);
 
         private static void AddCreateInstanceMethod(
             TypeBuilder classBuilder,
@@ -132,8 +213,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             }
         }
 
+        private Type BuildProxyActivatorType(
+            CodeBuilderContext context,
+            Type proxyInterfaceType,
+            Type proxyType)
+        {
+            var classBuilder = CodeBuilderUtils.CreateClassBuilder(
+                context.ModuleBuilder,
+                ns: context.AssemblyNamespace,
+                className: this.CodeBuilder.Names.GetProxyActivatorClassName(proxyInterfaceType),
+                interfaces: new[] { typeof(IProxyActivator) });
 
-        private Type BuildProxyType(CodeBuilderContext context, Type proxyInterfaceType,
+            AddCreateInstanceMethod(classBuilder, proxyType);
+            return classBuilder.CreateTypeInfo().AsType();
+        }
+
+        private Type BuildProxyType(
+            CodeBuilderContext context,
+            Type proxyInterfaceType,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
         {
             var classBuilder = CodeBuilderUtils.CreateClassBuilder(
@@ -149,34 +246,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             return classBuilder.CreateTypeInfo().AsType();
         }
 
-        internal virtual void AddInterfaceImplementations(
+        private void AddVoidMethodImplementation(
             TypeBuilder classBuilder,
-            IEnumerable<InterfaceDescription> interfaceDescriptions)
-        {
-            foreach (var item in interfaceDescriptions)
-            {
-                var interfaceDescription = item;
-
-                foreach (var methodDescription in interfaceDescription.Methods)
-                {
-                    if (TypeUtility.IsTaskType(methodDescription.ReturnType))
-                    {
-                        this.AddAsyncMethodImplementation(classBuilder, interfaceDescription.Id, methodDescription,
-                        interfaceDescription.InterfaceType.FullName);
-                    }
-                    else if (TypeUtility.IsVoidType(methodDescription.ReturnType))
-                    {
-                        this.AddVoidMethodImplementation(classBuilder, interfaceDescription.Id, methodDescription,
-                            interfaceDescription.InterfaceType.FullName);
-                    }
-                }
-            }
-        }
-
-        private void AddVoidMethodImplementation(TypeBuilder classBuilder, int interfaceDescriptionId,
+            int interfaceDescriptionId,
             MethodDescription methodDescription,
-            string interfaceName
-        )
+            string interfaceName)
         {
             var interfaceMethod = methodDescription.MethodInfo;
 
@@ -186,74 +260,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
             var ilGen = methodBuilder.GetILGenerator();
 
-            this.AddVoidMethodImplementation2(ilGen,
+            this.AddVoidMethodImplementation2(
+                ilGen,
                 interfaceDescriptionId,
                 methodDescription,
                 interfaceName);
 
             ilGen.Emit(OpCodes.Ret);
-
         }
-
-        internal void AddVoidMethodImplementation2(ILGenerator ilGen, int interfaceDescriptionId,
-            MethodDescription methodDescription,
-            string interfaceName
-        )
-        {
-            var interfaceMethod = methodDescription.MethodInfo;
-
-            var parameters = interfaceMethod.GetParameters();
-
-            LocalBuilder requestBody = null;
-
-            if (parameters.Length > 0)
-            {
-                ilGen.Emit(OpCodes.Ldarg_0); // base
-                requestBody = ilGen.DeclareLocal(typeof(IServiceRemotingRequestMessageBody));
-                ilGen.Emit(OpCodes.Ldstr, interfaceName);
-                ilGen.Emit(OpCodes.Ldstr, methodDescription.Name);
-                ilGen.Emit(OpCodes.Ldc_I4, parameters.Length);
-
-                ilGen.EmitCall(OpCodes.Call, this.createMessage, null);
-                ilGen.Emit(OpCodes.Stloc, requestBody);
-
-
-                var setMethod = typeof(IServiceRemotingRequestMessageBody).GetMethod("SetParameter");
-                //Add to Dictionary
-                for (var i = 0; i < parameters.Length; i++)
-                {
-                    ilGen.Emit(OpCodes.Ldloc, requestBody);
-                    ilGen.Emit(OpCodes.Ldc_I4, i);
-                    ilGen.Emit(OpCodes.Ldstr, parameters[i].Name);
-                    ilGen.Emit(OpCodes.Ldarg, i + 1);
-                    if (!parameters[i].ParameterType.IsClass)
-                    {
-                        ilGen.Emit(OpCodes.Box, parameters[i].ParameterType);
-                    }
-                    ilGen.Emit(OpCodes.Callvirt, setMethod);
-                }
-            }
-
-            // call the base Invoke method
-            ilGen.Emit(OpCodes.Ldarg_0); // base
-            ilGen.Emit(OpCodes.Ldc_I4, interfaceDescriptionId); // interfaceId
-            ilGen.Emit(OpCodes.Ldc_I4, methodDescription.Id); // methodId
-
-
-            if (parameters.Length > 0)
-            {
-                ilGen.Emit(OpCodes.Ldloc, requestBody);
-            }
-            else
-            {
-                ilGen.Emit(OpCodes.Ldnull);
-            }
-
-            ilGen.EmitCall(OpCodes.Call, this.invokeMethodInfo, null);
-
-
-        }
-
 
         private void AddGetReturnValueMethod(
             TypeBuilder classBuilder,
@@ -272,7 +286,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             foreach (var item in interfaceDescriptions)
             {
                 var interfaceDescription = item;
-
 
                 foreach (var methodDescription in interfaceDescription.Methods)
                 {
@@ -314,8 +327,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
             var ilGen = methodBuilder.GetILGenerator();
 
-
-            //Create Dictionary
+            // Create Dictionary
             var parameterLength = parameters.Length;
             if (methodDescription.HasCancellationToken)
             {
@@ -323,7 +335,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 // as a part of the request body.
                 parameterLength = parameterLength - 1;
             }
-
 
             LocalBuilder requestMessage = null;
             if (parameters.Length > 0)
@@ -337,9 +348,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 ilGen.EmitCall(OpCodes.Call, this.createMessage, null);
                 ilGen.Emit(OpCodes.Stloc, requestMessage);
 
-
                 var setMethod = typeof(IServiceRemotingRequestMessageBody).GetMethod("SetParameter");
-                //Add to Dictionary
+
+                // Add to Dictionary
                 for (var i = 0; i < parameterLength; i++)
                 {
                     ilGen.Emit(OpCodes.Ldloc, requestMessage);
@@ -350,10 +361,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                     {
                         ilGen.Emit(OpCodes.Box, parameters[i].ParameterType);
                     }
+
                     ilGen.Emit(OpCodes.Callvirt, setMethod);
                 }
             }
-
 
             var objectTask = ilGen.DeclareLocal(typeof(Task<IServiceRemotingResponseMessageBody>));
 
@@ -388,7 +399,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.EmitCall(OpCodes.Call, this.invokeAsyncMethodInfo, null);
             ilGen.Emit(OpCodes.Stloc, objectTask);
 
-            // call the base method to get the continuation task and 
+            // call the base method to get the continuation task and
             // convert the response body to return value when the task is finished
             if ((TypeUtility.IsTaskType(methodDescription.ReturnType) &&
                  methodDescription.ReturnType.GetTypeInfo().IsGenericType))
@@ -426,7 +437,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.Emit(OpCodes.Ldc_I4, methodId);
             ilGen.Emit(OpCodes.Bne_Un_S, elseLabel);
 
-
             var castedResponseBody = ilGen.DeclareLocal(responseBodyType);
             ilGen.Emit(OpCodes.Ldarg_3); // load responseBody object
             ilGen.Emit(OpCodes.Castclass, responseBodyType); // cast it to responseBodyType
@@ -434,20 +444,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.Emit(OpCodes.Ldloc, castedResponseBody);
             ilGen.Emit(OpCodes.Ret);
         }
-
-
-        private void AddVoidMethodImplementationV1(
-            ILGenerator ilGen,
-            int interfaceId,
-            MethodDescription methodDescription,
-            MethodBodyTypes methodBodyTypes)
-        {
-
-        }
-
-        protected abstract TProxyGenerator CreateProxyGenerator(
-            Type proxyInterfaceType,
-            Type proxyActivatorType);
-
     }
 }

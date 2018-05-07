@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
             }
             catch (Exception e)
             {
-                //This can only happen if there is issue in our product code like Message Corruption or changing headers format.
+                // This can only happen if there is issue in our product code like Message Corruption or changing headers format.
                 ReleaseAssert.Failfast("DeSerialization failed  for RemotingMessageHeaders with reason {0} for the headers with length {1}", e, headers.Length);
             }
 
@@ -48,14 +48,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
             }
             catch (Exception e)
             {
-                ServiceTrace.Source.WriteInfo("FabricTransportCommunicationHandler", "Exception While dispatching {0}",
-                    e);
+                ServiceTrace.Source.WriteInfo("FabricTransportCommunicationHandler", "Exception While dispatching {0}", e);
                 var remoteExceptionInformation = RemoteExceptionInformation.FromException(e);
                 replybody = remoteExceptionInformation.Data;
                 return new FabricTransportReplyMessage(true, replybody);
             }
         }
-
 
         public void HandleOneWay(FabricTransportRequestContext requestContext, byte[] headers, byte[] requestBody)
         {

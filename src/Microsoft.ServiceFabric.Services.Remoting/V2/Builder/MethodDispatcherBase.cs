@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
@@ -17,45 +17,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     /// </summary>
     public abstract class MethodDispatcherBase : Remoting.Builder.MethodDispatcherBase
     {
-
-        internal void Initialize(InterfaceDescription description, IReadOnlyDictionary<int, string> methodMap)
-        {
-            this.SetInterfaceId(description.Id);
-            this.SetMethodNameMap(methodMap);
-        }
-
         /// <summary>
-        /// This method is used ti create the remoting response from the specified return value 
-        /// </summary>
-        /// <param name="interfaceName"></param>
-        /// <param name="methodName"></param>
-        /// <param name="remotingMessageBodyFactory"></param>
-        /// <param name="response"></param>
-        /// <returns></returns>
-        protected IServiceRemotingResponseMessageBody CreateResponseMessageBody(string interfaceName, string methodName, IServiceRemotingMessageBodyFactory remotingMessageBodyFactory, object response)
-        {
-            var msg = remotingMessageBodyFactory.CreateResponse(interfaceName, methodName);
-            msg.Set(response);
-            return msg;
-        }
-
-
-        ////Why we pass IServiceRemotingMessageBodyFactory to this function instead of 
-        /// setting at class level?. Since we cache MethodDispatcher for each interface , 
-        /// we can't set IServiceRemotingMessageBodyFactory at class level .
-        /// These can be cases where multiple IServiceRemotingMessageBodyFactory implmenetation
-        ///  but single dispatcher class .
-        /// <summary>
-        ///This method is used to dispatch request to the specified methodId of the 
+        /// Why we pass IServiceRemotingMessageBodyFactory to this function instead of
+        /// setting at class level?. Since we cache MethodDispatcher for each interface,
+        /// we can't set IServiceRemotingMessageBodyFactory at class level.
+        /// These can be cases where multiple IServiceRemotingMessageBodyFactory implmenetation but single dispatcher class.
+        /// This method is used to dispatch request to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
-        /// <param name="objectImplementation"></param>
-        /// <param name="methodId"></param>
-        /// <param name="requestBody"></param>
-        /// <param name="remotingMessageBodyFactory"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public Task<IServiceRemotingResponseMessageBody> DispatchAsync(object objectImplementation, int methodId,
+        /// <param name="objectImplementation">The object impplemented the remoted interface.</param>
+        /// <param name="methodId">Id of the method to which to dispatch the request to.</param>
+        /// <param name="requestBody">The body of the request object that needs to be dispatched to the object.</param>
+        /// <param name="remotingMessageBodyFactory">IServiceRemotingMessageBodyFactory implementaion</param>
+        /// <param name="cancellationToken">The cancellation token that will be signaled if this operation is cancelled.</param>
+        /// <returns>A task that represents the outstanding asynchronous call to the implementation object.
+        /// The return value of the task contains the returned value from the invoked method.</returns>
+        public Task<IServiceRemotingResponseMessageBody> DispatchAsync(
+            object objectImplementation,
+            int methodId,
             IServiceRemotingRequestMessageBody requestBody,
             IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
             CancellationToken cancellationToken)
@@ -73,59 +52,101 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
         /// <summary>
-        /// This method is used to dispatch one way messages to the specified methodId of the 
+        /// This method is used to dispatch one way messages to the specified methodId of the
         /// interface implemented by the remoted object.
         /// </summary>
-        /// <param name="objectImplementation"></param>
-        /// <param name="methodId"></param>
-        /// <param name="requestMessageBody"></param>
+        /// <param name="objectImplementation">The object impplemented the remoted interface.</param>
+        /// <param name="methodId">Id of the method to which to dispatch the request to.</param>
+        /// <param name="requestMessageBody">The body of the request object that needs to be dispatched to the remoting implementation.</param>
         public void Dispatch(object objectImplementation, int methodId, IServiceRemotingRequestMessageBody requestMessageBody)
         {
             this.OnDispatch(methodId, objectImplementation, requestMessageBody);
         }
 
-        /// <summary>
-        /// This method is implemented by the generated method dispatcher to dispatch request to the specified methodId of the 
-        /// interface implemented by the remoted object.
-        /// </summary>
-        protected abstract Task<IServiceRemotingResponseMessageBody> OnDispatchAsync(int methodId, object remotedObject, IServiceRemotingRequestMessageBody requestBody, IServiceRemotingMessageBodyFactory remotingMessageBodyFactory, CancellationToken cancellationToken);
+        // Needed as this class inheriting from MethodDispatcherBase
 
-        /// <summary>
-        /// This method is implemented by the generated method dispatcher to dispatch one way messages to the specified methodId of the 
-        /// interface implemented by the remoted object.
-        /// </summary>
-        /// <param name="methodId"></param>
-        /// <param name="remotedObject"></param>
-        /// <param name="requestBody"></param>
-        protected abstract void OnDispatch(int methodId, object remotedObject, IServiceRemotingRequestMessageBody requestBody);
-
-
-        //Needed as this class inheriting from MethodDispatcherBase
         /// <inheritdoc />
-        public override Task<object> DispatchAsync(object objectImplementation, int methodId, object requestBody,
+        public override Task<object> DispatchAsync(
+            object objectImplementation,
+            int methodId,
+            object requestBody,
             CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        //Needed as this class inheriting from MethodDispatcherBase
+        // Needed as this class inheriting from MethodDispatcherBase
+
         /// <inheritdoc />
         public override void Dispatch(object objectImplementation, int methodId, object messageBody)
         {
             throw new NotImplementedException();
         }
 
+        internal void Initialize(InterfaceDescription description, IReadOnlyDictionary<int, string> methodMap)
+        {
+            this.SetInterfaceId(description.Id);
+            this.SetMethodNameMap(methodMap);
+        }
+
+        /// <summary>
+        /// This method is used ti create the remoting response from the specified return value
+        /// </summary>
+        /// <param name="interfaceName">Interface Name</param>
+        /// <param name="methodName">Method Name</param>
+        /// <param name="remotingMessageBodyFactory">RemotingMessage Factory Implementation</param>
+        /// <param name="response">Remeoitng Method Response</param>
+        /// <returns>IServiceRemotingResponseMessageBody which contains remoting method response.</returns>
+        protected IServiceRemotingResponseMessageBody CreateResponseMessageBody(string interfaceName, string methodName, IServiceRemotingMessageBodyFactory remotingMessageBodyFactory, object response)
+        {
+            var msg = remotingMessageBodyFactory.CreateResponse(interfaceName, methodName);
+            msg.Set(response);
+            return msg;
+        }
+
+        /// <summary>
+        /// This method is implemented by the generated method dispatcher to dispatch request to the specified methodId of the
+        /// interface implemented by the remoted object.
+        /// </summary>
+        /// <param name="methodId">Id of the method.</param>
+        /// <param name="remotedObject">The remoted object instance.</param>
+        /// <param name="requestBody">Request body</param>
+        /// <param name="remotingMessageBodyFactory">Remoting Message Body Factory implementation needed for creating response object.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>
+        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
+        /// The result of the task is the return value from the method.
+        /// </returns>
+        protected abstract Task<IServiceRemotingResponseMessageBody> OnDispatchAsync(
+                    int methodId,
+                    object remotedObject,
+                    IServiceRemotingRequestMessageBody requestBody,
+                    IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
+                    CancellationToken cancellationToken);
+
+        /// <summary>
+        /// This method is implemented by the generated method dispatcher to dispatch one way messages to the specified methodId of the
+        /// interface implemented by the remoted object.
+        /// </summary>
+        /// <param name="methodId">Id of the method.</param>
+        /// <param name="remotedObject">The remoted object instance.</param>
+        /// <param name="requestBody">Request body</param>
+        protected abstract void OnDispatch(int methodId, object remotedObject, IServiceRemotingRequestMessageBody requestBody);
+
         /// <summary>
         /// Internal - used by Service remoting
         /// </summary>
-        /// <param name="methodName"></param>
-        /// <param name="remotingMessageBodyFactory"></param>
+        /// <typeparam name="TRetVal">Return value</typeparam>
+        /// <param name="interfaceName">Interface Name</param>
+        /// <param name="methodName">Method Name</param>
+        /// <param name="remotingMessageBodyFactory">RemotingMessage Factory Implementation</param>
         /// <param name="task">continuation task</param>
-        /// <param name="interfaceName"></param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>
-        protected Task<IServiceRemotingResponseMessageBody> ContinueWithResult<TRetVal>(string interfaceName, string methodName,
+        protected Task<IServiceRemotingResponseMessageBody> ContinueWithResult<TRetVal>(
+            string interfaceName,
+            string methodName,
             IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
             Task<TRetVal> task)
         {

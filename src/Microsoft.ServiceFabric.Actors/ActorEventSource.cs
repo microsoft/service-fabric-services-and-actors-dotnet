@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors
@@ -27,32 +27,6 @@ namespace Microsoft.ServiceFabric.Actors
         {
         }
 
-        #region Events
-        [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void InfoText(string id, string type, string message)
-        {
-            WriteEvent(1, id, type, message);
-        }
-
-        [Event(2, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
-        private void WarningText(string id, string type, string message)
-        {
-            WriteEvent(2, id, type, message);
-        }
-
-        [Event(3, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
-        private void ErrorText(string id, string type, string message)
-        {
-            WriteEvent(3, id, type, message);
-        }
-
-        [Event(4, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void NoiseText(string id, string type, string message)
-        {
-            WriteEvent(4, id, type, message);
-        }
-        #endregion
-
         #region NonEvents
 
         [NonEvent]
@@ -64,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors
         [NonEvent]
         internal void WriteErrorWithId(string type, string id, string format, params object[] args)
         {
-            if (null == args || 0 == args.Length)
+            if (args == null || args.Length == 0)
             {
                 Instance.ErrorText(id, type, format);
             }
@@ -96,13 +70,13 @@ namespace Microsoft.ServiceFabric.Actors
         [NonEvent]
         internal void WriteInfo(string type, string format, params object[] args)
         {
-            WriteInfoWithId(type, string.Empty, format, args);
+            this.WriteInfoWithId(type, string.Empty, format, args);
         }
 
         [NonEvent]
         internal void WriteInfoWithId(string type, string id, string format, params object[] args)
         {
-            if (null == args || 0 == args.Length)
+            if (args == null || args.Length == 0)
             {
                 Instance.InfoText(id, type, format);
             }
@@ -115,13 +89,13 @@ namespace Microsoft.ServiceFabric.Actors
         [NonEvent]
         internal void WriteNoise(string type, string format, params object[] args)
         {
-            WriteNoiseWithId(type, string.Empty, format, args);
+            this.WriteNoiseWithId(type, string.Empty, format, args);
         }
 
         [NonEvent]
         internal void WriteNoiseWithId(string type, string id, string format, params object[] args)
         {
-            if (null == args || 0 == args.Length)
+            if (args == null || args.Length == 0)
             {
                 Instance.NoiseText(id, type, format);
             }
@@ -131,6 +105,32 @@ namespace Microsoft.ServiceFabric.Actors
             }
         }
 
+        #endregion
+
+        #region Events
+        [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void InfoText(string id, string type, string message)
+        {
+            this.WriteEvent(1, id, type, message);
+        }
+
+        [Event(2, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
+        private void WarningText(string id, string type, string message)
+        {
+            this.WriteEvent(2, id, type, message);
+        }
+
+        [Event(3, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
+        private void ErrorText(string id, string type, string message)
+        {
+            this.WriteEvent(3, id, type, message);
+        }
+
+        [Event(4, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
+        private void NoiseText(string id, string type, string message)
+        {
+            this.WriteEvent(4, id, type, message);
+        }
         #endregion
 
         #region Keywords / Tasks / Opcodes

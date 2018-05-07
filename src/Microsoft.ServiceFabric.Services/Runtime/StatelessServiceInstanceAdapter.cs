@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Runtime
@@ -90,6 +90,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
                 throw;
             }
+
             this.userServiceInstance.Addresses = this.endpointCollection.ToReadOnlyDictionary();
 
             this.runAsynCancellationTokenSource = new CancellationTokenSource();
@@ -119,6 +120,17 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         #endregion
 
+        #region Test Hooks
+
+        internal bool Test_IsRunAsyncTaskRunning()
+        {
+            return (!this.executeRunAsyncTask.IsCompleted &&
+                    !this.executeRunAsyncTask.IsCanceled &&
+                    !this.executeRunAsyncTask.IsFaulted);
+        }
+
+        #endregion
+
         #region RunAsync Management
 
         private Task ScheduleRunAsync(CancellationToken runAsyncCancellationToken)
@@ -130,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             // current thread, then user can block the current thread and OpenAsync() call will
             // not complete.
             //
-            // Explicitly passing CancellationToken.None to Task.Run() to ensure that user's 
+            // Explicitly passing CancellationToken.None to Task.Run() to ensure that user's
             // RunAsync() does get invoked. Passing 'runAsyncCancellationToken' to Task.Run()
             // means that if 'runAsyncCancellationToken' is signaled before RunAsync() is actually
             // scheduled, awaiting 'executeRunAsyncTask' in CancelRunAsync() will throw
@@ -202,10 +214,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         /// <summary>
         /// This gets called in two cases:
-        /// 
+        ///
         /// 1) When replica is being closed.
         /// 2) When replica is being aborted.
-        /// 
+        ///
         /// </summary>
         private async Task CancelRunAsync()
         {
@@ -234,11 +246,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                         // inside this task (see method ExecuteRunAsync()). No exception is expected
                         // on awaiting this task and should be re-thrown.
                         //
-                        // When CancelRunAsync() is invoked as part of replica closing (see method 
-                        // IStatelessServiceInstance.CloseAsync) it is awaited by the caller 
+                        // When CancelRunAsync() is invoked as part of replica closing (see method
+                        // IStatelessServiceInstance.CloseAsync) it is awaited by the caller
                         // and re-thrown exception will then propagate to RA which will take
                         // appropriate actions.
-                        // 
+                        //
                         // When CancelRunAsync() is invoked as part of replica aborting, the caller does
                         // not await it and exception is ignored as replica is anyway aborting.
                         await this.serviceHelper.AwaitRunAsyncWithHealthReporting(this.servicePartition, this.executeRunAsyncTask);
@@ -383,6 +395,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                         {
                             exceptions = new List<Exception>();
                         }
+
                         exceptions.Add(e);
                     }
                 }
@@ -393,7 +406,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     // Trace the exception and continue. Do not bubble up exception as abort path
                     // should do best effort cleanup and continue. This allows other component in
                     // abort path to perform their best effort cleanup.
-
                     var aggregateException = new AggregateException(exceptions);
 
                     ServiceTrace.Source.WriteWarningWithId(
@@ -407,15 +419,5 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         #endregion
 
-        #region Test Hooks
-
-        internal bool Test_IsRunAsyncTaskRunning()
-        {
-            return (!this.executeRunAsyncTask.IsCompleted &&
-                    !this.executeRunAsyncTask.IsCanceled &&
-                    !this.executeRunAsyncTask.IsFaulted);
-        }
-
-        #endregion
     }
 }

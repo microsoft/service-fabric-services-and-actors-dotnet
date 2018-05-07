@@ -1,6 +1,6 @@
-﻿// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
@@ -26,14 +26,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// Call this method to raise ReceiveRequest event.
         /// </summary>
         /// <param name="request">The request object that is received.</param>
-        /// <param name="methodName"></param>
+        /// <param name="methodName">Method Name of the remoting method.</param>
         internal static void RaiseReceiveRequest(IServiceRemotingRequestMessage request, string methodName)
         {
             var receiveRequest = ReceiveRequest;
 
             if (receiveRequest != null)
             {
-                receiveRequest(null, // sender is null for static events.
+                receiveRequest(
+                    null, // sender is null for static events.
                     new ServiceRemotingRequestEventArgs(request, methodName));
             }
         }
@@ -49,7 +50,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
             if (sendResponse != null)
             {
-                sendResponse(null, // sender is null for static events
+                sendResponse(
+                    null, // sender is null for static events
                     new ServiceRemotingResponseEventArgs(response, request));
             }
         }
@@ -65,7 +67,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
             if (sendResponse != null)
             {
-                sendResponse(null, // sender is null for static events
+                sendResponse(
+                    null, // sender is null for static events
                     new ServiceRemotingFailedResponseEventArgs(ex, request));
             }
         }

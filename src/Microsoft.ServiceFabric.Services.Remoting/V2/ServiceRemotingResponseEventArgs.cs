@@ -1,6 +1,6 @@
-﻿// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
@@ -13,17 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     internal class ServiceRemotingResponseEventArgs : EventArgs
     {
         /// <summary>
-        /// The actual response object the the EventArgs provide.
-        /// </summary>
-        public IServiceRemotingResponseMessage Response { get; private set; }
-
-        /// <summary>
-        /// The request against which the response is generated
-        /// </summary>
-        public IServiceRemotingRequestMessage Request { get; private set; }
-        
-        /// <summary>
-        /// Creates a new object of type <see cref="ServiceRemotingResponseEventArgs"/>
+        /// Initializes a new instance of the <see cref="ServiceRemotingResponseEventArgs"/> class.
         /// </summary>
         /// <param name="response">The response object.</param>
         /// <param name="request">The corresponding request object.</param>
@@ -32,5 +22,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             this.Response = response;
             this.Request = request;
         }
+
+        /// <summary>
+        /// Gets the actual response object the the EventArgs provide.
+        /// </summary>
+        public IServiceRemotingResponseMessage Response { get; private set; }
+
+        /// <summary>
+        /// Gets the request against which the response is generated
+        /// </summary>
+        public IServiceRemotingRequestMessage Request { get; private set; }
     }
 }

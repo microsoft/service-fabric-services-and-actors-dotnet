@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Client
@@ -9,10 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
     internal class Subscriber
     {
-        public readonly ActorId ActorId;
-        public readonly int EventId;
-        public readonly object Instance;
-
         public Subscriber(ActorId actorId, int eventId, object instance)
         {
             this.ActorId = actorId;
@@ -20,11 +16,16 @@ namespace Microsoft.ServiceFabric.Actors.Client
             this.Instance = instance;
         }
 
+        public ActorId ActorId { get; }
+
+        public int EventId { get; }
+
+        public object Instance { get; }
+
         public override bool Equals(object obj)
         {
-            var other = obj as Subscriber;
             return (
-                (other != null) &&
+                (obj is Subscriber other) &&
                 (this.EventId.Equals(other.EventId)) &&
                 (this.ActorId.Equals(other.ActorId)) &&
                 (ReferenceEquals(this.Instance, other.Instance)));
@@ -37,5 +38,4 @@ namespace Microsoft.ServiceFabric.Actors.Client
             return IdUtil.HashCombine(hash, this.Instance.GetHashCode());
         }
     }
-
 }

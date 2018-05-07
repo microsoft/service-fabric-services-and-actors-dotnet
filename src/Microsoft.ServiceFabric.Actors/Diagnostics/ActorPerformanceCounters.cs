@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -159,10 +159,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             3,
                             ActorMethodExecTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorMethodCategoryName, ActorMethodExecTimeMillisecBaseCounterName),
                             "ExecutionTimeBase",
-                            new[] {"noDisplay"}),
+                            new[] { "noDisplay" }),
 
                     new FabricPerformanceCounterDefinition(
                             4,
@@ -197,11 +197,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             3,
                             ActorSaveStateTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorSaveStateTimeMillisecBaseCounterName),
                             "SaveStateTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             4,
                             5,
@@ -212,11 +211,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             5,
                             ActorRequestProcessingTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorRequestProcessingTimeMillisecBaseCounterName),
                             "MethodProcessingTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             6,
                             7,
@@ -227,11 +225,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             7,
                             ActorLockAcquireWaitTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorLockAcquireWaitTimeMillisecBaseCounterName),
                             "LockAcquireTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             8,
                             9,
@@ -242,11 +239,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             9,
                             ActorLockHoldTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorLockHoldTimeMillisecBaseCounterName),
                             "LockHoldTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             10,
                             11,
@@ -257,11 +253,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             11,
                             ActorRequestDeserializationTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorRequestDeserializationTimeMillisecBaseCounterName),
                             "RequestDeserializationTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             12,
                             13,
@@ -272,11 +267,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             13,
                             ActorResponseSerializationTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorResponseSerializationTimeMillisecBaseCounterName),
                             "ResponseSerializationTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             14,
                             15,
@@ -287,11 +281,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             15,
                             ActorOnActivateAsyncTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorOnActivateAsyncTimeMillisecBaseCounterName),
                             "OnActivateAsyncTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             16,
                             17,
@@ -302,11 +295,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     new FabricPerformanceCounterDefinition(
                             17,
                             ActorLoadStateTimeMillisecBaseCounterName,
-                            "",
+                            string.Empty,
                             GetType(ActorCategoryName, ActorLoadStateTimeMillisecBaseCounterName),
                             "LoadStateTimeBase",
-                            new[] { "noDisplay" }
-                            ),
+                            new[] { "noDisplay" }),
                     new FabricPerformanceCounterDefinition(
                             18,
                             ActorOutstandingRequestsCounterName,
@@ -314,17 +306,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                             GetType(ActorCategoryName, ActorOutstandingRequestsCounterName),
                             "NumberOfOutstandingRequests"),
                 }
-            }
+            },
         };
-
-        internal static FabricPerformanceCounterType GetType(string categoryName, string counterName)
-        {
-            return CounterTypes[Tuple.Create(categoryName, counterName)];
-        }
 
         public Dictionary<FabricPerformanceCounterSetDefinition, IEnumerable<FabricPerformanceCounterDefinition>> GetCounterSets()
         {
             return CounterSets;
+        }
+
+        internal static FabricPerformanceCounterType GetType(string categoryName, string counterName)
+        {
+            return CounterTypes[Tuple.Create(categoryName, counterName)];
         }
     }
 }

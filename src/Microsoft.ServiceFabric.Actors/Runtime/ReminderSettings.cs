@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -11,8 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public sealed class ReminderSettings
     {
         /// <summary>
-        /// Initializes a new instance of the ReminderSettings class.
-        /// 
+        /// Initializes a new instance of the <see cref="ReminderSettings"/> class.
         /// By default the <see cref="Microsoft.ServiceFabric.Actors.Runtime.ReminderSettings.AutoDeleteOneTimeReminders"/> is set to <c>true</c>.
         /// </summary>
         public ReminderSettings()
@@ -26,12 +25,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets or sets value indicating if ActorRuntime should automatically delete one-time reminders after
+        /// Gets or sets a value indicating whether ActorRuntime should automatically delete one-time reminders after
         /// they have fired and completed its callback successfully. One-time reminders refer to reminders whose
         /// <see cref="Microsoft.ServiceFabric.Actors.Runtime.IActorReminder.Period"/> is set to negative value.
         /// </summary>
         /// <remarks>
-        /// Note that a reminder is considered to completed successfully only when reminder callback 
+        /// Note that a reminder is considered to completed successfully only when reminder callback
         /// <see cref="Microsoft.ServiceFabric.Actors.Runtime.IRemindable.ReceiveReminderAsync"/> completes successfully.
         /// If a failover happens while reminder callback was executing, reminder will fire again on new primary replica.
         /// </remarks>

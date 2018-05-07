@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Client
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Services.Client
 
         /// <summary>
         /// <para>
-        /// Re-resolves a previously resolved partition of the specified service with specified back-off/retry settings 
+        /// Re-resolves a previously resolved partition of the specified service with specified back-off/retry settings
         /// on retry-able errors. This method overload is used in cases where the client knows that the resolved service partition that it has is no longer valid.
         /// </para>
         /// </summary>

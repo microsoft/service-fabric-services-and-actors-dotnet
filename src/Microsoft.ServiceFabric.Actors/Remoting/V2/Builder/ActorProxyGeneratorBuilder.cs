@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
@@ -12,11 +12,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 
     internal class ActorProxyGeneratorBuilder : ProxyGeneratorBuilder<ActorProxyGenerator, ActorProxy>
     {
-        public ActorProxyGeneratorBuilder(ICodeBuilder codeBuilder) : base(codeBuilder)
+        public ActorProxyGeneratorBuilder(ICodeBuilder codeBuilder)
+            : base(codeBuilder)
         {
         }
 
-        protected override ActorProxyGenerator CreateProxyGenerator(Type proxyInterfaceType,
+        protected override ActorProxyGenerator CreateProxyGenerator(
+            Type proxyInterfaceType,
             Type proxyActivatorType)
         {
             return new ActorProxyGenerator(

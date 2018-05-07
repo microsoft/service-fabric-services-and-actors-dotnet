@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -20,53 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private readonly int maxRetryCount;
 
         /// <summary>
-        /// Transient retriable exceptions are those where the communication channel from client
-        /// to service still exists.
-        /// Non transient retriable exceptions are those where we need to re-resolve the service endpoint
-        /// before we retry.
-        /// </summary>
-        /// <value>
-        /// true indicates that this is a transient retriable exception.
-        /// false indicates that this is a non transient retriable exception.
-        /// </value>
-        public bool IsTransient
-        {
-            get { return this.isTransient; }
-        }
-
-        /// <summary>
-        /// String that uniquely identifies the exception type.
-        /// </summary>
-        /// <value>
-        /// Unique id for this exception. 
-        /// This id is used to keep track of the number of times this exception is retried
-        /// </value>
-        public string ExceptionId
-        {
-            get { return this.exceptionId; }
-        }
-
-        /// <summary>
-        /// Maximum number of times this exception type needs to be retried before giving up.
-        /// The default value is int.MaxValue
-        /// </summary>
-        /// <value>Max retry count</value>
-        public int MaxRetryCount
-        {
-            get { return this.maxRetryCount; }
-        }
-
-        /// <summary>
-        /// The operation should be retried after this delay.
-        /// </summary>
-        /// <value>Time delay after which the operation should be retried</value>
-        public TimeSpan RetryDelay
-        {
-            get { return this.retryDelay; }
-        }
-
-        /// <summary>
-        /// Instantiates the ExceptionHandlingRetryResult using the given arguments.
+        /// Initializes a new instance of the <see cref="ExceptionHandlingRetryResult"/> class.
         /// </summary>
         /// <param name="exception">The exception that needs to be retried.</param>
         /// <param name="isTransient">
@@ -91,7 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Instantiates the ExceptionHandlingRetryResult using the given arguments.
+        /// Initializes a new instance of the <see cref="ExceptionHandlingRetryResult"/> class.
         /// </summary>
         /// <param name="exceptionId">An identifier for the exception that needs to be retried.</param>
         /// <param name="isTransient">
@@ -116,7 +70,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Instantiates the ExceptionHandlingRetryResult using the given arguments.
+        /// Initializes a new instance of the <see cref="ExceptionHandlingRetryResult"/> class.
         /// </summary>
         /// <param name="exception">The exception that needs to be retried.</param>
         /// <param name="isTransient">
@@ -146,6 +100,52 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
           OperationRetrySettings retrySettings)
             : this(exception, isTransient, retrySettings, retrySettings.DefaultMaxRetryCount)
         {
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the exception is represents a transient condition.
+        /// The transient retriable exceptions are those where the communication channel from client
+        /// to service still exists. Non transient retriable exceptions are those where we need to
+        /// re-resolve the service endpoint before we retry.
+        /// </summary>
+        /// <value>
+        /// true indicates that this is a transient retriable exception.
+        /// false indicates that this is a non transient retriable exception.
+        /// </value>
+        public bool IsTransient
+        {
+            get { return this.isTransient; }
+        }
+
+        /// <summary>
+        /// Gets string that uniquely identifies the exception type.
+        /// </summary>
+        /// <value>
+        /// Unique id for this exception.
+        /// This id is used to keep track of the number of times this exception is retried
+        /// </value>
+        public string ExceptionId
+        {
+            get { return this.exceptionId; }
+        }
+
+        /// <summary>
+        /// Gets maximum number of times this exception type needs to be retried before giving up.
+        /// The default value is int.MaxValue
+        /// </summary>
+        /// <value>Max retry count</value>
+        public int MaxRetryCount
+        {
+            get { return this.maxRetryCount; }
+        }
+
+        /// <summary>
+        /// Gets the time interval after which the operation should be retried.
+        /// </summary>
+        /// <value>Time delay after which the operation should be retried</value>
+        public TimeSpan RetryDelay
+        {
+            get { return this.retryDelay; }
         }
 
         private static TimeSpan GetRetryDelay(TimeSpan maxRetryBackoffInterval)

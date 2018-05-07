@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -17,27 +17,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ReminderSettings reminderSettings = new ReminderSettings();
 
         /// <summary>
-        /// Initializes a new instance of the ActorServiceSettings class.
+        /// Initializes a new instance of the <see cref="ActorServiceSettings"/> class.
         /// </summary>
         public ActorServiceSettings()
         {
-        }
-
-        internal static ActorServiceSettings DeepCopyFromOrDefaultOnNull(ActorServiceSettings other)
-        {
-            var actorServiceSettings = new ActorServiceSettings();
-
-            if (other == null)
-            {
-                return actorServiceSettings;
-            }
-
-            // deep copy settings.
-            actorServiceSettings.actorGarbageCollectionSettings = new ActorGarbageCollectionSettings(other.actorGarbageCollectionSettings);
-            actorServiceSettings.actorConcurrencySettings = new ActorConcurrencySettings(other.actorConcurrencySettings);
-            actorServiceSettings.reminderSettings = new ReminderSettings(other.reminderSettings);
-
-            return actorServiceSettings;
         }
 
         /// <summary>
@@ -46,7 +29,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.ActorGarbageCollectionSettings"/> for the Actor Service.</value>
         public ActorGarbageCollectionSettings ActorGarbageCollectionSettings
         {
-            get { return this.actorGarbageCollectionSettings; }
+            get
+            {
+                return this.actorGarbageCollectionSettings;
+            }
 
             set
             {
@@ -65,7 +51,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.ActorConcurrencySettings"/> for the Actor Service.</value>
         public ActorConcurrencySettings ActorConcurrencySettings
         {
-            get { return this.actorConcurrencySettings; }
+            get
+            {
+                return this.actorConcurrencySettings;
+            }
 
             set
             {
@@ -84,7 +73,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.ReminderSettings"/> for the Actor Service.</value>
         public ReminderSettings ReminderSettings
         {
-            get { return this.reminderSettings; }
+            get
+            {
+                return this.reminderSettings;
+            }
 
             set
             {
@@ -95,6 +87,23 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 this.reminderSettings = value;
             }
+        }
+
+        internal static ActorServiceSettings DeepCopyFromOrDefaultOnNull(ActorServiceSettings other)
+        {
+            var actorServiceSettings = new ActorServiceSettings();
+
+            if (other == null)
+            {
+                return actorServiceSettings;
+            }
+
+            // deep copy settings.
+            actorServiceSettings.actorGarbageCollectionSettings = new ActorGarbageCollectionSettings(other.actorGarbageCollectionSettings);
+            actorServiceSettings.actorConcurrencySettings = new ActorConcurrencySettings(other.actorConcurrencySettings);
+            actorServiceSettings.reminderSettings = new ReminderSettings(other.reminderSettings);
+
+            return actorServiceSettings;
         }
     }
 }

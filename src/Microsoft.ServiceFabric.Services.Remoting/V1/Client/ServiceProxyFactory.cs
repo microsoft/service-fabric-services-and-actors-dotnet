@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
-// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
@@ -19,10 +19,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
     {
         private readonly object thisLock;
         private readonly Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory> createServiceRemotingClientFactory;
-        private volatile IServiceRemotingClientFactory remotingClientFactory;
         private readonly OperationRetrySettings retrySettings;
+        private volatile IServiceRemotingClientFactory remotingClientFactory;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class.
         /// Instantiates the ServiceProxyFactory with the specified remoting factory and retrysettings.
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">
@@ -41,7 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
         }
 
         /// <summary>
-        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that 
+        /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
         /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
@@ -57,7 +58,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             Uri serviceUri,
             ServicePartitionKey partitionKey = null,
             TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default,
-            string listenerName = null) where TServiceInterface : IService
+            string listenerName = null)
+            where TServiceInterface : IService
         {
             var serviceInterfaceType = typeof(TServiceInterface);
             var proxyGenerator = ServiceCodeBuilder.GetOrCreateProxyGenerator(serviceInterfaceType);
@@ -70,19 +72,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
                 this.retrySettings);
 
             return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient);
-        }
-
-        private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type serviceInterfaceType)
-        {
-            var callbackClient = new DummyServiceRemotingCallbackClient();
-
-            var factory = this.CreateServiceRemotingClientFactory(callbackClient);
-            if (factory == null)
-            {
-                throw new NotSupportedException("ClientFactory cannot be null");
-            }
-
-            return factory;
         }
 
         /// <summary>
@@ -99,6 +88,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             }
 
             return null;
+        }
+
+        private IServiceRemotingClientFactory CreateServiceRemotingClientFactory(Type serviceInterfaceType)
+        {
+            var callbackClient = new DummyServiceRemotingCallbackClient();
+
+            var factory = this.CreateServiceRemotingClientFactory(callbackClient);
+            if (factory == null)
+            {
+                throw new NotSupportedException("ClientFactory cannot be null");
+            }
+
+            return factory;
         }
 
         private IServiceRemotingClientFactory GetOrCreateServiceRemotingClientFactory(Type serviceInterfaceType)
