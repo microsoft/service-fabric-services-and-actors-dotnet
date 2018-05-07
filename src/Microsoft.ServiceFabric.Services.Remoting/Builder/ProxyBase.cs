@@ -59,12 +59,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             this.ServiceRemotingMessageBodyFactory = serviceRemotingMessageBodyFactory;
         }
 
-        internal abstract Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
-            int interfaceId,
-            int methodId,
-            IServiceRemotingRequestMessageBody requestMsgBodyValue,
-            CancellationToken cancellationToken);
-
         internal abstract void InvokeImplV2(
             int interfaceId,
             int methodId,

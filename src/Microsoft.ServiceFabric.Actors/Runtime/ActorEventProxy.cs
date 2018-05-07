@@ -37,17 +37,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.subscriberProxiesV2 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
         }
 
-        // V2 Stack Api
-        internal override Task<IServiceRemotingResponseMessage> InvokeAsyncImplV2(
-            int interfaceId,
-            int methodId,
-            IServiceRemotingRequestMessageBody requestMsgBodyValue,
-            CancellationToken cancellationToken)
-        {
-            // async methods are not supported for actor event interface
-            throw new NotImplementedException();
-        }
-
         internal override void InvokeImplV2(
             int interfaceId,
             int methodId,
