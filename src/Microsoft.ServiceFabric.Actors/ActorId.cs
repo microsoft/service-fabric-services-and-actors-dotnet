@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors
     using System.Globalization;
     using System.Runtime.Serialization;
     using System.Text;
+    using Microsoft.ServiceFabric.Services;
 
     /// <summary>
     /// The ActorId represents the identity of an actor within an actor service. This is used to identify the partition of the actor service inside which the actor will run, see <see cref="GetPartitionKey"/>
