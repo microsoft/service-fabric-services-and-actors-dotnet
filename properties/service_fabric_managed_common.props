@@ -40,16 +40,12 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   
-  <!-- Set Version numbers. These are used for generating Assemblies and Nuget packages. -->
+  <!-- Set Version numbers. These are used for generating Assemblies. -->
   <PropertyGroup>
-    <MajorVersion>3</MajorVersion>
-    <MinorVersion>1</MinorVersion>
-    <BuildVersion>0</BuildVersion>
-    <Revision>0</Revision>
-
+    <AssemblyVersion>6.0.0.0</AssemblyVersion>
     <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</Version>
-    <AssemblyVersion>$(Version)</AssemblyVersion>
-    <AssemblyFileVersion>$(Version)</AssemblyFileVersion>
+    <AssemblyFileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</AssemblyFileVersion>
+    <FileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -59,8 +55,4 @@
     <Authors>Microsoft</Authors>
   </PropertyGroup>
   
-  <!-- Setting Paths -->
-  <PropertyGroup>
-    <SrcRoot>$(MSBuildThisFileDirectory)..\</SrcRoot>
-  </PropertyGroup>
 </Project>

@@ -20,7 +20,7 @@
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
         <TargetPath>lib\net45</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.Remoting.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>ref\netstandard2.0</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.Remoting.dll">
@@ -35,23 +35,20 @@
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>runtimes\win\lib\net471</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.Remoting.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>runtimes\win\lib\netstandard2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_linux)Microsoft.ServiceFabric.Services.Remoting.dll">
+      <File Include="$(DropFolderNetStandard_Linux)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>runtimes\linux\lib\netstandard2.0</TargetPath>
       </File>
     </ItemGroup>
     
     <ItemGroup>
       <Dependency Include="Microsoft.ServiceFabric.Services">
-        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+        <Version>[$(NuGetPackageVersion)]</Version>
       </Dependency>
       <Dependency Include="Microsoft.ServiceFabric.FabricTransport.Internal">
-        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
-      </Dependency>
-      <Dependency Include="Microsoft.ServiceFabric.Diagnostics.Internal">
-        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
+        <Version>[$(NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal)]</Version>
       </Dependency>
     </ItemGroup>
   </Project>

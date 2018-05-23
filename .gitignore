@@ -1,6 +1,6 @@
 
 # Everything in the external/packages directory as nuget packages are restored here.
-/external/packages/*
+/nuget/restored_packages/*
 
 # Build generated files in src
 /src/**/objd/**/*

@@ -24,10 +24,10 @@
     
     <ItemGroup>
       <Dependency Include="Microsoft.ServiceFabric.Actors">
-        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+        <Version>[$(NuGetPackageVersion)]</Version>
       </Dependency>
       <Dependency Include="Microsoft.ServiceFabric.Services.Wcf">
-        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+        <Version>[$(NuGetPackageVersion)]</Version>
       </Dependency>
     </ItemGroup>
   </Project>

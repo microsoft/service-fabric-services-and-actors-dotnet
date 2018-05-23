@@ -20,7 +20,7 @@
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.xml">
         <TargetPath>lib\net45</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>ref\netstandard2.0</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
@@ -35,20 +35,20 @@
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>runtimes\win\lib\net471</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>runtimes\win\lib\netstandard2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_linux)Microsoft.ServiceFabric.Services.dll">
+      <File Include="$(DropFolderNetStandard_Linux)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>runtimes\linux\lib\netstandard2.0</TargetPath>
       </File>
     </ItemGroup>
     
     <ItemGroup>
       <Dependency Include="Microsoft.ServiceFabric.Data">
-        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
+        <Version>[$(NugetPkg_Version_Microsoft_ServiceFabric_Data)]</Version>
       </Dependency>
       <Dependency Include="Microsoft.ServiceFabric.Diagnostics.Internal">
-        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
+        <Version>[$(NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal)]</Version>
       </Dependency>
     </ItemGroup>
   </Project>

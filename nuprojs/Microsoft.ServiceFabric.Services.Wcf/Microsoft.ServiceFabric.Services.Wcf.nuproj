@@ -23,11 +23,8 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Dependency Include="Microsoft.ServiceFabric.Services">
-        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
-      </Dependency>
       <Dependency Include="Microsoft.ServiceFabric.Services.Remoting">
-        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
+        <Version>[$(NuGetPackageVersion)]</Version>
       </Dependency>
     </ItemGroup>
   </Project>

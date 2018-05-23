@@ -2,7 +2,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Set Paths -->
   <PropertyGroup>
-    <RepoRoot>$(MSBuildThisFileDirectory)..\</RepoRoot>
+    <!-- Set RepoRoot -->
+    <RepoRoot>$([System.String]::Copy('$(MSBuildThisFileDirectory)').Replace('properties\',''))</RepoRoot>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">minimal</RequestedVerbosity>
     
     <!-- Set Output Paths-->
@@ -13,12 +14,27 @@
     <!-- Set Drop folders -->
     <DropFolder>$(RepoRoot)drop\$(Configuration)\</DropFolder>
     <DropFolderNetFramework>$(RepoRoot)drop\$(Configuration)\netframework\</DropFolderNetFramework>
-    <DropFolderNetCore>$(RepoRoot)drop\$(Configuration)\netcore\</DropFolderNetCore>
-    <DropFolderNetCore_win>$(DropFolderNetCore)win\</DropFolderNetCore_win>
-    <DropFolderNetCore_linux>$(DropFolderNetCore)linux\</DropFolderNetCore_linux>
+    <DropFolderNetStandard>$(RepoRoot)drop\$(Configuration)\netstandard\</DropFolderNetStandard>
+    <DropFolderNetStandard_Win>$(DropFolderNetStandard)win\</DropFolderNetStandard_Win>
+    <DropFolderNetStandard_Linux>$(DropFolderNetStandard)linux\</DropFolderNetStandard_Linux>
     <NugetPackageDropFolder>$(DropFolder)\packages</NugetPackageDropFolder>
-    
+
     <!-- Set Nuget exe path -->
-    <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(RepoRoot)\external\nuget.exe</NuGetExePath>
+    <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(RepoRoot)\nuget\nuget.exe</NuGetExePath>
+
+    <!-- Set Versions. These are used for generating Assemblies and Nuget packages. -->
+    <!-- Versions used for Microsoft.ServiceFabric.* nuget packages from other repos.-->
+    <NugetPkg_Version_Microsoft_ServiceFabric>6.2.274</NugetPkg_Version_Microsoft_ServiceFabric>
+    <NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>3.1.274</NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>
+    <NugetPkg_Version_Microsoft_ServiceFabric_Data>3.1.274</NugetPkg_Version_Microsoft_ServiceFabric_Data>
+    <NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>3.1.274</NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>
+
+    <!-- Version for binaries, nuget packages generated from this repo. -->
+    <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
+    <MajorVersion>3</MajorVersion>
+    <MinorVersion>1</MinorVersion>
+    <BuildVersion>0</BuildVersion>
+    <Revision>0</Revision>
+
   </PropertyGroup>
 </Project>
