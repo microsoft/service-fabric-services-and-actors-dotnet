@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Runtime.Serialization;
     using System.Xml;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
@@ -44,17 +45,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// </summary>
         /// <param name="serviceInterfaceType">The remoted service interface.</param>
         /// <param name="methodParameterTypes">The union of parameter types of all of the methods of the specified interface.</param>
+        /// <param name="wrappedMessageTypes">Wrapped Request Types for all Methods</param>
         /// <returns>
         /// An instance of the <see cref="IServiceRemotingRequestMessageBodySerializer" /> that can serialize the service
         /// remoting request message body to a messaging body for transferring over the transport.
         /// </returns>
         public IServiceRemotingRequestMessageBodySerializer CreateRequestMessageSerializer(
             Type serviceInterfaceType,
-            IEnumerable<Type> methodParameterTypes)
+            IEnumerable<Type> methodParameterTypes,
+            IEnumerable<Type> wrappedMessageTypes = null)
         {
-            return new ServiceRemotingRequestMessageBodySerializer(
-                this.bodyBufferPoolManager,
-                methodParameterTypes);
+            DataContractSerializer serializer = this.CreateRemotingRequestMessageBodyDataContractSerializer(
+                    typeof(ServiceRemotingRequestMessageBody),
+                    methodParameterTypes);
+
+            return this
+                .CreateRemotingRequestMessageSerializer<ServiceRemotingRequestMessageBody,
+                    ServiceRemotingResponseMessageBody>(serializer);
         }
 
         /// <summary>
@@ -62,17 +69,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// </summary>
         /// <param name="serviceInterfaceType">The remoted service interface.</param>
         /// <param name="methodReturnTypes">The return types of all of the methods of the specified interface.</param>
+        /// <param name="wrappedMessageTypes">Wrapped Response Types for all remoting methods</param>
         /// <returns>
         /// An instance of the <see cref="IServiceRemotingResponseMessageBodySerializer" /> that can serialize the service
         /// remoting response message body to a messaging body for transferring over the transport.
         /// </returns>
         public IServiceRemotingResponseMessageBodySerializer CreateResponseMessageSerializer(
             Type serviceInterfaceType,
-            IEnumerable<Type> methodReturnTypes)
+            IEnumerable<Type> methodReturnTypes,
+            IEnumerable<Type> wrappedMessageTypes = null)
         {
-            return new ServiceRemotingResponseMessageBodySerializer(
-                this.bodyBufferPoolManager,
-                methodReturnTypes);
+            DataContractSerializer serializer =
+                this.CreateRemotingRequestMessageBodyDataContractSerializer(
+                    typeof(ServiceRemotingResponseMessageBody),
+                    methodReturnTypes);
+
+            return this
+                .CreateRemotingResponseMessageSerializer<ServiceRemotingRequestMessageBody,
+                    ServiceRemotingResponseMessageBody>(serializer);
         }
 
         /// <summary>
@@ -87,110 +101,231 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             return new DataContractRemotingMessageFactory();
         }
 
-        internal class ServiceRemotingRequestMessageBodySerializer : IServiceRemotingRequestMessageBodySerializer
+        internal IServiceRemotingRequestMessageBodySerializer CreateRemotingRequestMessageSerializer<TRequest, TResponse>(
+         DataContractSerializer serializer)
+           where TRequest : IServiceRemotingRequestMessageBody
+           where TResponse : IServiceRemotingResponseMessageBody
         {
-            private readonly IBufferPoolManager bufferPoolManager;
-            private readonly DataContractSerializer serializer;
-
-            public ServiceRemotingRequestMessageBodySerializer(
-                IBufferPoolManager bufferPoolManager,
-                IEnumerable<Type> parameterInfo)
+            if (this.bodyBufferPoolManager != null)
             {
-                this.bufferPoolManager = bufferPoolManager;
-                this.serializer = new DataContractSerializer(
-                    typeof(ServiceRemotingRequestMessageBody),
-                    new DataContractSerializerSettings()
-                    {
-                        MaxItemsInObjectGraph = int.MaxValue,
-                        KnownTypes = parameterInfo,
-                    });
+                return new PooledBufferMessageBodySerializer<TRequest,
+                    TResponse>(
+                    this,
+                    this.bodyBufferPoolManager,
+                    serializer);
             }
 
-            public IOutgoingMessageBody Serialize(IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
+            return new MemoryStreamMessageBodySerializer(this, serializer);
+        }
+
+        internal IServiceRemotingResponseMessageBodySerializer CreateRemotingResponseMessageSerializer<TRequest, TResponse>(
+          DataContractSerializer serializer)
+            where TRequest : IServiceRemotingRequestMessageBody
+            where TResponse : IServiceRemotingResponseMessageBody
+        {
+            if (this.bodyBufferPoolManager != null)
+            {
+                return new PooledBufferMessageBodySerializer<TRequest,
+                    TResponse>(
+                    this,
+                    this.bodyBufferPoolManager,
+                    serializer);
+            }
+
+            return new MemoryStreamMessageBodySerializer(this, serializer);
+        }
+
+        /// <summary>
+        ///     Gets the settings used to create DataContractSerializer for serializing and de-serializing request message body.
+        /// </summary>
+        /// <param name="remotingRequestType">Remoting RequestMessageBody Type</param>
+        /// <param name="knownTypes">The return types of all of the methods of the specified interface.</param>
+        /// <returns><see cref="DataContractSerializerSettings" /> for serializing and de-serializing request message body.</returns>
+        protected internal virtual DataContractSerializer CreateRemotingRequestMessageBodyDataContractSerializer(
+            Type remotingRequestType,
+            IEnumerable<Type> knownTypes)
+        {
+            return new DataContractSerializer(
+                remotingRequestType,
+                new DataContractSerializerSettings()
+                {
+                    MaxItemsInObjectGraph = int.MaxValue,
+                    KnownTypes = knownTypes,
+                });
+        }
+
+        /// <summary>
+        ///     Gets the settings used to create DataContractSerializer for serializing and de-serializing request message body.
+        /// </summary>
+        /// <param name="remotingResponseType">Remoting ResponseMessage Type</param>
+        /// <param name="knownTypes">The return types of all of the methods of the specified interface.</param>
+        /// <returns><see cref="DataContractSerializerSettings" /> for serializing and de-serializing request message body.</returns>
+        protected internal virtual DataContractSerializer CreateRemotingResponseMessageBodyDataContractSerializer(
+            Type remotingResponseType,
+            IEnumerable<Type> knownTypes)
+        {
+            return new DataContractSerializer(
+                remotingResponseType,
+                new DataContractSerializerSettings()
+                {
+                    MaxItemsInObjectGraph = int.MaxValue,
+                    KnownTypes = knownTypes,
+                });
+        }
+
+        /// <summary>
+        ///     Create the writer to write to the stream. Use this method to customize how the serialized contents are written to
+        ///     the stream.
+        /// </summary>
+        /// <param name="outputStream">The stream on which to write the serialized contents.</param>
+        /// <returns>
+        ///     An <see cref="System.Xml.XmlDictionaryWriter" /> using which the serializer will write the object on the
+        ///     stream.
+        /// </returns>
+        protected internal virtual XmlDictionaryWriter CreateXmlDictionaryWriter(Stream outputStream)
+        {
+            return XmlDictionaryWriter.CreateBinaryWriter(outputStream);
+        }
+
+        /// <summary>
+        ///     Create the reader to read from the input stream. Use this method to customize how the serialized contents are read
+        ///     from the stream.
+        /// </summary>
+        /// <param name="inputStream">The stream from which to read the serialized contents.</param>
+        /// <returns>
+        ///     An <see cref="System.Xml.XmlDictionaryReader" /> using which the serializer will read the object from the
+        ///     stream.
+        /// </returns>
+        protected internal virtual XmlDictionaryReader CreateXmlDictionaryReader(Stream inputStream)
+        {
+            return XmlDictionaryReader.CreateBinaryReader(inputStream, XmlDictionaryReaderQuotas.Max);
+        }
+
+        /// <summary>
+        ///     Default serializer for service remoting request and response message body that uses the
+        ///     memory stream to create outgoing message buffers.
+        /// </summary>
+        private class MemoryStreamMessageBodySerializer :
+            IServiceRemotingRequestMessageBodySerializer,
+            IServiceRemotingResponseMessageBodySerializer
+        {
+            private readonly ServiceRemotingDataContractSerializationProvider serializationProvider;
+            private readonly DataContractSerializer serializer;
+
+            public MemoryStreamMessageBodySerializer(
+                ServiceRemotingDataContractSerializationProvider serializationProvider,
+                DataContractSerializer serializer)
+            {
+                this.serializationProvider = serializationProvider;
+                this.serializer = serializer;
+            }
+
+            IOutgoingMessageBody IServiceRemotingRequestMessageBodySerializer.Serialize(
+                IServiceRemotingRequestMessageBody serviceRemotingRequestMessageBody)
             {
                 if (serviceRemotingRequestMessageBody == null)
                 {
                     return null;
                 }
 
-                using (var stream = new SegmentedPoolMemoryStream(this.bufferPoolManager))
+                using (var stream = new MemoryStream())
                 {
-                    using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
+                    using (var writer = this.CreateXmlDictionaryWriter(stream))
                     {
                         this.serializer.WriteObject(writer, serviceRemotingRequestMessageBody);
                         writer.Flush();
-                        return new OutgoingMessageBody(stream.GetBuffers());
+                        return new OutgoingMessageBody(
+                            new[]
+                                {
+                                    new ArraySegment<byte>(stream.ToArray()),
+                                });
                     }
                 }
             }
 
-            public IServiceRemotingRequestMessageBody Deserialize(IIncomingMessageBody messageBody)
+            IServiceRemotingRequestMessageBody IServiceRemotingRequestMessageBodySerializer.Deserialize(
+                IIncomingMessageBody messageBody)
             {
                 if (messageBody == null || messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0)
                 {
                     return null;
                 }
 
-                // Binary Reader Dispose also call stream dispose. Hence no need to call stream dispose.
-                using (var reader = XmlDictionaryReader.CreateBinaryReader(
-                    messageBody.GetReceivedBuffer(),
-                    XmlDictionaryReaderQuotas.Max))
+                using (var stream = new DisposableStream(messageBody.GetReceivedBuffer()))
                 {
-                    return (ServiceRemotingRequestMessageBody)this.serializer.ReadObject(reader);
+                    using (var reader = this.CreateXmlDictionaryReader(stream))
+                    {
+                        return (ServiceRemotingRequestMessageBody)this.serializer.ReadObject(reader);
+                    }
                 }
             }
-        }
 
-        internal class ServiceRemotingResponseMessageBodySerializer : IServiceRemotingResponseMessageBodySerializer
-        {
-            private readonly IBufferPoolManager bufferPoolManager;
-            private readonly DataContractSerializer serializer;
-
-            public ServiceRemotingResponseMessageBodySerializer(
-                IBufferPoolManager bufferPoolManager,
-                IEnumerable<Type> parameterInfo)
-            {
-                this.bufferPoolManager = bufferPoolManager;
-                this.serializer = new DataContractSerializer(
-                    typeof(ServiceRemotingResponseMessageBody),
-                    new DataContractSerializerSettings()
-                    {
-                        MaxItemsInObjectGraph = int.MaxValue,
-                        KnownTypes = parameterInfo,
-                    });
-            }
-
-            public IOutgoingMessageBody Serialize(IServiceRemotingResponseMessageBody serviceRemotingResponseMessageBody)
+            IOutgoingMessageBody IServiceRemotingResponseMessageBodySerializer.Serialize(
+                IServiceRemotingResponseMessageBody serviceRemotingResponseMessageBody)
             {
                 if (serviceRemotingResponseMessageBody == null)
                 {
                     return null;
                 }
 
-                using (var stream = new SegmentedPoolMemoryStream(this.bufferPoolManager))
+                using (var stream = new MemoryStream())
                 {
-                    using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
+                    using (var writer = this.CreateXmlDictionaryWriter(stream))
                     {
                         this.serializer.WriteObject(writer, serviceRemotingResponseMessageBody);
                         writer.Flush();
-                        return new OutgoingMessageBody(stream.GetBuffers());
+                        return new OutgoingMessageBody(
+                            new[]
+                                {
+                                    new ArraySegment<byte>(stream.ToArray()),
+                                });
                     }
                 }
             }
 
-            public IServiceRemotingResponseMessageBody Deserialize(IIncomingMessageBody messageBody)
+            IServiceRemotingResponseMessageBody IServiceRemotingResponseMessageBodySerializer.Deserialize(
+                IIncomingMessageBody messageBody)
             {
-                if (messageBody == null || messageBody.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0)
+                if (messageBody?.GetReceivedBuffer() == null || messageBody.GetReceivedBuffer().Length == 0)
                 {
                     return null;
                 }
 
-                using (var reader = XmlDictionaryReader.CreateBinaryReader(
-                    messageBody.GetReceivedBuffer(),
-                    XmlDictionaryReaderQuotas.Max))
+                using (var stream = new DisposableStream(messageBody.GetReceivedBuffer()))
                 {
-                    return (ServiceRemotingResponseMessageBody)this.serializer.ReadObject(reader);
+                    using (var reader = this.CreateXmlDictionaryReader(stream))
+                    {
+                        return (ServiceRemotingResponseMessageBody)this.serializer.ReadObject(reader);
+                    }
                 }
+            }
+
+            /// <summary>
+            ///     Create the writer to write to the stream. Use this method to customize how the serialized contents are written to
+            ///     the stream.
+            /// </summary>
+            /// <param name="outputStream">The stream on which to write the serialized contents.</param>
+            /// <returns>
+            ///     An <see cref="System.Xml.XmlDictionaryWriter" /> using which the serializer will write the object on the
+            ///     stream.
+            /// </returns>
+            private XmlDictionaryWriter CreateXmlDictionaryWriter(Stream outputStream)
+            {
+                return this.serializationProvider.CreateXmlDictionaryWriter(outputStream);
+            }
+
+            /// <summary>
+            ///     Create the reader to read from the input stream. Use this method to customize how the serialized contents are read
+            ///     from the stream.
+            /// </summary>
+            /// <param name="inputStream">The stream from which to read the serialized contents.</param>
+            /// <returns>
+            ///     An <see cref="System.Xml.XmlDictionaryReader" /> using which the serializer will read the object from the
+            ///     stream.
+            /// </returns>
+            private XmlDictionaryReader CreateXmlDictionaryReader(Stream inputStream)
+            {
+                return this.serializationProvider.CreateXmlDictionaryReader(inputStream);
             }
         }
     }

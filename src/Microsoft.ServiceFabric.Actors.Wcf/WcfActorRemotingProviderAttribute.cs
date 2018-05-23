@@ -6,7 +6,9 @@
 namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.ServiceFabric.Actors.Client;
+    using Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -95,22 +97,24 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         /// <summary>
         ///     Creates a V2 service remoting listener for remoting the actor interfaces.
         /// </summary>
-        /// <param name="actorService">
-        ///     The implementation of the actor service that hosts the actors whose interfaces
-        ///     needs to be remoted.
-        /// </param>
         /// <returns>
         ///     An <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
-        public override IServiceRemotingListener CreateServiceRemotingListenerV2(ActorService actorService)
+        public override Dictionary<string, Func<ActorService, IServiceRemotingListener>> CreateServiceRemotingListeners()
         {
-            return new Actors.Remoting.V2.Wcf.Runtime.WcfActorServiceRemotingListener(
-                actorService,
-                WcfUtility.CreateTcpListenerBinding(
-                    maxMessageSize: this.GetMaxMessageSize(),
-                    openTimeout: this.GetOpenTimeout(),
-                    closeTimeout: this.GetCloseTimeout()));
+            var listeners = new Dictionary<string, Func<ActorService, IServiceRemotingListener>>();
+            listeners.Add(Microsoft.ServiceFabric.Services.Remoting.ServiceRemotingProviderAttribute.DefaultV2listenerName, (
+                actorService) =>
+            {
+                return new Actors.Remoting.V2.Wcf.Runtime.WcfActorServiceRemotingListener(
+                    actorService,
+                    WcfUtility.CreateTcpListenerBinding(
+                        maxMessageSize: this.GetMaxMessageSize(),
+                        openTimeout: this.GetOpenTimeout(),
+                        closeTimeout: this.GetCloseTimeout()));
+            });
+            return listeners;
         }
 
         /// <summary>
@@ -120,12 +124,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         ///     Client implementation where the callbacks should be dispatched.
         /// </param>
         /// <returns>
-        ///     A <see cref="Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client.WcfActorRemotingClientFactory"/>
+        ///     A <see cref="WcfActorRemotingClientFactory"/>
         ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>
         ///     that can be used with <see cref="ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
-        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {
             return new Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client.WcfActorRemotingClientFactory(

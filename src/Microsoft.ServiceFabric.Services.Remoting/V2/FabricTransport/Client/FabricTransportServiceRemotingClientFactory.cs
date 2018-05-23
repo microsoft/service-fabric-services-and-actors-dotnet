@@ -196,6 +196,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             return this.remotingMessageBodyFactory;
         }
 
+        /// <summary>
+        /// Releases managed/unmanaged resources.
+        /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
+        /// </summary>
+        public void Dispose()
+        {
+            this.clientFactoryImpl.Dispose();
+        }
+
         private void Initialize(
             FabricTransportRemotingSettings remotingSettings,
             IServiceRemotingCallbackMessageHandler remotingCallbackMessageHandler,
@@ -214,7 +223,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
             var serializersManager = new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
-                headerSerializer);
+                headerSerializer,
+                remotingSettings.UseWrappedMessage);
 
             this.Initialize(
                 remotingSettings,

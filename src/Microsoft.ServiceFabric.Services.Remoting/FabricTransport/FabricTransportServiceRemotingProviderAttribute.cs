@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 {
     using System;
+    using System.Collections.Generic;
     using System.Fabric;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -14,6 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.V2;
 #endif
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
@@ -128,27 +130,44 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <summary>
         ///     Creates a V2 service remoting listener for remoting the service interface.
         /// </summary>
-        /// <param name="serviceContext">
-        ///     The context of the service for which the remoting listener is being constructed.
-        /// </param>
-        /// <param name="serviceImplementation">
-        ///     The service implementation object.
-        /// </param>
         /// <returns>
         ///     A <see cref="V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener"/>
         ///     as <see cref="IServiceRemotingListener"/>
         ///     for the specified service implementation.
         /// </returns>
-        public override IServiceRemotingListener CreateServiceRemotingListenerV2(ServiceContext serviceContext, IService serviceImplementation)
+        public override Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>
+            CreateServiceRemotingListeners()
         {
-            var settings = FabricTransportRemotingListenerSettings.GetDefault();
-            settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
-            settings.OperationTimeout = this.GetAndValidateOperationTimeout(settings.OperationTimeout);
-            settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
-            return new V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener(
-                serviceContext: serviceContext,
-                serviceImplementation: serviceImplementation,
-                remotingListenerSettings: settings);
+            var dic = new Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>();
+
+            if ((Helper.IsRemotingV2(this.RemotingListenerVersion)))
+            {
+                dic.Add(ServiceRemotingProviderAttribute.DefaultV2listenerName, (serviceContext, serviceImplementation)
+                    =>
+                {
+                    var listenerSettings = this.GetListenerSettings(serviceContext);
+                    return new V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener(
+                        serviceContext: serviceContext,
+                        serviceImplementation: serviceImplementation,
+                        remotingListenerSettings: listenerSettings);
+                });
+            }
+
+            if (Helper.IsRemotingV2_1(this.RemotingListenerVersion))
+            {
+                dic.Add(ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName, (
+                    serviceContext, serviceImplementation) =>
+                {
+                    var listenerSettings = this.GetListenerSettings(serviceContext);
+                    listenerSettings.UseWrappedMessage = true;
+                    return new V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener(
+                        serviceContext,
+                        serviceImplementation,
+                        listenerSettings);
+                });
+            }
+
+            return dic;
         }
 
         /// <summary>
@@ -171,9 +190,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             settings.OperationTimeout = this.GetAndValidateOperationTimeout(settings.OperationTimeout);
             settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
             settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
+            if (Helper.IsRemotingV2_1(this.RemotingClientVersion))
+            {
+                settings.UseWrappedMessage = true;
+            }
+
             return new V2.FabricTransport.Client.FabricTransportServiceRemotingClientFactory(
                 remotingSettings: settings,
                 remotingCallbackMessageHandler: callbackMessageHandler);
+        }
+
+        internal FabricTransportRemotingListenerSettings GetListenerSettings(ServiceContext serviceContext)
+        {
+            var settings = FabricTransportRemotingListenerSettings.GetDefault();
+            settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
+            settings.OperationTimeout = this.GetAndValidateOperationTimeout(settings.OperationTimeout);
+            settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
+            return settings;
         }
 
         private long GetAndValidateMaxMessageSize(long maxMessageSize)

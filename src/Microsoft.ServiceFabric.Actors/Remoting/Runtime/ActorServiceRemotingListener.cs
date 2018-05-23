@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
@@ -21,9 +22,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
             types.AddRange(actorService.ActorTypeInformation.InterfaceTypes);
 
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
-            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
-                return provider.CreateServiceRemotingListenerV2(actorService);
+                return provider.CreateServiceRemotingListeners().ElementAt(0).Value(actorService);
             }
 
             return provider.CreateServiceRemotingListener(actorService);

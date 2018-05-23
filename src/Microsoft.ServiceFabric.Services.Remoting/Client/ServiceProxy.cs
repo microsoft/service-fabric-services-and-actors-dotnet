@@ -167,6 +167,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             {
                 InterfaceId = interfaceId,
                 MethodId = methodId,
+                MethodName = methodName,
             };
             return this.partitionClientV2.InvokeAsync(
                 new ServiceRemotingRequestMessage(headers, requestMsgBodyValue),

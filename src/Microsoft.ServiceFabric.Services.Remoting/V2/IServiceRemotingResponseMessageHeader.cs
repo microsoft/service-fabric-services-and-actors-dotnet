@@ -25,5 +25,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <param name="headerValue">The header value.</param>
         /// <returns>true if a header with that name exists; otherwise, false.</returns>
         bool TryGetHeaderValue(string headerName, out byte[] headerValue);
+
+        /// <summary>
+        /// Return true if no header exists , else false.
+        /// </summary>
+        /// <returns>true or false</returns>
+        bool CheckIfItsEmpty();
     }
 }

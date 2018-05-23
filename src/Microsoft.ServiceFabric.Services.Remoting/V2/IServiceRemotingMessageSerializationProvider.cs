@@ -23,6 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// Creates a serializer that can serialize and deserialize the remoting request message bodies for the specified service interface.
         /// </summary>
         /// <param name="serviceInterfaceType">User service interface</param>
+        /// <param name="requestWrappedTypes">Wrapped Request object Types for all method</param>
         /// <param name="requestBodyTypes">Parameters for all the methods in the serviceInterfaceType</param>
         /// <returns>
         /// An <see cref="IServiceRemotingRequestMessageBodySerializer"/> that can serialize and deserialize
@@ -30,12 +31,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// </returns>
         IServiceRemotingRequestMessageBodySerializer CreateRequestMessageSerializer(
             Type serviceInterfaceType,
-            IEnumerable<Type> requestBodyTypes);
+            IEnumerable<Type> requestWrappedTypes,
+            IEnumerable<Type> requestBodyTypes = null);
 
         /// <summary>
         /// Creates a serializer that can serialize and deserialize the remoting response message bodies for the specified service interface.
         /// </summary>
         /// <param name="serviceInterfaceType">User service interface</param>
+        /// <param name="responseWrappedTypes">Wrapped Response object Types for all methods</param>
         /// <param name="responseBodyTypes">Return Types for all the methods in the serviceInterfaceType</param>
         /// <returns>
         /// An <see cref="IServiceRemotingResponseMessageBodySerializer"/> that can serialize and deserialize
@@ -43,6 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// </returns>
         IServiceRemotingResponseMessageBodySerializer CreateResponseMessageSerializer(
             Type serviceInterfaceType,
-            IEnumerable<Type> responseBodyTypes);
+            IEnumerable<Type> responseWrappedTypes,
+            IEnumerable<Type> responseBodyTypes = null);
     }
 }

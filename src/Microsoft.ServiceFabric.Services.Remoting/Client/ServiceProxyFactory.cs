@@ -16,12 +16,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     public class ServiceProxyFactory : IServiceProxyFactory
     {
         private readonly OperationRetrySettings retrySettings;
-
 #if !DotNetCoreClr
         private Remoting.V1.Client.ServiceProxyFactory proxyFactoryV1;
 #endif
         private Remoting.V2.Client.ServiceProxyFactory proxyFactoryV2;
-        private bool overrideListenerName = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class with the specified retrysettings and default remotingClientFactory.
@@ -46,12 +44,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
         /// is cached in the ServiceProxyFactory.
         /// </param>
-        /// <param name="retrySettings">The settings for retrying the failed operations.</param>
+        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
         public ServiceProxyFactory(
             Func<V1.IServiceRemotingCallbackClient, V1.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory,
-            OperationRetrySettings retrySettings = null)
+            OperationRetrySettings retrySettings = null,
+            Action<V1.Client.IServiceRemotingClientFactory> disposeFactory = null)
         {
-            this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings);
+            this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings, disposeFactory);
         }
 
 #endif
@@ -63,13 +63,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
         /// is cached in the ServiceProxyFactory.
         /// </param>
-        /// <param name="retrySettings">The settings for retrying the failed operations.</param>
+        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackMessageHandler, Remoting.V2.Client.IServiceRemotingClientFactory>
                 createServiceRemotingClientFactory,
-            OperationRetrySettings retrySettings = null)
+            OperationRetrySettings retrySettings = null,
+            Action<Remoting.V2.Client.IServiceRemotingClientFactory> disposeFactory = null)
         {
-            this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings);
+            this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings, disposeFactory);
         }
 
         /// <summary>
@@ -100,10 +102,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
-                if (provider.RemotingClient.Equals(RemotingClient.V2Client))
+                if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
                 {
-                    // We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
-                    this.overrideListenerName = true;
+                    // We are overriding listenerName since using provider we can have multiple listener configured.
+                    listenerName = this.GetDefaultListenerName(listenerName, provider.RemotingClientVersion);
                     this.proxyFactoryV2 =
                         new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
                 }
@@ -122,15 +124,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                     listenerName);
             }
 
-            if (this.overrideListenerName && listenerName == null)
-            {
-                return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
-                    serviceUri,
-                    partitionKey,
-                    targetReplicaSelector,
-                    ServiceRemotingProviderAttribute.DefaultV2listenerName);
-            }
-
             return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
                 serviceUri,
                 partitionKey,
@@ -141,26 +134,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
 
-                // We are overriding listenerName since using provider we can have multiple listener configured(Compat Mode).
-                this.overrideListenerName = true;
+                // We are overriding listenerName since using provider we can have multiple listener configured.
+                listenerName = this.GetDefaultListenerName(listenerName, provider.RemotingClientVersion);
                 this.proxyFactoryV2 =
                     new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
             }
 
-            if (this.overrideListenerName && listenerName == null)
-            {
-                return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
-                    serviceUri,
-                    partitionKey,
-                    targetReplicaSelector,
-                    ServiceRemotingProviderAttribute.DefaultV2listenerName);
-            }
-
             return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
-                serviceUri,
-                partitionKey,
-                targetReplicaSelector,
-                listenerName);
+              serviceUri,
+              partitionKey,
+              targetReplicaSelector,
+              listenerName);
 #endif
         }
 
@@ -199,9 +183,44 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 listenerName);
         }
 
+        /// <summary>
+        /// Releases managed/unmanaged resources.
+        /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
+        /// </summary>
+        public void Dispose()
+        {
+#if !DotNetCoreClr
+            if (this.proxyFactoryV1 != null)
+            {
+                this.proxyFactoryV1.Dispose();
+            }
+#endif
+            if (this.proxyFactoryV2 != null)
+            {
+                this.proxyFactoryV2.Dispose();
+            }
+        }
+
         private ServiceRemotingProviderAttribute GetProviderAttribute(Type serviceInterfaceType)
         {
             return ServiceRemotingProviderAttribute.GetProvider(new[] { serviceInterfaceType });
+        }
+
+        private string GetDefaultListenerName(
+            string listenerName,
+            RemotingClientVersion remotingClientVersion)
+        {
+            if (string.IsNullOrEmpty(listenerName))
+            {
+                if (Helper.IsRemotingV2(remotingClientVersion))
+                {
+                    return ServiceRemotingProviderAttribute.DefaultV2listenerName;
+                }
+
+                return ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName;
+            }
+
+            return listenerName;
         }
     }
 }

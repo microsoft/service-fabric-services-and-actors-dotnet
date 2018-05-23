@@ -27,8 +27,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         /// Gets or sets the identifier for the remote method invocation.
         /// </summary>
-        [DataMember(Name = "InvocationId", IsRequired = false, Order = 3, EmitDefaultValue = false)]
         string InvocationId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Method Name  of the remoting method.
+        /// </summary>
+        string MethodName { get; set; }
 
         /// <summary>
         /// Adds a new header with the specified name and value.

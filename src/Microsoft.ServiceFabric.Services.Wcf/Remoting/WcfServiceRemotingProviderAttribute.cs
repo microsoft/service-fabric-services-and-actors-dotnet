@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
 {
     using System;
+    using System.Collections.Generic;
     using System.Fabric;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -133,27 +134,48 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         }
 
         /// <summary>
-        ///     Creates a V2 service remoting listener for remoting the service interface.
+        /// Returns the func method that creates the remoting listeners.
         /// </summary>
-        /// <param name="serviceContext">
-        ///     The context of the service for which the remoting listener is being constructed.
-        /// </param>
-        /// <param name="serviceImplementation">
-        ///     The service implementation object.
-        /// </param>
-        /// <returns>
-        ///     A <see cref=" V2.Wcf.Runtime.WcfServiceRemotingListener"/> for the specified service.
-        /// </returns>
-        public override IServiceRemotingListener CreateServiceRemotingListenerV2(
-            ServiceContext serviceContext, IService serviceImplementation)
+        /// <returns>Func to create Remoting Listener</returns>
+        public override Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>
+            CreateServiceRemotingListeners()
         {
-            return new V2.Wcf.Runtime.WcfServiceRemotingListener(
-                serviceContext,
-                serviceImplementation,
-                WcfUtility.CreateTcpListenerBinding(
-                    this.GetMaxMessageSize(),
-                    this.GetOpenTimeout(),
-                    this.GetCloseTimeout()));
+            var dic = new Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>();
+
+            if ((Helper.IsRemotingV2(this.RemotingListenerVersion)))
+            {
+                dic.Add(ServiceRemotingProviderAttribute.DefaultV2listenerName, (serviceContext, serviceImplementation)
+                    =>
+                {
+                    var bindings = WcfUtility.CreateTcpListenerBinding(
+                        this.GetMaxMessageSize(),
+                        this.GetOpenTimeout(),
+                        this.GetCloseTimeout());
+                    return new V2.Wcf.Runtime.WcfServiceRemotingListener(
+                        serviceContext,
+                        serviceImplementation,
+                        bindings);
+                });
+            }
+
+            if (Helper.IsRemotingV2_1(this.RemotingListenerVersion))
+            {
+                dic.Add(ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName, (
+                    serviceContext, serviceImplementation) =>
+                {
+                    var bindings = WcfUtility.CreateTcpListenerBinding(
+                        this.GetMaxMessageSize(),
+                        this.GetOpenTimeout(),
+                        this.GetCloseTimeout());
+                    return new V2.Wcf.Runtime.WcfServiceRemotingListener(
+                            serviceContext,
+                            serviceImplementation,
+                            bindings,
+                            useWrappedMessage: true);
+                });
+            }
+
+            return dic;
         }
 
         private long GetMaxMessageSize()

@@ -37,6 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private const string GeneratedDefaultServiceName = "DefaultService";
         private const string GeneratedServiceEndpointName = "ServiceEndpoint";
         private const string GeneratedServiceEndpointV2Name = "ServiceEndpointV2";
+        private const string GeneratedServiceEndpointWrappedMessageStackName = "ServiceEndpointV2_1";
         private const string GeneratedReplicatorEndpointName = "ReplicatorEndpoint";
         private const string GeneratedReplicatorConfigSectionName = "ReplicatorConfigSection";
         private const string GeneratedReplicatorSecurityConfigSectionName = "ReplicatorSecurityConfigSection";
@@ -409,24 +410,21 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
 #if !DotNetCoreClr
-            switch (actorTypeInfo.RemotingListener)
+            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
-                case RemotingListener.V2Listener:
-                    generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
-                    break;
-                case RemotingListener.CompatListener:
-                    generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
-                    generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
-                    break;
-                default:
-                    {
-                        generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
-                        break;
-                    }
+                generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
             }
-#else
-            generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
 #endif
+            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            {
+                generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
+            }
+
+            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            {
+                generatedNameFunctions.Add(GeneratedServiceEndpointWrappedMessageStackName, GetGeneratedServiceEndpointWrappedMessageStackName);
+            }
+
             return generatedNameFunctions;
         }
 
@@ -434,44 +432,33 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var endpoints = new List<EndpointType>();
 #if !DotNetCoreClr
-            switch (actorTypeInfo.RemotingListener)
+            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
-                case RemotingListener.V2Listener:
                     endpoints.Add(
                         new EndpointType()
                         {
-                            Name = GetFabricServiceV2EndpointName(actorTypeInfo),
+                            Name = GetFabricServiceEndpointName(actorTypeInfo),
                         });
-                    break;
-                case RemotingListener.CompatListener:
-                    endpoints.Add(
-                        new EndpointType()
-                        {
-                            Name = GetFabricServiceV2EndpointName(actorTypeInfo),
-                        });
-                    endpoints.Add(new EndpointType()
-                    {
-                        Name = GetFabricServiceEndpointName(actorTypeInfo),
-                    });
-
-                    break;
-                default:
-                    {
-                        endpoints.Add(
-                            new EndpointType()
-                            {
-                                Name = GetFabricServiceEndpointName(actorTypeInfo),
-                            });
-                        break;
-                    }
             }
-#else
-            endpoints.Add(
-                      new EndpointType()
-                      {
-                          Name = GetFabricServiceV2EndpointName(actorTypeInfo),
-                      });
 #endif
+            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            {
+                endpoints.Add(
+                    new EndpointType()
+                    {
+                        Name = GetFabricServiceV2EndpointName(actorTypeInfo),
+                    });
+            }
+
+            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            {
+                endpoints.Add(
+                    new EndpointType()
+                    {
+                        Name = GetGeneratedServiceEndpointWrappedMessageStackName(actorTypeInfo),
+                    });
+            }
+
             return endpoints;
         }
 
@@ -651,6 +638,11 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private static string GetFabricServiceV2EndpointName(ActorTypeInformation actorTypeInfo)
         {
             return ActorNameFormat.GetFabricServiceV2EndpointName(actorTypeInfo.ImplementationType);
+        }
+
+        private static string GetGeneratedServiceEndpointWrappedMessageStackName(ActorTypeInformation actorTypeInfo)
+        {
+            return ActorNameFormat.GetFabricServiceWrappedMessageEndpointName(actorTypeInfo.ImplementationType);
         }
 
         private static EndpointType MergeEndpointResource(

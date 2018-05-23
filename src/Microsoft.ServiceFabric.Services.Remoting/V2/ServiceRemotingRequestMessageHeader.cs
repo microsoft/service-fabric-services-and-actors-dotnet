@@ -47,6 +47,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         [DataMember(Name = "InvocationId", IsRequired = false, Order = 3, EmitDefaultValue = false)]
         public string InvocationId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the method name of the remote method.
+        /// </summary>
+        /// <value>Method Name</value>
+        [DataMember(Name = "MethodName", IsRequired = false, Order = 4)]
+        public string MethodName { get; set; }
+
         public void AddHeader(string headerName, byte[] headerValue)
         {
             if (this.headers.ContainsKey(headerName))

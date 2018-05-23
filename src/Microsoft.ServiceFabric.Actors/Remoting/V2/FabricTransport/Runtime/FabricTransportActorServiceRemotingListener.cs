@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             FabricTransportRemotingListenerSettings listenerSettings = null)
             : this(
                 GetContext(actorService),
-                new ActorServiceRemotingDispatcher(actorService, new DataContractRemotingMessageFactory()),
+                CreateActorRemotingDispatcher(actorService, listenerSettings),
                 SetEndPointResourceName(listenerSettings, actorService))
         {
         }
@@ -107,7 +107,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
                 serializationProvider,
                 new ActorRemotingMessageHeaderSerializer(
                     listenerSettings.HeaderBufferSize,
-                    listenerSettings.HeaderMaxBufferCount));
+                    listenerSettings.HeaderMaxBufferCount),
+                listenerSettings.UseWrappedMessage);
         }
 
         private static ServiceContext GetContext(ActorService actorService)
@@ -127,11 +128,31 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             if (listenerSettings.EndpointResourceName.Equals(FabricTransportRemotingListenerSettings
                 .DefaultEndpointResourceName))
             {
-                listenerSettings.EndpointResourceName = ActorNameFormat.GetFabricServiceV2EndpointName(
+                if (listenerSettings.UseWrappedMessage)
+                {
+                    listenerSettings.EndpointResourceName = ActorNameFormat.GetFabricServiceWrappedMessageEndpointName(
+                        actorService.ActorTypeInformation.ImplementationType);
+                }
+                else
+                {
+                    listenerSettings.EndpointResourceName = ActorNameFormat.GetFabricServiceV2EndpointName(
                     actorService.ActorTypeInformation.ImplementationType);
+                }
             }
 
             return listenerSettings;
+        }
+
+        private static ActorServiceRemotingDispatcher CreateActorRemotingDispatcher(
+            ActorService actorService,
+            FabricTransportRemotingListenerSettings listenerSettings)
+        {
+            if (listenerSettings == null || !listenerSettings.UseWrappedMessage)
+            {
+                return new ActorServiceRemotingDispatcher(actorService, new DataContractRemotingMessageFactory());
+            }
+
+            return new ActorServiceRemotingDispatcher(actorService, new WrappedRequestMessageFactory());
         }
     }
 }

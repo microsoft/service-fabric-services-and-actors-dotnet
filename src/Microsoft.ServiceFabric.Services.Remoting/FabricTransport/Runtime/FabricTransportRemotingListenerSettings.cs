@@ -21,6 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
+        private bool useWrappedMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRemotingListenerSettings"/> class with default values.
@@ -30,6 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.listenerSettings = new FabricTransportListenerSettings();
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
+            this.useWrappedMessage = false;
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
@@ -160,6 +162,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         {
             get { return this.listenerSettings.SecurityCredentials; }
             set { this.listenerSettings.SecurityCredentials = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.
+        /// </summary>
+        public bool UseWrappedMessage
+        {
+            get { return this.useWrappedMessage; }
+            set { this.useWrappedMessage = value; }
         }
 
         internal static object DefaultEndpointResourceName

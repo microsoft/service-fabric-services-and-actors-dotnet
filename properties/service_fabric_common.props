@@ -8,8 +8,6 @@
     
     <!-- Set Output Paths-->
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <OutputPath_win>bin\$(Configuration)\win\</OutputPath_win>
-    <OutputPath_linux>bin\$(Configuration)\linux\</OutputPath_linux>
     
     <!-- Set Drop folders -->
     <DropFolder>$(RepoRoot)drop\$(Configuration)\</DropFolder>
@@ -32,8 +30,8 @@
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
     <MajorVersion>3</MajorVersion>
-    <MinorVersion>1</MinorVersion>
-    <BuildVersion>0</BuildVersion>
+    <MinorVersion>3</MinorVersion>
+    <BuildVersion>1</BuildVersion>
     <Revision>0</Revision>
 
   </PropertyGroup>

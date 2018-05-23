@@ -14,6 +14,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         {
             this.Id = 0;
             this.MethodNames = new Dictionary<string, int>();
+            this.RequestWrappedKnownTypes = new List<Type>();
+            this.ResponseWrappedKnownTypes = new List<Type>();
             this.ResponseKnownTypes = new List<Type>();
             this.ServiceInterfaceType = null;
             this.RequestKnownTypes = new List<Type>();
@@ -26,6 +28,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         public List<Type> RequestKnownTypes { get; internal set; }
 
         public List<Type> ResponseKnownTypes { get; internal set; }
+
+        public IEnumerable<Type> RequestWrappedKnownTypes { get; internal set; }
+
+        public IEnumerable<Type> ResponseWrappedKnownTypes { get; internal set; }
 
         public Dictionary<string, int> MethodNames { get; internal set; }
     }

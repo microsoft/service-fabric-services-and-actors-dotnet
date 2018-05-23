@@ -6,10 +6,13 @@
 namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
 {
     using System;
+    using System.Collections.Generic;
+    using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -26,6 +29,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         /// </summary>
         public FabricTransportActorRemotingProviderAttribute()
         {
+#if !DotNetCoreClr
+            this.RemotingClientVersion = RemotingClientVersion.V1;
+            this.RemotingListenerVersion = RemotingListenerVersion.V1;
+#else
+            this.RemotingClientVersion = RemotingClientVersion.V2;
+            this.RemotingListenerVersion = RemotingListenerVersion.V2;
+#endif
         }
 
         /// <summary>
@@ -122,26 +132,47 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         /// <summary>
         ///     Creates a service remoting listener for remoting the actor interfaces.
         /// </summary>
-        /// <param name="actorService">
-        ///     The implementation of the actor service that hosts the actors whose interfaces
-        ///     needs to be remoted.
-        /// </param>
+        /// The implementation of the actor service that hosts the actors whose interfaces
+        /// needs to be remoted.
         /// <returns>
         ///     A <see cref="V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener"/>
         ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
-        public override IServiceRemotingListener CreateServiceRemotingListenerV2(ActorService actorService)
+        public override Dictionary<string, Func<ActorService, IServiceRemotingListener>> CreateServiceRemotingListeners()
         {
-            var listenerSettings = GetActorListenerSettings(actorService);
-            listenerSettings.MaxMessageSize = this.GetAndValidateMaxMessageSize(listenerSettings.MaxMessageSize);
-            listenerSettings.OperationTimeout = this.GetandValidateOperationTimeout(listenerSettings.OperationTimeout);
-            listenerSettings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(listenerSettings.KeepAliveTimeout);
-            return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(actorService, listenerSettings);
+            var dic = new Dictionary<string, Func<ActorService, IServiceRemotingListener>>();
+
+            if ((Helper.IsRemotingV2(this.RemotingListenerVersion)))
+            {
+                dic.Add(ServiceRemotingProviderAttribute.DefaultV2listenerName, (a)
+                    =>
+                {
+                    var listenerSettings = this.InitializeListenerSettings(a);
+                    return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
+                        a,
+                        listenerSettings);
+                });
+            }
+
+            if (Helper.IsRemotingV2_1(this.RemotingListenerVersion))
+            {
+                dic.Add(ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName, (
+                    actorService) =>
+                {
+                    var listenerSettings = this.InitializeListenerSettings(actorService);
+                    listenerSettings.UseWrappedMessage = true;
+                    return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
+                        actorService,
+                        listenerSettings);
+                });
+            }
+
+            return dic;
         }
 
         /// <inheritdoc />
-        public override Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+        public override Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {
             var settings = FabricTransportRemotingSettings.GetDefault();
@@ -149,6 +180,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
             settings.OperationTimeout = this.GetandValidateOperationTimeout(settings.OperationTimeout);
             settings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(settings.KeepAliveTimeout);
             settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
+            if (Microsoft.ServiceFabric.Services.Remoting.Helper.IsRemotingV2_1(this.RemotingClientVersion))
+            {
+                settings.UseWrappedMessage = true;
+            }
+
             return new FabricTransportActorRemotingClientFactory(settings, callbackMessageHandler);
         }
 
@@ -162,6 +198,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
                 listenerSettings = FabricTransportRemotingListenerSettings.GetDefault();
             }
 
+            return listenerSettings;
+        }
+
+        private FabricTransportRemotingListenerSettings InitializeListenerSettings(
+            ActorService a)
+        {
+            var listenerSettings = GetActorListenerSettings(a);
+            listenerSettings.MaxMessageSize = this.GetAndValidateMaxMessageSize(listenerSettings.MaxMessageSize);
+            listenerSettings.OperationTimeout = this.GetandValidateOperationTimeout(listenerSettings.OperationTimeout);
+            listenerSettings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(listenerSettings.KeepAliveTimeout);
             return listenerSettings;
         }
 

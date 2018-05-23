@@ -758,7 +758,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorInterfaceMethodKey = DiagnosticsEventManager.GetInterfaceMethodKey(
                 (uint)interfaceId,
                 (uint)methodId);
-            this.DiagnosticsEventManager.ActorMethodStart(actorInterfaceMethodKey, actor, RemotingListener.V1Listener);
+            this.DiagnosticsEventManager.ActorMethodStart(actorInterfaceMethodKey, actor, RemotingListenerVersion.V1);
 
             Task<object> dispatchTask;
             try
@@ -771,7 +771,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     actorInterfaceMethodKey,
                     actor,
                     e,
-                    RemotingListener.V1Listener);
+                    RemotingListenerVersion.V1);
                 throw;
             }
 
@@ -789,7 +789,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             actorInterfaceMethodKey,
                             actor,
                             e,
-                            RemotingListener.V1Listener);
+                            RemotingListenerVersion.V1);
                         throw;
                     }
 
@@ -797,7 +797,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         actorInterfaceMethodKey,
                         actor,
                         null,
-                        RemotingListener.V1Listener);
+                        RemotingListenerVersion.V1);
 
                     var serializationStartTime = DateTime.UtcNow;
                     var serializedResponse = methodDispatcher.SerializeResponseMessageBody(responseMsgBody);
@@ -820,7 +820,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var actorInterfaceMethodKey =
                 DiagnosticsEventManager.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
-            this.DiagnosticsEventManager.ActorMethodStart(actorInterfaceMethodKey, actor, RemotingListener.V2Listener);
+            this.DiagnosticsEventManager.ActorMethodStart(actorInterfaceMethodKey, actor, RemotingListenerVersion.V2);
 
             Task<IServiceRemotingResponseMessageBody> dispatchTask;
             try
@@ -838,7 +838,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     actorInterfaceMethodKey,
                     actor,
                     e,
-                    RemotingListener.V2Listener);
+                    RemotingListenerVersion.V2);
                 throw;
             }
 
@@ -856,7 +856,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             actorInterfaceMethodKey,
                             actor,
                             e,
-                            RemotingListener.V2Listener);
+                            RemotingListenerVersion.V2);
                         throw;
                     }
 
@@ -864,7 +864,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         actorInterfaceMethodKey,
                         actor,
                         null,
-                        RemotingListener.V2Listener);
+                        RemotingListenerVersion.V2);
 
                     return responseMsgBody;
                 },

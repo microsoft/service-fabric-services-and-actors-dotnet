@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Gets the value indicating the remoting stack for server/listener when using remoting provider attribuite to determine the remoting client.
         /// </summary>
-        RemotingListener RemotingListener { get; }
+        RemotingListenerVersion RemotingListener { get; }
 
 #if !DotNetCoreClr
         /// <summary>

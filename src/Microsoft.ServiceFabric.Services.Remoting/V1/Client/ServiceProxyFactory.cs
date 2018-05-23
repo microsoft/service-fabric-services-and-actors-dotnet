@@ -20,6 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
         private readonly object thisLock;
         private readonly Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory> createServiceRemotingClientFactory;
         private readonly OperationRetrySettings retrySettings;
+        private readonly Action<IServiceRemotingClientFactory> disposeFactory;
         private volatile IServiceRemotingClientFactory remotingClientFactory;
 
         /// <summary>
@@ -31,12 +32,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
         /// is cached in the ServiceProxyFactory.
         /// </param>
         /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="disposeFactory">Dispose factory.</param>
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackClient, IServiceRemotingClientFactory> createServiceRemotingClientFactory,
-            OperationRetrySettings retrySettings = null)
+            OperationRetrySettings retrySettings = null,
+            Action<IServiceRemotingClientFactory> disposeFactory = null)
         {
             this.thisLock = new object();
             this.remotingClientFactory = null;
+            this.disposeFactory = disposeFactory;
             this.createServiceRemotingClientFactory = createServiceRemotingClientFactory;
             this.retrySettings = retrySettings;
         }
@@ -72,6 +76,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
                 this.retrySettings);
 
             return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient);
+        }
+
+        /// <summary>
+        /// Releases managed/unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            if (this.disposeFactory != null)
+            {
+                this.disposeFactory(this.remotingClientFactory);
+            }
+            else
+            {
+                var castedFactory = this.remotingClientFactory as FabricTransport.Client.FabricTransportServiceRemotingClientFactory;
+                if (castedFactory != null)
+                {
+                    castedFactory.Dispose();
+                }
+            }
         }
 
         /// <summary>

@@ -170,6 +170,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
             return (TServiceInterface)(object)proxyGenerator.CreateServiceProxy(serviceRemotingPartitionClient);
         }
 
+        /// <summary>
+        /// Releases managed/unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            var castedFactory = this.remotingClientFactory as FabricTransport.Client.FabricTransportActorRemotingClientFactory;
+            if (castedFactory != null)
+            {
+                castedFactory.Dispose();
+            }
+        }
+
         internal object CreateActorProxy(
             Type actorInterfaceType,
             Uri serviceUri,

@@ -42,21 +42,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// should be used to create the address for the listener. If the endpointResourceName is not specified or null,
         /// the default value "ServiceEndpointV2" is used.
         /// </param>
+        /// <param name="useWrappedMessage">
+        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation,
             Binding listenerBinding = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
-            string endpointResourceName = "ServiceEndpointV2")
+            string endpointResourceName = "ServiceEndpointV2",
+            bool useWrappedMessage = false)
         {
-            if (serializationProvider == null)
-            {
-                serializationProvider = new BasicDataContractSerializationProvider();
-            }
+            serializationProvider = this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
-                new BasicDataContractHeaderSerializer());
+                new BasicDataContractHeaderSerializer(),
+                useWrappedMessage);
             this.messageHandler = new ServiceRemotingMessageDispatcher(
                 serviceContext,
                 serviceImplementation,
@@ -86,21 +87,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// should be used to create the address for the listener. If the endpointResourceName is not specified or it is null,
         /// the default value "ServiceEndpointV2" is used.
         /// </param>
+        /// <param name="useWrappedMessage">
+        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             Binding listenerBinding = null,
-            string endpointResourceName = "ServiceEndpointV2")
+            string endpointResourceName = "ServiceEndpointV2",
+            bool useWrappedMessage = false)
         {
-            if (serializationProvider == null)
-            {
-                serializationProvider = new BasicDataContractSerializationProvider();
-            }
-
             var serializerManager = new ServiceRemotingMessageSerializersManager(
+                this.GetDefaultSerializationProvider(
                 serializationProvider,
+                useWrappedMessage),
                 new BasicDataContractHeaderSerializer());
+
             this.Initialize(serviceContext, messageHandler, listenerBinding, endpointResourceName, serializerManager);
         }
 
@@ -118,20 +120,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// <param name="address">The endpoint address to use for the WCF listener. If not specified or null, the endpoint
         /// address is created using the default endpoint resource named "ServiceEndpointV2" defined in the service manifest.
         /// </param>
+        /// <param name="useWrappedMessage">
+        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             Binding listenerBinding = null,
-            EndpointAddress address = null)
+            EndpointAddress address = null,
+            bool useWrappedMessage = false)
         {
-            if (serializationProvider == null)
-            {
-                serializationProvider = new BasicDataContractSerializationProvider();
-            }
-
             var serializerManager = new ServiceRemotingMessageSerializersManager(
-                serializationProvider,
+                this.GetDefaultSerializationProvider(
+                    serializationProvider,
+                    useWrappedMessage),
                 new BasicDataContractHeaderSerializer());
             this.Initialize(serviceContext, listenerBinding, address, serializerManager, messageHandler);
         }
@@ -270,6 +272,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                     listenerBinding,
                     "ServiceEndpointV2");
             }
+        }
+
+        private IServiceRemotingMessageSerializationProvider GetDefaultSerializationProvider(IServiceRemotingMessageSerializationProvider serializationProvider, bool useWrappedMessage)
+        {
+            if (serializationProvider == null)
+            {
+                if (useWrappedMessage)
+                {
+                    return new WrappingServiceRemotingDataContractSerializationProvider(null);
+                }
+
+                serializationProvider = new ServiceRemotingDataContractSerializationProvider(null);
+            }
+
+            return serializationProvider;
         }
 
         [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]

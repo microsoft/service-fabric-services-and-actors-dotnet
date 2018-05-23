@@ -35,9 +35,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             base.InitializeActorMethodInfo(diagnosticsEventManager);
         }
 
-        internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
+        internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
         {
-            if (remotingListener.Equals(RemotingListener.V2Listener))
+            if (Helper.IsEitherRemotingV2(remotingListener))
             {
                 return this.actorMethodInfoV2[key];
             }

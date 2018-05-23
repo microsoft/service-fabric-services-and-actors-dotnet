@@ -12,13 +12,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>
     /// Provides the base implementation for the proxy to invoke methods on actor event subscribers.
     /// </summary>
-    public abstract class ActorEventProxy : ProxyBase
+    public abstract class ActorEventProxy : Microsoft.ServiceFabric.Services.Remoting.Builder.ProxyBase
     {
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV2;
 #if !DotNetCoreClr
@@ -37,17 +36,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.subscriberProxiesV2 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
         }
 
-        internal override void InvokeImplV2(
-            int interfaceId,
-            int methodId,
-            IServiceRemotingRequestMessageBody requestMsgBodyValue)
-        {
-            this.SendToSubscribers(interfaceId, methodId, requestMsgBodyValue);
-        }
-
         internal void AddSubscriber(IActorEventSubscriberProxy subscriber)
         {
-            if (subscriber.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (Helper.IsEitherRemotingV2(subscriber.RemotingListener))
             {
                 if (this.ServiceRemotingMessageBodyFactory == null)
                 {
@@ -82,6 +73,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             // async methods are not supported for actor event interface
             throw new NotImplementedException();
+        }
+
+        internal override void InvokeImplV2(
+            int interfaceId,
+            int methodId,
+            IServiceRemotingRequestMessageBody requestMsgBodyValue)
+        {
+            this.SendToSubscribers(interfaceId, methodId, requestMsgBodyValue);
         }
 
 #if !DotNetCoreClr
@@ -134,15 +133,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         protected override IServiceRemotingRequestMessageBody CreateRequestMessageBodyV2(
             string interfaceName,
             string methodName,
-            int parameterCount)
+            int parameterCount,
+            object wrappedRequest)
         {
-            // This can happen in case someone trries to raiseEvent but no subscribers registered.
+            // This cna happen in case someone trries to raiseEvent but no subscribers registered.
             if (this.ServiceRemotingMessageBodyFactory == null)
             {
                 return new DummyServiceRemoingRequestMessageBody();
             }
 
-            return this.ServiceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount);
+            return this.ServiceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount, wrappedRequest);
         }
 
         private static void SendTo(

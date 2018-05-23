@@ -7,12 +7,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 {
     using System;
     using System.Collections.Generic;
+    using System.Fabric;
     using System.Reflection;
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+
 #if !DotNetCoreClr
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
@@ -30,12 +33,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     ///     </para>
     ///     <para>
     ///     On client side, implementation of this attribute is looked up by
-    ///     <see cref="Actors.Client.ActorProxyFactory"/> constructor to create a default
-    ///     <see cref="Services.Remoting.V2.Client.IServiceRemotingClientFactory"/> when it is not specified.
+    ///     <see cref="ActorProxyFactory"/> constructor to create a default
+    ///     IServiceRemotingClientFactory when it is not specified.
     ///     </para>
     ///     <para>
     ///     Note that on client side when actor proxy is created using the static <see cref="ActorProxy"/>
-    ///     class, it uses a default <see cref="Actors.Client.ActorProxyFactory"/> once and hence the provider lookup
+    ///     class, it uses a default <see cref="ActorProxyFactory"/> once and hence the provider lookup
     ///     happens only for the first time in an assembly, after which the same provider is used.
     ///     </para>
     ///     <para>
@@ -61,14 +64,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         }
 
         /// <summary>
-        /// Gets or sets RemotingClient to determine where  V1 or V2 remoting Client is used.
+        /// Gets or sets RemotingClientVersion to determine where  V1 or V2 remoting Client is used.
         /// </summary>
-        public RemotingClient RemotingClient { get; set; }
+        public RemotingClientVersion RemotingClientVersion { get; set; }
 
         /// <summary>
-        /// Gets or sets RemotingListener to determine where listener is in V1, V2 or Compact Mode.
+        ///  Gets or sets RemotingListenerVersion  to determine where listener is in V1, V2 .
         /// </summary>
-        public RemotingListener RemotingListener { get; set; }
+        public RemotingListenerVersion RemotingListenerVersion { get; set; }
 
 #if !DotNetCoreClr
 
@@ -107,12 +110,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// <summary>
         /// Creates a V2 service remoting listener for remoting the service interface.
         /// </summary>
-        /// <param name="actorService">
-        ///     The implementation of the actor service that hosts the actors whose interfaces
-        ///     needs to be remoted.
-        /// </param>
         /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
-        public abstract IServiceRemotingListener CreateServiceRemotingListenerV2(ActorService actorService);
+        public abstract Dictionary<string, Func<ActorService, IServiceRemotingListener>> CreateServiceRemotingListeners();
 
         /// <summary>
         /// Creates a service remoting client factory that can be used by the
@@ -120,7 +119,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
         /// <returns>An <see cref="Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>
-        public abstract Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+        public abstract Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
 
         internal static ActorRemotingProviderAttribute GetProvider(IEnumerable<Type> types = null)

@@ -24,6 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 
         private int headerBufferSize;
         private int headerMaxBufferCount;
+        private bool useWrappedMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRemotingSettings"/> class with default values.
@@ -33,6 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             this.fabricTransportSettings = new FabricTransportSettings();
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
+            this.useWrappedMessage = false;
         }
 
         internal FabricTransportRemotingSettings(FabricTransportSettings fabricTransportSettings)
@@ -153,6 +155,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         {
             get { return this.fabricTransportSettings.SecurityCredentials; }
             set { this.fabricTransportSettings.SecurityCredentials = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.
+        /// </summary>
+        public bool UseWrappedMessage
+        {
+            get { return this.useWrappedMessage; }
+            set { this.useWrappedMessage = value; }
         }
 
         /// <summary>

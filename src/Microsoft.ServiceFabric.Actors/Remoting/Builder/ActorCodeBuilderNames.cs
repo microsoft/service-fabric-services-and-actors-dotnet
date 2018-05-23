@@ -13,6 +13,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Builder
         {
         }
 
+        public ActorCodeBuilderNames(string prefix)
+            : base("actor" + prefix)
+        {
+        }
+
         public override string GetDataContractNamespace()
         {
             return Constants.Namespace;

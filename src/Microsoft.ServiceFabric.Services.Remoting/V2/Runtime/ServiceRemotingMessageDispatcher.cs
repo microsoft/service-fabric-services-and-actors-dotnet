@@ -247,6 +247,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                         requestMessageHeaders.MethodId,
                         stopwatch.Elapsed);
 
+                    // We are creating empty response headers so that ServiceRemotingServiceEvents can add headers if they needed.
+                    // This wont impact serialization cost since we check if its Empty , then dont serialize.
                     var response = new ServiceRemotingResponseMessage(new ServiceRemotingResponseMessageHeader(), (IServiceRemotingResponseMessageBody)responseBody);
                     ServiceRemotingServiceEvents.RaiseSendResponse(response, requestMessage);
 

@@ -86,6 +86,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
         public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
 
         /// <summary>
+        /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
+        /// </summary>
+        public void Dispose()
+        {
+            this.impl.Dispose();
+        }
+
+        /// <summary>
         /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
         /// to the endpoint corresponding to the given listenerName.
         /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}

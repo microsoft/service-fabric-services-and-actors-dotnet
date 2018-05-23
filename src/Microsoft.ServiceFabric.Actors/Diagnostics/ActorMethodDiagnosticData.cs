@@ -14,6 +14,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         internal long InterfaceMethodKey;
         internal TimeSpan? MethodExecutionTime;
         internal Exception Exception;
-        internal RemotingListener RemotingListener;
+        internal RemotingListenerVersion RemotingListener;
     }
 }

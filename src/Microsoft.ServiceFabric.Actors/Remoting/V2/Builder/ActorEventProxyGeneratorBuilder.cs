@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Description;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
 
-    internal class ActorEventProxyGeneratorBuilder : ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
+    internal class ActorEventProxyGeneratorBuilder : Microsoft.ServiceFabric.Services.Remoting.V2.Builder.ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
     {
 #if !DotNetCoreClr
         private readonly MethodInfo invokeMethodInfoV1;
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 #endif
         }
 
-        public override ProxyGeneratorBuildResult Build(
+        public new ProxyGeneratorBuildResult Build(
             Type proxyInterfaceType,
             IEnumerable<InterfaceDescription> interfaceDescriptions)
         {
@@ -70,15 +70,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             return result;
         }
 
-        internal override void AddInterfaceImplementations(
+        protected override void AddInterfaceImplementations(
             TypeBuilder classBuilder,
-            IEnumerable<InterfaceDescription> interfaceDescriptions)
+            IDictionary<InterfaceDescription, MethodBodyTypesBuildResult> methodBodyTypesResultsMap)
         {
-            // ensure that method data types are built for each of the remote interfaces
-            var methodBodyTypesResultsMap = interfaceDescriptions.ToDictionary(
-                d => d,
-                d => this.CodeBuilder.GetOrBuildMethodBodyTypes(d.InterfaceType));
-
             foreach (var item in methodBodyTypesResultsMap)
             {
                 var interfaceDescription = item.Key;
@@ -98,10 +93,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 
                         var ilGen = methodBuilder.GetILGenerator();
 
+                        // Create Wrapped Request
+                        LocalBuilder wrappedRequestBody =
+                            CreateWrappedRequestBody(methodDescription, methodBodyTypes, ilGen, methodDescription.MethodInfo.GetParameters());
+
                         this.AddVoidMethodImplementation2(
                             ilGen,
                             interfaceDescription.Id,
                             methodDescription,
+                            wrappedRequestBody,
                             interfaceDescription.InterfaceType.FullName);
 #if !DotNetCoreClr
 
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                             ilGen,
                             interfaceDescription.V1Id,
                             methodDescription,
-                            methodBodyTypes);
+                            wrappedRequestBody);
 #endif
                         ilGen.Emit(OpCodes.Ret);
                     }
@@ -129,32 +129,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             ILGenerator ilGen,
             int interfaceIdV1,
             MethodDescription methodDescription,
-            MethodBodyTypes methodBodyTypes)
+            LocalBuilder requestBody)
         {
-            var interfaceMethod = methodDescription.MethodInfo;
-            var parameters = interfaceMethod.GetParameters();
-
-            LocalBuilder requestBody = null;
-            if (methodBodyTypes.RequestBodyType != null)
-            {
-                // create requestBody and assign the values to its field from the arguments
-                requestBody = ilGen.DeclareLocal(methodBodyTypes.RequestBodyType);
-                var requestBodyCtor = methodBodyTypes.RequestBodyType.GetConstructor(Type.EmptyTypes);
-
-                if (requestBodyCtor != null)
-                {
-                    ilGen.Emit(OpCodes.Newobj, requestBodyCtor);
-                    ilGen.Emit(OpCodes.Stloc, requestBody);
-
-                    for (var i = 0; i < parameters.Length; i++)
-                    {
-                        ilGen.Emit(OpCodes.Ldloc, requestBody);
-                        ilGen.Emit(OpCodes.Ldarg, i + 1);
-                        ilGen.Emit(OpCodes.Stfld, methodBodyTypes.RequestBodyType.GetField(parameters[i].Name));
-                    }
-                }
-            }
-
             // call the base Invoke method
             ilGen.Emit(OpCodes.Ldarg_0); // base
             ilGen.Emit(OpCodes.Ldc_I4, interfaceIdV1); // interfaceId

@@ -18,7 +18,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         public ServiceRemotingMessageSerializersManager(
             IServiceRemotingMessageSerializationProvider serializationProvider,
-            IServiceRemotingMessageHeaderSerializer headerSerializer)
+            IServiceRemotingMessageHeaderSerializer headerSerializer,
+            bool useWrappedMessage = false)
         {
             if (headerSerializer == null)
             {
@@ -27,7 +28,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
             if (serializationProvider == null)
             {
-                serializationProvider = new ServiceRemotingDataContractSerializationProvider();
+                if (useWrappedMessage)
+                {
+                    serializationProvider = new WrappingServiceRemotingDataContractSerializationProvider();
+                }
+                else
+                {
+                    serializationProvider = new ServiceRemotingDataContractSerializationProvider();
+                }
             }
 
             this.serializationProvider = serializationProvider;
@@ -69,8 +77,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             var responseBodyTypes = interfaceDetails.ResponseKnownTypes;
 
             return new CacheEntry(
-                this.serializationProvider.CreateRequestMessageSerializer(serviceInterfaceType, requestBodyTypes),
-                this.serializationProvider.CreateResponseMessageSerializer(serviceInterfaceType, responseBodyTypes));
+                this.serializationProvider.CreateRequestMessageSerializer(serviceInterfaceType, requestBodyTypes, interfaceDetails.RequestWrappedKnownTypes),
+                this.serializationProvider.CreateResponseMessageSerializer(serviceInterfaceType, responseBodyTypes, interfaceDetails.ResponseWrappedKnownTypes));
         }
 
         internal virtual InterfaceDetails GetInterfaceDetails(int interfaceId)
