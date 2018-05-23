@@ -20,7 +20,7 @@
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.xml">
         <TargetPath>lib\net45</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Actors.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>ref\netstandard2.0</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
@@ -35,10 +35,10 @@
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>runtimes\win\lib\net471</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Actors.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>runtimes\win\lib\netstandard2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_linux)Microsoft.ServiceFabric.Actors.dll">
+      <File Include="$(DropFolderNetStandard_Linux)Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>runtimes\linux\lib\netstandard2.0</TargetPath>
       </File>
 
@@ -50,66 +50,63 @@
       </File>
 
       <!-- For supporting netcore project templates in VS, copy all dependencies of FabActUtil and targets file.-->
-      <File Include="$(DropFolderNetCore_win)FabActUtil.dll">
+      <File Include="$(DropFolderNetStandard_Win)FabActUtil.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Actors.targets">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Actors.targets">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Actors.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Services.Remoting.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
 
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.FabricTransport.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.FabricTransport.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.FabricTransport.V2.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.FabricTransport.V2.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Diagnostics.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Diagnostics.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Data.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Data.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Data.Extensions.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Data.Extensions.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Data.Interfaces.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Data.Interfaces.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.ReliableCollection.Interop.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.ReliableCollection.Interop.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Internal.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Internal.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)Microsoft.ServiceFabric.Internal.Strings.dll">
+      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Internal.Strings.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)System.Fabric.dll">
+      <File Include="$(DropFolderNetStandard_Win)System.Fabric.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)System.Fabric.Management.ServiceModel.dll">
+      <File Include="$(DropFolderNetStandard_Win)System.Fabric.Management.ServiceModel.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore_win)system.fabric.strings.dll">
+      <File Include="$(DropFolderNetStandard_Win)system.fabric.strings.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
     </ItemGroup>
     
     <ItemGroup>
       <Dependency Include="Microsoft.ServiceFabric.Services.Remoting">
-        <Version>[$(FabricSdkNuGetPackageVersionOSS)]</Version>
-      </Dependency>
-      <Dependency Include="Microsoft.ServiceFabric.Diagnostics.Internal">
-        <Version>[$(FabricSdkNuGetPackageVersionOfficial)]</Version>
+        <Version>[$(NuGetPackageVersion)]</Version>
       </Dependency>
     </ItemGroup>
   </Project>

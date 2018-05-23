@@ -6,7 +6,8 @@
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.nuproj;
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.nuproj;
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.nuproj;
-                     $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.nuproj"/>
+                     $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.nuproj;
+                     $(RepoRoot)nuprojs\SF.ActorsServices.Internal\SF.ActorsServices.Internal.nuproj;"/>
     
     <!-- List of packages.config to restore nuget packages -->
         <PackagesConfigs Include="nuprojs\packages.config"/>
@@ -26,6 +27,7 @@
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*.nupkg"/>
+      <Nupkgs Include="nuprojs\SF.ActorsServices.Internal\$(OutputPath)\SF.ActorsServices.Internal.*.nupkg"/>
     </ItemGroup>
     <Copy SourceFiles="@(Nupkgs)" DestinationFiles="@(Nupkgs->'$(NugetPackageDropFolder)\%(Destination)\%(Filename)%(Extension)')" />
   </Target>

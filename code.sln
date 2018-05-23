@@ -15,17 +15,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Act
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FabActUtil", "src\FabActUtil\FabActUtil.csproj", "{F6E091C3-9136-4058-91CF-57CDF383DF74}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services_netcore", "src\netcore\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netcore.csproj", "{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services_netstandard", "src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj", "{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting_netcore", "src\netcore\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netcore.csproj", "{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting_netstandard", "src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj", "{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors_netcore", "src\netcore\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netcore.csproj", "{997C67FC-4571-4DAC-8C2F-9BB62756AFFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors_netstandard", "src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj", "{997C67FC-4571-4DAC-8C2F-9BB62756AFFA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FabActUtil_netcore", "src\netcore\FabActUtil\FabActUtil_netcore.csproj", "{BD88FA2D-1F61-4107-8113-8D78FB5697F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FabActUtil_netstandard", "src\netstandard\FabActUtil\FabActUtil_netstandard.csproj", "{BD88FA2D-1F61-4107-8113-8D78FB5697F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnetframework", "dotnetframework", "{861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnetcore", "dotnetcore", "{8B80B63B-5107-4845-9F19-647CFA7911A3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnetstandard", "dotnetstandard", "{8B80B63B-5107-4845-9F19-647CFA7911A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E1B4B64-112D-4D58-B156-C7E94B6D9D11}"
 	ProjectSection(SolutionItems) = preProject

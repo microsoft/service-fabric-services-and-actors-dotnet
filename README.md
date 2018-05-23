@@ -27,6 +27,8 @@ Each project can also be built individually directly through Visual Studio or by
 
 Binaries in the build are delay signed, these are fully signed in the official builds released by Microsoft. To use the binaries or to run unit tests from the build of this repository, strong name validation needs to be skipped for these assemblies. This can be done by running **SkipStrongName.ps1** script available in the root of the repository.
 
+For branches, please see [Branching Information](CONTRIBUTING.md#BranchingInformation)
+
 ## Development
 We are currently working on transitioning all development to GitHub. For the time being we are continuing to do our own development internally. Upon each release of the SDK, we will push our latest changes to GitHub. We intend to bring more of our development process and tools into the open over time.
 

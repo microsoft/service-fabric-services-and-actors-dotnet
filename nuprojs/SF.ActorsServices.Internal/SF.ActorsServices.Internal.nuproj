@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="..\..\properties\service_fabric_nuget.props" />
+    
+    <PropertyGroup>
+      <Id>SF.ActorsServices.Internal</Id>
+      <Title>SF.ActorsServices.Internal</Title>
+      <Description>This package provides Service Fabric Actors and Services libraries for consumption by other Service Fabric repos.</Description>
+      <Summary>This package provides Service Fabric Actors and Services libraries for consumption by other Service Fabric repos.</Summary>
+      <Tags>ServiceFabric Microsoft Azure Fabric</Tags>
+    </PropertyGroup>
+
+    <Import Project="$(NuProjPath)\NuProj.props" />
+    <Import Project="$(NuProjPath)\NuProj.targets" />
+
+    <ItemGroup>
+      <File Include="$(DropFolderNetFramework)*.*">
+        <TargetPath>lib\netframework</TargetPath>
+      </File>
+      <File Include="$(DropFolderNetStandard)*.*">
+        <TargetPath>lib\netstandard</TargetPath>
+      </File>
+      
+    </ItemGroup>    
+  </Project>

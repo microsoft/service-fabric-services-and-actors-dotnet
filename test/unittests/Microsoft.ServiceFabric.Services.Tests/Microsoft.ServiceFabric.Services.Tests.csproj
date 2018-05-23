@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-  <Import Project="..\..\..\properties\service_fabric_managed_dotnetframework.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed_netframework.props" />
   <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <ProjectGuid>{ECB3825D-B309-4C76-A20D-76544459F611}</ProjectGuid>
@@ -17,6 +17,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
 </Project>

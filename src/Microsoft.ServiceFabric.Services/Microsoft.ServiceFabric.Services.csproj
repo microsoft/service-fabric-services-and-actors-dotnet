@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
-  <Import Project="..\..\properties\service_fabric_managed_dotnetframework.props" />
+  <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
   <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <ProjectGuid>{F416C4C3-250D-48F3-822C-1C589E8F851C}</ProjectGuid>
@@ -11,8 +11,8 @@
     <TargetFramework>net45</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric" Version="6.2.262" />
-    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="3.1.262" />
-    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="3.1.262" />
+    <PackageReference Include="Microsoft.ServiceFabric" Version="$(NugetPkg_Version_Microsoft_ServiceFabric)" />
+    <PackageReference Include="Microsoft.ServiceFabric.Data" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_Data)" />
+    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal)" />
   </ItemGroup>
 </Project>
