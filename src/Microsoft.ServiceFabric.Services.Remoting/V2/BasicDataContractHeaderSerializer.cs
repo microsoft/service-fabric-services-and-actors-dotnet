@@ -77,7 +77,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         public IMessageHeader SerializeResponseHeader(IServiceRemotingResponseMessageHeader serviceRemotingResponseMessageHeader)
         {
-            if (serviceRemotingResponseMessageHeader == null)
+            if (serviceRemotingResponseMessageHeader == null || serviceRemotingResponseMessageHeader.CheckIfItsEmpty())
             {
                 return null;
             }

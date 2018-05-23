@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Reflection;
@@ -62,16 +63,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// Gets or sets the version of the remoting client to use.
         /// </summary>
-        public RemotingClient RemotingClient { get; set; }
+        public RemotingClientVersion RemotingClientVersion { get; set; }
 
         /// <summary>
         /// Gets or sets the version that the remoting listener to use.
         /// </summary>
-        public RemotingListener RemotingListener { get; set; }
+        public RemotingListenerVersion RemotingListenerVersion { get; set; }
 
         internal static string DefaultV2listenerName
         {
             get { return "V2Listener"; }
+        }
+
+        internal static string DefaultWrappedMessageStackListenerName
+        {
+            get { return "V2_1Listener"; }
         }
 
 #if !DotNetCoreClr
@@ -98,14 +104,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 #endif
 
         /// <summary>
-        /// Creates a V2 service remoting listener for remoting the service interface.
+        /// Returns the func method that creates the remoting listeners.
         /// </summary>
-        /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
-        /// <param name="serviceImplementation">The service implementation object.</param>
-        /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
-        public abstract IServiceRemotingListener CreateServiceRemotingListenerV2(
-            ServiceContext serviceContext,
-            IService serviceImplementation);
+        /// <returns>Func</returns>
+        public abstract Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>
+            CreateServiceRemotingListeners();
 
         /// <summary>
         /// Creates a V2 service remoting client factory that can be used by the

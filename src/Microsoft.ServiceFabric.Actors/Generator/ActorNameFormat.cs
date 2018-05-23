@@ -200,6 +200,19 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
+        /// Gets the service endpoint for the actor type which is specified in service manifest for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Service endpoint name.</returns>
+        public static string GetFabricServiceWrappedMessageEndpointName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}EndpointV2_1",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
         /// Gets the replicator endpoint which is specified in service manifest for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>

@@ -278,6 +278,19 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return retval;
         }
 
+        /// <summary>
+        /// Dispose the managed/unmanaged resouces.
+        /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
+        /// </summary>
+        public void Dispose()
+        {
+            ServiceTrace.Source.WriteInfo(
+                               TraceType,
+                               "{0} Disposing the Client Cache",
+                               this.traceId);
+            this.cache.Dispose();
+        }
+
         internal void OnClientDisconnected(TCommunicationClient faultedClient)
         {
             this.ClientDisconnected?.Invoke(

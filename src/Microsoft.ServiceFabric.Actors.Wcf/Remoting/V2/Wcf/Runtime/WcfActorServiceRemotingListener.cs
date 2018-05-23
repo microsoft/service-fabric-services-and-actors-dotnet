@@ -31,15 +31,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
         /// a default listener binding is created using <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpListenerBinding"/> method which creates
         /// a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
+        /// <param name="useWrappedMessage">
+        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         /// <param name="actorService">The actor service.</param>
         public WcfActorServiceRemotingListener(
             ActorService actorService,
-            Binding listenerBinding = null)
+            Binding listenerBinding = null,
+            bool useWrappedMessage = false)
             : base(
                 GetContext(actorService),
-                new ActorServiceRemotingDispatcher(actorService, new DataContractRemotingMessageFactory()),
+                new ActorServiceRemotingDispatcher(actorService, GetDefaultRequestMessageFactory(useWrappedMessage)),
                 new ActorRemotingSerializationManager(
-                    new BasicDataContractSerializationProvider(),
+                    GetDefaultSerializationProvider(null, useWrappedMessage),
                     new BasicDataContractActorHeaderSerializer()),
                 listenerBinding,
                 ActorNameFormat.GetFabricServiceEndpointName(actorService.ActorTypeInformation.ImplementationType))
@@ -60,21 +63,34 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
         /// <param name="address">The endpoint address to use for the WCF listener. If not specified or null, the endpoint
         /// address is created using the default endpoint resource named "ServiceEndpoint" defined in the service manifest.
         /// </param>
+        /// <param name="useWrappedMessage">
+        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         public WcfActorServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             IServiceRemotingMessageSerializationProvider serializationProvider,
             Binding listenerBinding = null,
-            EndpointAddress address = null)
+            EndpointAddress address = null,
+            bool useWrappedMessage = false)
             : base(
                 serviceContext,
                 serviceRemotingMessageHandler,
                 new ActorRemotingSerializationManager(
-                    serializationProvider ?? new BasicDataContractSerializationProvider(),
+                    GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
                     new BasicDataContractActorHeaderSerializer()),
                 listenerBinding,
                 address)
         {
+        }
+
+        private static IServiceRemotingMessageBodyFactory GetDefaultRequestMessageFactory(bool useWrappedMessage)
+        {
+            if (useWrappedMessage)
+            {
+                return new WrappedRequestMessageFactory();
+            }
+
+            return new DataContractRemotingMessageFactory();
         }
 
         private static ServiceContext GetContext(ActorService actorService)
@@ -85,6 +101,23 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
             }
 
             return actorService.Context;
+        }
+
+        private static IServiceRemotingMessageSerializationProvider GetDefaultSerializationProvider(
+          IServiceRemotingMessageSerializationProvider serviceRemotingSerializationProvider,
+          bool usewrappedMessage)
+        {
+            if (serviceRemotingSerializationProvider == null)
+            {
+                if (usewrappedMessage)
+                {
+                    return new ActorRemotingWrappingDataContractSerializationProvider(null);
+                }
+
+                return new ActorRemotingDataContractSerializationProvider(null);
+            }
+
+            return serviceRemotingSerializationProvider;
         }
     }
 }

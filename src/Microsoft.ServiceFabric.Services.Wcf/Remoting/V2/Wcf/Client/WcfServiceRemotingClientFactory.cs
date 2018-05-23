@@ -58,6 +58,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.IServiceRemotingContract"/>.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider</param>
+        /// <param name="useWrappedMessage">
+        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         /// <remarks>
         ///     This factory uses <see cref="WcfExceptionHandler"/> and <see cref="ServiceRemotingExceptionHandler"/> in addition to the
         ///     exception handlers supplied to the constructor.
@@ -75,15 +77,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 string,
                 IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            IServiceRemotingMessageSerializationProvider serializationProvider = null,
+            bool useWrappedMessage = false)
         {
-            if (serializationProvider == null)
-            {
-                serializationProvider = new BasicDataContractSerializationProvider();
-            }
-
             var serializersManager = new ServiceRemotingMessageSerializersManager(
-                serializationProvider,
+                this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
                 new BasicDataContractHeaderSerializer());
 
             this.Initialize(
@@ -115,14 +113,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         }
 
         /// <summary>
-        /// Event handler that is fired when a client is connected to the service endpoint.
-        /// </summary>
-        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
-
-        /// <summary>
         /// Event handler that is fired when a client is disconnected from the service endpoint.
         /// </summary>
         public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientDisconnected;
+
+        /// <summary>
+        /// Event handler that is fired when a client is connected to the service endpoint.
+        /// </summary>
+        public event EventHandler<CommunicationClientEventArgs<IServiceRemotingClient>> ClientConnected;
 
         /// <summary>
         /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
@@ -228,6 +226,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             return this.remotingMessageBodyFactory;
         }
 
+        /// <summary>
+        /// Releases managed/unmanaged resources.
+        /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
+        /// </summary>
+        public void Dispose()
+        {
+            this.wcfFactory.Dispose();
+        }
+
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
             IEnumerable<IExceptionHandler> exceptionHandlers,
             string traceId)
@@ -331,6 +338,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     callbackClient,
                     this.serializersManager);
             }
+        }
+
+        private IServiceRemotingMessageSerializationProvider GetDefaultSerializationProvider(IServiceRemotingMessageSerializationProvider serializationProvider, bool useWrappedMessage)
+        {
+            if (serializationProvider == null)
+            {
+                if (useWrappedMessage)
+                {
+                    return new WrappingServiceRemotingDataContractSerializationProvider(null);
+                }
+
+                serializationProvider = new ServiceRemotingDataContractSerializationProvider(null);
+            }
+
+            return serializationProvider;
         }
 
         [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]

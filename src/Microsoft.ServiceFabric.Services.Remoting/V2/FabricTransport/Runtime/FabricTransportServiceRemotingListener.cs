@@ -22,6 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     public class FabricTransportServiceRemotingListener : IServiceRemotingListener
     {
         private static readonly string DefaultV2ListenerEndpointResourceName = "ServiceEndpointV2";
+        private static readonly string DefaultWrappedMessageListenerEndpointResourceName = "ServiceEndpointV2_1";
         private readonly FabricTransportMessageHandler transportMessageHandler;
         private readonly string listenAddress;
         private readonly string publishAddress;
@@ -46,13 +47,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null)
             : this(
-                serviceContext,
-                new ServiceRemotingMessageDispatcher(
+                  serviceContext,
+                  new ServiceRemotingMessageDispatcher(
                     serviceContext,
                     serviceImplementation,
-                    serializationProvider != null ? serializationProvider.CreateMessageBodyFactory() : new DataContractRemotingMessageFactory()),
-                remotingListenerSettings,
-                serializationProvider)
+                    GetMessageBodyFactory(serializationProvider, remotingListenerSettings)),
+                  remotingListenerSettings,
+                  serializationProvider)
         {
         }
 
@@ -98,7 +99,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             if (remotingSettings.EndpointResourceName.Equals(FabricTransportRemotingListenerSettings
                 .DefaultEndpointResourceName))
             {
-                remotingSettings.EndpointResourceName = DefaultV2ListenerEndpointResourceName;
+                if (remotingSettings.UseWrappedMessage)
+                {
+                    remotingSettings.EndpointResourceName = DefaultWrappedMessageListenerEndpointResourceName;
+                }
+                else
+                {
+                    remotingSettings.EndpointResourceName = DefaultV2ListenerEndpointResourceName;
+                }
             }
 
             this.transportMessageHandler = new FabricTransportMessageHandler(
@@ -173,13 +181,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             FabricTransportRemotingListenerSettings listenerSettings)
         {
             listenerSettings = listenerSettings ??
-                               FabricTransportRemotingListenerSettings.GetDefault();
+                FabricTransportRemotingListenerSettings.GetDefault();
 
             return new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
-                new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(
-                    listenerSettings.HeaderBufferSize,
-                    listenerSettings.HeaderMaxBufferCount)));
+                new ServiceRemotingMessageHeaderSerializer(
+                new BufferPoolManager(
+                listenerSettings.HeaderBufferSize,
+                listenerSettings.HeaderMaxBufferCount)),
+                listenerSettings.UseWrappedMessage);
+        }
+
+        private static IServiceRemotingMessageBodyFactory GetMessageBodyFactory(IServiceRemotingMessageSerializationProvider serializationProvider, FabricTransportRemotingListenerSettings remotingListenerSettings)
+        {
+            if (serializationProvider != null)
+            {
+                return serializationProvider.CreateMessageBodyFactory();
+            }
+
+            if (remotingListenerSettings != null && remotingListenerSettings.UseWrappedMessage)
+            {
+                return new WrappedRequestMessageFactory();
+            }
+
+            return new DataContractRemotingMessageFactory();
         }
 
         private void Dispose()

@@ -6,19 +6,19 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Description;
 
-    internal sealed class ServiceProxyGeneratorBuilder : ProxyGeneratorBuilder<ServiceProxyGenerator, ServiceProxy>
+    internal sealed class ServiceProxyGeneratorBuilder : Microsoft.ServiceFabric.Services.Remoting.V2.Builder.ProxyGeneratorBuilder<ServiceProxyGenerator, ServiceProxy>
     {
         public ServiceProxyGeneratorBuilder(ICodeBuilder codeBuilder)
             : base(codeBuilder)
         {
         }
 
-        protected override ServiceProxyGenerator CreateProxyGenerator(
-            Type proxyInterfaceType,
-            Type proxyActivatorType)
+        protected override ServiceProxyGenerator CreateProxyGenerator(Type proxyInterfaceType, Type proxyActivatorType)
         {
             return new ServiceProxyGenerator(
                 proxyInterfaceType,

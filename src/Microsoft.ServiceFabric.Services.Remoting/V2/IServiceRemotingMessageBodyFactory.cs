@@ -16,16 +16,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <param name="interfaceName"> This is FullName for the service interface for which request body is being constructed</param>
         /// <param name="methodName">MethodName for the service interface for which request will be sent to</param>
         /// <param name="numberOfParameters">Number of Parameters in that Method</param>
-        /// <returns>An <see cref="IServiceRemotingRequestMessageBody"/>.</returns>
-        IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters);
+        /// <param name="wrappedRequestObject">Wrapped Request Object</param>
+        /// <returns>IServiceRemotingRequestMessageBody</returns>
+        IServiceRemotingRequestMessageBody CreateRequest(string interfaceName, string methodName, int numberOfParameters, object wrappedRequestObject);
 
         /// <summary>
         /// Creates a remoting response message body.
         /// </summary>
         /// <param name="interfaceName"> This is FullName for the service interface for which request body is being constructed</param>
         /// <param name="methodName">MethodName for the service interface for which request will be sent to</param>
+        /// <param name="wrappedResponseObject">Wrapped Response Object</param>
         /// <returns>IServiceRemotingResponseMessageBody</returns>
-        /// <returns>An <see cref="IServiceRemotingResponseMessageBody"/>.</returns>
-        IServiceRemotingResponseMessageBody CreateResponse(string interfaceName, string methodName);
+        IServiceRemotingResponseMessageBody CreateResponse(string interfaceName, string methodName, object wrappedResponseObject);
     }
 }

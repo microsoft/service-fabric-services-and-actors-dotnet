@@ -15,8 +15,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     {
         public ActorRemotingSerializationManager(
             IServiceRemotingMessageSerializationProvider serializationProvider,
-            IServiceRemotingMessageHeaderSerializer headerSerializer)
-            : base(serializationProvider, headerSerializer)
+            IServiceRemotingMessageHeaderSerializer headerSerializer,
+            bool useWrappedMessage = false)
+            : base(
+                  GetSerializationProvider(serializationProvider, useWrappedMessage),
+                  headerSerializer,
+                  useWrappedMessage)
         {
         }
 
@@ -25,17 +29,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
         {
             if (interfaceId == ActorEventSubscription.InterfaceId)
             {
-                return new CacheEntry(
-                    new BasicDataRequestMessageBodySerializer(
-                        new[]
-                        {
-                            typeof(EventSubscriptionRequestBody),
-                        }),
-                    new BasicDataResponsetMessageBodySerializer(
-                        new[]
-                        {
-                            typeof(EventSubscriptionRequestBody),
-                        }));
+                IServiceRemotingMessageSerializationProvider actorRemotingSerializationProvider = null;
+                actorRemotingSerializationProvider = new ActorRemotingDataContractSerializationProvider();
+
+                var cacheEntry = new CacheEntry(
+                    actorRemotingSerializationProvider.CreateRequestMessageSerializer(
+                        null,
+                        new[] { typeof(EventSubscriptionRequestBody) }),
+                    actorRemotingSerializationProvider.CreateResponseMessageSerializer(
+                        null,
+                        new[] { typeof(EventSubscriptionRequestBody) }));
+
+                return cacheEntry;
             }
 
             return base.CreateSerializers(interfaceId);
@@ -50,6 +55,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 
             // if not found in Actor Store, Check if its there in service store for actor service request
             return base.GetInterfaceDetails(interfaceId);
+        }
+
+        private static IServiceRemotingMessageSerializationProvider GetSerializationProvider(IServiceRemotingMessageSerializationProvider serializationProvider, bool useWrappedMessage)
+        {
+            if (serializationProvider == null)
+            {
+                if (useWrappedMessage)
+                {
+                    return new ActorRemotingWrappingDataContractSerializationProvider();
+                }
+
+                return new ActorRemotingDataContractSerializationProvider();
+            }
+
+            return serializationProvider;
         }
     }
 }

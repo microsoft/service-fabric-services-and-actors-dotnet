@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
     /// Factory class to create a proxy to the remote actor objects.
@@ -34,8 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
         /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
         public ActorProxyFactory(
-            Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory>
-                createServiceRemotingClientFactory = null,
+            Func<IServiceRemotingCallbackMessageHandler, Services.Remoting.V2.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory = null,
             OperationRetrySettings retrySettings = null)
         {
             this.thisLock = new object();
@@ -107,9 +107,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
             where TActorInterface : IActor
         {
             var actorInterfaceType = typeof(TActorInterface);
-
             var factory = this.GetOrCreateServiceRemotingClientFactory(actorInterfaceType);
-
             var proxyGenerator = ActorCodeBuilder.GetOrCreateProxyGenerator(actorInterfaceType);
             var actorServicePartitionClient = new ActorServicePartitionClient(
                 factory,
@@ -143,6 +141,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 serviceUri,
                 actorId.GetPartitionKey(),
                 listenerName);
+        }
+
+        /// <summary>
+        /// Releases managed/unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            var castedFactory = this.remotingClientFactory as FabricTransport.Client.FabricTransportActorRemotingClientFactory;
+            if (castedFactory != null)
+            {
+                castedFactory.Dispose();
+            }
         }
 
         /// <summary>

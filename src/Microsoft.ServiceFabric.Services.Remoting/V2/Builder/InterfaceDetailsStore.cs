@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     internal class InterfaceDetailsStore
@@ -39,15 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             return this.knownTypesMap.TryGetValue(interfaceId, out interfaceDetails);
         }
 
-        public void UpdateKnownTypesDetails(IEnumerable<InterfaceDescription> interfaceDescriptions)
-        {
-            foreach (var interfaceDescription in interfaceDescriptions)
-            {
-                this.UpdateKnownTypeDetail(interfaceDescription);
-            }
-        }
-
-        public void UpdateKnownTypeDetail(InterfaceDescription interfaceDescription)
+        public void UpdateKnownTypeDetail(InterfaceDescription interfaceDescription, MethodBodyTypesBuildResult methodBodyTypesBuildResult)
         {
             var responseKnownTypes = new List<Type>();
             var requestKnownType = new List<Type>();
@@ -74,7 +67,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             knownType.RequestKnownTypes = requestKnownType;
             knownType.ResponseKnownTypes = responseKnownTypes;
             knownType.MethodNames = interfaceDescription.Methods.ToDictionary(item => item.Name, item => item.Id);
-
+            knownType.RequestWrappedKnownTypes = methodBodyTypesBuildResult.GetRequestBodyTypes();
+            knownType.ResponseWrappedKnownTypes = methodBodyTypesBuildResult.GetResponseBodyTypes();
             this.UpdateKnownTypes(interfaceDescription.Id, interfaceDescription.InterfaceType.FullName, knownType);
         }
 

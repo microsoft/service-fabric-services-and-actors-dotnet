@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Gets the version(V1,V2 or Compact) of actor service listener is being used.
         /// </summary>
-        public RemotingListener RemotingListener { get; private set; }
+        public RemotingListenerVersion RemotingListener { get; private set; }
 
         /// <summary>
         /// Gets a <see cref="IActorStateProvider"/> that represents the state provider for the actor service.
@@ -209,45 +209,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             types.AddRange(this.ActorTypeInformation.InterfaceTypes);
 
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
-
+            var serviceReplicaListeners = new List<ServiceReplicaListener>();
 #if !DotNetCoreClr
-            if (provider.RemotingListener.Equals(RemotingListener.V2Listener))
+            if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
-                return new[]
+               serviceReplicaListeners.Add(
+                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }));
+            }
+#endif
+            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+            {
+                var listeners = provider.CreateServiceRemotingListeners();
+                foreach (var kvp in listeners)
                 {
-                    new ServiceReplicaListener(
-                        (t) => { return provider.CreateServiceRemotingListenerV2(this); },
-                        ServiceRemotingProviderAttribute.DefaultV2listenerName),
-                };
+                    serviceReplicaListeners.Add(new ServiceReplicaListener(
+                        t =>
+                    {
+                        return kvp.Value(this);
+                    }, kvp.Key));
+                }
             }
 
-            if (provider.RemotingListener.Equals(RemotingListener.CompatListener))
-            {
-                return new[]
-                {
-                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, string.Empty),
-                    new ServiceReplicaListener(
-                        (t) => { return provider.CreateServiceRemotingListenerV2(this); },
-                        ServiceRemotingProviderAttribute.DefaultV2listenerName),
-                };
-            }
-            else
-            {
-                return new[]
-                {
-                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }, string.Empty),
-                };
-            }
-#else
-            return new[]
-            {
-                    new ServiceReplicaListener(
-                        (t) =>
-                    {
-                        return provider.CreateServiceRemotingListenerV2(this);
-                    }, ServiceRemotingProviderAttribute.DefaultV2listenerName),
-            };
-#endif
+            return serviceReplicaListeners;
         }
 
         /// <summary>

@@ -125,7 +125,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             onActivateAsyncStopwatch.Reset();
         }
 
-        internal void ActorMethodStart(long interfaceMethodKey, ActorBase actor, RemotingListener remotingListener)
+        internal void ActorMethodStart(long interfaceMethodKey, ActorBase actor, RemotingListenerVersion remotingListener)
         {
             var diagCtx = actor.DiagnosticsContext;
             var mtdEvtArgs = diagCtx.MethodData;
@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagCtx.PushActorMethodStopwatch(methodStopwatch);
         }
 
-        internal void ActorMethodFinish(long interfaceMethodKey, ActorBase actor, Exception e, RemotingListener remotingListener)
+        internal void ActorMethodFinish(long interfaceMethodKey, ActorBase actor, Exception e, RemotingListenerVersion remotingListener)
         {
             var diagCtx = actor.DiagnosticsContext;
             var mtdEvtArgs = diagCtx.MethodData;

@@ -5,28 +5,30 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
+    using System;
+
     /// <summary>
     /// Determines the remoting stack for server/listener when using remoting provider attribuite to determine the remoting client.
     /// </summary>
-    public enum RemotingListener
+    [Flags]
+    public enum RemotingListenerVersion
     {
 #if !DotNetCoreClr
-
         /// <summary>
         /// This is selected to create V1 Listener.V1 is an old (soon to be deprecated) Remoting Stack.
         /// </summary>
-        V1Listener,
+        V1 = 1,
 
-        /// <summary>
-        /// This is selected to create Listener which creates both V1 and V2 Listener to support both V1 and V2 Clients.
-        /// This is useful in case of upgrade from V1 to V2 Listener.
-        /// </summary>
-        CompatListener,
 #endif
 
         /// <summary>
         /// This is selected to create V2 Listener.V2 is a new Remoting Stack.
         /// </summary>
-        V2Listener,
+        V2 = 2,
+
+        /// <summary>
+            /// This is selected to create Listener using Wrap Message for the parameters.This version is interface compatible to V1 interface.
+            /// </summary>
+        V2_1 = 4,
     }
 }

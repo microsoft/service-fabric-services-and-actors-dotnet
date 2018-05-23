@@ -1,63 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   
-  <!-- Target to build dotnet core projects for supported runtime identifiers.-->
+  <!-- Target to build net standard.-->
   <ItemGroup>
     <Projects_Prod_netstandard Include="$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj;
-                              $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj;
-                            $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj;
-                            $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
-
-    <SupportedRunTimeIdentifiers Include="win10-x64;ubuntu.16.04-x64" />
+                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj;
+                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj;
+                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
   </ItemGroup>
 
   <Target Name="RestoreProd_netstandard">
     <!-- Restores nuget packages and project specific tools -->
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Targets="restore"/>
+    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Targets="restore" Properties="Verbosity=quiet"/>
+  </Target>
+
+  <Target Name="BuildProd_netstandard" DependsOnTargets="RestoreProd_netstandard">
+    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
   </Target>
 
   <Target Name="CleanProd_netstandard" DependsOnTargets="RestoreProd_netstandard">
     <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Targets="Clean" Properties="Configuration=$(Configuration)"/>
   </Target>
-  
-  <Target Name="BuildProd_netstandard" DependsOnTargets="RestoreProd_netstandard">
-    <!-- Build for Windows -->
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Properties="Configuration=$(Configuration);CurrentRuntimeIdentifier=win10-x64" BuildInParallel="true"/>
-    <!-- Build for Linux -->
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Properties="Configuration=$(Configuration);CurrentRuntimeIdentifier=ubuntu.16.04-x64" BuildInParallel="true"/>
-  </Target>
 
-  <!-- Copy prod  binaries for dotnet core-->
+  <!-- Copy prod binaries for net standard-->
   <Target Name="CopyProdBinaries_netstandard">
     <!-- Publish FabActUtil so that all binaries from referenced nuget package are available for creation of nuget package-->
-    <Exec Command="dotnet publish &quot;src\netstandard\FabActUtil\FabActUtil_netstandard.csproj&quot; -o &quot;$(OutputPath)Package&quot; --no-restore --verbosity $(RequestedVerbosity)" />
+    <!-- FabActUtil is invoked in VS tooling to autogenerate and update manifests for Actors. -->
+    <Exec Command="dotnet publish &quot;$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore" />
 
-    <!-- Copy binaries for dotnet core for windows and linux -->
     <ItemGroup>
-      <BinairesNetStandard_win Include="src\netstandard\FabActUtil\$(OutputPath_win)FabActUtil.*"/>
-      <BinairesNetStandard_win Include="src\netstandard\FabActUtil\$(OutputPath_win)Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetStandard_win Include="src\netstandard\Microsoft.ServiceFabric.Actors\$(OutputPath_win)Microsoft.ServiceFabric.Actors.*"/>
-      <BinairesNetStandard_win Include="src\netstandard\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath_win)Microsoft.ServiceFabric.Actors.Wcf.*"/>
-      <BinairesNetStandard_win Include="src\netstandard\Microsoft.ServiceFabric.Services\$(OutputPath_win)Microsoft.ServiceFabric.Services.*"/>
-      <BinairesNetStandard_win Include="src\netstandard\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath_win)Microsoft.ServiceFabric.Services.Remoting.*"/>
-      <BinairesNetStandard_win Include="src\netcore\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath_win)Microsoft.ServiceFabric.Services.Wcf.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)FabActUtil.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)Microsoft.ServiceFabric.Actors.Wcf.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\$(OutputPath)Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>      
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
-      <BinairesNetStandard_win Include="src\netstandard\FabActUtil\$(OutputPath)Package\runtimes\win\lib\netstandard2.0\*.dll"/>
+      <BinairesNetStandard_Win Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Publish\runtimes\win\lib\netstandard2.0\*.dll"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <BinairesNetStandard_linux Include="src\netstandard\FabActUtil\$(OutputPath_linux)FabActUtil.*"/>
-      <BinairesNetStandard_linux Include="src\netstandard\FabActUtil\$(OutputPath_linux)Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetStandard_linux Include="src\netstandard\Microsoft.ServiceFabric.Actors\$(OutputPath_linux)Microsoft.ServiceFabric.Actors.*"/>
-      <BinairesNetStandard_linux Include="src\netstandard\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath_linux)Microsoft.ServiceFabric.Actors.Wcf.*"/>
-      <BinairesNetStandard_linux Include="src\netstandard\Microsoft.ServiceFabric.Services\$(OutputPath_linux)Microsoft.ServiceFabric.Services.*"/>
-      <BinairesNetStandard_linux Include="src\netstandard\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath_linux)Microsoft.ServiceFabric.Services.Remoting.*"/>
-      <BinairesNetStandard_linux Include="src\netstandard\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath_linux)Microsoft.ServiceFabric.Services.Wcf.*"/>
-    </ItemGroup>
-
-    <Copy SourceFiles="@(BinairesNetStandard_win)" DestinationFiles="@(BinairesNetStandard_win->'$(DropFolderNetStandard_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
-    <Copy SourceFiles="@(BinairesNetStandard_linux)" DestinationFiles="@(BinairesNetStandard_linux->'$(DropFolderNetStandard_Linux)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetStandard)" DestinationFiles="@(BinairesNetStandard->'$(DropFolderNetStandard)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetStandard_Win)" DestinationFiles="@(BinairesNetStandard_Win->'$(DropFolderNetStandard_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

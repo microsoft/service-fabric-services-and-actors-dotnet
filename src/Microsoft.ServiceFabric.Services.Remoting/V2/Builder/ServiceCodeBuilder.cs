@@ -121,7 +121,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
         protected override MethodBodyTypesBuildResult BuildMethodBodyTypes(Type interfaceType)
         {
-            throw new NotImplementedException("This is not Implemented for V2 Stack");
+            // Interface Check is already performat at builidng Dispatcher and proxy level.
+            var servicenterfaceDescription = ServiceInterfaceDescription.CreateUsingCRCId(interfaceType, false);
+            var result = this.methodBodyTypesBuilder.Build(servicenterfaceDescription);
+            InterfaceDetailsStore.UpdateKnownTypeDetail(servicenterfaceDescription, result);
+            return result;
         }
 
         protected override ProxyGeneratorBuildResult BuildProxyGenerator(Type interfaceType)
@@ -146,18 +150,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
         private MethodDispatcherBuildResult BuildMethodDispatcherResult(ServiceInterfaceDescription servicenterfaceDescription)
         {
-            var res = this.methodDispatcherBuilder.Build(servicenterfaceDescription);
-            InterfaceDetailsStore.UpdateKnownTypeDetail(servicenterfaceDescription);
-            return res;
+            return this.methodDispatcherBuilder.Build(servicenterfaceDescription);
         }
 
         private ProxyGeneratorBuildResult CreateProxyGeneratorBuildResult(
             Type interfaceType,
             IEnumerable<InterfaceDescription> servicenterfaceDescriptions)
         {
-            var res = this.proxyGeneratorBuilder.Build(interfaceType, servicenterfaceDescriptions);
-            InterfaceDetailsStore.UpdateKnownTypesDetails(servicenterfaceDescriptions);
-            return res;
+           return this.proxyGeneratorBuilder.Build(interfaceType, servicenterfaceDescriptions);
         }
     }
 }

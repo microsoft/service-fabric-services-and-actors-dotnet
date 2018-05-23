@@ -6,7 +6,10 @@
 namespace Microsoft.ServiceFabric.Services.Client
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Fabric;
+    using System.Fabric.Common;
+    using System.Fabric.Description;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -45,6 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         private readonly CreateFabricClientDelegate createFabricClient;
         private readonly CreateFabricClientDelegate recreateFabricClient;
         private FabricClient fabricClient;
+        private ConcurrentDictionary<Uri, bool> registrationCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServicePartitionResolver"/> class.
@@ -62,6 +66,8 @@ namespace Microsoft.ServiceFabric.Services.Client
         {
             this.createFabricClient = createFabricClient;
             this.recreateFabricClient = recreateFabricClient ?? createFabricClient;
+            this.UseNotification = true;
+            this.registrationCache = new ConcurrentDictionary<Uri, bool>();
         }
 
         /// <summary>
@@ -130,6 +136,8 @@ namespace Microsoft.ServiceFabric.Services.Client
             : this(() => new FabricClient(credential, settings, connectionEndpoints))
         {
         }
+
+        internal bool UseNotification { get; set; }
 
         /// <summary>
         /// Updates the default ServicePartitionResolver.
@@ -298,7 +306,8 @@ namespace Microsoft.ServiceFabric.Services.Client
                             null,
                             resolveTimeoutPerTry,
                             maxRetryBackoffInterval,
-                            cancellationToken);
+                            cancellationToken,
+                            serviceUri);
                     }
 
                 case ServicePartitionKind.Named:
@@ -314,7 +323,8 @@ namespace Microsoft.ServiceFabric.Services.Client
                             null,
                             resolveTimeoutPerTry,
                             maxRetryBackoffInterval,
-                            cancellationToken);
+                            cancellationToken,
+                            serviceUri);
                     }
 
                 case ServicePartitionKind.Int64Range:
@@ -330,7 +340,8 @@ namespace Microsoft.ServiceFabric.Services.Client
                             null,
                             resolveTimeoutPerTry,
                             maxRetryBackoffInterval,
-                            cancellationToken);
+                            cancellationToken,
+                            serviceUri);
                     }
 
                 default:
@@ -433,7 +444,8 @@ namespace Microsoft.ServiceFabric.Services.Client
                             previousRsp,
                             resolveTimeoutPerTry,
                             maxRetryBackoffInterval,
-                            cancellationToken);
+                            cancellationToken,
+                            serviceName);
                     }
 
                 case ServicePartitionKind.Named:
@@ -450,7 +462,8 @@ namespace Microsoft.ServiceFabric.Services.Client
                             previousRsp,
                             resolveTimeoutPerTry,
                             maxRetryBackoffInterval,
-                            cancellationToken);
+                            cancellationToken,
+                            serviceName);
                     }
 
                 case ServicePartitionKind.Int64Range:
@@ -467,7 +480,8 @@ namespace Microsoft.ServiceFabric.Services.Client
                             previousRsp,
                             resolveTimeoutPerTry,
                             maxRetryBackoffInterval,
-                            cancellationToken);
+                            cancellationToken,
+                            serviceName);
                     }
 
                 default:
@@ -522,11 +536,15 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         private async Task<ResolvedServicePartition> ResolveHelperAsync(
-            Func<FabricClient, ResolvedServicePartition, TimeSpan, CancellationToken, Task<ResolvedServicePartition>> resolveFunc,
+            Func<FabricClient, ResolvedServicePartition,
+            TimeSpan,
+            CancellationToken,
+            Task<ResolvedServicePartition>> resolveFunc,
             ResolvedServicePartition previousRsp,
             TimeSpan resolveTimeout,
             TimeSpan maxRetryInterval,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            Uri serviceUri)
         {
             while (true)
             {
@@ -535,6 +553,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                     throw new OperationCanceledException();
                 }
 
+                var totaltime = new TimeoutHelper(resolveTimeout);
                 var client = this.GetClient();
                 ResolvedServicePartition rsp = null;
 
@@ -544,7 +563,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                     rsp = await resolveFunc.Invoke(
                         client,
                         previousRsp,
-                        resolveTimeout,
+                        totaltime.GetRemainingTime(),
                         CancellationToken.None);
                 }
                 catch (AggregateException ae)
@@ -583,6 +602,29 @@ namespace Microsoft.ServiceFabric.Services.Client
                     if (rsp != null)
                     {
                         rsp.GetEndpoint();
+                        try
+                        {
+                            // Registering for Notification only for the first request for a service uri.
+                            if (this.UseNotification && !this.registrationCache.ContainsKey(serviceUri))
+                            {
+                                var added = this.registrationCache.TryAdd(serviceUri, true);
+                                if (added)
+                                {
+                                    ServiceNotificationFilterDescription filter = new ServiceNotificationFilterDescription(
+                                       name: serviceUri,
+                                       matchNamePrefix: true,
+                                       matchPrimaryChangeOnly: false);
+                                    await client.ServiceManager.RegisterServiceNotificationFilterAsync(filter, totaltime.GetRemainingTime(), CancellationToken.None);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // Remove the Entry so that in next call we can again try registeration
+                            bool res;
+                            this.registrationCache.TryRemove(serviceUri, out res);
+                        }
+
                         return rsp;
                     }
                 }

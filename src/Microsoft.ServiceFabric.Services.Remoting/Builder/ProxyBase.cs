@@ -151,18 +151,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             return (TRetval)this.GetReturnValue(interfaceId, methodId, responseBody);
         }
 
+#endif
+
+        // V2 Stack protected APIs
+
         /// <summary>
-        /// Implemented by the derived class to type cast the response body and extract the value from it.
+        /// This method is used by the generated proxy type and should be used directly. This method converts the Task with object
+        /// return value to a Task without the return value for the void method invocation
         /// </summary>
         /// <param name="interfaceId">Interface Id for the actor interface.</param>
         /// <param name="methodId">Method Id for the actor method.</param>
         /// <param name="responseBody">Response body.</param>
         /// <returns>Return value of method call as <see cref="object"/>.</returns>
         protected abstract object GetReturnValue(int interfaceId, int methodId, object responseBody);
-
-#endif
-
-        // V2 Stack protected APIs
 
         /// <summary>
         /// This method is used by the generated proxy type and should be used directly. This method converts the Task with object
@@ -181,26 +182,41 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <param name="interfaceName">Full Name of the service interface for which this call is invoked</param>
         /// <param name="methodName">Method Name of the service interface for which this call is invoked</param>
         /// <param name="parameterCount">Number of Parameters in the service interface Method</param>
+        /// <param name="wrappedRequest">Wrapped Request Object</param>
         /// <returns>A request message body for V2 remoting stack.</returns>
         protected virtual IServiceRemotingRequestMessageBody CreateRequestMessageBodyV2(
             string interfaceName,
             string methodName,
-            int parameterCount)
+            int parameterCount,
+            object wrappedRequest)
         {
-            return this.ServiceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount);
+            return this.ServiceRemotingMessageBodyFactory.CreateRequest(interfaceName, methodName, parameterCount, wrappedRequest);
         }
 
         /// <summary>
         /// Called by the generated proxy class to get the result from the response body.
         /// </summary>
         /// <typeparam name="TRetval"><see cref="System.Type"/> of the remote method return value.</typeparam>
+        /// <param name="interfaceId">InterfaceId of the remoting interface.</param>
+        /// <param name="methodId">MethodId of the remoting Method</param>
         /// <param name="task">A task that represents the asynchronous operation for remote method call.</param>
         /// <returns>A task that represents the asynchronous operation for remote method call.
         /// The value of the TRetval contains the remote method return value. </returns>
         protected async Task<TRetval> ContinueWithResultV2<TRetval>(
+            int interfaceId,
+            int methodId,
             Task<IServiceRemotingResponseMessageBody> task)
         {
             var responseBody = await task;
+            var wrappedMessage = responseBody as WrappedMessage;
+            if (wrappedMessage != null)
+            {
+                return (TRetval)this.GetReturnValue(
+                    interfaceId,
+                    methodId,
+                    wrappedMessage.Value);
+            }
+
             return (TRetval)responseBody.Get(typeof(TRetval));
         }
 
@@ -227,7 +243,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 requestMsgBodyValue,
                 cancellationToken);
 
-            return responseMsg?.GetBody();
+            return responseMsg != null ? responseMsg.GetBody()
+                   : null;
         }
 
         /// <summary>
@@ -245,6 +262,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
                 interfaceId,
                 methodId,
                 requestMsgBodyValue);
+        }
+
+        // Called By Code-Gen
+
+        /// <summary>
+        /// This check if we are wrapping remoting message or not.
+        /// </summary>
+        /// <param name="requestMessage">Remoting Request Message</param>
+        /// <returns>true or false </returns>
+        protected bool CheckIfItsWrappedRequest(IServiceRemotingRequestMessageBody requestMessage)
+        {
+            if (requestMessage is WrappedMessage)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

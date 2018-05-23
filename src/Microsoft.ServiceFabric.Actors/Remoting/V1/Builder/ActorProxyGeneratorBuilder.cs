@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
     internal class ActorProxyGeneratorBuilder : ProxyGeneratorBuilder<ActorProxyGeneratorWith, ActorProxy>
     {

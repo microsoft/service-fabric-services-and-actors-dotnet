@@ -58,6 +58,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         ///     Id to use in diagnostics traces from this component.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider</param>
+        /// <param name="useWrappedMessage">
+        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         /// <remarks>
         ///     This factory uses <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfExceptionHandler"/>,
         ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.Client.ActorRemotingExceptionHandler"/>, in addition to the
@@ -69,17 +71,35 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             IServicePartitionResolver servicePartitionResolver = null,
             string traceId = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            IServiceRemotingMessageSerializationProvider serializationProvider = null,
+            bool useWrappedMessage = false)
             : base(
-                 new ActorRemotingSerializationManager(
-                     serializationProvider ?? new BasicDataContractSerializationProvider(),
-                     new BasicDataContractActorHeaderSerializer()),
-                 clientBinding,
-                 callbackClient,
-                 GetExceptionHandlers(exceptionHandlers),
-                 servicePartitionResolver,
-                 traceId)
+                InitializeSerializerManager(serializationProvider, useWrappedMessage),
+                clientBinding,
+                callbackClient,
+                GetExceptionHandlers(exceptionHandlers),
+                servicePartitionResolver,
+                traceId)
         {
+        }
+
+        private static ActorRemotingSerializationManager InitializeSerializerManager(
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            bool useWrappedMessage)
+        {
+            if (serializationProvider == null)
+            {
+                if (useWrappedMessage)
+                {
+                    serializationProvider = new ActorRemotingWrappingDataContractSerializationProvider(null);
+                }
+
+                serializationProvider = new ActorRemotingDataContractSerializationProvider(null);
+            }
+
+            return new ActorRemotingSerializationManager(
+                serializationProvider,
+                new BasicDataContractActorHeaderSerializer());
         }
 
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(IEnumerable<IExceptionHandler> exceptionHandlers)

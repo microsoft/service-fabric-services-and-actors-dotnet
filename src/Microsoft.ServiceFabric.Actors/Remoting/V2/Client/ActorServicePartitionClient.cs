@@ -51,10 +51,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 ActorId = this.ActorId,
                 InterfaceId = ActorEventSubscription.InterfaceId,
                 MethodId = ActorEventSubscription.SubscribeMethodId,
+                MethodName = ActorEventSubscription.SubscribeMethodName,
             };
-
-            actorRemotingMessageHeaders.InterfaceId = ActorEventSubscription.InterfaceId;
-            actorRemotingMessageHeaders.MethodId = ActorEventSubscription.SubscribeMethodId;
 
             var msgBody = new ServiceRemotingRequestMessageBody(1);
             msgBody.SetParameter(0, "Value", new EventSubscriptionRequestBody()
@@ -76,6 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 ActorId = this.ActorId,
                 InterfaceId = ActorEventSubscription.InterfaceId,
                 MethodId = ActorEventSubscription.UnSubscribeMethodId,
+                MethodName = ActorEventSubscription.UnSubscribeMethodName,
             };
 
             var msgBody = new ServiceRemotingRequestMessageBody(1);

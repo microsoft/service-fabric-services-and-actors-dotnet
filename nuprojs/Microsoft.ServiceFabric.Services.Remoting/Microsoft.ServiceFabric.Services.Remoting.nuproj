@@ -19,10 +19,7 @@
       </File>
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
         <TargetPath>lib\net45</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>ref\netstandard2.0</TargetPath>
-      </File>
+      </File>      
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>runtimes\win\lib\net461</TargetPath>
       </File>
@@ -35,11 +32,9 @@
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>runtimes\win\lib\net471</TargetPath>
       </File>
-      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>runtimes\win\lib\netstandard2.0</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetStandard_Linux)Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>runtimes\linux\lib\netstandard2.0</TargetPath>
+
+      <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Services.Remoting.dll">
+        <TargetPath>ref\netstandard2.0</TargetPath>
       </File>
     </ItemGroup>
     

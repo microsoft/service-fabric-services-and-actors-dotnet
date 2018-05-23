@@ -203,6 +203,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
                 cancellationToken);
         }
 
+        /// <summary>
+        /// Releases managed/unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            this.wcfFactory.Dispose();
+        }
+
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
             IEnumerable<IExceptionHandler> exceptionHandlers,
             string traceId)

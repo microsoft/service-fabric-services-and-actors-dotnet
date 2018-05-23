@@ -54,6 +54,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
         private Dictionary<string, byte[]> headers;
 #pragma warning restore SA1201 // Elements should appear in the correct order
 
+        [DataMember(Name = "MethodName", IsRequired = false, Order = 6)]
+        public string MethodName { get; set; }
+
         public void AddHeader(string headerName, byte[] headerValue)
         {
             if (this.headers.ContainsKey(headerName))

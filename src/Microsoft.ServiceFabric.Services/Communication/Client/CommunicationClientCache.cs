@@ -18,8 +18,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// maintained as a weak reference and the cache entries whose weak references are not alive are cleaned
     /// up periodically.
     /// </summary>
-    /// <typeparam name="TCommunicationClient">The type of the communication client.</typeparam>
+     /// <typeparam name="TCommunicationClient">The type of the communication client.</typeparam>
     internal class CommunicationClientCache<TCommunicationClient>
+    : IDisposable
         where TCommunicationClient : ICommunicationClient
     {
         private const string TraceType = "CommunicationClientCache";
@@ -73,6 +74,25 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         public void ClearClientCacheEntries(Guid partitionId)
         {
             // Currently no op. To implement when we register for service change notifications.
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.cacheCleanupTimer != null)
+                {
+                    this.cacheCleanupTimer.Dispose();
+                    this.clientCache.Clear();
+                    this.cacheCleanupTimer = null;
+                }
+            }
         }
 
         // Returns a random value between 120 and 150 seconds.

@@ -176,6 +176,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                     this.actorService.ActorManager.DiagnosticsEventManager.ActorRequestProcessingFinish(startTime);
                 }
 
+                // We are creating empty response headers so that ServiceRemotingServiceEvents can add headers if they needed.
+                // This wont impact serialization cost since we check if its Empty , then dont serialize.
                 var response = new ServiceRemotingResponseMessage(new ServiceRemotingResponseMessageHeader(), retVal);
 
                 ServiceRemotingServiceEvents.RaiseSendResponse(response, requestMessage);

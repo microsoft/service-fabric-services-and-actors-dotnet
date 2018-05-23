@@ -39,6 +39,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             this.headers[headerName] = headerValue;
         }
 
+        public bool CheckIfItsEmpty()
+        {
+           if (this.headers == null || this.headers.Count == 0)
+           {
+                return true;
+           }
+
+           return false;
+        }
+
         public bool TryGetHeaderValue(string headerName, out byte[] headerValue)
         {
             headerValue = null;

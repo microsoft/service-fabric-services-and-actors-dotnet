@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListener remotingListener)
+        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
         {
             var methodInfo = this.actorMethodInfo[key];
             return methodInfo;
