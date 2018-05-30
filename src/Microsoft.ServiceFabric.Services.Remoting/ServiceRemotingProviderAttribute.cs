@@ -58,6 +58,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// </summary>
         public ServiceRemotingProviderAttribute()
         {
+#if !DotNetCoreClr
+            this.RemotingListenerVersion = RemotingListenerVersion.V1;
+            this.RemotingClientVersion = RemotingClientVersion.V1;
+#else
+            this.RemotingListenerVersion = RemotingListenerVersion.V2_1;
+            this.RemotingClientVersion = RemotingClientVersion.V2_1;
+#endif
         }
 
         /// <summary>
