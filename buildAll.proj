@@ -10,7 +10,7 @@
   </PropertyGroup>
   
   <!--Targets which can be invoked from Build.ps1-->
-  <Target Name="RebuildAll" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;CleanAll;BuildProd;BuildTest;CopyProdBinaries;GenerateNugetPackages">
+  <Target Name="RebuildAll" DependsOnTargets="BuildCode;GeneratePackages">
     <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
@@ -18,7 +18,14 @@
     <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
-  <Target Name="GeneratePackages" DependsOnTargets="RestorePackagesProd;CleanAll;BuildProd;CopyProdBinaries;GenerateNugetPackages">
+  <!-- Builds code, this target doesn't generates nuget packages. -->
+  <Target Name="BuildCode" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;CleanAll;BuildProd;BuildTest;CopyProdBinaries">
+    <Message Text="SUCCESS!  Generated binaries are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
+  </Target>
+
+  <!-- Generates nuget packages from the build, this target doesn't builds code, build must have been done before invoking this target.
+       This allows signing of binaires after build and consuming them in nuget packages. -->
+  <Target Name="GeneratePackages" DependsOnTargets="GenerateNugetPackages">
     <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
