@@ -12,10 +12,9 @@ param
     #Options are:
     #   RebuildAll: Clean, Build all .csproj and Generate Nuget Packages. This is the default option.
     #   BuildAll: Build all .csproj and Generate Nuget Packages.
-    #   GeneratePackages: Build all product .csprojs and generate nuget packages.
-    #   BuildTests: Builds all test .csprojs.
-    #   BuildProduct: Builds all product .csprojs.
-    [ValidateSet('Rebuildall', 'BuildAll', 'GeneratePackages')]
+	#   BuildCode: Builds code, doesn't generates nuget packages.
+    #   GeneratePackages: Generates nuget packages, this target doesn't builds code, build must be done using BuildCode target before invoking this target.
+    [ValidateSet('Rebuildall', 'BuildAll', 'BuildCode', 'GeneratePackages')]
     [string]$Target = "RebuildAll",
 
     # msbuild verbosity level.
