@@ -87,7 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                         exceptionInformation.Exception,
                         false,
                         retrySettings,
-                        int.MaxValue);
+                        retrySettings.DefaultMaxRetryCountForNonTransientErrors);
 
                     return true;
                 }
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                         exceptionInformation.Exception,
                         false,
                         retrySettings,
-                        int.MaxValue);
+                        retrySettings.DefaultMaxRetryCountForNonTransientErrors);
 
                 return true;
             }

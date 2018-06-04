@@ -75,7 +75,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     ///     <see cref="IExceptionHandler.TryHandleException(ExceptionInformation, OperationRetrySettings, out ExceptionHandlingResult)"/> method.
     ///     The <see cref="ExceptionHandlingRetryResult.IsTransient"/> property of the <see cref="ExceptionHandlingRetryResult"/> is set to true,
     ///     the <see cref="ExceptionHandlingRetryResult.RetryDelay"/>  property is set to a random value up to <see cref="OperationRetrySettings.MaxRetryBackoffIntervalOnTransientErrors"/>
-    ///     and <see cref="ExceptionHandlingRetryResult.MaxRetryCount"/> property is set to <see cref="OperationRetrySettings.DefaultMaxRetryCount"/>.
+    ///     and <see cref="ExceptionHandlingRetryResult.MaxRetryCount"/> property is set to <see cref="OperationRetrySettings.DefaultMaxRetryCountForTransientErrors"/>.
     /// </description>
     /// </item>
     /// </list>
@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                     e,
                     false,
                     retrySettings,
-                    int.MaxValue);
+                    retrySettings.DefaultMaxRetryCountForNonTransientErrors);
                 return true;
             }
 
@@ -164,7 +164,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                             actualException,
                             false,
                             retrySettings,
-                            int.MaxValue);
+                            retrySettings.DefaultMaxRetryCountForNonTransientErrors);
                         return true;
                     }
                 }
@@ -177,7 +177,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
                     e,
                     false,
                     retrySettings,
-                    retrySettings.DefaultMaxRetryCount);
+                    retrySettings.DefaultMaxRetryCountForNonTransientErrors);
                 return true;
             }
 

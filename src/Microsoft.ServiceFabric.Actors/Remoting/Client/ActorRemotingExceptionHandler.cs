@@ -108,7 +108,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Client
                     e,
                     true,
                     retrySettings,
-                    retrySettings.DefaultMaxRetryCount);
+                    retrySettings.DefaultMaxRetryCountForTransientErrors);
                 return true;
             }
 

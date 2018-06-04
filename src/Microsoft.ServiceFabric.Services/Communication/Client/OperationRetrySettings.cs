@@ -15,7 +15,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     {
         private readonly TimeSpan maxRetryBackoffIntervalOnNonTransientErrors;
         private readonly TimeSpan maxRetryBackoffIntervalOnTransientErrors;
-        private readonly int defaultMaxRetryCount;
+        private readonly int defaultMaxRetryCountForTransientErrors;
+        private readonly int defaultMaxRetryCountForNonTransientErrors;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
@@ -37,17 +38,22 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="maxRetryBackoffIntervalOnNonTransientErrors">
         /// Specifies the maximum interval to back-off before retrying incase of Non transient errors
         /// </param>
-        /// <param name="defaultMaxRetryCount">
-        /// Specifies the maximum number of times to retry.
+        /// <param name="defaultMaxRetryCountForTransientErrors">
+        /// Specifies the maximum number of times to retry for transient errors.
+        /// </param>
+        /// <param name="defaultMaxRetryCountForNonTransientErrors">
+        /// Specifies the maximum number of times to retry for non-transient errors.
         /// </param>
         public OperationRetrySettings(
             TimeSpan maxRetryBackoffIntervalOnTransientErrors,
             TimeSpan maxRetryBackoffIntervalOnNonTransientErrors,
-            int defaultMaxRetryCount)
+            int defaultMaxRetryCountForTransientErrors,
+            int defaultMaxRetryCountForNonTransientErrors = int.MaxValue)
         {
             this.maxRetryBackoffIntervalOnTransientErrors = maxRetryBackoffIntervalOnTransientErrors;
             this.maxRetryBackoffIntervalOnNonTransientErrors = maxRetryBackoffIntervalOnNonTransientErrors;
-            this.defaultMaxRetryCount = defaultMaxRetryCount;
+            this.defaultMaxRetryCountForTransientErrors = defaultMaxRetryCountForTransientErrors;
+            this.defaultMaxRetryCountForNonTransientErrors = defaultMaxRetryCountForNonTransientErrors;
         }
 
         /// <summary>
@@ -69,12 +75,21 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Gets the maximum number of times to retry.
+        /// Gets the maximum number of times to retry for transient errors.
         /// </summary>
         /// <value>Maximum number of times to retry a specific exception.</value>
-        public int DefaultMaxRetryCount
+        public int DefaultMaxRetryCountForTransientErrors
         {
-            get { return this.defaultMaxRetryCount; }
+            get { return this.defaultMaxRetryCountForTransientErrors; }
+        }
+
+        /// <summary>
+        /// Gets the maximum number of times to retry for non -transient errors.
+        /// </summary>
+        /// <value>Maximum number of times to retry a specific non-transient exception.</value>
+        public int DefaultMaxRetryCountForNonTransientErrors
+        {
+            get { return this.defaultMaxRetryCountForNonTransientErrors; }
         }
     }
 }
