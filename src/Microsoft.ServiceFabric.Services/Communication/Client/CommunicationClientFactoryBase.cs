@@ -278,19 +278,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return retval;
         }
 
-        /// <summary>
-        /// Dispose the managed/unmanaged resouces.
-        /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
-        /// </summary>
-        public void Dispose()
-        {
-            ServiceTrace.Source.WriteInfo(
-                               TraceType,
-                               "{0} Disposing the Client Cache",
-                               this.traceId);
-            this.cache.Dispose();
-        }
-
         internal void OnClientDisconnected(TCommunicationClient faultedClient)
         {
             this.ClientDisconnected?.Invoke(
@@ -313,6 +300,19 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         Client = newClient,
                     });
             }
+        }
+
+        /// <summary>
+        /// Dispose the managed/unmanaged resouces.
+        /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
+        /// </summary>
+        public void Dispose()
+        {
+            ServiceTrace.Source.WriteInfo(
+                               TraceType,
+                               "{0} Disposing the Client Cache",
+                               this.traceId);                               
+            this.cache.Dispose();
         }
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 previousRsp,
                                 cancellationToken);
 
-                    TCommunicationClient client;
+                    TCommunicationClient client =default(TCommunicationClient);
                     try
                     {
                         // The communication client in the cache is invalid.
@@ -398,7 +398,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         //    communication client so the last reference to the client was GC'd.
                         // 2. There was an exception during communication to the endpoint, and the ReportOperationException
                         // code path and the communication client was invalidated.
-                        if (cacheEntry.Client == null)
+                        if (cacheEntry.Client == null && !cacheEntry.IsInvalidEndpoint)
                         {
                             ServiceTrace.Source.WriteInfo(
                                 TraceType,
@@ -446,6 +446,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        //This will makesure no one else uses this cacheEntry but do the re-resolve.
+                        cacheEntry.IsInvalidEndpoint = true;
+                        throw ex;
+                    }
                     finally
                     {
                         cacheEntry.Semaphore.Release();
@@ -460,6 +466,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
                 catch (Exception e)
                 {
+                   
                     ServiceTrace.Source.WriteInfo(
                         TraceType,
                         "{0} Exception While CreatingClient {1}",
@@ -674,6 +681,17 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             client = cacheEntry.Client;
             var faultedClient = default(TCommunicationClient);
+
+            if(cacheEntry.Client==null && cacheEntry.IsInvalidEndpoint)
+            {
+                ServiceTrace.Source.WriteInfo(
+                                  TraceType,
+                                  "{0} Invalid CacheEntry Endpoint found in Cache  : Address : {1} Role : {2}",
+                                  this.traceId,
+                                  cacheEntry.GetEndpoint(),
+                                  cacheEntry.Endpoint.Role);
+                return false;
+            }
 
             // check if we have a cached client
             if (client != null)

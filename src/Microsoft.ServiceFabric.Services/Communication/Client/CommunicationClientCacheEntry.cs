@@ -43,6 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.rsp = null;
             this.address = null;
             this.IsInCache = true;
+            this.IsInvalidEndpoint = false;
         }
 
         /// <summary>
@@ -121,6 +122,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             {
                 this.endpoint = value;
             }
+        }
+
+        //This indicate that if any users have tried to connect this endpoint and has failed.
+        //With this info , other users can re-resolve before using this endpoint.
+        public bool IsInvalidEndpoint
+        {
+            get;
+            set;
         }
 
         public bool IsInCache
