@@ -124,8 +124,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             }
         }
 
-        //This indicate that if any users have tried to connect this endpoint and has failed.
-        //With this info , other users can re-resolve before using this endpoint.
+        // This indicate that if any users have tried to connect this endpoint and has failed.
+        // With this info , other users can re-resolve before using this endpoint.
         public bool IsInvalidEndpoint
         {
             get;
