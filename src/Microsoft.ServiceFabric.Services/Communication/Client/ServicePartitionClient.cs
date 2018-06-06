@@ -164,7 +164,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken,
             params Type[] doNotRetryExceptionTypes)
         {
-            var transientExceptionRetryCount = 0;
             var totalretryCount = 0;
             string currentExceptionId = null;
 
@@ -222,13 +221,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         exceptionReportResult.ExceptionId,
                         exceptionReportResult.MaxRetryCount,
                         ref currentExceptionId,
-                        ref transientExceptionRetryCount))
+                        ref totalretryCount))
                 {
                     throw exceptionReportResult.Exception ?? exception;
                 }
 
                 var retrydelay = Utility.GetRetryDelay(exceptionReportResult.RetryDelay, totalretryCount);
-                totalretryCount++;
                 ServiceTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,

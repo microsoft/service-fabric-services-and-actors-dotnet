@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Client
     using System.Fabric.Description;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
     /// Represents a delegate to create a FabricClient object.
@@ -638,14 +639,14 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                 // wait before retry
                 await Task.Delay(
-                    this.GetRetryDelay(maxRetryInterval, currentRetryCount++),
+                    Utility.GetRetryDelay(this.GetRetryJitter(maxRetryInterval), currentRetryCount++),
                     cancellationToken);
             }
         }
 
-        private TimeSpan GetRetryDelay(TimeSpan maxRetryInterval, int currentRetryCount)
+        private TimeSpan GetRetryJitter(TimeSpan maxRetryInterval)
         {
-            return TimeSpan.FromSeconds((Rand.NextDouble() * maxRetryInterval.TotalSeconds) + Math.Pow(2, currentRetryCount));
+            return new TimeSpan((long)(Rand.NextDouble() * maxRetryInterval.Ticks));
         }
 
         private FabricClient GetClient()
