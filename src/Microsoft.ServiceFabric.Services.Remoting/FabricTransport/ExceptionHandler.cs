@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
                     fabricException,
                     false,
                     retrySettings,
-                    int.MaxValue);
+                    retrySettings.DefaultMaxRetryCountForNonTransientErrors);
                 return true;
             }
 

@@ -98,7 +98,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
           Exception exception,
           bool isTransient,
           OperationRetrySettings retrySettings)
-            : this(exception, isTransient, retrySettings, retrySettings.DefaultMaxRetryCount)
+            : this(
+                  exception,
+                  isTransient,
+                  retrySettings,
+                  isTransient ? retrySettings.DefaultMaxRetryCountForTransientErrors : retrySettings.DefaultMaxRetryCountForNonTransientErrors)
         {
         }
 
