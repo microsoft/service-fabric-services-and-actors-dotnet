@@ -391,12 +391,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             // if (interfaceId == <interfaceId>)
             ilGen.Emit(OpCodes.Ldarg_1);
             ilGen.Emit(OpCodes.Ldc_I4, interfaceId);
-            ilGen.Emit(OpCodes.Bne_Un_S, elseLabel);
+            ilGen.Emit(OpCodes.Bne_Un, elseLabel);
 
             // if (methodId == <methodId>)
             ilGen.Emit(OpCodes.Ldarg_2);
             ilGen.Emit(OpCodes.Ldc_I4, methodId);
-            ilGen.Emit(OpCodes.Bne_Un_S, elseLabel);
+            ilGen.Emit(OpCodes.Bne_Un, elseLabel);
 
             var castedResponseBody = ilGen.DeclareLocal(responseBodyType);
             ilGen.Emit(OpCodes.Ldarg_3); // load responseBody object
