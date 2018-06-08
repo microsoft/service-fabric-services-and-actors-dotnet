@@ -84,11 +84,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Gets the version(V1,V2 or Compact) of actor service listener is being used.
-        /// </summary>
-        public RemotingListenerVersion RemotingListener { get; private set; }
-
-        /// <summary>
         /// Gets a <see cref="IActorStateProvider"/> that represents the state provider for the actor service.
         /// </summary>
         /// <value>

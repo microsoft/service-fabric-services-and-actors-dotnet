@@ -65,12 +65,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             string traceId = null)
         {
             this.fireConnectEvents = fireConnectEvents;
-            this.random = new Random();
             this.randomLock = new object();
             this.traceId = traceId ?? Guid.NewGuid().ToString();
-
             this.servicePartitionResolver = servicePartitionResolver ?? ServicePartitionResolver.GetDefault();
-
+            this.random = new Random(this.GenerateSeed());
             this.exceptionHandlers = new List<IExceptionHandler>();
             if (exceptionHandlers != null)
             {
@@ -759,6 +757,13 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             }
 
             return false;
+        }
+
+        private int GenerateSeed()
+        {
+            var hashcode = this.GetHashCode();
+            var currentTicks = Environment.TickCount;
+            return currentTicks + hashcode;
         }
     }
 }
