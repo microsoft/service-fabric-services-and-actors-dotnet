@@ -662,7 +662,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             lock (this.randomLock)
             {
                 if (this.random == null)
-                {
+                {  
+                // We need seed to make sure unique random numbers gets generated for different clientfactory instance but created at the same time.
                     this.random = new Random(this.GenerateSeed());
                 }
 
