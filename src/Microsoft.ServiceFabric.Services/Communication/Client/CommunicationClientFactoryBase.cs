@@ -29,9 +29,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private readonly List<IExceptionHandler> exceptionHandlers;
         private readonly CommunicationClientCache<TCommunicationClient> cache;
         private readonly string traceId;
-        private readonly Random random;
         private readonly object randomLock;
         private readonly bool fireConnectEvents;
+        private Random random;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommunicationClientFactoryBase{TCommunicationClient}"/> class.
@@ -68,7 +68,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.randomLock = new object();
             this.traceId = traceId ?? Guid.NewGuid().ToString();
             this.servicePartitionResolver = servicePartitionResolver ?? ServicePartitionResolver.GetDefault();
-            this.random = new Random(this.GenerateSeed());
+            this.random = null;
             this.exceptionHandlers = new List<IExceptionHandler>();
             if (exceptionHandlers != null)
             {
@@ -661,6 +661,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             var rand = 0;
             lock (this.randomLock)
             {
+                if (this.random == null)
+                {  
+                // We need seed to make sure unique random numbers gets generated for different clientfactory instance but created at the same time.
+                    this.random = new Random(this.GenerateSeed());
+                }
+
                 rand = this.random.Next(upperBound);
             }
 
