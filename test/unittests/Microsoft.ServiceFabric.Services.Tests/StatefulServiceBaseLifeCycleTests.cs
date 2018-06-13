@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Runtime;
     using Moq;
     using Xunit;
@@ -21,6 +22,37 @@ namespace Microsoft.ServiceFabric.Services.Tests
     /// </summary>
     public class StatefulServiceBaseLifeCycleTests
     {
+        /// <summary>
+        /// Verify ChangeRole for IStateProviderReplica
+        /// </summary>
+        [Fact]
+        public void StateProviderRoleChange()
+        {
+            Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: StateProviderRoleChange()");
+
+            var serviceContext = TestMocksRepository.GetMockStatefulServiceContext();
+
+            var roleWrapper = new StateProviderReplicaRoleWrapper();
+            var stateProvider = new Mock<IStateProviderReplica2>();
+            stateProvider
+                .Setup(sp => sp.ChangeRoleAsync(It.IsAny<ReplicaRole>(), It.IsAny<CancellationToken>()))
+                .Callback<ReplicaRole, CancellationToken>((role, ctor) => { roleWrapper.Role = role; })
+                .Returns(Task.FromResult(true));
+
+            var testService = new StateProviderRoleChangeTestService(serviceContext, stateProvider, roleWrapper);
+            IStatefulServiceReplica testServiceReplica = new StatefulServiceReplicaAdapter(serviceContext, testService);
+
+            var partition = new Mock<IStatefulServicePartition>();
+            partition.SetupGet(p => p.WriteStatus).Returns(PartitionAccessStatus.Granted);
+
+            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+
+            Console.WriteLine(@"// U -> P");
+            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+
+            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+        }
+
         /// <summary>
         /// Tests RunAsync blocking call.
         /// </summary>
@@ -417,6 +449,40 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
 
             testServiceReplica.Abort();
+        }
+
+        private class StateProviderReplicaRoleWrapper
+        {
+            /// <summary>
+            /// Gets or sets Replica role.
+            /// </summary>
+            public ReplicaRole Role { get; set; }
+        }
+
+        private class StateProviderRoleChangeTestService : StatefulServiceBase
+        {
+            public StateProviderRoleChangeTestService(
+                StatefulServiceContext context,
+                Mock<IStateProviderReplica2> stateProvider,
+                StateProviderReplicaRoleWrapper roleWrapper)
+                : base(context, stateProvider.Object)
+            {
+                this.RoleWrapper = roleWrapper;
+            }
+
+            public StateProviderReplicaRoleWrapper RoleWrapper { get; private set; }
+
+            protected override Task OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
+            {
+                Assert.True(
+                    this.RoleWrapper.Role == newRole,
+                    string.Format(
+                        "Role={0} passed to OnChangeRoleAsync is different that StateProvider replica role={1}.",
+                        this.RoleWrapper.Role,
+                        newRole));
+
+                return Task.FromResult(true);
+            }
         }
 
         private class RunAsyncBlockingCallTestService : StatefulBaseTestService

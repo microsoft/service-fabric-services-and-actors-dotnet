@@ -292,8 +292,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                     sequenceNumber * statesPerReplication[ActorStateType.Actor]);
             }
 
+            var commitTasks = new List<Task>();
             var commitSequenceNumber1 = sequenceNumber;
-            Task.Factory.StartNew(() => { TestCommitUpdate(stateTable, commitSequenceNumber1); });
+            var commitTask1 = Task.Factory.StartNew(() => { TestCommitUpdate(stateTable, commitSequenceNumber1); });
+
+            commitTasks.Add(commitTask1);
             Thread.Sleep(500);
             VerifyReads(
                 stateTable,
@@ -306,7 +309,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 sequenceNumber * statesPerReplication[ActorStateType.Actor]);
 
             var commitSequenceNumber2 = commitSequenceNumber1 - 1;
-            Task.Factory.StartNew(() => { TestCommitUpdate(stateTable, commitSequenceNumber2); });
+            var commitTask2 = Task.Factory.StartNew(() => { TestCommitUpdate(stateTable, commitSequenceNumber2); });
+
+            commitTasks.Add(commitTask2);
+
             Thread.Sleep(500);
             VerifyReads(
                 stateTable,
@@ -320,7 +326,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
 
             var commitSequenceNumber3 = commitSequenceNumber2 - 1;
             TestCommitUpdate(stateTable, commitSequenceNumber3);
-            Thread.Sleep(500);
+            Task.WaitAll(commitTasks.ToArray());
 
             foreach (var keyPrefix in keyPrefixList)
             {

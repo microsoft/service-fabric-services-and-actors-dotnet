@@ -15,10 +15,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
     /// </summary>
     internal static class TestMocksRepository
     {
+        private static readonly long MockReplicaOrInstanceID = 99999999999;
+        private static readonly string MockServiceTypeName = "MockServiceTypeName";
+        private static readonly Uri MockServiceUri = new Uri("fabric:/MockServiceName");
         private static Guid mockPartitionID = Guid.NewGuid();
-        private static long mockReplicaOrInstanceID = 99999999999;
-        private static string mockServiceTypeName = "MockServiceTypeName";
-        private static Uri mockServiceUri = new Uri("fabric:/MockServiceName");
 
         public static NodeContext GetNodeContext()
         {
@@ -42,11 +42,11 @@ namespace Microsoft.ServiceFabric.Services.Tests
             return new StatefulServiceContext(
                 GetNodeContext(),
                 GetCodePackageActivationContext(),
-                mockServiceTypeName,
-                mockServiceUri,
+                MockServiceTypeName,
+                MockServiceUri,
                 null,
                 mockPartitionID,
-                mockReplicaOrInstanceID);
+                MockReplicaOrInstanceID);
         }
 
         internal static StatelessServiceContext GetMockStatelessServiceContext()
@@ -54,11 +54,11 @@ namespace Microsoft.ServiceFabric.Services.Tests
             return new StatelessServiceContext(
                 GetNodeContext(),
                 GetCodePackageActivationContext(),
-                mockServiceTypeName,
-                mockServiceUri,
+                MockServiceTypeName,
+                MockServiceUri,
                 null,
                 mockPartitionID,
-                mockReplicaOrInstanceID);
+                MockReplicaOrInstanceID);
         }
     }
 }
