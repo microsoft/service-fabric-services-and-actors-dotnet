@@ -151,6 +151,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     x.EnumerateStateNamesAsync(It.IsAny<ActorId>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<string>() as IEnumerable<string>));
 
+            mockStateProvider.Setup(
+                x =>
+                    x.LoadRemindersAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new ActorReminderCollection() as IActorReminderCollection));
+
             return mockStateProvider.Object;
         }
 

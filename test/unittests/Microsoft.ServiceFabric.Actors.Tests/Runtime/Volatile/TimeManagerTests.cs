@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
     /// </summary>
     public class TimeManagerTests : VolatileStateProviderTestBase
     {
-        private const double UpperBoundBuffer = 2;
+        private const double UpperBoundBuffer = 3;
         private const double LowerBoundBuffer = 0.5;
 
         /// <summary>
