@@ -45,6 +45,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             this.retrySettings = retrySettings;
         }
 
+        public TServiceInterface CreateNonIServiceProxy<TServiceInterface>(Uri serviceUri, ServicePartitionKey partitionKey = null, TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
+        {
+            throw new NotImplementedException("CreateNonIServiceProxy is not supported in remoting V1");
+        }
+
         /// <summary>
         /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
