@@ -8,9 +8,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using System;
 
     /// <summary>
-    /// Event arguments exposing response
+    /// Event arguments exposing response.
     /// </summary>
-    internal class ServiceRemotingResponseEventArgs : EventArgs
+    public class ServiceRemotingResponseEventArgs : EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingResponseEventArgs"/> class.

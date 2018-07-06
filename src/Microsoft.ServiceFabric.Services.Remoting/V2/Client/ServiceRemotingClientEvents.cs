@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     /// <summary>
     /// Defines lifecycle events for service clients (caller side events).
     /// </summary>
-    internal static class ServiceRemotingClientEvents
+    public static class ServiceRemotingClientEvents
     {
         /// <summary>
         /// This event is raised just before a service remoting request is sent.
