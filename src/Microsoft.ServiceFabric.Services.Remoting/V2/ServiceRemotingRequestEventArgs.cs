@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     /// <summary>
     /// Event arguments exposing request.
     /// </summary>
-    internal class ServiceRemotingRequestEventArgs : EventArgs
+    public class ServiceRemotingRequestEventArgs : EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingRequestEventArgs"/> class.
