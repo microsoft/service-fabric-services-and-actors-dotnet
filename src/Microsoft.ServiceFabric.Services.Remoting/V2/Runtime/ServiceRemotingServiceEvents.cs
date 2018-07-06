@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
     /// <summary>
     /// Defines lifecycle events for service runtime.
     /// </summary>
-    internal static class ServiceRemotingServiceEvents
+    public static class ServiceRemotingServiceEvents
     {
         /// <summary>
         /// This event is raised right after a request is received.

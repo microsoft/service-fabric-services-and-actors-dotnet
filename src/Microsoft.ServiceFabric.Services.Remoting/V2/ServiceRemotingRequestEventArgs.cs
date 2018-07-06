@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using System;
 
     /// <summary>
-    /// Event arguments exposing request
+    /// Event arguments exposing request.
     /// </summary>
     internal class ServiceRemotingRequestEventArgs : EventArgs
     {
