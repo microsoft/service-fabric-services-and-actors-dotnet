@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
 {
     using System;
+    using System.Globalization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
@@ -43,6 +44,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             this.disposeFactory = disposeFactory;
             this.createServiceRemotingClientFactory = createServiceRemotingClientFactory;
             this.retrySettings = retrySettings;
+        }
+
+        public TServiceInterface CreateNonIServiceProxy<TServiceInterface>(Uri serviceUri, ServicePartitionKey partitionKey = null, TargetReplicaSelector targetReplicaSelector = TargetReplicaSelector.Default, string listenerName = null)
+        {
+            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SR.ErrorMethodNotSupportedInRemotingV1, nameof(IServiceProxyFactory.CreateNonIServiceProxy), nameof(IServiceProxyFactory)));
         }
 
         /// <summary>

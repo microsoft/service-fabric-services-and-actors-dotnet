@@ -164,6 +164,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; of interface &apos;{1}&apos; is not supported in remoting V1.
+        /// </summary>
+        internal static string ErrorMethodNotSupportedInRemotingV1
+        {
+            get
+            {
+                return ResourceManager.GetString("ErrorMethodNotSupportedInRemotingV1", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to The service type &apos;{0}&apos; does not implement any service interfaces or one of the interfaces implemented is not a service interface. All interfaces(including its parent interface) implemented by service type must be service interface. A service interface is the one that ultimately derives from &apos;{1}&apos; type..
         /// </summary>
         internal static string ErrorNoServiceInterfaceFound
