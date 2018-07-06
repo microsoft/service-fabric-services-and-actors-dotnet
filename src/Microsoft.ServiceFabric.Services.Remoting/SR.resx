@@ -183,4 +183,7 @@
   <data name="ErrorDeserializationFailure" xml:space="preserve">
     <value>Failed to deserialize and get remote exception  {0}</value>
   </data>
+  <data name="ErrorMethodNotSupportedInRemotingV1" xml:space="preserve">
+    <value>Method '{0}' of interface '{1}' is not supported in remoting V1.</value>
+  </data>
 </root>
