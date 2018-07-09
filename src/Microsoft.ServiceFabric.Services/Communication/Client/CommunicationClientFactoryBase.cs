@@ -342,6 +342,17 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken);
 
         /// <summary>
+        /// Opens the Communictaion Client
+        /// </summary>
+        /// <param name="client">Communication client</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        protected virtual Task OpenClient(TCommunicationClient client, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(1);
+        }
+
+        /// <summary>
         /// Aborts the given client
         /// </summary>
         /// <param name="client">Communication client</param>
@@ -417,6 +428,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             client.ResolvedServicePartition = cacheEntry.Rsp;
                             client.ListenerName = cacheEntry.ListenerName;
                             client.Endpoint = cacheEntry.Endpoint;
+
+                            // Open the Client
+                            await this.OpenClient(client, cancellationToken);
                             newClient = true;
                         }
                         else

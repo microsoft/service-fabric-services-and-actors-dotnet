@@ -54,6 +54,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             client.Abort();
         }
 
+        protected override Task OpenClient(
+            FabricTransportServiceRemotingClient client,
+            CancellationToken cancellationToken)
+        {
+            return client.OpenAsync(cancellationToken);
+        }
+
         /// <summary>
         /// Creates a communication client for the given endpoint address.
         /// </summary>
@@ -73,11 +80,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     remotingHandler,
                     this.fabricTransportRemotingCallbackMessageHandler,
                     this.disposer);
-                var client = new FabricTransportServiceRemotingClient(this.serializersManager, nativeClient);
+                var client = new FabricTransportServiceRemotingClient(
+                    this.serializersManager,
+                    nativeClient,
+                    remotingHandler);
                 remotingHandler.ClientConnected += this.OnFabricTransportClientConnected;
                 remotingHandler.ClientDisconnected += this.OnFabricTransportClientDisconnected;
-                client.OpenAsync(CancellationToken.None).Wait();
-
                 return Task.FromResult(client);
             }
             catch (FabricInvalidAddressException)

@@ -21,14 +21,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     {
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
         private readonly FabricTransportClient fabricTransportClient;
+        private readonly FabricTransportRemotingClientEventHandler remotingHandler;
+        private ResolvedServicePartition resolvedServicePartition;
+        private string listenerName;
+        private ResolvedServiceEndpoint resolvedServiceEndpoint;
 
         // we need to pass a cache of the serializers here rather than the known types,
         // the serializer cache should be maintained by the factor
         internal FabricTransportServiceRemotingClient(
             ServiceRemotingMessageSerializersManager serializersManager,
-            FabricTransportClient fabricTransportClient)
+            FabricTransportClient fabricTransportClient,
+            FabricTransportRemotingClientEventHandler remotingHandler)
         {
             this.fabricTransportClient = fabricTransportClient;
+            this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;
             this.IsValid = true;
         }
@@ -48,11 +54,56 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             get { return this.fabricTransportClient.ConnectionAddress; }
         }
 
-        public ResolvedServicePartition ResolvedServicePartition { get; set; }
+        public ResolvedServicePartition ResolvedServicePartition
+        {
+            get
+            {
+                return this.resolvedServicePartition;
+            }
 
-        public string ListenerName { get; set; }
+            set
+            {
+                this.resolvedServicePartition = value;
+                if (this.remotingHandler != null)
+                {
+                    this.remotingHandler.ResolvedServicePartition = value;
+                }
+            }
+        }
 
-        public ResolvedServiceEndpoint Endpoint { get; set; }
+        public string ListenerName
+        {
+            get
+            {
+                return this.listenerName;
+            }
+
+            set
+            {
+                this.listenerName = value;
+                if (this.remotingHandler != null)
+                {
+                    this.remotingHandler.ListenerName = value;
+                }
+            }
+        }
+
+        public ResolvedServiceEndpoint Endpoint
+        {
+            get
+            {
+                return this.resolvedServiceEndpoint;
+            }
+
+            set
+            {
+                this.resolvedServiceEndpoint = value;
+                if (this.remotingHandler != null)
+                {
+                    this.remotingHandler.Endpoint = value;
+                }
+            }
+        }
 
         public Task OpenAsync(CancellationToken cancellationToken)
         {

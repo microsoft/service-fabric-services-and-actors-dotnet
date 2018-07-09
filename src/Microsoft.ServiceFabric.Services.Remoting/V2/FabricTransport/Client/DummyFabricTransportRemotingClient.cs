@@ -17,7 +17,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             FabricTransportClient fabricTransportClient)
             : base(
                 serializersManager,
-                fabricTransportClient)
+                fabricTransportClient,
+                null)
         {
         }
 
