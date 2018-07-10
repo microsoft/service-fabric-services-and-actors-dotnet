@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             var partitionClientCache = this.clientCache.GetOrAdd(
                                                 partitionId,
-                                                this.CreatePartitionCache);
+                                                this.CreatePartitionClientCache);
 
             return partitionClientCache.GetOrAddClientCacheEntry(endpoint, listenerName, rsp);
         }
@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return TimeSpan.FromSeconds(this.cleanupTimerIntervalSeconds + this.random.Next(0, this.cleanupTimerMaxRandomizationInterval));
         }
 
-        private PartitionClientCache CreatePartitionCache(Guid partitionId)
+        private PartitionClientCache CreatePartitionClientCache(Guid partitionId)
         {
             return new PartitionClientCache(partitionId, this.traceId);
         }
@@ -125,7 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         item.Key);
 
                     totalItemsCleaned += itemsCleanedPerEntry;
-                }
+                }// We are delaying the delete partition for next cleanup event to reduce the case of false postitive partitions (which are still in use), since removing partition means acquiring lock on it.
                 else if (item.Value.IsEmpty())
                 {
                     // delete partition from cache only if when number of entry is zero.
