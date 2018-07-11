@@ -7,7 +7,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System;
 
-    internal class ServiceRemotingFailedResponseEventArgs : EventArgs
+    /// <summary>
+    /// Event arguments for failed requests.
+    /// </summary>
+    public class ServiceRemotingFailedResponseEventArgs : EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingFailedResponseEventArgs"/> class.

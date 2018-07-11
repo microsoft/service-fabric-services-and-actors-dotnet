@@ -13,8 +13,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       <ActorServiceAssemblies Include="$(TargetDir)\*.exe" />
       <FabActUtilAssemblies Include="$(MSBuildThisFileDirectory)\*" />
     </ItemGroup>
-    <Copy SourceFiles="$(TargetDir)\$(MSBuildProjectName).runtimeconfig.dev.json" DestinationFiles="$(FabActUtilWorkingDir)\FabActUtil.runtimeconfig.dev.json" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(TargetDir)\$(MSBuildProjectName).deps.json" DestinationFiles="$(FabActUtilWorkingDir)\FabActUtil.deps.json" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)\$(AssemblyName).runtimeconfig.dev.json" DestinationFiles="$(FabActUtilWorkingDir)\FabActUtil.runtimeconfig.dev.json" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)\$(AssemblyName).deps.json" DestinationFiles="$(FabActUtilWorkingDir)\FabActUtil.deps.json" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(ActorServiceAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(FabActUtilAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
   </Target>

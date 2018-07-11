@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
     using System.Threading;
@@ -52,8 +53,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             ResolvedServicePartition rsp)
         {
             var partitionClientCache = this.clientCache.GetOrAdd(
-                partitionId,
-                new PartitionClientCache(partitionId, this.traceId));
+                                                partitionId,
+                                                this.CreatePartitionClientCache);
 
             return partitionClientCache.GetOrAddClientCacheEntry(endpoint, listenerName, rsp);
         }
@@ -101,6 +102,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return TimeSpan.FromSeconds(this.cleanupTimerIntervalSeconds + this.random.Next(0, this.cleanupTimerMaxRandomizationInterval));
         }
 
+        private PartitionClientCache CreatePartitionClientCache(Guid partitionId)
+        {
+            return new PartitionClientCache(partitionId, this.traceId);
+        }
+
         private void CacheCleanupTimerCallback()
         {
             var totalItemsInCache = 0;
@@ -119,6 +125,20 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         item.Key);
 
                     totalItemsCleaned += itemsCleanedPerEntry;
+                }// We are delaying the delete partition for next cleanup event to reduce the case of false postitive partitions (which are still in use), since removing partition means acquiring lock on it.
+                else if (item.Value.IsEmpty())
+                {
+                    // delete partition from cache only if when number of entry is zero.
+                    var emptyItem = new PartitionClientCache(item.Key, this.traceId);
+                    var isDeleted = ((IDictionary<Guid, PartitionClientCache>)this.clientCache).Remove(new KeyValuePair<Guid, PartitionClientCache>(item.Key, emptyItem));
+                    if (isDeleted)
+                    {
+                        ServiceTrace.Source.WriteInfo(
+                        TraceType,
+                        "{0} Deleted Cache Entry for partition {1}",
+                        this.traceId,
+                        item.Key);
+                    }
                 }
 
                 totalItemsInCache += totalItemsPerEntry;
@@ -173,6 +193,22 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     });
             }
 
+            public override bool Equals(object obj)
+            {
+                var other = obj as PartitionClientCache;
+
+                // Two Empty cache entries for same partition are equal. This we needed for removing empty entries
+                if (other.cache.Count == 0 && this.cache.Count == 0)
+                {
+                    if (this.partitionId.Equals(other.partitionId))
+                    {
+                        return true;
+                    }
+                }
+
+                return base.Equals(obj);
+            }
+
             public bool TryGetClientCacheEntry(
                 ResolvedServiceEndpoint endpoint,
                 string listenerName,
@@ -219,6 +255,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
                     entry.Value.Semaphore.Release();
                 }
+            }
+
+            public bool IsEmpty()
+            {
+                return this.cache.IsEmpty;
+            }
+
+            public override int GetHashCode()
+            {
+                return this.partitionId.GetHashCode();
             }
         }
 
