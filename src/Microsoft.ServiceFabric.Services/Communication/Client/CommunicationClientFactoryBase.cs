@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         where TCommunicationClient : ICommunicationClient
     {
         private const string TraceType = "CommunicationClientFactoryBase";
+        private static Task completedTask = Task.FromResult(1);
         private readonly IServicePartitionResolver servicePartitionResolver;
         private readonly List<IExceptionHandler> exceptionHandlers;
         private readonly CommunicationClientCache<TCommunicationClient> cache;
@@ -349,7 +350,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual Task OpenClient(TCommunicationClient client, CancellationToken cancellationToken)
         {
-            return Task.FromResult(1);
+            return completedTask;
         }
 
         /// <summary>
