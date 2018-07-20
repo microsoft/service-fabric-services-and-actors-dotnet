@@ -348,6 +348,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="client">Communication client</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// We needed this Api for the operations to be done after client is fully created and initialized.CreateClientAsync does partial creation as initialization of RSP is done outside the CreateClient Api call
         protected virtual Task OpenClient(TCommunicationClient client, CancellationToken cancellationToken)
         {
             return completedTask;
@@ -430,7 +431,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             client.ListenerName = cacheEntry.ListenerName;
                             client.Endpoint = cacheEntry.Endpoint;
 
-                            // Open the Client
+                            // Open the Client .
                             await this.OpenClient(client, cancellationToken);
                             newClient = true;
                         }
