@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         where TCommunicationClient : ICommunicationClient
     {
         private const string TraceType = "CommunicationClientFactoryBase";
+        private static Task completedTask = Task.FromResult(1);
         private readonly IServicePartitionResolver servicePartitionResolver;
         private readonly List<IExceptionHandler> exceptionHandlers;
         private readonly CommunicationClientCache<TCommunicationClient> cache;
@@ -342,6 +343,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken);
 
         /// <summary>
+        /// Opens the Communictaion Client
+        /// </summary>
+        /// <param name="client">Communication client</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// We needed this Api for the operations to be done after client is fully created and initialized.CreateClientAsync does partial creation as initialization of RSP is done outside the CreateClient Api call
+        protected virtual Task OpenClient(TCommunicationClient client, CancellationToken cancellationToken)
+        {
+            return completedTask;
+        }
+
+        /// <summary>
         /// Aborts the given client
         /// </summary>
         /// <param name="client">Communication client</param>
@@ -417,6 +430,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             client.ResolvedServicePartition = cacheEntry.Rsp;
                             client.ListenerName = cacheEntry.ListenerName;
                             client.Endpoint = cacheEntry.Endpoint;
+
+                            // Open the Client .
+                            await this.OpenClient(client, cancellationToken);
                             newClient = true;
                         }
                         else
