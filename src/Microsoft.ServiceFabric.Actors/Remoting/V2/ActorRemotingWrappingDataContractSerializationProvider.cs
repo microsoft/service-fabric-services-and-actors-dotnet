@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     public class ActorRemotingWrappingDataContractSerializationProvider : WrappingServiceRemotingDataContractSerializationProvider
     {
         private static readonly IEnumerable<Type> DefaultKnownTypes = new[]
-               {
+        {
             typeof(ActorReference),
         };
 
