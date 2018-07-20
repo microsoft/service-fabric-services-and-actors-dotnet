@@ -20,6 +20,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     /// </summary>
     public class ActorRemotingWrappingDataContractSerializationProvider : WrappingServiceRemotingDataContractSerializationProvider
     {
+        private static readonly IEnumerable<Type> DefaultKnownTypes = new[]
+        {
+            typeof(ActorReference),
+        };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorRemotingWrappingDataContractSerializationProvider"/> class with default IBufferPoolManager
         /// </summary>
@@ -44,7 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
             IEnumerable<Type> knownTypes)
         {
 #if DotNetCoreClr
-            var serializer = base.CreateRemotingRequestMessageBodyDataContractSerializer(remotingRequestType, knownTypes);
+            var serializer = base.CreateRemotingRequestMessageBodyDataContractSerializer(remotingRequestType, AddDefaultKnownTypes(knownTypes));
 
             serializer.SetSerializationSurrogateProvider(new ActorDataContractSurrogate());
             return serializer;
@@ -55,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
                     new DataContractSerializerSettings
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = knownTypes,
+                    KnownTypes = AddDefaultKnownTypes(knownTypes),
                     DataContractSurrogate = new ActorDataContractSurrogate(),
                 });
 #endif
@@ -68,7 +73,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
             IEnumerable<Type> knownTypes)
         {
 #if DotNetCoreClr
-            var serializer = base.CreateRemotingResponseMessageBodyDataContractSerializer(remotingResponseType, knownTypes);
+            var serializer = base.CreateRemotingResponseMessageBodyDataContractSerializer(remotingResponseType, AddDefaultKnownTypes(knownTypes));
 
             serializer.SetSerializationSurrogateProvider(new ActorDataContractSurrogate());
             return serializer;
@@ -79,11 +84,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
                     new DataContractSerializerSettings
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = knownTypes,
+                    KnownTypes = AddDefaultKnownTypes(knownTypes),
                     DataContractSurrogate = new ActorDataContractSurrogate(),
                 });
 #endif
 
+        }
+
+        private static IEnumerable<Type> AddDefaultKnownTypes(IEnumerable<Type> knownTypes)
+        {
+            var types = new List<Type>(knownTypes);
+            types.AddRange(DefaultKnownTypes);
+            return types;
         }
     }
 }
