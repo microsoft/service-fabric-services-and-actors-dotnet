@@ -281,7 +281,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Dispose the managed/unmanaged resouces.
         /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             ServiceTrace.Source.WriteInfo(
                                TraceType,
