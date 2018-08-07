@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var serializer = this.actorStateSerializerCache.GetOrAdd(
                 stateType,
-                CreateDataContractSerializer);
+                ActorStateProviderHelper.CreateDataContractSerializer);
 
             using (var stream = new MemoryStream())
             {
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var serializer = this.actorStateSerializerCache.GetOrAdd(
                 typeof(T),
-                CreateDataContractSerializer);
+                ActorStateProviderHelper.CreateDataContractSerializer);
 
             using (var stream = new MemoryStream(buffer))
             {
@@ -56,20 +56,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     return (T)serializer.ReadObject(reader);
                 }
             }
-        }
-
-        private static DataContractSerializer CreateDataContractSerializer(Type actorStateType)
-        {
-            return new DataContractSerializer(
-                actorStateType,
-                new DataContractSerializerSettings
-                {
-                    MaxItemsInObjectGraph = int.MaxValue,
-#if !DotNetCoreClr
-                    DataContractSurrogate = ActorDataContractSurrogate.Instance,
-#endif
-                    KnownTypes = new[] { typeof(ActorReference) },
-                });
         }
     }
 }
