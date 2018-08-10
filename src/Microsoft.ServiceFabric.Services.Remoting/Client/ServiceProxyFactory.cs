@@ -20,6 +20,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private Remoting.V1.Client.ServiceProxyFactory proxyFactoryV1;
 #endif
         private Remoting.V2.Client.ServiceProxyFactory proxyFactoryV2;
+        private bool overrideListenerName = false;
+        private string defaultListenerName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class with the specified retrysettings and default remotingClientFactory.
@@ -105,7 +107,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
                 {
                     // We are overriding listenerName since using provider we can have multiple listener configured.
-                    listenerName = this.GetDefaultListenerName(listenerName, provider.RemotingClientVersion);
+                    this.overrideListenerName = true;
+                    this.defaultListenerName = this.GetDefaultListenerName(
+                        listenerName,
+                        provider.RemotingClientVersion);
                     this.proxyFactoryV2 =
                         new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
                 }
@@ -128,14 +133,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 serviceUri,
                 partitionKey,
                 targetReplicaSelector,
-                listenerName);
+                this.OverrideListenerNameIfConditionMet(listenerName));
 #else
             if (this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
 
                 // We are overriding listenerName since using provider we can have multiple listener configured.
-                listenerName = this.GetDefaultListenerName(listenerName, provider.RemotingClientVersion);
+                this.overrideListenerName = true;
+                this.defaultListenerName = this.GetDefaultListenerName(
+                    listenerName,
+                    provider.RemotingClientVersion);
                 this.proxyFactoryV2 =
                     new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
             }
@@ -144,7 +152,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
               serviceUri,
               partitionKey,
               targetReplicaSelector,
-              listenerName);
+              this.OverrideListenerNameIfConditionMet(listenerName));
 #endif
         }
 
@@ -218,6 +226,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 }
 
                 return ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName;
+            }
+
+            return listenerName;
+        }
+
+        private string OverrideListenerNameIfConditionMet(string listenerName)
+        {
+            if (this.overrideListenerName && string.IsNullOrEmpty(listenerName))
+            {
+                return this.defaultListenerName;
             }
 
             return listenerName;
