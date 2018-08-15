@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <IsSFAppServiceProject>true</IsSFAppServiceProject>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="3.3.14" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.SFApp.Targets" Version="1.0.0-preview.4.4" />
+  </ItemGroup>
+
+</Project>

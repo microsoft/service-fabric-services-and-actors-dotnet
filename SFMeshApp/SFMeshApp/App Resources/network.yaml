@@ -1,0 +1,14 @@
+## Network definition ##
+network:
+  schemaVersion: 1.0.0-preview1
+  name: SFMeshAppNetwork
+  properties:
+    description: SFMeshAppNetwork description.
+    addressPrefix: 10.0.0.4/22
+    ingressConfig:
+      layer4:
+        - name: Console1Ingress
+          publicPort: 20004
+          applicationName: SFMeshApp
+          serviceName: Console1
+          endpointName: Console1Listener

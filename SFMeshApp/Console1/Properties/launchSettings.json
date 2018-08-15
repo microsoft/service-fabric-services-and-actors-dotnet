@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Console1": {
+      "commandName": "Project"
+    },
+    "Service Fabric Local Cluster": {
+      "commandName": "SFApp",
+      "launchUrl": "http://{ServiceIpAddress}:{ServicePort}"
+    }
+  }
+}

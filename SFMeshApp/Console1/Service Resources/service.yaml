@@ -1,0 +1,26 @@
+﻿## Service definition ##
+application:
+  schemaVersion: 1.0.0-preview1
+  name: SFMeshApp
+  properties:
+    services:
+      - name: Console1
+        properties:
+          description: Console1 description.
+          osType: Windows
+          codePackages:
+            - name: Console1
+              image: console1:dev
+              endpoints:
+                - name: Console1Listener
+                  port: 20004
+              environmentVariables:
+                - name: Console1Listener
+                  value: 20004
+              resources:
+                requests:
+                  cpu: 0.5
+                  memoryInGB: 1
+          replicaCount: 1
+          networkRefs:
+            - name: SFMeshAppNetwork

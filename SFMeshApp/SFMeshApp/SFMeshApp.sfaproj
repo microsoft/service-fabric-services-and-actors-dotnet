@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.SFApp.Sdk">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>b06f30e5-0252-4e2c-9365-a36c8a78bbfe</ProjectGuid>
+    <SFApplicationProjectVersion>1.0</SFApplicationProjectVersion>
+    <SFApplicationTargetsVersion>1.0.0-preview.4.3</SFApplicationTargetsVersion>
+    <SFApplicationToolingVersion>0.9.0.0</SFApplicationToolingVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App Resources\app.yaml" />
+    <None Include="App Resources\network.yaml" />
+    <None Include="Publish Profiles\cloud.yaml" />
+  </ItemGroup>
+</Project>
