@@ -5,8 +5,10 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
+    using System;
     using System.Fabric;
     using System.Fabric.Common;
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
@@ -64,10 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
         /// </param>
-        /// <param name="serviceRemotingMessageHandler">
-        ///     The handler for processing remoting messages. As the messages are received,
-        ///     the listener delivers them to this handler.
-        /// </param>
+        /// <param name="serviceRemotingMessageHandler">serviceRemotingMessageHandler</param>
         /// <param name="serializationProvider">It is used to serialize deserialize request and response body </param>
         /// <param name="remotingListenerSettings">The settings for the listener</param>
         public FabricTransportServiceRemotingListener(
@@ -81,6 +80,61 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 InitializeSerializersManager(serializationProvider, remotingListenerSettings),
                 remotingListenerSettings)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
+        ///     Constructs a fabric transport based service remoting listener.
+        /// </summary>
+        /// <param name="partitionId">Partition Id</param>
+        /// <param name="serviceImplementation">serviceImplementation</param>
+        /// <param name="serializationProvider">It is used to serialize deserialize request and response body </param>
+        /// <param name="remotingListenerSettings">The settings for the listener</param>
+        public FabricTransportServiceRemotingListener(
+            Guid partitionId,
+            IService serviceImplementation,
+            FabricTransportRemotingListenerSettings remotingListenerSettings = null,
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+        {
+            var remotingSettings = remotingListenerSettings ?? FabricTransportRemotingListenerSettings.GetDefault();
+
+            if (remotingSettings.EndpointResourceName.Equals(FabricTransportRemotingListenerSettings
+                .DefaultEndpointResourceName))
+            {
+                if (remotingSettings.UseWrappedMessage)
+                {
+                    remotingSettings.EndpointResourceName = DefaultWrappedMessageListenerEndpointResourceName;
+                }
+                else
+                {
+                    remotingSettings.EndpointResourceName = DefaultV2ListenerEndpointResourceName;
+                }
+            }
+
+            var serviceRemotingMessageHandler = new ServiceRemotingMessageDispatcher(
+                   partitionId,
+                   serviceImplementation,
+                   GetMessageBodyFactory(serializationProvider, remotingListenerSettings));
+
+            this.transportMessageHandler = new FabricTransportMessageHandler(
+              serviceRemotingMessageHandler,
+              InitializeSerializersManager(serializationProvider, remotingListenerSettings),
+              partitionId,
+              0L); // This is used for PerformanceCounter.
+
+            // TODO: Check if port can be read from env variable
+            var path = string.Format(CultureInfo.InvariantCulture, "{0}", partitionId);
+            var address = new Microsoft.ServiceFabric.FabricTransport.Runtime.FabricTransportListenerAddress(
+                "localhost",
+                this.GetPublishPort(remotingSettings.EndpointResourceName),
+                path);
+            this.listenAddress = address.ToString();
+            this.publishAddress = address.ToString();
+            this.fabricTransportlistener = new FabricTransportListener(
+                remotingSettings.GetInternalSettings(),
+                address,
+                this.transportMessageHandler,
+                new FabricTransportRemotingConnectionHandler());
         }
 
         internal FabricTransportServiceRemotingListener(
@@ -216,6 +270,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             }
 
             this.transportMessageHandler.Dispose();
+        }
+
+        private int GetPublishPort(string endpointName)
+        {
+            string portEnv = Environment.GetEnvironmentVariable(endpointName);
+            if (!string.IsNullOrEmpty(portEnv))
+            {
+                Console.WriteLine("{0} Port is ={1}", endpointName, portEnv);
+                int port;
+
+                if (int.TryParse(portEnv, out port))
+                {
+                    return port;
+                }
+            }
+
+            // Otherwise use the same listening port
+            return 0;
         }
     }
 }

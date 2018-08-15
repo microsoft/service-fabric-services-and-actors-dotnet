@@ -77,6 +77,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceRemotingMessageDispatcher"/> class
+        /// that uses the given service context and dispatches messages to the given service implementation.
+        /// </summary>
+        /// <param name="partitionId">partitionId</param>
+        /// <param name="serviceImplementation">Service implementation that implements interfaces of type <see cref="IService"/></param>
+        /// <param name="serviceRemotingMessageBodyFactory">The factory that will be used by the dispatcher to create response message bodies.</param>
+        public ServiceRemotingMessageDispatcher(
+            Guid partitionId,
+            IService serviceImplementation,
+            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory = null)
+        {
+            var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
+            this.Initialize(partitionId, serviceImplementation, serviceTypeInformation.InterfaceTypes, false, serviceRemotingMessageBodyFactory);
+        }
+
+        /// <summary>
         /// Handles a message from the client that requires a response from the service. This Api can be used for the short-circuiting where client is in same process as service.
         /// Client can now directly dispatch request to service instead of using ServiceProxy.
         /// </summary>
@@ -322,6 +338,49 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                     new ServicePerformanceCounterProvider(
                         serviceContext.PartitionId,
                         serviceContext.ReplicaOrInstanceId,
+                        interfaceDescriptions,
+                        false);
+            }
+        }
+
+        private void Initialize(
+          Guid partitionId,
+          object serviceImplementation,
+          IEnumerable<Type> remotedInterfaces,
+          bool nonServiceInterface,
+          IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
+        {
+            this.serviceRemotingMessageBodyFactory = serviceRemotingMessageBodyFactory ?? new DataContractRemotingMessageFactory();
+
+            this.cancellationHelper = new ServiceRemotingCancellationHelper(Guid.NewGuid().ToString());
+
+            this.methodDispatcherMap = new Dictionary<int, MethodDispatcherBase>();
+            this.serviceImplementation = serviceImplementation;
+
+            if (serviceImplementation != null)
+            {
+                var interfaceDescriptions = new List<ServiceInterfaceDescription>();
+                foreach (var interfaceType in remotedInterfaces)
+                {
+                    MethodDispatcherBase methodDispatcher;
+                    if (nonServiceInterface)
+                    {
+                        methodDispatcher = ServiceCodeBuilder.GetOrCreateMethodDispatcherForNonMarkerInterface(interfaceType);
+                        interfaceDescriptions.Add(ServiceInterfaceDescription.CreateUsingCRCId(interfaceType, false));
+                    }
+                    else
+                    {
+                        methodDispatcher = ServiceCodeBuilder.GetOrCreateMethodDispatcher(interfaceType);
+                        interfaceDescriptions.Add(ServiceInterfaceDescription.CreateUsingCRCId(interfaceType, true));
+                    }
+
+                    this.methodDispatcherMap.Add(methodDispatcher.InterfaceId, methodDispatcher);
+                }
+
+                this.servicePerformanceCounterProvider =
+                    new ServicePerformanceCounterProvider(
+                        partitionId,
+                        0L,
                         interfaceDescriptions,
                         false);
             }
