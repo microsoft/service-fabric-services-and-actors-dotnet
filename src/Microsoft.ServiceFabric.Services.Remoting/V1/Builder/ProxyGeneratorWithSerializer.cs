@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
 
     internal abstract class ProxyGeneratorWithSerializer : ProxyGenerator
     {

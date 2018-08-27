@@ -8,8 +8,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     /// <summary>
     ///     This is the default implmentation  for <see cref="IServiceRemotingMessageSerializationProvider" />used by actor

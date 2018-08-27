@@ -12,11 +12,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.FabricTransport.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     /// <summary>
     /// An <see cref="IServiceRemotingClientFactory"/> that uses
@@ -75,7 +77,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         }
 
         internal FabricTransportServiceRemotingClientFactory(
-            ServiceRemotingMessageSerializersManager serializersManager,
+            ServiceRemotingMessageSerializationManager serializersManager,
             FabricTransportRemotingSettings remotingSettings = null,
             IServiceRemotingCallbackMessageHandler remotingCallbackMessageHandler = null,
             IServicePartitionResolver servicePartitionResolver = null,
@@ -221,7 +223,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 headerSerializer = new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager(remotingSettings.HeaderBufferSize, remotingSettings.HeaderMaxBufferCount));
             }
 
-            var serializersManager = new ServiceRemotingMessageSerializersManager(
+            var serializersManager = new ServiceRemotingSerializationManager(
                 serializationProvider,
                 headerSerializer,
                 remotingSettings.UseWrappedMessage);
@@ -243,7 +245,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             IEnumerable<IExceptionHandler> exceptionHandlers,
             string traceId,
             IServiceRemotingMessageBodyFactory messageBodyFactory,
-            ServiceRemotingMessageSerializersManager serializersManager)
+            ServiceRemotingMessageSerializationManager serializersManager)
         {
             this.remotingMessageBodyFactory = messageBodyFactory;
             this.clientFactoryImpl = new FabricTransportServiceRemotingClientFactoryImpl(

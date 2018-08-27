@@ -12,8 +12,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Actors.Remoting.Description;
     using Microsoft.ServiceFabric.Actors.Remoting.V1.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
     internal class ActorCodeBuilder : CodeBuilder
     {
@@ -22,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
 
         private readonly ICodeBuilder eventCodeBuilder;
         private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
-        private readonly Services.Remoting.V1.Builder.MethodDispatcherBuilder<ActorMethodDispatcherBase> methodDispatcherBuilder;
+        private readonly MethodDispatcherBuilder<ActorMethodDispatcherBase> methodDispatcherBuilder;
         private readonly ActorProxyGeneratorBuilder proxyGeneratorBuilder;
 
         public ActorCodeBuilder()
@@ -30,7 +31,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
         {
             this.eventCodeBuilder = new ActorEventCodeBuilder();
             this.methodBodyTypesBuilder = new MethodBodyTypesBuilder(this);
-            this.methodDispatcherBuilder = new Services.Remoting.V1.Builder.MethodDispatcherBuilder<ActorMethodDispatcherBase>(this);
+            this.methodDispatcherBuilder = new MethodDispatcherBuilder<ActorMethodDispatcherBase>(this);
             this.proxyGeneratorBuilder = new ActorProxyGeneratorBuilder(this);
         }
 
@@ -95,14 +96,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
         private class ActorEventCodeBuilder : CodeBuilder
         {
             private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
-            private readonly Services.Remoting.V1.Builder.MethodDispatcherBuilder<ActorMethodDispatcherBase> methodDispatcherBuilder;
+            private readonly MethodDispatcherBuilder<ActorMethodDispatcherBase> methodDispatcherBuilder;
             private readonly ActorEventProxyGeneratorBuilder proxyGeneratorBuilder;
 
             public ActorEventCodeBuilder()
                 : base(new ActorEventCodeBuilderNames())
             {
                 this.methodBodyTypesBuilder = new MethodBodyTypesBuilder(this);
-                this.methodDispatcherBuilder = new Services.Remoting.V1.Builder.MethodDispatcherBuilder<ActorMethodDispatcherBase>(this);
+                this.methodDispatcherBuilder = new MethodDispatcherBuilder<ActorMethodDispatcherBase>(this);
                 this.proxyGeneratorBuilder = new ActorEventProxyGeneratorBuilder(this);
             }
 

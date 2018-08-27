@@ -7,6 +7,7 @@
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.nuproj;
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.nuproj;
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.nuproj;
+					 $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Remoting.Mesh\Microsoft.ServiceFabric.Services.Remoting.Mesh.nuproj;
                      $(RepoRoot)nuprojs\SF.ActorsServices.Internal\SF.ActorsServices.Internal.nuproj;"/>
     
     <!-- List of packages.config to restore nuget packages -->
@@ -26,6 +27,7 @@
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Actors.Wcf.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*.nupkg"/>
+	  <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Remoting.Mesh\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.Mesh.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Services.Wcf.*.nupkg"/>
       <Nupkgs Include="nuprojs\SF.ActorsServices.Internal\$(OutputPath)\SF.ActorsServices.Internal.*.nupkg"/>
     </ItemGroup>

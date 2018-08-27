@@ -206,13 +206,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
             var serviceReplicaListeners = new List<ServiceReplicaListener>();
 #if !DotNetCoreClr
-            if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV1(provider.RemotingListenerVersion))
             {
                serviceReplicaListeners.Add(
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }));
             }
 #endif
-            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+            if (RemotingHelper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
                 var listeners = provider.CreateServiceRemotingListeners();
                 foreach (var kvp in listeners)

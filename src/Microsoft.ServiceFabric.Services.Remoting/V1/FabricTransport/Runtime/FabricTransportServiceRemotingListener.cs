@@ -11,12 +11,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
 
     /// <summary>
-    ///     An <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> that uses
+    ///     An <see cref="IServiceRemotingListener"/> that uses
     ///     fabric TCP transport to provide interface remoting for stateless and stateful services.
     /// </summary>
     public class FabricTransportServiceRemotingListener : IServiceRemotingListener

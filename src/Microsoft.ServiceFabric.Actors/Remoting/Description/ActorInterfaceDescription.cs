@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
     using System.Globalization;
     using System.Reflection;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     internal class ActorInterfaceDescription : InterfaceDescription
     {

@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
 {
     using System;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
 
     /// <summary>
     /// This is the base Client side interface for Remoting. The framework provides the
@@ -25,13 +26,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Gets the service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
-        Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingPartitionClient ServicePartitionClient { get; }
+        V1.Client.IServiceRemotingPartitionClient ServicePartitionClient { get; }
 #endif
 
         /// <summary>
         /// Gets the service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
-        Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingPartitionClient ServicePartitionClient2 { get; }
+        IServiceRemotingPartitionClient ServicePartitionClient2 { get; }
     }
 }

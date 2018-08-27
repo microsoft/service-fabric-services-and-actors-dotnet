@@ -8,6 +8,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     using System;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     /// <summary>
@@ -17,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     {
         private readonly OperationRetrySettings retrySettings;
 #if !DotNetCoreClr
-        private Remoting.V1.Client.ServiceProxyFactory proxyFactoryV1;
+        private V1.Client.ServiceProxyFactory proxyFactoryV1;
 #endif
         private Remoting.V2.Client.ServiceProxyFactory proxyFactoryV2;
 
@@ -66,10 +70,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
         /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
         public ServiceProxyFactory(
-            Func<IServiceRemotingCallbackMessageHandler, Remoting.V2.Client.IServiceRemotingClientFactory>
+            Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory>
                 createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null,
-            Action<Remoting.V2.Client.IServiceRemotingClientFactory> disposeFactory = null)
+            Action<IServiceRemotingClientFactory> disposeFactory = null)
         {
             this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings, disposeFactory);
         }
@@ -86,7 +90,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// are of the form {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}. When the service exposes multiple endpoints, this parameter
         /// identifies which of those endpoints to use for the remoting communication.
         /// </param>
-        /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="IServiceProxy"/> interface.</returns>
+        /// <returns>The proxy that implement the interface that is being remoted. The returned object also implement <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> interface.</returns>
         public TServiceInterface CreateServiceProxy<TServiceInterface>(
             Uri serviceUri,
             ServicePartitionKey partitionKey = null,
@@ -102,7 +106,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(serviceInterfaceType);
-                if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
+                if (RemotingHelper.IsEitherRemotingV2(provider.RemotingClientVersion))
                 {
                     // We are overriding listenerName since using provider we can have multiple listener configured.
                     listenerName = this.GetDefaultListenerName(listenerName, provider.RemotingClientVersion);
@@ -212,7 +216,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         {
             if (string.IsNullOrEmpty(listenerName))
             {
-                if (Helper.IsRemotingV2(remotingClientVersion))
+                if (RemotingHelper.IsRemotingV2(remotingClientVersion))
                 {
                     return ServiceRemotingProviderAttribute.DefaultV2listenerName;
                 }

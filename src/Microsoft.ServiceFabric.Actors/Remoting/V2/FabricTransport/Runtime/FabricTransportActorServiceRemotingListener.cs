@@ -11,6 +11,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
     using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;

@@ -12,9 +12,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     using Microsoft.ServiceFabric.Actors.Remoting.Description;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Builder;
 
     internal class ActorCodeBuilder : CodeBuilder
     {

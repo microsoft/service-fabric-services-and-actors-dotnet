@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     internal class EventSourceProvider
     {

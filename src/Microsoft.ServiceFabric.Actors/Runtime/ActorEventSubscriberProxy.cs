@@ -8,19 +8,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using Microsoft.ServiceFabric.Actors.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     internal class ActorEventSubscriberProxy : IActorEventSubscriberProxy
     {
 #if !DotNetCoreClr
-        private readonly ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback;
+        private readonly Services.Remoting.V1.IServiceRemotingCallbackClient callback;
 #endif
-        private readonly ServiceFabric.Services.Remoting.V2.Runtime.IServiceRemotingCallbackClient callbackV2;
+        private readonly IServiceRemotingCallbackClient callbackV2;
         private readonly Guid id;
         private readonly RemotingListenerVersion remotingListener;
 
 #if !DotNetCoreClr
-        public ActorEventSubscriberProxy(Guid id, ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback)
+        public ActorEventSubscriberProxy(Guid id, Services.Remoting.V1.IServiceRemotingCallbackClient callback)
         {
             this.id = id;
             this.callback = callback;
@@ -28,7 +31,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #endif
-        public ActorEventSubscriberProxy(Guid id, ServiceFabric.Services.Remoting.V2.Runtime.IServiceRemotingCallbackClient callback)
+        public ActorEventSubscriberProxy(Guid id, IServiceRemotingCallbackClient callback)
         {
             this.id = id;
             this.callbackV2 = callback;
@@ -76,7 +79,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory()
         {
-            if (Helper.IsEitherRemotingV2(this.RemotingListener))
+            if (RemotingHelper.IsEitherRemotingV2(this.RemotingListener))
             {
                 return this.callbackV2.GetRemotingMessageBodyFactory();
             }

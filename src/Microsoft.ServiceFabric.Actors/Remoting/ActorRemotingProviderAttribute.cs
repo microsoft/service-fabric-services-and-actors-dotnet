@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
 
 #if !DotNetCoreClr
     using Microsoft.ServiceFabric.Services.Remoting.V1;
@@ -125,9 +125,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// <see cref="Services.Remoting.V2.Client.ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
-        /// <returns>An <see cref="Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>
-        public abstract Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
+        /// <returns>An <see cref="Services.Remoting.Base.V2.Client.IServiceRemotingClientFactory"/>.</returns>
+        public abstract Services.Remoting.Base.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
+            Services.Remoting.Base.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
 
         internal static ActorRemotingProviderAttribute GetProvider(IEnumerable<Type> types = null)
         {

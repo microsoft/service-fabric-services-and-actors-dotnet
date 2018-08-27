@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     internal class EventSourceProviderV2 : EventSourceProvider
     {
@@ -37,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
         {
-            if (Helper.IsEitherRemotingV2(remotingListener))
+            if (RemotingHelper.IsEitherRemotingV2(remotingListener))
             {
                 return this.actorMethodInfoV2[key];
             }

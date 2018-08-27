@@ -9,12 +9,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     using System.Collections.Generic;
     using System.Fabric;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
+    using Helper=Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
     /// This class adds extensions methods to create <see cref="IServiceRemotingListener"/>
     /// for remoting methods of the service interfaces that are derived from
-    /// <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.
+    /// <see cref="Microsoft.ServiceFabric.Services.Remoting.Base.IService"/> interface.
     /// </summary>
     public static class ServiceRemotingExtensions
     {
@@ -25,11 +28,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.Base.IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateful service implementation.</param>
         /// <param name="serviceContext">The context under which the service is operating.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
-        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.Base.IService"/> interface.</returns>
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatefulService>(
             this TStatefulService serviceImplementation,
             StatefulServiceContext serviceContext)
@@ -44,11 +47,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// </summary>
         /// <typeparam name="TStatelessService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="System.Fabric.Query.StatelessService"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.Base.IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateless service implementation.</param>
         /// <param name="serviceContext">The context under which the service is operating.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
-        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.Base.IService"/> interface.</returns>
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatelessService>(
             this TStatelessService serviceImplementation,
             StatelessServiceContext serviceContext)
@@ -65,10 +68,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// interfaces that derive from <see cref="Remoting.Base.IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateful service implementation.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
-        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        /// listener that remotes the interfaces deriving from <see cref="Remoting.Base.IService"/> interface.</returns>
         public static IEnumerable<ServiceReplicaListener> CreateServiceRemotingReplicaListeners<TStatefulService>(
             this TStatefulService serviceImplementation)
             where TStatefulService : StatefulServiceBase, IService
@@ -80,7 +83,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             var serviceReplicaListeners = new List<ServiceReplicaListener>();
 #if !DotNetCoreClr
 
-            if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV1(provider.RemotingListenerVersion))
             {
                 serviceReplicaListeners.Add(new ServiceReplicaListener((t) =>
                 {
@@ -88,9 +91,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 }));
             }
 #endif
-            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+            if (RemotingHelper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
-                if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+                if (RemotingHelper.IsEitherRemotingV2(provider.RemotingListenerVersion))
                 {
                     var listeners = provider.CreateServiceRemotingListeners();
                     foreach (var kvp in listeners)
@@ -114,10 +117,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// </summary>
         /// <typeparam name="TStatelessService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="System.Fabric.Query.StatelessService"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// interfaces that derive from <see cref="IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateless service implementation.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
-        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        /// listener that remotes the interfaces deriving from <see cref="IService"/> interface.</returns>
         public static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
             this TStatelessService serviceImplementation)
             where TStatelessService : StatelessService, IService
@@ -130,7 +133,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
 #if !DotNetCoreClr
 
-            if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV1(provider.RemotingListenerVersion))
             {
                 serviceInstanceListeners.Add(new ServiceInstanceListener((t) =>
                 {
@@ -138,7 +141,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                 }));
             }
 #endif
-            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+            if (RemotingHelper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
                 var listeners = provider.CreateServiceRemotingListeners();
                 foreach (var kvp in listeners)
@@ -164,7 +167,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             var interfaceTypes = serviceTypeInformation.InterfaceTypes;
 
             var provider = ServiceRemotingProviderAttribute.GetProvider(interfaceTypes);
-            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+            if (RemotingHelper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
                 throw new NotSupportedException(
                     "This extension method doesnt support V2Listener or CompatListener. Use CreateServiceRemotingReplicaListeners for using V2Stack ");

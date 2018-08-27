@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
     using System.ServiceModel;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>

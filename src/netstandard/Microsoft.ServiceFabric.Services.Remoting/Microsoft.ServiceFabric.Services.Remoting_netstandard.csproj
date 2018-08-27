@@ -22,8 +22,12 @@
     <Compile Include="$(SourceCodeDir)Runtime\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <!-- Only include V2 stack -->
     <Compile Include="$(SourceCodeDir)V2\**\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+	<Compile Include="$(SourceCodeDir)Base\**\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />	
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="D:\repo\service-fabric-services-and-actors-dotnet\src\Microsoft.ServiceFabric.Services.Remoting\V2\Helper.cs" />
+  </ItemGroup>
+    <ItemGroup>
     <Compile Include="$(SourceCodeDir)\SR.Designer.cs">
       <Link>SR.Designer.cs</Link>
       <AutoGen>True</AutoGen>
@@ -32,7 +36,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal)" />
+    <PackageReference Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="3.3.175" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.ILGeneration" Version="4.3.0" />
   </ItemGroup>

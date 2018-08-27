@@ -14,9 +14,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
     using System.Runtime.ExceptionServices;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Diagnostic;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
     /// <summary>

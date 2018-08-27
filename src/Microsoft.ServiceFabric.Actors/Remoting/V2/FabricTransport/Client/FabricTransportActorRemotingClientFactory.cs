@@ -9,6 +9,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
     using Microsoft.ServiceFabric.Actors.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.FabricTransport;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;

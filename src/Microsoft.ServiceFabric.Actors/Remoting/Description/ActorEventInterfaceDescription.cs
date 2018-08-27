@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Description
 {
     using System;
     using System.Globalization;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     internal class ActorEventInterfaceDescription : InterfaceDescription
     {

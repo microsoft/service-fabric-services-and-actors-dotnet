@@ -9,6 +9,11 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     /// <summary>
     /// Represents a factory class to create a proxy to the remote actor objects.
@@ -53,8 +58,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
         /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
         public ActorProxyFactory(
-            Func<Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler,
-                    Services.Remoting.V2.Client.IServiceRemotingClientFactory>
+            Func<IServiceRemotingCallbackMessageHandler,
+                    IServiceRemotingClientFactory>
                 createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null)
         {
@@ -168,7 +173,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
         /// </param>
-        /// <returns>A service proxy object that implements <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.IServiceProxy"/> and TServiceInterface.</returns>
+        /// <returns>A service proxy object that implements <see cref="IServiceProxy"/> and TServiceInterface.</returns>
         public TServiceInterface CreateActorServiceProxy<TServiceInterface>(
             Uri serviceUri,
             long partitionKey,
@@ -238,7 +243,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 var provider = this.GetProviderAttribute(actorInterfaceType);
-                if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
+                if (Services.Remoting.RemotingHelper.IsEitherRemotingV2(provider.RemotingClientVersion))
                 {
                     // We are overriding listenerName since using provider service can have multiple listener configured for upgrade cases
                     this.OverrideDefaultListenerName(provider.RemotingClientVersion);
@@ -276,7 +281,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private void OverrideDefaultListenerName(RemotingClientVersion remotingClientVersion)
         {
             this.overrideListenerName = true;
-            if (Services.Remoting.Helper.IsRemotingV2_1(remotingClientVersion))
+            if (RemotingHelper.IsRemotingV2_1(remotingClientVersion))
             {
                 this.defaultListenerName = ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName;
             }

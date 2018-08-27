@@ -8,8 +8,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     internal class ServiceCodeBuilder : CodeBuilder
     {

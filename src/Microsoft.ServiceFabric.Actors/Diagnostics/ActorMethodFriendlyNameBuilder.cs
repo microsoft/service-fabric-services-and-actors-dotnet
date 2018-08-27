@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Collections.Generic;
     using Microsoft.ServiceFabric.Actors.Remoting.Description;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     internal class ActorMethodFriendlyNameBuilder
     {

@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Messaging
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Xunit;
 
     /// <summary>

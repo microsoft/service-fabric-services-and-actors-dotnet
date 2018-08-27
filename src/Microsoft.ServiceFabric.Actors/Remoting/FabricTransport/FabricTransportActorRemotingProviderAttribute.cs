@@ -13,6 +13,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
     using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.FabricTransport;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -136,14 +140,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         /// needs to be remoted.
         /// <returns>
         ///     A <see cref="V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener"/>
-        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/>
+        ///     as <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
         public override Dictionary<string, Func<ActorService, IServiceRemotingListener>> CreateServiceRemotingListeners()
         {
             var dic = new Dictionary<string, Func<ActorService, IServiceRemotingListener>>();
 
-            if ((Helper.IsRemotingV2(this.RemotingListenerVersion)))
+            if ((RemotingHelper.IsRemotingV2(this.RemotingListenerVersion)))
             {
                 dic.Add(ServiceRemotingProviderAttribute.DefaultV2listenerName, (a)
                     =>
@@ -155,7 +159,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
                 });
             }
 
-            if (Helper.IsRemotingV2_1(this.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV2_1(this.RemotingListenerVersion))
             {
                 dic.Add(ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName, (
                     actorService) =>
@@ -172,15 +176,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         }
 
         /// <inheritdoc />
-        public override Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler)
+        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
+            IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {
             var settings = FabricTransportRemotingSettings.GetDefault();
             settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
             settings.OperationTimeout = this.GetandValidateOperationTimeout(settings.OperationTimeout);
             settings.KeepAliveTimeout = this.GetandValidateKeepAliveTimeout(settings.KeepAliveTimeout);
             settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
-            if (Microsoft.ServiceFabric.Services.Remoting.Helper.IsRemotingV2_1(this.RemotingClientVersion))
+            if (RemotingHelper.IsRemotingV2_1(this.RemotingClientVersion))
             {
                 settings.UseWrappedMessage = true;
             }

@@ -7,11 +7,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 {
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Builder;
     using ActorEventSubscription = Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime.ActorEventSubscription;
 
-    internal class ActorRemotingSerializationManager : ServiceRemotingMessageSerializersManager
+    internal class ActorRemotingSerializationManager : Services.Remoting.V2.ServiceRemotingSerializationManager
     {
         public ActorRemotingSerializationManager(
             IServiceRemotingMessageSerializationProvider serializationProvider,

@@ -2,19 +2,14 @@
 using System.IO;
 using System.Reflection;
 using System.Threading;
-using Microsoft.ServiceFabric.Services.Remoting.Client;
-using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client;
+using Microsoft.ServiceFabric.Services.Remoting.Mesh.Client;
+using Microsoft.ServiceFabric.Services.Remoting.Mesh.FabricTransport.Runtime;
 
 namespace Console1
 {
     class Program
     {
-        static Program()
-        {
-        //    AppDomain.CurrentDomain.AssemblyResolve += LoadFromFabricCodePath;
-        }
+
         static void Main(string[] args)
         {
             //Things to bo done.
@@ -23,27 +18,34 @@ namespace Console1
              3 Implement your own FabricTransportRemotingClientFactory Impl using new FabricTransportClientPulic withourt serviceContext*/
             var partitionId = Guid.NewGuid();
 
-          //  ProcessDirectory(Directory.GetCurrentDirectory());
-            var settings = new FabricTransportRemotingListenerSettings();
+            ProcessDirectory(Directory.GetCurrentDirectory());
+            var settings = new FabricTransportRemotingMeshListenerSettings();
             settings.EndpointResourceName = "Console1Listener";
-            var listener = new Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime.FabricTransportServiceRemotingListener(partitionId,
-                new Class1(),
-                settings);
+
+            var listener =
+                new Microsoft.ServiceFabric.Services.Remoting.Mesh.Runtime.FabricTransportServiceRemotingListener(
+                    partitionId,
+                    new Class1(),
+                    settings);
             var endpoint = listener.OpenAsync(CancellationToken.None).Result;
-            Console.WriteLine("Endpoint Listener {0}",endpoint);
+            Console.WriteLine("Endpoint Listener {0}", endpoint);
             var endpoint2 = string.Format("{0}:20004 +{1}", "Console1", partitionId);
             var proxyfactory = new ServiceProxyFactory((c) =>
-            { return new MyRemotingClientFactory(endpoint); }
+                {
+                    return new Microsoft.ServiceFabric.Services.Remoting.Mesh.Client.
+                        FabricTransportServiceRemotingClientFactory(endpoint);
+                }
             );
             var proxy = proxyfactory.CreateServiceProxy<IMYService>(new Uri("fabric:\\MyService"));
             try
             {
                 var result = proxy.GetWord().Result;
             }
-            catch (Exception){
+            catch (Exception)
+            {
 
             }
-            
+
             Thread.Sleep(Timeout.Infinite);
 
         }
@@ -69,27 +71,5 @@ namespace Console1
             Console.WriteLine("Processed file '{0}'.", path);
         }
 
-        private static Assembly LoadFromFabricCodePath(object sender, ResolveEventArgs args)
-        {
-            string assemblyName = new AssemblyName(args.Name).Name;
-
-         
-            try
-            {
-                string assemblyPath = Path.Combine("C:\\app\\bin\\x64\\Debug\\netcoreapp2.0", assemblyName + ".dll");
-                if (File.Exists(assemblyPath))
-                {
-                    return Assembly.LoadFrom(assemblyPath);
-                }
-            }
-            catch (Exception e)
-            {
-                // Supress any Exception so that we can continue to
-                // load the assembly through other means
-                Console.WriteLine("Exception in LoadFromFabricCodePath={0}", e.ToString());
-            }
-
-            return null;
-        }
     }
 }

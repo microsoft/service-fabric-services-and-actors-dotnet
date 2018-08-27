@@ -7,12 +7,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 {
     using System;
     using System.Fabric;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-    using SR = Microsoft.ServiceFabric.Services.Remoting.SR;
 
     internal class FabricTransportRemotingClientConnectionHandler : IFabricTransportClientConnectionHandler
     {

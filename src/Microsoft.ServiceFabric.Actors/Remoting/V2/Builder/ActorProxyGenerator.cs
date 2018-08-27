@@ -8,7 +8,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     using System;
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     internal class ActorProxyGenerator : ProxyGenerator

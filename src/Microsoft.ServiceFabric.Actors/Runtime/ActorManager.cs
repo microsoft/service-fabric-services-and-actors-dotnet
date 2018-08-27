@@ -20,6 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 

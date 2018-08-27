@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     internal class DummyServiceRemoingRequestMessageBody : IServiceRemotingRequestMessageBody

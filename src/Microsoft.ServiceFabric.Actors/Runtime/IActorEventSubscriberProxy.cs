@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>

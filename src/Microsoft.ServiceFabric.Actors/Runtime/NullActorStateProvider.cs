@@ -488,7 +488,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion Secondary Pump Operation
 
-        #region Private non-static Helper Methods
+        #region Private non-static RemotingHelper Methods
         private IOperationStream GetOperationStream(bool isCopy)
         {
             return isCopy ? this.replicator.GetCopyStream() : this.replicator.GetReplicationStream();
@@ -522,7 +522,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion
 
-        #region Private Helper Classes
+        #region Private RemotingHelper Classes
 
         private class NullOperationDataStream : IOperationDataStream
         {
@@ -532,6 +532,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        #endregion #region Private Helper Classes
+        #endregion #region Private RemotingHelper Classes
     }
 }

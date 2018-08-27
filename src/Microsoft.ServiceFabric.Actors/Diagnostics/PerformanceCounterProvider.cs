@@ -12,8 +12,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Text;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Diagnostic;
 
     internal class PerformanceCounterProvider : IDisposable
     {

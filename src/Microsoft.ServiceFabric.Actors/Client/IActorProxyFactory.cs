@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using System;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
 
     /// <summary>
     /// Defines the interface containing methods to create actor proxy factory class.

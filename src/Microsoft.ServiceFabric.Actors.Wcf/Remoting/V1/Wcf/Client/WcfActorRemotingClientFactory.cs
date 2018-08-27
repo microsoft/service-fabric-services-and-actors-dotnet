@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client
     using Microsoft.ServiceFabric.Actors.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client;
@@ -58,7 +59,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client
         /// </param>
         /// <remarks>
         ///     This factory uses <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfExceptionHandler"/>,
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.Client.ServiceRemotingExceptionHandler"/> and
+        ///     <see cref="ServiceRemotingExceptionHandler"/> and
         ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.Client.ActorRemotingExceptionHandler"/>, in addition to the
         ///     exception handlers supplied to the constructor.
         /// </remarks>

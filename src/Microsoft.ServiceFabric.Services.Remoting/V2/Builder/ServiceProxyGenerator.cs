@@ -6,16 +6,18 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
     using System;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     internal class ServiceProxyGenerator : ProxyGenerator
     {
         private readonly IProxyActivator proxyActivator;
 
         public ServiceProxyGenerator(Type type, IProxyActivator createInstance)
-            : base(type)
+              : base(type)
         {
             this.proxyActivator = createInstance;
         }

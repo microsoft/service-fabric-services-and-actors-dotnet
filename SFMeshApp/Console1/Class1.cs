@@ -1,14 +1,14 @@
-﻿using Microsoft.ServiceFabric.Services.Remoting;
-using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
+﻿
 using System;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Remoting.Base;
 
 public class Class1 : IMYService
 {
-	public Class1()
-	{
-      
-	}
+    public Class1()
+    {
+
+    }
 
     public Task<string> GetWord()
     {
@@ -16,8 +16,8 @@ public class Class1 : IMYService
     }
 }
 
-public interface IMYService: IService
+public interface IMYService : IService
 {
     Task<string> GetWord();
-    
+
 }

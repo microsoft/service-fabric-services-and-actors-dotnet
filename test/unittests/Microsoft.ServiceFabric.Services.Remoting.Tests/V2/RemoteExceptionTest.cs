@@ -9,8 +9,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ServiceFabric.Services.Communication;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Xunit;
 
     /// <summary>

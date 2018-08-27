@@ -5,19 +5,22 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 {
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     internal class WcfServiceRemotingCallbackClient : IServiceRemotingCallbackClient
     {
-        private readonly ServiceRemotingMessageSerializersManager serializersManager;
+        private readonly ServiceRemotingMessageSerializationManager serializersManager;
         private readonly IServiceRemotingCallbackContract callbackChannel;
         private IServiceRemotingMessageBodyFactory remotingMessageBodyFactory;
 
         public WcfServiceRemotingCallbackClient(
             IServiceRemotingCallbackContract callbackChannel,
-            ServiceRemotingMessageSerializersManager serializersManager)
+            ServiceRemotingMessageSerializationManager serializersManager)
         {
             this.callbackChannel = callbackChannel;
             this.serializersManager = serializersManager;

@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     using System.Linq;
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
     internal class ActorEventProxyGeneratorWith : ProxyGeneratorWithSerializer

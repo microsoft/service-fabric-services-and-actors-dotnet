@@ -11,11 +11,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     using System.Reflection;
     using System.Reflection.Emit;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
-    internal class ActorEventProxyGeneratorBuilder : Microsoft.ServiceFabric.Services.Remoting.V2.Builder.ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
+    internal class ActorEventProxyGeneratorBuilder : Services.Remoting.Base.V2.Builder.ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
     {
 #if !DotNetCoreClr
         private readonly MethodInfo invokeMethodInfoV1;

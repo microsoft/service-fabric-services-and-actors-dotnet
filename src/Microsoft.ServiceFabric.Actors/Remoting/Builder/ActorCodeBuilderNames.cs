@@ -5,8 +5,10 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.Builder
 {
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+
     internal class ActorCodeBuilderNames
-        : Microsoft.ServiceFabric.Services.Remoting.Builder.CodeBuilderNames
+        : CodeBuilderNames
     {
         public ActorCodeBuilderNames()
             : base("actor")

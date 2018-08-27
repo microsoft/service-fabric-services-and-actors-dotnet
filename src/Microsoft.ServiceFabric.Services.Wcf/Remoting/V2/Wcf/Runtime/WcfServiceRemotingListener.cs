@@ -15,8 +15,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
     using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
@@ -54,11 +58,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             serializationProvider = this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage);
 
-            var serializerManager = new ServiceRemotingMessageSerializersManager(
+            var serializerManager = new ServiceRemotingSerializationManager(
                 serializationProvider,
                 new BasicDataContractHeaderSerializer(),
                 useWrappedMessage);
-            this.messageHandler = new ServiceRemotingMessageDispatcher(
+            this.messageHandler = new Remoting.V2.Runtime.ServiceRemotingMessageDispatcher(
                 serviceContext,
                 serviceImplementation,
                 serializerManager.GetSerializationProvider().CreateMessageBodyFactory());
@@ -97,7 +101,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             string endpointResourceName = "ServiceEndpointV2",
             bool useWrappedMessage = false)
         {
-            var serializerManager = new ServiceRemotingMessageSerializersManager(
+            var serializerManager = new ServiceRemotingSerializationManager(
                 this.GetDefaultSerializationProvider(
                 serializationProvider,
                 useWrappedMessage),
@@ -130,7 +134,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             EndpointAddress address = null,
             bool useWrappedMessage = false)
         {
-            var serializerManager = new ServiceRemotingMessageSerializersManager(
+            var serializerManager = new ServiceRemotingSerializationManager(
                 this.GetDefaultSerializationProvider(
                     serializationProvider,
                     useWrappedMessage),
@@ -141,7 +145,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         internal WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
-            ServiceRemotingMessageSerializersManager serializersManager,
+            ServiceRemotingMessageSerializationManager serializersManager,
             Binding listenerBinding = null,
             EndpointAddress address = null)
         {
@@ -156,7 +160,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         internal WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
-            ServiceRemotingMessageSerializersManager serializerManager,
+            ServiceRemotingMessageSerializationManager serializerManager,
             Binding listenerBinding = null,
             string endpointResourceName = "ServiceEndpointV2")
         {
@@ -234,7 +238,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IServiceRemotingMessageHandler messageHandler,
             Binding listenerBinding,
             string endpointResourceName,
-            ServiceRemotingMessageSerializersManager serializerManager)
+            ServiceRemotingMessageSerializationManager serializerManager)
         {
             this.messageHandler = messageHandler;
             this.wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
@@ -248,7 +252,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             ServiceContext serviceContext,
             Binding listenerBinding,
             EndpointAddress address,
-            ServiceRemotingMessageSerializersManager serializerManager,
+            ServiceRemotingMessageSerializationManager serializerManager,
             IServiceRemotingMessageHandler messageHandler)
         {
             this.messageHandler = messageHandler;
@@ -294,7 +298,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             private readonly IServiceRemotingMessageHandler messageHandler;
 
-            private readonly ServiceRemotingMessageSerializersManager serializersManager;
+            private readonly ServiceRemotingMessageSerializationManager serializersManager;
 
             // The request context need not be generated every time for WCF because for WCF,
             // the actual callback channel is accessed from the current operation context.
@@ -302,7 +306,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
             public WcfRemotingService(
                 IServiceRemotingMessageHandler messageHandler,
-                ServiceRemotingMessageSerializersManager serializersManager)
+                ServiceRemotingMessageSerializationManager serializersManager)
             {
                 this.messageHandler = messageHandler;
                 this.serializersManager = serializersManager;

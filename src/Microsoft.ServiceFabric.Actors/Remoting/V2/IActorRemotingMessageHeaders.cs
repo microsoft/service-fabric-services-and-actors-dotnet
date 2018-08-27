@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 {
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>

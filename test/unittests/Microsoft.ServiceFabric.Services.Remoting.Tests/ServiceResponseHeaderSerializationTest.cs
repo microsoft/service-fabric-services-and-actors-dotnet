@@ -8,8 +8,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
     using System;
     using System.Text;
     using FluentAssertions;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Xunit;
 
     /// <summary>

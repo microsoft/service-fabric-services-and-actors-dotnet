@@ -10,8 +10,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using System.Reflection.Emit;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     internal class MethodDispatcherBuilder<TMethodDispatcher> : CodeBuilderModule
         where TMethodDispatcher : MethodDispatcherBaseWithSerializer

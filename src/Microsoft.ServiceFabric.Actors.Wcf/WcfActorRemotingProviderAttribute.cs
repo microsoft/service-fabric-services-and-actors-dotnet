@@ -11,7 +11,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
     using Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     /// <summary>
@@ -79,12 +83,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         /// </param>
         /// <returns>
         ///     A <see cref="Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client.WcfActorRemotingClientFactory"/>
-        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingClientFactory"/>
+        ///     as <see cref="Services.Remoting.V1.Client.IServiceRemotingClientFactory"/>
         ///     that can be used with <see cref="ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
-        public override Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            Microsoft.ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callbackClient)
+        public override Services.Remoting.V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
+            Services.Remoting.V1.IServiceRemotingCallbackClient callbackClient)
         {
             return new Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client.WcfActorRemotingClientFactory(
                 WcfUtility.CreateTcpClientBinding(
@@ -125,11 +129,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
         /// </param>
         /// <returns>
         ///     A <see cref="WcfActorRemotingClientFactory"/>
-        ///     as <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>
+        ///     as <see cref="Services.Remoting.Base.V2.Client.IServiceRemotingClientFactory"/>
         ///     that can be used with <see cref="ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
-        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
+        public override Services.Remoting.Base.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {
             return new Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client.WcfActorRemotingClientFactory(

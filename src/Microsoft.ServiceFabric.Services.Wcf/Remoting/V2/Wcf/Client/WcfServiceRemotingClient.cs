@@ -13,17 +13,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     internal class WcfServiceRemotingClient : IServiceRemotingClient
     {
-        private ServiceRemotingMessageSerializersManager serializersManager;
+        private ServiceRemotingMessageSerializationManager serializersManager;
 
         public WcfServiceRemotingClient(
             WcfCommunicationClient<IServiceRemotingContract> wcfClient,
-            ServiceRemotingMessageSerializersManager serializersManager)
+            ServiceRemotingMessageSerializationManager serializersManager)
         {
             this.serializersManager = serializersManager;
             this.WcfClient = wcfClient;

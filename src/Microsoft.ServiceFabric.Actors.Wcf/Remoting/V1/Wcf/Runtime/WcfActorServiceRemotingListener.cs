@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Runtime
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime;
 

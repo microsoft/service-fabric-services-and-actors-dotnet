@@ -14,7 +14,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
     using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
 

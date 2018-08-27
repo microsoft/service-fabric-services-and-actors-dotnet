@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Serialization;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 

@@ -338,7 +338,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion Public API
 
-        #region Helper methods
+        #region RemotingHelper methods
 
         private void ApplyUpdate_UnderWriteLock(LinkedListNode<ListEntry> listNode)
         {
@@ -389,7 +389,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.committedEntriesList.AddLast(listNode);
         }
 
-        #endregion Helper methods
+        #endregion RemotingHelper methods
 
         #region Public inner classes
 

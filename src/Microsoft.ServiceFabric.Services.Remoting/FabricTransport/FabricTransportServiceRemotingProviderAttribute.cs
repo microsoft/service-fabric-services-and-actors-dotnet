@@ -8,16 +8,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 
 #if !DotNetCoreClr
-    using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
+
 #endif
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     /// <summary>
     /// This attributes allows to set Fabric TCP transport as the default service remoting transport provider in the assembly and customization of it.
@@ -115,7 +116,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     generate service proxy to talk to a stateless or stateful service over remoted actor interface.
         /// </returns>
         public override V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            IServiceRemotingCallbackClient callbackClient)
+            V1.IServiceRemotingCallbackClient callbackClient)
         {
             var settings = FabricTransportRemotingSettings.GetDefault();
             settings.MaxMessageSize = this.GetAndValidateMaxMessageSize(settings.MaxMessageSize);
@@ -140,7 +141,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         {
             var dic = new Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>();
 
-            if ((Helper.IsRemotingV2(this.RemotingListenerVersion)))
+            if ((RemotingHelper.IsRemotingV2(this.RemotingListenerVersion)))
             {
                 dic.Add(ServiceRemotingProviderAttribute.DefaultV2listenerName, (serviceContext, serviceImplementation)
                     =>
@@ -153,7 +154,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
                 });
             }
 
-            if (Helper.IsRemotingV2_1(this.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV2_1(this.RemotingListenerVersion))
             {
                 dic.Add(ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName, (
                     serviceContext, serviceImplementation) =>
@@ -178,11 +179,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// </param>
         /// <returns>
         ///     A <see cref="V2.FabricTransport.Client.FabricTransportServiceRemotingClientFactory"/>
-        ///     as <see cref="V2.Client.IServiceRemotingClientFactory"/>
+        ///     as <see cref="IServiceRemotingClientFactory"/>
         ///     that can be used with <see cref="Remoting.Client.ServiceProxyFactory"/> to
         ///     generate service proxy to talk to a stateless or stateful service over remoted actor interface.
         /// </returns>
-        public override V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
             IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {
             var settings = FabricTransportRemotingSettings.GetDefault();
@@ -190,7 +191,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             settings.OperationTimeout = this.GetAndValidateOperationTimeout(settings.OperationTimeout);
             settings.KeepAliveTimeout = this.GetKeepAliveTimeout(settings.KeepAliveTimeout);
             settings.ConnectTimeout = this.GetConnectTimeout(settings.ConnectTimeout);
-            if (Helper.IsRemotingV2_1(this.RemotingClientVersion))
+            if (RemotingHelper.IsRemotingV2_1(this.RemotingClientVersion))
             {
                 settings.UseWrappedMessage = true;
             }

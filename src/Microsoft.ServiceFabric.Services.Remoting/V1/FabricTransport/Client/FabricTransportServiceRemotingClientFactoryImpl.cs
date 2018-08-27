@@ -14,17 +14,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
     using Microsoft.ServiceFabric.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 
     internal class FabricTransportServiceRemotingClientFactoryImpl :
         CommunicationClientFactoryBase<FabricTransportServiceRemotingClient>
     {
-        private readonly Remoting.FabricTransport.FabricTransportRemotingSettings settings;
+        private readonly FabricTransportRemotingSettings settings;
         private readonly FabricTransportRemotingCallbackMessageHandler fabricTransportRemotingCallbackMessageHandler;
 
         public FabricTransportServiceRemotingClientFactoryImpl(
-            Remoting.FabricTransport.FabricTransportRemotingSettings fabricTransportRemotingSettings = null,
+            FabricTransportRemotingSettings fabricTransportRemotingSettings = null,
             IServiceRemotingCallbackClient callbackHandler = null,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,

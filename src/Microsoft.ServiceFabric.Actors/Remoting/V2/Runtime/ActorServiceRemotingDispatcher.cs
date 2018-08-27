@@ -13,16 +13,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Builder;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
     /// Provides an implementation of <see cref="IServiceRemotingMessageHandler"/> that can dispatch
     /// messages to an actor service and to the actors hosted in the service.
     /// </summary>
-    public class ActorServiceRemotingDispatcher : ServiceRemotingMessageDispatcher
+    public class ActorServiceRemotingDispatcher : Services.Remoting.V2.Runtime.ServiceRemotingMessageDispatcher
     {
         private readonly ActorService actorService;
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
@@ -137,7 +139,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             IActorRemotingMessageHeaders messageHeaders, IServiceRemotingRequestMessageBody msgBody)
         {
             var startTime = DateTime.UtcNow;
-            if (this.IsCancellationRequest(messageHeaders))
+            if (Services.Remoting.Base.Helper.IsCancellationRequest(messageHeaders))
             {
                 await this.cancellationHelper.CancelRequestAsync(
                     messageHeaders.InterfaceId,

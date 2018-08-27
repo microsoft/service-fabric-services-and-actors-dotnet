@@ -12,7 +12,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using Microsoft.ServiceFabric.Actors.Remoting.V2;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>
@@ -46,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             get
             {
 #if !DotNetCoreClr
-                if (!(Helper.IsEitherRemotingV2(this.remotingClient)))
+                if (!(Services.Remoting.RemotingHelper.IsEitherRemotingV2(this.remotingClient)))
                 {
                     return this.servicePartitionClient.ActorId;
                 }
@@ -295,7 +296,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         internal async Task SubscribeAsync(Type eventType, object subscriber, TimeSpan resubscriptionInterval)
         {
-            if (Helper.IsEitherRemotingV2(this.remotingClient))
+            if (RemotingHelper.IsEitherRemotingV2(this.remotingClient))
             {
                 await this.SubscribeAsyncV2(eventType, subscriber, resubscriptionInterval);
                 return;
@@ -338,7 +339,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         internal async Task UnsubscribeAsync(Type eventType, object subscriber)
         {
-            if (Helper.IsEitherRemotingV2(this.remotingClient))
+            if (RemotingHelper.IsEitherRemotingV2(this.remotingClient))
             {
                 await this.UnsubscribeAsyncV2(eventType, subscriber);
                 return;

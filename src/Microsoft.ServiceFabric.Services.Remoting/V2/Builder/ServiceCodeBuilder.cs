@@ -8,8 +8,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Builder;
 
     /// <summary>
     /// Singelton Class for Codegen
@@ -21,27 +22,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         private static readonly object BuildLock = new object();
 
         private readonly MethodBodyTypesBuilder methodBodyTypesBuilder;
-        private readonly MethodDispatcherBuilder<MethodDispatcherBase> methodDispatcherBuilder;
+        private readonly MethodDispatcherBuilder<Base.V2.Builder.MethodDispatcherBase> methodDispatcherBuilder;
         private readonly ServiceProxyGeneratorBuilder proxyGeneratorBuilder;
 
         public ServiceCodeBuilder()
             : base(new ServiceCodeBuilderNames())
         {
             this.methodBodyTypesBuilder = new MethodBodyTypesBuilder(this);
-            this.methodDispatcherBuilder = new MethodDispatcherBuilder<MethodDispatcherBase>(this);
+            this.methodDispatcherBuilder = new MethodDispatcherBuilder<Base.V2.Builder.MethodDispatcherBase>(this);
             this.proxyGeneratorBuilder = new ServiceProxyGeneratorBuilder(this);
         }
 
-        public static MethodDispatcherBase GetOrCreateMethodDispatcher(Type serviceInterfaceType)
+        public static Base.V2.Builder.MethodDispatcherBase GetOrCreateMethodDispatcher(Type serviceInterfaceType)
         {
             lock (BuildLock)
             {
                 return
-                    (MethodDispatcherBase)Instance.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
+                    (Base.V2.Builder.MethodDispatcherBase)Instance.GetOrBuilderMethodDispatcher(serviceInterfaceType).MethodDispatcher;
             }
         }
 
-        public static MethodDispatcherBase GetOrCreateMethodDispatcherForNonMarkerInterface(Type serviceInterfaceType)
+        public static Base.V2.Builder.MethodDispatcherBase GetOrCreateMethodDispatcherForNonMarkerInterface(Type serviceInterfaceType)
         {
             lock (BuildLock)
             {
@@ -50,14 +51,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                 if (codebuilder.TryGetMethodDispatcher(serviceInterfaceType, out var result))
                 {
                     return
-                        (MethodDispatcherBase)result.MethodDispatcher;
+                        (Base.V2.Builder.MethodDispatcherBase)result.MethodDispatcher;
                 }
 
                 result = codebuilder.BuildMethodDispatcherForNonServiceInterface(serviceInterfaceType);
                 codebuilder.UpdateMethodDispatcherBuildMap(serviceInterfaceType, result);
 
                 return
-                    (MethodDispatcherBase)result.MethodDispatcher;
+                    (Base.V2.Builder.MethodDispatcherBase)result.MethodDispatcher;
             }
         }
 

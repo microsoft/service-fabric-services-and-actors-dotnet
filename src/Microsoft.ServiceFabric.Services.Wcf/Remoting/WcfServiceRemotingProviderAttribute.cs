@@ -9,6 +9,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
     using System.Collections.Generic;
     using System.Fabric;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
@@ -122,7 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         /// <returns>
         ///     A <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client.WcfServiceRemotingClientFactory"/>.
         /// </returns>
-        public override V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+        public override IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
             IServiceRemotingCallbackMessageHandler callbackMessageHandler)
         {
             return new Services.Remoting.V2.Wcf.Client.WcfServiceRemotingClientFactory(
@@ -142,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         {
             var dic = new Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>();
 
-            if ((Helper.IsRemotingV2(this.RemotingListenerVersion)))
+            if ((RemotingHelper.IsRemotingV2(this.RemotingListenerVersion)))
             {
                 dic.Add(ServiceRemotingProviderAttribute.DefaultV2listenerName, (serviceContext, serviceImplementation)
                     =>
@@ -158,7 +162,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
                 });
             }
 
-            if (Helper.IsRemotingV2_1(this.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV2_1(this.RemotingListenerVersion))
             {
                 dic.Add(ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName, (
                     serviceContext, serviceImplementation) =>

@@ -9,8 +9,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.ServiceFabric.Actors.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     internal class ActorProxyGeneratorBuilder : ProxyGeneratorBuilder<ActorProxyGeneratorWith, ActorProxy>
     {
@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
 
         protected override ActorProxyGeneratorWith CreateProxyGenerator(
             Type proxyInterfaceType,
-            IDictionary<InterfaceDescription, Services.Remoting.Builder.MethodBodyTypesBuildResult>
+            IDictionary<InterfaceDescription, MethodBodyTypesBuildResult>
                 methodBodyTypesResultsMap,
             Type proxyActivatorType)
         {

@@ -10,8 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System.Reflection;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Diagnostic;
 
     internal class PerformanceCounterProviderV2 : PerformanceCounterProvider
     {
@@ -81,7 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal override MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
-            if (Helper.IsEitherRemotingV2(remotingListener))
+            if (RemotingHelper.IsEitherRemotingV2(remotingListener))
             {
                 return this.actorMethodCounterInstanceDataV2[interfaceMethodKey].CounterWriters;
             }

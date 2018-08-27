@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
 
     /// <summary>
     /// Settings that configures the  FabricTransport Listener.
@@ -29,8 +29,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         public FabricTransportRemotingListenerSettings()
         {
             this.listenerSettings = new FabricTransportListenerSettings();
-            this.headerBufferSize = Constants.DefaultHeaderBufferSize;
-            this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
+            this.headerBufferSize = Base.V2.Constants.DefaultHeaderBufferSize;
+            this.headerMaxBufferCount = Base.V2.Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
         }
 

@@ -8,6 +8,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     using System;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
 
@@ -39,7 +44,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory> createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null,
-            Action<Remoting.V2.Client.IServiceRemotingClientFactory> disposeFactory = null)
+            Action<IServiceRemotingClientFactory> disposeFactory = null)
         {
             this.thisLock = new object();
             this.remotingClientFactory = null;

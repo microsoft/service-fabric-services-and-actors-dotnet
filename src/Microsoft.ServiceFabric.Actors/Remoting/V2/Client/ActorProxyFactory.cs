@@ -12,10 +12,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
     /// Factory class to create a proxy to the remote actor objects.
@@ -35,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
         /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
         public ActorProxyFactory(
-            Func<IServiceRemotingCallbackMessageHandler, Services.Remoting.V2.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory = null,
+            Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory> createServiceRemotingClientFactory = null,
             OperationRetrySettings retrySettings = null)
         {
             this.thisLock = new object();

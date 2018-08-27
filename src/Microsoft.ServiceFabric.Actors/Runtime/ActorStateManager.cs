@@ -375,7 +375,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        #region Helper Classes
+        #region RemotingHelper Classes
 
         private sealed class StateMetadata
         {

@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 {
     using System;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
 
     internal class ActorEventProxyGenerator : ProxyGenerator
     {

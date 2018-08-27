@@ -15,10 +15,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     /// <summary>
     /// An <see cref="IServiceRemotingClientFactory"/> that uses
@@ -28,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     public class WcfServiceRemotingClientFactory : IServiceRemotingClientFactory
     {
         private WcfCommunicationClientFactory<IServiceRemotingContract> wcfFactory;
-        private ServiceRemotingMessageSerializersManager serializersManager;
+        private ServiceRemotingMessageSerializationManager serializersManager;
         private IServiceRemotingMessageBodyFactory remotingMessageBodyFactory;
 
         /// <summary>
@@ -80,7 +83,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             bool useWrappedMessage = false)
         {
-            var serializersManager = new ServiceRemotingMessageSerializersManager(
+            var serializersManager = new ServiceRemotingSerializationManager(
                 this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
                 new BasicDataContractHeaderSerializer());
 
@@ -95,7 +98,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         }
 
         internal WcfServiceRemotingClientFactory(
-            ServiceRemotingMessageSerializersManager serializersManager,
+            ServiceRemotingMessageSerializationManager serializersManager,
             Binding clientBinding = null,
             IServiceRemotingCallbackMessageHandler callbackClient = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
@@ -251,7 +254,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         }
 
         private void Initialize(
-            ServiceRemotingMessageSerializersManager serializersManager,
+            ServiceRemotingMessageSerializationManager serializersManager,
             Binding clientBinding,
             IServiceRemotingCallbackMessageHandler callbackClient,
             IEnumerable<IExceptionHandler> exceptionHandlers,
@@ -371,11 +374,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         private class CallbackReceiver : IServiceRemotingCallbackContract
         {
             private readonly IServiceRemotingCallbackMessageHandler callbackHandler;
-            private readonly ServiceRemotingMessageSerializersManager serializersManager;
+            private readonly ServiceRemotingMessageSerializationManager serializersManager;
 
             public CallbackReceiver(
                 IServiceRemotingCallbackMessageHandler callbackHandler,
-                ServiceRemotingMessageSerializersManager serializersManager)
+                ServiceRemotingMessageSerializationManager serializersManager)
             {
                 this.callbackHandler = callbackHandler;
                 this.serializersManager = serializersManager;

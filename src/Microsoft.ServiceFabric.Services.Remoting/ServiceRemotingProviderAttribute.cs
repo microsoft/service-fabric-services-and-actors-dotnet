@@ -6,14 +6,18 @@
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Reflection;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+
 #if !DotNetCoreClr
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
+
 #endif
 
     /// <summary>
@@ -30,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     ///     <para>
     ///     On client side, implementation of this attribute is looked up by
     ///     <see cref="V2.Client.ServiceProxyFactory"/> constructor to create a default
-    ///     <see cref="V2.Client.IServiceRemotingClientFactory"/> when it is not specified.
+    ///     <see cref="Base.V2.Client.IServiceRemotingClientFactory"/> when it is not specified.
     ///     </para>
     ///     <para>
     ///     Note that on client side
@@ -104,9 +108,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackClient">Client implementation where the callbacks should be dispatched.</param>
-        /// <returns>An <see cref="IServiceRemotingClientFactory"/>.</returns>
-        public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            Remoting.V1.IServiceRemotingCallbackClient callbackClient);
+        /// <returns>An <see cref=" V1.Client.IServiceRemotingClientFactory"/>.</returns>
+        public abstract V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
+            V1.IServiceRemotingCallbackClient callbackClient);
 
 #endif
 
@@ -122,9 +126,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
-        /// <returns>An <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>
-        public abstract Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
-            Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
+        /// <returns>An <see cref="Base.V2.Client.IServiceRemotingClientFactory"/>.</returns>
+        public abstract Base.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+            IServiceRemotingCallbackMessageHandler callbackMessageHandler);
 
         internal static ServiceRemotingProviderAttribute GetProvider(IEnumerable<Type> types = null)
         {

@@ -12,12 +12,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>
     /// Provides the base implementation for the proxy to invoke methods on actor event subscribers.
     /// </summary>
-    public abstract class ActorEventProxy : Microsoft.ServiceFabric.Services.Remoting.Builder.ProxyBase
+    public abstract class ActorEventProxy : ProxyBase
     {
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV2;
 #if !DotNetCoreClr
@@ -38,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal void AddSubscriber(IActorEventSubscriberProxy subscriber)
         {
-            if (Helper.IsEitherRemotingV2(subscriber.RemotingListener))
+            if (RemotingHelper.IsEitherRemotingV2(subscriber.RemotingListener))
             {
                 if (this.ServiceRemotingMessageBodyFactory == null)
                 {

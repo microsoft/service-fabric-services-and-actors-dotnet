@@ -11,8 +11,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Common;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Builder;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Description;
 
     /// <summary>
     /// The class dispatches the requests from the client to the interface/method of the remoted objectts.

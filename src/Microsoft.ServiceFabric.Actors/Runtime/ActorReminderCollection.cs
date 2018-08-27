@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.reminderCollectionsByActorId.GetEnumerator();
         }
 
-        #region Helper Class
+        #region RemotingHelper Class
 
         private class ConcurrentCollection<T> : IReadOnlyCollection<T>
         {

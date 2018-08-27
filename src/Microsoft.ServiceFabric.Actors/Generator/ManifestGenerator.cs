@@ -410,17 +410,17 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
 #if !DotNetCoreClr
-            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
             }
 #endif
-            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
             }
 
-            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointWrappedMessageStackName, GetGeneratedServiceEndpointWrappedMessageStackName);
             }
@@ -432,7 +432,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             var endpoints = new List<EndpointType>();
 #if !DotNetCoreClr
-            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                     endpoints.Add(
                         new EndpointType()
@@ -441,7 +441,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                         });
             }
 #endif
-            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()
@@ -450,7 +450,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     });
             }
 
-            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            if (RemotingHelper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()

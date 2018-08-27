@@ -11,8 +11,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     using System.Runtime.Serialization;
     using System.Text;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Messaging;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     /// <summary>
     /// This is the  implmentation  for <see cref="IServiceRemotingMessageSerializationProvider"/>used by actor service and client during

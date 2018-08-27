@@ -8,6 +8,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     using System;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
     /// <summary>
     /// Specifies the interface for the factory that creates proxies for remote communication to the specified service.

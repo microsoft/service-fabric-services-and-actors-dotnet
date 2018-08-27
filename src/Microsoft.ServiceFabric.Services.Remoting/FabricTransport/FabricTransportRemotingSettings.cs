@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     using System.Fabric;
     using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>
     /// Represents a settings that configures the  FabricTransport communication.
@@ -18,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     {
         internal const string DefaultSectionName = "TransportSettings";
 
-        private static readonly string Tracetype = "FabricTransportRemotingSettings";
+        private static readonly string Tracetype = "FabricTransportRemotingMeshClientSettings";
 
         private readonly FabricTransportSettings fabricTransportSettings;
 
@@ -32,8 +31,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         public FabricTransportRemotingSettings()
         {
             this.fabricTransportSettings = new FabricTransportSettings();
-            this.headerBufferSize = Constants.DefaultHeaderBufferSize;
-            this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
+            this.headerBufferSize = Base.V2.Constants.DefaultHeaderBufferSize;
+            this.headerMaxBufferCount = Base.V2.Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
         }
 
@@ -175,7 +174,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
         ///  If not specified , it will first try to load from default Config Package"Config" , if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
         /// <param name="configPackageName"> Name of the configuration package.If its null or empty,it will check for file in filePath.</param>
-        /// <returns>The FabricTransportRemotingSettings</returns>
+        /// <returns>The FabricTransportRemotingMeshClientSettings</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file, to be recognizable by service fabric to load the transport settings.
         ///

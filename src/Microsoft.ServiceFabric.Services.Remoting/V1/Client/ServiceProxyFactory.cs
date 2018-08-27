@@ -10,6 +10,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
@@ -95,7 +97,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             }
             else
             {
-                var castedFactory = this.remotingClientFactory as FabricTransport.Client.FabricTransportServiceRemotingClientFactory;
+                var castedFactory = this.remotingClientFactory as Remoting.V1.FabricTransport.Client.FabricTransportServiceRemotingClientFactory;
                 if (castedFactory != null)
                 {
                     castedFactory.Dispose();

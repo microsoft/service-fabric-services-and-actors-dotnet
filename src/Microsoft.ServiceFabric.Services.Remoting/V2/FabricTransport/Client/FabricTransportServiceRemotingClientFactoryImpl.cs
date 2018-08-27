@@ -14,20 +14,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using Microsoft.ServiceFabric.FabricTransport.V2.Client;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.FabricTransport;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using SR = Microsoft.ServiceFabric.Services.Remoting.SR;
 
     internal class FabricTransportServiceRemotingClientFactoryImpl : CommunicationClientFactoryBase<FabricTransportServiceRemotingClient>
     {
         private readonly IFabricTransportCallbackMessageHandler fabricTransportRemotingCallbackMessageHandler;
-        private readonly ServiceRemotingMessageSerializersManager serializersManager;
+        private readonly ServiceRemotingMessageSerializationManager serializersManager;
         private readonly FabricTransportRemotingSettings settings;
         private readonly NativeFabricTransportMessageDisposer disposer;
 
         public FabricTransportServiceRemotingClientFactoryImpl(
-            ServiceRemotingMessageSerializersManager serializersManager,
+            ServiceRemotingMessageSerializationManager serializersManager,
             FabricTransportRemotingSettings remotingSettings,
             IServiceRemotingCallbackMessageHandler remotingCallbackMessageHandler = null,
             IServicePartitionResolver servicePartitionResolver = null,

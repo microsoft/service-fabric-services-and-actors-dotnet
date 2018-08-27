@@ -7,6 +7,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
 {
     using System;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using Microsoft.ServiceFabric.Services.Remoting.Base;
+    using Microsoft.ServiceFabric.Services.Remoting.Base.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
 
     /// <summary>
