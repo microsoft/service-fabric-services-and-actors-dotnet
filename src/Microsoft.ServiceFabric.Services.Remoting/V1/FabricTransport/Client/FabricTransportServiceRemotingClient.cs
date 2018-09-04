@@ -38,14 +38,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
             this.RemotingClientConnectionHandler = remotingClientConnectionHandler;
         }
 
-        ~FabricTransportServiceRemotingClient()
-        {
-            if (this.nativeClient != null)
-            {
-                this.nativeClient.Dispose();
-            }
-        }
-
         public FabricTransportRemotingClientConnectionHandler RemotingClientConnectionHandler { get; private set; }
 
         public string ConnectionAddress { get; private set; }
