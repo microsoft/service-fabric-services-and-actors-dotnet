@@ -178,8 +178,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         ///             <item>
         ///                 <description>
         ///                 If a <see cref="FabricException"/> (or one of its derived exception) escapes from <see cref="RunAsync"/>,
-        ///                 Service Fabric runtime will drop this service instance and a new instance will be created. A health warning
-        ///                 will be appear in Service Fabric Explorer containing details about unhandled exception.
+        ///                 Service Fabric runtime will drop this service instance and a new instance will be created. Furthermore, a
+        ///                 health warning will appear in Service Fabric Explorer containing details about unhandled exception.
         ///                 </description>
         ///             </item>
         ///             <item>
