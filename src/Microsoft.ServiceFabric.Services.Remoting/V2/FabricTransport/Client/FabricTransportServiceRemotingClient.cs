@@ -39,14 +39,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.IsValid = true;
         }
 
-        ~FabricTransportServiceRemotingClient()
-        {
-            if (this.fabricTransportClient != null)
-            {
-                this.fabricTransportClient.Dispose();
-            }
-        }
-
         public bool IsValid { get; private set; }
 
         public object ConnectionAddress
