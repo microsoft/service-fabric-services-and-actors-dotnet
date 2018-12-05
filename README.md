@@ -11,7 +11,7 @@ This repo builds the following packages:
  - Microsoft.ServiceFabric.Actors
  - Microsoft.ServiceFabric.Actors.Wcf
 
-For more Service Fabric open source projects, visit the Service Fabric [home repo](https://github.com/azure/service-fabric).
+For more Service Fabric open source projects, visit the Service Fabric [home repo](https://github.com/microsoft/service-fabric).
 
 ## Getting Started
 
