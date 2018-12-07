@@ -325,7 +325,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.Emit(OpCodes.Stloc, boolres2);
             ilGen.Emit(OpCodes.Ldloc_3, boolres2);
             var elseLabel = ilGen.DefineLabel();
-            ilGen.Emit(OpCodes.Brfalse_S, elseLabel);
+            ilGen.Emit(OpCodes.Brfalse, elseLabel);
 
             // if false ,Call SetParamater
             var setMethod = typeof(IServiceRemotingRequestMessageBody).GetMethod("SetParameter");
@@ -377,12 +377,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             // if (interfaceId == <interfaceId>)
             ilGen.Emit(OpCodes.Ldarg_1);
             ilGen.Emit(OpCodes.Ldc_I4, interfaceId);
-            ilGen.Emit(OpCodes.Bne_Un_S, elseLabel);
+            ilGen.Emit(OpCodes.Bne_Un, elseLabel);
 
             // if (methodId == <methodId>)
             ilGen.Emit(OpCodes.Ldarg_2);
             ilGen.Emit(OpCodes.Ldc_I4, methodId);
-            ilGen.Emit(OpCodes.Bne_Un_S, elseLabel);
+            ilGen.Emit(OpCodes.Bne_Un, elseLabel);
 
             var castedResponseBody = ilGen.DeclareLocal(responseBodyType);
             ilGen.Emit(OpCodes.Ldarg_3); // load responseBody object

@@ -217,7 +217,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
             // 2 If true then call GetValue
             AddIfWrapMsgGetParameters(ilGen, castedObject, methodBodyTypes);
-            ilGen.Emit(OpCodes.Br_S, endlabel);
+            ilGen.Emit(OpCodes.Br, endlabel);
             ilGen.MarkLabel(elseLabelforWrapped);
 
             // else call GetParameter on IServiceRemotingMessageBody
@@ -299,7 +299,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 
             // 2 If true then call GetValue
             AddIfWrapMsgGetParameters(ilGen, castedObject, methodBodyTypes);
-            ilGen.Emit(OpCodes.Br_S, endlabel);
+            ilGen.Emit(OpCodes.Br, endlabel);
             ilGen.MarkLabel(elseLabelforWrapped);
 
             // else call GetParameter on IServiceRemotingMessageBody
@@ -350,7 +350,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             ilGen.Emit(OpCodes.Call, this.checkIfitsWrapped);
             ilGen.Emit(OpCodes.Stloc, boolres);
             ilGen.Emit(OpCodes.Ldloc, boolres);
-            ilGen.Emit(OpCodes.Brfalse_S, elseLabelforWrapped);
+            ilGen.Emit(OpCodes.Brfalse, elseLabelforWrapped);
         }
 
         private void AddCreateResponseBodyMethod(
@@ -400,7 +400,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
             // if (methodId == <methodid>)
             ilGen.Emit(OpCodes.Ldarg_1);
             ilGen.Emit(OpCodes.Ldc_I4, methodId);
-            ilGen.Emit(OpCodes.Bne_Un_S, elseLabel);
+            ilGen.Emit(OpCodes.Bne_Un, elseLabel);
 
             var ctorInfo = responseType.GetConstructor(Type.EmptyTypes);
             if (ctorInfo != null)

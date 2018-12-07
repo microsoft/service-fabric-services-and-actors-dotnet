@@ -282,7 +282,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Dispose the managed/unmanaged resouces.
         /// Dispose Method is being added rather than making it IDisposable so that it doesn't change type information and wont be a breaking change.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             ServiceTrace.Source.WriteInfo(
                                TraceType,
@@ -350,6 +350,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         protected abstract void AbortClient(
             TCommunicationClient client);
 
+        private static bool IsValidRsp(CommunicationClientCacheEntry<TCommunicationClient> cacheEntry)
+        {
+            return (cacheEntry.Rsp != null);
+        }
+
         private async Task<TCommunicationClient> CreateClientWithRetriesAsync(
             ResolvedServicePartition previousRsp,
             TargetReplicaSelector targetReplicaSelector,
@@ -389,7 +394,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 previousRsp,
                                 cancellationToken);
 
-                    TCommunicationClient client;
+                    var client = default(TCommunicationClient);
                     try
                     {
                         // The communication client in the cache is invalid.
@@ -398,7 +403,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         //    communication client so the last reference to the client was GC'd.
                         // 2. There was an exception during communication to the endpoint, and the ReportOperationException
                         // code path and the communication client was invalidated.
-                        if (cacheEntry.Client == null)
+                        if (this.ShouldCreateNewClient(cacheEntry))
                         {
                             ServiceTrace.Source.WriteInfo(
                                 TraceType,
@@ -418,33 +423,54 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         }
                         else
                         {
-                            var clientValid = this.ValidateLockedClientCacheEntry(
-                                cacheEntry,
-                                previousRsp,
-                                out client);
-                            if (!clientValid)
+                            if (!IsValidRsp(cacheEntry))
                             {
                                 ServiceTrace.Source.WriteInfo(
-                                    TraceType,
-                                    "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
-                                    this.traceId,
-                                    listenerName,
-                                    cacheEntry.GetEndpoint(),
-                                    cacheEntry.Endpoint.Role);
+                                   TraceType,
+                                   "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
+                                   this.traceId,
+                                   listenerName,
+                                   endpoint.Address,
+                                   cacheEntry.Endpoint.Role);
                                 doResolve = true;
                                 continue;
                             }
                             else
                             {
-                                ServiceTrace.Source.WriteInfo(
-                                    TraceType,
-                                    "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
-                                    this.traceId,
-                                    listenerName,
-                                    endpoint.Address,
-                                    endpoint.Role);
+                                var clientValid = this.ValidateLockedClientCacheEntry(
+                                cacheEntry,
+                                previousRsp,
+                                out client);
+                                if (!clientValid)
+                                {
+                                    ServiceTrace.Source.WriteInfo(
+                                        TraceType,
+                                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
+                                        this.traceId,
+                                        listenerName,
+                                        cacheEntry.GetEndpoint(),
+                                        cacheEntry.Endpoint.Role);
+                                    doResolve = true;
+                                    continue;
+                                }
+                                else
+                                {
+                                    ServiceTrace.Source.WriteInfo(
+                                        TraceType,
+                                        "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
+                                        this.traceId,
+                                        listenerName,
+                                        endpoint.Address,
+                                        endpoint.Role);
+                                }
                             }
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        // This will makesure no one else uses this cacheEntry but do the re-resolve.
+                        cacheEntry.Rsp = null;
+                        throw ex;
                     }
                     finally
                     {
@@ -509,6 +535,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 doResolve = !retryResult.IsTransient;
                 await Task.Delay(retryResult.RetryDelay, cancellationToken);
             }
+        }
+
+        private bool ShouldCreateNewClient(CommunicationClientCacheEntry<TCommunicationClient> cacheEntry)
+        {
+            return (cacheEntry.Client == null) && IsValidRsp(cacheEntry);
         }
 
         private bool HandleReportedException(

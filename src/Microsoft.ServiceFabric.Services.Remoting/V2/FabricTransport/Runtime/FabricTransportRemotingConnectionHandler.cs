@@ -19,11 +19,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.clientCallbackConnection = new ConcurrentDictionary<string, FabricTransportCallbackClient>();
         }
 
-        ~FabricTransportRemotingConnectionHandler()
-        {
-            this.clientCallbackConnection.Clear();
-        }
-
         public Task ConnectAsync(FabricTransportCallbackClient fabricTransportServiceRemotingCallback, TimeSpan timeout)
         {
             this.AddCallBackConnection(fabricTransportServiceRemotingCallback);
