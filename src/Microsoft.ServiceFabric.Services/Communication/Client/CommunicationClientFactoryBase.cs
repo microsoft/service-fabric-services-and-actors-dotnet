@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT License (MIT).See License.txt in the repo root for license information.
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
@@ -25,13 +25,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         where TCommunicationClient : ICommunicationClient
     {
         private const string TraceType = "CommunicationClientFactoryBase";
+        private static Task completedTask = Task.FromResult(1);
+        private static TimeSpan defaultDelay = TimeSpan.FromSeconds(2);
+
         private readonly IServicePartitionResolver servicePartitionResolver;
         private readonly List<IExceptionHandler> exceptionHandlers;
         private readonly CommunicationClientCache<TCommunicationClient> cache;
         private readonly string traceId;
-        private readonly Random random;
         private readonly object randomLock;
         private readonly bool fireConnectEvents;
+        private Random random;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommunicationClientFactoryBase{TCommunicationClient}"/> class.
@@ -65,12 +68,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             string traceId = null)
         {
             this.fireConnectEvents = fireConnectEvents;
-            this.random = new Random();
             this.randomLock = new object();
             this.traceId = traceId ?? Guid.NewGuid().ToString();
-
             this.servicePartitionResolver = servicePartitionResolver ?? ServicePartitionResolver.GetDefault();
-
+            this.random = null;
             this.exceptionHandlers = new List<IExceptionHandler>();
             if (exceptionHandlers != null)
             {
@@ -344,6 +345,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken);
 
         /// <summary>
+        /// Opens the Communictaion Client
+        /// </summary>
+        /// <param name="client">Communication client</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// We needed this Api for the operations to be done after client is fully created and initialized.CreateClientAsync does partial creation as initialization of RSP is done outside the CreateClient Api call
+        protected virtual Task OpenClient(TCommunicationClient client, CancellationToken cancellationToken)
+        {
+            return completedTask;
+        }
+
+        /// <summary>
         /// Aborts the given client
         /// </summary>
         /// <param name="client">Communication client</param>
@@ -365,6 +378,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             var doResolve = doInitialResolve;
             var currentRetryCount = 0;
+            var totalRetryCount = 0;
+
             string currentExceptionId = null;
 
             while (true)
@@ -419,24 +434,33 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             client.ResolvedServicePartition = cacheEntry.Rsp;
                             client.ListenerName = cacheEntry.ListenerName;
                             client.Endpoint = cacheEntry.Endpoint;
+
+                            // Open the Client .
+                            await this.OpenClient(client, cancellationToken);
                             newClient = true;
                         }
                         else
                         {
                             if (!IsValidRsp(cacheEntry))
                             {
+                                var retryDelay = Utility.GetRetryDelay(ExceptionHandlingRetryResult.GetRetryDelay(defaultDelay), totalRetryCount);
+                                totalRetryCount++;
                                 ServiceTrace.Source.WriteInfo(
                                    TraceType,
-                                   "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
+                                   "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
                                    this.traceId,
                                    listenerName,
                                    endpoint.Address,
-                                   cacheEntry.Endpoint.Role);
+                                   cacheEntry.Endpoint.Role,
+                                   retryDelay);
                                 doResolve = true;
+                                await Task.Delay(retryDelay, cancellationToken);
                                 continue;
                             }
                             else
                             {
+                                var retryDelay = Utility.GetRetryDelay(ExceptionHandlingRetryResult.GetRetryDelay(defaultDelay), totalRetryCount);
+                                totalRetryCount++;
                                 var clientValid = this.ValidateLockedClientCacheEntry(
                                 cacheEntry,
                                 previousRsp,
@@ -445,12 +469,15 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 {
                                     ServiceTrace.Source.WriteInfo(
                                         TraceType,
-                                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
+                                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
                                         this.traceId,
                                         listenerName,
                                         cacheEntry.GetEndpoint(),
-                                        cacheEntry.Endpoint.Role);
+                                        cacheEntry.Endpoint.Role,
+                                        retryDelay);
                                     doResolve = true;
+                                    totalRetryCount++;
+                                    await Task.Delay(retryDelay, cancellationToken);
                                     continue;
                                 }
                                 else
@@ -532,8 +559,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     throw new AggregateException(actualException);
                 }
 
+                totalRetryCount++;
                 doResolve = !retryResult.IsTransient;
-                await Task.Delay(retryResult.RetryDelay, cancellationToken);
+                await Task.Delay(Utility.GetRetryDelay(retryResult.RetryDelay, totalRetryCount), cancellationToken);
             }
         }
 
@@ -663,6 +691,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             var rand = 0;
             lock (this.randomLock)
             {
+                if (this.random == null)
+                {
+                // We need seed to make sure unique random numbers gets generated for different clientfactory instance but created at the same time.
+                    this.random = new Random(this.GenerateSeed());
+                }
+
                 rand = this.random.Next(upperBound);
             }
 
@@ -759,6 +793,13 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             }
 
             return false;
+        }
+
+        private int GenerateSeed()
+        {
+            var hashcode = this.GetHashCode();
+            var currentTicks = Environment.TickCount;
+            return currentTicks + hashcode;
         }
     }
 }

@@ -164,7 +164,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken,
             params Type[] doNotRetryExceptionTypes)
         {
-            var currentRetryCount = 0;
+            var transientExceptionRetryCount = 0;
+            var totalretryCount = 0;
             string currentExceptionId = null;
 
             while (true)
@@ -221,25 +222,27 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         exceptionReportResult.ExceptionId,
                         exceptionReportResult.MaxRetryCount,
                         ref currentExceptionId,
-                        ref currentRetryCount))
+                        ref transientExceptionRetryCount))
                 {
                     throw exceptionReportResult.Exception ?? exception;
                 }
 
+                var retrydelay = Utility.GetRetryDelay(exceptionReportResult.RetryDelay, totalretryCount);
+                totalretryCount++;
                 ServiceTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,
                     "Exception report result Id: {0}  IsTransient : {1} Delay : {2}",
                     exceptionReportResult.ExceptionId,
                     exceptionReportResult.IsTransient,
-                    exceptionReportResult.RetryDelay);
+                    retrydelay);
 
                 if (!exceptionReportResult.IsTransient)
                 {
                     await this.ResetCommunicationClientAsync();
                 }
 
-                await Task.Delay(exceptionReportResult.RetryDelay, cancellationToken);
+                await Task.Delay(retrydelay, cancellationToken);
             }
         }
 

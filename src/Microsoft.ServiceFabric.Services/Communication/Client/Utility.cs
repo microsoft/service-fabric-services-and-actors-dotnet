@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
+    using System;
+
     internal sealed class Utility
     {
         internal static bool ShouldRetryOperation(
@@ -35,6 +37,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             lastSeenExceptionId = currentExceptionId;
             currentRetryCount = 1;
             return true;
+        }
+
+        internal static TimeSpan GetRetryDelay(TimeSpan retryJitter, int currentRetryCount)
+        {
+            return TimeSpan.FromSeconds(retryJitter.TotalSeconds + Math.Pow(2, currentRetryCount));
         }
     }
 }

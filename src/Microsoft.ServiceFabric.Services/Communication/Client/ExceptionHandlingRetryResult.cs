@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             get { return this.retryDelay; }
         }
 
-        private static TimeSpan GetRetryDelay(TimeSpan maxRetryBackoffInterval)
+        internal static TimeSpan GetRetryDelay(TimeSpan maxRetryBackoffInterval)
         {
             return new TimeSpan((long)(maxRetryBackoffInterval.Ticks * Rand.NextDouble()));
         }

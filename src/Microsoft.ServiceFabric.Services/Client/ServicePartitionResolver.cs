@@ -546,6 +546,7 @@ namespace Microsoft.ServiceFabric.Services.Client
             CancellationToken cancellationToken,
             Uri serviceUri)
         {
+            var currentRetryCount = 0;
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -637,9 +638,14 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                 // wait before retry
                 await Task.Delay(
-                    new TimeSpan((long)(Rand.NextDouble() * maxRetryInterval.Ticks)),
+                    this.GetRetryDelay(maxRetryInterval, currentRetryCount++),
                     cancellationToken);
             }
+        }
+
+        private TimeSpan GetRetryDelay(TimeSpan maxRetryInterval, int currentRetryCount)
+        {
+            return TimeSpan.FromSeconds((Rand.NextDouble() * maxRetryInterval.TotalSeconds) + Math.Pow(2, currentRetryCount));
         }
 
         private FabricClient GetClient()
