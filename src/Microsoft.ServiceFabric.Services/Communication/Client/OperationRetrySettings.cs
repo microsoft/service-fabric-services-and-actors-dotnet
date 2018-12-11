@@ -13,9 +13,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// </summary>
     public sealed class OperationRetrySettings
     {
-        private readonly TimeSpan maxRetryBackoffIntervalOnNonTransientErrors;
-        private readonly TimeSpan maxRetryBackoffIntervalOnTransientErrors;
-        private readonly int defaultMaxRetryCount;
+        private readonly RetryPolicy retryPolicy;
+        private readonly TimeSpan clientRetryTimeout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
@@ -24,8 +23,32 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// are 2 seconds. The default value for MaxRetryCount is 10.
         /// </summary>
         public OperationRetrySettings()
-            : this(TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2), 10)
+            : this(new ExponentialRetryPolicy(10, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2), default(TimeSpan)))
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
+        /// with default values for the retry settings.
+        /// The default values for MaxRetryBackoffIntervalOnTransientErrors, NonTransientErrors
+        /// are 2 seconds. The default value for MaxRetryCount is 10.
+        /// </summary>
+        /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting</param>
+        public OperationRetrySettings(TimeSpan clientRetryTimeout)
+            : this()
+        {
+            this.clientRetryTimeout = clientRetryTimeout;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
+        /// with the retry Policy supplied.
+        /// </summary>
+        /// <param name="retryPolicy">Specifies the Retry Policy to be used for the communication between client and service.
+        /// </param>
+        public OperationRetrySettings(RetryPolicy retryPolicy)
+        {
+            this.retryPolicy = retryPolicy;
         }
 
         /// <summary>
@@ -44,10 +67,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             TimeSpan maxRetryBackoffIntervalOnTransientErrors,
             TimeSpan maxRetryBackoffIntervalOnNonTransientErrors,
             int defaultMaxRetryCount)
+            : this(new ConstantRetryPolicy(
+                maxRetryBackoffIntervalOnTransientErrors,
+                maxRetryBackoffIntervalOnNonTransientErrors,
+                defaultMaxRetryCount,
+                default(TimeSpan)))
         {
-            this.maxRetryBackoffIntervalOnTransientErrors = maxRetryBackoffIntervalOnTransientErrors;
-            this.maxRetryBackoffIntervalOnNonTransientErrors = maxRetryBackoffIntervalOnNonTransientErrors;
-            this.defaultMaxRetryCount = defaultMaxRetryCount;
         }
 
         /// <summary>
@@ -56,7 +81,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <value>Maximum retry interval to back-off on transient errors</value>
         public TimeSpan MaxRetryBackoffIntervalOnTransientErrors
         {
-            get { return this.maxRetryBackoffIntervalOnTransientErrors; }
+            get
+            {
+                var contantpolicy = this.retryPolicy as ConstantRetryPolicy;
+                if (contantpolicy != null)
+                {
+                    return contantpolicy.MaxRetryBackoffIntervalOnTransientErrors;
+                }
+
+                throw new NotSupportedException("This retry Policy doesn't support this functionality");
+            }
         }
 
         /// <summary>
@@ -65,7 +99,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <value>Maximum retry interval to back-off on non transient errors</value>
         public TimeSpan MaxRetryBackoffIntervalOnNonTransientErrors
         {
-            get { return this.maxRetryBackoffIntervalOnNonTransientErrors; }
+            get
+            {
+                var contantpolicy = this.retryPolicy as ConstantRetryPolicy;
+                if (contantpolicy != null)
+                {
+                    return contantpolicy.MaxRetryBackoffIntervalOnNonTransientErrors;
+                }
+
+                throw new NotSupportedException("This retry Policy doesn't support this functionality ");
+            }
         }
 
         /// <summary>
@@ -74,7 +117,27 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <value>Maximum number of times to retry a specific exception.</value>
         public int DefaultMaxRetryCount
         {
-            get { return this.defaultMaxRetryCount; }
+            get { return this.retryPolicy.TotalNumberOfRetry; }
+        }
+
+        /// <summary>
+        /// Gets the timeout for the client side retry.
+        /// </summary>
+        /// <value>Amount of time we retry before throwing the OperationCancelledException to the user Api.</value>
+        public TimeSpan ClientRetryTimeout
+        {
+            get { return this.retryPolicy.ClientRetryTimeout; }
+        }
+
+        /// <summary>
+        /// Gets the Retry Policy to be used for the communication between client and service.
+        /// </summary>
+        public RetryPolicy RetryPolicy
+        {
+            get
+            {
+                return this.retryPolicy;
+            }
         }
     }
 }

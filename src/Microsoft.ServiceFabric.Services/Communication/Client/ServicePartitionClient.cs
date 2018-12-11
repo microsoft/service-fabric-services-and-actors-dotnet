@@ -166,6 +166,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             var totalretryCount = 0;
             string currentExceptionId = null;
+            if (!cancellationToken.CanBeCanceled)
+            {
+                // This code will execute when User Api cancellation token is None and user has specified client retry Timeout
+                if (this.retrySettings.ClientRetryTimeout != default(TimeSpan))
+                {
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    cancellationTokenSource.CancelAfter(this.retrySettings.ClientRetryTimeout);
+                    cancellationToken = cancellationTokenSource.Token;
+                }
+            }
 
             while (true)
             {

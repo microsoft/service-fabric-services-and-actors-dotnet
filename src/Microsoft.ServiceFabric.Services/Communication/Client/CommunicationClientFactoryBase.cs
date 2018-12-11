@@ -150,7 +150,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 serviceUri,
                 partitionKey,
                 ServicePartitionResolver.DefaultResolveTimeout,
-                retrySettings.MaxRetryBackoffIntervalOnTransientErrors,
+                retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(0),
                 cancellationToken);
 
             return await this.CreateClientWithRetriesAsync(
@@ -365,10 +365,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             var doResolve = doInitialResolve;
             var exceptionRetryCount = 0;
-            var invalidCacheRetryCount = 0;
+            var totalRetryCount = 0;
             var requestId = Guid.NewGuid().ToString();
             string currentExceptionId = null;
-
+            TimeSpan retryDelay = default(TimeSpan);
             while (true)
             {
                 ExceptionHandlingResult result;
@@ -381,7 +381,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         var rsp = await this.ServiceResolver.ResolveAsync(
                             previousRsp,
                             ServicePartitionResolver.DefaultResolveTimeout,
-                            retrySettings.MaxRetryBackoffIntervalOnTransientErrors,
+                            retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(totalRetryCount),
                             cancellationToken);
                         previousRsp = rsp;
                     }
@@ -428,14 +428,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         {
                             if (!IsValidRsp(cacheEntry))
                             {
-                                if (invalidCacheRetryCount == 1)
-                                {
-                                    throw new FabricInvalidCacheException();
-                                }
-
-                                var retryDelay = Utility.GetRetryDelay(ExceptionHandlingRetryResult.GetRetryDelay(defaultDelay), invalidCacheRetryCount);
-                                invalidCacheRetryCount++;
-                                ServiceTrace.Source.WriteInfoWithId(
+                                 retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(totalRetryCount++);
+                                 ServiceTrace.Source.WriteInfoWithId(
                                    TraceType,
                                    requestId,
                                    "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
@@ -444,9 +438,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                    endpoint.Address,
                                    cacheEntry.Endpoint.Role,
                                    retryDelay);
-                                doResolve = true;
-                                await Task.Delay(retryDelay, cancellationToken);
-                                continue;
+                                 doResolve = true;
+                                 await Task.Delay(retryDelay, cancellationToken);
+                                 continue;
                             }
                             else
                             {
@@ -456,14 +450,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 out client);
                                 if (!clientValid)
                                 {
-                                    if (invalidCacheRetryCount == 1)
-                                    {
-                                        throw new FabricInvalidCacheException();
-                                    }
-
-                                    var retryDelay = Utility.GetRetryDelay(ExceptionHandlingRetryResult.GetRetryDelay(defaultDelay), invalidCacheRetryCount);
-                                    invalidCacheRetryCount++;
-                                    ServiceTrace.Source.WriteInfoWithId(
+                                     retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(totalRetryCount++);
+                                     ServiceTrace.Source.WriteInfoWithId(
                                         TraceType,
                                         requestId,
                                         "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
@@ -472,9 +460,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                         cacheEntry.GetEndpoint(),
                                         cacheEntry.Endpoint.Role,
                                         retryDelay);
-                                    doResolve = true;
-                                    await Task.Delay(retryDelay, cancellationToken);
-                                    continue;
+                                     doResolve = true;
+                                     await Task.Delay(retryDelay, cancellationToken);
+                                     continue;
                                 }
                                 else
                                 {
@@ -558,8 +546,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     throw new AggregateException(actualException);
                 }
 
-                doResolve = !retryResult.IsTransient;
-                await Task.Delay(Utility.GetRetryDelay(retryResult.RetryDelay, exceptionRetryCount), cancellationToken);
+                if (!retryResult.IsTransient)
+                {
+                    doResolve = true;
+                    retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(totalRetryCount++);
+                }
+                else
+                {
+                    doResolve = false;
+                    retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(totalRetryCount++);
+                }
+
+                await Task.Delay(retryDelay, cancellationToken);
             }
         }
 
@@ -573,16 +571,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             OperationRetrySettings retrySettings,
             out ExceptionHandlingResult result)
         {
-            if (exceptionInformation.Exception is FabricInvalidCacheException)
-            {
-                result = new ExceptionHandlingRetryResult(
-                  exceptionInformation.Exception,
-                  false,
-                  retrySettings,
-                  retrySettings.DefaultMaxRetryCountForNonTransientErrors);
-                return true;
-            }
-
             var aggregateException = exceptionInformation.Exception as AggregateException;
             if (aggregateException == null)
             {

@@ -90,7 +90,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             this.exceptionId = exception.GetType().FullName;
             this.isTransient = isTransient;
-            this.retryDelay = GetRetryDelay(isTransient ? retrySettings.MaxRetryBackoffIntervalOnTransientErrors : retrySettings.MaxRetryBackoffIntervalOnNonTransientErrors);
+            this.retryDelay = isTransient ? retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(0) :
+            retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(0);
             this.maxRetryCount = maxRetryCount;
         }
 
@@ -146,11 +147,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         public TimeSpan RetryDelay
         {
             get { return this.retryDelay; }
-        }
-
-        internal static TimeSpan GetRetryDelay(TimeSpan maxRetryBackoffInterval)
-        {
-            return new TimeSpan((long)(maxRetryBackoffInterval.Ticks * Rand.NextDouble()));
         }
     }
 }
