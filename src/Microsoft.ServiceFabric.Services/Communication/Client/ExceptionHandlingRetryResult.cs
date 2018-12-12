@@ -69,6 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.isTransient = isTransient;
             this.retryDelay = retryDelay;
             this.maxRetryCount = maxRetryCount;
+            this.retrySettings = null;
         }
 
         /// <summary>
