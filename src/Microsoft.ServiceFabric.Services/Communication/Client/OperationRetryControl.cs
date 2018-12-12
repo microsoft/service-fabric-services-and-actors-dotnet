@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         public Exception Exception { get; set; }
 
         /// <summary>
-        /// Calculates the RetryDelay for specified  retry Attempt.
+        /// Gets or sets the Func to calculate the RetryDelay for specified  retry Attempt.
         /// </summary>
         /// <value>Func which calculate retry delay </value>
         public Func<int, TimeSpan> GetRetryDelay { get; set; }
