@@ -14,7 +14,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     public sealed class OperationRetrySettings
     {
         private readonly RetryPolicy retryPolicy;
-        private readonly TimeSpan clientRetryTimeout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
@@ -31,13 +30,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
         /// with default values for the retry settings.
         /// The default values for MaxRetryBackoffIntervalOnTransientErrors, NonTransientErrors
-        /// are 2 seconds. The default value for MaxRetryCount is 10.
+        /// are 2 seconds. The default value for MaxRetryCount is 10. Default Value for ClientRetryTimeout is Zero which means indefinte retry for non-transient errors.
         /// </summary>
         /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting</param>
         public OperationRetrySettings(TimeSpan clientRetryTimeout)
             : this()
         {
-            this.clientRetryTimeout = clientRetryTimeout;
         }
 
         /// <summary>

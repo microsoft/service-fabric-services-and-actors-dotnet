@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private static readonly Random Rand = new Random();
 
         private readonly bool isTransient;
+        private readonly OperationRetrySettings retrySettings;
         private readonly string exceptionId;
         private readonly TimeSpan retryDelay;
         private readonly int maxRetryCount;
@@ -41,6 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.exceptionId = exception.GetType().FullName;
             this.isTransient = isTransient;
             this.retryDelay = retryDelay;
+            this.retrySettings = null;
             this.maxRetryCount = maxRetryCount;
         }
 
@@ -90,6 +92,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             this.exceptionId = exception.GetType().FullName;
             this.isTransient = isTransient;
+            this.retrySettings = retrySettings;
             this.retryDelay = isTransient ? retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(0) :
             retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(0);
             this.maxRetryCount = maxRetryCount;
@@ -147,6 +150,27 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         public TimeSpan RetryDelay
         {
             get { return this.retryDelay; }
+        }
+
+        /// <summary>
+        /// Gets the time interval after which the operation should be retried.
+        /// </summary>
+        /// <param name="retryAttempt">The retry attempt for which we calculate delay.
+        /// </param>
+        /// <returns>Time delay after which the operation should be retried</returns>
+        public TimeSpan GetRetryDelay(int retryAttempt)
+        {
+            if (this.retrySettings != null)
+            {
+                if (this.isTransient)
+                {
+                    return this.retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(retryAttempt);
+                }
+
+                return this.retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(retryAttempt);
+            }
+
+            return this.retryDelay;
         }
     }
 }

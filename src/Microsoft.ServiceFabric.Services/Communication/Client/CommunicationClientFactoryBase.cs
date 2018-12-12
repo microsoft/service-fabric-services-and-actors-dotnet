@@ -248,6 +248,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         Exception = null,
                         ExceptionId = retryResult.ExceptionId,
                         MaxRetryCount = retryResult.MaxRetryCount,
+                        GetRetryDelay = retryResult.GetRetryDelay,
                     };
                 }
                 else
@@ -546,17 +547,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     throw new AggregateException(actualException);
                 }
 
-                if (!retryResult.IsTransient)
-                {
-                    doResolve = true;
-                    retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(totalRetryCount++);
-                }
-                else
-                {
-                    doResolve = false;
-                    retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(totalRetryCount++);
-                }
-
+                doResolve = !retryResult.IsTransient;
+                retryDelay = retryResult.GetRetryDelay(totalRetryCount++);
                 await Task.Delay(retryDelay, cancellationToken);
             }
         }

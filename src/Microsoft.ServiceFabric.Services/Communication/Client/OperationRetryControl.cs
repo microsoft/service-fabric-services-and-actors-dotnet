@@ -55,5 +55,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// </summary>
         /// <value>Exception</value>
         public Exception Exception { get; set; }
+
+        /// <summary>
+        /// Gets or sets the delay after which the operation should be retried if the ShouldRetry is true.
+        /// </summary>
+        /// <value>Time delay after which the operation should be retried</value>
+        public Func<int, TimeSpan> GetRetryDelay { get; set; }
     }
 }

@@ -236,7 +236,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     throw exceptionReportResult.Exception ?? exception;
                 }
 
-                var retrydelay = Utility.GetRetryDelay(exceptionReportResult.RetryDelay, totalretryCount);
+                var retrydelay = exceptionReportResult.GetRetryDelay(totalretryCount);
+
                 ServiceTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,
