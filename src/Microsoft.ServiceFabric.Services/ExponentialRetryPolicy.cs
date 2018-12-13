@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <inheritdoc/>
-        public int TotalNumberOfRetry { get => this.totalNumberOfRetry; }
+        public int TotalNumberOfRetries { get => this.totalNumberOfRetry; }
 
         /// <inheritdoc/>
         public TimeSpan ClientRetryTimeout { get => this.clientRetryTimeout; }

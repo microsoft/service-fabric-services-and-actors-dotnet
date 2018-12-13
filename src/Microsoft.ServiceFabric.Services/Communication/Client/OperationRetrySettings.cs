@@ -116,11 +116,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <value>Maximum number of times to retry a specific exception.</value>
         public int DefaultMaxRetryCount
         {
-            get { return this.retryPolicy.TotalNumberOfRetry; }
+            get { return this.retryPolicy.TotalNumberOfRetries; }
         }
 
         /// <summary>
         /// Gets the timeout for the client side retry.
+        /// If you specify  ClientRetryTimeout and use MaxRetryCount for Exception Handling , then whichever will be come first , will be honoured.
+        /// ClientRetryTimeout is useful in the cases where communciation between client and service is not working and calls are getting retried.
+        /// In those cases, you can use this timeout to come out of the retry loop .
         /// </summary>
         /// <value>Amount of time we retry before throwing the OperationCancelledException to the user Api.</value>
         public TimeSpan ClientRetryTimeout

@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private readonly TimeSpan maxRetryBackoffIntervalOnNonTransientErrors;
         private readonly TimeSpan maxRetryBackoffIntervalOnTransientErrors;
-        private readonly int defaultMaxRetryCount;
+        private readonly int totalNumberOfRetries;
         private readonly TimeSpan clientRetryTimeout;
 
         /// <summary>
@@ -29,26 +29,26 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="maxRetryBackoffIntervalOnNonTransientErrors">
         /// Specifies the maximum interval to back-off before retrying incase of Non transient errors
         /// </param>
-        /// <param name="defaultMaxRetryCount">
+        /// <param name="maxRetryCount">
         /// Specifies the maximum number of times to retry.
         /// </param>
         /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting</param>
         public ConstantRetryPolicy(
             TimeSpan maxRetryBackoffIntervalOnTransientErrors,
             TimeSpan maxRetryBackoffIntervalOnNonTransientErrors,
-            int defaultMaxRetryCount,
+            int maxRetryCount,
             TimeSpan clientRetryTimeout)
         {
             this.maxRetryBackoffIntervalOnTransientErrors = maxRetryBackoffIntervalOnTransientErrors;
             this.maxRetryBackoffIntervalOnNonTransientErrors = maxRetryBackoffIntervalOnNonTransientErrors;
-            this.defaultMaxRetryCount = defaultMaxRetryCount;
+            this.totalNumberOfRetries = maxRetryCount;
             this.clientRetryTimeout = clientRetryTimeout;
         }
 
         /// <inheritdoc/>
-        public int TotalNumberOfRetry
+        public int TotalNumberOfRetries
         {
-            get { return this.defaultMaxRetryCount; }
+            get { return this.totalNumberOfRetries; }
         }
 
         /// <inheritdoc/>

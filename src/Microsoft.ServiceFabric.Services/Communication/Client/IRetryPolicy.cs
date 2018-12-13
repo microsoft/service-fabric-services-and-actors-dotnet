@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Gets the maximum number of times to retry.
         /// </summary>
         /// <value>Maximum number of times to retry a specific exception.</value>
-         int TotalNumberOfRetry { get; }
+         int TotalNumberOfRetries { get; }
 
         /// <summary>
         /// Gets the timeout for the client side retry.
