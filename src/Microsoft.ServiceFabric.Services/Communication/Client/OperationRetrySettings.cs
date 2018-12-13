@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// </summary>
         /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting</param>
         public OperationRetrySettings(TimeSpan clientRetryTimeout)
-            : this()
+            : this(new ExponentialRetryPolicy(clientRetryTimeout))
         {
         }
 
