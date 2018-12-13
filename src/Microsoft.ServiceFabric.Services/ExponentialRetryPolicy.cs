@@ -11,9 +11,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// Specifies the exponential backoff policy for retrying requests on exceptions in the communication channel between
     /// client and service replicas.
     /// </summary>
-    public class ExponentialRetryPolicy : RetryPolicy
+    public class ExponentialRetryPolicy : IRetryPolicy
     {
-        private static readonly Random Rand = new Random();
+        private static readonly RandomGenerator RandomGenerator = new RandomGenerator();
 
         private readonly int totalNumberOfRetry;
         private readonly TimeSpan clientRetryTimeout;
@@ -62,21 +62,20 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <inheritdoc/>
-        public override int TotalNumberOfRetry { get => this.totalNumberOfRetry; }
+        public int TotalNumberOfRetry { get => this.totalNumberOfRetry; }
 
         /// <inheritdoc/>
-        public override TimeSpan ClientRetryTimeout { get => this.clientRetryTimeout; }
+        public TimeSpan ClientRetryTimeout { get => this.clientRetryTimeout; }
 
         /// <inheritdoc/>
-        public override TimeSpan GetNextRetryDelayForNonTransientErrors(int retryAttempt)
+        public TimeSpan GetNextRetryDelay(RetryDelayParameters retryDelayParameters)
         {
-            return TimeSpan.FromSeconds((this.maxRetryJitterForNonTransientErrors.TotalSeconds * Rand.NextDouble()) + (1 << retryAttempt));
-        }
+            if (retryDelayParameters.IsTransient)
+            {
+                return TimeSpan.FromSeconds((this.maxRetryJitterForTransientErrors.TotalSeconds * RandomGenerator.NextDouble()) + (1 << retryDelayParameters.RetryAttempt));
+            }
 
-        /// <inheritdoc/>
-        public override TimeSpan GetNextRetryDelayForTransientErrors(int retryAttempt)
-        {
-            return TimeSpan.FromSeconds((this.maxRetryJitterForTransientErrors.TotalSeconds * Rand.NextDouble()) + (1 << retryAttempt));
+            return TimeSpan.FromSeconds((this.maxRetryJitterForNonTransientErrors.TotalSeconds * RandomGenerator.NextDouble()) + (1 << retryDelayParameters.RetryAttempt));
         }
     }
 }

@@ -38,10 +38,5 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             currentRetryCount = 1;
             return true;
         }
-
-        internal static TimeSpan GetRetryDelay(TimeSpan retryJitter, int currentRetryCount)
-        {
-            return TimeSpan.FromSeconds(retryJitter.TotalSeconds + (1 << currentRetryCount));
-        }
     }
 }

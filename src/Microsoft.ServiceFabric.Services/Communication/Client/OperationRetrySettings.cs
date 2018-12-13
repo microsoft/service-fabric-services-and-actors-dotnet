@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
+    using System.Threading;
 
     /// <summary>
     /// Specifies the policy for retrying requests on exceptions in the communication channel between
@@ -13,7 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// </summary>
     public sealed class OperationRetrySettings
     {
-        private readonly RetryPolicy retryPolicy;
+        private readonly IRetryPolicy retryPolicy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
@@ -22,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// are 2 seconds. The default value for MaxRetryCount is 10.
         /// </summary>
         public OperationRetrySettings()
-            : this(new ExponentialRetryPolicy(10, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2), default(TimeSpan)))
+            : this(new ExponentialRetryPolicy(10, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2), Timeout.InfiniteTimeSpan))
         {
         }
 
@@ -44,7 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// </summary>
         /// <param name="retryPolicy">Specifies the Retry Policy to be used for the communication between client and service.
         /// </param>
-        public OperationRetrySettings(RetryPolicy retryPolicy)
+        public OperationRetrySettings(IRetryPolicy retryPolicy)
         {
             this.retryPolicy = retryPolicy;
         }
@@ -81,10 +82,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             get
             {
-                var contantpolicy = this.retryPolicy as ConstantRetryPolicy;
-                if (contantpolicy != null)
+                var constantpolicy = this.retryPolicy as ConstantRetryPolicy;
+                if (constantpolicy != null)
                 {
-                    return contantpolicy.MaxRetryBackoffIntervalOnTransientErrors;
+                    return constantpolicy.MaxRetryBackoffIntervalOnTransientErrors;
                 }
 
                 throw new NotSupportedException("This retry Policy doesn't support this functionality");
@@ -130,7 +131,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the Retry Policy to be used for the communication between client and service.
         /// </summary>
-        public RetryPolicy RetryPolicy
+        public IRetryPolicy RetryPolicy
         {
             get
             {

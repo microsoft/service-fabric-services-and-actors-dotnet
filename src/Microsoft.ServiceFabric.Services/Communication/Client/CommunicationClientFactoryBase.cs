@@ -146,11 +146,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             OperationRetrySettings retrySettings,
             CancellationToken cancellationToken)
         {
+            var retryparemters = new RetryDelayParameters(0, false);
+            var retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
+
             var previousRsp = await this.ServiceResolver.ResolveAsync(
                 serviceUri,
                 partitionKey,
                 ServicePartitionResolver.DefaultResolveTimeout,
-                retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(0),
+                retryDelay,
                 cancellationToken);
 
             return await this.CreateClientWithRetriesAsync(
@@ -379,10 +382,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 {
                     if (doResolve)
                     {
+                        var retryparemters = new RetryDelayParameters(totalRetryCount, false);
+                        retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                         var rsp = await this.ServiceResolver.ResolveAsync(
                             previousRsp,
                             ServicePartitionResolver.DefaultResolveTimeout,
-                            retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(totalRetryCount),
+                            retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters),
                             cancellationToken);
                         previousRsp = rsp;
                     }
@@ -429,8 +434,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         {
                             if (!IsValidRsp(cacheEntry))
                             {
-                                 retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(totalRetryCount++);
-                                 ServiceTrace.Source.WriteInfoWithId(
+                                var retryparemters = new RetryDelayParameters(totalRetryCount++, false);
+                                retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
+                                ServiceTrace.Source.WriteInfoWithId(
                                    TraceType,
                                    requestId,
                                    "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
@@ -439,9 +445,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                    endpoint.Address,
                                    cacheEntry.Endpoint.Role,
                                    retryDelay);
-                                 doResolve = true;
-                                 await Task.Delay(retryDelay, cancellationToken);
-                                 continue;
+                                doResolve = true;
+                                await Task.Delay(retryDelay, cancellationToken);
+                                continue;
                             }
                             else
                             {
@@ -451,8 +457,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 out client);
                                 if (!clientValid)
                                 {
-                                     retryDelay = retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(totalRetryCount++);
-                                     ServiceTrace.Source.WriteInfoWithId(
+                                    var retryparemters = new RetryDelayParameters(totalRetryCount++, false);
+                                    retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
+                                    ServiceTrace.Source.WriteInfoWithId(
                                         TraceType,
                                         requestId,
                                         "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
@@ -461,9 +468,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                         cacheEntry.GetEndpoint(),
                                         cacheEntry.Endpoint.Role,
                                         retryDelay);
-                                     doResolve = true;
-                                     await Task.Delay(retryDelay, cancellationToken);
-                                     continue;
+                                    doResolve = true;
+                                    await Task.Delay(retryDelay, cancellationToken);
+                                    continue;
                                 }
                                 else
                                 {

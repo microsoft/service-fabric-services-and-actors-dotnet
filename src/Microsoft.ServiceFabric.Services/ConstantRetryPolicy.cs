@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// Specifies the constant retry policy for retrying requests on exceptions in the communication channel between
     /// client and service replicas.
     /// </summary>
-    public class ConstantRetryPolicy : RetryPolicy
+    public class ConstantRetryPolicy : IRetryPolicy
     {
         private static readonly Random Rand = new Random();
 
@@ -46,13 +46,13 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <inheritdoc/>
-        public override int TotalNumberOfRetry
+        public int TotalNumberOfRetry
         {
             get { return this.defaultMaxRetryCount; }
         }
 
         /// <inheritdoc/>
-        public override TimeSpan ClientRetryTimeout
+        public TimeSpan ClientRetryTimeout
         {
             get { return this.clientRetryTimeout; }
         }
@@ -76,15 +76,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <inheritdoc/>
-        public override TimeSpan GetNextRetryDelayForNonTransientErrors(int retryAttempt)
+        public TimeSpan GetNextRetryDelay(RetryDelayParameters retryDelayParameters)
         {
-            return new TimeSpan((long)(this.maxRetryBackoffIntervalOnNonTransientErrors.Ticks * Rand.NextDouble()));
-        }
+            if (retryDelayParameters.IsTransient)
+            {
+                return new TimeSpan((long)(this.maxRetryBackoffIntervalOnTransientErrors.Ticks * Rand.NextDouble()));
+            }
 
-        /// <inheritdoc/>
-        public override TimeSpan GetNextRetryDelayForTransientErrors(int retryAttempt)
-        {
-            return new TimeSpan((long)(this.maxRetryBackoffIntervalOnTransientErrors.Ticks * Rand.NextDouble()));
+            return new TimeSpan((long)(this.maxRetryBackoffIntervalOnNonTransientErrors.Ticks * Rand.NextDouble()));
         }
     }
 }

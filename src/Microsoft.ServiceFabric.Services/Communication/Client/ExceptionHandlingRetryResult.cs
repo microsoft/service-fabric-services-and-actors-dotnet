@@ -94,8 +94,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.exceptionId = exception.GetType().FullName;
             this.isTransient = isTransient;
             this.retrySettings = retrySettings;
-            this.retryDelay = isTransient ? retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(0) :
-            retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(0);
+            this.retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(new RetryDelayParameters(0, isTransient));
             this.maxRetryCount = maxRetryCount;
         }
 
@@ -163,12 +162,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             if (this.retrySettings != null)
             {
-                if (this.isTransient)
-                {
-                    return this.retrySettings.RetryPolicy.GetNextRetryDelayForTransientErrors(retryAttempt);
-                }
-
-                return this.retrySettings.RetryPolicy.GetNextRetryDelayForNonTransientErrors(retryAttempt);
+                var retryparam = new RetryDelayParameters(retryAttempt, this.isTransient);
+                return this.retrySettings.RetryPolicy.GetNextRetryDelay(retryparam);
             }
 
             return this.retryDelay;

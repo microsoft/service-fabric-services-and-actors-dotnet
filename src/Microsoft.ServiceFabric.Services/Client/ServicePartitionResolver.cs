@@ -46,6 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         private static ServicePartitionResolver defaultResolver;
 
         private readonly object thisLock = new object();
+        private readonly RandomGenerator randomGenerator = new RandomGenerator();
         private readonly CreateFabricClientDelegate createFabricClient;
         private readonly CreateFabricClientDelegate recreateFabricClient;
         private FabricClient fabricClient;
@@ -547,7 +548,6 @@ namespace Microsoft.ServiceFabric.Services.Client
             CancellationToken cancellationToken,
             Uri serviceUri)
         {
-            var currentRetryCount = 0;
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -639,14 +639,9 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                 // wait before retry
                 await Task.Delay(
-                    Utility.GetRetryDelay(this.GetRetryJitter(maxRetryInterval), currentRetryCount++),
-                    cancellationToken);
+                       new TimeSpan((long)(this.randomGenerator.NextDouble() * maxRetryInterval.Ticks)),
+                       cancellationToken);
             }
-        }
-
-        private TimeSpan GetRetryJitter(TimeSpan maxRetryInterval)
-        {
-            return new TimeSpan((long)(Rand.NextDouble() * maxRetryInterval.Ticks));
         }
 
         private FabricClient GetClient()
