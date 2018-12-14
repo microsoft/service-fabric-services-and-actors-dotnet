@@ -17,33 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private readonly int totalNumberOfRetry;
         private readonly TimeSpan clientRetryTimeout;
-        private readonly TimeSpan maxRetryJitterForTransientErrors;
-        private readonly TimeSpan maxRetryJitterForNonTransientErrors;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExponentialRetryPolicy"/> class with the supplied settings.
-        /// </summary>
-        /// <param name="maxRetryJitterForTransientErrors">
-        /// Specifies the maximum jitter to use for Transient Errors
-        /// </param>
-        /// <param name="maxRetryJitterForNonTransientErrors">
-        /// Specifies the maximum jitter to use for Non Transient Errors
-        /// </param>
-        /// <param name="clientRetryTimeout">Specifies the max timeout for the client side retry logic</param>
-        /// <param name="defaultMaxRetryCount">
-        /// Specifies the maximum number of times to retry.
-        /// </param>
-        public ExponentialRetryPolicy(
-            int defaultMaxRetryCount,
-            TimeSpan maxRetryJitterForTransientErrors,
-            TimeSpan maxRetryJitterForNonTransientErrors,
-            TimeSpan clientRetryTimeout)
-        {
-            this.totalNumberOfRetry = defaultMaxRetryCount;
-            this.clientRetryTimeout = clientRetryTimeout;
-            this.maxRetryJitterForTransientErrors = maxRetryJitterForTransientErrors;
-            this.maxRetryJitterForNonTransientErrors = maxRetryJitterForNonTransientErrors;
-        }
+        private readonly TimeSpan maxRetryJitter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExponentialRetryPolicy"/> class with the supplied settings.
@@ -51,14 +25,37 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// The default values for maxRetryJitterForTransientErrors, maxRetryJitterForNonTransientErrors
         /// are 2 seconds. The default value for MaxRetryCount is 10.
         /// </summary>
+        /// <param name="defaultMaxRetryCount">
+        /// Specifies the maximum number of times to retry.
+        /// </param>
         /// <param name="clientRetryTimeout">Specifies the max timeout for the client side retry logic</param>
         public ExponentialRetryPolicy(
-          TimeSpan clientRetryTimeout)
+            int defaultMaxRetryCount,
+            TimeSpan clientRetryTimeout)
         {
             this.clientRetryTimeout = clientRetryTimeout;
-            this.maxRetryJitterForNonTransientErrors = TimeSpan.FromSeconds(2);
-            this.maxRetryJitterForTransientErrors = TimeSpan.FromSeconds(2);
-            this.totalNumberOfRetry = 10;
+            this.maxRetryJitter = TimeSpan.FromSeconds(2);
+            this.totalNumberOfRetry = defaultMaxRetryCount;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExponentialRetryPolicy"/> class with the supplied settings.
+        /// </summary>
+        /// <param name="maxRetryJitter">
+        /// Specifies the maximum jitter to use for Errors
+        /// </param>
+        /// <param name="clientRetryTimeout">Specifies the max timeout for the client side retry logic</param>
+        /// <param name="defaultMaxRetryCount">
+        /// Specifies the maximum number of times to retry.
+        /// </param>
+        internal ExponentialRetryPolicy(
+            int defaultMaxRetryCount,
+            TimeSpan maxRetryJitter,
+            TimeSpan clientRetryTimeout)
+        {
+            this.totalNumberOfRetry = defaultMaxRetryCount;
+            this.clientRetryTimeout = clientRetryTimeout;
+            this.maxRetryJitter = maxRetryJitter;
         }
 
         /// <inheritdoc/>
@@ -70,12 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <inheritdoc/>
         public TimeSpan GetNextRetryDelay(RetryDelayParameters retryDelayParameters)
         {
-            if (retryDelayParameters.IsTransient)
-            {
-                return TimeSpan.FromSeconds((this.maxRetryJitterForTransientErrors.TotalSeconds * RandomGenerator.NextDouble()) + (1 << retryDelayParameters.RetryAttempt));
-            }
-
-            return TimeSpan.FromSeconds((this.maxRetryJitterForNonTransientErrors.TotalSeconds * RandomGenerator.NextDouble()) + (1 << retryDelayParameters.RetryAttempt));
+          return TimeSpan.FromSeconds((this.maxRetryJitter.TotalSeconds * RandomGenerator.NextDouble()) + (1 << retryDelayParameters.RetryAttempt));
         }
     }
 }

@@ -41,12 +41,9 @@ namespace Microsoft.ServiceFabric.Services.Client
         public static readonly TimeSpan DefaultMaxRetryBackoffInterval = TimeSpan.FromSeconds(5);
 
         private static readonly object StaticLock = new object();
-        private static readonly Random Rand = new Random();
-
         private static ServicePartitionResolver defaultResolver;
-
+        private static RandomGenerator randomGenerator = new RandomGenerator();
         private readonly object thisLock = new object();
-        private readonly RandomGenerator randomGenerator = new RandomGenerator();
         private readonly CreateFabricClientDelegate createFabricClient;
         private readonly CreateFabricClientDelegate recreateFabricClient;
         private FabricClient fabricClient;
@@ -639,7 +636,7 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                 // wait before retry
                 await Task.Delay(
-                       new TimeSpan((long)(this.randomGenerator.NextDouble() * maxRetryInterval.Ticks)),
+                       new TimeSpan((long)(randomGenerator.NextDouble() * maxRetryInterval.Ticks)),
                        cancellationToken);
             }
         }

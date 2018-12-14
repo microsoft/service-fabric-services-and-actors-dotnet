@@ -19,23 +19,20 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
         /// with default values for the retry settings.
-        /// The default values for MaxRetryBackoffIntervalOnTransientErrors, NonTransientErrors
-        /// are 2 seconds. The default value for MaxRetryCount is 10.
+        /// The default value for MaxRetryCount is 10. Default Value for ClientRetryTimeout is infinite which means indefinte retry for non-transient errors.
         /// </summary>
         public OperationRetrySettings()
-            : this(new ExponentialRetryPolicy(10, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2), Timeout.InfiniteTimeSpan))
+            : this(new ExponentialRetryPolicy(10, Timeout.InfiniteTimeSpan))
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
-        /// with default values for the retry settings.
-        /// The default values for MaxRetryBackoffIntervalOnTransientErrors, NonTransientErrors
-        /// are 2 seconds. The default value for MaxRetryCount is 10. Default Value for ClientRetryTimeout is Zero which means indefinte retry for non-transient errors.
+        ///  The default value for MaxRetryCount is 10 .
         /// </summary>
         /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting</param>
         public OperationRetrySettings(TimeSpan clientRetryTimeout)
-            : this(new ExponentialRetryPolicy(clientRetryTimeout))
+            : this(new ExponentialRetryPolicy(10, clientRetryTimeout))
         {
         }
 
@@ -99,11 +96,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         public TimeSpan MaxRetryBackoffIntervalOnNonTransientErrors
         {
             get
-            {
-                var contantpolicy = this.retryPolicy as ConstantRetryPolicy;
-                if (contantpolicy != null)
+            {// This casting is done for backward compatibility.
+                var constantPolicy = this.retryPolicy as ConstantRetryPolicy;
+                if (constantPolicy != null)
                 {
-                    return contantpolicy.MaxRetryBackoffIntervalOnNonTransientErrors;
+                    return constantPolicy.MaxRetryBackoffIntervalOnNonTransientErrors;
                 }
 
                 throw new NotSupportedException("This retry Policy doesn't support this functionality ");

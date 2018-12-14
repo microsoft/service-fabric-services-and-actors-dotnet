@@ -41,9 +41,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Gets the maximum number of times to retry.
+        /// Gets the number of times request has been retried.
         /// </summary>
-        /// <value>Maximum number of times to retry a specific exception.</value>
+        /// <value>Number of times request has been retried .</value>
         public int RetryAttempt
         {
             get { return this.retryAttempt; }

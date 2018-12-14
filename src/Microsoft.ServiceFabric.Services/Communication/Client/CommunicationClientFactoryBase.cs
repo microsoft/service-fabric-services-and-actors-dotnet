@@ -146,8 +146,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             OperationRetrySettings retrySettings,
             CancellationToken cancellationToken)
         {
-            var retryparemters = new RetryDelayParameters(0, false);
-            var retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
+            var retryparameters = new RetryDelayParameters(0, false);
+            var retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparameters);
 
             var previousRsp = await this.ServiceResolver.ResolveAsync(
                 serviceUri,
@@ -369,7 +369,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             var doResolve = doInitialResolve;
             var exceptionRetryCount = 0;
-            var totalRetryCount = 0;
+            var currentRetryCount = 0;
             var requestId = Guid.NewGuid().ToString();
             string currentExceptionId = null;
             TimeSpan retryDelay = default(TimeSpan);
@@ -382,12 +382,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 {
                     if (doResolve)
                     {
-                        var retryparemters = new RetryDelayParameters(totalRetryCount, false);
+                        var retryparemters = new RetryDelayParameters(currentRetryCount, false);
                         retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                         var rsp = await this.ServiceResolver.ResolveAsync(
                             previousRsp,
                             ServicePartitionResolver.DefaultResolveTimeout,
-                            retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters),
+                            retryDelay,
                             cancellationToken);
                         previousRsp = rsp;
                     }
@@ -434,7 +434,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         {
                             if (!IsValidRsp(cacheEntry))
                             {
-                                var retryparemters = new RetryDelayParameters(totalRetryCount++, false);
+                                var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
                                 retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                                 ServiceTrace.Source.WriteInfoWithId(
                                    TraceType,
@@ -457,7 +457,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 out client);
                                 if (!clientValid)
                                 {
-                                    var retryparemters = new RetryDelayParameters(totalRetryCount++, false);
+                                    var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
                                     retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                                     ServiceTrace.Source.WriteInfoWithId(
                                         TraceType,
@@ -555,7 +555,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
 
                 doResolve = !retryResult.IsTransient;
-                retryDelay = retryResult.GetRetryDelay(totalRetryCount++);
+                retryDelay = retryResult.GetRetryDelay(currentRetryCount++);
                 await Task.Delay(retryDelay, cancellationToken);
             }
         }
