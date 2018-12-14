@@ -67,7 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 maxRetryBackoffIntervalOnTransientErrors,
                 maxRetryBackoffIntervalOnNonTransientErrors,
                 defaultMaxRetryCount,
-                default(TimeSpan)))
+                Timeout.InfiniteTimeSpan))
         {
         }
 
