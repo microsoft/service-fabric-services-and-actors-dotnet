@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         private static readonly Random Rand = new Random();
 
         private readonly bool isTransient;
+        private readonly OperationRetrySettings retrySettings;
         private readonly string exceptionId;
         private readonly TimeSpan retryDelay;
         private readonly int maxRetryCount;
@@ -41,6 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.exceptionId = exception.GetType().FullName;
             this.isTransient = isTransient;
             this.retryDelay = retryDelay;
+            this.retrySettings = null;
             this.maxRetryCount = maxRetryCount;
         }
 
@@ -67,6 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.isTransient = isTransient;
             this.retryDelay = retryDelay;
             this.maxRetryCount = maxRetryCount;
+            this.retrySettings = null;
         }
 
         /// <summary>
@@ -90,7 +93,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             this.exceptionId = exception.GetType().FullName;
             this.isTransient = isTransient;
-            this.retryDelay = GetRetryDelay(isTransient ? retrySettings.MaxRetryBackoffIntervalOnTransientErrors : retrySettings.MaxRetryBackoffIntervalOnNonTransientErrors);
+            this.retrySettings = retrySettings;
+            this.retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(new RetryDelayParameters(0, isTransient));
             this.maxRetryCount = maxRetryCount;
         }
 
@@ -148,9 +152,21 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             get { return this.retryDelay; }
         }
 
-        private static TimeSpan GetRetryDelay(TimeSpan maxRetryBackoffInterval)
+        /// <summary>
+        /// Gets the time interval after which the operation should be retried.
+        /// </summary>
+        /// <param name="retryAttempt">The retry attempt for which we calculate delay.
+        /// </param>
+        /// <returns>Time delay after which the operation should be retried</returns>
+        public TimeSpan GetRetryDelay(int retryAttempt)
         {
-            return new TimeSpan((long)(maxRetryBackoffInterval.Ticks * Rand.NextDouble()));
+            if (this.retrySettings != null)
+            {
+                var retryparam = new RetryDelayParameters(retryAttempt, this.isTransient);
+                return this.retrySettings.RetryPolicy.GetNextRetryDelay(retryparam);
+            }
+
+            return this.retryDelay;
         }
     }
 }

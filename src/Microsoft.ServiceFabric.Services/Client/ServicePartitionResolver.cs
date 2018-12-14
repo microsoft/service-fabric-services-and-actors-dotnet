@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Client
     using System.Fabric.Description;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
     /// Represents a delegate to create a FabricClient object.
@@ -40,10 +41,8 @@ namespace Microsoft.ServiceFabric.Services.Client
         public static readonly TimeSpan DefaultMaxRetryBackoffInterval = TimeSpan.FromSeconds(5);
 
         private static readonly object StaticLock = new object();
-        private static readonly Random Rand = new Random();
-
         private static ServicePartitionResolver defaultResolver;
-
+        private static RandomGenerator randomGenerator = new RandomGenerator();
         private readonly object thisLock = new object();
         private readonly CreateFabricClientDelegate createFabricClient;
         private readonly CreateFabricClientDelegate recreateFabricClient;
@@ -637,8 +636,8 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                 // wait before retry
                 await Task.Delay(
-                    new TimeSpan((long)(Rand.NextDouble() * maxRetryInterval.Ticks)),
-                    cancellationToken);
+                       new TimeSpan((long)(randomGenerator.NextDouble() * maxRetryInterval.Ticks)),
+                       cancellationToken);
             }
         }
 
