@@ -164,8 +164,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken,
             params Type[] doNotRetryExceptionTypes)
         {
-            var currentRetryCount = 0;
+            var totalretryCount = 0;
             string currentExceptionId = null;
+            if (!cancellationToken.CanBeCanceled)
+            {
+                // This code will execute when User Api cancellation token is None and user has specified client retry Timeout
+                if (this.retrySettings.ClientRetryTimeout != Timeout.InfiniteTimeSpan)
+                {
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    cancellationTokenSource.CancelAfter(this.retrySettings.ClientRetryTimeout);
+                    cancellationToken = cancellationTokenSource.Token;
+                }
+            }
 
             while (true)
             {
@@ -221,25 +231,26 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         exceptionReportResult.ExceptionId,
                         exceptionReportResult.MaxRetryCount,
                         ref currentExceptionId,
-                        ref currentRetryCount))
+                        ref totalretryCount))
                 {
                     throw exceptionReportResult.Exception ?? exception;
                 }
 
+                var retrydelay = exceptionReportResult.GetRetryDelay(totalretryCount);
                 ServiceTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,
                     "Exception report result Id: {0}  IsTransient : {1} Delay : {2}",
                     exceptionReportResult.ExceptionId,
                     exceptionReportResult.IsTransient,
-                    exceptionReportResult.RetryDelay);
+                    retrydelay);
 
                 if (!exceptionReportResult.IsTransient)
                 {
                     await this.ResetCommunicationClientAsync();
                 }
 
-                await Task.Delay(exceptionReportResult.RetryDelay, cancellationToken);
+                await Task.Delay(retrydelay, cancellationToken);
             }
         }
 

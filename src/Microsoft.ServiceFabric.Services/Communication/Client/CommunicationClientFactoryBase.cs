@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     {
         private const string TraceType = "CommunicationClientFactoryBase";
         private static Task completedTask = Task.FromResult(1);
+        private static TimeSpan defaultDelay = TimeSpan.FromSeconds(2);
         private readonly IServicePartitionResolver servicePartitionResolver;
         private readonly List<IExceptionHandler> exceptionHandlers;
         private readonly CommunicationClientCache<TCommunicationClient> cache;
@@ -145,11 +146,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             OperationRetrySettings retrySettings,
             CancellationToken cancellationToken)
         {
+            var retryparameters = new RetryDelayParameters(0, false);
+            var retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparameters);
+
             var previousRsp = await this.ServiceResolver.ResolveAsync(
                 serviceUri,
                 partitionKey,
                 ServicePartitionResolver.DefaultResolveTimeout,
-                retrySettings.MaxRetryBackoffIntervalOnTransientErrors,
+                retryDelay,
                 cancellationToken);
 
             return await this.CreateClientWithRetriesAsync(
@@ -247,6 +251,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         Exception = null,
                         ExceptionId = retryResult.ExceptionId,
                         MaxRetryCount = retryResult.MaxRetryCount,
+                        GetRetryDelay = retryResult.GetRetryDelay,
                     };
                 }
                 else
@@ -375,9 +380,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken)
         {
             var doResolve = doInitialResolve;
+            var exceptionRetryCount = 0;
             var currentRetryCount = 0;
+            var requestId = Guid.NewGuid().ToString();
             string currentExceptionId = null;
-
+            TimeSpan retryDelay = default(TimeSpan);
             while (true)
             {
                 ExceptionHandlingResult result;
@@ -387,10 +394,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 {
                     if (doResolve)
                     {
+                        var retryparemters = new RetryDelayParameters(currentRetryCount, false);
+                        retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                         var rsp = await this.ServiceResolver.ResolveAsync(
                             previousRsp,
                             ServicePartitionResolver.DefaultResolveTimeout,
-                            retrySettings.MaxRetryBackoffIntervalOnTransientErrors,
+                            retryDelay,
                             cancellationToken);
                         previousRsp = rsp;
                     }
@@ -416,8 +425,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         // code path and the communication client was invalidated.
                         if (this.ShouldCreateNewClient(cacheEntry))
                         {
-                            ServiceTrace.Source.WriteInfo(
+                            ServiceTrace.Source.WriteInfoWithId(
                                 TraceType,
+                                requestId,
                                 "{0} Creating Client for connecting to ListenerName : {1} Address : {2} Role : {3}",
                                 this.traceId,
                                 listenerName,
@@ -439,14 +449,19 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         {
                             if (!IsValidRsp(cacheEntry))
                             {
-                                ServiceTrace.Source.WriteInfo(
+                                var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
+                                retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
+                                ServiceTrace.Source.WriteInfoWithId(
                                    TraceType,
-                                   "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
+                                   requestId,
+                                   "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
                                    this.traceId,
                                    listenerName,
                                    endpoint.Address,
-                                   cacheEntry.Endpoint.Role);
+                                   cacheEntry.Endpoint.Role,
+                                   retryDelay);
                                 doResolve = true;
+                                await Task.Delay(retryDelay, cancellationToken);
                                 continue;
                             }
                             else
@@ -457,20 +472,26 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 out client);
                                 if (!clientValid)
                                 {
-                                    ServiceTrace.Source.WriteInfo(
+                                    var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
+                                    retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
+                                    ServiceTrace.Source.WriteInfoWithId(
                                         TraceType,
-                                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3}",
+                                        requestId,
+                                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
                                         this.traceId,
                                         listenerName,
                                         cacheEntry.GetEndpoint(),
-                                        cacheEntry.Endpoint.Role);
+                                        cacheEntry.Endpoint.Role,
+                                        retryDelay);
                                     doResolve = true;
+                                    await Task.Delay(retryDelay, cancellationToken);
                                     continue;
                                 }
                                 else
                                 {
-                                    ServiceTrace.Source.WriteInfo(
+                                    ServiceTrace.Source.WriteInfoWithId(
                                         TraceType,
+                                        requestId,
                                         "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
                                         this.traceId,
                                         listenerName,
@@ -500,8 +521,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
                 catch (Exception e)
                 {
-                    ServiceTrace.Source.WriteInfo(
+                    ServiceTrace.Source.WriteInfoWithId(
                         TraceType,
+                        requestId,
                         "{0} Exception While CreatingClient {1}",
                         this.traceId,
                         e);
@@ -533,10 +555,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     retryResult.ExceptionId,
                     retryResult.MaxRetryCount,
                     ref currentExceptionId,
-                    ref currentRetryCount))
+                    ref exceptionRetryCount))
                 {
-                    ServiceTrace.Source.WriteInfo(
+                    ServiceTrace.Source.WriteInfoWithId(
                         TraceType,
+                        requestId,
                         "{0} Retry count for exception id {1} exceeded the retry limit : {2}, throwing exception - {3}",
                         this.traceId,
                         retryResult.ExceptionId,
@@ -547,7 +570,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
 
                 doResolve = !retryResult.IsTransient;
-                await Task.Delay(retryResult.RetryDelay, cancellationToken);
+                retryDelay = retryResult.GetRetryDelay(currentRetryCount++);
+                await Task.Delay(retryDelay, cancellationToken);
             }
         }
 
