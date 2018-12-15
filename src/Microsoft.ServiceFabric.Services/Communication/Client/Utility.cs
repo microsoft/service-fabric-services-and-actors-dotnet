@@ -5,8 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
-    using System;
-
     internal sealed class Utility
     {
         internal static bool ShouldRetryOperation(

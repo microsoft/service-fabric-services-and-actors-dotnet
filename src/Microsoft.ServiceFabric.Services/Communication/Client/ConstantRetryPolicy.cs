@@ -38,8 +38,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         public ConstantRetryPolicy(
             TimeSpan maxRetryBackoffIntervalOnTransientErrors,
             TimeSpan maxRetryBackoffIntervalOnNonTransientErrors,
-            int maxRetryCountOnNonTransientErrors,
             int maxRetryCount,
+            int maxRetryCountOnNonTransientErrors,
             TimeSpan clientRetryTimeout)
         {
             this.maxRetryBackoffIntervalOnTransientErrors = maxRetryBackoffIntervalOnTransientErrors;
