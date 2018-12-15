@@ -135,7 +135,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     return constantPolicy.MaxRetryCountOnNonTransientErrors;
                 }
 
-                throw new NotSupportedException("This retry Policy doesn't support this functionality ");
+                // For other retry policies , we will return the max one for backward compatibilty.We will remove this property in future major release.
+                return int.MaxValue;
             }
         }
 
