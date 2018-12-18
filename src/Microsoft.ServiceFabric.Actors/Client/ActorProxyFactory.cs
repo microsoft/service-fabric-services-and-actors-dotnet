@@ -15,6 +15,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
     /// </summary>
     public class ActorProxyFactory : IActorProxyFactory
     {
+        private readonly OperationRetrySettings retrySettings;
+
 #if !DotNetCoreClr
         private Remoting.V1.Client.ActorProxyFactory proxyFactoryV1;
 #endif
@@ -28,6 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
         public ActorProxyFactory(OperationRetrySettings retrySettings = null)
         {
+            this.retrySettings = retrySettings;
         }
 
 #if !DotNetCoreClr
@@ -243,12 +246,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
                     // We are overriding listenerName since using provider service can have multiple listener configured for upgrade cases
                     this.OverrideDefaultListenerName(provider.RemotingClientVersion);
                     this.proxyFactoryV2 =
-                        new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory);
+                        new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
                     return this.proxyFactoryV2;
                 }
 
                 this.proxyFactoryV1 =
-                    new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory);
+                    new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
                 return this.proxyFactoryV1;
             }
 
@@ -265,7 +268,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 var provider = this.GetProviderAttribute(actorInterfaceType);
                 this.OverrideDefaultListenerName(provider.RemotingClientVersion);
                 this.proxyFactoryV2 =
-                    new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory);
+                    new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
             }
 
             return this.proxyFactoryV2;
