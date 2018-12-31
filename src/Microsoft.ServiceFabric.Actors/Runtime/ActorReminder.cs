@@ -144,7 +144,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void ValidateDueTime(string argName, TimeSpan value)
         {
-            if (value < TimeSpan.Zero)
+            if (value < this.minTimePeriod)
             {
                 throw new ArgumentOutOfRangeException(
                     argName,
