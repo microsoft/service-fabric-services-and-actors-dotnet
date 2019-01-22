@@ -67,7 +67,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <inheritdoc/>
         public TimeSpan GetNextRetryDelay(RetryDelayParameters retryDelayParameters)
         {
-          return TimeSpan.FromSeconds((this.maxRetryJitter.TotalSeconds * RandomGenerator.NextDouble()) + (1 << retryDelayParameters.RetryAttempt));
+            // This we are doing to increase delay gradually . For every 3 consecutive retrries, delay wuld be same.
+            int delayMultiplier = retryDelayParameters.RetryAttempt / 3;
+
+            // Capping the Max Retry Time to nearest 5 mins ~ Pow(2,9)
+            if (delayMultiplier >= 9)
+            {
+                delayMultiplier = 9;
+            }
+
+            return TimeSpan.FromSeconds((this.maxRetryJitter.TotalSeconds * RandomGenerator.NextDouble()) + (1 << delayMultiplier));
         }
     }
 }

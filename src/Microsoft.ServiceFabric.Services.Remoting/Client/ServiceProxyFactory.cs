@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     /// </summary>
     public class ServiceProxyFactory : IServiceProxyFactory
     {
+        private readonly object thisLock;
         private readonly OperationRetrySettings retrySettings;
 #if !DotNetCoreClr
         private Remoting.V1.Client.ServiceProxyFactory proxyFactoryV1;
@@ -30,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         public ServiceProxyFactory(OperationRetrySettings retrySettings = null)
         {
             this.retrySettings = retrySettings;
-
+            this.thisLock = new object();
 #if !DotNetCoreClr
             this.proxyFactoryV1 = null;
 #endif
@@ -54,6 +55,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             Action<V1.Client.IServiceRemotingClientFactory> disposeFactory = null)
         {
             this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings, disposeFactory);
+            this.thisLock = new object();
         }
 
 #endif
@@ -74,6 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             Action<Remoting.V2.Client.IServiceRemotingClientFactory> disposeFactory = null)
         {
             this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings, disposeFactory);
+            this.thisLock = new object();
         }
 
         /// <summary>
@@ -99,24 +102,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             var serviceInterfaceType = typeof(TServiceInterface);
 
 #if !DotNetCoreClr
-
             // Use provider to find the stack
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
-                var provider = this.GetProviderAttribute(serviceInterfaceType);
-                if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
+                lock (this.thisLock)
                 {
-                    // We are overriding listenerName since using provider we can have multiple listener configured.
-                    this.overrideListenerName = true;
-                    this.defaultListenerName = this.GetDefaultListenerName(
-                        listenerName,
-                        provider.RemotingClientVersion);
-                    this.proxyFactoryV2 =
-                        new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
-                }
-                else
-                {
-                    this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+                    if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
+                    {
+                        var provider = this.GetProviderAttribute(serviceInterfaceType);
+                        if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
+                        {
+                            // We are overriding listenerName since using provider we can have multiple listener configured.
+                            this.overrideListenerName = true;
+                            this.defaultListenerName = this.GetDefaultListenerName(
+                                listenerName,
+                                provider.RemotingClientVersion);
+                            this.proxyFactoryV2 =
+                                new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
+                        }
+                        else
+                        {
+                            this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+                        }
+                    }
                 }
             }
 
@@ -137,15 +145,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 #else
             if (this.proxyFactoryV2 == null)
             {
-                var provider = this.GetProviderAttribute(serviceInterfaceType);
+                lock (this.thisLock)
+                {
+                  if (this.proxyFactoryV2 == null)
+                    {
+                        var provider = this.GetProviderAttribute(serviceInterfaceType);
 
-                // We are overriding listenerName since using provider we can have multiple listener configured.
-                this.overrideListenerName = true;
-                this.defaultListenerName = this.GetDefaultListenerName(
-                    listenerName,
-                    provider.RemotingClientVersion);
-                this.proxyFactoryV2 =
-                    new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
+                        // We are overriding listenerName since using provider we can have multiple listener configured.
+                        this.overrideListenerName = true;
+                        this.defaultListenerName = this.GetDefaultListenerName(
+                            listenerName,
+                            provider.RemotingClientVersion);
+                        this.proxyFactoryV2 =
+                            new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
+                    }
+                }
             }
 
             return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
@@ -179,9 +193,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
             if (this.proxyFactoryV2 == null)
             {
-                var provider = this.GetProviderAttribute(serviceInterfaceType);
+                lock (this.thisLock)
+                {
+                    if (this.proxyFactoryV2 == null)
+                    {
+                        var provider = this.GetProviderAttribute(serviceInterfaceType);
 
-                this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
+                        this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
+                    }
+                }
             }
 
             return this.proxyFactoryV2.CreateNonIServiceProxy<TServiceInterface>(

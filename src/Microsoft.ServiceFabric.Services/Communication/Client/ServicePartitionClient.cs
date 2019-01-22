@@ -166,91 +166,103 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             var totalretryCount = 0;
             string currentExceptionId = null;
-            if (!cancellationToken.CanBeCanceled)
+            CancellationTokenSource cancellationTokenSource = null;
+            try
             {
-                // This code will execute when User Api cancellation token is None and user has specified client retry Timeout
-                if (this.retrySettings.ClientRetryTimeout != Timeout.InfiniteTimeSpan)
+                if (!cancellationToken.CanBeCanceled)
                 {
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    cancellationTokenSource.CancelAfter(this.retrySettings.ClientRetryTimeout);
-                    cancellationToken = cancellationTokenSource.Token;
-                }
-            }
-
-            while (true)
-            {
-                Exception exception;
-                var client = await this.GetCommunicationClientAsync(cancellationToken);
-
-                try
-                {
-                    // throw if cancellation has been requested.
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var result = await func.Invoke(client);
-                    return result;
-                }
-                catch (AggregateException ae)
-                {
-                    ServiceTrace.Source.WriteNoiseWithId(
-                        TraceType,
-                        this.traceId,
-                        "AggregateException While Invoking API {0}",
-                        ae);
-
-                    ae.Handle(x => !doNotRetryExceptionTypes.Contains(x.GetType()));
-                    exception = ae;
-                }
-                catch (Exception e)
-                {
-                    ServiceTrace.Source.WriteNoiseWithId(
-                        TraceType,
-                        this.traceId,
-                        "Exception While Invoking API {0}",
-                        e);
-
-                    if (doNotRetryExceptionTypes.Contains(e.GetType()))
+                    // This code will execute when User Api cancellation token is None and user has specified client retry Timeout
+                    if (this.retrySettings.ClientRetryTimeout != Timeout.InfiniteTimeSpan)
                     {
-                        throw;
+                        cancellationTokenSource = new CancellationTokenSource();
+                        cancellationTokenSource.CancelAfter(this.retrySettings.ClientRetryTimeout);
+                        cancellationToken = cancellationTokenSource.Token;
+                    }
+                }
+
+                while (true)
+                {
+                    Exception exception;
+                    var client = await this.GetCommunicationClientAsync(cancellationToken);
+
+                    try
+                    {
+                        // throw if cancellation has been requested.
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var result = await func.Invoke(client);
+                        return result;
+                    }
+                    catch (AggregateException ae)
+                    {
+                        ServiceTrace.Source.WriteNoiseWithId(
+                            TraceType,
+                            this.traceId,
+                            "AggregateException While Invoking API {0}",
+                            ae);
+
+                        ae.Handle(x => !doNotRetryExceptionTypes.Contains(x.GetType()));
+                        exception = ae;
+                    }
+                    catch (Exception e)
+                    {
+                        ServiceTrace.Source.WriteNoiseWithId(
+                            TraceType,
+                            this.traceId,
+                            "Exception While Invoking API {0}",
+                            e);
+
+                        if (doNotRetryExceptionTypes.Contains(e.GetType()))
+                        {
+                            throw;
+                        }
+
+                        exception = e;
                     }
 
-                    exception = e;
-                }
+                    // The exception that is being processed by the factory could be because of the cancellation
+                    // requested to the remote call, so not passing the same cancellation token to the api below
+                    // to not let the regular exception processing be interrupted.
+                    var exceptionReportResult = await this.communicationClientFactory.ReportOperationExceptionAsync(
+                            client,
+                            new ExceptionInformation(exception, this.targetReplicaSelector),
+                            this.retrySettings,
+                            CancellationToken.None);
 
-                // The exception that is being processed by the factory could be because of the cancellation
-                // requested to the remote call, so not passing the same cancellation token to the api below
-                // to not let the regular exception processing be interrupted.
-                var exceptionReportResult = await this.communicationClientFactory.ReportOperationExceptionAsync(
-                        client,
-                        new ExceptionInformation(exception, this.targetReplicaSelector),
-                        this.retrySettings,
-                        CancellationToken.None);
+                    if (!exceptionReportResult.ShouldRetry ||
+                        !Utility.ShouldRetryOperation(
+                            exceptionReportResult.ExceptionId,
+                            exceptionReportResult.MaxRetryCount,
+                            ref currentExceptionId,
+                            ref totalretryCount))
+                    {
+                        throw exceptionReportResult.Exception ?? exception;
+                    }
 
-                if (!exceptionReportResult.ShouldRetry ||
-                    !Utility.ShouldRetryOperation(
+                    var retrydelay = exceptionReportResult.GetRetryDelay(totalretryCount);
+                    ServiceTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        "Exception report result Id: {0}  IsTransient : {1} Delay : {2}",
                         exceptionReportResult.ExceptionId,
-                        exceptionReportResult.MaxRetryCount,
-                        ref currentExceptionId,
-                        ref totalretryCount))
-                {
-                    throw exceptionReportResult.Exception ?? exception;
+                        exceptionReportResult.IsTransient,
+                        retrydelay);
+
+                    if (!exceptionReportResult.IsTransient)
+                    {
+                        await this.ResetCommunicationClientAsync();
+                    }
+
+                    await Task.Delay(retrydelay, cancellationToken);
                 }
-
-                var retrydelay = exceptionReportResult.GetRetryDelay(totalretryCount);
-                ServiceTrace.Source.WriteInfoWithId(
-                    TraceType,
-                    this.traceId,
-                    "Exception report result Id: {0}  IsTransient : {1} Delay : {2}",
-                    exceptionReportResult.ExceptionId,
-                    exceptionReportResult.IsTransient,
-                    retrydelay);
-
-                if (!exceptionReportResult.IsTransient)
+            }
+            finally
+            {
+                if (cancellationTokenSource != null)
                 {
-                    await this.ResetCommunicationClientAsync();
+                    cancellationTokenSource.Dispose();
+                    cancellationTokenSource = null;
                 }
-
-                await Task.Delay(retrydelay, cancellationToken);
             }
         }
 

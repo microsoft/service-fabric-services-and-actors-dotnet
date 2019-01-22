@@ -153,7 +153,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 serviceUri,
                 partitionKey,
                 ServicePartitionResolver.DefaultResolveTimeout,
-                retryDelay,
+                defaultDelay,
                 cancellationToken);
 
             return await this.CreateClientWithRetriesAsync(
@@ -390,16 +390,15 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 ExceptionHandlingResult result;
                 Exception actualException;
                 var newClient = false;
+                bool retry = false;
                 try
                 {
                     if (doResolve)
                     {
-                        var retryparemters = new RetryDelayParameters(currentRetryCount, false);
-                        retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                         var rsp = await this.ServiceResolver.ResolveAsync(
                             previousRsp,
                             ServicePartitionResolver.DefaultResolveTimeout,
-                            retryDelay,
+                            defaultDelay,
                             cancellationToken);
                         previousRsp = rsp;
                     }
@@ -413,7 +412,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 listenerName,
                                 previousRsp,
                                 cancellationToken);
-
                     var client = default(TCommunicationClient);
                     try
                     {
@@ -461,8 +459,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                    cacheEntry.Endpoint.Role,
                                    retryDelay);
                                 doResolve = true;
-                                await Task.Delay(retryDelay, cancellationToken);
-                                continue;
+                                retry = true;
                             }
                             else
                             {
@@ -484,8 +481,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                         cacheEntry.Endpoint.Role,
                                         retryDelay);
                                     doResolve = true;
-                                    await Task.Delay(retryDelay, cancellationToken);
-                                    continue;
+                                    retry = true;
                                 }
                                 else
                                 {
@@ -510,6 +506,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     finally
                     {
                         cacheEntry.Semaphore.Release();
+                    }
+
+                    if (retry)
+                    {
+                        await Task.Delay(retryDelay, cancellationToken);
+                        continue;
                     }
 
                     if (client != null && newClient && this.fireConnectEvents)
