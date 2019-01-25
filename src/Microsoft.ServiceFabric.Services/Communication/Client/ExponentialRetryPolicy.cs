@@ -13,6 +13,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// </summary>
     public class ExponentialRetryPolicy : IRetryPolicy
     {
+        private const int MaxDelayMultiplier = 9;
+        private const int SameDelayRequestCounter = 3;
         private static readonly RandomGenerator RandomGenerator = new RandomGenerator();
 
         private readonly int totalNumberOfRetry;
@@ -67,7 +69,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <inheritdoc/>
         public TimeSpan GetNextRetryDelay(RetryDelayParameters retryDelayParameters)
         {
-          return TimeSpan.FromSeconds((this.maxRetryJitter.TotalSeconds * RandomGenerator.NextDouble()) + (1 << retryDelayParameters.RetryAttempt));
+            // This we are doing to increase delay gradually . For every 3 consecutive retrries, delay wuld be same.
+            int delayMultiplier = retryDelayParameters.RetryAttempt / SameDelayRequestCounter;
+
+            // Capping the Max Retry Time to nearest 5 mins ~ Pow(2,9)
+            if (delayMultiplier >= MaxDelayMultiplier)
+            {
+                delayMultiplier = MaxDelayMultiplier;
+            }
+
+            return TimeSpan.FromSeconds((this.maxRetryJitter.TotalSeconds * RandomGenerator.NextDouble()) + (1 << delayMultiplier));
         }
     }
 }
