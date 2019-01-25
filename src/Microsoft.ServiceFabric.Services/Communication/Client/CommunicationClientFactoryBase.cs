@@ -146,9 +146,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             OperationRetrySettings retrySettings,
             CancellationToken cancellationToken)
         {
-            var retryparameters = new RetryDelayParameters(0, false);
-            var retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparameters);
-
             var previousRsp = await this.ServiceResolver.ResolveAsync(
                 serviceUri,
                 partitionKey,
@@ -447,9 +444,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         {
                             if (!IsValidRsp(cacheEntry))
                             {
-                                var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
-                                retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
-                                ServiceTrace.Source.WriteInfoWithId(
+                               ServiceTrace.Source.WriteInfoWithId(
                                    TraceType,
                                    requestId,
                                    "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
@@ -458,8 +453,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                    endpoint.Address,
                                    cacheEntry.Endpoint.Role,
                                    retryDelay);
-                                doResolve = true;
-                                retry = true;
+                               doResolve = true;
+                               retry = true;
                             }
                             else
                             {
@@ -469,8 +464,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 out client);
                                 if (!clientValid)
                                 {
-                                    var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
-                                    retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                                     ServiceTrace.Source.WriteInfoWithId(
                                         TraceType,
                                         requestId,
@@ -510,6 +503,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
                     if (retry)
                     {
+                        var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
+                        retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
                         await Task.Delay(retryDelay, cancellationToken);
                         continue;
                     }
