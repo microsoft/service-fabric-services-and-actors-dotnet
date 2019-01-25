@@ -15,6 +15,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
     /// </summary>
     public class ActorProxyFactory : IActorProxyFactory
     {
+        private readonly object thisLock;
+
         private readonly OperationRetrySettings retrySettings;
 
 #if !DotNetCoreClr
@@ -31,6 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         public ActorProxyFactory(OperationRetrySettings retrySettings = null)
         {
             this.retrySettings = retrySettings;
+            this.thisLock = new object();
         }
 
 #if !DotNetCoreClr
@@ -47,6 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
             this.proxyFactoryV1 =
                 new Remoting.V1.Client.ActorProxyFactory(createServiceRemotingClientFactory, retrySettings);
+            this.thisLock = new object();
         }
 #endif
 
@@ -63,6 +67,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
             this.proxyFactoryV2 =
                 new Remoting.V2.Client.ActorProxyFactory(createServiceRemotingClientFactory, retrySettings);
+            this.thisLock = new object();
         }
 
         /// <summary>
@@ -237,22 +242,29 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private IActorProxyFactory GetOrSetProxyFactory(Type actorInterfaceType)
         {
 #if !DotNetCoreClr
+
             // Use provider to find the stack
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
-                var provider = this.GetProviderAttribute(actorInterfaceType);
-                if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
+                lock (this.thisLock)
                 {
-                    // We are overriding listenerName since using provider service can have multiple listener configured for upgrade cases
-                    this.OverrideDefaultListenerName(provider.RemotingClientVersion);
-                    this.proxyFactoryV2 =
-                        new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
-                    return this.proxyFactoryV2;
-                }
+                        if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
+                        {
+                            var provider = this.GetProviderAttribute(actorInterfaceType);
+                            if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
+                            {
+                                // We are overriding listenerName since using provider service can have multiple listener configured for upgrade cases
+                                this.OverrideDefaultListenerName(provider.RemotingClientVersion);
+                                this.proxyFactoryV2 =
+                                    new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+                                return this.proxyFactoryV2;
+                            }
 
-                this.proxyFactoryV1 =
-                    new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
-                return this.proxyFactoryV1;
+                            this.proxyFactoryV1 =
+                                new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+                            return this.proxyFactoryV1;
+                        }
+                }
             }
 
             if (this.proxyFactoryV2 != null)
@@ -265,10 +277,16 @@ namespace Microsoft.ServiceFabric.Actors.Client
 #else
             if (this.proxyFactoryV2 == null)
             {
-                var provider = this.GetProviderAttribute(actorInterfaceType);
-                this.OverrideDefaultListenerName(provider.RemotingClientVersion);
-                this.proxyFactoryV2 =
-                    new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+                lock (this.thisLock)
+                {
+                    if (this.proxyFactoryV2 == null)
+                    {
+                        var provider = this.GetProviderAttribute(actorInterfaceType);
+                        this.OverrideDefaultListenerName(provider.RemotingClientVersion);
+                        this.proxyFactoryV2 =
+                            new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+                    }
+                }
             }
 
             return this.proxyFactoryV2;
