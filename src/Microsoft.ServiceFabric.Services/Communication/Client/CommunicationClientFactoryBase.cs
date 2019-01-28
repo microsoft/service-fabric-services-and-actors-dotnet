@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     {
         private const string TraceType = "CommunicationClientFactoryBase";
         private static Task completedTask = Task.FromResult(1);
+        private static TimeSpan defaultDelay = TimeSpan.FromSeconds(2);
         private readonly IServicePartitionResolver servicePartitionResolver;
         private readonly List<IExceptionHandler> exceptionHandlers;
         private readonly CommunicationClientCache<TCommunicationClient> cache;
