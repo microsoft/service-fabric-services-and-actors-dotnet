@@ -430,14 +430,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                                 cacheEntry.Endpoint.Role);
 
                             cacheEntry.Rsp = previousRsp;
+
                             client = await this.CreateClientAsync(cacheEntry.GetEndpoint(), cancellationToken);
+
+                            // Open the Client .
+                            await this.OpenClient(client, cancellationToken);
+
                             cacheEntry.Client = client;
                             client.ResolvedServicePartition = cacheEntry.Rsp;
                             client.ListenerName = cacheEntry.ListenerName;
                             client.Endpoint = cacheEntry.Endpoint;
-
-                            // Open the Client .
-                            await this.OpenClient(client, cancellationToken);
                             newClient = true;
                         }
                         else
