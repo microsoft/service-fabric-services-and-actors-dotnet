@@ -31,6 +31,7 @@
     <ItemGroup>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)FixRuntimeConfig.ps1"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)Microsoft.ServiceFabric.Actors.Wcf.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\$(OutputPath)Microsoft.ServiceFabric.Services.*"/>
