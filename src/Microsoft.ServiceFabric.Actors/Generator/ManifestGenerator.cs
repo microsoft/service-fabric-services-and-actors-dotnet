@@ -527,7 +527,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             return new EntryPointDescriptionTypeExeHost
             {
-                Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe",
+                Program = "dotnet",
+                IsExternalExecutable = true,
+                Arguments = Path.GetFileName(assembly.Location),
+                WorkingFolder = ExeHostEntryPointTypeWorkingFolder.CodePackage,
             };
         }
 
