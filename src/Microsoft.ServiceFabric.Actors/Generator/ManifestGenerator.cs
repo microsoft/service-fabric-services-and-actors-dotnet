@@ -525,10 +525,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private static EntryPointDescriptionTypeExeHost CreateExeHostEntryPoint(
             Assembly assembly)
         {
-                return new EntryPointDescriptionTypeExeHost
-                {
-                    Program = Path.GetFileNameWithoutExtension(assembly.Location),
-                };
+            return new EntryPointDescriptionTypeExeHost
+            {
+                Program = Path.GetFileNameWithoutExtension(assembly.Location),
+            };
         }
 
         private static CodePackageType MergeCodePackage(
