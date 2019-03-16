@@ -25,7 +25,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   <Target Name="_UpdateServiceFabricServiceManifest" AfterTargets="Build" DependsOnTargets="_UpdateRuntimeConfig" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
     <Exec Command="dotnet &quot;$(FabActUtilWorkingDir)\FabActUtil.dll&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).dll&quot; /arp:&quot;$(TargetDir)\&quot; $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
-  <Target Name="_UpdateServiceFabricApplicationManifest" DependsOnTargets="_CopyAssembliesToFabActUtilWorkingDir" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
+  <Target Name="_UpdateServiceFabricApplicationManifest" DependsOnTargets="_UpdateRuntimeConfig" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
     <PropertyGroup>
       <Local5NodeAppParamFileArg Condition=" '$(Local5NodeAppParamFile)' != '' ">/local5nodeappparamfile:&quot;$(Local5NodeAppParamFile)&quot;</Local5NodeAppParamFileArg>
       <Local1NodeAppParamFileArg Condition=" '$(Local1NodeAppParamFile)' != '' ">/local1nodeappparamfile:&quot;$(Local1NodeAppParamFile)&quot;</Local1NodeAppParamFileArg>
