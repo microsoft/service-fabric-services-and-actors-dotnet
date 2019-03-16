@@ -525,24 +525,10 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         private static EntryPointDescriptionTypeExeHost CreateExeHostEntryPoint(
             Assembly assembly)
         {
-            // For all .netcore apps
-            if (string.Compare(Path.GetExtension(assembly.Location), ".dll", true) == 0)
-            {
                 return new EntryPointDescriptionTypeExeHost
                 {
-                    Program = "dotnet",
-                    IsExternalExecutable = true,
-                    Arguments = Path.GetFileName(assembly.Location),
-                    WorkingFolder = ExeHostEntryPointTypeWorkingFolder.CodePackage,
+                    Program = Path.GetFileNameWithoutExtension(assembly.Location),
                 };
-            }
-            else
-            {
-                return new EntryPointDescriptionTypeExeHost
-                {
-                    Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe",
-                };
-            }
         }
 
         private static CodePackageType MergeCodePackage(
