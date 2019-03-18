@@ -159,7 +159,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
         /// </returns>
-        /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
         public async Task<TResult> InvokeWithRetryAsync<TResult>(
             Func<TCommunicationClient, Task<TResult>> func,
             CancellationToken cancellationToken,
@@ -170,16 +169,15 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationTokenSource cancellationTokenSource = null;
             try
             {
-                // This code will execute when user has specified client retry timeout
-                if (this.retrySettings.ClientRetryTimeout != Timeout.InfiniteTimeSpan)
+                if (!cancellationToken.CanBeCanceled)
                 {
-                    cancellationTokenSource = new CancellationTokenSource(this.retrySettings.ClientRetryTimeout);
-                    if (cancellationToken.CanBeCanceled)
+                    // This code will execute when User Api cancellation token is None and user has specified client retry Timeout
+                    if (this.retrySettings.ClientRetryTimeout != Timeout.InfiniteTimeSpan)
                     {
-                        cancellationToken.Register(() => cancellationTokenSource.Cancel());
+                        cancellationTokenSource = new CancellationTokenSource();
+                        cancellationTokenSource.CancelAfter(this.retrySettings.ClientRetryTimeout);
+                        cancellationToken = cancellationTokenSource.Token;
                     }
-
-                    cancellationToken = cancellationTokenSource.Token;
                 }
 
                 while (true)
@@ -252,7 +250,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
                     if (!exceptionReportResult.IsTransient)
                     {
-                        await this.ResetCommunicationClientAsync(client);
+                        await this.ResetCommunicationClientAsync();
                     }
 
                     await Task.Delay(retrydelay, cancellationToken);
@@ -406,28 +404,13 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return client;
         }
 
-        private async Task ResetCommunicationClientAsync(TCommunicationClient oldReference)
+        private async Task ResetCommunicationClientAsync()
         {
             await this.communicationClientLock.WaitAsync();
 
             this.communicationClient = default(TCommunicationClient);
 
             this.communicationClientLock.Release();
-        }
-
-        private struct GenerationalReference<T>
-        {
-            public GenerationalReference(
-                T reference,
-                int generation)
-            {
-                this.Reference = reference;
-                this.Generation = generation;
-            }
-
-            public T Reference { get; }
-
-            public int Generation { get; }
         }
     }
 }

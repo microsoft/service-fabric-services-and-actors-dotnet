@@ -1,5 +1,5 @@
 
-# everything in the external/packages directory as nuget packages are restored here.
+# Everything in the external/packages directory as nuget packages are restored here.
 /nuget/restored_packages/*
 
 # Build generated files in src
@@ -75,7 +75,3 @@ bld/
 *.vsp
 *.vspx
 /drop
-
-# Others
-~$*
-*~
