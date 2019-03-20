@@ -75,3 +75,7 @@ bld/
 *.vsp
 *.vspx
 /drop
+
+# Others
+~$*
+*~
