@@ -187,11 +187,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     Exception exception;
                     var client = await this.GetCommunicationClientAsync(cancellationToken);
 
+                    // throw if cancellation has been requested.
+                    cancellationToken.ThrowIfCancellationRequested();
                     try
                     {
-                        // throw if cancellation has been requested.
-                        cancellationToken.ThrowIfCancellationRequested();
-
                         var result = await func.Invoke(client);
                         return result;
                     }
