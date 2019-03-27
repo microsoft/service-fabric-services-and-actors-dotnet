@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using Moq;
 
     /// <summary>
-    /// Contains mocks needed by tests for Microsoft.ServiceFabric.Services
+    /// Contains mocks needed by tests for Microsoft.ServiceFabric.Services.
     /// </summary>
     internal static class TestMocksRepository
     {

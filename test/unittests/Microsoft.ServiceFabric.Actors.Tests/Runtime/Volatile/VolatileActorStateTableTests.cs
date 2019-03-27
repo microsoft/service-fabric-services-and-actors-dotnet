@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// TestUpdateApply
+        /// TestUpdateApply.
         /// </summary>
         [Fact]
         public void TestUpdateApply()
@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// TestUpdateCommit
+        /// TestUpdateCommit.
         /// </summary>
         [Fact]
         public void TestUpdateCommit()
@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// TestSnapshot
+        /// TestSnapshot.
         /// </summary>
         [Fact]
         public void TestSnapshot()
@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// TestSnapshotScale
+        /// TestSnapshotScale.
         /// </summary>
         [Fact]
         public void TestSnapshotScale()
@@ -144,7 +144,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// TestMultipleTypes
+        /// TestMultipleTypes.
         /// </summary>
         [Fact]
         public void TestMultipleTypes()
@@ -154,7 +154,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// TestDelete
+        /// TestDelete.
         /// </summary>
         [Fact]
         public void TestDelete()

@@ -25,9 +25,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceReplicaListener"/> class.
         /// </summary>
-        /// <param name="createCommunicationListener">Factory method for creating the communication listener</param>
-        /// <param name="name">Name of the communication listener. This parameter is optional, if the service has only one communication listener</param>
-        /// <param name="listenOnSecondary">Specifies if the communication listener needs to be opened when the replica becomes Active secondary. THis parameter is optional</param>
+        /// <param name="createCommunicationListener">Factory method for creating the communication listener.</param>
+        /// <param name="name">Name of the communication listener. This parameter is optional, if the service has only one communication listener.</param>
+        /// <param name="listenOnSecondary">Specifies if the communication listener needs to be opened when the replica becomes Active secondary. THis parameter is optional.</param>
         public ServiceReplicaListener(
             Func<StatefulServiceContext, ICommunicationListener> createCommunicationListener,
             string name = DefaultName,

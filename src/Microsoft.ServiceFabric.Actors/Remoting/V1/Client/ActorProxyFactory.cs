@@ -203,7 +203,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
         /// Creates service remoting client factory.
         /// </summary>
         /// <param name="callbackClient">Callback from the remoting listener to the client.</param>
-        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/></returns>
+        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/>.</returns>
         protected virtual IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient)
         {

@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Services
     public static class ServiceNameFormat
     {
         /// <summary>
-        /// Gets the default endpoint resource name for the given service type
+        /// Gets the default endpoint resource name for the given service type.
         /// </summary>
         /// <param name="serviceInterfaceType">Service interface type name.</param>
         /// <returns>The name of the endpoint resource.</returns>

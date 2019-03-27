@@ -14,9 +14,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
     public interface IOutgoingMessageBody : IDisposable
     {
         /// <summary>
-        /// Gets the Send Buffers
+        /// Gets the Send Buffers.
         /// </summary>
-        /// <returns>List of Segemented Buffers </returns>
+        /// <returns>List of Segemented Buffers. </returns>
         IEnumerable<ArraySegment<byte>> GetSendBuffers();
     }
 }

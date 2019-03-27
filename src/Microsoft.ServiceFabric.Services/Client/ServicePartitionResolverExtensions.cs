@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Client
     using System.Threading.Tasks;
 
     /// <summary>
-    /// This class adds extensions methods to initialize <see cref="ServicePartitionResolver"/>
+    /// This class adds extensions methods to initialize <see cref="ServicePartitionResolver"/>.
     /// </summary>
     public static class ServicePartitionResolverExtensions
     {
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// If you interested in only complain based resolution, then you could  use this extension to disable it.
         /// </summary>
         /// <param name="partitionResolver">ServicePartitionResolver to disable notification for.</param>
-        /// <returns>ServicePartitionResolver</returns>
+        /// <returns>ServicePartitionResolver.</returns>
         public static ServicePartitionResolver DisableNotification(
           this ServicePartitionResolver partitionResolver)
         {

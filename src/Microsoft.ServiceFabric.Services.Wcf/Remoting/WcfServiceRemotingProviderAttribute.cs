@@ -136,7 +136,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         /// <summary>
         /// Returns the func method that creates the remoting listeners.
         /// </summary>
-        /// <returns>Func to create Remoting Listener</returns>
+        /// <returns>Func to create Remoting Listener.</returns>
         public override Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>
             CreateServiceRemotingListeners()
         {

@@ -22,9 +22,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorServicePartitionClient"/> class with the given name.
         /// </summary>
-        /// <param name="remotingClientFactory">Remoting client factory</param>
-        /// <param name="serviceUri">Actor service name</param>
-        /// <param name="actorId">Actor id</param>
+        /// <param name="remotingClientFactory">Remoting client factory.</param>
+        /// <param name="serviceUri">Actor service name.</param>
+        /// <param name="actorId">Actor id.</param>
         /// <param name="listenerName">
         /// By default an actor service has only one listener for clients to connect to and communicate with.
         /// However it is possible to configure an actor service with more than one listeners, the listenerName parameter specifies the name of the listener to connect to.
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
         /// <summary>
         /// Gets the Actor id. Actor id is used to identify the partition of the service that this actor belongs to.
         /// </summary>
-        /// <value>actor id</value>
+        /// <value>actor id.</value>
         public ActorId ActorId { get; }
 
         internal Task SubscribeAsync(int eventInterfaceId, Guid subscriberId)

@@ -99,7 +99,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="stateName">Name of the actor state to add.</param>
         /// <param name="value">Value of the actor state to add.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.
-        /// This is optional and defaults to <see cref="System.Threading.CancellationToken.None" /></param>
+        /// This is optional and defaults to <see cref="System.Threading.CancellationToken.None" />.</param>
         /// <returns>
         /// A boolean task that represents the asynchronous add operation. Returns true if the
         /// value was successfully added and false if an actor state with the same name already exists.

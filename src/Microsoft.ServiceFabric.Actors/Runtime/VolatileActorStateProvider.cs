@@ -159,7 +159,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Initializes the actor state provider with type information
         /// of the actor type associated with it.
         /// </summary>
-        /// <param name="actorTypeInfo">Type information of the actor class</param>
+        /// <param name="actorTypeInfo">Type information of the actor class.</param>
         void IActorStateProvider.Initialize(ActorTypeInformation actorTypeInfo)
         {
             this.actorTypeInformation = actorTypeInfo;
@@ -193,7 +193,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// This method is invoked when a reminder fires and finishes executing its callback
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
-        /// <param name="actorId">ID of the actor which own reminder</param>
+        /// <param name="actorId">ID of the actor which own reminder.</param>
         /// <param name="reminder">Actor reminder that completed successfully.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
@@ -256,7 +256,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// or update/remove an actor state which does not exist.
         /// </remarks>
         /// <exception cref="System.InvalidOperationException">
-        /// When <see cref="StateChangeKind"/> is <see cref="StateChangeKind.None"/>
+        /// When <see cref="StateChangeKind"/> is <see cref="StateChangeKind.None"/>.
         /// </exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         async Task IActorStateProvider.SaveStateAsync(ActorId actorId, IReadOnlyCollection<ActorStateChange> stateChanges, CancellationToken cancellationToken)
@@ -709,7 +709,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Performs a full backup of state managed by this actor state provider
+        /// Performs a full backup of state managed by this actor state provider.
         /// </summary>
         /// <param name="backupCallback">Callback to be called when the backup folder has been created locally and is ready to be moved out of the node.</param>
         /// <returns>Task that represents the asynchronous backup operation.</returns>

@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     /// <summary>
-    /// This class provides settings to configure the behavior of reminders. See https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-reliable-actors-timers-reminders
+    /// This class provides settings to configure the behavior of reminders. See https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-reliable-actors-timers-reminders.
     /// </summary>
     public sealed class ReminderSettings
     {

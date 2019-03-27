@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <param name="subscriber">The subscriber that receives the events.</param>
         /// <returns>A task that represents the asynchronous operation of subscribing to a published actor event.</returns>
         /// <exception cref="System.ArgumentException">
-        /// <para>When actorProxy is not of type <see cref="ActorProxy"/></para>.
+        /// <para>When actorProxy is not of type <see cref="ActorProxy"/>.</para>.
         /// </exception>
         public static Task SubscribeAsync<TEvent>(
             this IActorEventPublisher actorProxy,
@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <param name="resubscriptionInterval">The time between re-subscription attempts.</param>
         /// <returns>A task that represents the asynchronous operation of subscribing to a published actor event.</returns>
         /// <exception cref="System.ArgumentException">
-        /// <para>When actorProxy is not of type <see cref="ActorProxy"/></para>.
+        /// <para>When actorProxy is not of type <see cref="ActorProxy"/>.</para>.
         /// </exception>
         public static Task SubscribeAsync<TEvent>(
             this IActorEventPublisher actorProxy,
@@ -75,8 +75,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// <param name="subscriber">The subscriber that receives the event.</param>
         /// <returns>A task that represents the asynchronous operation of un-subscribing from a published actor event.</returns>
         /// <exception cref="System.ArgumentException">
-        /// <para>When actorProxy is not of type <see cref="ActorProxy"/></para>.
-        /// <para>When TEvent doesn't implement <see cref="IActorEvents"/></para>
+        /// <para>When actorProxy is not of type <see cref="ActorProxy"/>.</para>.
+        /// <para>When TEvent doesn't implement <see cref="IActorEvents"/>.</para>
         /// </exception>
         public static Task UnsubscribeAsync<TEvent>(this IActorEventPublisher actorProxy, TEvent subscriber)
         {

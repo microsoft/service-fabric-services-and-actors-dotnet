@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorConcurrencySettings"/> class.
         ///
-        /// By default the <see cref="ReentrancyMode"/> is <see cref="ActorReentrancyMode.LogicalCallContext"/> with a <see cref="LockTimeout"/> of 60 seconds
+        /// By default the <see cref="ReentrancyMode"/> is <see cref="ActorReentrancyMode.LogicalCallContext"/> with a <see cref="LockTimeout"/> of 60 seconds.
         /// </summary>
         public ActorConcurrencySettings()
         {

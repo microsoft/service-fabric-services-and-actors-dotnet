@@ -19,23 +19,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// Initializes a new instance of the <see cref="IncomingMessageBody"/> class.
         /// Creates an incoming Message Body with the received stream .
         /// </summary>
-        /// <param name="receivedBufferStream">Recieved Stream </param>
+        /// <param name="receivedBufferStream">Recieved Stream. </param>
         public IncomingMessageBody(Stream receivedBufferStream)
         {
             this.receivedBufferStream = receivedBufferStream;
         }
 
         /// <summary>
-        /// Return the Received Buffer Stream
+        /// Return the Received Buffer Stream.
         /// </summary>
-        /// <returns>Stream</returns>
+        /// <returns>Stream.</returns>
         public Stream GetReceivedBuffer()
         {
             return this.receivedBufferStream;
         }
 
         /// <summary>
-        /// Dispose the Received Buffer stream
+        /// Dispose the Received Buffer stream.
         /// </summary>
         public void Dispose()
         {

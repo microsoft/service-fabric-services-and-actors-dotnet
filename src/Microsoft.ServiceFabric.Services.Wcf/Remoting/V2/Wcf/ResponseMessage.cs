@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
     public class ResponseMessage
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ResponseMessage"/> class with Empty Headers and Body
+        /// Initializes a new instance of the <see cref="ResponseMessage"/> class with Empty Headers and Body.
         /// </summary>
         public ResponseMessage()
         {
@@ -26,13 +26,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
         }
 
         /// <summary>
-        /// Gets or sets headers in the response Message
+        /// Gets or sets headers in the response Message.
         /// </summary>
         [DataMember(Name = "Headers")]
         public ArraySegment<byte> MessageHeaders { get; set; }
 
         /// <summary>
-        /// Gets or sets message body in the response Message
+        /// Gets or sets message body in the response Message.
         /// </summary>
         [DataMember(Name = "ResponseBody")]
         public IEnumerable<ArraySegment<byte>> ResponseBody { get; set; }

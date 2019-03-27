@@ -15,20 +15,20 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets or Sets the Resolved service partition which was used when this client was created.
         /// </summary>
-        /// <value><see cref="System.Fabric.ResolvedServicePartition" /> object</value>
+        /// <value><see cref="System.Fabric.ResolvedServicePartition" /> object.</value>
         ResolvedServicePartition ResolvedServicePartition { get; set; }
 
         /// <summary>
         /// Gets or Sets the name of the listener in the replica or instance to which the client is
         /// connected to.
         /// </summary>
-        /// <value>Name of the listener</value>
+        /// <value>Name of the listener.</value>
         string ListenerName { get; set; }
 
         /// <summary>
         /// Gets or Sets the service endpoint to which the client is connected to.
         /// </summary>
-        /// <value><see cref="System.Fabric.ResolvedServiceEndpoint" /></value>
+        /// <value><see cref="System.Fabric.ResolvedServiceEndpoint" />.</value>
         ResolvedServiceEndpoint Endpoint { get; set; }
     }
 }

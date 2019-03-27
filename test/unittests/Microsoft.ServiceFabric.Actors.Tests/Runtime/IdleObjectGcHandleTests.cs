@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         }
 
         /// <summary>
-        /// Verify UseUnuseCollect
+        /// Verify UseUnuseCollect.
         /// </summary>
         /// <param name="n">MaxIdleCount for IdleObjectGcHandle.</param>
         [Theory]
@@ -88,7 +88,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         }
 
         /// <summary>
-        /// Tests UseUnuseCollectWithTimerCalls
+        /// Tests UseUnuseCollectWithTimerCalls.
         /// </summary>
         /// <param name="n">MaxIdleCount for IdleObjectGcHandle.</param>
         [Theory]

@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// and no calls to method needs to be made to fetch more items.</remarks>
         /// <value>ConinutationToken signifying if the method which returned
         /// the <see cref="PagedResult{T}"/>
-        /// needs to called again to get more results </value>
+        /// needs to called again to get more results. </value>
         [DataMember(Name = "ContinuationToken", IsRequired = false, Order = 1)]
         public ContinuationToken ContinuationToken { get; set; }
     }

@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Runtime
         ///     completes, the communication listener becomes usable - accepts and sends messages.
         /// </summary>
         /// <param name="cancellationToken">
-        ///     Cancellation token
+        ///     Cancellation token.
         /// </param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Runtime
         /// this method allows the communication listener to transition to this state in a
         /// graceful manner.
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>

@@ -79,7 +79,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// The creation fails if the actorType parameter is null or it does not implement an actor.</param>
         /// <returns>true if ActorTypeInformation was successfully created for actorType; otherwise, false.</returns>
         /// <remarks>
-        /// <para>Creation of ActorTypeInformation from actorType will fail when </para>
+        /// <para>Creation of ActorTypeInformation from actorType will fail when. </para>
         /// <para>1. <see cref="System.Type.BaseType"/> for actorType is not of type <see cref="Actor"/>.</para>
         /// <para>2. actorType does not implement an interface deriving from <see cref="IActor"/> and is not marked as abstract.</para>
         /// <para>3. actorType implements more than one interface which derives from <see cref="IActor"/>

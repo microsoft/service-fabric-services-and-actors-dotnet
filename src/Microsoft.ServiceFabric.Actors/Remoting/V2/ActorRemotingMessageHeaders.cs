@@ -23,21 +23,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
         }
 
         /// <summary>
-        /// Gets or sets the methodId of the remote method
+        /// Gets or sets the methodId of the remote method.
         /// </summary>
-        /// <value>Method id</value>
+        /// <value>Method id.</value>
         [DataMember(Name = "MethodId", IsRequired = true, Order = 0)]
         public int MethodId { get; set; }
 
         /// <summary>
         /// Gets or sets the interface id of the remote interface.
         /// </summary>
-        /// <value>Interface id</value>
+        /// <value>Interface id.</value>
         [DataMember(Name = "InterfaceId", IsRequired = true, Order = 1)]
         public int InterfaceId { get; set; }
 
         /// <summary>
-        /// Gets or sets the id for the remote method invocation
+        /// Gets or sets the id for the remote method invocation.
         /// </summary>
         [DataMember(Name = "InvocationId", IsRequired = false, Order = 2, EmitDefaultValue = false)]
         public string InvocationId { get; set; }

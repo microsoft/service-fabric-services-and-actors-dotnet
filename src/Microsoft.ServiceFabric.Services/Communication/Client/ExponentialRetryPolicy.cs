@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="defaultMaxRetryCount">
         /// Specifies the maximum number of times to retry.
         /// </param>
-        /// <param name="clientRetryTimeout">Specifies the max timeout for the client side retry logic</param>
+        /// <param name="clientRetryTimeout">Specifies the max timeout for the client side retry logic.</param>
         public ExponentialRetryPolicy(
             int defaultMaxRetryCount,
             TimeSpan clientRetryTimeout)
@@ -44,9 +44,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Initializes a new instance of the <see cref="ExponentialRetryPolicy"/> class with the supplied settings.
         /// </summary>
         /// <param name="maxRetryJitter">
-        /// Specifies the maximum jitter to use for Errors
+        /// Specifies the maximum jitter to use for Errors.
         /// </param>
-        /// <param name="clientRetryTimeout">Specifies the max timeout for the client side retry logic</param>
+        /// <param name="clientRetryTimeout">Specifies the max timeout for the client side retry logic.</param>
         /// <param name="defaultMaxRetryCount">
         /// Specifies the maximum number of times to retry.
         /// </param>

@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class
         ///  The default value for MaxRetryCount is 10 .
         /// </summary>
-        /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting</param>
+        /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting.</param>
         public OperationRetrySettings(TimeSpan clientRetryTimeout)
             : this(new ExponentialRetryPolicy(10, clientRetryTimeout))
         {
@@ -51,10 +51,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Initializes a new instance of the <see cref="OperationRetrySettings"/> class with the supplied settings.
         /// </summary>
         /// <param name="maxRetryBackoffIntervalOnTransientErrors">
-        /// Specifies the maximum interval to back-off before retrying incase of Transient errors
+        /// Specifies the maximum interval to back-off before retrying incase of Transient errors.
         /// </param>
         /// <param name="maxRetryBackoffIntervalOnNonTransientErrors">
-        /// Specifies the maximum interval to back-off before retrying incase of Non transient errors
+        /// Specifies the maximum interval to back-off before retrying incase of Non transient errors.
         /// </param>
         /// <param name="defaultMaxRetryCountForTransientErrors">
         /// Specifies the maximum number of times to retry for transient errors.
@@ -77,9 +77,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Gets the maximum interval to back-off before retrying in-case of Transient errors
+        /// Gets the maximum interval to back-off before retrying in-case of Transient errors.
         /// </summary>
-        /// <value>Maximum retry interval to back-off on transient errors</value>
+        /// <value>Maximum retry interval to back-off on transient errors.</value>
         public TimeSpan MaxRetryBackoffIntervalOnTransientErrors
         {
             get
@@ -95,9 +95,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Gets the maximum interval to back-off before retrying in-case of Non transient errors
+        /// Gets the maximum interval to back-off before retrying in-case of Non transient errors.
         /// </summary>
-        /// <value>Maximum retry interval to back-off on non transient errors</value>
+        /// <value>Maximum retry interval to back-off on non transient errors.</value>
         public TimeSpan MaxRetryBackoffIntervalOnNonTransientErrors
         {
             get

@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         /// <summary>
         /// Gets or Sets the Resolved service partition which was used when this client was created.
         /// </summary>
-        /// <value><see cref="System.Fabric.ResolvedServicePartition" /> object</value>
+        /// <value><see cref="System.Fabric.ResolvedServicePartition" /> object.</value>
         public ResolvedServicePartition ResolvedServicePartition
         {
             get { return this.wcfClient.ResolvedServicePartition; }
@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         /// <summary>
         /// Gets or Sets the service endpoint to which the client is connected to.
         /// </summary>
-        /// <value><see cref="System.Fabric.ResolvedServiceEndpoint" /></value>
+        /// <value><see cref="System.Fabric.ResolvedServiceEndpoint" />.</value>
         public ResolvedServiceEndpoint Endpoint
         {
             get { return this.wcfClient.Endpoint; }

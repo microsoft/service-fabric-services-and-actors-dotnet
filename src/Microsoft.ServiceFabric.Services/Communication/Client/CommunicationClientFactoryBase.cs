@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// CommunicationClientFactoryBase class to create communication clients for custom transport implementations. This class maintains a cache of communication
     /// clients and attempts to reuse the clients for requests to the same service endpoint.
     /// </summary>
-    /// <typeparam name="TCommunicationClient">The type of communication client</typeparam>
+    /// <typeparam name="TCommunicationClient">The type of communication client.</typeparam>
     public abstract class CommunicationClientFactoryBase<TCommunicationClient> :
         ICommunicationClientFactory<TCommunicationClient>
         where TCommunicationClient : ICommunicationClient
@@ -38,9 +38,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="CommunicationClientFactoryBase{TCommunicationClient}"/> class.
         /// </summary>
-        /// <param name="servicePartitionResolver">Optional ServicePartitionResolver</param>
-        /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel</param>
-        /// <param name="traceId">Identifier to use in diagnostics traces from this component </param>
+        /// <param name="servicePartitionResolver">Optional ServicePartitionResolver.</param>
+        /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel.</param>
+        /// <param name="traceId">Identifier to use in diagnostics traces from this component. </param>
         protected CommunicationClientFactoryBase(
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
@@ -56,10 +56,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="CommunicationClientFactoryBase{TCommunicationClient}"/> class.
         /// </summary>
-        /// <param name="fireConnectEvents">Indicates that this factory should fire ClientConnected/ClientDisconnected events</param>
-        /// <param name="servicePartitionResolver">Optional ServicePartitionResolver</param>
-        /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel</param>
-        /// <param name="traceId">Identifier to use in diagnostics traces from this component </param>
+        /// <param name="fireConnectEvents">Indicates that this factory should fire ClientConnected/ClientDisconnected events.</param>
+        /// <param name="servicePartitionResolver">Optional ServicePartitionResolver.</param>
+        /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel.</param>
+        /// <param name="traceId">Identifier to use in diagnostics traces from this component. </param>
         protected CommunicationClientFactoryBase(
             bool fireConnectEvents,
             IServicePartitionResolver servicePartitionResolver = null,
@@ -98,7 +98,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the ServicePartitionResolver used by the client factory for resolving the service endpoint.
         /// </summary>
-        /// <value>ServicePartitionResolver</value>
+        /// <value>ServicePartitionResolver.</value>
         public IServicePartitionResolver ServiceResolver
         {
             get { return this.servicePartitionResolver; }
@@ -107,7 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the custom exception handlers for handling exceptions on the client to service communication channel.
         /// </summary>
-        /// <value>List of Exception handlers</value>
+        /// <value>List of Exception handlers.</value>
         public IEnumerable<IExceptionHandler> ExceptionHandlers
         {
             get { return this.exceptionHandlers; }
@@ -116,7 +116,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the diagnostics trace identifier for this component.
         /// </summary>
-        /// <value>Trace identifier</value>
+        /// <value>Trace identifier.</value>
         protected string TraceId
         {
             get { return this.traceId; }
@@ -126,14 +126,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Resolves a partition of the specified service containing one or more communication listeners and returns a client to communicate
         /// to the endpoint corresponding to the given listenerName.
         ///
-        /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
+        /// The endpoint of the service is of the form - {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}.
         /// </summary>
-        /// <param name="serviceUri">Uri of the service to resolve</param>
-        /// <param name="partitionKey">Key that identifies the partition to resolve</param>
-        /// <param name="targetReplicaSelector">Specifies which replica in the partition identified by the partition key, the client should connect to</param>
-        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to</param>
+        /// <param name="serviceUri">Uri of the service to resolve.</param>
+        /// <param name="partitionKey">Key that identifies the partition to resolve.</param>
+        /// <param name="targetReplicaSelector">Specifies which replica in the partition identified by the partition key, the client should connect to.</param>
+        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to.</param>
         /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
@@ -165,11 +165,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets or Creates the CommunicationClient for the specified listener name by resolving based on the given previousRsp.
         /// </summary>
-        /// <param name="previousRsp">Previous ResolvedServicePartition value</param>
-        /// <param name="targetReplica">Specifies which replica in the partition identified by the partition key, the client should connect to</param>
-        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to</param>
+        /// <param name="previousRsp">Previous ResolvedServicePartition value.</param>
+        /// <param name="targetReplica">Specifies which replica in the partition identified by the partition key, the client should connect to.</param>
+        /// <param name="listenerName">Specifies which listener in the endpoint of the chosen replica, to which the client should connect to.</param>
         /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
@@ -193,12 +193,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Handles the exceptions that occur in the CommunicationClient when sending a message to the Service
+        /// Handles the exceptions that occur in the CommunicationClient when sending a message to the Service.
         /// </summary>
-        /// <param name="client">Communication client</param>
+        /// <param name="client">Communication client.</param>
         /// <param name="exceptionInformation">Information about the exception that occurred when communicating with the service.</param>
         /// <param name="retrySettings">Specifies the retry policy that should be used for handling the reported exception.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// a <see cref="OperationRetryControl" /> object that determines
@@ -320,16 +320,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Returns true if the client is still valid. Connection oriented transports can use this method to indicate that the client is no longer
         /// connected to the service.
         /// </summary>
-        /// <param name="client">the communication client</param>
-        /// <returns>true if the client is valid, false otherwise</returns>
+        /// <param name="client">the communication client.</param>
+        /// <returns>true if the client is valid, false otherwise.</returns>
         protected abstract bool ValidateClient(TCommunicationClient client);
 
         /// <summary>
         /// Returns true if the client is still valid and connected to the endpoint specified in the parameter.
         /// </summary>
-        /// <param name="endpoint">Specifies the expected endpoint to which we think the client is connected to</param>
-        /// <param name="client">the communication client</param>
-        /// <returns>true if the client is valid, false otherwise</returns>
+        /// <param name="endpoint">Specifies the expected endpoint to which we think the client is connected to.</param>
+        /// <param name="client">the communication client.</param>
+        /// <returns>true if the client is valid, false otherwise.</returns>
         protected abstract bool ValidateClient(
             string endpoint,
             TCommunicationClient client);
@@ -337,18 +337,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Creates a communication client for the given endpoint address.
         /// </summary>
-        /// <param name="endpoint">listener address where the replica is listening</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>The communication client that was created</returns>
+        /// <param name="endpoint">listener address where the replica is listening.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>The communication client that was created.</returns>
         protected abstract Task<TCommunicationClient> CreateClientAsync(
             string endpoint,
             CancellationToken cancellationToken);
 
         /// <summary>
-        /// Opens the Communictaion Client
+        /// Opens the Communictaion Client.
         /// </summary>
-        /// <param name="client">Communication client</param>
-        /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="client">Communication client.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// We needed this Api for the operations to be done after client is fully created and initialized.CreateClientAsync does partial creation as initialization of RSP is done outside the CreateClient Api call
         protected virtual Task OpenClient(TCommunicationClient client, CancellationToken cancellationToken)
@@ -357,9 +357,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Aborts the given client
+        /// Aborts the given client.
         /// </summary>
-        /// <param name="client">Communication client</param>
+        /// <param name="client">Communication client.</param>
         protected abstract void AbortClient(
             TCommunicationClient client);
 

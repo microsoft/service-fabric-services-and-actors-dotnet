@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
     /// <summary>
-    /// Singelton Class for Codegen
+    /// Singelton Class for Codegen.
     /// </summary>
     internal class ServiceCodeBuilder : CodeBuilder
     {

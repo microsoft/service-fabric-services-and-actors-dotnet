@@ -8,7 +8,7 @@ namespace FabActUtil
     using FabActUtil.CommandLineParser;
 
     /// <summary>
-    /// Output Target for FabActUtil
+    /// Output Target for FabActUtil.
     /// </summary>
     public enum OutputTarget
     {

@@ -57,11 +57,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         }
 
         /// <summary>
-        /// Creates IServiceRemotingRequestMessageBodySerializer for a serviceInterface using Wrapped Message DataContract implementation
+        /// Creates IServiceRemotingRequestMessageBodySerializer for a serviceInterface using Wrapped Message DataContract implementation.
         /// </summary>
         /// <param name="serviceInterfaceType">The remoted service interface.</param>
         /// <param name="methodParameterTypes">The union of parameter types of all of the methods of the specified interface.</param>
-        /// <param name="wrappedMessageTypes">Wrapped Request Types for all Methods</param>
+        /// <param name="wrappedMessageTypes">Wrapped Request Types for all Methods.</param>
         /// <returns>
         /// An instance of the <see cref="IServiceRemotingRequestMessageBodySerializer" /> that can serialize the service
         /// remoting request message body to a messaging body for transferring over the transport.
@@ -80,11 +80,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         }
 
         /// <summary>
-        /// Creates IServiceRemotingResponseMessageBodySerializer for a serviceInterface using Wrapped Message DataContract implementation
+        /// Creates IServiceRemotingResponseMessageBodySerializer for a serviceInterface using Wrapped Message DataContract implementation.
         /// </summary>
         /// <param name="serviceInterfaceType">The remoted service interface.</param>
         /// <param name="methodReturnTypes">The return types of all of the methods of the specified interface.</param>
-        /// <param name="wrappedMessageTypes">Wrapped Response Types for all remoting methods</param>
+        /// <param name="wrappedMessageTypes">Wrapped Response Types for all remoting methods.</param>
         /// <returns>
         /// An instance of the <see cref="IServiceRemotingResponseMessageBodySerializer" /> that can serialize the service
         /// remoting response message body to a messaging body for transferring over the transport.
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         ///     Gets the settings used to create DataContractSerializer for serializing and de-serializing request message body.
         /// </summary>
-        /// <param name="remotingRequestType">Remoting RequestMessageBody Type</param>
+        /// <param name="remotingRequestType">Remoting RequestMessageBody Type.</param>
         /// <param name="knownTypes">The return types of all of the methods of the specified interface.</param>
         /// <returns><see cref="DataContractSerializerSettings" /> for serializing and de-serializing request message body.</returns>
         protected virtual DataContractSerializer CreateRemotingRequestMessageBodyDataContractSerializer(
@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         ///     Gets the settings used to create DataContractSerializer for serializing and de-serializing request message body.
         /// </summary>
-        /// <param name="remotingResponseType">Remoting ResponseMessage Type</param>
+        /// <param name="remotingResponseType">Remoting ResponseMessage Type.</param>
         /// <param name="knownTypes">The return types of all of the methods of the specified interface.</param>
         /// <returns><see cref="DataContractSerializerSettings" /> for serializing and de-serializing request message body.</returns>
         protected virtual DataContractSerializer CreateRemotingResponseMessageBodyDataContractSerializer(

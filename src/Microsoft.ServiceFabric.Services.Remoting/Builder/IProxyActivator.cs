@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <summary>
         /// Create the instance of the generated proxy type.
         /// </summary>
-        /// <returns>An instance of the generated proxy as <see cref="ProxyBase"/></returns>
+        /// <returns>An instance of the generated proxy as <see cref="ProxyBase"/>.</returns>
         Builder.ProxyBase CreateInstance();
     }
 }

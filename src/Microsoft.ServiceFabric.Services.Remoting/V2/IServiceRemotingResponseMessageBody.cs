@@ -14,16 +14,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public interface IServiceRemotingResponseMessageBody
     {
         /// <summary>
-        /// Sets the response of a remoting Method in a remoting response Body
+        /// Sets the response of a remoting Method in a remoting response Body.
         /// </summary>
-        /// <param name="response">Remoting Method Response</param>
+        /// <param name="response">Remoting Method Response.</param>
         void Set(object response);
 
         /// <summary>
         /// Gets the response of a remoting Method from a remoting response body before sending it to Client.
         /// </summary>
-        /// <param name="paramType"> Return Type of a Remoting Method</param>
-        /// <returns>Remoting Method Response</returns>
+        /// <param name="paramType"> Return Type of a Remoting Method.</param>
+        /// <returns>Remoting Method Response.</returns>
         object Get(Type paramType);
     }
 }

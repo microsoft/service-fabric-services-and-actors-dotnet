@@ -144,7 +144,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         /// This method causes the communication listener to be opened. Once the Open
         /// completes, the communication listener becomes usable - accepts and sends messages.
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the endpoint string.
@@ -159,7 +159,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
         /// this method allows the communication listener to transition to this state in a
         /// graceful manner.
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>

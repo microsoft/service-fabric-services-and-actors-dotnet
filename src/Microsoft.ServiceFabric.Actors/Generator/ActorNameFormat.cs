@@ -268,7 +268,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// ActorStateProvider configuration section name.
         /// </returns>
         /// <remarks>
-        /// Values specified in ActorStateProvider configuration section are used to configure <see cref="Microsoft.ServiceFabric.Actors.Runtime.IActorStateProvider"/>
+        /// Values specified in ActorStateProvider configuration section are used to configure <see cref="Microsoft.ServiceFabric.Actors.Runtime.IActorStateProvider"/>.
         /// </remarks>
         public static string GetActorStateProviderSettingsSectionName(Type actorImplementationType)
         {
@@ -325,7 +325,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
         /// <returns>code package name.</returns>
-        /// <remarks>Code package name can be accessed from within a service as <see cref="System.Fabric.CodePackageActivationContext.CodePackageName"/></remarks>
+        /// <remarks>Code package name can be accessed from within a service as <see cref="System.Fabric.CodePackageActivationContext.CodePackageName"/>.</remarks>
         public static string GetCodePackageName(Type actorImplementationType = null)
         {
             return "Code";

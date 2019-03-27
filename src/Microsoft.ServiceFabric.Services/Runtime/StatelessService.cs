@@ -118,13 +118,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <summary>
         /// Override this method to supply the communication listeners for the service instance. The endpoints returned by the communication listener's
         /// are stored as a JSON string of ListenerName, Endpoint string pairs like
-        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
+        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
         /// </para>
         /// </summary>
-        /// <returns>List of ServiceInstanceListeners</returns>
+        /// <returns>List of ServiceInstanceListeners.</returns>
         protected virtual IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
         {
             return Enumerable.Empty<ServiceInstanceListener>();
@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// Override this method to be notified that Open has completed for this instance's internal components.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
         /// </para>
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
@@ -152,7 +152,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// should override this method with their logic.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
         /// </para>
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
@@ -223,7 +223,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// Override this method to be notified that Close has completed for this instance's internal components.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
         /// </para>
         /// </summary>
         /// <param name="cancellationToken">Cancellation token provided to monitor for cancellation requests.</param>
@@ -240,7 +240,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// with the execution of this method, as cancellation is not awaited on the abort path.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
         /// </para>
         /// </summary>
         protected virtual void OnAbort()

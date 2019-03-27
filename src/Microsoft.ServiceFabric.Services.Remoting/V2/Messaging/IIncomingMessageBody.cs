@@ -14,9 +14,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
     public interface IIncomingMessageBody : IDisposable
     {
         /// <summary>
-        /// Get the Received Stream
+        /// Get the Received Stream.
         /// </summary>
-        /// <returns>Represents Recieved Buffer Stream</returns>
+        /// <returns>Represents Recieved Buffer Stream.</returns>
         Stream GetReceivedBuffer();
     }
 }

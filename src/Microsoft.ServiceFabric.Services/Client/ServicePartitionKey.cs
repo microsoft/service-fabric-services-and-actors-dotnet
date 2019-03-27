@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="ServicePartitionKey"/> class for uniform int64 partitioned service.
         /// </summary>
-        /// <param name="partitionKey">Value of the int64 partition key</param>
+        /// <param name="partitionKey">Value of the int64 partition key.</param>
         public ServicePartitionKey(long partitionKey)
         {
             this.servicePartitionKind = ServicePartitionKind.Int64Range;
@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <summary>
         /// Initializes a new instance of the <see cref="ServicePartitionKey"/> class for named partitioned services.
         /// </summary>
-        /// <param name="partitionKey">Value of the named partition key</param>
+        /// <param name="partitionKey">Value of the named partition key.</param>
         public ServicePartitionKey(string partitionKey)
         {
             this.servicePartitionKind = ServicePartitionKind.Named;
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <summary>
         /// Gets the Kind of the partition key applies to.
         /// </summary>
-        /// <value>Partition kind</value>
+        /// <value>Partition kind.</value>
         public ServicePartitionKind Kind
         {
             get { return this.servicePartitionKind; }
@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <summary>
         /// Gets the value of the partition key. This value can be casted to the right type based on the value of the Kind property.
         /// </summary>
-        /// <value>Partition key</value>
+        /// <value>Partition key.</value>
         public object Value
         {
             get { return this.value; }

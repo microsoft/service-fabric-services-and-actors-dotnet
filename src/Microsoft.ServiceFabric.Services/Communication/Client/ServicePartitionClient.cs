@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// <summary>
     /// Specifies an instance of the communication client that can communicate with the replicas of a particular partition.
     /// </summary>
-    /// <typeparam name="TCommunicationClient">type of Communication client</typeparam>
+    /// <typeparam name="TCommunicationClient">type of Communication client.</typeparam>
     public class ServicePartitionClient<TCommunicationClient> : IServicePartitionClient<TCommunicationClient>
         where TCommunicationClient : ICommunicationClient
     {
@@ -39,12 +39,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// a client to talk to the service endpoint identified by the service uri, partitionkey, replica and listener
         /// arguments.
         /// </summary>
-        /// <param name="communicationClientFactory">Communication client factory</param>
-        /// <param name="serviceUri">Name of the service</param>
+        /// <param name="communicationClientFactory">Communication client factory.</param>
+        /// <param name="serviceUri">Name of the service.</param>
         /// <param name="partitionKey">The partition key used to identify the partition within the service.</param>
-        /// <param name="targetReplicaSelector">Target replica information</param>
-        /// <param name="listenerName">Listener in the replica to which the client should connect to</param>
-        /// <param name="retrySettings">Retry policy for exceptions seen during communication</param>
+        /// <param name="targetReplicaSelector">Target replica information.</param>
+        /// <param name="listenerName">Listener in the replica to which the client should connect to.</param>
+        /// <param name="retrySettings">Retry policy for exceptions seen during communication.</param>
         public ServicePartitionClient(
             ICommunicationClientFactory<TCommunicationClient> communicationClientFactory,
             Uri serviceUri,
@@ -66,18 +66,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Gets the communication client factory
+        /// Gets the communication client factory.
         /// </summary>
-        /// <value>Communication client factory</value>
+        /// <value>Communication client factory.</value>
         public ICommunicationClientFactory<TCommunicationClient> Factory
         {
             get { return this.communicationClientFactory; }
         }
 
         /// <summary>
-        /// Gets the name of the service
+        /// Gets the name of the service.
         /// </summary>
-        /// <value>Name of the service</value>
+        /// <value>Name of the service.</value>
         public Uri ServiceUri
         {
             get { return this.serviceUri; }
@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the partition key.
         /// </summary>
-        /// <value>Partition key</value>
+        /// <value>Partition key.</value>
         public ServicePartitionKey PartitionKey
         {
             get { return this.partitionKey; }
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the information about which replica in the partition the client should connect to.
         /// </summary>
-        /// <value>A <see cref="Microsoft.ServiceFabric.Services.Communication.Client.TargetReplicaSelector"/></value>
+        /// <value>A <see cref="Microsoft.ServiceFabric.Services.Communication.Client.TargetReplicaSelector"/>.</value>
         public TargetReplicaSelector TargetReplicaSelector
         {
             get { return this.targetReplicaSelector; }
@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the name of the listener in the replica to which the client should connect to.
         /// </summary>
-        /// <value>Listener name</value>
+        /// <value>Listener name.</value>
         public string ListenerName
         {
             get { return this.listenerName; }
@@ -113,8 +113,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the resolved service partition that was set on the client.
         /// </summary>
-        /// <param name="resolvedServicePartition">previous ResolvedServicePartition</param>
-        /// <returns>true if a ResolvedServicePartition was set</returns>
+        /// <param name="resolvedServicePartition">previous ResolvedServicePartition.</param>
+        /// <returns>true if a ResolvedServicePartition was set.</returns>
         public bool TryGetLastResolvedServicePartition(out ResolvedServicePartition resolvedServicePartition)
         {
             resolvedServicePartition = this.lastRsp;
@@ -129,9 +129,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api in a threadpool thread using Task.Run.
         /// </summary>
-        /// <typeparam name="TResult">Result from the function being invoked</typeparam>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+        /// <typeparam name="TResult">Result from the function being invoked.</typeparam>
+        /// <param name="func">Function being invoked.</param>
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
@@ -151,10 +151,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api  in a threadpool thread using Task.Run.
         /// </summary>
-        /// <typeparam name="TResult">Result from the function being invoked</typeparam>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+        /// <typeparam name="TResult">Result from the function being invoked.</typeparam>
+        /// <param name="func">Function being invoked.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
@@ -276,8 +276,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api in a threadpool thread using Task.Run.
         /// </summary>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+        /// <param name="func">Function being invoked.</param>
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>
@@ -294,9 +294,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         ///  1 if your calling Api is Async , use <see cref="Task.ConfigureAwait(bool)"/> to not to resume in orignal context by setting it to false.
         ///  2 Or To  invoke this Api in a threadpool thread using Task.Run.
         /// </summary>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+        /// <param name="func">Function being invoked.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>
@@ -320,10 +320,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         /// </summary>
-        /// <typeparam name="TResult">Result from the function being invoked</typeparam>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
-        /// <returns>Result from the function given in the argument</returns>
+        /// <typeparam name="TResult">Result from the function being invoked.</typeparam>
+        /// <param name="func">Function being invoked.</param>
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry.</param>
+        /// <returns>Result from the function given in the argument.</returns>
         [Obsolete("Use InvokeWithRetryAsync Api instead ")]
         public TResult InvokeWithRetry<TResult>(
             Func<TCommunicationClient, TResult> func,
@@ -346,8 +346,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
         /// controls if the exception should be retried or not.
         /// </summary>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+        /// <param name="func">Function being invoked.</param>
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry.</param>
         [Obsolete("Use InvokeWithRetryAsync Api instead ")]
         public void InvokeWithRetry(
             Action<TCommunicationClient> func,

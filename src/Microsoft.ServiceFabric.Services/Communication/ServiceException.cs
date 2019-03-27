@@ -23,8 +23,8 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceException" /> class with appropriate message.
         /// </summary>
-        /// <param name="actualExceptionType">the ActualExceptionType of exception thrown</param>
-        /// <param name="message">The error message that explains the reason for this exception
+        /// <param name="actualExceptionType">the ActualExceptionType of exception thrown.</param>
+        /// <param name="message">The error message that explains the reason for this exception.
         /// </param>
         public ServiceException(string actualExceptionType, string message)
             : base(message)

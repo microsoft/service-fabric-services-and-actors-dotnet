@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
     /// <summary>
-    /// Defines an interface that must be implemented to provide a serializer for Remoting Response Body
+    /// Defines an interface that must be implemented to provide a serializer for Remoting Response Body.
     /// </summary>
     public interface IServiceRemotingResponseMessageBodySerializer
     {

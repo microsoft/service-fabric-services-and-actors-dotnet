@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task OpenAsync(IServicePartition partition, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Closes ActorManager when replica changes role from primary to non-priomary role or is closed
+        /// Closes ActorManager when replica changes role from primary to non-priomary role or is closed.
         /// </summary>
         /// <param name="cancellationToken">Token to cancle the operation.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
@@ -94,7 +94,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         /// <typeparam name="T">Return type of Actor method.</typeparam>
         /// <param name="actorId">Id of actor.</param>
-        /// <param name="actorMethodContext">nformation about the method that is invoked by actor runtime</param>
+        /// <param name="actorMethodContext">nformation about the method that is invoked by actor runtime.</param>
         /// <param name="createIfRequired">True, if actor instacne to be created.</param>
         /// <param name="actorFunc">Actor method to invole.</param>
         /// <param name="callContext">Call context.</param>
@@ -199,7 +199,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="reminderName">Name of reminder to unregister.</param>
         /// <param name="actorId">Actor id to unregister reminder for.</param>
         /// <param name="removeFromStateProvider">true, if reminder is to be removed from underlying state provider.</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         Task UnregisterReminderAsync(string reminderName, ActorId actorId, bool removeFromStateProvider);
 
         /// <summary>

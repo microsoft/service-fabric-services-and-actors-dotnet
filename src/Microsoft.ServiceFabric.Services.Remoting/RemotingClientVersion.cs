@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     /// <summary>
-    /// Determines the remoting stack for client
+    /// Determines the remoting stack for client.
     /// </summary>
     public enum RemotingClientVersion
     {

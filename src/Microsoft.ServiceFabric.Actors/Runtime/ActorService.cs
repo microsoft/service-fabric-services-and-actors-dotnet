@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="context">Service context the actor service is operating under.</param>
         /// <param name="actorTypeInfo">The type information of the Actor.</param>
         /// <param name="actorFactory">The factory method to create Actor objects.</param>
-        /// <param name="stateManagerFactory">The factory method to create <see cref="IActorStateManager"/></param>
+        /// <param name="stateManagerFactory">The factory method to create <see cref="IActorStateManager"/>.</param>
         /// <param name="stateProvider">The state provider to store and access the state of the Actor objects.</param>
         /// <param name="settings">The settings used to configure the behavior of the Actor service.</param>
         public ActorService(
@@ -197,7 +197,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Overrides <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase.CreateServiceReplicaListeners()"/>.
         /// </summary>
         /// <returns>Endpoint string pairs like
-        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}</returns>
+        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}.</returns>
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
             var types = new List<Type> { this.ActorTypeInformation.ImplementationType };

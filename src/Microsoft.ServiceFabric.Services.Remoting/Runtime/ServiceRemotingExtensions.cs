@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 #if !DotNetCoreClr
         /// <summary>
         /// An extension method that creates an <see cref="IServiceRemotingListener"/>
-        /// for a stateful service implementation. This is deprecated implementation. Use this Api CreateServiceRemotingReplicaListeners instead
+        /// for a stateful service implementation. This is deprecated implementation. Use this Api CreateServiceRemotingReplicaListeners instead.
         /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more

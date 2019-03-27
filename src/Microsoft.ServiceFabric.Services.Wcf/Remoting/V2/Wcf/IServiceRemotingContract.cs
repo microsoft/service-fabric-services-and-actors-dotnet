@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
         /// </summary>
         /// <param name="messageHeaders">Message Headers contains the information needed to deserialize request and to dispatch message to the service.</param>
         /// <param name="requestBody"> Message Body contains a request in a serialized form.</param>
-        /// <returns>Response Body is a serialized response recived by the client</returns>
+        /// <returns>Response Body is a serialized response recived by the client.</returns>
 #pragma warning disable 108
         [OperationContract]
         [FaultContract(typeof(RemoteException))]
@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
         ///    Sends a one way message to the client.
         /// </summary>
         /// <param name="messageHeaders">Message Headers contains the information needed to deserialize request and to dispatch message to the service.</param>
-        /// <param name="requestBody"> Message Body contains a serialized message</param>
+        /// <param name="requestBody"> Message Body contains a serialized message.</param>
         [OperationContract(IsOneWay = true)]
         void OneWayMessage(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody);
     }

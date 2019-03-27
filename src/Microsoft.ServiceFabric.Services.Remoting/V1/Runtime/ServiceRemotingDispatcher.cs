@@ -38,8 +38,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         /// Instantiates the ServiceRemotingDispatcher that uses the given service context and
         /// dispatches messages to the given service implementation.
         /// </summary>
-        /// <param name="serviceContext">Service context</param>
-        /// <param name="service">Service implementation that implements interfaces of type <see cref="IService"/></param>
+        /// <param name="serviceContext">Service context.</param>
+        /// <param name="service">Service implementation that implements interfaces of type <see cref="IService"/>.</param>
         public ServiceRemotingDispatcher(ServiceContext serviceContext, IService service)
         {
             Requires.ThrowIfNull(serviceContext, "serviceContext");
@@ -72,10 +72,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         /// <summary>
         /// Handles a message from the client that requires a response from the service.
         /// </summary>
-        /// <param name="requestContext">Request context - contains additional information about the request</param>
-        /// <param name="messageHeaders">Request message headers</param>
-        /// <param name="requestBody">Request message body</param>
-        /// <returns>Response body</returns>
+        /// <param name="requestContext">Request context - contains additional information about the request.</param>
+        /// <param name="messageHeaders">Request message headers.</param>
+        /// <param name="requestBody">Request message body.</param>
+        /// <returns>Response body.</returns>
         public virtual async Task<byte[]> RequestResponseAsync(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
@@ -127,9 +127,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         /// <summary>
         /// Handles a one way message from the client.
         /// </summary>
-        /// <param name="requestContext">Request context - contains additional information about the request</param>
-        /// <param name="messageHeaders">Request message headers</param>
-        /// <param name="requestBody">Request message body</param>
+        /// <param name="requestContext">Request context - contains additional information about the request.</param>
+        /// <param name="messageHeaders">Request message headers.</param>
+        /// <param name="requestBody">Request message body.</param>
         public virtual void HandleOneWay(
             IServiceRemotingRequestContext requestContext,
             ServiceRemotingMessageHeaders messageHeaders,
@@ -145,7 +145,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        /// <filterpriority>2</filterpriority>
+        /// <filterpriority>2.</filterpriority>
         public void Dispose()
         {
             if (this.servicePerformanceCounterProvider != null)
@@ -155,10 +155,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         }
 
         /// <summary>
-        /// The IsCancellationRequest
+        /// The IsCancellationRequest.
         /// </summary>
-        /// <param name="messageHeaders">The <see cref="ServiceRemotingMessageHeaders"/></param>
-        /// <returns>The <see cref="bool"/></returns>
+        /// <param name="messageHeaders">The <see cref="ServiceRemotingMessageHeaders"/>.</param>
+        /// <returns>The <see cref="bool"/>.</returns>
         internal bool IsCancellationRequest(ServiceRemotingMessageHeaders messageHeaders)
         {
             if (messageHeaders.InvocationId != null &&
@@ -171,12 +171,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
         }
 
         /// <summary>
-        /// The OnDispatch
+        /// The OnDispatch.
         /// </summary>
-        /// <param name="headers">The <see cref="ServiceRemotingMessageHeaders"/></param>
-        /// <param name="requestBodyBytes">Serialized Bytes to be dispatched/></param>
-        /// <param name="cancellationToken">Cancellation Token to cancel the dispatch task/></param>
-        /// <returns>Task represents </returns>
+        /// <param name="headers">The <see cref="ServiceRemotingMessageHeaders"/>.</param>
+        /// <param name="requestBodyBytes">Serialized Bytes to be dispatched/>.</param>
+        /// <param name="cancellationToken">Cancellation Token to cancel the dispatch task/>.</param>
+        /// <returns>Task represents. </returns>
         private Task<byte[]> OnDispatch(
                             ServiceRemotingMessageHeaders headers,
                             byte[] requestBodyBytes,

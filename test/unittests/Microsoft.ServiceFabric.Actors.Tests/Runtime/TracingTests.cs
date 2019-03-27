@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
     using Xunit;
 
     /// <summary>
-    /// Tests for ActorFrameworkEventSource
+    /// Tests for ActorFrameworkEventSource.
     /// </summary>
     public class TracingTests
     {

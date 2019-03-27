@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     using System;
 
     /// <summary>
-    /// Interface for DiagnosticsManager
+    /// Interface for DiagnosticsManager.
     /// </summary>
     internal interface IDiagnosticsManager : IDisposable
     {

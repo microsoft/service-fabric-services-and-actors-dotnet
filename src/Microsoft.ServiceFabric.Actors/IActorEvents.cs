@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors
 {
     /// <summary>
-    /// Represents actor events. Interface that creates actor events must implement this interface
+    /// Represents actor events. Interface that creates actor events must implement this interface.
     /// </summary>
     public interface IActorEvents
     {

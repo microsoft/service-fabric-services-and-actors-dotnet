@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     /// A WCF client created by <see cref="WcfCommunicationClientFactory{TServiceContract}"/> to communicate
     /// with a Service Fabric service using <see cref="Runtime.WcfCommunicationListener{TServiceContract}"/>.
     /// </summary>
-    /// <typeparam name="TServiceContract">WCF service contract</typeparam>
+    /// <typeparam name="TServiceContract">WCF service contract.</typeparam>
     public class WcfCommunicationClient<TServiceContract> : ICommunicationClient
         where TServiceContract : class
     {

@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         /// </summary>
         /// <param name="actorDispatchHeaders">Request Message headers.</param>
         /// <param name="requestBody">Request message body.</param>
-        /// <param name="cancellationToken">Cancellation token to cancel the request</param>
+        /// <param name="cancellationToken">Cancellation token to cancel the request.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. The result of the task is the response message body for the received request.</returns>
         public Task<IServiceRemotingResponseMessageBody> HandleRequestResponseAsync(
             ActorRemotingDispatchHeaders actorDispatchHeaders,

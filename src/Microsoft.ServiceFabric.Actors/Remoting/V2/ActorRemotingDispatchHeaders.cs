@@ -10,12 +10,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
 
     /// <summary>
     /// Specifies the headers that are sent along with a ServiceRemoting message. This class is used with Service Independent Dispatcher <see cref="ActorServiceRemotingDispatcher"/>
-    /// .e.g Short-Circuiting (Where client and service are in same process)
+    /// .e.g Short-Circuiting (Where client and service are in same process).
     /// </summary>
     public class ActorRemotingDispatchHeaders : ServiceRemotingDispatchHeaders
     {
         /// <summary>
-        /// Gets or sets the ActorId to which remoting request is dispatch to
+        /// Gets or sets the ActorId to which remoting request is dispatch to.
         /// </summary>
         public ActorId ActorId { get; set; }
 

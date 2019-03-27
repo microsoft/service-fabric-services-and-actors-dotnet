@@ -25,16 +25,16 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Initializes a new instance of the <see cref="ConstantRetryPolicy"/> class with the supplied settings.
         /// </summary>
         /// <param name="maxRetryBackoffIntervalOnTransientErrors">
-        /// Specifies the maximum interval to back-off before retrying incase of Transient errors
+        /// Specifies the maximum interval to back-off before retrying incase of Transient errors.
         /// </param>
         /// <param name="maxRetryBackoffIntervalOnNonTransientErrors">
-        /// Specifies the maximum interval to back-off before retrying incase of Non transient errors
+        /// Specifies the maximum interval to back-off before retrying incase of Non transient errors.
         /// </param>
-        /// <param name="maxRetryCountOnNonTransientErrors">Specifies the max number of times to retry On Non-Transient Errors</param>
+        /// <param name="maxRetryCountOnNonTransientErrors">Specifies the max number of times to retry On Non-Transient Errors.</param>
         /// <param name="maxRetryCount">
         /// Specifies the maximum number of times to retry.
         /// </param>
-        /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting</param>
+        /// <param name="clientRetryTimeout">Specifies the maximum time client retries the call before quitting.</param>
         public ConstantRetryPolicy(
             TimeSpan maxRetryBackoffIntervalOnTransientErrors,
             TimeSpan maxRetryBackoffIntervalOnNonTransientErrors,
@@ -62,18 +62,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         }
 
         /// <summary>
-        /// Gets the maximum interval to back-off before retrying in-case of Non transient errors
+        /// Gets the maximum interval to back-off before retrying in-case of Non transient errors.
         /// </summary>
-        /// <value>Maximum retry interval to back-off on non transient errors</value>
+        /// <value>Maximum retry interval to back-off on non transient errors.</value>
         public TimeSpan MaxRetryBackoffIntervalOnNonTransientErrors
         {
             get { return this.maxRetryBackoffIntervalOnNonTransientErrors; }
         }
 
         /// <summary>
-        /// Gets the maximum interval to back-off before retrying in-case of Transient errors
+        /// Gets the maximum interval to back-off before retrying in-case of Transient errors.
         /// </summary>
-        /// <value>Maximum retry interval to back-off on transient errors</value>
+        /// <value>Maximum retry interval to back-off on transient errors.</value>
         public TimeSpan MaxRetryBackoffIntervalOnTransientErrors
         {
             get { return this.maxRetryBackoffIntervalOnTransientErrors; }

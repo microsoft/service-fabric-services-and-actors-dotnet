@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2
         }
 
         /// <summary>
-        /// NonSerializableExceptionStream Test
+        /// NonSerializableExceptionStream Test.
         /// </summary>
         [Fact]
         public static void NonSerializableExceptionStreamTest()

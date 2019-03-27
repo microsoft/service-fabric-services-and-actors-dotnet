@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         /// </param>
         /// <param name="retrySettings">
         /// Specifies the retry policy to use on exceptions seen when using the proxies
-        /// created by this factory</param>
+        /// created by this factory.</param>
         /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory> createServiceRemotingClientFactory,
@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         /// Creates service remoting client factory.
         /// </summary>
         /// <param name="callbackClient">Callback from the remoting listener to the client.</param>
-        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/></returns>
+        /// <returns>Created service remoting client factory as <see cref="IServiceRemotingClientFactory"/>.</returns>
         protected virtual IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackMessageHandler callbackClient)
         {

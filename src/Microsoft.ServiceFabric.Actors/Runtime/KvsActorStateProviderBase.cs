@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ReplicatorSettings userDefinedReplicatorSettings;
 
         /// <summary>
-        /// Used to synchronize between backup callback invocation and replica close/abort
+        /// Used to synchronize between backup callback invocation and replica close/abort.
         /// </summary>
         private readonly SemaphoreSlim backupCallbackLock;
 
@@ -169,7 +169,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <summary>
-        /// Sets the function to be called after the partition state has been restored automatically by the system
+        /// Sets the function to be called after the partition state has been restored automatically by the system.
         /// </summary>
         /// <value>
         /// A function representing on restore completed callback function.
@@ -197,7 +197,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Initializes the actor state provider with type information
         /// of the actor type associated with it.
         /// </summary>
-        /// <param name="actorTypeInformation">Type information of the actor class</param>
+        /// <param name="actorTypeInformation">Type information of the actor class.</param>
         void IActorStateProvider.Initialize(ActorTypeInformation actorTypeInformation)
         {
             this.actorTypeInformation = actorTypeInformation;
@@ -233,7 +233,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// This method is invoked when a reminder fires and finishes executing its callback
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
-        /// <param name="actorId">The ID of the actor which own reminder</param>
+        /// <param name="actorId">The ID of the actor which own reminder.</param>
         /// <param name="reminder">The actor reminder that completed successfully.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
@@ -308,7 +308,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// or update/remove an actor state which does not exist.
         /// </remarks>
         /// <exception cref="System.InvalidOperationException">
-        /// When <see cref="StateChangeKind"/> is <see cref="StateChangeKind.None"/>
+        /// When <see cref="StateChangeKind"/> is <see cref="StateChangeKind.None"/>.
         /// </exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         Task IActorStateProvider.SaveStateAsync(ActorId actorId, IReadOnlyCollection<ActorStateChange> stateChanges, CancellationToken cancellationToken)

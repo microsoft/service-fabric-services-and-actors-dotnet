@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <summary>
         /// Gets the interface types implemented.
         /// </summary>
-        /// <value>List of interface types</value>
+        /// <value>List of interface types.</value>
         public IEnumerable<Type> InterfaceTypes { get; private set; }
 
         /// <summary>
@@ -44,9 +44,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <summary>
         /// Gets the Factory method that constructs a ServiceTypeInformation object from the given type.
         /// </summary>
-        /// <param name="serviceType">Type to examine</param>
-        /// <param name="serviceTypeInformation">The constructed ServiceTypeInformation</param>
-        /// <returns>true if the specified serviceType is a service, false otherwise</returns>
+        /// <param name="serviceType">Type to examine.</param>
+        /// <param name="serviceTypeInformation">The constructed ServiceTypeInformation.</param>
+        /// <returns>true if the specified serviceType is a service, false otherwise.</returns>
         public static bool TryGet(Type serviceType, out ServiceTypeInformation serviceTypeInformation)
         {
             try
@@ -62,10 +62,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
         /// <summary>
-        /// Factory method that constructs a ServiceTypeInformation object from the given type
+        /// Factory method that constructs a ServiceTypeInformation object from the given type.
         /// </summary>
-        /// <param name="serviceType">Type to examine</param>
-        /// <returns>ServiceTypeInformation</returns>
+        /// <param name="serviceType">Type to examine.</param>
+        /// <returns>ServiceTypeInformation.</returns>
         public static ServiceTypeInformation Get(Type serviceType)
         {
             var serviceInterfaces = serviceType.GetServiceInterfaces();

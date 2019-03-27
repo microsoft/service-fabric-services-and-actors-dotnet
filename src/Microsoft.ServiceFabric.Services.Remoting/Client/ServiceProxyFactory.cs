@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
         /// is cached in the ServiceProxyFactory.
         /// </param>
-        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory.</param>
         /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
         public ServiceProxyFactory(
             Func<V1.IServiceRemotingCallbackClient, V1.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory,
@@ -67,7 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
         /// is cached in the ServiceProxyFactory.
         /// </param>
-        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
+        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory.</param>
         /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
         public ServiceProxyFactory(
             Func<IServiceRemotingCallbackMessageHandler, Remoting.V2.Client.IServiceRemotingClientFactory>
@@ -83,9 +83,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
         /// </summary>
-        /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
+        /// <typeparam name="TServiceInterface">Interface that is being remoted.</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
-        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy</param>
+        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy.</param>
         /// <param name="targetReplicaSelector">Determines which replica or instance of the service partition the client should connect to.</param>
         /// <param name="listenerName">This parameter is Optional if the service has a single communication listener. The endpoints from the service
         /// are of the form {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}. When the service exposes multiple endpoints, this parameter
@@ -176,7 +176,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// </summary>
         /// <typeparam name="TServiceInterface">Interface that is being remoted . Service Interface does not need to be inherited from IService.</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
-        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy</param>
+        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy.</param>
         /// <param name="targetReplicaSelector">Determines which replica or instance of the service partition the client should connect to.</param>
         /// <param name="listenerName">This parameter is Optional if the service has a single communication listener. The endpoints from the service
         /// are of the form {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}. When the service exposes multiple endpoints, this parameter
