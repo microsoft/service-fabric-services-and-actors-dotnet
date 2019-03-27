@@ -527,7 +527,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             return new EntryPointDescriptionTypeExeHost
             {
-                Program = Path.GetFileNameWithoutExtension(assembly.Location),
+                Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe",
             };
         }
 
