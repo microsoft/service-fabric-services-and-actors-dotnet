@@ -71,9 +71,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         }
 
         /// <summary>
-        /// Internal - used by Service remoting.
+        /// Internal - used by Service remoting
         /// </summary>
-        /// <param name="task">continuation task.</param>
+        /// <param name="task">continuation task</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>

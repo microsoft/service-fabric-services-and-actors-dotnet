@@ -200,14 +200,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         /// <summary>
         /// Override this method to supply the communication listeners for the service replica. The endpoints returned by the communication listener
-        /// are stored as a JSON string of ListenerName, Endpoint string pairs like.
+        /// are stored as a JSON string of ListenerName, Endpoint string pairs like
         /// <code>{"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}</code>
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
         /// </para>
         /// </summary>
-        /// <returns>List of <see cref="ServiceReplicaListener"/>. </returns>
+        /// <returns>List of <see cref="ServiceReplicaListener"/> </returns>
         protected virtual IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
             return Enumerable.Empty<ServiceReplicaListener>();
@@ -218,7 +218,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// Override this method to be notified that Open has completed for this replica's internal components.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
         /// </para>
         /// </summary>
         /// <param name="openMode"><see cref="ReplicaOpenMode"/> for this service replica.</param>
@@ -236,7 +236,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// Override this method to be notified that ChangeRole has completed for this replica's internal components.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
         /// </para>
         /// </summary>
         /// <param name="newRole">New <see cref="ReplicaRole"/> for this service replica.</param>
@@ -254,7 +254,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// Override this method with the application logic.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
         /// </para>
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
@@ -325,7 +325,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// Override this method to be notified that Close has completed for this replica's internal components.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
         /// </para>
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to monitor for cancellation requests.</param>
@@ -342,7 +342,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// with the execution of this method, as cancellation is not awaited on the abort path.
         /// <para>
         /// For information about Reliable Services life cycle please see
-        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle.
+        /// https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-services-lifecycle
         /// </para>
         /// </summary>
         protected virtual void OnAbort()

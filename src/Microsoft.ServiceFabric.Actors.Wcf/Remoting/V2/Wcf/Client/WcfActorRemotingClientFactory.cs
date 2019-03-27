@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         /// <param name="traceId">
         ///     Id to use in diagnostics traces from this component.
         /// </param>
-        /// <param name="serializationProvider">Serialization Provider.</param>
+        /// <param name="serializationProvider">Serialization Provider</param>
         /// <param name="useWrappedMessage">
         /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
         /// <remarks>

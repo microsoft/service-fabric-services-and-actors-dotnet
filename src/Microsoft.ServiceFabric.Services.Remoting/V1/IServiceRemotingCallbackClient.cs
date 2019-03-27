@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
         /// </summary>
         /// <param name="messageHeaders">The message headers.</param>
         /// <param name="requestBody">The message body.</param>
-        /// <returns>Response body.</returns>
+        /// <returns>Response body</returns>
         Task<byte[]> RequestResponseAsync(
             ServiceRemotingMessageHeaders messageHeaders,
             byte[] requestBody);

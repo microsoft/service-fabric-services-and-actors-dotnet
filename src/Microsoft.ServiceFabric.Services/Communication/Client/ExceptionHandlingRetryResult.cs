@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     using System;
 
     /// <summary>
-    /// Specifies the exception handling result when the request from client to service can be retried.
+    /// Specifies the exception handling result when the request from client to service can be retried
     /// </summary>
     public sealed class ExceptionHandlingRetryResult : ExceptionHandlingResult
     {
@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Non transient retriable exceptions are those where we need to re-resolve the service endpoint
         /// before we retry.
         /// </param>
-        /// <param name="retryDelay">The interval to wait before retrying.</param>
+        /// <param name="retryDelay">The interval to wait before retrying</param>
         /// <param name="maxRetryCount">The maximum number of times the exception given in the exception parameter needs to be retried for.</param>
         public ExceptionHandlingRetryResult(
             Exception exception,
@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Non transient retriable exceptions are those where we need to re-resolve the service endpoint
         /// before we retry.
         /// </param>
-        /// <param name="retryDelay">The interval to wait before retrying.</param>
+        /// <param name="retryDelay">The interval to wait before retrying</param>
         /// <param name="maxRetryCount">The maximum number of times the exception identified by the exceptionId parameter needs to be retried for.</param>
         public ExceptionHandlingRetryResult(
             string exceptionId,
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// </summary>
         /// <value>
         /// Unique id for this exception.
-        /// This id is used to keep track of the number of times this exception is retried.
+        /// This id is used to keep track of the number of times this exception is retried
         /// </value>
         public string ExceptionId
         {
@@ -139,9 +139,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         /// <summary>
         /// Gets maximum number of times this exception type needs to be retried before giving up.
-        /// The default value is int.MaxValue.
+        /// The default value is int.MaxValue
         /// </summary>
-        /// <value>Max retry count.</value>
+        /// <value>Max retry count</value>
         public int MaxRetryCount
         {
             get { return this.maxRetryCount; }
@@ -150,7 +150,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets the time interval after which the operation should be retried.
         /// </summary>
-        /// <value>Time delay after which the operation should be retried.</value>
+        /// <value>Time delay after which the operation should be retried</value>
         public TimeSpan RetryDelay
         {
             get { return this.retryDelay; }
@@ -161,7 +161,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// </summary>
         /// <param name="retryAttempt">The retry attempt for which we calculate delay.
         /// </param>
-        /// <returns>Time delay after which the operation should be retried.</returns>
+        /// <returns>Time delay after which the operation should be retried</returns>
         public TimeSpan GetRetryDelay(int retryAttempt)
         {
             if (this.retrySettings != null)

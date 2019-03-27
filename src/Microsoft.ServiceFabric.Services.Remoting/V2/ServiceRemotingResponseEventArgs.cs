@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         public IServiceRemotingResponseMessage Response { get; private set; }
 
         /// <summary>
-        /// Gets the request against which the response is generated.
+        /// Gets the request against which the response is generated
         /// </summary>
         public IServiceRemotingRequestMessage Request { get; private set; }
     }

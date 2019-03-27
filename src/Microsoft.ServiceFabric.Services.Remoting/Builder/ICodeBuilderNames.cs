@@ -50,14 +50,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// Gets the name of the request body type for the specified method.
         /// </summary>
         /// <param name="methodName">Name of the method whose parameters needs to be wraped in the body type.</param>
-        /// <returns>The name of the request body type.</returns>
+        /// <returns>The name of the request body type</returns>
         string GetRequestBodyTypeName(string methodName);
 
         /// <summary>
         /// Gets the name of the response body type for the specified method.
         /// </summary>
         /// <param name="methodName">Name of the method whose return value needs to be wraped in the body type.</param>
-        /// <returns>The name of the response body type.</returns>
+        /// <returns>The name of the response body type</returns>
         string GetResponseBodyTypeName(string methodName);
 
         /// <summary>

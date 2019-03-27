@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
         /// Dispatches the messages received from the client to the actor service methods or the actor methods.
         /// </summary>
         /// <param name="requestContext">Request context that allows getting the callback channel if required.</param>
-        /// <param name="messageHeaders">Service remoting message headers.</param>
+        /// <param name="messageHeaders">Service remoting message headers</param>
         /// <param name="requestBodyBytes">serialized request body of the remoting message.</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.

@@ -26,13 +26,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <summary>
         /// Handles a one way message from the client.
         /// </summary>
-        /// <param name="requestMessage">The request message.</param>
+        /// <param name="requestMessage">The request message</param>
         void HandleOneWayMessage(IServiceRemotingRequestMessage requestMessage);
 
         /// <summary>
         /// Gets a factory for creating the remoting message bodies.
         /// </summary>
-        /// <returns>A factory for creating the remoting message bodies.</returns>
+        /// <returns>A factory for creating the remoting message bodies</returns>
         IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory();
     }
 }

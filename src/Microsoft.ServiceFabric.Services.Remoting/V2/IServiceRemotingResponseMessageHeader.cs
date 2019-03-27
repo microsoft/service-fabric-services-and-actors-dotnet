@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         /// Return true if no header exists , else false.
         /// </summary>
-        /// <returns>true or false.</returns>
+        /// <returns>true or false</returns>
         bool CheckIfItsEmpty();
     }
 }

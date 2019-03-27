@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private bool collected;
 
         /// <summary>
-        /// Signals that object can be collected early rather than waiting until idleCount == maxIdleCount.
+        /// Signals that object can be collected early rather than waiting until idleCount == maxIdleCount
         /// </summary>
         private bool collectEarly;
 

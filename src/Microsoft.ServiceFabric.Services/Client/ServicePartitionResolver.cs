@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Client
     /// <summary>
     /// Represents a delegate to create a FabricClient object.
     /// </summary>
-    /// <returns>FabricClient.</returns>
+    /// <returns>FabricClient</returns>
     public delegate FabricClient CreateFabricClientDelegate();
 
     /// <summary>
@@ -141,7 +141,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <summary>
         /// Updates the default ServicePartitionResolver.
         /// </summary>
-        /// <param name="defaultServiceResolver">The new default value.</param>
+        /// <param name="defaultServiceResolver">The new default value</param>
         public static void SetDefault(ServicePartitionResolver defaultServiceResolver)
         {
             lock (StaticLock)
@@ -160,7 +160,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// </para>
         /// </remarks>
         /// </summary>
-        /// <returns>Default <see cref="ServicePartitionResolver"/>.</returns>
+        /// <returns>Default <see cref="ServicePartitionResolver"/></returns>
         public static ServicePartitionResolver GetDefault()
         {
             lock (StaticLock)
@@ -394,7 +394,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// This method overload is used in cases where the client knows that the resolved service partition that it has is no longer valid.
         /// </summary>
         /// <param name="previousRsp">The resolved service partition that the client got from the earlier invocation of the ResolveAsync() method.</param>
-        /// <param name="resolveTimeoutPerTry">The timeout passed to FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method. </param>
+        /// <param name="resolveTimeoutPerTry">The timeout passed to FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method </param>
         /// <param name="maxRetryBackoffInterval">
         /// <para>
         /// The max interval to back-off before retrying when FabricClient's <see cref="FabricClient.ServiceManagementClient.ResolveServicePartitionAsync(System.Uri)" />method fails with a retry-able exception.

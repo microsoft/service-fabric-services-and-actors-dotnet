@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// Gets a buffer from the pool.
         /// if it doesn't find any unused buffer , it instantiate new buffer.
         /// </summary>
-        /// <returns>The Pooled Buffer.</returns>
+        /// <returns>The Pooled Buffer</returns>
         public IPooledBuffer TakeBuffer()
         {
             var segment = this.bufferPool.Take();
@@ -67,7 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// if limit crosses, buffer won't be returned to the Pool.
         /// It return false , if buffer is not returned.
         /// </summary>
-        /// <param name="buffer">Represents Buffer to be returned to the pool.</param>
+        /// <param name="buffer">Represents Buffer to be returned to the pool</param>
         /// <returns>True If returned to the pool succeded otherwise false.</returns>
         public bool ReturnBuffer(IPooledBuffer buffer)
         {

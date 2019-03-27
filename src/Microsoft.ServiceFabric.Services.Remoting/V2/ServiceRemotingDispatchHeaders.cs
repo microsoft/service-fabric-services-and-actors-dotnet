@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
     /// <summary>
     /// Specifies the headers that are sent along with a ServiceRemoting message. This class is used with Service Independent Dispatcher <see cref="ServiceRemotingMessageDispatcher"/>
-    /// .e.g Short-Circuiting (Where client and service are in same process).
+    /// .e.g Short-Circuiting (Where client and service are in same process)
     /// </summary>
     public class ServiceRemotingDispatchHeaders
     {

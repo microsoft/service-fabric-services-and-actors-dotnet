@@ -337,9 +337,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         /// <param name="stateTable">Actor state table.</param>
         /// <param name="statesPerReplication">States per replictaion.</param>
         /// <param name="enumerator">Actor state enumerator.</param>
-        /// <param name="expectedCommittedSequenceNumber">expected CommittedSequenceNumber.</param>
-        /// <param name="expectedKnownSequenceNumber">expected KnownSequenceNumber.</param>
-        /// <param name="expectedCount">expected Count.</param>
+        /// <param name="expectedCommittedSequenceNumber">expected CommittedSequenceNumber</param>
+        /// <param name="expectedKnownSequenceNumber">expected KnownSequenceNumber</param>
+        /// <param name="expectedCount">expected Count</param>
         internal static void VerifyStateTableSnapshot(
             ActorStateTable stateTable,
             Dictionary<ActorStateType, int> statesPerReplication,

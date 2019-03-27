@@ -45,9 +45,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         }
 
         /// <summary>
-        /// Aborts the given client.
+        /// Aborts the given client
         /// </summary>
-        /// <param name="client">Communication client.</param>
+        /// <param name="client">Communication client</param>
         protected override void AbortClient(
             FabricTransportServiceRemotingClient client)
         {
@@ -64,9 +64,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         /// <summary>
         /// Creates a communication client for the given endpoint address.
         /// </summary>
-        /// <param name="endpoint">listener address where the replica is listening.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The communication client that was created.</returns>
+        /// <param name="endpoint">listener address where the replica is listening</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>The communication client that was created</returns>
         protected override Task<FabricTransportServiceRemotingClient> CreateClientAsync(
             string endpoint,
             CancellationToken cancellationToken)
@@ -102,8 +102,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         /// Returns true if the client is still valid. Connection oriented transports can use this method to indicate that the client is no longer
         /// connected to the service.
         /// </summary>
-        /// <param name="remotingClient">the communication client.</param>
-        /// <returns>true if the client is valid, false otherwise.</returns>
+        /// <param name="remotingClient">the communication client</param>
+        /// <returns>true if the client is valid, false otherwise</returns>
         protected override bool ValidateClient(
             FabricTransportServiceRemotingClient remotingClient)
         {
@@ -113,9 +113,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         /// <summary>
         /// Returns true if the client is still valid and connected to the endpoint specified in the parameter.
         /// </summary>
-        /// <param name="endpoint">Specifies the expected endpoint to which we think the client is connected to.</param>
-        /// <param name="remotingClient">the communication client.</param>
-        /// <returns>true if the client is valid, false otherwise.</returns>
+        /// <param name="endpoint">Specifies the expected endpoint to which we think the client is connected to</param>
+        /// <param name="remotingClient">the communication client</param>
+        /// <returns>true if the client is valid, false otherwise</returns>
         protected override bool ValidateClient(
             string endpoint,
             FabricTransportServiceRemotingClient remotingClient)

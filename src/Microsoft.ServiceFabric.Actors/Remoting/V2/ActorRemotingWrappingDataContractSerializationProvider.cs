@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
         };
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActorRemotingWrappingDataContractSerializationProvider"/> class with default IBufferPoolManager.
+        /// Initializes a new instance of the <see cref="ActorRemotingWrappingDataContractSerializationProvider"/> class with default IBufferPoolManager
         /// </summary>
         public ActorRemotingWrappingDataContractSerializationProvider()
         {

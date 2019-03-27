@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
-    /// Specifies the Service partition client for Remoting communication.
+    /// Specifies the Service partition client for Remoting communication
     /// </summary>
     internal class ServiceRemotingPartitionClient : ServicePartitionClient<IServiceRemotingClient>, IServiceRemotingPartitionClient
     {

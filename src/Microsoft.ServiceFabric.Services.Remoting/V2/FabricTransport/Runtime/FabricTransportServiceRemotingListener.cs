@@ -39,8 +39,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         ///     The service implementation object used to construct <see cref="ServiceRemotingMessageDispatcher"/>
         ///     for message processing.
         /// </param>
-        /// <param name="serializationProvider">It is used to serialize deserialize request and response body. </param>
-        /// <param name="remotingListenerSettings">The settings for the listener.</param>
+        /// <param name="serializationProvider">It is used to serialize deserialize request and response body </param>
+        /// <param name="remotingListenerSettings">The settings for the listener</param>
         public FabricTransportServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation,
@@ -68,8 +68,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         ///     The handler for processing remoting messages. As the messages are received,
         ///     the listener delivers them to this handler.
         /// </param>
-        /// <param name="serializationProvider">It is used to serialize deserialize request and response body. </param>
-        /// <param name="remotingListenerSettings">The settings for the listener.</param>
+        /// <param name="serializationProvider">It is used to serialize deserialize request and response body </param>
+        /// <param name="remotingListenerSettings">The settings for the listener</param>
         public FabricTransportServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
@@ -126,7 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// This method causes the communication listener to be opened. Once the Open
         /// completes, the communication listener becomes usable - accepts and sends messages.
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the endpoint string.
@@ -154,7 +154,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// this method allows the communication listener to transition to this state in a
         /// graceful manner.
         /// </summary>
-        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>

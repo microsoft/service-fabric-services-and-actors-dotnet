@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// EndpointResourceName is  name of the  endpoint resource defined in the service manifest.
         /// </value>
         /// <remarks>
-        /// Default value of EndpointResourceName  is "ServiceEndpoint". </remarks>
+        /// Default value of EndpointResourceName  is "ServiceEndpoint" </remarks>
         public string EndpointResourceName
         {
             get { return this.listenerSettings.EndpointResourceName; }
@@ -59,8 +59,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// Gets or sets operation Timeout  which governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
         ///  This timeout also applies when sending reply messages from a callback contract method.
         /// </summary>
-        /// <value>OperationTimeout as <see cref="System.TimeSpan"/>.</value>
-        /// <remarks>Default Value for Operation Timeout is set as 5 mins.</remarks>
+        /// <value>OperationTimeout as <see cref="System.TimeSpan"/></value>
+        /// <remarks>Default Value for Operation Timeout is set as 5 mins</remarks>
         public TimeSpan OperationTimeout
         {
             get { return this.listenerSettings.OperationTimeout; }
@@ -70,9 +70,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <summary>
         /// Gets or sets keepAliveTimeout which provides a way to configure  Tcp keep-alive option.
         /// </summary>
-        /// <value>KeepAliveTimeout as <see cref="System.TimeSpan"/>.</value>
+        /// <value>KeepAliveTimeout as <see cref="System.TimeSpan"/></value>
         /// <remarks>Default Value for KeepAliveTimeout Timeout is set as TimeSpan.Zero. which indicates we disable the tcp keepalive option.
-        /// If you are using loadbalancer , you may need to configure this in order to avoid  the loadbalancer to close the connection after certain time. </remarks>
+        /// If you are using loadbalancer , you may need to configure this in order to avoid  the loadbalancer to close the connection after certain time </remarks>
         public TimeSpan KeepAliveTimeout
         {
             get { return this.listenerSettings.KeepAliveTimeout; }
@@ -85,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <value>Maximum size of the message in bytes.
         /// </value>
         /// <remarks>
-        /// Default Value for MaxMessageSize used is 4194304 bytes.
+        /// Default Value for MaxMessageSize used is 4194304 bytes
         /// </remarks>
         public long MaxMessageSize
         {
@@ -96,10 +96,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <summary>
         /// Gets or sets the maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting.
         /// </summary>
-        /// <value> Max Size for a Queue that receives messages from the channel.
+        /// <value> Max Size for a Queue that receives messages from the channel
         /// </value>
         /// <remarks>
-        /// Default value is 10,000 messages.</remarks>
+        /// Default value is 10,000 messages</remarks>
         public long MaxQueueSize
         {
             get { return this.listenerSettings.MaxQueueSize; }
@@ -150,14 +150,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Gets or sets security credentials for securing the communication.
+        /// Gets or sets security credentials for securing the communication
         /// </summary>
-        /// <value>SecurityCredentials as  <see cref=" System.Fabric.SecurityCredentials"/>.
+        /// <value>SecurityCredentials as  <see cref=" System.Fabric.SecurityCredentials"/>
         /// </value>
         /// <remarks>
         /// Default Value for SecurityCredentials is None
         /// SecurityCredential can be of type x509SecurityCredentail <seealso cref="System.Fabric.X509Credentials"/>or
-        /// WindowsCredentials. <seealso cref="System.Fabric.WindowsCredentials"/> </remarks>
+        /// WindowsCredentials <seealso cref="System.Fabric.WindowsCredentials"/> </remarks>
         public SecurityCredentials SecurityCredentials
         {
             get { return this.listenerSettings.SecurityCredentials; }
@@ -179,12 +179,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Loads the FabricTransport settings from a section specified in the service settings configuration file - settings.xml.
+        /// Loads the FabricTransport settings from a section specified in the service settings configuration file - settings.xml
         /// </summary>
         /// <param name="sectionName">Name of the section within the configuration file. if not found , it throws ArgumentException.</param>
         /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it throws ArgumentException.
-        /// If not specified, default name is "Config".</param>
-        /// <returns>FabricTransportRemotingListenerSettings.</returns>
+        /// If not specified, default name is "Config"</param>
+        /// <returns>FabricTransportRemotingListenerSettings</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
         ///
@@ -204,12 +204,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Try to load the FabricTransport settings from a section specified in the service settings configuration file - settings.xml.
+        /// Try to load the FabricTransport settings from a section specified in the service settings configuration file - settings.xml
         /// </summary>
-        /// <param name="sectionName">Name of the section within the configuration file. if not found , it return false.</param>
-        /// <param name="remotingListenerSettings">When this method returns it sets the <see cref="FabricTransportRemotingListenerSettings"/> listenersettings if load from Config succeeded. If fails ,its sets listenerSettings to null/>. </param>
+        /// <param name="sectionName">Name of the section within the configuration file. if not found , it return false</param>
+        /// <param name="remotingListenerSettings">When this method returns it sets the <see cref="FabricTransportRemotingListenerSettings"/> listenersettings if load from Config succeeded. If fails ,its sets listenerSettings to null/> </param>
         /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it return false.
-        /// If not specified, default name is "Config".</param>
+        /// If not specified, default name is "Config"</param>
         /// <returns> <see cref="bool"/> specifies whether the settings get loaded successfully from Config.
         /// It returns true when load from Config succeeded, else return false.</returns>
         /// <remarks>

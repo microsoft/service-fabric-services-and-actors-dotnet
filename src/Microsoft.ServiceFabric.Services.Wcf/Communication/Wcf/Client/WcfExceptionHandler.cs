@@ -92,10 +92,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         /// <summary>
         /// Method that examines the exception and determines how that exception can be handled.
         /// </summary>
-        /// <param name="exceptionInformation">Information about the exception.</param>
+        /// <param name="exceptionInformation">Information about the exception</param>
         /// <param name="retrySettings">The operation retry preferences.</param>
-        /// <param name="result">Result of the exception handling.</param>
-        /// <returns>true if the exception is handled, false otherwise.</returns>
+        /// <param name="result">Result of the exception handling</param>
+        /// <returns>true if the exception is handled, false otherwise</returns>
         bool IExceptionHandler.TryHandleException(
             ExceptionInformation exceptionInformation,
             OperationRetrySettings retrySettings,

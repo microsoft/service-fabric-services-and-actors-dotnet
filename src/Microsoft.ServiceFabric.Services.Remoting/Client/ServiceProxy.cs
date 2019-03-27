@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <summary>
         /// Gets the interface type that is being remoted.
         /// </summary>
-        /// <value>Service interface type.</value>
+        /// <value>Service interface type</value>
         public Type ServiceInterfaceType { get; private set; }
 
 #if !DotNetCoreClr
@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <summary>
         /// Gets the V1 Service partition client used to send requests to the service.
         /// </summary>
-        /// <value>ServicePartitionClient used by the ServiceProxy.</value>
+        /// <value>ServicePartitionClient used by the ServiceProxy</value>
         public IServiceRemotingPartitionClient ServicePartitionClient
         {
             get { return this.partitionClient; }
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <summary>
         /// Gets the V2 Service partition client used to send requests to the service.
         /// </summary>
-        /// <value>ServicePartitionClient used by the ServiceProxy.</value>
+        /// <value>ServicePartitionClient used by the ServiceProxy</value>
         public V2.Client.IServiceRemotingPartitionClient ServicePartitionClient2
         {
             get { return this.partitionClientV2; }
@@ -65,9 +65,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Creates a proxy to communicate to the specified service using the remoted interface TServiceInterface that
         /// the service implements.
         /// </summary>
-        /// <typeparam name="TServiceInterface">Interface that is being remoted.</typeparam>
+        /// <typeparam name="TServiceInterface">Interface that is being remoted</typeparam>
         /// <param name="serviceUri">Uri of the Service.</param>
-        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy.</param>
+        /// <param name="partitionKey">The Partition key that determines which service partition is responsible for handling requests from this service proxy</param>
         /// <param name="targetReplicaSelector">Determines which replica or instance of the service partition the client should connect to.</param>
         /// <param name="listenerName">This parameter is Optional if the service has a single communication listener. The endpoints from the service
         /// are of the form {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}. When the service exposes multiple endpoints, this parameter

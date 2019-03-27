@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         }
 
         /// <summary>
-        /// Tests ActorReentrancyMode.Disallowed.
+        /// Tests ActorReentrancyMode.Disallowed
         /// </summary>
         [Fact]
         public void ReentrancyDisallowedTest()

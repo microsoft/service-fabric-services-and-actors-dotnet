@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
         }
 
         /// <summary>
-        /// Gets the exception from the RemoteExceptionInformation.
+        /// Gets the exception from the RemoteExceptionInformation
         /// </summary>
         /// <param name="remoteExceptionInformation">The RemoteExceptionInformation.</param>
         /// <param name="result">The exception from the remote side.</param>

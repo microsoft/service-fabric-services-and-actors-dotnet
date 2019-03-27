@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// Initializes a new instance of the <see cref="RetryDelayParameters"/> class with the supplied settings.
         /// </summary>
         /// <param name="retryAttempt">Specifies the number of times request has been retried.</param>
-        /// <param name="isTransient">Specifies whether its a transient condition or not.</param>
+        /// <param name="isTransient">Specifies whether its a transient condition or not</param>
         public RetryDelayParameters(int retryAttempt, bool isTransient)
         {
             this.retryAttempt = retryAttempt;

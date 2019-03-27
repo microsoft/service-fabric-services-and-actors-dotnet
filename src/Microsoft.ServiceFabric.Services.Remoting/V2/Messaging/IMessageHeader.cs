@@ -16,13 +16,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Returns the Buffer to be sent over the wire.
         /// </summary>
-        /// <returns>ArraySegment.</returns>
+        /// <returns>ArraySegment</returns>
         ArraySegment<byte> GetSendBuffer();
 
         /// <summary>
         /// Gets the Recieved Stream .
         /// </summary>
-        /// <returns>Stream. </returns>
+        /// <returns>Stream </returns>
         Stream GetReceivedBuffer();
     }
 }

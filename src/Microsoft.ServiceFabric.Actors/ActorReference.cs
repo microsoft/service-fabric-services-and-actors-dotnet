@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// <summary>
         /// Gets or sets the name of the listener in the actor service to use when communicating with the actor service.
         /// </summary>
-        /// <value>The name of the listener.</value>
+        /// <value>The name of the listener</value>
         [DataMember(Name = "ListenerName", Order = 2, IsRequired = false)]
         public string ListenerName { get; set; }
 

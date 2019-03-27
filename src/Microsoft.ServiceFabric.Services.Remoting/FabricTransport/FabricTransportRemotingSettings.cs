@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <value>The maximum size of the message in bytes.
         /// </value>
         /// <remarks>
-        /// Default Value for MaxMessageSize used is 4194304 bytes.
+        /// Default Value for MaxMessageSize used is 4194304 bytes
         /// </remarks>
         public long MaxMessageSize
         {
@@ -98,7 +98,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <value>The maximum size for a Queue that receives messages from the channel.
         /// </value>
         /// <remarks>
-        /// Default value is 10,000 messages.</remarks>
+        /// Default value is 10,000 messages</remarks>
         public long MaxQueueSize
         {
             get { return this.fabricTransportSettings.MaxQueueSize; }
@@ -175,7 +175,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
         ///  If not specified , it will first try to load from default Config Package"Config" , if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
         /// <param name="configPackageName"> Name of the configuration package.If its null or empty,it will check for file in filePath.</param>
-        /// <returns>The FabricTransportRemotingSettings.</returns>
+        /// <returns>The FabricTransportRemotingSettings</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file, to be recognizable by service fabric to load the transport settings.
         ///

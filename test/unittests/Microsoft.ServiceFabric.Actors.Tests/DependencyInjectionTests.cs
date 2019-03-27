@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             /// <summary>
             /// Mock event B.
             /// </summary>
-            /// <param name="id">Actor Id.</param>
+            /// <param name="id">Actor Id</param>
             void MockActorEventB(ActorId id);
         }
 

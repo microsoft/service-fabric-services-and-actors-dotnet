@@ -22,9 +22,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         /// Creates a serializer that can serialize and deserialize the remoting request message bodies for the specified service interface.
         /// </summary>
-        /// <param name="serviceInterfaceType">User service interface.</param>
-        /// <param name="requestWrappedTypes">Wrapped Request object Types for all method.</param>
-        /// <param name="requestBodyTypes">Parameters for all the methods in the serviceInterfaceType.</param>
+        /// <param name="serviceInterfaceType">User service interface</param>
+        /// <param name="requestWrappedTypes">Wrapped Request object Types for all method</param>
+        /// <param name="requestBodyTypes">Parameters for all the methods in the serviceInterfaceType</param>
         /// <returns>
         /// An <see cref="IServiceRemotingRequestMessageBodySerializer"/> that can serialize and deserialize
         /// the remoting request message bodies created by the custom service remoting message body factory.
@@ -37,9 +37,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         /// Creates a serializer that can serialize and deserialize the remoting response message bodies for the specified service interface.
         /// </summary>
-        /// <param name="serviceInterfaceType">User service interface.</param>
-        /// <param name="responseWrappedTypes">Wrapped Response object Types for all methods.</param>
-        /// <param name="responseBodyTypes">Return Types for all the methods in the serviceInterfaceType.</param>
+        /// <param name="serviceInterfaceType">User service interface</param>
+        /// <param name="responseWrappedTypes">Wrapped Response object Types for all methods</param>
+        /// <param name="responseBodyTypes">Return Types for all the methods in the serviceInterfaceType</param>
         /// <returns>
         /// An <see cref="IServiceRemotingResponseMessageBodySerializer"/> that can serialize and deserialize
         /// the remoting response message bodies created by the custom service remoting message body factory.

@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors
     using Microsoft.ServiceFabric.Services;
 
     /// <summary>
-    /// The ActorId represents the identity of an actor within an actor service. This is used to identify the partition of the actor service inside which the actor will run, see <see cref="GetPartitionKey"/>.
+    /// The ActorId represents the identity of an actor within an actor service. This is used to identify the partition of the actor service inside which the actor will run, see <see cref="GetPartitionKey"/>
     /// </summary>
     [DataContract(Name = "ActorId")]
     public sealed class ActorId : IEquatable<ActorId>, IComparable<ActorId>
@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// Gets id for ActorId whose <see cref="ActorIdKind"/> is <see cref="ActorIdKind.Long"/>.
         /// </summary>
         /// <returns><see cref="long"/>The id value for ActorId.</returns>
-        /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Long"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Long"/></exception>
         public long GetLongId()
         {
             if (this.kind == ActorIdKind.Long)
@@ -155,7 +155,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// Gets id for ActorId whose <see cref="ActorIdKind"/> is <see cref="ActorIdKind.Guid"/>.
         /// </summary>
         /// <returns><see cref="Guid"/>The id value for ActorId.</returns>
-        /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Guid"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Guid"/></exception>
         public Guid GetGuidId()
         {
             if (this.kind == ActorIdKind.Guid)
@@ -175,7 +175,7 @@ namespace Microsoft.ServiceFabric.Actors
         /// Gets id for ActorId whose <see cref="ActorIdKind"/> is <see cref="ActorIdKind.String"/>.
         /// </summary>
         /// <returns><see cref="string"/>The id value for ActorId.</returns>
-        /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Guid"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <see cref="Kind"/> is not <see cref="ActorIdKind.Guid"/></exception>
         public string GetStringId()
         {
             if (this.kind == ActorIdKind.String)

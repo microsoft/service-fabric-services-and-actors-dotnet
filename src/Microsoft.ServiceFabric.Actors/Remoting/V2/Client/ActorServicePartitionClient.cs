@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         /// Gets the Actor id. Actor id is used to identify the partition of the service that this actor
         /// belongs to.
         /// </summary>
-        /// <value>actor id.</value>
+        /// <value>actor id</value>
         public ActorId ActorId { get; }
 
         internal Task SubscribeAsync(int eventInterfaceId, Guid subscriberId)

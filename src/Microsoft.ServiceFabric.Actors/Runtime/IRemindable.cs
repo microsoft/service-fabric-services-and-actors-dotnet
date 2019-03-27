@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// The reminder call back invoked when an actor reminder is triggered.
         /// </summary>
-        /// <param name="reminderName">The name of reminder provided during registration.</param>
+        /// <param name="reminderName">The name of reminder provided during registration</param>
         /// <param name="state">The user state provided during registration.</param>
         /// <param name="dueTime">The invocation due time provided during registration.</param>
         /// <param name="period">The invocation period provided during registration.</param>

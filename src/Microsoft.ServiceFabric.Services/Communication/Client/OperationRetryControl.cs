@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets or sets a value indicating whether the operation should be retried or not.
         /// </summary>
-        /// <value>true if the operation should be retried, false if the exception should be thrown to the user.</value>
+        /// <value>true if the operation should be retried, false if the exception should be thrown to the user</value>
         public bool ShouldRetry { get; set; }
 
         /// <summary>
@@ -33,33 +33,33 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <summary>
         /// Gets or sets the delay after which the operation should be retried if the ShouldRetry is true.
         /// </summary>
-        /// <value>Time delay after which the operation should be retried.</value>
+        /// <value>Time delay after which the operation should be retried</value>
         public TimeSpan RetryDelay { get; set; }
 
         /// <summary>
         /// Gets or sets string that uniquely identifies the exception type.
         /// </summary>
         /// <value>Unique id for this exception.
-        /// This id is used to keep track of the number of times this exception is retried.</value>
+        /// This id is used to keep track of the number of times this exception is retried</value>
         public string ExceptionId { get; set; }
 
         /// <summary>
-        /// Gets or sets max number of times this operation should be retried if the ShouldRetry is true.
+        /// Gets or sets max number of times this operation should be retried if the ShouldRetry is true
         /// </summary>
-        /// <value>Max retry count.</value>
+        /// <value>Max retry count</value>
         public int MaxRetryCount { get; set; }
 
         /// <summary>
         /// Gets or sets exception to report for the operation, if ShouldRetry is false.
         /// By default this is the same exception as the reported exception, however in some cases the Factory may choose to trasform the reported exception to a more meaningful exception.
         /// </summary>
-        /// <value>Exception.</value>
+        /// <value>Exception</value>
         public Exception Exception { get; set; }
 
         /// <summary>
         /// Gets or sets the Func to calculate the RetryDelay for specified  retry Attempt.
         /// </summary>
-        /// <value>Func which calculate retry delay. </value>
+        /// <value>Func which calculate retry delay </value>
         public Func<int, TimeSpan> GetRetryDelay { get; set; }
     }
 }

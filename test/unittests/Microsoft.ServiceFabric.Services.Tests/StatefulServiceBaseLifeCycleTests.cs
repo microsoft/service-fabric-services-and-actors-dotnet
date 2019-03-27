@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
     public class StatefulServiceBaseLifeCycleTests
     {
         /// <summary>
-        /// Verify ChangeRole for IStateProviderReplica.
+        /// Verify ChangeRole for IStateProviderReplica
         /// </summary>
         [Fact]
         public void StateProviderRoleChange()
@@ -152,7 +152,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         }
 
         /// <summary>
-        /// Tests Slow Cancellation in RunAsync.
+        /// Tests Slow Cancellation in RunAsync
         /// </summary>
         [Fact]
         public void RunAsyncSlowCancellation()

@@ -13,13 +13,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         /// <summary>
         /// Gets the Buffer from the Pool.
         /// </summary>
-        /// <returns>IPooledBuffer.</returns>
+        /// <returns>IPooledBuffer</returns>
         IPooledBuffer TakeBuffer();
 
         /// <summary>
         /// Return the Buffer to the Pool.
         /// </summary>
-        /// <param name="buffer">Represents Buffer to be returned to the pool.</param>
+        /// <param name="buffer">Represents Buffer to be returned to the pool</param>
         /// <returns>True If returned to the pool succeded otherwise false.</returns>
         bool ReturnBuffer(IPooledBuffer buffer);
     }

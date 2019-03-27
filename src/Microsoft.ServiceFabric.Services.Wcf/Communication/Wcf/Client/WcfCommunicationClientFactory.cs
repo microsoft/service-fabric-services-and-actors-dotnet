@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     /// to communicate with stateless and stateful services that are using
     /// <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime.WcfCommunicationListener{TServiceContract}"/>.
     /// </summary>
-    /// <typeparam name="TServiceContract">WCF based service contract.</typeparam>
+    /// <typeparam name="TServiceContract">WCF based service contract</typeparam>
     public class WcfCommunicationClientFactory<TServiceContract> :
         CommunicationClientFactoryBase<WcfCommunicationClient<TServiceContract>>
         where TServiceContract : class
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         /// Creates WCF communication clients to communicate over the given channel.
         /// </summary>
         /// <param name="channel">Service contract based WCF channel.</param>
-        /// <returns>The communication client that was created.</returns>
+        /// <returns>The communication client that was created</returns>
         protected virtual WcfCommunicationClient<TServiceContract> CreateWcfCommunicationClient(TServiceContract channel)
         {
             return new WcfCommunicationClient<TServiceContract>(channel);
@@ -82,9 +82,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         /// <summary>
         /// Creates a communication client for the given endpoint address.
         /// </summary>
-        /// <param name="endpoint">Endpoint address where the service is listening.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The communication client that was created.</returns>
+        /// <param name="endpoint">Endpoint address where the service is listening</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>The communication client that was created</returns>
         protected override async Task<WcfCommunicationClient<TServiceContract>> CreateClientAsync(
             string endpoint,
             CancellationToken cancellationToken)
@@ -142,8 +142,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         /// Returns true if the client is still valid. Connection oriented transports can use this method to indicate that the client is no longer
         /// connected to the service.
         /// </summary>
-        /// <param name="client">WCF communication client.</param>
-        /// <returns>true if the client is valid, false otherwise.</returns>
+        /// <param name="client">WCF communication client</param>
+        /// <returns>true if the client is valid, false otherwise</returns>
         protected override bool ValidateClient(WcfCommunicationClient<TServiceContract> client)
         {
             return (client.ClientChannel.State == CommunicationState.Opened);
@@ -152,9 +152,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         /// <summary>
         /// Returns true if the client is still valid and connected to the endpoint specified in the parameter.
         /// </summary>
-        /// <param name="endpoint">endpoint string.</param>
-        /// <param name="client">WCF communication client.</param>
-        /// <returns>true if the client is valid, false otherwise.</returns>
+        /// <param name="endpoint">endpoint string</param>
+        /// <param name="client">WCF communication client</param>
+        /// <returns>true if the client is valid, false otherwise</returns>
         protected override bool ValidateClient(string endpoint, WcfCommunicationClient<TServiceContract> client)
         {
             var clientChannel = client.ClientChannel;
@@ -163,9 +163,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         }
 
         /// <summary>
-        /// Aborts the given client.
+        /// Aborts the given client
         /// </summary>
-        /// <param name="client">Communication client.</param>
+        /// <param name="client">Communication client</param>
         protected override void AbortClient(WcfCommunicationClient<TServiceContract> client)
         {
             client.ClientChannel.Abort();

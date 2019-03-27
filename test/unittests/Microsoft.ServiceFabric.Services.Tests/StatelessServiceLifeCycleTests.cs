@@ -11,8 +11,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using System.Fabric.Health;
     using System.Threading;
     using System.Threading.Tasks;
+    using Communication.Runtime;
     using FluentAssertions;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
     using Moq;
     using Xunit;

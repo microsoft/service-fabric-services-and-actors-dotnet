@@ -38,8 +38,8 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceEndpointCollection"/> class with a single endpoint, identified by the listener name.
         /// </summary>
-        /// <param name="listenerName">Listener name of the endpoint.</param>
-        /// <param name="endpointAddress">Address of the endpoint.</param>
+        /// <param name="listenerName">Listener name of the endpoint</param>
+        /// <param name="endpointAddress">Address of the endpoint</param>
         public ServiceEndpointCollection(string listenerName, string endpointAddress)
             : this()
         {
@@ -48,11 +48,11 @@ namespace Microsoft.ServiceFabric.Services.Communication
 
         /// <summary>
         /// Constructs an EndpointsCollection from a string version of the endpoints. String form of EndpointsCollection is of the form
-        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}.
+        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// </summary>
-        /// <param name="endpointsString">string form of endpointsCollection.</param>
-        /// <param name="serviceEndpoints">ServiceEndpointCollection object if the string can be parsed to a valid ServiceEndpointCollection object.</param>
-        /// <returns>True if the string can be parsed to a valid EndpointsCollection, False otherwise.</returns>
+        /// <param name="endpointsString">string form of endpointsCollection</param>
+        /// <param name="serviceEndpoints">ServiceEndpointCollection object if the string can be parsed to a valid ServiceEndpointCollection object</param>
+        /// <returns>True if the string can be parsed to a valid EndpointsCollection, False otherwise</returns>
         public static bool TryParseEndpointsString(string endpointsString, out ServiceEndpointCollection serviceEndpoints)
         {
             if (endpointsString == string.Empty)
@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Adds the endpoints in the input EndpointsCollection class to the EndpointsCollection.
         /// </summary>
-        /// <param name="newEndpoints">input EndpointsCollection.</param>
+        /// <param name="newEndpoints">input EndpointsCollection</param>
         public void AddEndpoints(ServiceEndpointCollection newEndpoints)
         {
             lock (this.endpointsLock)
@@ -97,8 +97,8 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Adds an endpoint to the EndpointsCollection.
         /// </summary>
-        /// <param name="listenerName">Listener name of the endpoint.</param>
-        /// <param name="endpointAddress">Address of the endpoint.</param>
+        /// <param name="listenerName">Listener name of the endpoint</param>
+        /// <param name="endpointAddress">Address of the endpoint</param>
         public void AddEndpoint(string listenerName, string endpointAddress)
         {
             lock (this.endpointsLock)
@@ -110,8 +110,8 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Gets the first endpoint address in the EndpointsCollection.
         /// </summary>
-        /// <param name="endpointAddress">First endpoint in the EndpointsCollection.</param>
-        /// <returns>True if there is at-least one endpoint in the EndpointsCollection, false otherwise.</returns>
+        /// <param name="endpointAddress">First endpoint in the EndpointsCollection</param>
+        /// <returns>True if there is at-least one endpoint in the EndpointsCollection, false otherwise</returns>
         public bool TryGetFirstEndpointAddress(out string endpointAddress)
         {
             endpointAddress = null;
@@ -132,9 +132,9 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Gets the endpoint identified by the listener name.
         /// </summary>
-        /// <param name="listenerName">Listener name.</param>
+        /// <param name="listenerName">Listener name</param>
         /// <param name="endpointAddress">Address of the endpoint if an endpoint with that listener name exists.</param>
-        /// <returns>True if an endpoint with the listener name exists, False otherwise.</returns>
+        /// <returns>True if an endpoint with the listener name exists, False otherwise</returns>
         public bool TryGetEndpointAddress(string listenerName, out string endpointAddress)
         {
             endpointAddress = null;
@@ -152,9 +152,9 @@ namespace Microsoft.ServiceFabric.Services.Communication
 
         /// <summary>
         /// Converts the endpointsCollection to a JSON string of the form
-        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}.
+        /// {"Endpoints":{"Listener1":"Endpoint1","Listener2":"Endpoint2" ...}}
         /// </summary>
-        /// <returns>String form of the endpointsCollection.</returns>
+        /// <returns>String form of the endpointsCollection</returns>
         public override string ToString()
         {
             if (this.endpoints.Count != 0)
@@ -177,7 +177,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Returns a ReadOnlyDictionary of the endpointsCollection.
         /// </summary>
-        /// <returns>EndpointsCollection as a ReadOnlyDictionary.</returns>
+        /// <returns>EndpointsCollection as a ReadOnlyDictionary</returns>
         public IReadOnlyDictionary<string, string> ToReadOnlyDictionary()
         {
             return new ReadOnlyDictionary<string, string>(this.endpoints);

@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingRequestEventArgs"/> class.
-        /// Creates a new object of type <see cref="ServiceRemotingRequestEventArgs"/>.
+        /// Creates a new object of type <see cref="ServiceRemotingRequestEventArgs"/>
         /// </summary>
         /// <param name="request">The request object.</param>
         /// <param name="targetUri">The uri of the target service.</param>

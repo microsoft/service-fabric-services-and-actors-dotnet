@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Initializes the actor state provider with type information
         /// of the actor type associated with it.
         /// </summary>
-        /// <param name="actorTypeInformation">Type information of the actor class.</param>
+        /// <param name="actorTypeInformation">Type information of the actor class</param>
         void Initialize(ActorTypeInformation actorTypeInformation);
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Invoked when a reminder fires and finishes executing its callback
         /// <see cref="IRemindable.ReceiveReminderAsync"/> successfully.
         /// </summary>
-        /// <param name="actorId">ID of the actor which own reminder.</param>
+        /// <param name="actorId">ID of the actor which own reminder</param>
         /// <param name="reminder">Actor reminder that completed successfully.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>
@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// or update/remove an actor state which does not exist.
         /// </remarks>
         /// <exception cref="System.InvalidOperationException">
-        /// When <see cref="StateChangeKind"/> is <see cref="StateChangeKind.None"/>.
+        /// When <see cref="StateChangeKind"/> is <see cref="StateChangeKind.None"/>
         /// </exception>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
         Task SaveStateAsync(ActorId actorId, IReadOnlyCollection<ActorStateChange> stateChanges, CancellationToken cancellationToken = default(CancellationToken));
@@ -152,7 +152,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Deletes the actor reminder with the given reminder name if it exists.
+        /// Deletes the actor reminder with the given reminder name if it exists
         /// </summary>
         /// <param name="actorId">ID of the actor for which to delete the reminder.</param>
         /// <param name="reminderName">Name of the reminder to delete.</param>

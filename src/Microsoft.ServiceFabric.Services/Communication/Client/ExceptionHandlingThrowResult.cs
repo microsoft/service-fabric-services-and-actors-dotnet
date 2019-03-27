@@ -8,14 +8,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     using System;
 
     /// <summary>
-    /// Specifies the exception handling result when the request from client to service cannot be retried.
+    /// Specifies the exception handling result when the request from client to service cannot be retried
     /// </summary>
     public sealed class ExceptionHandlingThrowResult : ExceptionHandlingResult
     {
         /// <summary>
         /// Gets or sets the exception that should be thrown to the client.
         /// </summary>
-        /// <value>Exception to throw.</value>
+        /// <value>Exception to throw</value>
         public Exception ExceptionToThrow { get; set; }
     }
 }

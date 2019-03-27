@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         /// <param name="objectImplementation">The object impplemented the remoted interface.</param>
         /// <param name="methodId">Id of the method to which to dispatch the request to.</param>
         /// <param name="requestBody">The body of the request object that needs to be dispatched to the object.</param>
-        /// <param name="remotingMessageBodyFactory">IServiceRemotingMessageBodyFactory implementaion.</param>
+        /// <param name="remotingMessageBodyFactory">IServiceRemotingMessageBodyFactory implementaion</param>
         /// <param name="cancellationToken">The cancellation token that will be signaled if this operation is cancelled.</param>
         /// <returns>A task that represents the outstanding asynchronous call to the implementation object.
         /// The return value of the task contains the returned value from the invoked method.</returns>
@@ -90,14 +90,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
         /// <summary>
-        /// This method is used ti create the remoting response from the specified return value.
+        /// This method is used ti create the remoting response from the specified return value
         /// </summary>
-        /// <param name="interfaceName">Interface Name of the remoting Interface.</param>
-        /// <param name="methodName">Method Name of the remoting method.</param>
-        /// <param name="methodId">MethodId of the remoting method.</param>
+        /// <param name="interfaceName">Interface Name of the remoting Interface</param>
+        /// <param name="methodName">Method Name of the remoting method</param>
+        /// <param name="methodId">MethodId of the remoting method</param>
         /// <param name="remotingMessageBodyFactory">MessageFactory for the remoting Interface.</param>
-        /// <param name="response">Response returned by remoting method.</param>
-        /// <returns>Remoting Response.</returns>
+        /// <param name="response">Response returned by remoting method</param>
+        /// <returns>Remoting Response</returns>
         protected IServiceRemotingResponseMessageBody CreateResponseMessageBody(
             string interfaceName,
             string methodName,
@@ -124,9 +124,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         /// </summary>
         /// <param name="methodId">Id of the method.</param>
         /// <param name="remotedObject">The remoted object instance.</param>
-        /// <param name="requestBody">Request body.</param>
+        /// <param name="requestBody">Request body</param>
         /// <param name="remotingMessageBodyFactory">Remoting Message Body Factory implementation needed for creating response object.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// The result of the task is the return value from the method.
@@ -144,17 +144,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         /// </summary>
         /// <param name="methodId">Id of the method.</param>
         /// <param name="remotedObject">The remoted object instance.</param>
-        /// <param name="requestBody">Request body.</param>
+        /// <param name="requestBody">Request body</param>
         protected abstract void OnDispatch(int methodId, object remotedObject, IServiceRemotingRequestMessageBody requestBody);
 
         /// <summary>
-        /// Internal - used by Service remoting.
+        /// Internal - used by Service remoting
         /// </summary>
-        /// <param name="interfaceName">Interface Name of the remoting Interface.</param>
-        /// <param name="methodName">Method Name of the remoting method.</param>
-        /// <param name="methodId">MethodId of the remoting method.</param>
+        /// <param name="interfaceName">Interface Name of the remoting Interface</param>
+        /// <param name="methodName">Method Name of the remoting method</param>
+        /// <param name="methodId">MethodId of the remoting method</param>
         /// <param name="remotingMessageBodyFactory">MessageFactory for the remoting Interface.</param>
-        /// <param name="task">continuation task.</param>
+        /// <param name="task">continuation task</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>
@@ -175,8 +175,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         /// <summary>
         /// This checks if we are wrapping remoting message or not.
         /// </summary>
-        /// <param name="requestMessage">Remoting Request Message.</param>
-        /// <returns>true or false.</returns>
+        /// <param name="requestMessage">Remoting Request Message</param>
+        /// <returns>true or false</returns>
         protected bool CheckIfItsWrappedRequest(IServiceRemotingRequestMessageBody requestMessage)
         {
             if (requestMessage is WrappedMessage)
@@ -188,11 +188,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
         /// <summary>
-        /// Creates Wrapped Response Object for a method.
+        /// Creates Wrapped Response Object for a method
         /// </summary>
         /// <param name="methodId">MethodId of the remoting method.</param>
-        /// <param name="retVal">Response for a method.</param>
-        /// <returns>Wrapped Ressponse object.</returns>
+        /// <param name="retVal">Response for a method</param>
+        /// <returns>Wrapped Ressponse object</returns>
         // Generated By Code-gen
         protected abstract object CreateWrappedResponseBody(
             int methodId,

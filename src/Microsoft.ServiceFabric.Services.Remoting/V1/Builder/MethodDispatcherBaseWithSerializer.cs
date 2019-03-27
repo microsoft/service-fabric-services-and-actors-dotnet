@@ -95,11 +95,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
         internal abstract object GetRequestMessageBodyValue(object requestMessageBody);
 
         /// <summary>
-        /// Internal - used by Service remoting.
+        /// Internal - used by Service remoting
         /// </summary>
-        /// <typeparam name="TRetval">Return value.</typeparam>
-        /// <param name="methodId">method id.</param>
-        /// <param name="task">continuation task.</param>
+        /// <typeparam name="TRetval">Return value</typeparam>
+        /// <param name="methodId">method id</param>
+        /// <param name="task">continuation task</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// </returns>
@@ -123,8 +123,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
         /// </summary>
         /// <param name="methodId">Id of the method.</param>
         /// <param name="remotedObject">The remoted object instance.</param>
-        /// <param name="requestBody">Request body.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <param name="requestBody">Request body</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
         /// The result of the task is the return value from the method.
@@ -137,7 +137,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
         /// </summary>
         /// <param name="methodId">Id of the method.</param>
         /// <param name="remotedObject">The remoted object instance.</param>
-        /// <param name="messageBody">message body.</param>
+        /// <param name="messageBody">message body</param>
         protected abstract void OnDispatch(int methodId, object remotedObject, object messageBody);
     }
 }

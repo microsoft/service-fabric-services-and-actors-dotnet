@@ -64,8 +64,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// Initializes a new instance of the <see cref="ServiceRemotingMessageDispatcher"/> class
         /// that uses the given service context and dispatches messages to the given service implementation.
         /// </summary>
-        /// <param name="serviceContext">Service context.</param>
-        /// <param name="serviceImplementation">Service implementation that implements interfaces of type <see cref="IService"/>.</param>
+        /// <param name="serviceContext">Service context</param>
+        /// <param name="serviceImplementation">Service implementation that implements interfaces of type <see cref="IService"/></param>
         /// <param name="serviceRemotingMessageBodyFactory">The factory that will be used by the dispatcher to create response message bodies.</param>
         public ServiceRemotingMessageDispatcher(
             ServiceContext serviceContext,
@@ -80,9 +80,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// Handles a message from the client that requires a response from the service. This Api can be used for the short-circuiting where client is in same process as service.
         /// Client can now directly dispatch request to service instead of using ServiceProxy.
         /// </summary>
-        /// <param name="requestMessageDispatchHeaders">Request message headers.</param>
-        /// <param name="requestMessageBody">Request message body.</param>
-        /// <param name="cancellationToken">Cancellation token. It can be used to cancel the request.</param>
+        /// <param name="requestMessageDispatchHeaders">Request message headers</param>
+        /// <param name="requestMessageBody">Request message body</param>
+        /// <param name="cancellationToken">Cancellation token. It can be used to cancel the request</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. The result of the task is the response for the received request.</returns>
         public virtual Task<IServiceRemotingResponseMessageBody> HandleRequestResponseAsync(
             ServiceRemotingDispatchHeaders requestMessageDispatchHeaders,
@@ -96,8 +96,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <summary>
         /// Handles a message from the client that requires a response from the service.
         /// </summary>
-        /// <param name="requestContext">Request context - contains additional information about the request.</param>
-        /// <param name="requestMessage">Request message.</param>
+        /// <param name="requestContext">Request context - contains additional information about the request</param>
+        /// <param name="requestMessage">Request message</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation. The result of the task is the response for the received request.</returns>
         public virtual async Task<IServiceRemotingResponseMessage> HandleRequestResponseAsync(
             IServiceRemotingRequestContext requestContext,
@@ -131,7 +131,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <summary>
         /// Handles a one way message from the client.
         /// </summary>
-        /// <param name="requestMessage">Request message.</param>
+        /// <param name="requestMessage">Request message</param>
         public virtual void HandleOneWayMessage(IServiceRemotingRequestMessage requestMessage)
         {
             throw new NotImplementedException(

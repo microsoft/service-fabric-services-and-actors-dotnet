@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// Tests CopyUpToSequenceNumber.
+        /// Tests CopyUpToSequenceNumber
         /// </summary>
         [Fact]
         public void TestCopyUpToSequenceNumber()
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
         }
 
         /// <summary>
-        /// Test CopyAndReplicationDelete.
+        /// Test CopyAndReplicationDelete
         /// </summary>
         [Fact]
         public void TestCopyAndReplicationDelete()

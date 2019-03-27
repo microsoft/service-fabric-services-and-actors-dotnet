@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// Returns the func method that creates the remoting listeners.
         /// </summary>
-        /// <returns>Func.</returns>
+        /// <returns>Func</returns>
         public abstract Dictionary<string, Func<ServiceContext, IService, IServiceRemotingListener>>
             CreateServiceRemotingListeners();
 

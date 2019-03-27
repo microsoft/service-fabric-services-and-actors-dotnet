@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         }
 
         /// <summary>
-        /// Call this method to raise the ReceiveResponse event.
+        /// Call this method to raise the ReceiveResponse event
         /// </summary>
         /// <param name="response">The actual response that is received.</param>
         /// <param name="request">The original request against which the response is generated.</param>

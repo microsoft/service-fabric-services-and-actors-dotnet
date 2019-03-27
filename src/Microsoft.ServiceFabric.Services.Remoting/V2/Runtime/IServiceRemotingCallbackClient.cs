@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <summary>
         /// Gets a factory for creating the remoting request message body to send remoting messages from listener to the client.
         /// </summary>
-        /// <returns>A factory for creating the remoting message bodies.</returns>
+        /// <returns>A factory for creating the remoting message bodies</returns>
         IServiceRemotingMessageBodyFactory GetRemotingMessageBodyFactory();
     }
 }

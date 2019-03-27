@@ -26,12 +26,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
          TimeSpan ClientRetryTimeout { get; }
 
         /// <summary>
-        /// Gets the maximum interval to back-off before retrying in-case of Transient errors.
+        /// Gets the maximum interval to back-off before retrying in-case of Transient errors
         /// </summary>
         /// <param name="retryDelayParameters">
         ///  The retry delay parameters to be used to calculate retry.
         /// </param>
-        /// <returns>Maximum retry interval to back-off on transient errors.</returns>
+        /// <returns>Maximum retry interval to back-off on transient errors</returns>
          TimeSpan GetNextRetryDelay(RetryDelayParameters retryDelayParameters);
     }
 }

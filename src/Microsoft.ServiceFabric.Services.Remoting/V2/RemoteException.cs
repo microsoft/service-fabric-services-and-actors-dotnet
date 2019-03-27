@@ -49,8 +49,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         /// Factory method that constructs the RemoteException from an exception.
         /// </summary>
-        /// <param name="exception">Exception.</param>
-        /// <returns>RemoteException.</returns>
+        /// <param name="exception">Exception</param>
+        /// <returns>RemoteException</returns>
         public static RemoteException FromException(Exception exception)
         {
             try
@@ -80,11 +80,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         }
 
         /// <summary>
-        /// Gets the exception from the RemoteException.
+        /// Gets the exception from the RemoteException
         /// </summary>
         /// <param name="bufferedStream">The stream that contains the serialized exception or exception message.</param>
-        /// <param name="result">Exception from the remote side.</param>
-        /// <returns>true if there was a valid exception, false otherwise.</returns>
+        /// <param name="result">Exception from the remote side</param>
+        /// <returns>true if there was a valid exception, false otherwise</returns>
         public static bool ToException(Stream bufferedStream, out Exception result)
         {
             // try to de-serialize the bytes in to the exception

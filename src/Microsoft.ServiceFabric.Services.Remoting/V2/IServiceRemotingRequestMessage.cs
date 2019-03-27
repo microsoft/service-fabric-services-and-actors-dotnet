@@ -11,14 +11,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     public interface IServiceRemotingRequestMessage
     {
         /// <summary>
-        /// Gets the Remoting Request Message Header.
+        /// Gets the Remoting Request Message Header
         /// </summary>
-        /// <returns>IServiceRemotingRequestMessageHeader.</returns>
+        /// <returns>IServiceRemotingRequestMessageHeader</returns>
         IServiceRemotingRequestMessageHeader GetHeader();
 
         /// <summary>
-        /// Gets the Remoting Request Message Body. </summary>
-        /// <returns>IServiceRemotingRequestMessageBody.</returns>
+        /// Gets the Remoting Request Message Body </summary>
+        /// <returns>IServiceRemotingRequestMessageBody</returns>
         IServiceRemotingRequestMessageBody GetBody();
     }
 }

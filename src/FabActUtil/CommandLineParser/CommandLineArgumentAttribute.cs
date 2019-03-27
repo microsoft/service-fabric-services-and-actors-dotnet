@@ -75,7 +75,7 @@ namespace FabActUtil.CommandLineParser
         }
 
         /// <summary>
-        /// Gets or sets the description of the command line argument.
+        /// Gets or sets the description of the command line argument
         /// </summary>
         public string Description { get; set; }
     }
