@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private IStateProviderReplica stateProviderReplica;
         private IStatefulServicePartition servicePartition;
         private IEnumerable<ServiceReplicaListener> replicaListeners;
-        private IList<ICommunicationListener> communicationListeners;
+        private IList<CommunicationListenerInfo> communicationListenersInfo;
         private ServiceEndpointCollection endpointCollection;
 
         private CancellationTokenSource runAsynCancellationTokenSource;
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.servicePartition = null;
             this.replicaListeners = null;
-            this.communicationListeners = null;
+            this.communicationListenersInfo = null;
             this.endpointCollection = new ServiceEndpointCollection();
 
             this.runAsynCancellationTokenSource = null;
@@ -72,9 +72,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <summary>
         /// Gets the communication listener that this service is using. This is only for used for testing.
         /// </summary>
-        internal IList<ICommunicationListener> Test_CommunicationListeners
+        internal IList<CommunicationListenerInfo> Test_CommunicationListeners
         {
-            get { return this.communicationListeners; }
+            get { return this.communicationListenersInfo; }
         }
 
         #region Implementation of IStatefulServiceReplica
@@ -463,14 +463,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         #region Communication Listeners Management
 
-        private void AddCommunicationListener(ICommunicationListener communicationListener)
+        private void AddCommunicationListener(CommunicationListenerInfo communicationListenerInfo)
         {
-            if (this.communicationListeners == null)
+            if (this.communicationListenersInfo == null)
             {
-                this.communicationListeners = new List<ICommunicationListener>();
+                this.communicationListenersInfo = new List<CommunicationListenerInfo>();
             }
 
-            this.communicationListeners.Add(communicationListener);
+            this.communicationListenersInfo.Add(communicationListenerInfo);
         }
 
         private async Task<ServiceEndpointCollection> OpenCommunicationListenersAsync(
@@ -497,15 +497,22 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     (replicaRole == ReplicaRole.ActiveSecondary && entry.ListenOnSecondary))
                 {
                     var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
-                    this.AddCommunicationListener(communicationListener);
+                    var communicationListenerInfo = new CommunicationListenerInfo
+                    {
+                        Name = entry.Name.Equals(ServiceInstanceListener.DefaultName) ? "default" : entry.Name,
+                        Listener = communicationListener,
+                    };
+
+                    this.AddCommunicationListener(communicationListenerInfo);
+
+                    var traceMsg = $"Opening {communicationListenerInfo.Name} communication listener.";
+                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
+
                     var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
                     endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
                     listenerOpenedCount++;
 
-                    var traceMsg = entry.Name.Equals(ServiceReplicaListener.DefaultName)
-                        ? "Opened communication listener with default name."
-                        : $"Opened {entry.Name} communication listener with name {entry.Name}.";
-
+                    traceMsg = $"Opened {communicationListenerInfo.Name} communication listener.";
                     ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
                 }
             }
@@ -520,15 +527,22 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 TraceType,
                 this.traceId,
                 "Closing {0} communication listeners..",
-                (this.communicationListeners != null) ? this.communicationListeners.Count : 0);
+                (this.communicationListenersInfo != null) ? this.communicationListenersInfo.Count : 0);
 
-            if (this.communicationListeners != null)
+            if (this.communicationListenersInfo != null)
             {
                 try
                 {
-                    foreach (var entry in this.communicationListeners)
+                    foreach (var entry in this.communicationListenersInfo)
                     {
-                        await entry.CloseAsync(cancellationToken);
+                        var traceMsg = $"Closing {entry.Name} communication listener.";
+                        ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
+
+                        var closeCommunicationListenerTask = entry.Listener.CloseAsync(cancellationToken);
+                        await this.serviceHelper.AwaitCloseCommunicationListerWithHealthReporting(this.servicePartition, closeCommunicationListenerTask, entry.Name);
+
+                        traceMsg = $"Closed {entry.Name} communication listener.";
+                        ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
                     }
                 }
                 catch (Exception exception)
@@ -542,7 +556,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     this.AbortCommunicationListeners();
                 }
 
-                this.communicationListeners = null;
+                this.communicationListenersInfo = null;
             }
 
             ServiceTrace.Source.WriteInfoWithId(
@@ -558,14 +572,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "Aborting communication listeners..");
 
-            if (this.communicationListeners != null)
+            if (this.communicationListenersInfo != null)
             {
                 List<Exception> exceptions = null;
-                foreach (var entry in this.communicationListeners)
+                foreach (var entry in this.communicationListenersInfo)
                 {
                     try
                     {
-                        entry.Abort();
+                        entry.Listener.Abort();
                     }
                     catch (Exception e)
                     {
@@ -578,7 +592,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     }
                 }
 
-                this.communicationListeners = null;
+                this.communicationListenersInfo = null;
                 if (exceptions != null)
                 {
                     // Trace the exception and continue. Do not bubble up exception as abort path
