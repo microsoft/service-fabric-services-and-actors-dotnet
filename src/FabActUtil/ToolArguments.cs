@@ -6,6 +6,7 @@
 namespace FabActUtil
 {
     using FabActUtil.CommandLineParser;
+    using Microsoft.ServiceFabric.Actors.Generator;
 
     /// <summary>
     /// Output Target for FabActUtil
@@ -111,6 +112,13 @@ namespace FabActUtil
             LongName = "AssemblyResolvePath",
             ShortName = "arp")]
         public string AssemblyResolvePath;
+
+        [CommandLineArgument(
+            CommandLineArgumentType.AtMostOnce,
+            Description = "ServiceManifestEntryPointType.",
+            LongName = "ServiceManifestEntryPointType",
+            ShortName = "smep")]
+        public SvcManifestEntryPointType ServiceManifestEntryPointType;
 #pragma warning restore SA1401 // Fields should be private
 
         public ToolArguments()
@@ -128,6 +136,7 @@ namespace FabActUtil
             this.Local5NodeAppParamFile = null;
             this.Local1NodeAppParamFile = null;
             this.AssemblyResolvePath = null;
+            this.ServiceManifestEntryPointType = SvcManifestEntryPointType.Exe;
         }
 
         internal bool IsValid()

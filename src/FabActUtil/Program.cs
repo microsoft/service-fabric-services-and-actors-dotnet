@@ -16,6 +16,7 @@ namespace FabActUtil
 
         private static int Main(string[] args)
         {
+            // System.Diagnostics.Debugger.Launch();
             var parsedArguments = new ToolArguments();
             if (!CommandLineUtility.ParseCommandLineArguments(args, parsedArguments) || !parsedArguments.IsValid())
             {
