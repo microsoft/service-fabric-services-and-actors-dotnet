@@ -5,7 +5,9 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
+    using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -57,7 +59,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <returns>The name of the method corresponding to the specified method id.</returns>
         public string GetMethodName(int methodId)
         {
-            return this.methodNameMap[methodId];
+            if (!this.methodNameMap.TryGetValue(methodId, out var methodName))
+            {
+                throw new MissingMethodException(string.Format(
+                    CultureInfo.CurrentCulture,
+                    SR.ErrorMissingMethod,
+                    methodId,
+                    this.interfaceId));
+            }
+
+            return methodName;
         }
 
         internal void SetInterfaceId(int interfaceId)

@@ -19,10 +19,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         internal const string ApiSlowTraceTypeSuffix = ".Api.Slow";
 
         internal static readonly TimeSpan RunAsyncExpectedCancellationTimeSpan = TimeSpan.FromSeconds(15);
+        internal static readonly TimeSpan CommunicationListenerExpectedCloseTimeSpan = TimeSpan.FromSeconds(15);
 
         private const string RunAsyncHealthSourceId = "RunAsync";
+        private const string CommunicationListenerHealthSourceId = "CommunicationListener";
         private const string RunAsyncHealthUnhandledExceptionProperty = "RunAsyncUnhandledException";
         private const string RunAsyncHealthSlowCanecellationProperty = "RunAsyncSlowCancellation";
+        private const string CommunicationListenerSlowCloseProperty = "CommunicationListenerSlowClose";
         private const int MaxHealthDescriptionLength = (4 * 1024) - 1;
 
         private static readonly TimeSpan HealthInformationTimeToLive = TimeSpan.FromMinutes(5);
@@ -82,29 +85,54 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             Task.Run(() => Environment.FailFast(msg));
         }
 
-        internal async Task AwaitRunAsyncWithHealthReporting(IServicePartition partition, Task runAsyncTask)
+        internal async Task AwaitAsyncTaskWithHealthReporting(IServicePartition partition, Task taskToAwait, TimeSpan expectedCancellationTime, Action reportHealthFunc)
         {
             while (true)
             {
                 var delayTaskCts = new CancellationTokenSource();
-                var delayTask = Task.Delay(RunAsyncExpectedCancellationTimeSpan, delayTaskCts.Token);
+                var delayTask = Task.Delay(expectedCancellationTime, delayTaskCts.Token);
 
-                var finishedTask = await Task.WhenAny(runAsyncTask, delayTask);
+                var finishedTask = await Task.WhenAny(taskToAwait, delayTask);
 
-                if (finishedTask == runAsyncTask)
+                if (finishedTask == taskToAwait)
                 {
                     delayTaskCts.Cancel();
                     ObserveExceptionIfAny(delayTask);
 
-                    await runAsyncTask;
+                    await taskToAwait;
                     break;
                 }
 
-                var msg = $"RunAsync is taking longer than expected time ({RunAsyncExpectedCancellationTimeSpan.TotalSeconds}s) to cancel.";
+                reportHealthFunc.Invoke();
+            }
+        }
 
+        internal async Task AwaitCloseCommunicationListerWithHealthReporting(IServicePartition partition, Task closeCommunicationListenerTask, string communicationListenerName)
+        {
+            var expectedCloseTime = CommunicationListenerExpectedCloseTimeSpan;
+
+            void HealthReportFunc()
+            {
+                var msg = $"Closing of {communicationListenerName} communication listener is taking longer than expected time ({expectedCloseTime.TotalSeconds}s).";
+                ServiceTrace.Source.WriteWarningWithId(this.traceType + ApiSlowTraceTypeSuffix, this.traceId, msg);
+                this.ReportCommunicationListenerSlowCloseHealth(partition, msg);
+            }
+
+            await this.AwaitAsyncTaskWithHealthReporting(partition, closeCommunicationListenerTask, expectedCloseTime, HealthReportFunc);
+        }
+
+        internal async Task AwaitRunAsyncWithHealthReporting(IServicePartition partition, Task runAsyncTask)
+        {
+            var expectedCancellationTime = RunAsyncExpectedCancellationTimeSpan;
+
+            void HealthReportFunc()
+            {
+                var msg = $"RunAsync is taking longer than expected time ({expectedCancellationTime.TotalSeconds}s) to cancel.";
                 ServiceTrace.Source.WriteWarningWithId(this.traceType + ApiSlowTraceTypeSuffix, this.traceId, msg);
                 this.ReportRunAsyncSlowCancellationHealth(partition, msg);
             }
+
+            await this.AwaitAsyncTaskWithHealthReporting(partition, runAsyncTask, expectedCancellationTime, HealthReportFunc);
         }
 
         private static string TrimToLength(string str, int length)
@@ -141,6 +169,18 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             return healthInfo;
         }
 
+        private static HealthInformation GetCommunicationListenerSlowCloseHealthInformation(string description)
+        {
+            var healthInfo = new HealthInformation(CommunicationListenerHealthSourceId, CommunicationListenerSlowCloseProperty, HealthState.Warning)
+            {
+                TimeToLive = HealthInformationTimeToLive,
+                RemoveWhenExpired = true,
+                Description = TrimToLength(description, MaxHealthDescriptionLength),
+            };
+
+            return healthInfo;
+        }
+
         private void ReportPartitionHealth(IServicePartition partition, HealthInformation healthInformation)
         {
             try
@@ -167,6 +207,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private void ReportRunAsyncUnexpectedExceptionHealth(IServicePartition partition, Exception unexpectedException)
         {
             var healthInfo = GetRunAsyncUnexpectedExceptionHealthInformation(unexpectedException);
+            this.ReportPartitionHealth(partition, healthInfo);
+        }
+
+        private void ReportCommunicationListenerSlowCloseHealth(IServicePartition partition, string description)
+        {
+            var healthInfo = GetCommunicationListenerSlowCloseHealthInformation(description);
             this.ReportPartitionHealth(partition, healthInfo);
         }
     }

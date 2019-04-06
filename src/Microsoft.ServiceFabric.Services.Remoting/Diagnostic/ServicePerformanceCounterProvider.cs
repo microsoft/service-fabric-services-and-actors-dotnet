@@ -125,7 +125,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 
             var interfaceMethodKey = GetInterfaceMethodKey(interfaceId, methodId);
 
-            var counterWriters = this.serviceMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
+            if (!this.serviceMethodCounterInstanceData.TryGetValue(interfaceMethodKey, out var outVal))
+            {
+                return;
+            }
+
+            var counterWriters = outVal.CounterWriters;
             if (counterWriters == null)
             {
                 return;

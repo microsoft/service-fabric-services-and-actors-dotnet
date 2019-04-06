@@ -186,4 +186,7 @@
   <data name="ErrorMethodNotSupportedInRemotingV1" xml:space="preserve">
     <value>Method '{0}' of interface '{1}' is not supported in remoting V1.</value>
   </data>
+  <data name="ErrorMissingMethod" xml:space="preserve">
+    <value>Method Id '{0}' for interface Id '{1}' not found in service implementation. If a new method is added to interface and client &amp; service are being upgraded at the same time, its possible that client got upgraded before the service. If a method is removed from the interface and client &amp; service are being upgraded at the same time, its possible that service got upgraded before the client. Addition or removal of methods to an interface should be performed as a phased upgrade.</value>
+  </data>
 </root>
