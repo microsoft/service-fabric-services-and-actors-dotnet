@@ -16,6 +16,27 @@ namespace Microsoft.ServiceFabric.Actors.Generator
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
 
+    /// <summary>
+    /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.
+    /// </summary>
+    public enum SvcManifestEntryPointType
+    {
+        /// <summary>
+        /// Default behavior of ServiceName.exe
+        /// </summary>
+        Exe,
+
+        /// <summary>
+        /// ServiceName without any extension is generated as the program in the exehost. This can be used on both windows/linux in a self contained deployment.
+        /// </summary>
+        NoExtension,
+
+        /// <summary>
+        /// ServiceName.dll with the external program "dotnet", is generated in the exehost. This can be used on both windows/linux in a framework dependant deployment.
+        /// </summary>
+        ExternalExecutable,
+    }
+
     // generates the service manifest for the actor implementations
     internal class ManifestGenerator
     {
@@ -71,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         {
             toolContext = new Context(arguments);
             toolContext.LoadExistingContents();
-            var serviceManifest = CreateServiceManifest();
+            var serviceManifest = CreateServiceManifest(arguments.ServiceManifestEntryPointType);
             var configSettings = CreateConfigSettings();
             var mergedServiceManifest = MergeServiceManifest(serviceManifest);
 
@@ -225,7 +246,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         #region Create and Merge Service Manifest
 
-        private static ServiceManifestType CreateServiceManifest()
+        private static ServiceManifestType CreateServiceManifest(SvcManifestEntryPointType serviceManifestEntryPointType)
         {
             var serviceManifest = new ServiceManifestType
             {
@@ -246,7 +267,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             serviceTypeList.ToArray().CopyTo(serviceManifest.ServiceTypes, 0);
 
             serviceManifest.CodePackage = new CodePackageType[1];
-            serviceManifest.CodePackage[0] = CreateCodePackage();
+            serviceManifest.CodePackage[0] = CreateCodePackage(serviceManifestEntryPointType);
 
             serviceManifest.ConfigPackage = new ConfigPackageType[1];
             serviceManifest.ConfigPackage[0] = CreateConfigPackage();
@@ -506,7 +527,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         #region CodePackage Create and Merge
 
-        private static CodePackageType CreateCodePackage()
+        private static CodePackageType CreateCodePackage(SvcManifestEntryPointType serviceManifestEntryPointType)
         {
             var assembly = toolContext.Arguments.InputAssembly;
             var codePackage = new CodePackageType
@@ -515,7 +536,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 Version = GetVersion(),
                 EntryPoint = new EntryPointDescriptionType
                 {
-                    Item = CreateExeHostEntryPoint(assembly),
+                    Item = CreateExeHostEntryPoint(assembly, serviceManifestEntryPointType),
                 },
             };
 
@@ -523,12 +544,32 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         private static EntryPointDescriptionTypeExeHost CreateExeHostEntryPoint(
-            Assembly assembly)
+            Assembly assembly, SvcManifestEntryPointType serviceManifestEntryPointType)
         {
-            return new EntryPointDescriptionTypeExeHost
+            if (serviceManifestEntryPointType == SvcManifestEntryPointType.NoExtension)
             {
-                Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe",
-            };
+                return new EntryPointDescriptionTypeExeHost
+                {
+                    Program = Path.GetFileNameWithoutExtension(assembly.Location),
+                };
+            }
+            else if (serviceManifestEntryPointType == SvcManifestEntryPointType.ExternalExecutable)
+            {
+                return new EntryPointDescriptionTypeExeHost
+                {
+                    IsExternalExecutable = true,
+                    Program = "dotnet",
+                    Arguments = Path.GetFileNameWithoutExtension(assembly.Location) + ".dll",
+                    WorkingFolder = ExeHostEntryPointTypeWorkingFolder.CodePackage,
+                };
+            }
+            else
+            {
+                return new EntryPointDescriptionTypeExeHost
+                {
+                    Program = Path.GetFileNameWithoutExtension(assembly.Location) + ".exe",
+                };
+            }
         }
 
         private static CodePackageType MergeCodePackage(
@@ -1159,6 +1200,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             public IList<ActorTypeInformation> ActorTypes { get; set; }
 
             public string Version { get; set; }
+
+            public SvcManifestEntryPointType ServiceManifestEntryPointType { get; set; }
         }
 
         private class Context
