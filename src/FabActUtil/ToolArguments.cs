@@ -118,7 +118,7 @@ namespace FabActUtil
             Description = "Type of entryPoint to be generated in the program value of the service manifest. 'Exe' (default) for ServiceName.exe, 'NoExtension' for ServiceName, 'ExternalExecutable' for using ServiceName.dll in the argument for the program 'dotnet' used for Framework dependent deployment",
             LongName = "ServiceManifestEntryPointType",
             ShortName = "smep")]
-        public SvcManifestEntryPointType ServiceManifestEntryPointType;
+        public string ServiceManifestEntryPointType;
 #pragma warning restore SA1401 // Fields should be private
 
         public ToolArguments()
@@ -136,7 +136,7 @@ namespace FabActUtil
             this.Local5NodeAppParamFile = null;
             this.Local1NodeAppParamFile = null;
             this.AssemblyResolvePath = null;
-            this.ServiceManifestEntryPointType = SvcManifestEntryPointType.Exe;
+            this.ServiceManifestEntryPointType = "Exe";
         }
 
         internal bool IsValid()
