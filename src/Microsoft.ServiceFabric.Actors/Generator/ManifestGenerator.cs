@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
     /// <summary>
     /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.
     /// </summary>
-    public enum SvcManifestEntryPointType
+    internal enum SvcManifestEntryPointType
     {
         /// <summary>
         /// Default behavior of ServiceName.exe
