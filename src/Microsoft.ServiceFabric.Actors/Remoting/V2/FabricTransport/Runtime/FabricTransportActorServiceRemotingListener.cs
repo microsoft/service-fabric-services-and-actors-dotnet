@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             : this(
                 actorService,
                 CreateActorRemotingDispatcher(actorService, listenerSettings),
-                listenerSettings)
+                SetEndPointResourceName(listenerSettings, actorService))
         {
         }
 
@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             : this(
                 actorService,
                 new ActorServiceRemotingDispatcher(actorService, serializationProvider.CreateMessageBodyFactory()),
-                listenerSettings,
+                SetEndPointResourceName(listenerSettings, actorService),
                 serializationProvider)
         {
         }
