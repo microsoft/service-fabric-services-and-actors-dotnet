@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
 {
+    using System;
     using System.Fabric;
     using System.Fabric.Common;
     using Microsoft.ServiceFabric.Actors.Generator;
@@ -38,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             ActorService actorService,
             FabricTransportRemotingListenerSettings listenerSettings = null)
             : this(
-                GetContext(actorService),
+                actorService,
                 CreateActorRemotingDispatcher(actorService, listenerSettings),
                 SetEndPointResourceName(listenerSettings, actorService))
         {
@@ -62,7 +63,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             IServiceRemotingMessageSerializationProvider serializationProvider,
             FabricTransportRemotingListenerSettings listenerSettings = null)
             : this(
-                GetContext(actorService),
+                actorService,
                 new ActorServiceRemotingDispatcher(actorService, serializationProvider.CreateMessageBodyFactory()),
                 SetEndPointResourceName(listenerSettings, actorService),
                 serializationProvider)
@@ -72,6 +73,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
         /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
+        /// This constructor is deprecated, use <see cref="FabricTransportActorServiceRemotingListener(ActorService, IServiceRemotingMessageHandler, FabricTransportRemotingListenerSettings, IServiceRemotingMessageSerializationProvider)"/>
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
@@ -82,6 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         /// </param>
         /// <param name="listenerSettings">Listener Settings.</param>
         /// <param name="serializationProvider">Serialization provider for remoting.</param>
+        [Obsolete("Deprecated, use FabricTransportActorServiceRemotingListener(ActorService, IServiceRemotingMessageHandler, FabricTransportRemotingListenerSettings, IServiceRemotingMessageSerializationProvider)")]
         public FabricTransportActorServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -94,6 +97,34 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
                    listenerSettings,
                    serializationProvider),
                 listenerSettings)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
+        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
+        /// </summary>
+        /// <param name="actorService">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="messageHandler">
+        ///     The handler for processing remoting messages. As the messages are received,
+        ///     the listener delivers them to this handler.
+        /// </param>
+        /// <param name="listenerSettings">Listener Settings.</param>
+        /// <param name="serializationProvider">Serialization provider for remoting.</param>
+        public FabricTransportActorServiceRemotingListener(
+            ActorService actorService,
+            IServiceRemotingMessageHandler messageHandler,
+            FabricTransportRemotingListenerSettings listenerSettings = null,
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            : base(
+                GetContext(actorService),
+                messageHandler,
+                InitializeSerializerManager(
+                   SetEndPointResourceName(listenerSettings, actorService),
+                   serializationProvider),
+                SetEndPointResourceName(listenerSettings, actorService))
         {
         }
 
