@@ -63,6 +63,13 @@ namespace FabActUtil
 
         private static void GenerateManifest(ToolContext context)
         {
+            var serviceManifestEntryPointType = SvcManifestEntryPointType.Exe;
+
+            if (!Enum.TryParse(context.Arguments.ServiceManifestEntryPointType, out serviceManifestEntryPointType))
+            {
+                serviceManifestEntryPointType = SvcManifestEntryPointType.Exe;
+            }
+
             var generatorArgs = new ManifestGenerator.Arguments()
             {
                 ApplicationPrefix = context.Arguments.ApplicationPrefix,
@@ -73,7 +80,7 @@ namespace FabActUtil
                 ApplicationPackagePath = context.Arguments.ApplicationPackagePath,
                 ServicePackagePath = context.Arguments.ServicePackagePath,
                 Version = context.Arguments.Version,
-                ServiceManifestEntryPointType = context.Arguments.ServiceManifestEntryPointType,
+                ServiceManifestEntryPointType = serviceManifestEntryPointType,
             };
 
             ManifestGenerator.Generate(generatorArgs);
