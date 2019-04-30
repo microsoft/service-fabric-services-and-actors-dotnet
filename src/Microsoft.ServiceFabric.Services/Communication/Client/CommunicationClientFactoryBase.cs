@@ -381,13 +381,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             var currentRetryCount = 0;
             var requestId = Guid.NewGuid().ToString();
             string currentExceptionId = null;
-            TimeSpan retryDelay = default(TimeSpan);
             while (true)
             {
                 ExceptionHandlingResult result;
                 Exception actualException;
                 var newClient = false;
-                bool retry = false;
+                bool isValid = true;
                 try
                 {
                     if (doResolve)
@@ -420,76 +419,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         // code path and the communication client was invalidated.
                         if (this.ShouldCreateNewClient(cacheEntry))
                         {
-                            ServiceTrace.Source.WriteInfoWithId(
-                                TraceType,
-                                requestId,
-                                "{0} Creating Client for connecting to ListenerName : {1} Address : {2} Role : {3}",
-                                this.traceId,
-                                listenerName,
-                                cacheEntry.GetEndpoint(),
-                                cacheEntry.Endpoint.Role);
-
-                            cacheEntry.Rsp = previousRsp;
-
-                            client = await this.CreateClientAsync(cacheEntry.GetEndpoint(), cancellationToken);
-
-                            // Open the Client .
-                            await this.OpenClient(client, cancellationToken);
-
-                            cacheEntry.Client = client;
-                            client.ResolvedServicePartition = cacheEntry.Rsp;
-                            client.ListenerName = cacheEntry.ListenerName;
-                            client.Endpoint = cacheEntry.Endpoint;
+                            client = await this.CreateNewClientAsync(listenerName, requestId, previousRsp, cacheEntry, cancellationToken);
                             newClient = true;
                         }
                         else
                         {
-                            if (!IsValidRsp(cacheEntry))
-                            {
-                               ServiceTrace.Source.WriteInfoWithId(
-                                   TraceType,
-                                   requestId,
-                                   "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
-                                   this.traceId,
-                                   listenerName,
-                                   endpoint.Address,
-                                   cacheEntry.Endpoint.Role,
-                                   retryDelay);
-                               doResolve = true;
-                               retry = true;
-                            }
-                            else
-                            {
-                                var clientValid = this.ValidateLockedClientCacheEntry(
-                                cacheEntry,
-                                previousRsp,
-                                out client);
-                                if (!clientValid)
-                                {
-                                    ServiceTrace.Source.WriteInfoWithId(
-                                        TraceType,
-                                        requestId,
-                                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryDelay : {4}",
-                                        this.traceId,
-                                        listenerName,
-                                        cacheEntry.GetEndpoint(),
-                                        cacheEntry.Endpoint.Role,
-                                        retryDelay);
-                                    doResolve = true;
-                                    retry = true;
-                                }
-                                else
-                                {
-                                    ServiceTrace.Source.WriteInfoWithId(
-                                        TraceType,
-                                        requestId,
-                                        "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
-                                        this.traceId,
-                                        listenerName,
-                                        endpoint.Address,
-                                        endpoint.Role);
-                                }
-                            }
+                             isValid = this.ValidateClientCacheEntry(cacheEntry, previousRsp, requestId, endpoint, listenerName, currentRetryCount, out client);
                         }
                     }
                     catch (Exception ex)
@@ -503,11 +438,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         cacheEntry.Semaphore.Release();
                     }
 
-                    if (retry)
+                    if (!isValid)
                     {
+                        doResolve = true;
                         var retryparemters = new RetryDelayParameters(currentRetryCount++, false);
-                        retryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
-                        await Task.Delay(retryDelay, cancellationToken);
+                        var requestRetryDelay = retrySettings.RetryPolicy.GetNextRetryDelay(retryparemters);
+                        await Task.Delay(requestRetryDelay, cancellationToken);
                         continue;
                     }
 
@@ -569,9 +505,34 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 }
 
                 doResolve = !retryResult.IsTransient;
-                retryDelay = retryResult.GetRetryDelay(currentRetryCount++);
+                var retryDelay = retryResult.GetRetryDelay(currentRetryCount++);
                 await Task.Delay(retryDelay, cancellationToken);
             }
+        }
+
+        private async Task<TCommunicationClient> CreateNewClientAsync(string listenerName, string requestId,  ResolvedServicePartition previousRsp, CommunicationClientCacheEntry<TCommunicationClient> cacheEntry, CancellationToken cancellationToken)
+        {
+            ServiceTrace.Source.WriteInfoWithId(
+                TraceType,
+                requestId,
+                "{0} Creating Client for connecting to ListenerName : {1} Address : {2} Role : {3}",
+                this.traceId,
+                listenerName,
+                cacheEntry.GetEndpoint(),
+                cacheEntry.Endpoint.Role);
+
+            cacheEntry.Rsp = previousRsp;
+
+            var client = await this.CreateClientAsync(cacheEntry.GetEndpoint(), cancellationToken);
+
+            // Open the Client .
+            await this.OpenClient(client, cancellationToken);
+
+            cacheEntry.Client = client;
+            client.ResolvedServicePartition = cacheEntry.Rsp;
+            client.ListenerName = cacheEntry.ListenerName;
+            client.Endpoint = cacheEntry.Endpoint;
+            return client;
         }
 
         private bool ShouldCreateNewClient(CommunicationClientCacheEntry<TCommunicationClient> cacheEntry)
@@ -693,6 +654,65 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     CultureInfo.CurrentCulture,
                     SR.ErrorCommunicationTargetSelectorInvalidStateful,
                     targetReplica));
+        }
+
+        private bool ValidateClientCacheEntry(
+         CommunicationClientCacheEntry<TCommunicationClient> cacheEntry,
+         ResolvedServicePartition previousRsp,
+         string requestId,
+         ResolvedServiceEndpoint endpoint,
+         string listenerName,
+         int currentRetryCount,
+         out TCommunicationClient client)
+        {
+            bool isValid = true;
+            client = default(TCommunicationClient);
+            if (!IsValidRsp(cacheEntry))
+            {
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    requestId,
+                    "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryCount : {4}",
+                    this.traceId,
+                    listenerName,
+                    endpoint.Address,
+                    cacheEntry.Endpoint.Role,
+                    currentRetryCount + 1);
+                isValid = false;
+            }
+            else
+            {
+                var clientValid = this.ValidateLockedClientCacheEntry(
+                cacheEntry,
+                previousRsp,
+                out client);
+                if (!clientValid)
+                {
+                    ServiceTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        requestId,
+                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} Current RetryCount : {4}",
+                        this.traceId,
+                        listenerName,
+                        cacheEntry.GetEndpoint(),
+                        cacheEntry.Endpoint.Role,
+                        currentRetryCount + 1);
+                    isValid = false;
+                }
+                else
+                {
+                    ServiceTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        requestId,
+                        "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
+                        this.traceId,
+                        listenerName,
+                        endpoint.Address,
+                        endpoint.Role);
+                }
+            }
+
+            return isValid;
         }
 
         private int NextRandom(int upperBound)
