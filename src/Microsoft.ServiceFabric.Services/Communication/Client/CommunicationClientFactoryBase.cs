@@ -363,11 +363,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         protected abstract void AbortClient(
             TCommunicationClient client);
 
-        private static bool IsValidRsp(CommunicationClientCacheEntry<TCommunicationClient> cacheEntry)
-        {
-            return (cacheEntry.Rsp != null);
-        }
-
         private async Task<TCommunicationClient> CreateClientWithRetriesAsync(
             ResolvedServicePartition previousRsp,
             TargetReplicaSelector targetReplicaSelector,
@@ -424,14 +419,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         }
                         else
                         {
-                             isValid = this.ValidateClientCacheEntry(cacheEntry, previousRsp, requestId, endpoint, listenerName, currentRetryCount, out client);
+                            isValid = this.ValidateClientCacheEntry(cacheEntry, previousRsp, requestId, endpoint, listenerName, currentRetryCount, out client);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        // This will makesure no one else uses this cacheEntry but do the re-resolve.
-                        cacheEntry.Rsp = null;
-                        throw ex;
                     }
                     finally
                     {
@@ -510,7 +499,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             }
         }
 
-        private async Task<TCommunicationClient> CreateNewClientAsync(string listenerName, string requestId,  ResolvedServicePartition previousRsp, CommunicationClientCacheEntry<TCommunicationClient> cacheEntry, CancellationToken cancellationToken)
+        private async Task<TCommunicationClient> CreateNewClientAsync(string listenerName, string requestId, ResolvedServicePartition previousRsp, CommunicationClientCacheEntry<TCommunicationClient> cacheEntry, CancellationToken cancellationToken)
         {
             ServiceTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -537,7 +526,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private bool ShouldCreateNewClient(CommunicationClientCacheEntry<TCommunicationClient> cacheEntry)
         {
-            return (cacheEntry.Client == null) && IsValidRsp(cacheEntry);
+            return (cacheEntry.Client == null);
         }
 
         private bool HandleReportedException(
@@ -667,49 +656,33 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             bool isValid = true;
             client = default(TCommunicationClient);
-            if (!IsValidRsp(cacheEntry))
+            var clientValid = this.ValidateLockedClientCacheEntry(
+            cacheEntry,
+            previousRsp,
+            out client);
+            if (!clientValid)
             {
                 ServiceTrace.Source.WriteInfoWithId(
                     TraceType,
                     requestId,
-                    "{0} Invalid Client Rsp found in Cache for  ListenerName : {1} Address : {2} Role : {3} RetryCount : {4}",
+                    "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} Current RetryCount : {4}",
                     this.traceId,
                     listenerName,
-                    endpoint.Address,
+                    cacheEntry.GetEndpoint(),
                     cacheEntry.Endpoint.Role,
                     currentRetryCount + 1);
                 isValid = false;
             }
             else
             {
-                var clientValid = this.ValidateLockedClientCacheEntry(
-                cacheEntry,
-                previousRsp,
-                out client);
-                if (!clientValid)
-                {
-                    ServiceTrace.Source.WriteInfoWithId(
-                        TraceType,
-                        requestId,
-                        "{0} Invalid Client found in Cache for  ListenerName : {1} Address : {2} Role : {3} Current RetryCount : {4}",
-                        this.traceId,
-                        listenerName,
-                        cacheEntry.GetEndpoint(),
-                        cacheEntry.Endpoint.Role,
-                        currentRetryCount + 1);
-                    isValid = false;
-                }
-                else
-                {
-                    ServiceTrace.Source.WriteInfoWithId(
-                        TraceType,
-                        requestId,
-                        "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
-                        this.traceId,
-                        listenerName,
-                        endpoint.Address,
-                        endpoint.Role);
-                }
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    requestId,
+                    "{0} Found valid client for ListenerName : {1} Address : {2} Role : {3}",
+                    this.traceId,
+                    listenerName,
+                    endpoint.Address,
+                    endpoint.Role);
             }
 
             return isValid;
@@ -722,7 +695,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             {
                 if (this.random == null)
                 {
-                // We need seed to make sure unique random numbers gets generated for different clientfactory instance but created at the same time.
+                    // We need seed to make sure unique random numbers gets generated for different clientfactory instance but created at the same time.
                     this.random = new Random(this.GenerateSeed());
                 }
 
