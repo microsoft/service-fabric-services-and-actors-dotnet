@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
         {
             ServiceTrace.Source.WriteWarning(
                 this.traceType,
-                "Excepion {0}  Stacktrace {1} occured in Wcf Service Background Threads",
+                "Exception {0}  Stacktrace {1} occured in Wcf Service Background Threads",
                 exception.Message,
                 exception.StackTrace);
 
