@@ -30,8 +30,8 @@
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
     <MajorVersion>3</MajorVersion>
-    <MinorVersion>4</MinorVersion>
-    <BuildVersion>14</BuildVersion>
+    <MinorVersion>5</MinorVersion>
+    <BuildVersion>0</BuildVersion>
     <Revision>0</Revision>
 
   </PropertyGroup>
