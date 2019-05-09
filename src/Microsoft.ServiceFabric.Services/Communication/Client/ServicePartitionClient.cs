@@ -20,11 +20,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         where TCommunicationClient : ICommunicationClient
     {
         private const string TraceType = "ServicePartitionClient";
-
         private readonly ICommunicationClientFactory<TCommunicationClient> communicationClientFactory;
         private readonly SemaphoreSlim communicationClientLock;
-
-        private readonly string traceId;
         private readonly Uri serviceUri;
         private readonly ServicePartitionKey partitionKey;
         private readonly TargetReplicaSelector targetReplicaSelector;
@@ -56,7 +53,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.communicationClientFactory = communicationClientFactory;
             this.communicationClientLock = new SemaphoreSlim(1);
             this.communicationClient = default(TCommunicationClient);
-            this.traceId = Guid.NewGuid().ToString();
             this.serviceUri = serviceUri;
             this.partitionKey = partitionKey ?? ServicePartitionKey.Singleton;
             this.listenerName = listenerName;
@@ -168,6 +164,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             var totalretryCount = 0;
             string currentExceptionId = null;
             CancellationTokenSource cancellationTokenSource = null;
+            var traceId = Guid.NewGuid().ToString();
+            ClientRequestTracker.Set(traceId);
             try
             {
                 // This code will execute when user has specified client retry timeout
@@ -198,7 +196,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     {
                         ServiceTrace.Source.WriteNoiseWithId(
                             TraceType,
-                            this.traceId,
+                            traceId,
                             "AggregateException While Invoking API {0}",
                             ae);
 
@@ -209,7 +207,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     {
                         ServiceTrace.Source.WriteNoiseWithId(
                             TraceType,
-                            this.traceId,
+                            traceId,
                             "Exception While Invoking API {0}",
                             e);
 
@@ -243,7 +241,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     var retrydelay = exceptionReportResult.GetRetryDelay(totalretryCount);
                     ServiceTrace.Source.WriteInfoWithId(
                         TraceType,
-                        this.traceId,
+                        traceId,
                         "Exception report result Id: {0}  IsTransient : {1} Delay : {2}",
                         exceptionReportResult.ExceptionId,
                         exceptionReportResult.IsTransient,

@@ -374,7 +374,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             var doResolve = doInitialResolve;
             var exceptionRetryCount = 0;
             var currentRetryCount = 0;
-            var requestId = Guid.NewGuid().ToString();
+            string requestId;
+            if (!ClientRequestTracker.TryGet(out requestId))
+            {
+               requestId = Guid.NewGuid().ToString();
+            }
+
             string currentExceptionId = null;
             while (true)
             {
