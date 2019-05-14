@@ -121,7 +121,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                     exceptionInformation.Exception,
                     true,
                     retrySettings,
-                    int.MaxValue);
+                    retrySettings.DefaultMaxRetryCountForTransientErrors);
 
                 return true;
             }
