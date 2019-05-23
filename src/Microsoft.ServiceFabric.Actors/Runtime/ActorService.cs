@@ -268,6 +268,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.actorManagerAdapter.ActorManager = new ActorManager(this);
                 await this.actorManagerAdapter.OpenAsync(this.Partition, cancellationToken);
                 this.ActorManager.DiagnosticsEventManager.ActorChangeRole(this.replicaRole, newRole);
+                ActorTelemetry.ActorServiceInitializeEvent(
+                    this.ActorManager.ActorService.Context,
+                    this.ActorTypeInformation);
             }
             else
             {

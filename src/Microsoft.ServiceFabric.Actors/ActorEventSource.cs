@@ -20,6 +20,23 @@ namespace Microsoft.ServiceFabric.Actors
         /// </summary>
         internal static readonly ActorEventSource Instance = new ActorEventSource();
 
+        private const int ActorStateProviderUsageEventId = 1;
+        private const int CustomActorServiceUsageEventId = 2;
+        private const int ActorReminderRegisterationEventId = 3;
+
+        private const string ActorStateProviderUsageEventTraceFormat = "{1} : clusterOsType = {2}, " +
+            "runtimePlatform = {3}, partitionId = {4}, replicaId = {5}, serviceName = {6}, " +
+            "serviceTypeName = {7}, applicationName = {8}, applicationTypeName = {9}, " +
+            "stateProviderName = {10}";
+
+        private const string CustomActorServiceUsageEventTraceFormat = "{1} : clusterOsType = {2}, " +
+            "runtimePlatform = {3}, actorType = {4}, actorServiceType = {5}";
+
+        private const string ActorReminderRegisterationEventTraceFormat = "{1} : clusterOsType = {2}, " +
+            "runtimePlatform = {3}, partitionId = {4}, replicaId = {5}, serviceName = {6}, " +
+            "serviceTypeName = {7}, applicationName = {8}, applicationTypeName = {9}, " +
+            "ownerActorId = {10}, reminderPeriod = {11}, reminderName = {12}";
+
         /// <summary>
         /// Prevents a default instance of the <see cref="ActorEventSource" /> class from being created.
         /// </summary>
@@ -108,29 +125,106 @@ namespace Microsoft.ServiceFabric.Actors
         #endregion
 
         #region Events
-        [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
+
+        [Event(ActorStateProviderUsageEventId, Message = ActorStateProviderUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        internal void ActorStateProviderUsageEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string stateProviderName)
+        {
+            this.WriteEvent(
+                ActorStateProviderUsageEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                stateProviderName);
+        }
+
+        [Event(CustomActorServiceUsageEventId, Message = CustomActorServiceUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        internal void CustomActorServiceUsageEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string actorType,
+            string actorServiceType)
+        {
+            this.WriteEvent(
+                CustomActorServiceUsageEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                actorType,
+                actorServiceType);
+        }
+
+        [Event(CustomActorServiceUsageEventId, Message = ActorReminderRegisterationEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        internal void ActorReminderRegisterationEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string ownerActorId,
+            string reminderPeriod,
+            string reminderName)
+        {
+            this.WriteEvent(
+                ActorReminderRegisterationEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                ownerActorId,
+                reminderPeriod,
+                reminderName);
+        }
+
+        [Event(4, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
         private void InfoText(string id, string type, string message)
-        {
-            this.WriteEvent(1, id, type, message);
-        }
-
-        [Event(2, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
-        private void WarningText(string id, string type, string message)
-        {
-            this.WriteEvent(2, id, type, message);
-        }
-
-        [Event(3, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
-        private void ErrorText(string id, string type, string message)
-        {
-            this.WriteEvent(3, id, type, message);
-        }
-
-        [Event(4, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void NoiseText(string id, string type, string message)
         {
             this.WriteEvent(4, id, type, message);
         }
+
+        [Event(5, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
+        private void WarningText(string id, string type, string message)
+        {
+            this.WriteEvent(5, id, type, message);
+        }
+
+        [Event(6, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
+        private void ErrorText(string id, string type, string message)
+        {
+            this.WriteEvent(6, id, type, message);
+        }
+
+        [Event(7, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
+        private void NoiseText(string id, string type, string message)
+        {
+            this.WriteEvent(7, id, type, message);
+        }
+
         #endregion
 
         #region Keywords / Tasks / Opcodes

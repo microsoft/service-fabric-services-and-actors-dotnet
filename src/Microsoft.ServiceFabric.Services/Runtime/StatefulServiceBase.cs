@@ -152,12 +152,18 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <inheritdoc/>
         Task IStatefulUserServiceReplica.OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
         {
+            if (newRole == ReplicaRole.Primary)
+            {
+                ServiceTelemetry.StatefulServiceReplicaPrimaryEvent(this.Context);
+            }
+
             return this.OnChangeRoleAsync(newRole, cancellationToken);
         }
 
         /// <inheritdoc/>
         Task IStatefulUserServiceReplica.OnCloseAsync(CancellationToken cancellationToken)
         {
+            ServiceTelemetry.StatefulServiceReplicaCloseEvent(this.Context);
             return this.OnCloseAsync(cancellationToken);
         }
 
