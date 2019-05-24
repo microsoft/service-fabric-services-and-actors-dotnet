@@ -30,13 +30,18 @@ namespace Microsoft.ServiceFabric.Services
         [NonEvent]
         internal void WriteErrorWithId(string type, string id, string format, params object[] args)
         {
+            if (!this.IsEnabled(EventLevel.Error, Keywords.Default))
+            {
+                return;
+            }
+
             if (args == null || args.Length == 0)
             {
-                Instance.ErrorText(id, type, format);
+                this.ErrorText(id, type, format);
             }
             else
             {
-                Instance.ErrorText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
+                this.ErrorText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
             }
         }
 
@@ -49,13 +54,18 @@ namespace Microsoft.ServiceFabric.Services
         [NonEvent]
         internal void WriteWarningWithId(string type, string id, string format, params object[] args)
         {
+            if (!this.IsEnabled(EventLevel.Warning, Keywords.Default))
+            {
+                return;
+            }
+
             if (args == null || args.Length == 0)
             {
-                Instance.WarningText(id, type, format);
+                this.WarningText(id, type, format);
             }
             else
             {
-                Instance.WarningText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
+                this.WarningText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
             }
         }
 
@@ -68,13 +78,18 @@ namespace Microsoft.ServiceFabric.Services
         [NonEvent]
         internal void WriteInfoWithId(string type, string id, string format, params object[] args)
         {
+            if (!this.IsEnabled(EventLevel.Informational, Keywords.Default))
+            {
+                return;
+            }
+
             if (args == null || args.Length == 0)
             {
-                Instance.InfoText(id, type, format);
+                this.InfoText(id, type, format);
             }
             else
             {
-                Instance.InfoText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
+                this.InfoText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
             }
         }
 
@@ -87,13 +102,18 @@ namespace Microsoft.ServiceFabric.Services
         [NonEvent]
         internal void WriteNoiseWithId(string type, string id, string format, params object[] args)
         {
+            if (!this.IsEnabled(EventLevel.Verbose, Keywords.Default))
+            {
+                return;
+            }
+
             if (args == null || args.Length == 0)
             {
-                Instance.NoiseText(id, type, format);
+                this.NoiseText(id, type, format);
             }
             else
             {
-                Instance.NoiseText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
+                this.NoiseText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
             }
         }
 
