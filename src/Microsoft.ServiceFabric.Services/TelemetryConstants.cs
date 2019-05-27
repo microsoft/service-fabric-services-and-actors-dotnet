@@ -7,10 +7,16 @@ namespace Microsoft.ServiceFabric.Services
 {
     internal static class TelemetryConstants
     {
-        internal static readonly string Undefined = "undefined";
-        internal static readonly string ClusterTypeStandalone = "standalone";
-        internal static readonly string ClusterTypeSfrp = "SFRP";
-        internal static readonly string ClusterTypePaasV1 = "PaasV1";
+        // Names of all the telemetry events.
+        internal static readonly string ServiceLifecycleEventName = "TelemetryEvents.ServiceLifecycleEvent";
+        internal static readonly string ActorStateProviderUsageEventName = "TelemetryEvents.ActorStateProviderUsageEvent";
+        internal static readonly string ServiceRemotingUsageEventName = "TelemetryEvents.ServiceRemotingUsageEvent";
+        internal static readonly string CommunicationListenerUsageEventName = "TelemetryEvents.CommunicationListenerUsageEvent";
+        internal static readonly string CustomCommunicationClientUsageEventName = "TelemetryEvents.CustomCommunicationClientUsageEvent";
+        internal static readonly string CustomActorServiceUsageEventName = "TelemetryEvents.CustomActorServiceUsageEvent";
+        internal static readonly string ActorReminderRegisterationEventName = "TelemetryEvents.ActorReminderRegisterationEvent";
+
+        // Constants used to identify the various event parameters for telemetry events.
         internal static readonly string ClusterOSWindows = "Windows";
         internal static readonly string ClusterOSLinux = "Linux";
         internal static readonly string DotNetStandard = "DotNetStandard";
@@ -29,18 +35,12 @@ namespace Microsoft.ServiceFabric.Services
         internal static readonly string UnsecureRemoting = "Unsecure";
         internal static readonly string RemotingVersionV1 = "V1";
         internal static readonly string RemotingVersionV2 = "V2";
+        internal static readonly bool RemotingIsUnsecure = false;
         internal static readonly string FabricTransportCommunicationListener = "FabricTransport";
         internal static readonly string WCFCommunicationListener = "WCF";
         internal static readonly string ASPNetCoreCommunicationListener = "ASP.NET Core";
-        internal static readonly string ServiceLifecycleEventName = "TelemetryEvents.ServiceLifecycleEvent";
-        internal static readonly string ActorStateProviderUsageEventName = "TelemetryEvents.ActorStateProviderUsageEvent";
-        internal static readonly string ServiceRemotingUsageEventName = "TelemetryEvents.ServiceRemotingUsageEvent";
-        internal static readonly string CommunicationListenerUsageEventName = "TelemetryEvents.CommunicationListenerUsageEvent";
-        internal static readonly string CustomCommunicationClientUsageEventName = "TelemetryEvents.CustomCommunicationClientUsageEvent";
-        internal static readonly string CustomActorServiceUsageEventName = "TelemetryEvents.CustomActorServiceUsageEvent";
-        internal static readonly string ActorReminderRegisterationEventName = "TelemetryEvents.ActorReminderRegisterationEvent";
-        internal static readonly bool RemotingIsUnsecure = false;
 
+        // Constants set at runtime depending on the environment.
         internal static readonly string OsType;
         internal static readonly string RuntimePlatform;
 
