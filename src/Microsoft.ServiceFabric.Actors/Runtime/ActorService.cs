@@ -69,6 +69,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
+            ActorTelemetry.ActorServiceInitializeEvent(
+                this.ActorManager.ActorService.Context,
+                this.StateProviderReplica.GetType().ToString());
         }
 
         /// <summary>
@@ -268,9 +271,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.actorManagerAdapter.ActorManager = new ActorManager(this);
                 await this.actorManagerAdapter.OpenAsync(this.Partition, cancellationToken);
                 this.ActorManager.DiagnosticsEventManager.ActorChangeRole(this.replicaRole, newRole);
-                ActorTelemetry.ActorServiceInitializeEvent(
-                    this.ActorManager.ActorService.Context,
-                    this.ActorTypeInformation);
             }
             else
             {
@@ -300,6 +300,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "Begin close.");
 
             await this.actorManagerAdapter.CloseAsync(cancellationToken);
+
+            ActorTelemetry.ActorServiceReplicaCloseEvent(this.ActorManager.ActorService.Context);
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End close.");
         }

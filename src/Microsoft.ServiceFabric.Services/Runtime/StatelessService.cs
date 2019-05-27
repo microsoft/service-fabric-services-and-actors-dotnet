@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
 
-            ServiceTelemetry.StatelessServiceInstanceOpenEvent(this.serviceContext);
+            ServiceTelemetry.StatelessServiceInitializeEvent(this.serviceContext);
         }
 
         /// <summary>

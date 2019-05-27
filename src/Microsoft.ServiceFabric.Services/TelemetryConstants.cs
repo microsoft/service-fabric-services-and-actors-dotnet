@@ -17,7 +17,6 @@ namespace Microsoft.ServiceFabric.Services
         internal static readonly string DotNetFramework = "DotNetFramework";
         internal static readonly string LifecycleEventOpened = "Opened";
         internal static readonly string LifecycleEventClosed = "Closed";
-        internal static readonly string ActorServiceType = "Microsoft.ServiceFabric.Actors.Runtime.ActorService";
         internal static readonly string ServicesRemotingType = "Microsoft.ServiceFabric.Services.Remoting";
         internal static readonly string StatefulServiceKind = "StatefulService";
         internal static readonly string StatelessServiceKind = "StatelessService";

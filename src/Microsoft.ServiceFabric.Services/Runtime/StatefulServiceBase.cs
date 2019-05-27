@@ -59,6 +59,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.restoreContext = new RestoreContext(this.stateProviderReplica);
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+
+            ServiceTelemetry.StatefulServiceInitializeEvent(this.Context);
         }
 
         /// <summary>
@@ -152,11 +154,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <inheritdoc/>
         Task IStatefulUserServiceReplica.OnChangeRoleAsync(ReplicaRole newRole, CancellationToken cancellationToken)
         {
-            if (newRole == ReplicaRole.Primary)
-            {
-                ServiceTelemetry.StatefulServiceReplicaPrimaryEvent(this.Context);
-            }
-
             return this.OnChangeRoleAsync(newRole, cancellationToken);
         }
 

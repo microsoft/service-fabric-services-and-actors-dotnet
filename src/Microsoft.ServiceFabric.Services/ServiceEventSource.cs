@@ -20,29 +20,29 @@ namespace Microsoft.ServiceFabric.Services
         /// </summary>
         internal static readonly ServiceEventSource Instance = new ServiceEventSource();
 
-        private const int ServiceLifecycleEventId = 1;
-        private const int CommunicationListenerUsageEventId = 2;
-        private const int CustomCommunicationClientUsageEventId = 3;
-        private const int ServiceRemotingUsageEventId = 4;
+        private const int ServiceLifecycleEventId = 5;
+        private const int CommunicationListenerUsageEventId = 6;
+        private const int CustomCommunicationClientUsageEventId = 7;
+        private const int ServiceRemotingUsageEventId = 8;
 
-        private const string ServiceLifecycleEventTraceFormat = "{1} : clusterOsType = {2}, " +
-            "runtimePlatform = {3}, partitionId = {4}, replicaOrInstanceId = {5}, " +
-            "serviceName = {6}, serviceTypeName = {7}, applicationName = {8}, " +
-            "applicationTypeName = {9}, lifecycleEvent = {10}, serviceKind = {11}";
+        private const string ServiceLifecycleEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaOrInstanceId = {4}, " +
+            "serviceName = {5}, serviceTypeName = {6}, applicationName = {7}, " +
+            "applicationTypeName = {8}, lifecycleEvent = {9}, serviceKind = {10}";
 
-        private const string CommunicationListenerUsageEventTraceFormat = "{1} : " +
-            "clusterOsType = {2}, runtimePlatform = {3}, partitionId = {4}, replicaId = {5}, " +
-            "serviceName = {6}, serviceTypeName = {7}, applicationName = {8}, " +
-            "applicationTypeName = {9}, communicationListenerType = {10}";
+        private const string CommunicationListenerUsageEventTraceFormat = "{0} : " +
+            "clusterOsType = {1}, runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, " +
+            "serviceName = {5}, serviceTypeName = {6}, applicationName = {7}, " +
+            "applicationTypeName = {8}, communicationListenerType = {9}";
 
-        private const string CustomCommunicationClientUsageEventTraceFormat = "{1} : " +
-            "clusterOsType = {2}, runtimePlatform = {3}, serviceUri = {4}, " +
-            "customCommunicationClientTypeName = {5}, partitionKey = {6}";
+        private const string CustomCommunicationClientUsageEventTraceFormat = "{0} : " +
+            "clusterOsType = {1}, runtimePlatform = {2}, serviceUri = {3}, " +
+            "customCommunicationClientTypeName = {4}, partitionKey = {5}";
 
-        private const string ServiceRemotingUsageEventTraceFormat = "{1} : clusterOsType = {2}, " +
-            "runtimePlatform = {3}, partitionId = {4}, replicaId = {5}, serviceName = {6}, " +
-            "serviceTypeName = {7}, applicationName = {8}, applicationTypeName = {9}, " +
-            "isSecure = {10}, remotingVersion = {11}, communicationListenerType = {12}";
+        private const string ServiceRemotingUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "isSecure = {9}, remotingVersion = {10}, communicationListenerType = {11}";
 
         /// <summary>
         /// Prevents a default instance of the <see cref="ServiceEventSource" /> class from being created.
@@ -121,8 +121,134 @@ namespace Microsoft.ServiceFabric.Services
             }
         }
 
+        [NonEvent]
+        internal void ServiceLifecycleEventWrapper(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaOrInstanceId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string lifecycleEvent,
+            string serviceKind)
+        {
+            this.ServiceLifecycleEvent(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaOrInstanceId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                lifecycleEvent,
+                serviceKind);
+        }
+
+        [NonEvent]
+        internal void CommunicationListenerUsageEventWrapper(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string communicationListenerType)
+        {
+            this.CommunicationListenerUsageEvent(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                communicationListenerType);
+        }
+
+        [NonEvent]
+        internal void CustomCommunicationClientUsageEventWrapper(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string serviceUri,
+            string customCommunicationClientTypeName,
+            string partitionKey)
+        {
+            this.CustomCommunicationClientUsageEvent(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                serviceUri,
+                customCommunicationClientTypeName,
+                partitionKey);
+        }
+
+        [NonEvent]
+        internal void ServiceRemotingUsageEventWrapper(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            bool isSecure,
+            string remotingVersion,
+            string communicationListenerType)
+        {
+            this.ServiceRemotingUsageEvent(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                isSecure,
+                remotingVersion,
+                communicationListenerType);
+        }
+
+        [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void InfoText(string id, string type, string message)
+        {
+            this.WriteEvent(1, id, type, message);
+        }
+
+        [Event(2, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
+        private void WarningText(string id, string type, string message)
+        {
+            this.WriteEvent(2, id, type, message);
+        }
+
+        [Event(3, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
+        private void ErrorText(string id, string type, string message)
+        {
+            this.WriteEvent(3, id, type, message);
+        }
+
+        [Event(4, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
+        private void NoiseText(string id, string type, string message)
+        {
+            this.WriteEvent(4, id, type, message);
+        }
+
         [Event(ServiceLifecycleEventId, Message = ServiceLifecycleEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        internal void ServiceLifecycleEvent(
+        private void ServiceLifecycleEvent(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -151,7 +277,7 @@ namespace Microsoft.ServiceFabric.Services
         }
 
         [Event(CommunicationListenerUsageEventId, Message = CommunicationListenerUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        internal void CommunicationListenerUsageEvent(
+        private void CommunicationListenerUsageEvent(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -178,7 +304,7 @@ namespace Microsoft.ServiceFabric.Services
         }
 
         [Event(CustomCommunicationClientUsageEventId, Message = CustomCommunicationClientUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        internal void CustomCommunicationClientUsageEvent(
+        private void CustomCommunicationClientUsageEvent(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -197,7 +323,7 @@ namespace Microsoft.ServiceFabric.Services
         }
 
         [Event(ServiceRemotingUsageEventId, Message = ServiceRemotingUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        internal void ServiceRemotingUsageEvent(
+        private void ServiceRemotingUsageEvent(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -225,30 +351,6 @@ namespace Microsoft.ServiceFabric.Services
                 isSecure,
                 remotingVersion,
                 communicationListenerType);
-        }
-
-        [Event(5, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void InfoText(string id, string type, string message)
-        {
-            this.WriteEvent(5, id, type, message);
-        }
-
-        [Event(6, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
-        private void WarningText(string id, string type, string message)
-        {
-            this.WriteEvent(6, id, type, message);
-        }
-
-        [Event(7, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
-        private void ErrorText(string id, string type, string message)
-        {
-            this.WriteEvent(7, id, type, message);
-        }
-
-        [Event(8, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void NoiseText(string id, string type, string message)
-        {
-            this.WriteEvent(8, id, type, message);
         }
 
         public static class Keywords

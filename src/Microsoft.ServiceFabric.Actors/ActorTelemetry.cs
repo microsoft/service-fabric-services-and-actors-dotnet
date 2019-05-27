@@ -10,29 +10,49 @@ namespace Microsoft.ServiceFabric.Actors
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services;
 
+    /// <summary>
+    /// ActorTelemetry contains the telemetry methods for ActorFramework.
+    /// </summary>
     internal static class ActorTelemetry
     {
-        internal static void ActorServiceInitializeEvent(StatefulServiceContext context, ActorTypeInformation actorTypeInformation)
+        /// <summary>
+        /// ActorServiceInitializeEvent captures the telemetry event of the initialization of an Actor Service.
+        /// </summary>
+        /// <param name="context"><see cref="StatefulServiceContext"/></param>
+        /// <param name="actorStateProviderReplicaType">The StateProviderReplicaType to capture the state provider used.</param>
+        internal static void ActorServiceInitializeEvent(StatefulServiceContext context, string actorStateProviderReplicaType)
         {
-            ActorStateProviderUsageEvent(context, actorTypeInformation);
+            ActorServiceReplicaInstantiateEvent(context);
+            ActorStateProviderUsageEvent(context, actorStateProviderReplicaType);
         }
 
-        internal static void CheckCustomActorServiceUsageEvent(string actorType, string actorServiceType)
+        /// <summary>
+        /// CheckCustomActorServiceUsageEvent captures the telemetry event of the usage of a custom ActorService.
+        /// </summary>
+        /// <param name="actorType">Type of the actor.</param>
+        /// <param name="actorServiceType">Type of the actor service.</param>
+        internal static void CheckCustomActorServiceUsageEvent(Type actorType, Type actorServiceType)
         {
-            if (!actorServiceType.Equals(TelemetryConstants.ActorServiceType))
+            if (!actorServiceType.Equals(typeof(ActorService)))
             {
-                ActorEventSource.Instance.CustomActorServiceUsageEvent(
+                ActorEventSource.Instance.CustomActorServiceUsageEventWrapper(
                     TelemetryConstants.CustomActorServiceUsageEventName,
                     TelemetryConstants.OsType,
                     TelemetryConstants.RuntimePlatform,
-                    actorType,
-                    actorServiceType);
+                    actorType.ToString(),
+                    actorServiceType.ToString());
             }
         }
 
+        /// <summary>
+        /// ActorReminderRegisterationEvent captures the telemetry event of the registeration of an Actor Reminder
+        /// in a given service partition.
+        /// </summary>
+        /// <param name="context"><see cref="StatefulServiceContext"/> which contains the context of the service.</param>
+        /// <param name="reminder"><see cref="ActorReminder"/> which tracks the actor reminder.</param>
         internal static void ActorReminderRegisterationEvent(StatefulServiceContext context, ActorReminder reminder)
         {
-            ActorEventSource.Instance.ActorReminderRegisterationEvent(
+            ActorEventSource.Instance.ActorReminderRegisterationEventWrapper(
                 TelemetryConstants.ActorReminderRegisterationEventName,
                 TelemetryConstants.OsType,
                 TelemetryConstants.RuntimePlatform,
@@ -47,34 +67,36 @@ namespace Microsoft.ServiceFabric.Actors
                 reminder.Name);
         }
 
-        internal static void ActorStateProviderUsageEvent(StatefulServiceContext context, ActorTypeInformation actorTypeInformation)
+        /// <summary>
+        /// ActorServiceReplicaInstantiateEvent captures the telemetry event of the ActorService replica
+        /// initializing.
+        /// </summary>
+        /// <param name="context"><see cref="StatefulServiceContext"/> is the service context.</param>
+        internal static void ActorServiceReplicaInstantiateEvent(StatefulServiceContext context)
         {
-            var isPersistedStateProvider = actorTypeInformation.StatePersistence.Equals(StatePersistence.Persisted);
-            var isVolatileStateProvider = actorTypeInformation.StatePersistence.Equals(StatePersistence.Volatile);
-            var stateProviderName = TelemetryConstants.NullActorStateProvider;
+            ActorServiceLifecycleEvent(context, TelemetryConstants.LifecycleEventOpened);
+        }
 
-            if (isPersistedStateProvider)
-            {
-#if DotNetCoreClr
-                if (TelemetryConstants.OsType.Equals(TelemetryConstants.ClusterOSWindows))
-                {
-                    stateProviderName = TelemetryConstants.KvsActorStateProvider;
-                }
-                else
-                {
-                    stateProviderName = TelemetryConstants.ReliableCollectionsActorStateProvider;
-                }
-#else
-                stateProviderName = TelemetryConstants.KvsActorStateProvider;
-#endif
-            }
-            else if (isVolatileStateProvider)
-            {
-                stateProviderName = TelemetryConstants.VolatileActorStateProvider;
-            }
+        /// <summary>
+        /// ActorServiceReplicaCloseEvent captures the telemetry event for the closing of an ActorService
+        /// replica.
+        /// </summary>
+        /// <param name="context"><see cref="StatefulServiceContext"/> is the service context.</param>
+        internal static void ActorServiceReplicaCloseEvent(StatefulServiceContext context)
+        {
+            ActorServiceLifecycleEvent(context, TelemetryConstants.LifecycleEventClosed);
+        }
 
-            ActorEventSource.Instance.ActorStateProviderUsageEvent(
-                TelemetryConstants.ActorReminderRegisterationEventName,
+        /// <summary>
+        /// ActorStateProviderUsageEvent captures the telemetry event for the usage of a state provider.
+        /// It is also used for the telemetry of usage of custom state providers.
+        /// </summary>
+        /// <param name="context"><see cref="StatefulServiceContext"/> is the service context.</param>
+        /// <param name="actorStateProviderReplicaType">The type of the actor state provider.</param>
+        internal static void ActorStateProviderUsageEvent(StatefulServiceContext context, string actorStateProviderReplicaType)
+        {
+            ActorEventSource.Instance.ActorStateProviderUsageEventWrapper(
+                TelemetryConstants.ActorStateProviderUsageEventName,
                 TelemetryConstants.OsType,
                 TelemetryConstants.RuntimePlatform,
                 context.PartitionId.ToString(),
@@ -83,7 +105,23 @@ namespace Microsoft.ServiceFabric.Actors
                 context.ServiceTypeName,
                 context.CodePackageActivationContext.ApplicationName,
                 context.CodePackageActivationContext.ApplicationTypeName,
-                stateProviderName);
+                actorStateProviderReplicaType);
+        }
+
+        private static void ActorServiceLifecycleEvent(StatefulServiceContext context, string lifecycleEvent)
+        {
+            ServiceEventSource.Instance.ServiceLifecycleEventWrapper(
+                TelemetryConstants.ServiceLifecycleEventName,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName.ToString(),
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                lifecycleEvent,
+                TelemetryConstants.ActorServiceKind);
         }
     }
 }

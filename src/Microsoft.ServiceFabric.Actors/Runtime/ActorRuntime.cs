@@ -70,8 +70,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var serviceTypeName = ActorNameFormat.GetFabricServiceTypeName(actorTypeInformation.ImplementationType);
 
             ActorTelemetry.CheckCustomActorServiceUsageEvent(
-                actorType.ToString(),
-                actorServiceType.ToString());
+                actorType,
+                actorServiceType);
 
             try
             {
