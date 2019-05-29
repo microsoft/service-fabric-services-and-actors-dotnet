@@ -10,8 +10,20 @@ namespace Microsoft.ServiceFabric.Services
     /// <summary>
     /// ServiceTelemetry contains the telemetry methods for ServiceFramework.
     /// </summary>
-    internal static class ServiceTelemetry
+    public static class ServiceTelemetry
     {
+        /// <summary>
+        /// ASPNETCoreCommunicationListenerEvent captures the telemetry event of the usage of
+        /// ASPNETCoreCommunicationListener as a communication listener.
+        /// This method is public as it is called from outside the Services assembly, and is
+        /// the reason why this class is public instead of internal.
+        /// </summary>
+        /// <param name="context"><see cref="ServiceContext"/> is the service context.</param>
+        public static void ASPNETCoreCommunicationListenerEvent(ServiceContext context)
+        {
+            CommunicationListenerUsageEvent(context, TelemetryConstants.ASPNetCoreCommunicationListener);
+        }
+
         /// <summary>
         /// StatefulServiceInitalizeEvent captures the telemetry event of the initialization
         /// of a StatefulService replica.
@@ -60,16 +72,6 @@ namespace Microsoft.ServiceFabric.Services
         internal static void WCFCommunicationListenerEvent(ServiceContext context)
         {
             CommunicationListenerUsageEvent(context, TelemetryConstants.WCFCommunicationListener);
-        }
-
-        /// <summary>
-        /// ASPNETCoreCommunicationListenerEvent captures the telemetry event of the usage of
-        /// ASPNETCoreCommunicationListener as a communication listener.
-        /// </summary>
-        /// <param name="context"><see cref="ServiceContext"/> is the service context.</param>
-        internal static void ASPNETCoreCommunicationListenerEvent(ServiceContext context)
-        {
-            CommunicationListenerUsageEvent(context, TelemetryConstants.ASPNetCoreCommunicationListener);
         }
 
         /// <summary>
