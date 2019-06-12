@@ -141,10 +141,10 @@ namespace Microsoft.ServiceFabric.Actors
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
                 stateProviderName);
         }
 
@@ -160,8 +160,8 @@ namespace Microsoft.ServiceFabric.Actors
                 type,
                 clusterOsType,
                 runtimePlatform,
-                actorType,
-                actorServiceType);
+                actorType.GetHashCode().ToString(),
+                actorServiceType.GetHashCode().ToString());
         }
 
         [NonEvent]
@@ -185,13 +185,13 @@ namespace Microsoft.ServiceFabric.Actors
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                ownerActorId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                ownerActorId.GetHashCode().ToString(),
                 reminderPeriod,
-                reminderName);
+                reminderName.GetHashCode().ToString());
         }
 
         #endregion

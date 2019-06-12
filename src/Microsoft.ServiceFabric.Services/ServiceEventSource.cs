@@ -141,10 +141,10 @@ namespace Microsoft.ServiceFabric.Services
                 runtimePlatform,
                 partitionId,
                 replicaOrInstanceId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
                 lifecycleEvent,
                 serviceKind);
         }
@@ -168,10 +168,10 @@ namespace Microsoft.ServiceFabric.Services
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
                 communicationListenerType);
         }
 
@@ -188,8 +188,8 @@ namespace Microsoft.ServiceFabric.Services
                 type,
                 clusterOsType,
                 runtimePlatform,
-                serviceUri,
-                customCommunicationClientTypeName,
+                serviceUri.GetHashCode().ToString(),
+                customCommunicationClientTypeName.GetHashCode().ToString(),
                 partitionKey);
         }
 
@@ -214,10 +214,10 @@ namespace Microsoft.ServiceFabric.Services
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
                 isSecure,
                 remotingVersion,
                 communicationListenerType);
