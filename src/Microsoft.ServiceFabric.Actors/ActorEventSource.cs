@@ -20,6 +20,23 @@ namespace Microsoft.ServiceFabric.Actors
         /// </summary>
         internal static readonly ActorEventSource Instance = new ActorEventSource();
 
+        private const int ActorStateProviderUsageEventId = 5;
+        private const int CustomActorServiceUsageEventId = 6;
+        private const int ActorReminderRegisterationEventId = 7;
+
+        private const string ActorStateProviderUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "stateProviderName = {9}";
+
+        private const string CustomActorServiceUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, actorType = {3}, actorServiceType = {4}";
+
+        private const string ActorReminderRegisterationEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "ownerActorId = {9}, reminderPeriod = {10}, reminderName = {11}";
+
         /// <summary>
         /// Prevents a default instance of the <see cref="ActorEventSource" /> class from being created.
         /// </summary>
@@ -105,6 +122,78 @@ namespace Microsoft.ServiceFabric.Actors
             }
         }
 
+        [NonEvent]
+        internal void ActorStateProviderUsageEventWrapper(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string stateProviderName)
+        {
+            this.ActorStateProviderUsageEvent(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                stateProviderName);
+        }
+
+        [NonEvent]
+        internal void CustomActorServiceUsageEventWrapper(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string actorType,
+            string actorServiceType)
+        {
+            this.CustomActorServiceUsageEvent(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                actorType.GetHashCode().ToString(),
+                actorServiceType.GetHashCode().ToString());
+        }
+
+        [NonEvent]
+        internal void ActorReminderRegisterationEventWrapper(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string ownerActorId,
+            string reminderPeriod,
+            string reminderName)
+        {
+            this.ActorReminderRegisterationEvent(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                ownerActorId.GetHashCode().ToString(),
+                reminderPeriod,
+                reminderName.GetHashCode().ToString());
+        }
+
         #endregion
 
         #region Events
@@ -131,6 +220,82 @@ namespace Microsoft.ServiceFabric.Actors
         {
             this.WriteEvent(4, id, type, message);
         }
+
+        [Event(ActorStateProviderUsageEventId, Message = ActorStateProviderUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void ActorStateProviderUsageEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string stateProviderName)
+        {
+            this.WriteEvent(
+                ActorStateProviderUsageEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                stateProviderName);
+        }
+
+        [Event(CustomActorServiceUsageEventId, Message = CustomActorServiceUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void CustomActorServiceUsageEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string actorType,
+            string actorServiceType)
+        {
+            this.WriteEvent(
+                CustomActorServiceUsageEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                actorType,
+                actorServiceType);
+        }
+
+        [Event(ActorReminderRegisterationEventId, Message = ActorReminderRegisterationEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void ActorReminderRegisterationEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string ownerActorId,
+            string reminderPeriod,
+            string reminderName)
+        {
+            this.WriteEvent(
+                ActorReminderRegisterationEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                ownerActorId,
+                reminderPeriod,
+                reminderName);
+        }
+
         #endregion
 
         #region Keywords / Tasks / Opcodes

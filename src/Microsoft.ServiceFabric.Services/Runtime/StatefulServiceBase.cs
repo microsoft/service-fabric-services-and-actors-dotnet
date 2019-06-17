@@ -59,6 +59,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.restoreContext = new RestoreContext(this.stateProviderReplica);
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+
+            ServiceTelemetry.StatefulServiceInitializeEvent(this.Context);
         }
 
         /// <summary>
@@ -158,6 +160,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <inheritdoc/>
         Task IStatefulUserServiceReplica.OnCloseAsync(CancellationToken cancellationToken)
         {
+            ServiceTelemetry.StatefulServiceReplicaCloseEvent(this.Context);
             return this.OnCloseAsync(cancellationToken);
         }
 

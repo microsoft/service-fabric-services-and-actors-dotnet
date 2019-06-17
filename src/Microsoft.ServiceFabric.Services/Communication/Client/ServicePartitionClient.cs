@@ -59,6 +59,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.targetReplicaSelector = targetReplicaSelector;
             this.lastRsp = null;
             this.retrySettings = retrySettings ?? new OperationRetrySettings();
+
+            ServiceTelemetry.CustomCommunicationClientUsageEvent(
+                serviceUri.ToString(),
+                communicationClientFactory.GetType().ToString(),
+                partitionKey?.ToString() ?? "Undefined");
         }
 
         /// <summary>
