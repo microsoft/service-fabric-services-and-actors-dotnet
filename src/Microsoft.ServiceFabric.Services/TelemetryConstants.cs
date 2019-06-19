@@ -27,15 +27,8 @@ namespace Microsoft.ServiceFabric.Services
         internal static readonly string StatefulServiceKind = "StatefulService";
         internal static readonly string StatelessServiceKind = "StatelessService";
         internal static readonly string ActorServiceKind = "ActorService";
-        internal static readonly string NullActorStateProvider = "NullActorStateProvider";
-        internal static readonly string KvsActorStateProvider = "KvsActorStateProvider";
-        internal static readonly string ReliableCollectionsActorStateProvider = "ReliableCollectionsActorStateProvider";
-        internal static readonly string VolatileActorStateProvider = "VolatileActorStateProvider";
-        internal static readonly string SecureRemoting = "Secure";
-        internal static readonly string UnsecureRemoting = "Unsecure";
         internal static readonly string RemotingVersionV1 = "V1";
         internal static readonly string RemotingVersionV2 = "V2";
-        internal static readonly bool RemotingIsUnsecure = false;
         internal static readonly string FabricTransportCommunicationListener = "FabricTransport";
         internal static readonly string WCFCommunicationListener = "WCF";
         internal static readonly string ASPNetCoreCommunicationListener = "ASP.NET Core";
