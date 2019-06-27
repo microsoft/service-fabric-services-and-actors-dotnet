@@ -159,17 +159,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             return mockStateProvider.Object;
         }
 
-        private static NodeContext GetNodeContext()
-        {
-            return new NodeContext(
-                mockNodeName,
-                new NodeId(BigInteger.Zero, BigInteger.Zero),
-                BigInteger.Zero,
-                mockNodeType,
-                mockFQDN);
-        }
-
-        private static ICodePackageActivationContext GetCodePackageActivationContext()
+        internal static ICodePackageActivationContext GetCodePackageActivationContext()
         {
             // Create mock Context and setup required things needed by tests.
             var mockContext = new Mock<ICodePackageActivationContext>();
@@ -183,6 +173,16 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             mockContext.Setup(x => x.ApplicationName).Returns(mockApplciationName);
             mockContext.Setup(x => x.ApplicationTypeName).Returns(mockApplicationTypeName);
             return mockContext.Object;
+        }
+
+        private static NodeContext GetNodeContext()
+        {
+            return new NodeContext(
+                mockNodeName,
+                new NodeId(BigInteger.Zero, BigInteger.Zero),
+                BigInteger.Zero,
+                mockNodeType,
+                mockFQDN);
         }
     }
 }
