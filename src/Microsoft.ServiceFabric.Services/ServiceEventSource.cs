@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.Services
             string lifecycleEvent,
             string serviceKind)
         {
-            this.ServiceLifecycleEvent(
+            Instance.ServiceLifecycleEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -162,7 +162,7 @@ namespace Microsoft.ServiceFabric.Services
             string applicationTypeName,
             string communicationListenerType)
         {
-            this.CommunicationListenerUsageEvent(
+            Instance.CommunicationListenerUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -184,7 +184,7 @@ namespace Microsoft.ServiceFabric.Services
             string customCommunicationClientTypeName,
             string partitionKey)
         {
-            this.CustomCommunicationClientUsageEvent(
+            Instance.CustomCommunicationClientUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -208,7 +208,7 @@ namespace Microsoft.ServiceFabric.Services
             string remotingVersion,
             string communicationListenerType)
         {
-            this.ServiceRemotingUsageEvent(
+            Instance.ServiceRemotingUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
