@@ -313,7 +313,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
                 if (entry is null)
                 {
-                    traceMsg = $"Skipped (<null>) instance listener.";
+                    traceMsg = "Skipped (<null>) instance listener.";
                     ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
                     continue;
                 }
