@@ -311,6 +311,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 string traceMsg;
 
+                if (entry is null)
+                {
+                    traceMsg = $"Skipped (<null>) instance listener.";
+                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
+                    continue;
+                }
+
                 var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
                 if (communicationListener is null)
                 {
