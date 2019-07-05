@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Services
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="customCommunicationClientFactoryType">The custom CommunicationClientFactory type.</param>
         /// <param name="partitionKey">PartitionKey of the service partition.</param>
-        internal static void CustomCommunicationClientUsageEvent(
+        internal static void CheckCustomCommunicationClientUsageEvent(
             string serviceName,
             string customCommunicationClientFactoryType,
             string partitionKey)

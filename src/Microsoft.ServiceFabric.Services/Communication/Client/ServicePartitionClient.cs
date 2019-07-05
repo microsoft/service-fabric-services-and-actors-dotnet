@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.lastRsp = null;
             this.retrySettings = retrySettings ?? new OperationRetrySettings();
 
-            ServiceTelemetry.CustomCommunicationClientUsageEvent(
+            ServiceTelemetry.CheckCustomCommunicationClientUsageEvent(
                 serviceUri.ToString(),
                 communicationClientFactory.GetType().ToString(),
                 partitionKey?.ToString() ?? "Undefined");
