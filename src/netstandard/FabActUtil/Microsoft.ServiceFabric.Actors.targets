@@ -8,7 +8,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ServiceManifestEntryPointType Condition=" '$(ServiceManifestEntryPointType)' == '' ">Exe</ServiceManifestEntryPointType>
   </PropertyGroup>
   <ItemGroup>
-    <RuntimeVersion Include="$(TargetFrameworkVersion.Replace('v','')).0" />  
+    <RuntimeVersion Include="$(_TargetFrameworkVersionWithoutV).0" />
     <FabActUtilRuntimeConfig Include="$(FabActUtilWorkingDir)\FabActUtil.runtimeconfig.json" />
   </ItemGroup>
   <Target Name="_CopyAssembliesToFabActUtilWorkingDir">
@@ -21,8 +21,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <Copy SourceFiles="$(TargetDir)\$(AssemblyName).deps.json" DestinationFiles="$(FabActUtilWorkingDir)\FabActUtil.deps.json" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(ActorServiceAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(FabActUtilAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
-    <Exec Command="echo { %22runtimeOptions%22: { %22tfm%22: %22$(TargetFramework)%22, %22framework%22: { %22name%22:  %22Microsoft.NETCore.App%22, %22version%22:  %22@(RuntimeVersion)%22 }}} > @(FabActUtilRuntimeConfig) " />
-  </Target>
+    <Exec Command="echo { %22runtimeOptions%22: { %22tfm%22: %22$(TargetFramework)%22, %22framework%22: { %22name%22:  %22Microsoft.NETCore.App%22, %22version%22:  %22@(RuntimeVersion)%22 }}} > @(FabActUtilRuntimeConfig) " Condition=" '$(RuntimeIdentifier)' != 'win7-x64' "/>
+  </Target>    
   <Target Name="_UpdateServiceFabricServiceManifest" AfterTargets="Build" DependsOnTargets="_CopyAssembliesToFabActUtilWorkingDir" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
     <Exec Command="dotnet &quot;$(FabActUtilWorkingDir)\FabActUtil.dll&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).dll&quot; /arp:&quot;$(TargetDir)\&quot; /smep:$(ServiceManifestEntryPointType) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
