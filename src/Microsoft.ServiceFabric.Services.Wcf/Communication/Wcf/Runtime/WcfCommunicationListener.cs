@@ -198,7 +198,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
 
             this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), listenerBinding, address);
             this.host = CreateServiceHost(wcfServiceObject, this.endpoint);
-            ServiceTelemetry.WCFCommunicationListenerEvent(serviceContext);
+            ServiceTelemetry.CommunicationListenerUsageEvent(serviceContext, TelemetryConstants.WCFCommunicationListener);
         }
 
         private WcfCommunicationListener(
@@ -223,7 +223,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
 
             this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), listenerBinding, address);
             this.host = CreateServiceHost(wcfServiceType, this.endpoint);
-            ServiceTelemetry.WCFCommunicationListenerEvent(serviceContext);
+            ServiceTelemetry.CommunicationListenerUsageEvent(serviceContext, TelemetryConstants.WCFCommunicationListener);
         }
 
         /// <summary>

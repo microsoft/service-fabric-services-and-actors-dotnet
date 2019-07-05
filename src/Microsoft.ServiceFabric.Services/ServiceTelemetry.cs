@@ -9,21 +9,11 @@ namespace Microsoft.ServiceFabric.Services
 
     /// <summary>
     /// ServiceTelemetry contains the telemetry methods for ServiceFramework.
+    /// This class is to be used by other Service Fabric components only and
+    /// is not meant for external use.
     /// </summary>
     public static class ServiceTelemetry
     {
-        /// <summary>
-        /// ASPNETCoreCommunicationListenerEvent captures the telemetry event of the usage of
-        /// ASPNETCoreCommunicationListener as a communication listener.
-        /// This method is public as it is called from outside the Services assembly, and is
-        /// the reason why this class is public instead of internal.
-        /// </summary>
-        /// <param name="context"><see cref="ServiceContext"/> is the service context.</param>
-        public static void ASPNETCoreCommunicationListenerEvent(ServiceContext context)
-        {
-            CommunicationListenerUsageEvent(context, TelemetryConstants.ASPNetCoreCommunicationListener);
-        }
-
         /// <summary>
         /// StatefulServiceInitalizeEvent captures the telemetry event of the initialization
         /// of a StatefulService replica.
@@ -65,13 +55,24 @@ namespace Microsoft.ServiceFabric.Services
         }
 
         /// <summary>
-        /// WCFCommunicationListenerEvent captures the telemetry event of the usage of
-        /// WCFCommunicationListener as a communication listener.
+        /// CommunicationListenerUsageEvent captures the telemetry event of the usage of
+        /// ICommunicationListener.
         /// </summary>
         /// <param name="context"><see cref="ServiceContext"/> is the service context.</param>
-        internal static void WCFCommunicationListenerEvent(ServiceContext context)
+        /// <param name="communicationListenerType">The name of the type which implements ICommunicationListener.</param>
+        internal static void CommunicationListenerUsageEvent(ServiceContext context, string communicationListenerType)
         {
-            CommunicationListenerUsageEvent(context, TelemetryConstants.WCFCommunicationListener);
+            ServiceEventSource.Instance.CommunicationListenerUsageEventWrapper(
+                TelemetryConstants.CommunicationListenerUsageEventName,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaOrInstanceId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName.ToString(),
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                communicationListenerType);
         }
 
         /// <summary>
@@ -150,21 +151,6 @@ namespace Microsoft.ServiceFabric.Services
                 context.CodePackageActivationContext.ApplicationTypeName,
                 lifecycleEvent,
                 TelemetryConstants.StatelessServiceKind);
-        }
-
-        private static void CommunicationListenerUsageEvent(ServiceContext context, string communicationListenerType)
-        {
-            ServiceEventSource.Instance.CommunicationListenerUsageEventWrapper(
-                TelemetryConstants.CommunicationListenerUsageEventName,
-                TelemetryConstants.OsType,
-                TelemetryConstants.RuntimePlatform,
-                context.PartitionId.ToString(),
-                context.ReplicaOrInstanceId.ToString(),
-                context.ServiceName.OriginalString,
-                context.ServiceTypeName.ToString(),
-                context.CodePackageActivationContext.ApplicationName,
-                context.CodePackageActivationContext.ApplicationTypeName,
-                communicationListenerType);
         }
 
         private static void FabricTransportServiceRemotingEvent(ServiceContext context, string remotingVersion, bool isSecure)

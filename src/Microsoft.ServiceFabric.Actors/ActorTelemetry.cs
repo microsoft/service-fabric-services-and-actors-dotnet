@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors
             if (!actorServiceType.Equals(typeof(ActorService)))
             {
                 ActorEventSource.Instance.CustomActorServiceUsageEventWrapper(
-                    TelemetryConstants.CustomActorServiceUsageEventName,
+                    ActorTelemetryConstants.CustomActorServiceUsageEventName,
                     TelemetryConstants.OsType,
                     TelemetryConstants.RuntimePlatform,
                     actorType.ToString(),
@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Actors
         internal static void ActorReminderRegisterationEvent(StatefulServiceContext context, ActorReminder reminder)
         {
             ActorEventSource.Instance.ActorReminderRegisterationEventWrapper(
-                TelemetryConstants.ActorReminderRegisterationEventName,
+                ActorTelemetryConstants.ActorReminderRegisterationEventName,
                 TelemetryConstants.OsType,
                 TelemetryConstants.RuntimePlatform,
                 context.PartitionId.ToString(),
@@ -96,7 +96,7 @@ namespace Microsoft.ServiceFabric.Actors
         internal static void ActorStateProviderUsageEvent(StatefulServiceContext context, string actorStateProviderReplicaType)
         {
             ActorEventSource.Instance.ActorStateProviderUsageEventWrapper(
-                TelemetryConstants.ActorStateProviderUsageEventName,
+                ActorTelemetryConstants.ActorStateProviderUsageEventName,
                 TelemetryConstants.OsType,
                 TelemetryConstants.RuntimePlatform,
                 context.PartitionId.ToString(),
@@ -121,7 +121,7 @@ namespace Microsoft.ServiceFabric.Actors
                 context.CodePackageActivationContext.ApplicationName,
                 context.CodePackageActivationContext.ApplicationTypeName,
                 lifecycleEvent,
-                TelemetryConstants.ActorServiceKind);
+                ActorTelemetryConstants.ActorServiceKind);
         }
     }
 }
