@@ -309,7 +309,25 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             foreach (var entry in this.instanceListeners)
             {
+                string traceMsg;
+
+                if (entry is null)
+                {
+                    traceMsg = "Skipped (<null>) instance listener.";
+                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
+
+                    continue;
+                }
+
                 var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
+                if (communicationListener is null)
+                {
+                    traceMsg = $"Skipped '{entry.Name}' (<null>) communication listener.";
+                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
+
+                    continue;
+                }
+
                 var communicationListenerInfo = new CommunicationListenerInfo
                 {
                     Name = entry.Name.Equals(ServiceInstanceListener.DefaultName) ? "default" : entry.Name,
@@ -318,7 +336,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
                 this.AddCommunicationListener(communicationListenerInfo);
 
-                var traceMsg = $"Opening {communicationListenerInfo.Name} communication listener.";
+                traceMsg = $"Opening {communicationListenerInfo.Name} communication listener.";
                 ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
 
                 var endpointAddress = await communicationListener.OpenAsync(cancellationToken);

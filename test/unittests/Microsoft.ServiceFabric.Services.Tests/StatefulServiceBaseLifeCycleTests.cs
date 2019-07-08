@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Health;
     using System.Linq;
@@ -13,6 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using System.Threading.Tasks;
     using FluentAssertions;
     using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
     using Moq;
     using Xunit;
@@ -451,6 +453,44 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceReplica.Abort();
         }
 
+        /// <summary>
+        /// Tests when null service instance listeners is returned.
+        /// </summary>
+        [Fact]
+        public void NullListener()
+        {
+            Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: NullListener()");
+
+            var serviceContext = TestMocksRepository.GetMockStatefulServiceContext();
+
+            IStatefulServiceReplica testReplicaInstance =
+                new StatefulServiceReplicaAdapter(serviceContext, new NullListenerService(serviceContext));
+
+            var partition = new Mock<IStatefulServicePartition>();
+
+            // No exception should be thrown
+            testReplicaInstance.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Tests when null communication listener is returned.
+        /// </summary>
+        [Fact]
+        public void NullCommunicationListener()
+        {
+            Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: NullCommunicationListener()");
+
+            var serviceContext = TestMocksRepository.GetMockStatefulServiceContext();
+
+            IStatefulServiceReplica testReplicaInstance =
+                new StatefulServiceReplicaAdapter(serviceContext, new NullCommunicationListenerService(serviceContext));
+
+            var partition = new Mock<IStatefulServicePartition>();
+
+            // No exception should be thrown
+            testReplicaInstance.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+        }
+
         private class StateProviderReplicaRoleWrapper
         {
             /// <summary>
@@ -558,6 +598,43 @@ namespace Microsoft.ServiceFabric.Services.Tests
             protected override Task RunAsync(CancellationToken cancellationToken)
             {
                 return Task.Run(() => { throw new FabricException(); }, CancellationToken.None);
+            }
+        }
+
+        private class NullListenerService : StatefulBaseTestService
+        {
+            public NullListenerService(StatefulServiceContext context)
+                : base(context)
+            {
+            }
+
+            protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
+            {
+                return new ServiceReplicaListener[]
+                {
+                    null,
+                };
+            }
+        }
+
+        private class NullCommunicationListenerService : StatefulBaseTestService
+        {
+            public NullCommunicationListenerService(StatefulServiceContext context)
+                : base(context)
+            {
+            }
+
+            protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
+            {
+                return new[]
+                {
+                    new ServiceReplicaListener(this.CreateCommunicationListener),
+                };
+            }
+
+            private ICommunicationListener CreateCommunicationListener(ServiceContext context)
+            {
+                return null;
             }
         }
     }
