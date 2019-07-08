@@ -315,6 +315,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 {
                     traceMsg = "Skipped (<null>) instance listener.";
                     ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
+
                     continue;
                 }
 
