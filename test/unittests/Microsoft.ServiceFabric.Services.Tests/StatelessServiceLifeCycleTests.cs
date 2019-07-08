@@ -172,6 +172,44 @@ namespace Microsoft.ServiceFabric.Services.Tests
             testServiceInstance.Abort();
         }
 
+        /// <summary>
+        /// Tests when null service instance listeners is returned.
+        /// </summary>
+        [Fact]
+        public void NullListener()
+        {
+            Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: NullListener()");
+
+            var serviceContext = TestMocksRepository.GetMockStatelessServiceContext();
+
+            IStatelessServiceInstance testServiceInstance =
+                new StatelessServiceInstanceAdapter(serviceContext, new NullListenerService(serviceContext));
+
+            var partition = new Mock<IStatelessServicePartition>();
+
+            // No exception should be thrown
+            testServiceInstance.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Tests when null communication listener is returned.
+        /// </summary>
+        [Fact]
+        public void NullCommunicationListener()
+        {
+            Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: NullCommunicationListener()");
+
+            var serviceContext = TestMocksRepository.GetMockStatelessServiceContext();
+
+            IStatelessServiceInstance testServiceInstance =
+                new StatelessServiceInstanceAdapter(serviceContext, new NullCommunicationListenerService(serviceContext));
+
+            var partition = new Mock<IStatelessServicePartition>();
+
+            // No exception should be thrown
+            testServiceInstance.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+        }
+
         private class RunAsyncBlockingCallTestService : StatelessService
         {
             public RunAsyncBlockingCallTestService(StatelessServiceContext context)
@@ -271,6 +309,43 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 this.RunAsyncInvoked = true;
                 await Task.Delay(TimeSpan.FromSeconds(30), CancellationToken.None);
+            }
+        }
+
+        private class NullListenerService : StatelessService
+        {
+            public NullListenerService(StatelessServiceContext context)
+                : base(context)
+            {
+            }
+
+            protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
+            {
+                return new ServiceInstanceListener[]
+                {
+                    null,
+                };
+            }
+        }
+
+        private class NullCommunicationListenerService : StatelessService
+        {
+            public NullCommunicationListenerService(StatelessServiceContext context)
+                : base(context)
+            {
+            }
+
+            protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
+            {
+                return new[]
+                {
+                    new ServiceInstanceListener(this.CreateCommunicationListener),
+                };
+            }
+
+            private ICommunicationListener CreateCommunicationListener(ServiceContext context)
+            {
+                return null;
             }
         }
     }
