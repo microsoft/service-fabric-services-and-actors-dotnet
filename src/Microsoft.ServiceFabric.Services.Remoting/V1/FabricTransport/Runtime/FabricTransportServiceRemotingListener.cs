@@ -174,6 +174,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
                 serviceContext);
             this.listenAddress = serviceContext.ListenAddress;
             this.publishAddress = serviceContext.PublishAddress;
+
+            ServiceTelemetry.FabricTransportServiceRemotingV1Event(
+                serviceContext,
+                !listenerSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None));
         }
 
         /// <summary>

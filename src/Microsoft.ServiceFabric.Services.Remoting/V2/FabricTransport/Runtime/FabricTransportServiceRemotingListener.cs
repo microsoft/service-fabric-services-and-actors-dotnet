@@ -120,6 +120,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 remotingSettings.GetInternalSettings().GetListenerAddress(serviceContext),
                 this.transportMessageHandler,
                 new FabricTransportRemotingConnectionHandler());
+
+            ServiceTelemetry.FabricTransportServiceRemotingV2Event(
+                serviceContext,
+                !remotingSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None));
         }
 
         /// <summary>

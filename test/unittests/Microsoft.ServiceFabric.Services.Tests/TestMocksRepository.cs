@@ -18,6 +18,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
         private static readonly long MockReplicaOrInstanceID = 99999999999;
         private static readonly string MockServiceTypeName = "MockServiceTypeName";
         private static readonly Uri MockServiceUri = new Uri("fabric:/MockServiceName");
+        private static readonly string MockApplicationName = "MockApplicationName";
+        private static readonly string MockApplicationTypeName = "MockApplicationTypeName";
         private static Guid mockPartitionID = Guid.NewGuid();
 
         public static NodeContext GetNodeContext()
@@ -34,6 +36,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
         {
             // Create mock Context and setup required things needed by tests.
             var mockContext = new Mock<ICodePackageActivationContext>();
+            mockContext.SetupGet(ex => ex.ApplicationName).Returns(MockApplicationName);
+            mockContext.SetupGet(ex => ex.ApplicationTypeName).Returns(MockApplicationTypeName);
             return mockContext.Object;
         }
 
