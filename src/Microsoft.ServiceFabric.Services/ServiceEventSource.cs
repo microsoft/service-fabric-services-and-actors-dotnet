@@ -22,8 +22,7 @@ namespace Microsoft.ServiceFabric.Services
 
         private const int ServiceLifecycleEventId = 5;
         private const int CommunicationListenerUsageEventId = 6;
-        private const int CustomCommunicationClientUsageEventId = 7;
-        private const int ServiceRemotingUsageEventId = 8;
+        private const int ServiceRemotingUsageEventId = 7;
 
         private const string ServiceLifecycleEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaOrInstanceId = {4}, " +
@@ -34,10 +33,6 @@ namespace Microsoft.ServiceFabric.Services
             "clusterOsType = {1}, runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, " +
             "serviceName = {5}, serviceTypeName = {6}, applicationName = {7}, " +
             "applicationTypeName = {8}, communicationListenerType = {9}";
-
-        private const string CustomCommunicationClientUsageEventTraceFormat = "{0} : " +
-            "clusterOsType = {1}, runtimePlatform = {2}, serviceUri = {3}, " +
-            "customCommunicationClientTypeName = {4}, partitionKey = {5}";
 
         private const string ServiceRemotingUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
@@ -176,24 +171,6 @@ namespace Microsoft.ServiceFabric.Services
         }
 
         [NonEvent]
-        internal void CustomCommunicationClientUsageEventWrapper(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string serviceUri,
-            string customCommunicationClientTypeName,
-            string partitionKey)
-        {
-            Instance.CustomCommunicationClientUsageEvent(
-                type,
-                clusterOsType,
-                runtimePlatform,
-                serviceUri.GetHashCode().ToString(),
-                customCommunicationClientTypeName.GetHashCode().ToString(),
-                partitionKey);
-        }
-
-        [NonEvent]
         internal void ServiceRemotingUsageEventWrapper(
             string type,
             string clusterOsType,
@@ -301,25 +278,6 @@ namespace Microsoft.ServiceFabric.Services
                 applicationName,
                 applicationTypeName,
                 communicationListenerType);
-        }
-
-        [Event(CustomCommunicationClientUsageEventId, Message = CustomCommunicationClientUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void CustomCommunicationClientUsageEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string serviceUri,
-            string customCommunicationClientTypeName,
-            string partitionKey)
-        {
-            this.WriteEvent(
-                CustomCommunicationClientUsageEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                serviceUri,
-                customCommunicationClientTypeName,
-                partitionKey);
         }
 
         [Event(ServiceRemotingUsageEventId, Message = ServiceRemotingUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]

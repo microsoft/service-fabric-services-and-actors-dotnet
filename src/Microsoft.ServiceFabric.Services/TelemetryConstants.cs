@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.Services
         internal static readonly string ServiceLifecycleEventName = "TelemetryEvents.ServiceLifecycleEvent";
         internal static readonly string ServiceRemotingUsageEventName = "TelemetryEvents.ServiceRemotingUsageEvent";
         internal static readonly string CommunicationListenerUsageEventName = "TelemetryEvents.CommunicationListenerUsageEvent";
-        internal static readonly string CustomCommunicationClientUsageEventName = "TelemetryEvents.CustomCommunicationClientUsageEvent";
 
         // Constants used to identify the various event parameters for telemetry events.
         internal static readonly string ClusterOSWindows = "Windows";
@@ -20,7 +19,6 @@ namespace Microsoft.ServiceFabric.Services
         internal static readonly string DotNetFramework = "DotNetFramework";
         internal static readonly string LifecycleEventOpened = "Opened";
         internal static readonly string LifecycleEventClosed = "Closed";
-        internal static readonly string ServicesRemotingType = "Microsoft.ServiceFabric.Services.Remoting";
         internal static readonly string StatefulServiceKind = "StatefulService";
         internal static readonly string StatelessServiceKind = "StatelessService";
         internal static readonly string RemotingVersionV1 = "V1";

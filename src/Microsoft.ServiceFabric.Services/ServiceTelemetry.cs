@@ -97,30 +97,6 @@ namespace Microsoft.ServiceFabric.Services
             FabricTransportServiceRemotingEvent(context, TelemetryConstants.RemotingVersionV2, isSecure);
         }
 
-        /// <summary>
-        /// CustomCommunicationClientUsageEvent captures the telemetry event of the usage of a
-        /// custom CommunicationClient by clients.
-        /// </summary>
-        /// <param name="serviceName">Name of the service.</param>
-        /// <param name="customCommunicationClientFactoryType">The custom CommunicationClientFactory type.</param>
-        /// <param name="partitionKey">PartitionKey of the service partition.</param>
-        internal static void CheckCustomCommunicationClientUsageEvent(
-            string serviceName,
-            string customCommunicationClientFactoryType,
-            string partitionKey)
-        {
-            if (!customCommunicationClientFactoryType.Contains(TelemetryConstants.ServicesRemotingType))
-            {
-                ServiceEventSource.Instance.CustomCommunicationClientUsageEventWrapper(
-                    TelemetryConstants.CustomCommunicationClientUsageEventName,
-                    TelemetryConstants.OsType,
-                    TelemetryConstants.RuntimePlatform,
-                    serviceName,
-                    customCommunicationClientFactoryType,
-                    partitionKey);
-            }
-        }
-
         private static void StatefulServiceLifecycleEvent(StatefulServiceContext context, string lifecycleEvent)
         {
             ServiceEventSource.Instance.ServiceLifecycleEventWrapper(
