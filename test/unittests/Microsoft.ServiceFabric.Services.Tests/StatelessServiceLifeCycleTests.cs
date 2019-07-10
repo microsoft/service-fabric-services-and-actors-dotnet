@@ -157,7 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         [Fact]
         public void ListenerExceptionOnAbort()
         {
-            Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: RunAsyncFail()");
+            Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: ListenerExceptionOnAbort()");
 
             var serviceContext = TestMocksRepository.GetMockStatelessServiceContext();
 
