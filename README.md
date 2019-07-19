@@ -29,9 +29,6 @@ Binaries in the build are delay signed, these are fully signed in the official b
 
 For branches, please see [Branching Information](CONTRIBUTING.md#BranchingInformation)
 
-## Development
-We are currently working on transitioning all development to GitHub. For the time being we are continuing to do our own development internally. Upon each release of the SDK, we will push our latest changes to GitHub. We intend to bring more of our development process and tools into the open over time.
-
 ## Releases and Support
 Official releases from Microsoft of the NuGet packages in this repo are released directly to NuGet and Web Platform Installer. Get the latest official release [here](http://www.microsoft.com/web/handlers/webpi.ashx?command=getinstallerredirect&appid=MicrosoftAzure-ServiceFabric-VS2015).
 
