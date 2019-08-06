@@ -299,9 +299,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "Begin close.");
 
-            await this.actorManagerAdapter.CloseAsync(cancellationToken);
-
             ActorTelemetry.ActorServiceReplicaCloseEvent(this.ActorManager.ActorService.Context);
+
+            await this.actorManagerAdapter.CloseAsync(cancellationToken);
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End close.");
         }
