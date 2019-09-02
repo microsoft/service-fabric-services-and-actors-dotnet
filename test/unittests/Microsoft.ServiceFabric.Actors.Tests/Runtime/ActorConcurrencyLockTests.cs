@@ -96,7 +96,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             guard.Test_CurrentCount.Should().Be(1);
 
             Action action = () => guard.ReleaseContext(Guid.NewGuid().ToString()).Wait();
-            action.ShouldThrow<AggregateException>();
+            action.Should().Throw<AggregateException>();
 
             guard.ReleaseContext(context).Wait();
             guard.Test_CurrentContext.Should().NotBe(context);
@@ -117,7 +117,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             guard.Test_CurrentCount.Should().Be(1);
 
             Action action = () => guard.Acquire(context, null, CancellationToken.None).Wait();
-            action.ShouldThrow<AggregateException>();
+            action.Should().Throw<AggregateException>();
 
             guard.ReleaseContext(context).Wait();
             guard.Test_CurrentContext.Should().NotBe(context);

@@ -126,10 +126,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
                 await this.StateManager.RemoveStateAsync("State1");
                 Action action = () => this.StateManager.RemoveStateAsync("State1").GetAwaiter().GetResult();
-                action.ShouldThrow<KeyNotFoundException>("State1 was removed using RemoveStateAsync (RemoveStateAsync verification)");
+                action.Should().Throw<KeyNotFoundException>("State1 was removed using RemoveStateAsync (RemoveStateAsync verification)");
 
                 action = () => this.StateManager.GetStateAsync<int>("State1").GetAwaiter().GetResult();
-                action.ShouldThrow<KeyNotFoundException>("State1 was removed using RemoveStateAsync (GetStateAsync verification)");
+                action.Should().Throw<KeyNotFoundException>("State1 was removed using RemoveStateAsync (GetStateAsync verification)");
 
                 (await this.StateManager.ContainsStateAsync("State1")).Should().BeFalse("State1 has been removed (ContainsStateAsync(State2) verification)");
                 (await this.StateManager.ContainsStateAsync("State2")).Should().BeTrue("State2 hasn't been removed (ContainsStateAsync(State2) verification)");
@@ -155,7 +155,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             public async Task VerifyRemiderMockabilityAsync()
             {
                 Action action = () => this.GetReminder("NonExistingReminder");
-                action.ShouldThrow<ReminderNotFoundException>("reminder doesn't exist.");
+                action.Should().Throw<ReminderNotFoundException>("reminder doesn't exist.");
 
                 await this.RegisterReminderAsync("MockReminder", null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
                 var reminder = this.GetReminder("MockReminder");
@@ -167,7 +167,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 await this.UnregisterReminderAsync(reminder);
 
                 action = () => this.GetReminder("MockReminder");
-                action.ShouldThrow<ReminderNotFoundException>("reminder was removed and doesn't exist.");
+                action.Should().Throw<ReminderNotFoundException>("reminder was removed and doesn't exist.");
             }
 
             /// <summary>
@@ -177,11 +177,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             {
                 var actorTimer = TestMocksRepository.GetMockActorTimer();
                 Action action = () => this.UnregisterTimer(actorTimer);
-                action.ShouldNotThrow("unregistering a timer that doesn't exist shouldn't throw.");
+                action.Should().NotThrow("unregistering a timer that doesn't exist shouldn't throw.");
 
                 this.RegisterTimer((obj) => Task.FromResult(true), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
                 action = () => this.UnregisterTimer(actorTimer);
-                action.ShouldNotThrow("unregistering an existing timer shouldn't throw");
+                action.Should().NotThrow("unregistering an existing timer shouldn't throw");
             }
 
             /// <summary>
@@ -191,13 +191,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             {
                 IMockActorEvent actorEvent = null;
                 Action action = () => actorEvent = this.GetEvent<IMockActorEvent>();
-                action.ShouldNotThrow("Getting an event should not throw.");
+                action.Should().NotThrow("Getting an event should not throw.");
 
                 action = () => actorEvent.MockActorEventA();
-                action.ShouldNotThrow("actorEvent.MockActorEventA() verification");
+                action.Should().NotThrow("actorEvent.MockActorEventA() verification");
 
                 action = () => actorEvent.MockActorEventB(this.Id);
-                action.ShouldNotThrow("actorEvent.MockActorEventB() verification");
+                action.Should().NotThrow("actorEvent.MockActorEventB() verification");
             }
 
             /// <inheritdoc/>

@@ -16,6 +16,11 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "In large files region allows creating logical sections in the file for better readability.")]
 
 [assembly: SuppressMessage(
+    "StyleCop.CSharp.DocumentationRules",
+    "SA1629:DocumentationTextMustEndWithAPeriod",
+    Justification = "Supressing as its not much of a vlue add given the amount of files it would touch.")]
+
+[assembly: SuppressMessage(
     "Style",
     "IDE1006:Naming Styles",
     Justification = "Prefer SA1307-SA1307AccessibleFieldsMustBeginWithUpperCaseLetter over IDE:1006.")]
