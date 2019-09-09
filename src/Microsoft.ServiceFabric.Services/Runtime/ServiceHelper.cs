@@ -73,7 +73,16 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             ServiceTrace.Source.WriteErrorWithId(this.traceType + ApiErrorTraceTypeSuffix, this.traceId, msg);
 
-            this.ReportRunAsyncUnexpectedExceptionHealth(partition, ex);
+            try
+            {
+                // Seen some instances when service is running with ResourceGovernance placing limit of 1 GB on the service process.
+                // So before the we can FailFast on exception from user's RunAsync code, it can hit OOM while reporting health. Handle OOM explictly here so that FailFast can happen below.
+                this.ReportRunAsyncUnexpectedExceptionHealth(partition, ex);
+            }
+            catch (Exception exception)
+            {
+                ServiceTrace.Source.WriteWarningWithId(this.traceType, this.traceId, $"Exception while reporting Health for Partition. {exception.ToString()}");
+            }
 
             // In LRC test we have observed that sometimes FailFast takes time to write error
             // details to WER and bring down the service host. This causes delays in failover
