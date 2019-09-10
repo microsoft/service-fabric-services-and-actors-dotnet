@@ -76,7 +76,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             try
             {
                 // Seen some instances when service is running with ResourceGovernance placing limit of 1 GB on the service process.
-                // So before the we can FailFast on exception from user's RunAsync code, it can hit OOM while reporting health. Handle OOM explictly here so that FailFast can happen below.
+                // So before  we can FailFast on exception from user's RunAsync code, it can hit OOM while reporting health. Handle exception here from Health Reporting
+                // so that FailFast can happen below.
                 this.ReportRunAsyncUnexpectedExceptionHealth(partition, ex);
             }
             catch (Exception exception)
