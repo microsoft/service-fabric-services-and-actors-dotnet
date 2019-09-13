@@ -13,12 +13,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// </summary>
     public class ExponentialRetryPolicy : IRetryPolicy
     {
-        private const int MaxDelayMultiplier = 9;
-        private const int SameDelayRequestCounter = 3;
         private static readonly RandomGenerator RandomGenerator = new RandomGenerator();
 
-        private readonly int totalNumberOfRetry;
-        private readonly TimeSpan clientRetryTimeout;
         private readonly TimeSpan maxRetryJitter;
 
         /// <summary>
@@ -35,9 +31,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             int defaultMaxRetryCount,
             TimeSpan clientRetryTimeout)
         {
-            this.clientRetryTimeout = clientRetryTimeout;
+            this.ClientRetryTimeout = clientRetryTimeout;
             this.maxRetryJitter = TimeSpan.FromSeconds(2);
-            this.totalNumberOfRetry = defaultMaxRetryCount;
+            this.TotalNumberOfRetries = defaultMaxRetryCount;
         }
 
         /// <summary>
@@ -55,30 +51,45 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             TimeSpan maxRetryJitter,
             TimeSpan clientRetryTimeout)
         {
-            this.totalNumberOfRetry = defaultMaxRetryCount;
-            this.clientRetryTimeout = clientRetryTimeout;
+            this.TotalNumberOfRetries = defaultMaxRetryCount;
+            this.ClientRetryTimeout = clientRetryTimeout;
             this.maxRetryJitter = maxRetryJitter;
         }
 
-        /// <inheritdoc/>
-        public int TotalNumberOfRetries { get => this.totalNumberOfRetry; }
+        /// <summary>
+        /// Gets or sets the maximum multiplier for delay.  MaxDelay equals BaseRetryDelay * (2 to the power of MaxDelayMultiplier).
+        /// </summary>
+        public static int MaxDelayMultiplier { get; set; } = 9;
+
+        /// <summary>
+        /// Gets or sets the number of requests to use the same delay in a row. This slows the exponential backoff.
+        /// </summary>
+        public static int SameDelayRequestCounter { get; set; } = 3;
 
         /// <inheritdoc/>
-        public TimeSpan ClientRetryTimeout { get => this.clientRetryTimeout; }
+        public int TotalNumberOfRetries { get; }
+
+        /// <inheritdoc/>
+        public TimeSpan ClientRetryTimeout { get; }
+
+        /// <summary>
+        /// Gets or sets the initial delay before retrying. All retries would be exponentially increasing from this value.
+        /// </summary>
+        public TimeSpan BaseRetryDelay { get; set; } = TimeSpan.FromSeconds(1);
 
         /// <inheritdoc/>
         public TimeSpan GetNextRetryDelay(RetryDelayParameters retryDelayParameters)
         {
-            // This we are doing to increase delay gradually . For every 3 consecutive retrries, delay wuld be same.
+            // This we are doing to increase delay gradually . For every SameDelayRequestCounter consecutive retrries, delay would be same.
             int delayMultiplier = retryDelayParameters.RetryAttempt / SameDelayRequestCounter;
 
-            // Capping the Max Retry Time to nearest 5 mins ~ Pow(2,9)
+            // Capping the Max Retry Time to BaseRetryDelay * Pow(2,MaxDelayMultiplier).
             if (delayMultiplier >= MaxDelayMultiplier)
             {
                 delayMultiplier = MaxDelayMultiplier;
             }
 
-            return TimeSpan.FromSeconds((this.maxRetryJitter.TotalSeconds * RandomGenerator.NextDouble()) + (1 << delayMultiplier));
+            return TimeSpan.FromMilliseconds((this.maxRetryJitter.TotalMilliseconds * RandomGenerator.NextDouble()) + ((int)this.BaseRetryDelay.TotalMilliseconds << delayMultiplier));
         }
     }
 }
