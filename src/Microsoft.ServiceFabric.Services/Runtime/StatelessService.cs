@@ -37,6 +37,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             this.serviceContext = serviceContext;
             this.addresses = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
+
+            ServiceTelemetry.StatelessServiceInitializeEvent(this.serviceContext);
         }
 
         /// <summary>
@@ -93,6 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <inheritdoc/>
         Task IStatelessUserServiceInstance.OnCloseAsync(CancellationToken cancellationToken)
         {
+            ServiceTelemetry.StatelessServiceInstanceCloseEvent(this.serviceContext);
             return this.OnCloseAsync(cancellationToken);
         }
 
