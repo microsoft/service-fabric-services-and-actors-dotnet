@@ -69,9 +69,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
-            ActorTelemetry.ActorServiceInitializeEvent(
-                this.ActorManager.ActorService.Context,
-                this.StateProviderReplica.GetType().ToString());
         }
 
         /// <summary>
@@ -298,8 +295,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         protected override async Task OnCloseAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "Begin close.");
-
-            ActorTelemetry.ActorServiceReplicaCloseEvent(this.ActorManager.ActorService.Context);
 
             await this.actorManagerAdapter.CloseAsync(cancellationToken);
 

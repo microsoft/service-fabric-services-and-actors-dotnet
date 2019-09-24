@@ -1241,10 +1241,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 remainingDueTime,
                 saveState);
 
-            ActorTelemetry.ActorReminderRegisterationEvent(
-                this.ActorService.Context,
-                actorReminder);
-
             var reminderDictionary = this.remindersByActorId.GetOrAdd(
                 actorReminder.OwnerActorId,
                 k => new ConcurrentDictionary<string, ActorReminder>());

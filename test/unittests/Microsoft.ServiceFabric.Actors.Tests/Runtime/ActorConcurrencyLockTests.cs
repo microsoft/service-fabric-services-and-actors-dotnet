@@ -182,7 +182,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
                 var serviceContext = new StatefulServiceContext(
                     nodeContext,
-                    TestMocksRepository.GetCodePackageActivationContext(),
+                    new Mock<ICodePackageActivationContext>().Object,
                     "MockServiceTypeName",
                     new Uri("fabric:/MockServiceName"),
                     null,
