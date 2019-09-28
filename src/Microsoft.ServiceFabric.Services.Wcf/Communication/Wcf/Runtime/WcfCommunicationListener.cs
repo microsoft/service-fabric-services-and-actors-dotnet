@@ -196,7 +196,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                 this.publishAddress = serviceContext.PublishAddress;
             }
 
-            this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), listenerBinding, address);
+            this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), wcfServiceObject, listenerBinding, address);
             this.host = CreateServiceHost(wcfServiceObject, this.endpoint);
         }
 
@@ -220,7 +220,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                     endpointResourceName);
             }
 
-            this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), listenerBinding, address);
+            this.endpoint = CreateServiceEndpoint(typeof(TServiceContract), wcfServiceType, listenerBinding, address);
             this.host = CreateServiceHost(wcfServiceType, this.endpoint);
         }
 
@@ -300,10 +300,21 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
             this.host.Abort();
         }
 
-        private static ServiceEndpoint CreateServiceEndpoint(Type contractType, Binding binding, EndpointAddress address)
+        private static ServiceEndpoint CreateServiceEndpoint(Type contractType, Type serviceType, Binding binding, EndpointAddress address)
         {
             var endpoint = new ServiceEndpoint(
-                ContractDescription.GetContract(contractType),
+                ContractDescription.GetContract(contractType, serviceType),
+                binding,
+                address);
+            endpoint.Behaviors.Add(new ListenUriEndpointBehavior());
+
+            return endpoint;
+        }
+
+        private static ServiceEndpoint CreateServiceEndpoint(Type contractType, object serviceImplementation, Binding binding, EndpointAddress address)
+        {
+            var endpoint = new ServiceEndpoint(
+                ContractDescription.GetContract(contractType, serviceImplementation),
                 binding,
                 address);
             endpoint.Behaviors.Add(new ListenUriEndpointBehavior());
