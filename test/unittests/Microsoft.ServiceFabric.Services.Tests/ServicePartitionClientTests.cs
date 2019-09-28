@@ -75,6 +75,30 @@ namespace Microsoft.ServiceFabric.Services.Tests
         }
 
         /// <summary>
+        /// Tests handling of cancellation after the operation is complete. This is meant to expose bugs where callbacks are registered on cancellation taken.
+        /// /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task CancelAfterCall()
+        {
+            var clientRetryTimeout = TimeSpan.FromSeconds(1);
+            var retryCount = (int)(2 * (clientRetryTimeout.Ticks / DefaultRetryDelay.Ticks));
+            var retryDelay = DefaultRetryDelay;
+
+            var sw = new Stopwatch();
+            sw.Start();
+            var result = await this.SetupCancelTestAsync(
+                clientRetryTimeout,
+                retryCount,
+                retryDelay);
+            result.CancellationTokenSource.Cancel();
+
+            sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds, "Should be longer than the ClientRetryTimeout.");
+            result.ExceptionFromInvoke.Should().BeAssignableTo(typeof(OperationCanceledException), $"Should indicate a canceled operation. {result.ExceptionFromInvoke}");
+            result.CallCount.Should().BeLessThan(retryCount, "Should cancel before token is signaled.");
+        }
+
+        /// <summary>
         /// Tests handling of cancellation by the operation timer when retry delay is large.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
