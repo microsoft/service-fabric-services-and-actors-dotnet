@@ -19,7 +19,7 @@ We reserve the right to close PRs that are not making progress. If no changes ar
 
 ### <a name="BranchingInformation"></a>Branching Information
 All development for future releases happen in the develop branch.
-A new branch is forked off of develop branch for each release to stabilize it before final release. (eg. release_3.4 branch represents the 3.4.* release).
+A new branch is forked off of develop branch for each release to stabilize it before final release. (eg. release_4.0 branch represents the 4.0.* release).
 A bug fix in an already released version is made both to its release branch and to develop branch so that its available in refresh of the release and for future new releases.
 
 ### Contributor License Agreement

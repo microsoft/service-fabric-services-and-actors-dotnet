@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             this.limit = bufferLimit;
             this.bufferPool = new SynchronizedPool<PooledBuffer>(this.limit);
             this.allocator = new Allocator(segmentSize);
-            AppTrace.TraceSource.WriteInfo(
+            ServiceTrace.Source.WriteInfo(
                 "BufferPoolManager",
                 "BufferMessageSize {0} ,BufferMacCount {1}",
                 segmentSize,
