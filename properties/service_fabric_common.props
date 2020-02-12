@@ -22,10 +22,10 @@
 
     <!-- Set Versions. These are used for generating Assemblies and Nuget packages. -->
     <!-- Versions used for Microsoft.ServiceFabric.* nuget packages from other repos.-->
-    <NugetPkg_Version_Microsoft_ServiceFabric>7.0.457</NugetPkg_Version_Microsoft_ServiceFabric>
-    <NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>4.0.457</NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>
-    <NugetPkg_Version_Microsoft_ServiceFabric_Data>4.0.457</NugetPkg_Version_Microsoft_ServiceFabric_Data>
-    <NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>4.0.457</NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>
+    <NugetPkg_Version_Microsoft_ServiceFabric>7.0.466</NugetPkg_Version_Microsoft_ServiceFabric>
+    <NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>4.0.466</NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>
+    <NugetPkg_Version_Microsoft_ServiceFabric_Data>4.0.466</NugetPkg_Version_Microsoft_ServiceFabric_Data>
+    <NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>4.0.466</NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>
 
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
