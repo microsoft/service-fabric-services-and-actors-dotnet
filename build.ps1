@@ -45,39 +45,24 @@ if($MSBuildFullPath -eq "")
         $progFilesPath =  ${env:ProgramFiles}
     }
 
-    $VS2017InstallPath = join-path $progFilesPath "Microsoft Visual Studio\2017"
+    $VS2019InstallPath = join-path $progFilesPath "Microsoft Visual Studio\2019"
     $versions = 'Community', 'Professional', 'Enterprise'
 
     foreach ($version in $versions)
     {
-        $VS2017VersionPath = join-path $VS2017InstallPath $version
-        $MSBuildFullPath = join-path $VS2017VersionPath "MSBuild\15.0\Bin\MSBuild.exe"
+        $VS2019VersionPath = join-path $VS2019InstallPath $version
+        $MSBuildFullPath = join-path $VS2019VersionPath "MSBuild\Current\Bin\MSBuild.exe"
 
         if (Test-Path $MSBuildFullPath)
         {
             break
         }
     }
-
-    if (!(Test-Path $MSBuildFullPath))
-    {
-        Write-Host "Visual Studio 2017 installation not found in ProgramFiles, trying to find install path from registry."
-        if(Test-Path -Path HKLM:\SOFTWARE\WOW6432Node)
-        {
-            $VS2017VersionPath = Get-ItemProperty (Get-ItemProperty -Path HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\SxS\VS7 -Name "15.0")."15.0"
-        }
-        else
-        {
-            $VS2017VersionPath = Get-ItemProperty (Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\VisualStudio\SxS\VS7 -Name "15.0")."15.0"
-        }
-
-        $MSBuildFullPath = join-path $VS2017VersionPath "MSBuild\15.0\Bin\MSBuild.exe"
-    }
 }
 
 if (!(Test-Path $MSBuildFullPath))
 {
-    throw "Unable to find MSBuild installed on this machine. Please install Visual Studio 2017 or if its installed at non-default location, provide the full ppath to msbuild using -MSBuildFullPath parameter."
+    throw "Unable to find MSBuild installed on this machine. Please install Visual Studio 2019 or if its installed at non-default location, provide the full path to msbuild using -MSBuildFullPath parameter."
 }
 
 
