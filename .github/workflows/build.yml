@@ -1,0 +1,38 @@
+name: build
+
+on: 
+  push:
+    branches:
+      - develop
+      - release_7*
+    tags:
+      - v*
+    
+  pull_request:
+    branches: 
+    - develop
+    - release_7*
+
+jobs:
+  build:
+    name: Build Projects
+    runs-on: windows-latest
+    env:
+      DROP_DIR: drop
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.102
+      - name: Build Everything
+        shell: powershell
+        run: |
+         build.ps1
+      - name: Run Tests
+        run: dotnet test code.sln --configuration release
+      - name: upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: release_drop
+          path: ${{ env.DROP_DIR }}
