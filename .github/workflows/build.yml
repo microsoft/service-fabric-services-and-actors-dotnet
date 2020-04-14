@@ -27,8 +27,7 @@ jobs:
           dotnet-version: 3.1.102
       - name: Build Everything
         shell: powershell
-        run: |
-         build.ps1
+        run: ./build.ps1
       - name: Run Tests
         run: dotnet test code.sln --configuration release
       - name: upload artifacts
