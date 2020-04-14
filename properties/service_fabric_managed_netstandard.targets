@@ -38,7 +38,7 @@
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>      
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Publish\runtimes\win\lib\netstandard2.0\*.dll"/>
+      <BinairesNetStandard_Win Include="$(OutputPath)Publish\*.dll"/>
     </ItemGroup>
 
     <Copy SourceFiles="@(BinairesNetStandard)" DestinationFiles="@(BinairesNetStandard->'$(DropFolderNetStandard)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
