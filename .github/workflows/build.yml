@@ -16,15 +16,12 @@ on:
 jobs:
   build:
     name: Build Projects
-    runs-on: windows-latest
+    runs-on: windows-2019
+    # info about windows-2019 https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
     env:
       DROP_DIR: drop
     steps:
       - uses: actions/checkout@v1
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1.102
       - name: Build Everything
         shell: powershell
         run: ./build.ps1
