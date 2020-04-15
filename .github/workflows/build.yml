@@ -11,7 +11,7 @@ on:
   pull_request:
     branches: 
     - develop
-    - release_7*
+    - release_4*
 
 jobs:
   build:
