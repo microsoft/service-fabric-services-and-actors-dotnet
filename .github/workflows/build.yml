@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - release_7*
+      - release_4*
     tags:
       - v*
     
