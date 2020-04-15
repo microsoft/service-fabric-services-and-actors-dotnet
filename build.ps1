@@ -19,8 +19,8 @@ param
 
     # msbuild verbosity level.
     [ValidateSet('quiet','minimal', 'normal', 'detailed', 'diagnostic')]
-    [string]$Verbosity = 'minimal',
+    [string]$Verbosity = 'minimal'
 )
 
 $msbuildArgs = @("buildall.proj", "/nr:false", "/nologo", "/t:$target", "/verbosity:$verbosity", "/property:RequestedVerbosity=$verbosity", "/property:Configuration=$configuration", $args)
-& dotnet msbuild $msbuildArgs
+dotnet msbuild $msbuildArgs
