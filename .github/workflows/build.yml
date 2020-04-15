@@ -26,7 +26,7 @@ jobs:
         shell: powershell
         run: ./build.ps1
       - name: Run Tests
-        run: dotnet test code.sln --configuration release --nologo --no-build --settings test\unittests\default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx > ${{ env.DROP_DIR }}\test_run.log
+        run: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
       - name: upload artifacts
         uses: actions/upload-artifact@master
         with:
