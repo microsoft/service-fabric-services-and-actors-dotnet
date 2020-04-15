@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: Build Projects
+    name: Build Test
     runs-on: windows-2019
     # info about windows-2019 https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
     env:
@@ -26,7 +26,7 @@ jobs:
         shell: powershell
         run: ./build.ps1
       - name: Run Tests
-        run: dotnet test code.sln --configuration release --nologo --no-build --results-directory ${{ env.DROP_DIR }}
+        run: dotnet test code.sln --configuration release --nologo --results-directory ${{ env.DROP_DIR }}
       - name: upload artifacts
         uses: actions/upload-artifact@master
         with:
