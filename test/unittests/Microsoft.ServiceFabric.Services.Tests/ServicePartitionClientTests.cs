@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 retryDelay);
             result.CancellationTokenSource.Cancel();
 
-            sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds, "Should be longer than the ClientRetryTimeout.");
+            sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds - 10, "Should be longer than the ClientRetryTimeout.");
             result.ExceptionFromInvoke.Should().BeAssignableTo(typeof(OperationCanceledException), $"Should indicate a canceled operation. {result.ExceptionFromInvoke}");
             result.CallCount.Should().BeLessThan(retryCount, "Should cancel before token is signaled.");
         }
