@@ -26,7 +26,7 @@ jobs:
         shell: powershell
         run: ./build.ps1
       - name: Run Tests
-        run: dotnet test test/unittests/Microsoft.ServiceFabric.Actors.Tests/Microsoft.ServiceFabric.Actors.Tests.csproj --test-adapter-path test/unittests/Microsoft.ServiceFabric.Actors.Tests/bin/release --configuration release --nologo --results-directory ${{ env.DROP_DIR }}
+        run: dotnet test code.sln --configuration release --nologo --results-directory ${{ env.DROP_DIR }}
       - name: upload artifacts
         uses: actions/upload-artifact@master
         with:
