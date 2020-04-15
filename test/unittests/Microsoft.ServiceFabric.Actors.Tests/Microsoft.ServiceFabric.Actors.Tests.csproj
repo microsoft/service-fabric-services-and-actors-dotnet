@@ -6,7 +6,7 @@
     <ProjectGuid>{63B58D31-66BB-4879-B4F1-0969FA3F4464}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Actors.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net46</TargetFramework>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
