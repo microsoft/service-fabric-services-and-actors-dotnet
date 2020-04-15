@@ -1,0 +1,35 @@
+name: build
+
+on: 
+  push:
+    branches:
+      - develop
+      - release_4*
+    tags:
+      - v*
+    
+  pull_request:
+    branches: 
+    - develop
+    - release_4*
+
+jobs:
+  build:
+    name: Build Test
+    runs-on: windows-2019
+    # info about windows-2019 https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
+    env:
+      DROP_DIR: drop
+      TEST_RESULT_DIR: drop\testresults
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build Everything
+        shell: powershell
+        run: ./build.ps1
+      - name: Run Tests
+        run: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
+      - name: upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: release_drop
+          path: ${{ env.DROP_DIR }}
