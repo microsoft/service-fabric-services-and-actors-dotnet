@@ -221,7 +221,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
             var partsToTruncate = new List<MethodNameParts>();
 
             // Check if we should truncate the type component of the method name
-            var typeFull = methodNameBuilder.MethodInfo.DeclaringType.Name;
+            var typeFull = methodNameBuilder.MethodInfo.DeclaringType.FullName;
             this.PrepareMethodNamePartForTruncation(
                 typeFull,
                 MethodNameParts.DeclaringType,
