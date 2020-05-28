@@ -1213,7 +1213,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var reminderCompletedDataMap = new Dictionary<string, ReminderCompletedData>();
 
-            var enumerator = this.storeReplica.Enumerate(tx, ActorStateProviderHelper.ReminderCompletedStorageKeyPrefix);
+            using var enumerator = this.storeReplica.Enumerate(tx, ActorStateProviderHelper.ReminderCompletedStorageKeyPrefix);
 
             while (enumerator.MoveNext())
             {
@@ -1239,7 +1239,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var reminderCompletedDataMap = await this.GetReminderCompletedDataMapAsync(tx, cancellationToken);
 
-                var enumerator = this.storeReplica.Enumerate(tx, ReminderStorageKeyPrefix);
+                using var enumerator = this.storeReplica.Enumerate(tx, ReminderStorageKeyPrefix);
 
                 while (enumerator.MoveNext())
                 {
@@ -1298,7 +1298,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void RemoveKeysWithPrefixAsync(Transaction tx, string keyPrefix)
         {
-            var stateMetadataEnumerator = this.storeReplica.EnumerateMetadata(tx, keyPrefix);
+            using var stateMetadataEnumerator = this.storeReplica.EnumerateMetadata(tx, keyPrefix);
 
             while (stateMetadataEnumerator.MoveNext())
             {
@@ -1348,7 +1348,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                var enumerator = this.storeReplica.EnumerateMetadata(tx, keyPrefix + "_");
+                using var enumerator = this.storeReplica.EnumerateMetadata(tx, keyPrefix + "_");
 
                 while (enumerator.MoveNext())
                 {

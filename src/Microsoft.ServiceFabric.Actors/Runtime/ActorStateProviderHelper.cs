@@ -425,7 +425,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorQueryResult = new PagedResult<ActorId>();
 
             // KVS enumerates its entries in alphabetical order.
-            var enumerator = getEnumeratorFunc();
+            using var enumerator = getEnumeratorFunc();
 
             // Move the enumerator to point to first entry
             var enumHasMoreEntries = enumerator.MoveNext();
