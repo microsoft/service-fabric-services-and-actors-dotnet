@@ -106,7 +106,17 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             await this.CloseCommunicationListenersAsync(cancellationToken);
             await this.CancelRunAsync();
 
+            ServiceTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Calling userServiceInstance.OnCloseAsync()");
+
             await this.userServiceInstance.OnCloseAsync(cancellationToken);
+
+            ServiceTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Completed call to userServiceInstance.OnCloseAsync().");
         }
 
         void IStatelessServiceInstance.Abort()

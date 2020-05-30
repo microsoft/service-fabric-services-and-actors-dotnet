@@ -28,7 +28,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private const string CommunicationListenerSlowCloseProperty = "CommunicationListenerSlowClose";
         private const int MaxHealthDescriptionLength = (4 * 1024) - 1;
 
-        private static readonly TimeSpan HealthInformationTimeToLive = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan RunAsyncUnexpectedExceptionHealthInfoTtl = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan RunAsyncSlowCancellationHealthInfoTtl = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan CommunicationListenerSlowCloseHealthInfoTtl = TimeSpan.FromMinutes(1);
 
         private readonly string traceType;
         private readonly string traceId;
@@ -159,7 +161,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             var healthInfo = new HealthInformation(RunAsyncHealthSourceId, RunAsyncHealthUnhandledExceptionProperty, HealthState.Warning)
             {
-                TimeToLive = HealthInformationTimeToLive,
+                TimeToLive = RunAsyncUnexpectedExceptionHealthInfoTtl,
                 RemoveWhenExpired = true,
                 Description = healthDescription,
             };
@@ -171,7 +173,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             var healthInfo = new HealthInformation(RunAsyncHealthSourceId, RunAsyncHealthSlowCanecellationProperty, HealthState.Warning)
             {
-                TimeToLive = HealthInformationTimeToLive,
+                TimeToLive = RunAsyncSlowCancellationHealthInfoTtl,
                 RemoveWhenExpired = true,
                 Description = TrimToLength(description, MaxHealthDescriptionLength),
             };
@@ -183,7 +185,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             var healthInfo = new HealthInformation(CommunicationListenerHealthSourceId, CommunicationListenerSlowCloseProperty, HealthState.Warning)
             {
-                TimeToLive = HealthInformationTimeToLive,
+                TimeToLive = CommunicationListenerSlowCloseHealthInfoTtl,
                 RemoveWhenExpired = true,
                 Description = TrimToLength(description, MaxHealthDescriptionLength),
             };
