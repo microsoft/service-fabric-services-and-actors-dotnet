@@ -28,8 +28,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private const string CommunicationListenerSlowCloseProperty = "CommunicationListenerSlowClose";
         private const int MaxHealthDescriptionLength = (4 * 1024) - 1;
 
-        private static readonly TimeSpan RunAsyncUnexpectedExceptionHealthInfoTtl = TimeSpan.FromMinutes(2);
-        private static readonly TimeSpan RunAsyncSlowCancellationHealthInfoTtl = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan RunAsyncUnexpectedExceptionHealthInfoTtl = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan RunAsyncSlowCancellationHealthInfoTtl = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan CommunicationListenerSlowCloseHealthInfoTtl = TimeSpan.FromMinutes(1);
 
         private readonly string traceType;
