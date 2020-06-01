@@ -217,9 +217,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await this.stateProviderReplica.CloseAsync(cancellationToken);
 
                 ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "Completed call to IStateProviderReplica.CloseAsync.");
+                    TraceType,
+                    this.traceId,
+                    "Completed call to IStateProviderReplica.CloseAsync.");
+
                 this.stateProviderReplica = null;
             }
         }
