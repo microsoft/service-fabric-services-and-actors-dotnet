@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         {
             return (hInfo.RemoveWhenExpired &&
                 hInfo.HealthState == HealthState.Warning &&
-                hInfo.TimeToLive == TimeSpan.FromMinutes(5) &&
+                hInfo.TimeToLive == TimeSpan.FromMinutes(2) &&
                 hInfo.SourceId == "RunAsync" &&
                 hInfo.Property == "RunAsyncUnhandledException");
         }
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         {
             return (hInfo.RemoveWhenExpired &&
                 hInfo.HealthState == HealthState.Warning &&
-                hInfo.TimeToLive == TimeSpan.FromMinutes(5) &&
+                hInfo.TimeToLive == TimeSpan.FromMinutes(2) &&
                 hInfo.SourceId == "RunAsync" &&
                 hInfo.Property == "RunAsyncSlowCancellation");
         }

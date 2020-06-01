@@ -195,11 +195,32 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             await this.CloseCommunicationListenersAsync(cancellationToken);
             await this.CancelRunAsync();
+            ServiceTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Calling userServiceReplica.OnCloseAsync()");
+
             await this.userServiceReplica.OnCloseAsync(cancellationToken);
+
+            ServiceTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Completed call to userServiceReplica.OnCloseAsync().");
 
             if (this.stateProviderReplica != null)
             {
+                ServiceTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Calling IStateProviderReplica.CloseAsync()");
+
                 await this.stateProviderReplica.CloseAsync(cancellationToken);
+
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Completed call to IStateProviderReplica.CloseAsync.");
+
                 this.stateProviderReplica = null;
             }
         }
