@@ -67,10 +67,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <returns>
         /// A serialized list of realiable collections.
         /// </returns>
-        public async Task<IActionResult> GetCollections()
+        public async Task<string> GetCollections()
         {
             var collectionsEnumerator = this.stateManager.GetAsyncEnumerator();
-            CancellationToken ct = new CancellationToken();
+            CancellationToken ct = CancellationToken.None;
 
             var collections = new List<string>();
 
@@ -80,12 +80,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
                 string collectionName = current.Name.AbsolutePath;
                 string collectionType = GetCollectionType(current);
-                String collection = String.Format("Collection name: {0} Type: {1}", collectionName, collectionType);
+                string collection = string.Format("Collection name: {0} Type: {1}", collectionName, collectionType);
 
                 collections.Add(collection);
             }
 
-            return this.Json(collections);
+            return JsonConvert.SerializeObject(collections);
         }
 
         /// <summary>
