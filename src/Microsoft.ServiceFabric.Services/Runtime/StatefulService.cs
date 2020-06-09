@@ -67,10 +67,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <returns>
         /// A serialized list of realiable collections.
         /// </returns>
-        public async Task<string> GetCollections()
+        public async Task<IActionResult> GetCollections()
         {
             var collectionsEnumerator = this.stateManager.GetAsyncEnumerator();
-            CancellationToken ct = CancellationToken.None;
+            CancellationToken ct = new CancellationToken();
 
             var collections = new List<string>();
 
@@ -80,12 +80,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
                 string collectionName = current.Name.AbsolutePath;
                 string collectionType = GetCollectionType(current);
-                string collection = string.Format("Collection name: {0} Type: {1}", collectionName, collectionType);
+                String collection = String.Format("Collection name: {0} Type: {1}", collectionName, collectionType);
 
                 collections.Add(collection);
             }
 
-            return JsonConvert.SerializeObject(collections);
+            return this.Json(collections);
         }
 
         /// <summary>
@@ -97,25 +97,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <param name="collectionName">
         /// Name of the reliable collection.
         /// </param>
-        /// <param name="keyTypeStr">
-        /// Name of the type of key.
-        /// </param>
-        /// <param name="valueTypeStr">
-        /// Name of the type of value.
-        /// </param>
-        /// <param name="keySerializerTypeStr">
-        /// Name of the type of serializer correspoding to the key.
-        /// </param>
-        /// <param name="valueSerializerTypeStr">
-        /// Name of the type of serializer corresponding to the value.
-        /// </param>
         /// <param name="serializedKey">
         /// A key in the reliable collection.
         /// </param>
         /// <returns>
         /// A serialized value.
         /// </returns>
-        public async Task<string> GetItem(string collectionName, string keyTypeStr, string valueTypeStr, string keySerializerTypeStr, string valueSerializerTypeStr, byte[] serializedKey)
+        public async Task<string> GetItem(string collectionName, byte[] serializedKey)
         {
             var result = JsonConvert.SerializeObject(string.Empty);
 
@@ -129,22 +117,15 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             var collection = tryGetAsyncTask.Value;
 
-            Type keySerializerType = keySerializerTypeStr != null ? Type.GetType(keySerializerTypeStr) : null;
-            Type valueSerializerType = valueSerializerTypeStr != null ? Type.GetType(valueSerializerTypeStr) : null;
-            Type keyType = keyTypeStr != null ? Type.GetType(keyTypeStr) : null;
-            Type valueType = Type.GetType(valueTypeStr);
+            Type[] keyAndValueTypes = GetKeyAndValueTypes(collection);
+            Type keyType = keyAndValueTypes[0];
+            Type valueType = keyAndValueTypes[1];
 
-            if (!AreValidTypes(keyType, valueType, keySerializerType, valueSerializerType, true))
-            {
-                result = JsonConvert.SerializeObject("Invalid type(s).");
+            object keySerializer = keyType != null ? this.GetSerializer(collection.Name, keyType) : null;
+            object valueSerializer = this.GetSerializer(collection.Name, valueType);
 
-                return result;
-            }
+            dynamic deserializedKey = GetDeserializedItem(keySerializer, serializedKey);
 
-            object keySerializer = keySerializerType != null ? this.GetSerializer(collection.Name, keyType) : null;
-            object valueSerializer = valueSerializerType != null ? this.GetSerializer(collection.Name, valueType) : null;
-
-            var deserializedKey = GetDeserializedItem(keySerializer, keySerializerType, serializedKey);
             if (deserializedKey == null)
             {
                 result = JsonConvert.SerializeObject(string.Format("Value is not deserialized.", collectionName));
@@ -152,7 +133,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 return result;
             }
 
-            dynamic item = await this.TryGetItemAsync(collection, keyType, valueType, keySerializer, deserializedKey);
+            dynamic item = await this.TryGetItemAsync(collection, keyType, valueType, deserializedKey);
             if (item is null || !item.HasValue)
             {
                 result = JsonConvert.SerializeObject(string.Format("Item does not exist in {0}", collectionName));
@@ -161,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
 
             var value = item.Value;
-            var serializedValue = GetSerializedItem(valueSerializer, valueSerializerType, value, valueType);
+            var serializedValue = GetSerializedItem(valueSerializer, value, valueType);
             result = JsonConvert.SerializeObject(serializedValue);
 
             return result;
@@ -174,18 +155,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <param name="collectionName">
         /// Name of the reliable collection.
         /// </param>
-        /// <param name="keyTypeStr">
-        /// Name of the type of key.
-        /// </param>
-        /// <param name="valueTypeStr">
-        /// Name of the type of value.
-        /// </param>
-        /// <param name="keySerializerTypeStr">
-        /// Name of the type of serializer correspoding to the key.
-        /// </param>
-        /// <param name="valueSerializerTypeStr">
-        /// Name of the type of serializer corresponding to the value.
-        /// </param>
         /// <param name="serializedFirstKey">
         /// The key starting with which items are to be obtained from the reliable collection.
         /// </param>
@@ -195,7 +164,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// <returns>
         /// A serialized list of items.
         /// </returns>
-        public async Task<string> GetItems(string collectionName, string keyTypeStr, string valueTypeStr, string keySerializerTypeStr, string valueSerializerTypeStr, byte[] serializedFirstKey, int count)
+        public async Task<string> GetItems(string collectionName, byte[] serializedFirstKey, int count)
         {
             var list = new List<KeyValuePair<byte[], byte[]>>();
             var result = JsonConvert.SerializeObject(list);
@@ -205,48 +174,52 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             {
                 result = JsonConvert.SerializeObject(string.Format("{0} does not exist.", collectionName));
 
-                return JsonConvert.SerializeObject(result);
+                return result;
             }
 
             var collection = tryGetAsyncTask.Value;
 
-            Type keySerializerType = keySerializerTypeStr != null ? Type.GetType(keySerializerTypeStr) : null;
-            Type valueSerializerType = valueSerializerTypeStr != null ? Type.GetType(valueSerializerTypeStr) : null;
-            Type keyType = keyTypeStr != null ? Type.GetType(keyTypeStr) : null;
-            Type valueType = Type.GetType(valueTypeStr);
+            Type[] keyAndValueTypes = GetKeyAndValueTypes(collection);
+            Type keyType = keyAndValueTypes[0];
+            Type valueType = keyAndValueTypes[1];
 
-            if (!AreValidTypes(keyType, valueType, keySerializerType, valueSerializerType, IsDictionary(collection)))
-            {
-                result = JsonConvert.SerializeObject("Invalid type(s).");
-
-                return result;
-            }
-
-            object keySerializer = keySerializerType != null ? this.GetSerializer(collection.Name, keyType) : null;
-            object valueSerializer = valueSerializerType != null ? this.GetSerializer(collection.Name, valueType) : null;
+            object keySerializer = keyType != null ? this.GetSerializer(collection.Name, keyType) : null;
+            object valueSerializer = this.GetSerializer(collection.Name, valueType);
 
             object deserializedFirstKey = null; // GetDeserializedItem(keySerializer, keySerializerType, serializedFirstKey);
 
-            list = await this.TryGetItemsAsync(collection, keyType, valueType, keySerializerType, valueSerializerType, keySerializer, valueSerializer, deserializedFirstKey, count);
+            list = await this.TryGetItemsAsync(collection, keyType, valueType, keySerializer, valueSerializer, deserializedFirstKey, count);
             result = JsonConvert.SerializeObject(list);
 
             return result;
         }
 
-        private static bool AreValidTypes(Type keyType, Type valueType, Type keySerializerType, Type valueSerializerType, bool isDictionary)
+        private static bool IsBuiltInSerializer(Type serializerType)
         {
-            if ((isDictionary && (keyType == null && keySerializerType == null)) ||
-                (!isDictionary && (keyType != null || keySerializerType != null)) ||
-                (isDictionary && IsSimpleType(keyType) && keySerializerType != null) ||
-                (isDictionary && !IsSimpleType(keyType) && keySerializerType == null) ||
-                valueType == null ||
-                (IsSimpleType(valueType) && valueSerializerType != null) ||
-                (!IsSimpleType(valueType) && valueSerializerType == null))
-            {
-                return false;
-            }
+            var serializerTypeName = serializerType.Name;
 
-            return true;
+            return serializerTypeName.Contains("BuiltInTypeSerializer");
+        }
+
+        private static bool IsConcurrentQueue(IReliableState collection)
+        {
+            var collectionStr = collection.ToString();
+
+            return collection.ToString().Contains("ReliableConcurrentQueue");
+        }
+
+        private static bool IsDictionary(IReliableState collection)
+        {
+            var collectionStr = collection.ToString();
+
+            return collection.ToString().Contains("DistributedDictionary");
+        }
+
+        private static bool IsQueue(IReliableState collection)
+        {
+            var collectionStr = collection.ToString();
+
+            return collection.ToString().Contains("DistributedQueue");
         }
 
         private static string GetCollectionType(IReliableState collection)
@@ -269,11 +242,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             return collectionType;
         }
 
-        private static object GetDeserializedItem(object serializer, Type serializerType, byte[] serializedItem)
+        private static object GetDeserializedItem(object serializer, byte[] serializedItem)
         {
             object deserializedItem = null;
 
-            if (serializerType == null)
+            var serializerType = serializer.GetType();
+
+            if (IsBuiltInSerializer(serializerType))
             {
                 var formatter = new BinaryFormatter();
                 using (var memoryStream = new MemoryStream(serializedItem))
@@ -300,6 +275,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                                 deserializedItem = method.Invoke(serializer, new object[] { binaryReader });
                             }
                         }
+
+                        break;
                     }
                 }
             }
@@ -307,11 +284,40 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             return deserializedItem;
         }
 
-        private static byte[] GetSerializedItem(dynamic serializer, Type serializerType, object value, Type itemType)
+        private Type[] GetKeyAndValueTypes(IReliableState collection)
+        {
+            var keyAndValueTypes = new Type[2];
+
+            var interfaces = collection.GetType().GetInterfaces();
+
+            foreach (Type iType in interfaces)
+            {
+                if (iType.IsGenericType)
+                {
+                    if (iType.GetGenericTypeDefinition() == typeof(IReliableDictionary<,>))
+                    {
+                        keyAndValueTypes[0] = iType.GetGenericArguments()[0];
+                        keyAndValueTypes[1] = iType.GetGenericArguments()[1];
+                    }
+                    else if ((iType.GetGenericTypeDefinition() == typeof(IReliableQueue<>)) ||
+                        (iType.GetGenericTypeDefinition() == typeof(IReliableConcurrentQueue<>)))
+                    {
+                        keyAndValueTypes[0] = null;
+                        keyAndValueTypes[1] = iType.GetGenericArguments()[1];
+                    }
+                }
+            }
+
+            return keyAndValueTypes;
+        }
+
+        private static byte[] GetSerializedItem(dynamic serializer, object value, Type itemType)
         {
             byte[] serializedItem = null;
 
-            if (serializerType == null)
+            var serializerType = serializer.GetType();
+
+            if (IsBuiltInSerializer(serializerType))
             {
                 var formatter = new BinaryFormatter();
                 using (MemoryStream stream = new MemoryStream())
@@ -338,37 +344,13 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                                 serializedItem = memoryStream.ToArray();
                             }
                         }
+
+                        break;
                     }
                 }
             }
 
             return serializedItem;
-        }
-
-        private static bool IsConcurrentQueue(IReliableState collection)
-        {
-            var collectionStr = collection.ToString();
-
-            return collection.ToString().Contains("ReliableConcurrentQueue");
-        }
-
-        private static bool IsDictionary(IReliableState collection)
-        {
-            var collectionStr = collection.ToString();
-
-            return collection.ToString().Contains("DistributedDictionary");
-        }
-
-        private static bool IsQueue(IReliableState collection)
-        {
-            var collectionStr = collection.ToString();
-
-            return collection.ToString().Contains("DistributedQueue");
-        }
-
-        private static bool IsSimpleType(Type type)
-        {
-            return type.IsPrimitive || type == typeof(string);
         }
 
         private object GetSerializer(Uri collectionUriName, Type keyType)
@@ -392,7 +374,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             return serializer;
         }
 
-        private async Task<dynamic> TryGetItemAsync(IReliableState collection, Type keyType, Type valueType, object serializer, object key)
+        private async Task<dynamic> TryGetItemAsync(IReliableState collection, Type keyType, Type valueType, object key)
         {
             dynamic item = null;
 
@@ -444,7 +426,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             return item;
         }
 
-        private async Task<dynamic> TryGetItemsAsync(IReliableState collection, Type keyType, Type valueType, Type keySerializerType, Type valueSerializerType, object keySerializer, object valueSerializer, object key, int count)
+        private async Task<dynamic> TryGetItemsAsync(IReliableState collection, Type keyType, Type valueType, object keySerializer, object valueSerializer, object key, int count)
         {
             var list = new List<KeyValuePair<byte[], byte[]>>();
 
@@ -481,10 +463,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                             var current = enumerator.GetType().GetProperty("Current").GetValue(enumerator);
 
                             var currentDeserializedKey = current.GetType().GetProperty("Key").GetValue(current);
-                            var currentSerializedKey = GetSerializedItem(keySerializer, keySerializerType, currentDeserializedKey, keyType);
+                            var currentSerializedKey = GetSerializedItem(keySerializer, currentDeserializedKey, keyType);
 
                             var currentDeserializedValue = current.GetType().GetProperty("Value").GetValue(current);
-                            var currentSerializedValue = GetSerializedItem(valueSerializer, valueSerializerType, currentDeserializedValue, valueType);
+                            var currentSerializedValue = GetSerializedItem(valueSerializer, currentDeserializedValue, valueType);
 
                             var keyValuePair = new KeyValuePair<byte[], byte[]>(currentSerializedKey, currentSerializedValue);
 
