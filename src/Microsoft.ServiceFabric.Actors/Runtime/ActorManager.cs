@@ -1254,7 +1254,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorReminder,
                 (k, v) =>
                 {
-                    v.CancelTimer();
+                    v.Dispose();
                     return actorReminder;
                 });
 
