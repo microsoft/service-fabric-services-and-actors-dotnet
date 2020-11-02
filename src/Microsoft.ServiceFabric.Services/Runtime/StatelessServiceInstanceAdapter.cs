@@ -96,7 +96,27 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.runAsynCancellationTokenSource = new CancellationTokenSource();
             this.executeRunAsyncTask = this.ScheduleRunAsync(this.runAsynCancellationTokenSource.Token);
 
-            await this.userServiceInstance.OnOpenAsync(cancellationToken);
+            Exception onOpenAsyncEx = null;
+
+            try
+            {
+                await this.userServiceInstance.OnOpenAsync(cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                onOpenAsyncEx = exception;
+                ServiceTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "Got exception when calling onOpenAsync",
+                    exception);
+            }
+
+            if (onOpenAsyncEx != null)
+            {
+                await this.CloseCommunicationListenersAsync(cancellationToken);
+                throw onOpenAsyncEx;
+            }
 
             return this.endpointCollection.ToString();
         }
