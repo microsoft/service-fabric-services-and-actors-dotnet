@@ -109,11 +109,26 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             if (toolContext.ShouldGenerateApplicationManifest())
             {
                 var applicationManifest = CreateApplicationManifest(mergedServiceManifest);
+                ApplicationManifestType latestApplicationManifestType = MergeApplicationManifest(applicationManifest);
+
+                if (toolContext.StartupServicesFlag)
+                {
+                    // If code enters here for ApplicationManifestGeneration.
+                    // check if StartupServices.xml path is provided or not
+                    // if provided add default services in StartupServices.xml
+                    toolContext.ExistingStartupServicesManifestType.DefaultServices
+                        = latestApplicationManifestType.DefaultServices;
+                    InsertXmlCommentsAndWriteIfNeeded(
+                        toolContext.StartupServicesFilePath,
+                        toolContext.ExistingStartupServicesContents,
+                        toolContext.ExistingStartupServicesManifestType);
+                    latestApplicationManifestType.DefaultServices = null;
+                }
 
                 InsertXmlCommentsAndWriteIfNeeded(
                     toolContext.ApplicationManifestFilePath,
                     toolContext.ExistingApplicationManifestContents,
-                    MergeApplicationManifest(applicationManifest));
+                    latestApplicationManifestType);
             }
         }
 
@@ -1202,6 +1217,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             public string Version { get; set; }
 
             public SvcManifestEntryPointType ServiceManifestEntryPointType { get; set; }
+
+            public string StartupServicesFilePath { get; set; }
         }
 
         private class Context
@@ -1216,6 +1233,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 if (this.ShouldGenerateApplicationManifest())
                 {
                     this.ApplicationManifestFilePath = this.GetApplicationManifestFilePath();
+                    this.StartupServicesFilePath = this.GetStartupServicesFilePath();
                 }
 
                 this.ServiceManifestFilePath = this.GetServiceManifestFilePath();
@@ -1240,6 +1258,15 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             public ServiceManifestType ExistingServiceManifestType { get; private set; }
 
+            // Below variables are declared for StartupServices
+            public ApplicationManifestType ExistingStartupServicesManifestType { get; private set; }
+
+            public string StartupServicesFilePath { get; private set; }
+
+            public string ExistingStartupServicesContents { get; private set; }
+
+            public bool StartupServicesFlag { get; private set; } = false;
+
             public Arguments Arguments { get; private set; }
 
             public void LoadExistingContents()
@@ -1253,6 +1280,17 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     this.ExistingApplicationManifestType = XmlSerializationUtility
                         .Deserialize<ApplicationManifestType>(
                             this.ExistingApplicationManifestContents);
+
+                    // read startupServices.xml and merge default services
+                    if (!string.IsNullOrEmpty(this.StartupServicesFilePath))
+                    {
+                        this.ExistingStartupServicesContents = Utility.LoadContents(this.StartupServicesFilePath).Trim();
+
+                        this.ExistingStartupServicesManifestType = XmlSerializationUtility
+                            .Deserialize<ApplicationManifestType>(this.ExistingStartupServicesContents);
+                        this.MergeDefaultServicesFromManfestAndStartupServices();
+                        this.StartupServicesFlag = true;
+                    }
 
                     // Create ActorService name and GeneratedIdRef map to be used while merging parameters later.
                     if (this.ExistingApplicationManifestType != null
@@ -1425,6 +1463,16 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 return string.Empty;
             }
 
+            private string GetStartupServicesFilePath()
+            {
+                if (!string.IsNullOrEmpty(this.Arguments.StartupServicesFilePath))
+                {
+                    return this.Arguments.StartupServicesFilePath;
+                }
+
+                return string.Empty;
+            }
+
             private string GetServiceManifestFilePath()
             {
                 var servicePackagePath = this.Arguments.ServicePackagePath;
@@ -1468,6 +1516,56 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                     ConfigSettingsFileName);
 
                 return settingsFilePath;
+            }
+
+            private void MergeDefaultServicesFromManfestAndStartupServices()
+            {
+                if (this.ExistingStartupServicesManifestType == null || this.ExistingStartupServicesManifestType.DefaultServices == null || this.ExistingStartupServicesManifestType.DefaultServices.Items == null)
+                {
+                    if (this.ExistingStartupServicesManifestType == null)
+                    {
+                        this.ExistingStartupServicesManifestType = new ApplicationManifestType();
+                        this.ExistingStartupServicesManifestType.DefaultServices = new DefaultServicesType();
+                    }
+                    else if (this.ExistingStartupServicesManifestType.DefaultServices == null)
+                    {
+                        this.ExistingStartupServicesManifestType.DefaultServices = new DefaultServicesType();
+                    }
+
+                    return;
+                }
+
+                if (this.ExistingApplicationManifestType.DefaultServices == null)
+                {
+                    this.ExistingApplicationManifestType.DefaultServices = new DefaultServicesType();
+                    this.ExistingApplicationManifestType.DefaultServices.Items = this.ExistingStartupServicesManifestType.DefaultServices.Items;
+                }
+                else if (this.ExistingApplicationManifestType.DefaultServices.Items == null)
+                {
+                    this.ExistingApplicationManifestType.DefaultServices.Items = this.ExistingStartupServicesManifestType.DefaultServices.Items;
+                }
+                else
+                {
+                    var servicesFromStartupServices = this.ExistingStartupServicesManifestType.DefaultServices.Items.OfType<DefaultServicesTypeService>();
+                    var servicesFromApplicationManifest = this.ExistingApplicationManifestType.DefaultServices.Items.OfType<DefaultServicesTypeService>();
+                    var servicesMasterListName = new List<string>();
+                    var serviceMasterList = new List<DefaultServicesTypeService>();
+                    foreach (var service in servicesFromStartupServices)
+                    {
+                        servicesMasterListName.Add(service.Item.ServiceTypeName);
+                        serviceMasterList.Add(service);
+                    }
+
+                    foreach (var service in servicesFromApplicationManifest)
+                    {
+                        if (!servicesMasterListName.Contains(service.Item.ServiceTypeName))
+                        {
+                            serviceMasterList.Add(service);
+                        }
+                    }
+
+                    this.ExistingApplicationManifestType.DefaultServices.Items = serviceMasterList.ToArray();
+                }
             }
         }
     }

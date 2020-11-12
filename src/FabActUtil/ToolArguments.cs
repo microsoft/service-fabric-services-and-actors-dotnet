@@ -119,6 +119,13 @@ namespace FabActUtil
             LongName = "ServiceManifestEntryPointType",
             ShortName = "smep")]
         public string ServiceManifestEntryPointType;
+
+        [CommandLineArgument(
+            CommandLineArgumentType.AtMostOnce,
+            Description = "Absolute path of StartupServices file which contains DefaultServices and Parameters.",
+            LongName = "StartupServicesFilePath",
+            ShortName = "ssfp")]
+        public string StartupServicesFilePath;
 #pragma warning restore SA1401 // Fields should be private
 
         public ToolArguments()
@@ -137,6 +144,7 @@ namespace FabActUtil
             this.Local1NodeAppParamFile = null;
             this.AssemblyResolvePath = null;
             this.ServiceManifestEntryPointType = "Exe";
+            this.StartupServicesFilePath = null;
         }
 
         internal bool IsValid()
