@@ -76,7 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
         {
             if (traceId == null)
             {
-                traceId = Guid.NewGuid().ToString();
+                traceId = Guid.NewGuid().ToString("N");
             }
 
             if (createWcfClientFactory == null)

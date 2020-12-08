@@ -434,7 +434,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                                 return null;
                             },
-                            Guid.NewGuid().ToString(),
+                            Guid.NewGuid().ToString("N"),
                             false,
                             CancellationToken.None);
                     }

@@ -164,7 +164,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             var totalretryCount = 0;
             string currentExceptionId = null;
             CancellationTokenSource cancellationTokenSource = null;
-            var traceId = Guid.NewGuid().ToString();
+            var traceId = Guid.NewGuid().ToString("N");
             ClientRequestTracker.Set(traceId);
             try
             {

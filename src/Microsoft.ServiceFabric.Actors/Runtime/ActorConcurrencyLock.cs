@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.reentrancyMode = actorConcurrencySettings.ReentrancyMode;
             this.turnLock = new SemaphoreSlim(1, 1);
             this.reentrantLock = new SemaphoreSlim(1, 1);
-            this.initialCallContext = Guid.NewGuid().ToString();
+            this.initialCallContext = Guid.NewGuid().ToString("N");
             this.currentCallContext = this.initialCallContext;
             this.currentCallCount = 0;
             this.turnLockTimeout = actorConcurrencySettings.LockTimeout;

@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                 // the higher layer hasn't already set one.
                 if (remotingRequestMessage.GetHeader().InvocationId == null)
                 {
-                    remotingRequestMessage.GetHeader().InvocationId = Guid.NewGuid().ToString();
+                    remotingRequestMessage.GetHeader().InvocationId = Guid.NewGuid().ToString("N");
                 }
 
                 // Create a TaskCompletionSource that completes with false on cancellation.

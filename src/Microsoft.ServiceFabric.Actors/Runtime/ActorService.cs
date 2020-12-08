@@ -155,7 +155,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task IActorService.DeleteActorAsync(ActorId actorId, CancellationToken cancellationToken)
         {
             return this.ActorManager.DeleteActorAsync(
-                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString("N"),
                 actorId,
                 cancellationToken);
         }

@@ -68,7 +68,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         {
             this.fireConnectEvents = fireConnectEvents;
             this.randomLock = new object();
-            this.traceId = traceId ?? Guid.NewGuid().ToString();
+            this.traceId = traceId ?? Guid.NewGuid().ToString("N");
             this.servicePartitionResolver = servicePartitionResolver ?? ServicePartitionResolver.GetDefault();
             this.random = null;
             this.exceptionHandlers = new List<IExceptionHandler>();
@@ -377,7 +377,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             string requestId;
             if (!ClientRequestTracker.TryGet(out requestId))
             {
-               requestId = Guid.NewGuid().ToString();
+               requestId = Guid.NewGuid().ToString("N");
             }
 
             string currentExceptionId = null;

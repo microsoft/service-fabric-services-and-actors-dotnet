@@ -265,7 +265,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             this.serializersManager = serializersManager;
             if (traceId == null)
             {
-                traceId = Guid.NewGuid().ToString();
+                traceId = Guid.NewGuid().ToString("N");
             }
 
             if (createWcfClientFactory == null)

@@ -67,7 +67,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             var actor = new DummyActor();
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.LogicalCallContext);
             actor.IsDirty = true;
-            var callContext = Guid.NewGuid().ToString();
+            var callContext = Guid.NewGuid().ToString("N");
             var result = guard.Acquire(callContext, @base => ReplacementHandler(actor), CancellationToken.None);
             try
             {
@@ -90,12 +90,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         {
             var actor = new DummyActor();
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.LogicalCallContext);
-            var context = Guid.NewGuid().ToString();
+            var context = Guid.NewGuid().ToString("N");
             guard.Acquire(context, null, CancellationToken.None).Wait();
             guard.Test_CurrentContext.Should().Be(context);
             guard.Test_CurrentCount.Should().Be(1);
 
-            Action action = () => guard.ReleaseContext(Guid.NewGuid().ToString()).Wait();
+            Action action = () => guard.ReleaseContext(Guid.NewGuid().ToString("N")).Wait();
             action.Should().Throw<AggregateException>();
 
             guard.ReleaseContext(context).Wait();
@@ -111,7 +111,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         {
             var actor = new DummyActor();
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.Disallowed);
-            var context = Guid.NewGuid().ToString();
+            var context = Guid.NewGuid().ToString("N");
             guard.Acquire(context, null, CancellationToken.None).Wait();
             guard.Test_CurrentContext.Should().Be(context);
             guard.Test_CurrentCount.Should().Be(1);
@@ -133,13 +133,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
         private static void RunTest(ActorConcurrencyLock guard)
         {
-            var test = Guid.NewGuid().ToString();
+            var test = Guid.NewGuid().ToString("N");
             guard.Acquire(test, null, CancellationToken.None).Wait();
             guard.Test_CurrentCount.Should().Be(1);
             currentContext = test;
             for (var i = 0; i < 10; i++)
             {
-                var testContext = test + ":" + Guid.NewGuid().ToString();
+                var testContext = test + ":" + Guid.NewGuid().ToString("N");
                 guard.Acquire(testContext, null, CancellationToken.None).Wait();
                 testContext.Should().StartWith(currentContext, "Call context Prefix Matching ");
                 guard.ReleaseContext(testContext).Wait();
