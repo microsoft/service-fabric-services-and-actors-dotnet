@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Generator
+namespace StartupServicesUtility
 {
     using System;
     using System.Collections.Generic;
@@ -29,6 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         /// <summary>
         /// Gets or Sets DefaultServices section
+        /// Entre one more comment line for testing
         /// </summary>
         public DefaultServicesType DefaultServices { get; set; }
     }

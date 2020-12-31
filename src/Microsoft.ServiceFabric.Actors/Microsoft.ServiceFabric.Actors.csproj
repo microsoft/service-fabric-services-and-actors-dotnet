@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+    <ProjectReference Include="..\StartupServicesUtility\StartupServicesUtility.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">

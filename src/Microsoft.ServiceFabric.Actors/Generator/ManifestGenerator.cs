@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using StartupServicesUtility;
 
     /// <summary>
     /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.

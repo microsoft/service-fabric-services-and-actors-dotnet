@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
+  <PropertyGroup>
+    <Description>StartupServicesUtility</Description>
+    <AssemblyName>StartupServicesUtility</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <SourceCodeDir>$(RepoRoot)src\StartupServicesUtility\</SourceCodeDir>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <!--Add required .cs files to build for dotnet core-->
+    <Compile Include="$(SourceCodeDir)*.cs" Exclude="$(SourceCodeDir)SR.Designer.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ServiceFabric" Version="$(NugetPkg_Version_Microsoft_ServiceFabric)" />
+  </ItemGroup>
+</Project>
