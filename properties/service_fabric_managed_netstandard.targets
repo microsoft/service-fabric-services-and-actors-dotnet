@@ -3,7 +3,8 @@
   
   <!-- Target to build net standard.-->
   <ItemGroup>
-    <Projects_Prod_netstandard Include="$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj;
+    <Projects_Prod_netstandard Include="$(RepoRoot)src\netstandard\StartupServicesUtility\StartupServicesUtility_netstandard.csproj;
+							   $(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj;
                                $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj;
                                $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj;
                                $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
@@ -29,6 +30,7 @@
     <Exec Command="dotnet publish &quot;$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
 
     <ItemGroup>
+	  <BinairesNetStandard Include="$(RepoRoot)src\netstandard\StartupServicesUtility\$(OutputPath)StartupServicesUtility.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>

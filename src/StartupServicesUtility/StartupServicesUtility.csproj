@@ -4,6 +4,7 @@
   <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
 
   <PropertyGroup>
+    <ProjectGuid>{637B0936-933A-4652-8027-CDC6776E0A22}</ProjectGuid>
     <Description>StartupServicesUtility</Description>
     <AssemblyName>StartupServicesUtility</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
