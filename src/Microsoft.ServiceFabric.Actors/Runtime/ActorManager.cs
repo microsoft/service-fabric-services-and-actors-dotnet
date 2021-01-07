@@ -53,7 +53,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.activeActors = new ConcurrentDictionary<ActorId, ActorBase>();
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
-            this.gcTimer = new Timer(this.RunGarbageCollection, null, Timeout.Infinite, Timeout.Infinite);
+
+            // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
+            bool restoreFlow = false;
+            try
+            {
+                if (!ExecutionContext.IsFlowSuppressed())
+                {
+                    ExecutionContext.SuppressFlow();
+                    restoreFlow = true;
+                }
+
+                this.gcTimer = new Timer(this.RunGarbageCollection, null, Timeout.Infinite, Timeout.Infinite);
+            }
+            finally
+            {
+                // Restore the current ExecutionContext
+                if (restoreFlow)
+                {
+                    ExecutionContext.RestoreFlow();
+                }
+            }
         }
 
         public ActorService ActorService
