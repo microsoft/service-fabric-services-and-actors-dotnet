@@ -17,7 +17,7 @@ namespace StartupServicesUtility
     /// <summary>
     /// Class defining model for StartupServicesManifestType
     /// </summary>
-    [XmlRoot("StartupServicesManifest", Namespace = "http://schemas.microsoft.com/2011/01/fabric", IsNullable = false)]
+    [XmlRoot("ApplicationManifest", Namespace = "http://schemas.microsoft.com/2011/01/fabric", IsNullable = false)]
     [XmlType(Namespace = "http://schemas.microsoft.com/2011/01/fabric")]
     public class StartupServicesManifestType
     {
