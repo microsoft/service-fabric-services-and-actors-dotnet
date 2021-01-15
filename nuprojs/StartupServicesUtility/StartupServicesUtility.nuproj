@@ -6,7 +6,7 @@
       <Id>StartupServicesUtility</Id>
       <Title>StartupServicesUtility</Title>
       <Description>This package contains StartupServicesUtility which is used by Microsoft.ServiceFabric.Actor and ApplicationManifestCleanupUtil to support StartupServices.xml.</Description>
-      <Summary>This package contains the common Actor Framework APIs for building and connecting to reliable services on Microsoft Service Fabric.</Summary>
+      <Summary>This package contains StartupServicesUtility which is used by Microsoft.ServiceFabric.Actor and ApplicationManifestCleanupUtil to support StartupServices.xml.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric Actors</Tags>
     </PropertyGroup>
 
