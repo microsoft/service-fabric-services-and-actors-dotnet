@@ -60,10 +60,4 @@
         <TargetPath>runtimes\win\lib\net472</TargetPath>
       </File>
     </ItemGroup>
-    
-    <ItemGroup>
-      <Dependency Include="Microsoft.ServiceFabric">
-        <Version>[$(NuGetPackageVersion)]</Version>
-      </Dependency>
-    </ItemGroup>
   </Project>
