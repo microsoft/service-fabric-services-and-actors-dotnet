@@ -49,6 +49,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
-    <ProjectReference Include="..\StartupServicesUtility\StartupServicesUtility_netstandard.csproj" />
   </ItemGroup>
 </Project>

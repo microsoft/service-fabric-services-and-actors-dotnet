@@ -94,19 +94,10 @@
       </File>
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Actors.targets">
         <TargetPath>build\net45</TargetPath>
-      </File>
+      </File>      
 
       <!-- For supporting netcore project templates in VS, copy all dependencies of FabActUtil and targets file.-->
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Actors.dll">
-        <TargetPath>build\net45</TargetPath>
-      </File>
-	  <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.StartupServicesUtility.dll">
-        <TargetPath>build\net45</TargetPath>
-      </File>
-	  <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.StartupServicesUtility.dll">
-        <TargetPath>build\netcoreapp2.0</TargetPath>
-      </File>
-	  <File Include="$(DropFolderNetStandard)FabActUtil.dll">
+      <File Include="$(DropFolderNetStandard)FabActUtil.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
       <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Actors.targets">

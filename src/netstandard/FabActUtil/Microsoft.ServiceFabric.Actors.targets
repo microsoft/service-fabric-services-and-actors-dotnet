@@ -21,14 +21,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <Copy SourceFiles="@(ActorServiceAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(FabActUtilAssemblies)" DestinationFolder="$(FabActUtilWorkingDir)" SkipUnchangedFiles="true" />
     <Exec Command="echo { %22runtimeOptions%22: { %22tfm%22: %22$(TargetFramework)%22, %22framework%22: { %22name%22:  %22Microsoft.NETCore.App%22, %22version%22:  %22@(RuntimeVersion)%22 }}} > @(FabActUtilRuntimeConfig) " Condition=" '$(RuntimeIdentifier)' != 'win7-x64' "/>
-  </Target>
-  <Target Name="_CopyAssembliesToTargetDir" DependsOnTargets="_CopyAssembliesToFabActUtilWorkingDir">
-    <ItemGroup>
-      <StartupServicesAssemblies Include="$(MSBuildThisFileDirectory)\StartupServicesUtility.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(StartupServicesAssemblies)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
-  </Target>  
-  <Target Name="_UpdateServiceFabricServiceManifest" AfterTargets="Build" DependsOnTargets="_CopyAssembliesToTargetDir" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
+  </Target>    
+  <Target Name="_UpdateServiceFabricServiceManifest" AfterTargets="Build" DependsOnTargets="_CopyAssembliesToFabActUtilWorkingDir" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
     <Exec Command="dotnet &quot;$(FabActUtilWorkingDir)\FabActUtil.dll&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).dll&quot; /arp:&quot;$(TargetDir)\&quot; /smep:$(ServiceManifestEntryPointType) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
   <Target Name="_UpdateServiceFabricApplicationManifest" DependsOnTargets="_CopyAssembliesToFabActUtilWorkingDir" Condition=" '$(UpdateServiceFabricManifestEnabled)' == 'true' ">
