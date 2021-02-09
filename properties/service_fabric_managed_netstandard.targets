@@ -30,6 +30,7 @@
     <Exec Command="dotnet publish &quot;$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
 
     <ItemGroup>
+	    <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd"/>
 	    <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)Microsoft.ServiceFabric.StartupServicesUtility.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
