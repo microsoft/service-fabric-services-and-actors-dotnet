@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
+
+  <PropertyGroup>
+    <ProjectGuid>{637B0936-933A-4652-8027-CDC6776E0A22}</ProjectGuid>
+    <Description>Microsoft.ServiceFabric.StartupServicesUtility</Description>
+    <AssemblyName>Microsoft.ServiceFabric.StartupServicesUtility</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+    <TargetFramework>net45</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.cs"/>
+  </ItemGroup>
+
+  <Target Name="GenerateCsFromXsd" BeforeTargets="CoreCompile" Outputs="$(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.cs" Inputs="$(SrcRoot)\ModelXSD\StartupServicesModel.xsd">
+    <Message Text="Building StartupServicesModel.cs using XSD.exe" />
+    <MakeDir Directories="$(OutputPath)\WindowsFabricServiceModel" />
+    <Exec Command="xsd.exe /c /o:$(OutputPath)WindowsFabricServiceModel /n:Microsoft.ServiceFabric.StartupServicesUtility $(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.xsd" />
+  </Target>
+
+  <Target Name="CopyXsdFile" Outputs="$(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd" Inputs="..\ModelXSD\StartupServicesModel.xsd" BeforeTargets="GenerateCsFromXsd">
+    <MakeDir Directories="$(OutputPath)\WindowsFabricServiceModel" />
+    <Copy SourceFiles="..\ModelXSD\StartupServicesModel.xsd" DestinationFolder="$(OutputPath)WindowsFabricServiceModel" SkipUnchangedFiles="true" />
+    <Message Text="Copied file ..\ModelXSD\StartupServicesModel.xsd to  $(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd" />
+  </Target>
+
+</Project>

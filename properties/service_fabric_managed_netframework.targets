@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <!-- List of .csproj to build -->
-    <Projects_Prod_netframework Include="$(RepoRoot)src\StartupServicesUtility\StartupServicesUtility.csproj;
+    <Projects_Prod_netframework Include="$(RepoRoot)src\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility.csproj;
 								                   $(RepoRoot)src\FabActUtil\FabActUtil.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
@@ -51,7 +51,7 @@
   <!-- Copy prod  binaries for full net framework-->
   <Target Name="CopyProdBinaries_netframework">
     <ItemGroup>
-	    <BinairesNetFramework Include="src\StartupServicesUtility\$(OutputPath)StartupServicesUtility.*"/>
+	    <BinairesNetFramework Include="src\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)Microsoft.ServiceFabric.StartupServicesUtility.*"/>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>

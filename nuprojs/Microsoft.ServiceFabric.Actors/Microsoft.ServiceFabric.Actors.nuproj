@@ -100,10 +100,10 @@
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>build\net45</TargetPath>
       </File>
-	  <File Include="$(DropFolderNetFramework)\StartupServicesUtility.dll">
+	  <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.StartupServicesUtility.dll">
         <TargetPath>build\net45</TargetPath>
       </File>
-	  <File Include="$(DropFolderNetFramework)\StartupServicesUtility.dll">
+	  <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.StartupServicesUtility.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
 	  <File Include="$(DropFolderNetStandard)FabActUtil.dll">

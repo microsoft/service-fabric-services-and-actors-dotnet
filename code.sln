@@ -44,9 +44,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartupServicesUtility", "src\StartupServicesUtility\StartupServicesUtility.csproj", "{637B0936-933A-4652-8027-CDC6776E0A22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.StartupServicesUtility", "src\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility.csproj", "{637B0936-933A-4652-8027-CDC6776E0A22}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartupServicesUtility_netstandard", "src\netstandard\StartupServicesUtility\StartupServicesUtility_netstandard.csproj", "{FA9A331E-7C50-4D1B-A52A-6D46228C5D65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.StartupServicesUtility_netstandard", "src\netstandard\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility_netstandard.csproj", "{FA9A331E-7C50-4D1B-A52A-6D46228C5D65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
