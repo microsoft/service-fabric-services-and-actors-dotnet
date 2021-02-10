@@ -44,7 +44,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="DefaultServices" type="StartupDefaultServicesType" minOccurs="0">
+      <xs:element name="Services" type="StartupDefaultServicesType" minOccurs="0">
       </xs:element>
     </xs:sequence>
   </xs:complexType>
