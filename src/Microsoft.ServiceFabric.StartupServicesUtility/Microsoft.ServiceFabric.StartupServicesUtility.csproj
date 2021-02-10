@@ -11,22 +11,23 @@
     <TargetFramework>net45</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <XsdPath>$(RepoRoot)\xsd</XsdPath>
+	<XsdModelPath>$(RepoRoot)\src\ModelXSD</XsdModelPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.cs"/>
+    <Compile Include="$(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.cs" />
   </ItemGroup>
 
-  <Target Name="GenerateCsFromXsd" BeforeTargets="CoreCompile" Outputs="$(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.cs" Inputs="$(SrcRoot)\ModelXSD\StartupServicesModel.xsd">
+  <Target Name="GenerateCsFromXsd" BeforeTargets="CoreCompile" Outputs="$(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.cs" Inputs="$(XsdModelPath)\StartupServicesModel.xsd">
     <Message Text="Building StartupServicesModel.cs using XSD.exe" />
-    <MakeDir Directories="$(OutputPath)\WindowsFabricServiceModel" />
-    <Exec Command="xsd.exe /c /o:$(OutputPath)WindowsFabricServiceModel /n:Microsoft.ServiceFabric.StartupServicesUtility $(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.xsd" />
+    <Exec Command="$(XsdPath)\xsd.exe /c /o:$(OutputPath)WindowsFabricServiceModel /n:Microsoft.ServiceFabric.StartupServicesUtility $(OutputPath)\WindowsFabricServiceModel\StartupServicesModel.xsd" />
   </Target>
 
-  <Target Name="CopyXsdFile" Outputs="$(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd" Inputs="..\ModelXSD\StartupServicesModel.xsd" BeforeTargets="GenerateCsFromXsd">
+  <Target Name="CopyXsdFile" Outputs="$(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd" Inputs="$(XsdModelPath)\StartupServicesModel.xsd" BeforeTargets="GenerateCsFromXsd">
     <MakeDir Directories="$(OutputPath)\WindowsFabricServiceModel" />
-    <Copy SourceFiles="..\ModelXSD\StartupServicesModel.xsd" DestinationFolder="$(OutputPath)WindowsFabricServiceModel" SkipUnchangedFiles="true" />
-    <Message Text="Copied file ..\ModelXSD\StartupServicesModel.xsd to  $(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd" />
+    <Copy SourceFiles="$(XsdModelPath)\StartupServicesModel.xsd" DestinationFolder="$(OutputPath)WindowsFabricServiceModel" SkipUnchangedFiles="true" />
+    <Message Text="Copied file $(XsdModelPath)\StartupServicesModel.xsd to  $(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd" />
   </Target>
 
 </Project>
