@@ -7,21 +7,21 @@
   </xs:annotation>
   <xs:element name="StartupServicesManifest" type="StartupServicesManifestType"/>
 
-  <!-- ****** Types used by Application Manifest *****-->
+  <!-- ****** Types used by StartupService Manifest *****-->
   <xs:complexType name="StartupServicesManifestType">
     <xs:annotation>
-      <xs:documentation>Declaratively describes the application type and version. One or more service manifests of the constituent services are referenced to compose an application type. Configuration settings of the constituent services can be overridden using parameterized application settings. Default services, service templates, principals, policies, diagnostics set-up, and certificates can also declared at the application level.</xs:documentation>
+      <xs:documentation>Manifest used to define StartupServices.xml. This consists of Services and Parameters</xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element name="Parameters" minOccurs="0">
         <xs:annotation>
-          <xs:documentation>Declares the parameters that are used in this application manifest. The value of these parameters can be supplied when the application is instantiated and can be used to override application or service configuration settings.</xs:documentation>
+          <xs:documentation>Declares the parameters that are used in this startupService manifest. The value of these parameters can be supplied when the SF service/services are instantiated and can be used to override service configuration settings.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
           <xs:sequence>
             <xs:element name="Parameter" block="" minOccurs="0" maxOccurs="unbounded">
               <xs:annotation>
-                <xs:documentation>An application parameter to be used in this manifest. The parameter value can be changed during application instantiation, or, if no value is supplied the default value is used.</xs:documentation>
+                <xs:documentation>A service parameter to be used in this manifest. The parameter value can be changed during service instantiation, or, if no value is supplied the default value is used.</xs:documentation>
               </xs:annotation>
               <xs:complexType>
                 <xs:attribute name="Name" use="required">
@@ -36,7 +36,7 @@
                 </xs:attribute>
                 <xs:attribute name="DefaultValue" type="xs:string" use="required">
                   <xs:annotation>
-                    <xs:documentation>Default value for the parameter, used if the parameter value is not provided during application instantiation.</xs:documentation>
+                    <xs:documentation>Default value for the parameter, used if the parameter value is not provided during service instantiation.</xs:documentation>
                   </xs:annotation>
                 </xs:attribute>
               </xs:complexType>
@@ -51,13 +51,13 @@
 
   <xs:complexType name="StartupDefaultServicesType">
     <xs:annotation>
-      <xs:documentation>Declares service instances that are automatically created whenever an application is instantiated against this application type.</xs:documentation>
+      <xs:documentation>Declares service instances that are created whenever an application is instantiated with StartupServices.xml.</xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="Service">
           <xs:annotation>
-            <xs:documentation>Declares a service to be created automatically when the application is instantiated.</xs:documentation>
+            <xs:documentation>Declares a service to be created when the application is instantiated with StartupServices.xml.</xs:documentation>
           </xs:annotation>
           <xs:complexType>
             <xs:choice minOccurs="0">
