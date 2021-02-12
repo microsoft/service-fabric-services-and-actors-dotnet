@@ -455,11 +455,11 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 #if !DotNetCoreClr
             if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
-                    endpoints.Add(
-                        new EndpointType()
-                        {
-                            Name = GetFabricServiceEndpointName(actorTypeInfo),
-                        });
+                endpoints.Add(
+                    new EndpointType()
+                    {
+                        Name = GetFabricServiceEndpointName(actorTypeInfo),
+                    });
             }
 #endif
             if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
