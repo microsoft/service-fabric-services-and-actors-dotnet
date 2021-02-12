@@ -3,7 +3,6 @@
   <ItemGroup>
     <!-- List of .nuproj to build to generate nuget packages -->
     <NuprojsToBuild Include="$(RepoRoot)nuprojs\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.nuproj;
-					           $(RepoRoot)nuprojs\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility.nuproj;
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.nuproj;
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.nuproj;
                      $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.nuproj;
@@ -24,7 +23,6 @@
     <Message Text="Copying NuGet packages to drop folder ..." Importance="High"/>
     <ItemGroup>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors\$(OutputPath)\Microsoft.ServiceFabric.Actors.*.nupkg"/>
-	    <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)\Microsoft.ServiceFabric.StartupServicesUtility.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)\Microsoft.ServiceFabric.Actors.Wcf.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services\$(OutputPath)\Microsoft.ServiceFabric.Services.*.nupkg"/>
       <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\Microsoft.ServiceFabric.Services.Remoting.*.nupkg"/>
