@@ -51,7 +51,7 @@
   <!-- Copy prod  binaries for full net framework-->
   <Target Name="CopyProdBinaries_netframework">
     <ItemGroup>
-	    <BinairesNetFramework Include="src\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)WindowsFabricServiceModel\StartupServicesModel.xsd"/>
+	    <BinairesNetFramework Include="src\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)StartupServicesModel\StartupServicesModel.xsd"/>
 	    <BinairesNetFramework Include="src\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)Microsoft.ServiceFabric.StartupServicesUtility.*"/>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
