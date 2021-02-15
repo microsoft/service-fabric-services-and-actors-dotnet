@@ -55,8 +55,19 @@ namespace FabActUtil
             if (context.Arguments.Target == OutputTarget.Manifest)
             {
                 GenerateManifest(context);
-                AddParametersToLocalFiveNodeAppParamFile(context);
-                AddParametersToLocalOneNodeAppParamFile(context);
+
+                // If StartupServiceFilePath is provided, update parameters into service ParamFiles otherwise application ParamFiles
+                if (!string.IsNullOrEmpty(context.Arguments.StartupServicesFilePath))
+                {
+                    AddParametersToLocalFiveNodeServiceParamFile(context);
+                    AddParametersToLocalOneNodeServiceParamFile(context);
+                }
+                else
+                {
+                    AddParametersToLocalFiveNodeAppParamFile(context);
+                    AddParametersToLocalOneNodeAppParamFile(context);
+                }
+
                 return;
             }
         }
@@ -114,6 +125,38 @@ namespace FabActUtil
             {
                 ActorTypes = context.ActorTypes,
                 AppParamFilePath = context.Arguments.Local1NodeAppParamFile,
+            };
+
+            AppParameterFileUpdater.AddParameterValuesToLocalOneNodeParamFile(updaterArgs);
+        }
+
+        private static void AddParametersToLocalFiveNodeServiceParamFile(ToolContext context)
+        {
+            if (string.IsNullOrEmpty(context.Arguments.Local5NodeServiceParamFile))
+            {
+                return;
+            }
+
+            var updaterArgs = new AppParameterFileUpdater.Arguments()
+            {
+                ActorTypes = context.ActorTypes,
+                AppParamFilePath = context.Arguments.Local5NodeServiceParamFile,
+            };
+
+            AppParameterFileUpdater.AddParameterValuesToLocalFiveNodeParamFile(updaterArgs);
+        }
+
+        private static void AddParametersToLocalOneNodeServiceParamFile(ToolContext context)
+        {
+            if (string.IsNullOrEmpty(context.Arguments.Local1NodeServiceParamFile))
+            {
+                return;
+            }
+
+            var updaterArgs = new AppParameterFileUpdater.Arguments()
+            {
+                ActorTypes = context.ActorTypes,
+                AppParamFilePath = context.Arguments.Local1NodeServiceParamFile,
             };
 
             AppParameterFileUpdater.AddParameterValuesToLocalOneNodeParamFile(updaterArgs);
