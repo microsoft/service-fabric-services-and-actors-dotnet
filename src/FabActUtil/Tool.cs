@@ -81,6 +81,7 @@ namespace FabActUtil
                 ServicePackagePath = context.Arguments.ServicePackagePath,
                 Version = context.Arguments.Version,
                 ServiceManifestEntryPointType = serviceManifestEntryPointType,
+                StartupServicesFilePath = context.Arguments.StartupServicesFilePath,
             };
 
             ManifestGenerator.Generate(generatorArgs);
