@@ -94,7 +94,16 @@
       </File>
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Actors.targets">
         <TargetPath>build\net45</TargetPath>
-      </File>      
+      </File>
+	  <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Actors.dll">
+        <TargetPath>build\net45</TargetPath>
+      </File>
+	  <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.StartupServicesUtility.dll">
+        <TargetPath>build\net45</TargetPath>
+      </File>
+	  <File Include="$(DropFolderNetFramework)\Newtonsoft.Json.dll">
+        <TargetPath>build\net45</TargetPath>
+      </File>
 
       <!-- For supporting netcore project templates in VS, copy all dependencies of FabActUtil and targets file.-->
       <File Include="$(DropFolderNetStandard)FabActUtil.dll">
@@ -147,6 +156,12 @@
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
       <File Include="$(DropFolderNetStandard_Win)system.fabric.strings.dll">
+        <TargetPath>build\netcoreapp2.0</TargetPath>
+      </File>
+	   <File Include="$(DropFolderNetStandard_Win)Newtonsoft.Json.dll">
+        <TargetPath>build\netcoreapp2.0</TargetPath>
+      </File>
+	  <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.StartupServicesUtility.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
     </ItemGroup>

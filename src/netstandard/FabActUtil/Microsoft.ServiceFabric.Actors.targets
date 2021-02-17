@@ -11,7 +11,15 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <RuntimeVersion Include="$(_TargetFrameworkVersionWithoutV).0" />
     <FabActUtilRuntimeConfig Include="$(FabActUtilWorkingDir)\FabActUtil.runtimeconfig.json" />
   </ItemGroup>
-  <Target Name="_CopyAssembliesToFabActUtilWorkingDir">
+  <Target Name="_CopyAssembliesToTargetDir">
+    <ItemGroup>
+      <StartupServicesAssemblies Include="$(MSBuildThisFileDirectory)\Microsoft.ServiceFabric.StartupServicesUtility.*" />
+	  <NewtonsoftAssemblies Include="$(MSBuildThisFileDirectory)\Newtonsoft.Json.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(StartupServicesAssemblies)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(NewtonsoftAssemblies)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="_CopyAssembliesToFabActUtilWorkingDir" DependsOnTargets="_CopyAssembliesToTargetDir">
     <ItemGroup>
       <ActorServiceAssemblies Include="$(TargetDir)\*" />
       <FabActUtilAssemblies Include="$(MSBuildThisFileDirectory)\*" />

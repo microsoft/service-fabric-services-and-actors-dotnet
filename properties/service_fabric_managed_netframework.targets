@@ -53,6 +53,7 @@
     <ItemGroup>
 	    <BinairesNetFramework Include="src\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)StartupServicesModel\StartupServicesModel.xsd"/>
 	    <BinairesNetFramework Include="src\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)Microsoft.ServiceFabric.StartupServicesUtility.*"/>
+      <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)Newtonsoft.Json.*"/>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>

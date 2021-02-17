@@ -142,16 +142,40 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             }
 
             StartupServicesManifestType existingManifest = toolContext.ExistingStartupServicesManifestType;
-            DefaultServicesType existingServices = ConvertToDefaultServicesType(existingManifest.Services);
-            ApplicationManifestTypeParameter[] existingParameters = JsonConvert.DeserializeObject<ApplicationManifestTypeParameter[]>(
+
+            if (existingManifest.Services == null || existingManifest.Services.Items == null || existingManifest.Services.Items.Length == 0)
+            {
+                existingManifest.Services = ConvertToStartupDefaultServicesType(applicationManifest.DefaultServices);
+            }
+            else
+            {
+                DefaultServicesType existingServices = ConvertToDefaultServicesType(existingManifest.Services);
+                existingServices = MergeDefaultServices(existingServices, applicationManifest.DefaultServices);
+                existingManifest.Services = ConvertToStartupDefaultServicesType(existingServices);
+            }
+
+            if (existingManifest.Parameters == null || existingManifest.Parameters.Length == 0)
+            {
+                List<StartupServicesManifestTypeParameter> serviceParams = new List<StartupServicesManifestTypeParameter>();
+                foreach (ApplicationManifestTypeParameter param in applicationManifest.Parameters)
+                {
+                    StartupServicesManifestTypeParameter serviceParam = new StartupServicesManifestTypeParameter();
+                    serviceParam.Name = param.Name;
+                    serviceParam.DefaultValue = param.DefaultValue;
+                    serviceParams.Add(serviceParam);
+                }
+
+                existingManifest.Parameters = serviceParams.ToArray();
+            }
+            else
+            {
+                ApplicationManifestTypeParameter[] existingParameters = JsonConvert.DeserializeObject<ApplicationManifestTypeParameter[]>(
                 JsonConvert.SerializeObject(existingManifest.Parameters));
-
-            existingServices = MergeDefaultServices(existingServices, applicationManifest.DefaultServices);
-            existingParameters = MergeParameters(existingParameters, applicationManifest.Parameters);
-
-            existingManifest.Services = ConvertToStartupDefaultServicesType(existingServices);
-            existingManifest.Parameters = JsonConvert.DeserializeObject<StartupServicesManifestTypeParameter[]>(
+                existingParameters = MergeParameters(existingParameters, applicationManifest.Parameters);
+                existingManifest.Parameters = JsonConvert.DeserializeObject<StartupServicesManifestTypeParameter[]>(
                 JsonConvert.SerializeObject(existingParameters));
+            }
+
             return existingManifest;
         }
 
