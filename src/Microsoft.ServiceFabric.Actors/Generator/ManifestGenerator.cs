@@ -189,20 +189,20 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             List<StartupDefaultServicesTypeService> servicesList = new List<StartupDefaultServicesTypeService>();
             foreach (DefaultServicesTypeService defaultService in defaultServices.Items)
             {
-                string var1 = JsonConvert.SerializeObject(defaultService);
-                StartupDefaultServicesTypeService var2 = JsonConvert.DeserializeObject<StartupDefaultServicesTypeService>(var1);
+                string defaultServiceSerialized = JsonConvert.SerializeObject(defaultService);
+                StartupDefaultServicesTypeService startupDefaultServicesTypeService = JsonConvert.DeserializeObject<StartupDefaultServicesTypeService>(defaultServiceSerialized);
                 if (defaultService.Item.GetType() == typeof(StatefulServiceType))
                 {
-                    var2.Item = JsonConvert.DeserializeObject<StartupStatefulServiceType>(
+                    startupDefaultServicesTypeService.Item = JsonConvert.DeserializeObject<StartupStatefulServiceType>(
                         JsonConvert.SerializeObject(defaultService.Item));
                 }
                 else if (defaultService.Item.GetType() == typeof(StatelessServiceType))
                 {
-                    var2.Item = JsonConvert.DeserializeObject<StartupStatelessServiceType>(
+                    startupDefaultServicesTypeService.Item = JsonConvert.DeserializeObject<StartupStatelessServiceType>(
                         JsonConvert.SerializeObject(defaultService.Item));
                 }
 
-                servicesList.Add(var2);
+                servicesList.Add(startupDefaultServicesTypeService);
             }
 
             StartupDefaultServicesType startupDefaultServicesType = new StartupDefaultServicesType();
@@ -220,20 +220,20 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             List<DefaultServicesTypeService> servicesList = new List<DefaultServicesTypeService>();
             foreach (StartupDefaultServicesTypeService service in services.Items)
             {
-                string var1 = JsonConvert.SerializeObject(service);
-                DefaultServicesTypeService var2 = JsonConvert.DeserializeObject<DefaultServicesTypeService>(var1);
+                string serviceSerialized = JsonConvert.SerializeObject(service);
+                DefaultServicesTypeService defaultServicesTypeService = JsonConvert.DeserializeObject<DefaultServicesTypeService>(serviceSerialized);
                 if (service.Item.GetType() == typeof(StartupStatefulServiceType))
                 {
-                    var2.Item = JsonConvert.DeserializeObject<StatefulServiceType>(
+                    defaultServicesTypeService.Item = JsonConvert.DeserializeObject<StatefulServiceType>(
                         JsonConvert.SerializeObject(service.Item));
                 }
                 else if (service.Item.GetType() == typeof(StartupStatelessServiceType))
                 {
-                    var2.Item = JsonConvert.DeserializeObject<StatelessServiceType>(
+                    defaultServicesTypeService.Item = JsonConvert.DeserializeObject<StatelessServiceType>(
                         JsonConvert.SerializeObject(service.Item));
                 }
 
-                servicesList.Add(var2);
+                servicesList.Add(defaultServicesTypeService);
             }
 
             DefaultServicesType defaultServicesType = new DefaultServicesType();
