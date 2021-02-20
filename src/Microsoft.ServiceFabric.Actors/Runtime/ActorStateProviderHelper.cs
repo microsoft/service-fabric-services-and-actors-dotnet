@@ -473,6 +473,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         string.Format("Failed to parse ActorId from storage key: {0}", storageKey));
                 }
 
+                enumHasMoreEntries = enumerator.MoveNext();
+
                 if (actorIdList.Count == itemsCount)
                 {
                     actorQueryResult.Items = actorIdList.AsReadOnly();
@@ -485,8 +487,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     return Task.FromResult(actorQueryResult);
                 }
-
-                enumHasMoreEntries = enumerator.MoveNext();
             }
 
             // We are here means 'actorIdList' contains less than 'itemsCount'
