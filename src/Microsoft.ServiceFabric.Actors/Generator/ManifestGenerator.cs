@@ -16,7 +16,6 @@ namespace Microsoft.ServiceFabric.Actors.Generator
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.StartupServicesUtility;
-    using Newtonsoft.Json;
 
     /// <summary>
     /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.
@@ -135,8 +134,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             if (string.IsNullOrEmpty(toolContext.ExistingStartupServicesContents))
             {
                 StartupServicesManifestType manifest = new StartupServicesManifestType();
-                manifest.Parameters = JsonConvert.DeserializeObject<StartupServicesManifestTypeParameter[]>(
-                    JsonConvert.SerializeObject(applicationManifest.Parameters));
+                manifest.Parameters = ConvertToServiceParameters(applicationManifest.Parameters);
                 manifest.Services = ConvertToStartupDefaultServicesType(applicationManifest.DefaultServices);
                 return manifest;
             }
@@ -156,27 +154,56 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
             if (existingManifest.Parameters == null || existingManifest.Parameters.Length == 0)
             {
-                List<StartupServicesManifestTypeParameter> serviceParams = new List<StartupServicesManifestTypeParameter>();
-                foreach (ApplicationManifestTypeParameter param in applicationManifest.Parameters)
-                {
-                    StartupServicesManifestTypeParameter serviceParam = new StartupServicesManifestTypeParameter();
-                    serviceParam.Name = param.Name;
-                    serviceParam.DefaultValue = param.DefaultValue;
-                    serviceParams.Add(serviceParam);
-                }
-
-                existingManifest.Parameters = serviceParams.ToArray();
+                existingManifest.Parameters = ConvertToServiceParameters(applicationManifest.Parameters);
             }
             else
             {
-                ApplicationManifestTypeParameter[] existingParameters = JsonConvert.DeserializeObject<ApplicationManifestTypeParameter[]>(
-                JsonConvert.SerializeObject(existingManifest.Parameters));
+                ApplicationManifestTypeParameter[] existingParameters = ConvertToAppParameters(existingManifest.Parameters);
                 existingParameters = MergeParameters(existingParameters, applicationManifest.Parameters);
-                existingManifest.Parameters = JsonConvert.DeserializeObject<StartupServicesManifestTypeParameter[]>(
-                JsonConvert.SerializeObject(existingParameters));
+                existingManifest.Parameters = ConvertToServiceParameters(existingParameters);
             }
 
             return existingManifest;
+        }
+
+        private static StartupServicesManifestTypeParameter[] ConvertToServiceParameters(ApplicationManifestTypeParameter[] appParameters)
+        {
+            if (appParameters == null)
+            {
+                return null;
+            }
+
+            List<StartupServicesManifestTypeParameter> serviceParamsList = new List<StartupServicesManifestTypeParameter>();
+
+            foreach (ApplicationManifestTypeParameter appParam in appParameters)
+            {
+                StartupServicesManifestTypeParameter serviceParam = new StartupServicesManifestTypeParameter();
+                serviceParam.DefaultValue = appParam.DefaultValue;
+                serviceParam.Name = appParam.Name;
+                serviceParamsList.Add(serviceParam);
+            }
+
+            return serviceParamsList.ToArray();
+        }
+
+        private static ApplicationManifestTypeParameter[] ConvertToAppParameters(StartupServicesManifestTypeParameter[] serviceParameters)
+        {
+            if (serviceParameters == null)
+            {
+                return null;
+            }
+
+            List<ApplicationManifestTypeParameter> appParamsList = new List<ApplicationManifestTypeParameter>();
+
+            foreach (StartupServicesManifestTypeParameter serviceParam in serviceParameters)
+            {
+                ApplicationManifestTypeParameter appParam = new ApplicationManifestTypeParameter();
+                appParam.DefaultValue = serviceParam.DefaultValue;
+                appParam.Name = serviceParam.Name;
+                appParamsList.Add(appParam);
+            }
+
+            return appParamsList.ToArray();
         }
 
         private static StartupDefaultServicesType ConvertToStartupDefaultServicesType(DefaultServicesType defaultServices)
@@ -186,27 +213,16 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 return null;
             }
 
-            List<StartupDefaultServicesTypeService> servicesList = new List<StartupDefaultServicesTypeService>();
-            foreach (DefaultServicesTypeService defaultService in defaultServices.Items)
-            {
-                string defaultServiceSerialized = JsonConvert.SerializeObject(defaultService);
-                StartupDefaultServicesTypeService startupDefaultServicesTypeService = JsonConvert.DeserializeObject<StartupDefaultServicesTypeService>(defaultServiceSerialized);
-                if (defaultService.Item.GetType() == typeof(StatefulServiceType))
-                {
-                    startupDefaultServicesTypeService.Item = JsonConvert.DeserializeObject<StartupStatefulServiceType>(
-                        JsonConvert.SerializeObject(defaultService.Item));
-                }
-                else if (defaultService.Item.GetType() == typeof(StatelessServiceType))
-                {
-                    startupDefaultServicesTypeService.Item = JsonConvert.DeserializeObject<StartupStatelessServiceType>(
-                        JsonConvert.SerializeObject(defaultService.Item));
-                }
+            string defaultServicesXml = XmlSerializationUtility.Serialize(defaultServices);
+            XmlDocument defaultServicesDocument = new XmlDocument();
+            defaultServicesDocument.LoadXml(defaultServicesXml);
 
-                servicesList.Add(startupDefaultServicesTypeService);
-            }
+            XmlDocument startupServicesDocument = new XmlDocument();
+            XmlElement startupDefaultServicesRoot = startupServicesDocument.CreateElement("StartupDefaultServicesType");
+            startupDefaultServicesRoot.InnerXml = defaultServicesDocument.DocumentElement.InnerXml;
+            string startupServices = startupDefaultServicesRoot.OuterXml;
 
-            StartupDefaultServicesType startupDefaultServicesType = new StartupDefaultServicesType();
-            startupDefaultServicesType.Items = servicesList.ToArray();
+            StartupDefaultServicesType startupDefaultServicesType = XmlSerializationUtility.Deserialize<StartupDefaultServicesType>(startupServices);
             return startupDefaultServicesType;
         }
 
@@ -217,27 +233,16 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 return null;
             }
 
-            List<DefaultServicesTypeService> servicesList = new List<DefaultServicesTypeService>();
-            foreach (StartupDefaultServicesTypeService service in services.Items)
-            {
-                string serviceSerialized = JsonConvert.SerializeObject(service);
-                DefaultServicesTypeService defaultServicesTypeService = JsonConvert.DeserializeObject<DefaultServicesTypeService>(serviceSerialized);
-                if (service.Item.GetType() == typeof(StartupStatefulServiceType))
-                {
-                    defaultServicesTypeService.Item = JsonConvert.DeserializeObject<StatefulServiceType>(
-                        JsonConvert.SerializeObject(service.Item));
-                }
-                else if (service.Item.GetType() == typeof(StartupStatelessServiceType))
-                {
-                    defaultServicesTypeService.Item = JsonConvert.DeserializeObject<StatelessServiceType>(
-                        JsonConvert.SerializeObject(service.Item));
-                }
+            string servicesXml = XmlSerializationUtility.Serialize(services);
+            XmlDocument servicesDocument = new XmlDocument();
+            servicesDocument.LoadXml(servicesXml);
 
-                servicesList.Add(defaultServicesTypeService);
-            }
+            XmlDocument defaultServicesDocument = new XmlDocument();
+            XmlElement defaultServicesRoot = defaultServicesDocument.CreateElement("DefaultServicesType");
+            defaultServicesRoot.InnerXml = servicesDocument.DocumentElement.InnerXml;
+            string defaultServices = defaultServicesRoot.OuterXml;
 
-            DefaultServicesType defaultServicesType = new DefaultServicesType();
-            defaultServicesType.Items = servicesList.ToArray();
+            DefaultServicesType defaultServicesType = XmlSerializationUtility.Deserialize<DefaultServicesType>(defaultServices);
             return defaultServicesType;
         }
 

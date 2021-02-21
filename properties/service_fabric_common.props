@@ -26,7 +26,6 @@
     <NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>5.0.102</NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal>
     <NugetPkg_Version_Microsoft_ServiceFabric_Data>5.0.102</NugetPkg_Version_Microsoft_ServiceFabric_Data>
     <NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>5.0.102</NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal>
-    <NugetPkg_Version_Newtonsoft_Json>12.0.3</NugetPkg_Version_Newtonsoft_Json>
 
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->

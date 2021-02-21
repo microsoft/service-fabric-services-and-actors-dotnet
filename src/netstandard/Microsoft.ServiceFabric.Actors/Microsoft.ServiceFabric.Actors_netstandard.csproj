@@ -40,7 +40,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" Version="$(NugetPkg_Version_Microsoft_ServiceFabric)" />
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal)" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Microsoft.ServiceFabric.StartupServicesUtility" Version="$(MajorVersion).$(MinorVersion).$(BuildVersion)"/>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(SourceCodeDir)SR.resx">
