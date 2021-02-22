@@ -15,11 +15,11 @@
     <PackageReference Include="Microsoft.ServiceFabric" Version="$(NugetPkg_Version_Microsoft_ServiceFabric)" />
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal)" />
     <PackageReference Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal)" />
-    <PackageReference Include="Microsoft.ServiceFabric.StartupServicesUtility" Version="$(MajorVersion).$(MinorVersion).$(BuildVersion)"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">

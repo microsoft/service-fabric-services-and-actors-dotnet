@@ -14,10 +14,8 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   <Target Name="_CopyAssembliesToTargetDir">
     <ItemGroup>
       <StartupServicesAssemblies Include="$(MSBuildThisFileDirectory)\Microsoft.ServiceFabric.StartupServicesUtility.*" />
-      <NewtonsoftAssemblies Include="$(MSBuildThisFileDirectory)\Newtonsoft.Json.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(StartupServicesAssemblies)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="@(NewtonsoftAssemblies)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="_CopyAssembliesToFabActUtilWorkingDir" DependsOnTargets="_CopyAssembliesToTargetDir">
     <ItemGroup>

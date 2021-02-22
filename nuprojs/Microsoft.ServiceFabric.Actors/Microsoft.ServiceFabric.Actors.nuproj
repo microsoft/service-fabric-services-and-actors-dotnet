@@ -149,9 +149,6 @@
       <File Include="$(DropFolderNetStandard_Win)system.fabric.strings.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-	   <File Include="$(DropFolderNetStandard_Win)Newtonsoft.Json.dll">
-        <TargetPath>build\netcoreapp2.0</TargetPath>
-      </File>
 	  <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.StartupServicesUtility.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
