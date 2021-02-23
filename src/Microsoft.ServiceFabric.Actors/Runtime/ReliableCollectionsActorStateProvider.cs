@@ -1065,9 +1065,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             using (var tx = this.stateManager.CreateTransaction())
             {
-                var previousActorCount = continuationToken == null ? 0 : long.Parse((string)continuationToken.Marker);
-
-                long currentActorCount = 0;
                 var actorIdList = new List<ActorId>();
                 var actorQueryResult = new PagedResult<ActorId>();
 
@@ -1082,18 +1079,23 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     return actorQueryResult;
                 }
 
-                // Skip the previous returned entries
-                while (currentActorCount < previousActorCount)
+                if (continuationToken != null)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
-                    currentActorCount++;
+                    long previousActorCount = 0L;
+                    if (long.TryParse((string)continuationToken.Marker, out previousActorCount))
+                    {
+                        enumHasMoreEntries = await this.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken);
+                    }
+                    else
+                    {
+                        string lastSeenActorId = GetActorIdFromPresenceStorageKey(continuationToken.Marker.ToString()).ToString();
+                        enumHasMoreEntries = await this.GetContinuationPointByActorId(lastSeenActorId, enumerator, cancellationToken);
+                    }
 
                     if (!enumHasMoreEntries)
                     {
                         // We are here means the current snapshot that enumerator represents
-                        // has less number of entries that what ContinuationToken contains.
+                        // has less entries that what ContinuationToken contains.
                         return actorQueryResult;
                     }
                 }
@@ -1102,7 +1104,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var actorId = GetActorIdFromPresenceStorageKey(enumerator.Current);
+                    var storageKey = enumerator.Current;
+                    var actorId = GetActorIdFromPresenceStorageKey(storageKey);
 
                     if (actorId != null)
                     {
@@ -1117,7 +1120,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
 
                     enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
-                    currentActorCount++;
 
                     if (actorIdList.Count == itemsCount)
                     {
@@ -1126,7 +1128,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         // If enumerator has more elements, then set the continuation token
                         if (enumHasMoreEntries)
                         {
-                            actorQueryResult.ContinuationToken = new ContinuationToken(currentActorCount.ToString());
+                            actorQueryResult.ContinuationToken = new ContinuationToken(storageKey);
                         }
 
                         return actorQueryResult;
@@ -1139,6 +1141,46 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 return actorQueryResult;
             }
+        }
+
+        private async Task<bool> GetContinuationPointByActorCount(
+            long previousActorCount,
+            IAsyncEnumerator<string> enumerator,
+            CancellationToken cancellationToken)
+        {
+            long currentActorCount = 0L;
+            bool enumHasMoreEntries = true;
+
+            // Skip the previous returned entries
+            while (currentActorCount < previousActorCount && enumHasMoreEntries)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                currentActorCount++;
+                enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
+            }
+
+            return enumHasMoreEntries;
+        }
+
+        private async Task<bool> GetContinuationPointByActorId(
+            string lastSeenActorId,
+            IAsyncEnumerator<string> enumerator,
+            CancellationToken cancellationToken)
+        {
+            string currentActorId = null;
+            bool enumHasMoreEntries = true;
+
+            // Skip the previous returned entries
+            while (enumHasMoreEntries && string.Compare(currentActorId, lastSeenActorId) < 0)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                currentActorId = GetActorIdFromPresenceStorageKey(enumerator.Current).ToString();
+                enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
+            }
+
+            return enumHasMoreEntries;
         }
 
         private async Task RemoveActorAtomicallyAsync(ActorId actorId, CancellationToken cancellationToken)

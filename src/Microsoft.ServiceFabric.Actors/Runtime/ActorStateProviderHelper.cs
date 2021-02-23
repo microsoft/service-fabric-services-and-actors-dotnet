@@ -438,12 +438,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 long previousActorCount = 0L;
                 if (long.TryParse((string)continuationToken.Marker, out previousActorCount))
                 {
-                    enumHasMoreEntries = this.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken, enumHasMoreEntries);
+                    enumHasMoreEntries = this.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken);
                 }
                 else
                 {
-                    string lastSeenActorId = continuationToken.Marker.ToString();
-                    enumHasMoreEntries = this.GetContinuationPointByActorId(lastSeenActorId, enumerator, getStorageKeyFunc, cancellationToken, enumHasMoreEntries);
+                    string lastSeenActorId = GetActorIdFromPresenceStorageKey(continuationToken.Marker.ToString()).ToString();
+                    enumHasMoreEntries = this.GetContinuationPointByActorId(lastSeenActorId, enumerator, getStorageKeyFunc, cancellationToken);
                 }
 
                 if (!enumHasMoreEntries)
@@ -482,7 +482,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     // If enumerator has more elements, then set the continuation token.
                     if (enumHasMoreEntries)
                     {
-                        actorQueryResult.ContinuationToken = new ContinuationToken(actorId.ToString());
+                        actorQueryResult.ContinuationToken = new ContinuationToken(storageKey.ToString());
                     }
 
                     return Task.FromResult(actorQueryResult);
@@ -501,10 +501,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private bool GetContinuationPointByActorCount<T>(
             long previousActorCount,
             IEnumerator<T> enumerator,
-            CancellationToken cancellationToken,
-            bool enumHasMoreEntries)
+            CancellationToken cancellationToken)
         {
             long currentActorCount = 0L;
+            bool enumHasMoreEntries = true;
 
             // Skip the previous returned entries
             while (currentActorCount < previousActorCount && enumHasMoreEntries)
@@ -522,13 +522,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             string lastSeenActorId,
             IEnumerator<T> enumerator,
             Func<T, string> getStorageKeyFunc,
-            CancellationToken cancellationToken,
-            bool enumHasMoreEntries)
+            CancellationToken cancellationToken)
         {
             string currentActorId = null;
+            bool enumHasMoreEntries = true;
 
             // Skip the previous returned entries
-            while (enumHasMoreEntries && currentActorId != lastSeenActorId)
+            while (enumHasMoreEntries && string.Compare(currentActorId, lastSeenActorId) < 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
