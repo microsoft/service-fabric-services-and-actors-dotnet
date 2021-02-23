@@ -138,6 +138,12 @@ namespace FabActUtil
                 return;
             }
 
+            if (!File.Exists(context.Arguments.Local5NodeServiceParamFile))
+            {
+                var errMessage = string.Format("Local5NodeServiceParamFile : {0} doesn't exist", context.Arguments.Local5NodeServiceParamFile);
+                throw new FileNotFoundException(errMessage);
+            }
+
             var updaterArgs = new AppParameterFileUpdater.Arguments()
             {
                 ActorTypes = context.ActorTypes,
@@ -152,6 +158,12 @@ namespace FabActUtil
             if (string.IsNullOrEmpty(context.Arguments.Local1NodeServiceParamFile))
             {
                 return;
+            }
+
+            if (!File.Exists(context.Arguments.Local1NodeServiceParamFile))
+            {
+                var errMessage = string.Format("Local1NodeServiceParamFile : {0} doesn't exist", context.Arguments.Local1NodeServiceParamFile);
+                throw new FileNotFoundException(errMessage);
             }
 
             var updaterArgs = new AppParameterFileUpdater.Arguments()
