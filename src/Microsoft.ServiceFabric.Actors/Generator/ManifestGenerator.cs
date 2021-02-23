@@ -114,6 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                 // if startupServicesFlag is enabled, merge DefaultServices and Parameters into StartupServicesContent
                 if (toolContext.StartupServicesFlag)
                 {
+                    Console.WriteLine("Merging Services and Service Parameters to {0}", toolContext.Arguments.StartupServicesFilePath);
                     StartupServicesManifestType latestStartupServicesManifestType = MergeStartupServiceManifest(applicationManifest);
                     InsertXmlCommentsAndWriteIfNeeded(
                        toolContext.StartupServicesFilePath,
@@ -1407,6 +1408,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
                             .Deserialize<StartupServicesManifestType>(
                                 this.ExistingStartupServicesContents);
                         this.StartupServicesFlag = true;
+
+                        Console.WriteLine("StartupServicesFlag has been set to true");
 
                         // Create ActorService name and GeneratedIdRef map to be used while merging parameters later.
                         if (this.ExistingStartupServicesManifestType != null

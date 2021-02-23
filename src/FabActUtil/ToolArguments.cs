@@ -122,7 +122,7 @@ namespace FabActUtil
 
         [CommandLineArgument(
             CommandLineArgumentType.AtMostOnce,
-            Description = "Absolute path of StartupServices file which contains DefaultServices.",
+            Description = "Absolute path of StartupServices.xml file which contains DefaultServices and Service Parameters.",
             LongName = "StartupServicesFilePath",
             ShortName = "ssfp")]
         public string StartupServicesFilePath;

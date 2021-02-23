@@ -59,6 +59,7 @@ namespace FabActUtil
                 // If StartupServiceFilePath is provided, update parameters into service ParamFiles otherwise application ParamFiles
                 if (!string.IsNullOrEmpty(context.Arguments.StartupServicesFilePath))
                 {
+                    Console.WriteLine("Adding service parameters to service param files - {0} and {1}", context.Arguments.Local5NodeServiceParamFile, context.Arguments.Local1NodeServiceParamFile);
                     AddParametersToLocalFiveNodeServiceParamFile(context);
                     AddParametersToLocalOneNodeServiceParamFile(context);
                 }
