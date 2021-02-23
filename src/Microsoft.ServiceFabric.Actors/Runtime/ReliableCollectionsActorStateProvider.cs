@@ -1088,8 +1088,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                     else
                     {
-                        string lastSeenActorId = GetActorIdFromPresenceStorageKey(continuationToken.Marker.ToString()).ToString();
-                        enumHasMoreEntries = await this.GetContinuationPointByActorId(lastSeenActorId, enumerator, cancellationToken);
+                        string lastSeenActorStorageKey = continuationToken.Marker.ToString();
+                        enumHasMoreEntries = await this.GetContinuationPointByActorStorageKey(lastSeenActorStorageKey, enumerator, cancellationToken);
                     }
 
                     if (!enumHasMoreEntries)
@@ -1163,25 +1163,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return enumHasMoreEntries;
         }
 
-        private async Task<bool> GetContinuationPointByActorId(
-            string lastSeenActorId,
+        private async Task<bool> GetContinuationPointByActorStorageKey(
+            string lastSeenActorStorageKey,
             IAsyncEnumerator<string> enumerator,
             CancellationToken cancellationToken)
         {
             bool enumHasMoreEntries = true;
-            string currentActorId = GetActorIdFromPresenceStorageKey(enumerator.Current).ToString();
+            string currentActorStorageKey = enumerator.Current.ToString();
 
             // Skip the previous returned entries
-            while (enumHasMoreEntries && string.Compare(currentActorId, lastSeenActorId) < 0)
+            while (enumHasMoreEntries && string.Compare(currentActorStorageKey, lastSeenActorStorageKey) <= 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
-                currentActorId = GetActorIdFromPresenceStorageKey(enumerator.Current).ToString();
-            }
-
-            if (lastSeenActorId == currentActorId && enumHasMoreEntries)
-            {
-                enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
+                currentActorStorageKey = enumerator.Current.ToString();
             }
 
             return enumHasMoreEntries;

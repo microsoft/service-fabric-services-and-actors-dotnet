@@ -442,8 +442,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 else
                 {
-                    string lastSeenActorId = GetActorIdFromPresenceStorageKey(continuationToken.Marker.ToString()).ToString();
-                    enumHasMoreEntries = this.GetContinuationPointByActorId(lastSeenActorId, enumerator, getStorageKeyFunc, cancellationToken);
+                    string lastSeenActorStorageKey = continuationToken.Marker.ToString();
+                    enumHasMoreEntries = this.GetContinuationPointByActorStorageKey(lastSeenActorStorageKey, enumerator, getStorageKeyFunc, cancellationToken);
                 }
 
                 if (!enumHasMoreEntries)
@@ -518,29 +518,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return enumHasMoreEntries;
         }
 
-        private bool GetContinuationPointByActorId<T>(
-            string lastSeenActorId,
+        private bool GetContinuationPointByActorStorageKey<T>(
+            string lastSeenActorStorageKey,
             IEnumerator<T> enumerator,
             Func<T, string> getStorageKeyFunc,
             CancellationToken cancellationToken)
         {
             bool enumHasMoreEntries = true;
             var storageKey = getStorageKeyFunc(enumerator.Current);
-            string currentActorId = GetActorIdFromPresenceStorageKey(storageKey).ToString();
 
             // Skip the previous returned entries
-            while (enumHasMoreEntries && string.Compare(currentActorId, lastSeenActorId) < 0)
+            while (enumHasMoreEntries && string.Compare(storageKey, lastSeenActorStorageKey) <= 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 enumHasMoreEntries = enumerator.MoveNext();
                 storageKey = getStorageKeyFunc(enumerator.Current);
-                currentActorId = GetActorIdFromPresenceStorageKey(storageKey).ToString();
-            }
-
-            if (lastSeenActorId == currentActorId && enumHasMoreEntries)
-            {
-                enumHasMoreEntries = enumerator.MoveNext();
             }
 
             return enumHasMoreEntries;
