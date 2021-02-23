@@ -524,16 +524,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<T, string> getStorageKeyFunc,
             CancellationToken cancellationToken)
         {
-            string currentActorId = null;
             bool enumHasMoreEntries = true;
+            var storageKey = getStorageKeyFunc(enumerator.Current);
+            string currentActorId = GetActorIdFromPresenceStorageKey(storageKey).ToString();
 
             // Skip the previous returned entries
             while (enumHasMoreEntries && string.Compare(currentActorId, lastSeenActorId) < 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var storageKey = getStorageKeyFunc(enumerator.Current);
+                enumHasMoreEntries = enumerator.MoveNext();
+                storageKey = getStorageKeyFunc(enumerator.Current);
                 currentActorId = GetActorIdFromPresenceStorageKey(storageKey).ToString();
+            }
+
+            if (lastSeenActorId == currentActorId && enumHasMoreEntries)
+            {
                 enumHasMoreEntries = enumerator.MoveNext();
             }
 

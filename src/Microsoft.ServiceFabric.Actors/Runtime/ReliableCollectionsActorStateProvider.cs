@@ -1168,15 +1168,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IAsyncEnumerator<string> enumerator,
             CancellationToken cancellationToken)
         {
-            string currentActorId = null;
             bool enumHasMoreEntries = true;
+            string currentActorId = GetActorIdFromPresenceStorageKey(enumerator.Current).ToString();
 
             // Skip the previous returned entries
             while (enumHasMoreEntries && string.Compare(currentActorId, lastSeenActorId) < 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
+                enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
                 currentActorId = GetActorIdFromPresenceStorageKey(enumerator.Current).ToString();
+            }
+
+            if (lastSeenActorId == currentActorId && enumHasMoreEntries)
+            {
                 enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
             }
 
