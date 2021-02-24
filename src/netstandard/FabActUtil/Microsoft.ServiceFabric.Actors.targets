@@ -29,7 +29,10 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <PropertyGroup>
       <Local5NodeAppParamFileArg Condition=" '$(Local5NodeAppParamFile)' != '' ">/local5nodeappparamfile:&quot;$(Local5NodeAppParamFile)&quot;</Local5NodeAppParamFileArg>
       <Local1NodeAppParamFileArg Condition=" '$(Local1NodeAppParamFile)' != '' ">/local1nodeappparamfile:&quot;$(Local1NodeAppParamFile)&quot;</Local1NodeAppParamFileArg>
+      <Local5NodeServiceParamFileArg Condition=" '$(Local5NodeServiceParamFile)' != '' ">/local5nodeserviceparamfile:&quot;$(Local5NodeServiceParamFile)&quot;</Local5NodeServiceParamFileArg>
+      <Local1NodeServiceParamFileArg Condition=" '$(Local1NodeServiceParamFile)' != '' ">/local1nodeserviceparamfile:&quot;$(Local1NodeServiceParamFile)&quot;</Local1NodeServiceParamFileArg>
+      <StartupServicesFilePathArg Condition=" '$(StartupServicesFilePath)' != '' ">/ssfp:&quot;$(StartupServicesFilePath)&quot;</StartupServicesFilePathArg>
     </PropertyGroup>
-    <Exec Command="dotnet &quot;$(FabActUtilWorkingDir)\FabActUtil.dll&quot; /app:&quot;$(ApplicationPackagePath)&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /ap:&quot;$(ApplicationPrefix)&quot; /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).dll&quot; /arp:&quot;$(TargetDir)\&quot; /smep:$(ServiceManifestEntryPointType) $(Local5NodeAppParamFileArg) $(Local1NodeAppParamFileArg) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="dotnet &quot;$(FabActUtilWorkingDir)\FabActUtil.dll&quot; /app:&quot;$(ApplicationPackagePath)&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /ap:&quot;$(ApplicationPrefix)&quot; /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).dll&quot; /arp:&quot;$(TargetDir)\&quot; /smep:$(ServiceManifestEntryPointType) $(StartupServicesFilePathArg) $(Local5NodeAppParamFileArg) $(Local1NodeAppParamFileArg) $(Local5NodeServiceParamFileArg) $(Local1NodeServiceParamFileArg) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 </Project>
