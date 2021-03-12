@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Generator
     using System.Fabric.Management.ServiceModel;
     using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.StartupServicesUtility;
 
     internal class AppParameterFileUpdater
     {
@@ -23,6 +24,69 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 
         private const string MinReplicaSetSizeParamName = "MinReplicaSetSize";
         private const int LocalOneNodeDefaultMinReplicaSetSize = 1;
+
+        internal static void AddServiceParameterValuesToLocalFiveNodeParamFile(Arguments arguments)
+        {
+            var serviceParamFileContents = Utility.LoadContents(arguments.ServiceParamFilePath).Trim();
+            var serviceInstanceDefinition = XmlSerializationUtility.Deserialize<StartupServiceInstanceDefinitionType>(serviceParamFileContents);
+
+            var newServiceParams =
+                arguments.ActorTypes.Select(
+                    actorTypeInfo =>
+                    {
+                        var serviceName = ActorNameFormat.GetFabricServiceName(actorTypeInfo.InterfaceTypes.First(), actorTypeInfo.ServiceName);
+
+                        return new StartupServiceInstanceDefinitionTypeParameter
+                        {
+                            Name = string.Format(ParamNameFormat, serviceName, PartitionCountParamName),
+                            Value = LocalFiveNodeDefaultPartitionCount.ToString(),
+                        };
+                    });
+
+            // Create new parameters for Actor Types and merge it with existing service Parameters.
+            serviceInstanceDefinition.Parameters = MergeServiceParams(serviceInstanceDefinition.Parameters, newServiceParams);
+
+            var newContent = XmlSerializationUtility.InsertXmlComments(serviceParamFileContents, serviceInstanceDefinition);
+            Utility.WriteIfNeeded(arguments.ServiceParamFilePath, serviceParamFileContents, newContent);
+        }
+
+        internal static void AddServiceParameterValuesToLocalOneNodeParamFile(Arguments arguments)
+        {
+            var serviceParamFileContents = Utility.LoadContents(arguments.ServiceParamFilePath).Trim();
+            var serviceInstanceDefinition = XmlSerializationUtility.Deserialize<StartupServiceInstanceDefinitionType>(serviceParamFileContents);
+            var newAppParams = new List<StartupServiceInstanceDefinitionTypeParameter>();
+
+            // Create new parameters for Actor Types and merge it with existing Parameters.
+            foreach (var actorTypeInfo in arguments.ActorTypes)
+            {
+                var serviceName = ActorNameFormat.GetFabricServiceName(actorTypeInfo.InterfaceTypes.First(), actorTypeInfo.ServiceName);
+
+                newAppParams.Add(
+                    new StartupServiceInstanceDefinitionTypeParameter
+                    {
+                        Name = string.Format(ParamNameFormat, serviceName, PartitionCountParamName),
+                        Value = LocalOneNodeDefaultPartitionCount.ToString(),
+                    });
+
+                newAppParams.Add(
+                    new StartupServiceInstanceDefinitionTypeParameter
+                    {
+                        Name = string.Format(ParamNameFormat, serviceName, TargetReplicaSetSizeParamName),
+                        Value = LocalOneNodeDefaultTargetReplicaSetSize.ToString(),
+                    });
+                newAppParams.Add(
+                    new StartupServiceInstanceDefinitionTypeParameter
+                    {
+                        Name = string.Format(ParamNameFormat, serviceName, MinReplicaSetSizeParamName),
+                        Value = LocalOneNodeDefaultMinReplicaSetSize.ToString(),
+                    });
+            }
+
+            serviceInstanceDefinition.Parameters = MergeServiceParams(serviceInstanceDefinition.Parameters, newAppParams);
+
+            var newContent = XmlSerializationUtility.InsertXmlComments(serviceParamFileContents, serviceInstanceDefinition);
+            Utility.WriteIfNeeded(arguments.ServiceParamFilePath, serviceParamFileContents, newContent);
+        }
 
         internal static void AddParameterValuesToLocalFiveNodeParamFile(Arguments arguments)
         {
@@ -87,6 +151,26 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             Utility.WriteIfNeeded(arguments.AppParamFilePath, appParamFileContents, newContent);
         }
 
+        internal static StartupServiceInstanceDefinitionTypeParameter[] MergeServiceParams(
+            IEnumerable<StartupServiceInstanceDefinitionTypeParameter> existingItems,
+            IEnumerable<StartupServiceInstanceDefinitionTypeParameter> newItems)
+        {
+            // Add new parameters if not already exist in the app instance definition file.
+            if (existingItems == null)
+            {
+                return newItems.ToArray();
+            }
+            else
+            {
+                // Only add the Parameter if it doesnt exist already.
+                var existingParamNames = existingItems.Select(x => x.Name);
+                var updatedItemsList = existingItems.ToList();
+                updatedItemsList.AddRange(newItems.Where(newParam => !existingParamNames.Contains(newParam.Name)));
+
+                return updatedItemsList.ToArray();
+            }
+        }
+
         internal static AppInstanceDefinitionTypeParameter[] MergeAppParams(
             IEnumerable<AppInstanceDefinitionTypeParameter> existingItems,
             IEnumerable<AppInstanceDefinitionTypeParameter> newItems)
@@ -110,6 +194,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         public class Arguments
         {
             public string AppParamFilePath { get; set; }
+
+            public string ServiceParamFilePath { get; set; }
 
             public IList<ActorTypeInformation> ActorTypes { get; set; }
         }

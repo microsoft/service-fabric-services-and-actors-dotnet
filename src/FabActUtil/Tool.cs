@@ -147,10 +147,10 @@ namespace FabActUtil
             var updaterArgs = new AppParameterFileUpdater.Arguments()
             {
                 ActorTypes = context.ActorTypes,
-                AppParamFilePath = context.Arguments.Local5NodeServiceParamFile,
+                ServiceParamFilePath = context.Arguments.Local5NodeServiceParamFile,
             };
 
-            AppParameterFileUpdater.AddParameterValuesToLocalFiveNodeParamFile(updaterArgs);
+            AppParameterFileUpdater.AddServiceParameterValuesToLocalFiveNodeParamFile(updaterArgs);
         }
 
         private static void AddParametersToLocalOneNodeServiceParamFile(ToolContext context)
@@ -169,10 +169,10 @@ namespace FabActUtil
             var updaterArgs = new AppParameterFileUpdater.Arguments()
             {
                 ActorTypes = context.ActorTypes,
-                AppParamFilePath = context.Arguments.Local1NodeServiceParamFile,
+                ServiceParamFilePath = context.Arguments.Local1NodeServiceParamFile,
             };
 
-            AppParameterFileUpdater.AddParameterValuesToLocalOneNodeParamFile(updaterArgs);
+            AppParameterFileUpdater.AddServiceParameterValuesToLocalOneNodeParamFile(updaterArgs);
         }
 
         private static void LoadInputAssembly(ToolContext context)
