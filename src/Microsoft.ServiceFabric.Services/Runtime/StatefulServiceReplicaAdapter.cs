@@ -132,6 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 newRole);
 
             await this.CloseCommunicationListenersAsync(cancellationToken);
+            await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
 
             if (newRole == ReplicaRole.Primary)
             {
@@ -151,8 +152,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     this.userServiceReplica.Addresses = this.endpointCollection.ToReadOnlyDictionary();
                 }
             }
-
-            await this.stateProviderReplica.ChangeRoleAsync(newRole, cancellationToken);
 
             // ChangeRole (CR) on user service replica should be invoked after CR has been invoked
             //  on StateProvider (SP) to ensure consistent experience for user service replica
@@ -194,7 +193,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 "CloseAsync");
 
             await this.CloseCommunicationListenersAsync(cancellationToken);
-            await this.CancelRunAsync();
             ServiceTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.traceId,
@@ -223,6 +221,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
                 this.stateProviderReplica = null;
             }
+
+            await this.CancelRunAsync();
         }
 
         void IStatefulServiceReplica.Abort()
@@ -233,7 +233,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 "Abort");
 
             this.AbortCommunicationListeners();
-            this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
             this.userServiceReplica.OnAbort();
 
             if (this.stateProviderReplica != null)
@@ -241,6 +240,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.stateProviderReplica.Abort();
                 this.stateProviderReplica = null;
             }
+
+            this.CancelRunAsync().ContinueWith(t => t.Exception, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         #endregion
