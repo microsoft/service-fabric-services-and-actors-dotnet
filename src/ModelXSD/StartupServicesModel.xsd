@@ -654,7 +654,7 @@
     </xs:choice>
   </xs:group>
 
-  <xs:attributeGroup name="NameValuePair">
+  <xs:attributeGroup name="StartupNameValuePair">
     <xs:annotation>
       <xs:documentation>Name and Value defined as an attribute.</xs:documentation>
     </xs:annotation>
@@ -686,7 +686,7 @@
           <xs:sequence>
             <xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded">
               <xs:complexType>
-                <xs:attributeGroup ref="NameValuePair"/>
+                <xs:attributeGroup ref="StartupNameValuePair"/>
               </xs:complexType>
             </xs:element>
           </xs:sequence>
