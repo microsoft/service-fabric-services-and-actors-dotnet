@@ -130,16 +130,16 @@ namespace FabActUtil
         [CommandLineArgument(
             CommandLineArgumentType.AtMostOnce,
             Description = "Path to service parameter file for five node cluster used for deployment by Visual Studio. It contains app name and service parameter values.",
-            LongName = "Local5NodeServiceParametersFile",
-            ShortName = "local5nodeserviceparamfile")]
-        public string Local5NodeServiceParamFile;
+            LongName = "Local5NodeStartupServiceParametersFile",
+            ShortName = "local5nodestartupserviceparamfile")]
+        public string Local5NodeStartupServiceParamFile;
 
         [CommandLineArgument(
             CommandLineArgumentType.AtMostOnce,
             Description = "Path to service parameter file for one node cluster used for deployment by Visual Studio. It contains app name and service parameter values.",
-            LongName = "Local1NodeServiceParametersFile",
-            ShortName = "local1nodeserviceparamfile")]
-        public string Local1NodeServiceParamFile;
+            LongName = "Local1NodeStartupServiceParametersFile",
+            ShortName = "local1nodestartupserviceparamfile")]
+        public string Local1NodeStartupServiceParamFile;
 #pragma warning restore SA1401 // Fields should be private
 
         public ToolArguments()
@@ -159,8 +159,8 @@ namespace FabActUtil
             this.AssemblyResolvePath = null;
             this.ServiceManifestEntryPointType = "Exe";
             this.StartupServicesFilePath = null;
-            this.Local1NodeServiceParamFile = null;
-            this.Local5NodeServiceParamFile = null;
+            this.Local1NodeStartupServiceParamFile = null;
+            this.Local5NodeStartupServiceParamFile = null;
         }
 
         internal bool IsValid()

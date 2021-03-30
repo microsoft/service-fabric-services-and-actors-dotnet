@@ -59,7 +59,7 @@ namespace FabActUtil
                 // If StartupServiceFilePath is provided, update parameters into service ParamFiles otherwise application ParamFiles
                 if (!string.IsNullOrEmpty(context.Arguments.StartupServicesFilePath))
                 {
-                    Console.WriteLine("Adding service parameters to service param files - {0} and {1}", context.Arguments.Local5NodeServiceParamFile, context.Arguments.Local1NodeServiceParamFile);
+                    Console.WriteLine("Adding service parameters to startup service param files - {0} and {1}", context.Arguments.Local5NodeStartupServiceParamFile, context.Arguments.Local1NodeStartupServiceParamFile);
                     AddParametersToLocalFiveNodeServiceParamFile(context);
                     AddParametersToLocalOneNodeServiceParamFile(context);
                 }
@@ -133,21 +133,21 @@ namespace FabActUtil
 
         private static void AddParametersToLocalFiveNodeServiceParamFile(ToolContext context)
         {
-            if (string.IsNullOrEmpty(context.Arguments.Local5NodeServiceParamFile))
+            if (string.IsNullOrEmpty(context.Arguments.Local5NodeStartupServiceParamFile))
             {
                 return;
             }
 
-            if (!File.Exists(context.Arguments.Local5NodeServiceParamFile))
+            if (!File.Exists(context.Arguments.Local5NodeStartupServiceParamFile))
             {
-                var errMessage = string.Format("Local5NodeServiceParamFile : {0} doesn't exist", context.Arguments.Local5NodeServiceParamFile);
+                var errMessage = string.Format("Local5NodeStartupServiceParamFile : {0} doesn't exist", context.Arguments.Local5NodeStartupServiceParamFile);
                 throw new FileNotFoundException(errMessage);
             }
 
             var updaterArgs = new AppParameterFileUpdater.Arguments()
             {
                 ActorTypes = context.ActorTypes,
-                ServiceParamFilePath = context.Arguments.Local5NodeServiceParamFile,
+                ServiceParamFilePath = context.Arguments.Local5NodeStartupServiceParamFile,
             };
 
             AppParameterFileUpdater.AddServiceParameterValuesToLocalFiveNodeParamFile(updaterArgs);
@@ -155,21 +155,21 @@ namespace FabActUtil
 
         private static void AddParametersToLocalOneNodeServiceParamFile(ToolContext context)
         {
-            if (string.IsNullOrEmpty(context.Arguments.Local1NodeServiceParamFile))
+            if (string.IsNullOrEmpty(context.Arguments.Local1NodeStartupServiceParamFile))
             {
                 return;
             }
 
-            if (!File.Exists(context.Arguments.Local1NodeServiceParamFile))
+            if (!File.Exists(context.Arguments.Local1NodeStartupServiceParamFile))
             {
-                var errMessage = string.Format("Local1NodeServiceParamFile : {0} doesn't exist", context.Arguments.Local1NodeServiceParamFile);
+                var errMessage = string.Format("Local1NodeStartupServiceParamFile : {0} doesn't exist", context.Arguments.Local1NodeStartupServiceParamFile);
                 throw new FileNotFoundException(errMessage);
             }
 
             var updaterArgs = new AppParameterFileUpdater.Arguments()
             {
                 ActorTypes = context.ActorTypes,
-                ServiceParamFilePath = context.Arguments.Local1NodeServiceParamFile,
+                ServiceParamFilePath = context.Arguments.Local1NodeStartupServiceParamFile,
             };
 
             AppParameterFileUpdater.AddServiceParameterValuesToLocalOneNodeParamFile(updaterArgs);
