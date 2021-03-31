@@ -6,7 +6,7 @@
     <xs:documentation>Microsoft Azure Service Fabric StartupServices Model. Version: V1_RTM_3 [MajorVersion_Milestone_ChangeNo]</xs:documentation>
   </xs:annotation>
   <xs:element name="StartupServicesManifest" type="StartupServicesManifestType"/>
-  <xs:element name="Services" type="StartupServiceInstanceDefinitionType">
+  <xs:element name="StartupServices" type="StartupServiceInstanceDefinitionType">
     <xs:annotation>
       <xs:documentation>Service Instance specific information like service parameter values used to create service. Parameter values in this file overrides the default parameter values defined in startup service Manifest.</xs:documentation>
     </xs:annotation>
