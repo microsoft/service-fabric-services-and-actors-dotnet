@@ -533,7 +533,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken.ThrowIfCancellationRequested();
 
                 enumHasMoreEntries = enumerator.MoveNext();
-                storageKey = getStorageKeyFunc(enumerator.Current);
+                if (enumHasMoreEntries)
+                {
+                    storageKey = getStorageKeyFunc(enumerator.Current);
+                }
             }
 
             return enumHasMoreEntries;

@@ -1176,7 +1176,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
-                currentActorStorageKey = enumerator.Current.ToString();
+                if (enumHasMoreEntries)
+                {
+                    currentActorStorageKey = enumerator.Current.ToString();
+                }
             }
 
             return enumHasMoreEntries;
