@@ -149,16 +149,10 @@
       <File Include="$(DropFolderNetStandard_Win)system.fabric.strings.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-	  <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.StartupServicesUtility.dll">
-        <TargetPath>build\netcoreapp2.0</TargetPath>
-      </File>
     </ItemGroup>
     
     <ItemGroup>
       <Dependency Include="Microsoft.ServiceFabric.Services.Remoting">
-        <Version>[$(NuGetPackageVersion)]</Version>
-      </Dependency>
-      <Dependency Include="Microsoft.ServiceFabric.StartupServicesUtility">
         <Version>[$(NuGetPackageVersion)]</Version>
       </Dependency>
     </ItemGroup>

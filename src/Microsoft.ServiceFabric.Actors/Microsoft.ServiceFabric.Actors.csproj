@@ -10,6 +10,8 @@
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <TargetFramework>net45</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1591</NoWarn>
+    <StartupServicesModelFilePath>$(RepoRoot)src\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)\StartupServicesModel\</StartupServicesModelFilePath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" Version="$(NugetPkg_Version_Microsoft_ServiceFabric)" />
@@ -19,7 +21,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(StartupServicesModelFilePath)StartupServicesModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">
