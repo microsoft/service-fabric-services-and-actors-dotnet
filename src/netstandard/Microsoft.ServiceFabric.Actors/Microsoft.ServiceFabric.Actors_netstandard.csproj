@@ -11,7 +11,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>1591</NoWarn>
-    <StartupServicesModelFilePath>$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)\StartupServicesModel\</StartupServicesModelFilePath>
+    <StartupServicesModelFilePath>$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)StartupServicesModel\</StartupServicesModelFilePath>
   </PropertyGroup>
   <ItemGroup>
     <!--Add required .cs files to build for dotnet core-->
