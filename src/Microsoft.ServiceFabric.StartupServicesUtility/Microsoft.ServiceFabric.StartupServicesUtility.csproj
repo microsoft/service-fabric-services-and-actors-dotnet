@@ -12,7 +12,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <XsdPath>$(RepoRoot)\CodeGenerationTool</XsdPath>
-	  <XsdModelPath>$(RepoRoot)\src\ModelXSD</XsdModelPath>
+    <XsdModelPath>$(RepoRoot)\src\ModelXSD</XsdModelPath>
   </PropertyGroup>
 
   <ItemGroup>

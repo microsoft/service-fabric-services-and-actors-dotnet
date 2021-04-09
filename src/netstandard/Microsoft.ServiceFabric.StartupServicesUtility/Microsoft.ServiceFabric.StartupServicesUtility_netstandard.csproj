@@ -9,8 +9,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SourceCodeDir>$(RepoRoot)src\StartupServicesUtility\</SourceCodeDir>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-	  <XsdPath>$(RepoRoot)\CodeGenerationTool</XsdPath>
-	  <XsdModelPath>$(RepoRoot)\src\ModelXSD</XsdModelPath>
+    <XsdPath>$(RepoRoot)\CodeGenerationTool</XsdPath>
+    <XsdModelPath>$(RepoRoot)\src\ModelXSD</XsdModelPath>
   </PropertyGroup>
 
   <ItemGroup>
