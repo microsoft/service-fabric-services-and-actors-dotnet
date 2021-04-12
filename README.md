@@ -43,6 +43,9 @@ follow the instructions provided in [Microsoft Azure Projects Contribution Guide
 
 For details on contributing to Service Fabric projects, please refer to [Contributing.md](https://github.com/Microsoft/service-fabric/blob/master/CONTRIBUTING.md) at the Service Fabric home repo for details on contributing code.
 
+## How to reflect changes done in Nugets
+Nugets from this repo are published via Service Fabric SDK. Once the changes are made in this repo and if there are some changes in nuprojs files, they should reflect in Service Fabric Repo (src\BuildSteps\GenerateNuget\PublicSDK) in respective nuprojs.
+
 ## Documentation
 Service Fabric has conceptual and reference documentation available at [https://docs.microsoft.com/azure/service-fabric](https://docs.microsoft.com/azure/service-fabric).
 
