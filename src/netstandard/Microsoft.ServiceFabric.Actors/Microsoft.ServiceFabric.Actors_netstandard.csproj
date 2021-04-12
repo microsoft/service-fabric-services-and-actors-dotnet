@@ -54,5 +54,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility_netstandard.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 </Project>

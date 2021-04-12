@@ -21,6 +21,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(StartupServicesModelFilePath)StartupServicesModel.cs" />
