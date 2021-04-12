@@ -528,7 +528,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var storageKey = getStorageKeyFunc(enumerator.Current);
 
             // Skip the previous returned entries
-            while (enumHasMoreEntries && string.Compare(storageKey, lastSeenActorStorageKey, StringComparison.OrdinalIgnoreCase) <= 0)
+            while (enumHasMoreEntries && string.Compare(storageKey, lastSeenActorStorageKey, StringComparison.InvariantCultureIgnoreCase) <= 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

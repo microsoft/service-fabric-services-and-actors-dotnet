@@ -1172,7 +1172,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             string currentActorStorageKey = enumerator.Current.ToString();
 
             // Skip the previous returned entries
-            while (enumHasMoreEntries && string.Compare(currentActorStorageKey, lastSeenActorStorageKey, StringComparison.OrdinalIgnoreCase) <= 0)
+            while (enumHasMoreEntries && string.Compare(currentActorStorageKey, lastSeenActorStorageKey, StringComparison.InvariantCultureIgnoreCase) <= 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 enumHasMoreEntries = await enumerator.MoveNextAsync(cancellationToken);
