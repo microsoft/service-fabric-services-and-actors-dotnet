@@ -24,7 +24,10 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <PropertyGroup>
       <Local5NodeAppParamFileArg Condition=" '$(Local5NodeAppParamFile)' != '' ">/local5nodeappparamfile:&quot;$(Local5NodeAppParamFile)&quot;</Local5NodeAppParamFileArg>
       <Local1NodeAppParamFileArg Condition=" '$(Local1NodeAppParamFile)' != '' ">/local1nodeappparamfile:&quot;$(Local1NodeAppParamFile)&quot;</Local1NodeAppParamFileArg>
+      <Local5NodeStartupServiceParamFileArg Condition=" '$(Local5NodeStartupServiceParamFile)' != '' ">/local5nodestartupserviceparamfile:&quot;$(Local5NodeStartupServiceParamFile)&quot;</Local5NodeStartupServiceParamFileArg>
+      <Local1NodeStartupServiceParamFileArg Condition=" '$(Local1NodeStartupServiceParamFile)' != '' ">/local1nodestartupserviceparamfile:&quot;$(Local1NodeStartupServiceParamFile)&quot;</Local1NodeStartupServiceParamFileArg>
+      <StartupServicesFilePathArg Condition=" '$(StartupServicesFilePath)' != '' ">/ssfp:&quot;$(StartupServicesFilePath)&quot;</StartupServicesFilePathArg>
     </PropertyGroup>
-    <Exec Command="&quot;$(MSBuildThisFileDirectory)\FabActUtil.exe&quot; /app:&quot;$(ApplicationPackagePath)&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /ap:&quot;$(ApplicationPrefix)&quot; /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).$(OutputType)&quot; /arp:&quot;$(TargetDir)\&quot; $(Local5NodeAppParamFileArg) $(Local1NodeAppParamFileArg) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)\FabActUtil.exe&quot; /app:&quot;$(ApplicationPackagePath)&quot; /spp:&quot;$(ServicePackagePath)&quot; /t:manifest /ap:&quot;$(ApplicationPrefix)&quot; /sp:&quot;$(ServicePackagePrefix)&quot; /in:&quot;$(OutDir)\$(AssemblyName).$(OutputType)&quot; /arp:&quot;$(TargetDir)\&quot; $(StartupServicesFilePathArg) $(Local5NodeAppParamFileArg) $(Local1NodeAppParamFileArg) $(Local5NodeStartupServiceParamFileArg) $(Local1NodeStartupServiceParamFileArg) $(FabActUtilAdditionalArguments)" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 </Project>

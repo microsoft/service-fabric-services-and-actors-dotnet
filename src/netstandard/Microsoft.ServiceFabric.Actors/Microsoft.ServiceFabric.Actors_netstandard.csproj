@@ -10,6 +10,8 @@
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1591</NoWarn>
+    <StartupServicesModelFilePath>$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.StartupServicesUtility\$(OutputPath)StartupServicesModel\</StartupServicesModelFilePath>
   </PropertyGroup>
   <ItemGroup>
     <!--Add required .cs files to build for dotnet core-->
@@ -28,7 +30,10 @@
     <!-- Only include V2 stack -->
     <Compile Include="$(SourceCodeDir)Remoting\V2\**\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     
+    <!-- For StartupServicesModel File-->
+    <Compile Include="$(StartupServicesModelFilePath)StartupServicesModel.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <Compile Include="$(SourceCodeDir)SR.Designer.cs">
       <Link>SR.Designer.cs</Link>
@@ -49,5 +54,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.StartupServicesUtility\Microsoft.ServiceFabric.StartupServicesUtility_netstandard.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 </Project>
