@@ -418,9 +418,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<T, string> getStorageKeyFunc,
             CancellationToken cancellationToken)
         {
-            var previousActorCount = continuationToken == null ? 0 : long.Parse((string)continuationToken.Marker);
-
-            long currentActorCount = 0;
             var actorIdList = new List<ActorId>();
             var actorQueryResult = new PagedResult<ActorId>();
 
@@ -435,18 +432,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 return Task.FromResult(actorQueryResult);
             }
 
-            // Skip the previous returned entries
-            while (currentActorCount < previousActorCount)
+            // Find continuation point for enumeration
+            if (continuationToken != null)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                enumHasMoreEntries = enumerator.MoveNext();
-                currentActorCount++;
+                long previousActorCount = 0L;
+                if (long.TryParse((string)continuationToken.Marker, out previousActorCount))
+                {
+                    enumHasMoreEntries = this.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken);
+                }
+                else
+                {
+                    string lastSeenActorStorageKey = continuationToken.Marker.ToString();
+                    enumHasMoreEntries = this.GetContinuationPointByActorStorageKey(lastSeenActorStorageKey, enumerator, getStorageKeyFunc, cancellationToken);
+                }
 
                 if (!enumHasMoreEntries)
                 {
                     // We are here means the current snapshot that enumerator represents
-                    // has less number of entries that what ContinuationToken contains.
+                    // has less entries that what ContinuationToken contains.
                     return Task.FromResult(actorQueryResult);
                 }
             }
@@ -471,7 +474,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
 
                 enumHasMoreEntries = enumerator.MoveNext();
-                currentActorCount++;
 
                 if (actorIdList.Count == itemsCount)
                 {
@@ -480,7 +482,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     // If enumerator has more elements, then set the continuation token.
                     if (enumHasMoreEntries)
                     {
-                        actorQueryResult.ContinuationToken = new ContinuationToken(currentActorCount.ToString());
+                        actorQueryResult.ContinuationToken = new ContinuationToken(storageKey.ToString());
                     }
 
                     return Task.FromResult(actorQueryResult);
@@ -495,6 +497,50 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #region Private Helpers
+
+        private bool GetContinuationPointByActorCount<T>(
+            long previousActorCount,
+            IEnumerator<T> enumerator,
+            CancellationToken cancellationToken)
+        {
+            long currentActorCount = 0L;
+            bool enumHasMoreEntries = true;
+
+            // Skip the previous returned entries
+            while (currentActorCount < previousActorCount && enumHasMoreEntries)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                currentActorCount++;
+                enumHasMoreEntries = enumerator.MoveNext();
+            }
+
+            return enumHasMoreEntries;
+        }
+
+        private bool GetContinuationPointByActorStorageKey<T>(
+            string lastSeenActorStorageKey,
+            IEnumerator<T> enumerator,
+            Func<T, string> getStorageKeyFunc,
+            CancellationToken cancellationToken)
+        {
+            bool enumHasMoreEntries = true;
+            var storageKey = getStorageKeyFunc(enumerator.Current);
+
+            // Skip the previous returned entries
+            while (enumHasMoreEntries && string.Compare(storageKey, lastSeenActorStorageKey, StringComparison.InvariantCultureIgnoreCase) <= 0)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                enumHasMoreEntries = enumerator.MoveNext();
+                if (enumHasMoreEntries)
+                {
+                    storageKey = getStorageKeyFunc(enumerator.Current);
+                }
+            }
+
+            return enumHasMoreEntries;
+        }
 
         private void EnsureSamePrimary(long roleChangeTracker)
         {
