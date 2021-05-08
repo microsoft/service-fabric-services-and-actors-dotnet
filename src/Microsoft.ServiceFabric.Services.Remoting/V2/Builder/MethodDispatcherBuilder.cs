@@ -81,10 +81,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
         }
 
         private static void AddIfNotWrapMsgGetParameter(
-      ILGenerator ilGen,
-      LocalBuilder castedObject,
-      MethodDescription methodDescription,
-      Type requestBody)
+            ILGenerator ilGen,
+            LocalBuilder castedObject,
+            MethodDescription methodDescription,
+            Type requestBody)
         {
             // now invoke the method on the casted object
             ilGen.Emit(OpCodes.Ldloc, castedObject);
@@ -102,6 +102,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
                     ilGen.Emit(OpCodes.Ldc_I4, i);
                     ilGen.Emit(OpCodes.Ldstr, argument.Name);
                     ilGen.Emit(OpCodes.Ldtoken, argument.ArgumentType);
+                    ilGen.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", BindingFlags.Static | BindingFlags.Public), null);
                     ilGen.Emit(OpCodes.Callvirt, method);
                     ilGen.Emit(OpCodes.Unbox_Any, argument.ArgumentType);
                 }
