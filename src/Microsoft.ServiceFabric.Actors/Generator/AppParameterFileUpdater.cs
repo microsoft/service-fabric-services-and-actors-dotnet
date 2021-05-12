@@ -7,9 +7,9 @@ namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using System.Collections.Generic;
     using System.Fabric.Management.ServiceModel;
+    using System.Fabric.Management.StartupServicesModel;
     using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.StartupServicesUtility;
 
     internal class AppParameterFileUpdater
     {
