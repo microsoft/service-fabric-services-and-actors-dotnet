@@ -15,6 +15,7 @@
     <!--Add required .cs files to build for dotnet core-->
     <Compile Include="$(SourceCodeDir)*.cs" Exclude="$(SourceCodeDir)SR.Designer.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)CommandLineParser\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)Generator\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft.ServiceFabric.Actors.targets">

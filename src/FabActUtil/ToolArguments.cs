@@ -6,7 +6,6 @@
 namespace FabActUtil
 {
     using FabActUtil.CommandLineParser;
-    using Microsoft.ServiceFabric.Actors.Generator;
 
     /// <summary>
     /// Output Target for FabActUtil
