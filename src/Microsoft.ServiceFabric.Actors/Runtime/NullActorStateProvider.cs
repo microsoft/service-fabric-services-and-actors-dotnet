@@ -517,6 +517,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
+            actorPresenceKeyList.Sort();
             return actorPresenceKeyList.GetEnumerator();
         }
 
