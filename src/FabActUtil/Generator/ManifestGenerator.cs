@@ -8,7 +8,6 @@ namespace FabActUtil.Generator
     using System;
     using System.Collections.Generic;
     using System.Fabric.Management.ServiceModel;
-    using System.Fabric.Management.StartupServicesModel;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -17,6 +16,7 @@ namespace FabActUtil.Generator
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
+    using StartupServicesModel;
 
     /// <summary>
     /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.

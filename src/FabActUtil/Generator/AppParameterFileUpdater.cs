@@ -7,10 +7,10 @@ namespace FabActUtil.Generator
 {
     using System.Collections.Generic;
     using System.Fabric.Management.ServiceModel;
-    using System.Fabric.Management.StartupServicesModel;
     using System.Linq;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using StartupServicesModel;
 
     internal class AppParameterFileUpdater
     {
