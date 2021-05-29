@@ -146,6 +146,9 @@
       <File Include="$(DropFolderNetStandard_Win)System.Fabric.Management.ServiceModel.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
+      <File Include="$(DropFolderNetStandard_Win)StartupServicesModel.dll">
+        <TargetPath>build\netcoreapp2.0</TargetPath>
+      </File>
       <File Include="$(DropFolderNetStandard_Win)system.fabric.strings.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
