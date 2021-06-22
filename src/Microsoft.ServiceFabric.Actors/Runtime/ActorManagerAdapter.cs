@@ -31,8 +31,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     this.ActorManager.Abort();
                 }
-
-                this.ActorManager = null;
             }
         }
 
