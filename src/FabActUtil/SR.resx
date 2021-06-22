@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ErrorApplicationName" xml:space="preserve">
+    <value>Failed to determine the current application, please provide application name.</value>
+  </data>
   <data name="Error_BadArgumentValue" xml:space="preserve">
     <value>'{0}' is not a valid value for the '{1}' command line option</value>
   </data>

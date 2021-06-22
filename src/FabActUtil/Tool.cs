@@ -10,8 +10,7 @@ namespace FabActUtil
     using System.Globalization;
     using System.IO;
     using System.Reflection;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Generator;
+    using FabActUtil.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class Tool
