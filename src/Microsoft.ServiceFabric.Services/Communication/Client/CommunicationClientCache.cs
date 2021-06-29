@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// maintained as a weak reference and the cache entries whose weak references are not alive are cleaned
     /// up periodically.
     /// </summary>
-     /// <typeparam name="TCommunicationClient">The type of the communication client.</typeparam>
+    /// <typeparam name="TCommunicationClient">The type of the communication client.</typeparam>
     internal class CommunicationClientCache<TCommunicationClient>
     : IDisposable
         where TCommunicationClient : ICommunicationClient
@@ -39,11 +39,31 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             this.clientCache = new ConcurrentDictionary<Guid, PartitionClientCache>();
             this.traceId = traceId;
             this.random = new Random();
-            this.cacheCleanupTimer = new Timer(
+
+            // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
+            bool restoreFlow = false;
+            try
+            {
+                if (!ExecutionContext.IsFlowSuppressed())
+                {
+                    ExecutionContext.SuppressFlow();
+                    restoreFlow = true;
+                }
+
+                this.cacheCleanupTimer = new Timer(
                 state => this.CacheCleanupTimerCallback(),
                 null,
                 this.GetNextCleanupTimerDueTimeSeconds(),
                 TimeSpan.FromMilliseconds(-1));
+            }
+            finally
+            {
+                // Restore the current ExecutionContext
+                if (restoreFlow)
+                {
+                    ExecutionContext.RestoreFlow();
+                }
+            }
         }
 
         public CommunicationClientCacheEntry<TCommunicationClient> GetOrAddClientCacheEntry(
