@@ -89,8 +89,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
         private static List<ActorReminderData> GetActorReminderList()
         {
-            var actorIds = new List<ActorId> { null, new ActorId(Guid.NewGuid()), ActorId.CreateRandom(), new ActorId(Guid.NewGuid().ToString()) };
-            var reminderNames = new List<string> { null, string.Empty, Guid.NewGuid().ToString() };
+            var actorIds = new List<ActorId> { null, new ActorId(Guid.NewGuid()), ActorId.CreateRandom(), new ActorId(Guid.NewGuid().ToString("N")) };
+            var reminderNames = new List<string> { null, string.Empty, Guid.NewGuid().ToString("N") };
             var reminderStates = new List<byte[]> { null, new byte[0], new byte[16] };
 
             var actorReminderDataList = new List<ActorReminderData>();

@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// </param>
         public ServiceRemotingExceptionHandler(string traceId)
         {
-            this.traceId = traceId ?? Guid.NewGuid().ToString();
+            this.traceId = traceId ?? Guid.NewGuid().ToString("N");
         }
 
         /// <summary>

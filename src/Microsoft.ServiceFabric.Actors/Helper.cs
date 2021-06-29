@@ -19,11 +19,11 @@ namespace Microsoft.ServiceFabric.Actors
                     CultureInfo.InvariantCulture,
                     "{0}{1}",
                     callContextValue,
-                    Guid.NewGuid().ToString());
+                    Guid.NewGuid().ToString("N"));
             }
             else
             {
-                return Guid.NewGuid().ToString();
+                return Guid.NewGuid().ToString("N");
             }
         }
     }
