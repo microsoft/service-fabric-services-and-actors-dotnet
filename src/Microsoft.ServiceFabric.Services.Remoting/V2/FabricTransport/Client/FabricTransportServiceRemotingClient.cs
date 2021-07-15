@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         private ResolvedServicePartition resolvedServicePartition;
         private string listenerName;
         private ResolvedServiceEndpoint resolvedServiceEndpoint;
+        private ExceptionSerializerType exceptionSerializerType;
 
         // we need to pass a cache of the serializers here rather than the known types,
         // the serializer cache should be maintained by the factor
@@ -37,6 +38,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;
             this.IsValid = true;
+            this.exceptionSerializerType = ExceptionSerializerType.BinaryFormatter;
+        }
+
+        internal FabricTransportServiceRemotingClient(
+            ServiceRemotingMessageSerializersManager serializersManager,
+            FabricTransportClient fabricTransportClient,
+            FabricTransportRemotingClientEventHandler remotingHandler,
+            ExceptionSerializerType exceptionSerializerType)
+        {
+            this.fabricTransportClient = fabricTransportClient;
+            this.remotingHandler = remotingHandler;
+            this.serializersManager = serializersManager;
+            this.IsValid = true;
+            this.exceptionSerializerType = exceptionSerializerType;
         }
 
         public bool IsValid { get; private set; }
@@ -106,6 +121,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             IServiceRemotingRequestMessage remotingRequestRequestMessage)
         {
             var interfaceId = remotingRequestRequestMessage.GetHeader().InterfaceId;
+            if (!remotingRequestRequestMessage.GetHeader().TryGetHeaderValue("ExceptionSerializerType", out var serializerType) ||
+                ExceptionSerializerTypeUtil.GetSerializerType(serializerType) == (ExceptionSerializerType)0)
+            {
+                remotingRequestRequestMessage.GetHeader().AddHeader(
+                    "ExceptionSerializerType", ExceptionSerializerTypeUtil.GetByteArray(this.exceptionSerializerType));
+            }
+
             var serializedHeader = this.serializersManager.GetHeaderSerializer()
                 .SerializeRequestHeader(remotingRequestRequestMessage.GetHeader());
             var msgBodySeriaizer = this.serializersManager.GetRequestBodySerializer(interfaceId);
@@ -135,10 +157,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
-                    var isDeserialzied =
-                        RemoteException.ToException(
-                            retval.GetBody().GetRecievedStream(),
-                            out var e);
+                    ExceptionSerializerType exceptionSerializerType;
+                    bool isDeserialzied = false;
+                    Exception e;
+                    if (header.TryGetHeaderValue("ExceptionSerializerType", out var exceptionSerializerHeaderValue))
+                    {
+                        exceptionSerializerType = ExceptionSerializerTypeUtil.GetSerializerType(exceptionSerializerHeaderValue);
+                        isDeserialzied = RemoteException.ToException(
+                        retval.GetBody().GetRecievedStream(),
+                        out e,
+                        exceptionSerializerType);
+                    }
+                    else
+                    {
+                        exceptionSerializerType = ExceptionSerializerType.BinaryFormatter;
+                        isDeserialzied = RemoteException.ToException(
+                        retval.GetBody().GetRecievedStream(),
+                        out e);
+                    }
+
                     if (isDeserialzied)
                     {
                         throw new AggregateException(e);

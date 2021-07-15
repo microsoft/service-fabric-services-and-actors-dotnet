@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         private int headerBufferSize;
         private int headerMaxBufferCount;
         private bool useWrappedMessage;
+        private ExceptionSerializerType exceptionSerializerType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRemotingSettings"/> class with default values.
@@ -35,6 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
+            this.exceptionSerializerType = ExceptionSerializerType.BinaryFormatter;
         }
 
         internal FabricTransportRemotingSettings(FabricTransportSettings fabricTransportSettings)
@@ -164,6 +166,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         {
             get { return this.useWrappedMessage; }
             set { this.useWrappedMessage = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the ExceptionSerializerType that provides a way to configure exception serializer.
+        /// </summary>
+        /// <value>The ExceptionSerializerType as <see cref="ExceptionSerializerType"/>.</value>
+        /// <remarks>Default Value for ExceptionSerializerType is ExceptionSerializerType.BinaryFormatter.
+        /// this value indicates the serializer used to serialize and deserialize exceptions.</remarks>
+        public ExceptionSerializerType ExceptionSerializerType
+        {
+            get { return this.exceptionSerializerType; }
+            set { this.exceptionSerializerType = value; }
         }
 
         /// <summary>

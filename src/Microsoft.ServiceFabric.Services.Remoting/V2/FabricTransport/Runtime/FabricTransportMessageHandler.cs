@@ -8,7 +8,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
+    using System.Runtime.Serialization;
     using System.Threading.Tasks;
+    using System.Xml;
     using Microsoft.ServiceFabric.FabricTransport.V2;
     using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
@@ -46,17 +49,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         {
             if (this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
             {
-                this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
-                    .UpdateCounterValue(1);
+               this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
+                   .UpdateCounterValue(1);
             }
 
             var requestStopWatch = Stopwatch.StartNew();
             var requestResponseSerializationStopwatch = Stopwatch.StartNew();
+            var deSerializedHeader = this.headerSerializer.DeserializeRequestHeaders(
+                new IncomingMessageHeader(fabricTransportMessage.GetHeader().GetRecievedStream()));
 
             try
             {
-                var remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch);
-
+                var remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch, deSerializedHeader);
                 var retval = await
                     this.remotingMessageHandler.HandleRequestResponseAsync(
                         new FabricTransportServiceRemotingRequestContext(requestContext, this.serializersManager),
@@ -66,7 +70,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             catch (Exception ex)
             {
                 ServiceTrace.Source.WriteInfo("FabricTransportMessageHandler", "Remote Exception occured {0}", ex);
-                return this.CreateFabricTransportExceptionMessage(ex);
+                return this.CreateFabricTransportExceptionMessage(ex, deSerializedHeader);
             }
             finally
             {
@@ -106,16 +110,28 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             }
         }
 
-        private FabricTransportMessage CreateFabricTransportExceptionMessage(Exception ex)
+        private FabricTransportMessage CreateFabricTransportExceptionMessage(Exception ex, IServiceRemotingRequestMessageHeader deserializedRequestHeader)
         {
             var header = new ServiceRemotingResponseMessageHeader();
+            var exceptionSerializerType = this.GetSerializerType(deserializedRequestHeader);
             header.AddHeader("HasRemoteException", new byte[0]);
+            header.AddHeader("ExceptionSerializerType", ExceptionSerializerTypeUtil.GetByteArray(exceptionSerializerType));
             var serializedHeader = this.serializersManager.GetHeaderSerializer().SerializeResponseHeader(header);
-            var serializedMsg = RemoteException.FromException(ex);
+            var serializedMsg = RemoteException.FromException(ex, exceptionSerializerType);
             var msg = new FabricTransportMessage(
                 new FabricTransportRequestHeader(serializedHeader.GetSendBuffer(), serializedHeader.Dispose),
                 new FabricTransportRequestBody(serializedMsg.Data, null));
             return msg;
+        }
+
+        private ExceptionSerializerType GetSerializerType(IServiceRemotingRequestMessageHeader deserializedRequestHeader)
+        {
+            if (deserializedRequestHeader.TryGetHeaderValue("ExceptionSerializerType", out var value))
+            {
+                return ExceptionSerializerTypeUtil.GetSerializerType(value);
+            }
+
+            return ExceptionSerializerType.BinaryFormatter;
         }
 
         private FabricTransportMessage CreateFabricTransportMessage(IServiceRemotingResponseMessage retval, int interfaceId, Stopwatch stopwatch)
@@ -154,10 +170,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         }
 
         private IServiceRemotingRequestMessage CreateRemotingRequestMessage(
-            FabricTransportMessage fabricTransportMessage, Stopwatch stopwatch)
+            FabricTransportMessage fabricTransportMessage, Stopwatch stopwatch, IServiceRemotingRequestMessageHeader deSerializedHeader)
         {
-            var deSerializedHeader = this.headerSerializer.DeserializeRequestHeaders(
-                new IncomingMessageHeader(fabricTransportMessage.GetHeader().GetRecievedStream()));
             var msgBodySerializer =
                  this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
             stopwatch.Restart();
