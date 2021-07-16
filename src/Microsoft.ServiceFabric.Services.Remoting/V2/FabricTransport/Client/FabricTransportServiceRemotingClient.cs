@@ -121,8 +121,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             IServiceRemotingRequestMessage remotingRequestRequestMessage)
         {
             var interfaceId = remotingRequestRequestMessage.GetHeader().InterfaceId;
-            if (!remotingRequestRequestMessage.GetHeader().TryGetHeaderValue("ExceptionSerializerType", out var serializerType) ||
-                ExceptionSerializerTypeUtil.GetSerializerType(serializerType) == (ExceptionSerializerType)0)
+            if (!remotingRequestRequestMessage.GetHeader().TryGetHeaderValue("ExceptionSerializerType", out var serializerType))
             {
                 remotingRequestRequestMessage.GetHeader().AddHeader(
                     "ExceptionSerializerType", ExceptionSerializerTypeUtil.GetByteArray(this.exceptionSerializerType));
@@ -157,26 +156,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
-                    ExceptionSerializerType exceptionSerializerType;
-                    bool isDeserialzied = false;
+                    bool isDeserialized = false;
                     Exception e;
                     if (header.TryGetHeaderValue("ExceptionSerializerType", out var exceptionSerializerHeaderValue))
                     {
-                        exceptionSerializerType = ExceptionSerializerTypeUtil.GetSerializerType(exceptionSerializerHeaderValue);
-                        isDeserialzied = RemoteException.ToException(
-                        retval.GetBody().GetRecievedStream(),
-                        out e,
-                        exceptionSerializerType);
+                        ExceptionSerializerType exceptionSerializerType = ExceptionSerializerTypeUtil.GetSerializerType(exceptionSerializerHeaderValue);
+                        isDeserialized = RemoteException.ToException(retval.GetBody().GetRecievedStream(), out e, exceptionSerializerType);
                     }
                     else
                     {
-                        exceptionSerializerType = ExceptionSerializerType.BinaryFormatter;
-                        isDeserialzied = RemoteException.ToException(
-                        retval.GetBody().GetRecievedStream(),
-                        out e);
+                        isDeserialized = RemoteException.ToException(retval.GetBody().GetRecievedStream(), out e);
                     }
 
-                    if (isDeserialzied)
+                    if (isDeserialized)
                     {
                         throw new AggregateException(e);
                     }

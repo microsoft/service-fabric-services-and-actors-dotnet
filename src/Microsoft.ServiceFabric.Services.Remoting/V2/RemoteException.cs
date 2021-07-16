@@ -109,9 +109,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             }
             else
             {
-                var isSuccessful = TryDeserializeExceptionWithDataContract(bufferedStream, out var exception);
+                var isSuccessful = TryDeserializeExceptionWithDataContract(bufferedStream, out result);
                 bufferedStream.Dispose();
-                result = exception;
                 return isSuccessful;
             }
         }

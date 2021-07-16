@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric
         /// Gets the serialized exception serializer type
         /// </summary>
         /// <param name="exceptionSerializerType">exception serializer type to be serialized.</param>
-        /// <returns>serialized exception serializer type</returns>
+        /// <returns>byte array of exception serializer type</returns>
         public static byte[] GetByteArray(ExceptionSerializerType exceptionSerializerType)
         {
             return Encoding.UTF8.GetBytes(exceptionSerializerType.ToString());
@@ -32,8 +32,8 @@ namespace Microsoft.ServiceFabric
         /// <summary>
         /// Gets the exception serializer type
         /// </summary>
-        /// <param name="stream">The stream that contains the serialized exception serializer type.</param>
-        /// <returns>deserialized exception serializer type</returns>
+        /// <param name="stream">byte array of exception serializer type.</param>
+        /// <returns>Exception serializer type</returns>
         public static ExceptionSerializerType GetSerializerType(byte[] stream)
         {
             Enum.TryParse(Encoding.UTF8.GetString(stream), out ExceptionSerializerType exceptionSerializer);
