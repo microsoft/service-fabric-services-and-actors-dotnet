@@ -17,8 +17,6 @@ namespace Microsoft.ServiceFabric
     /// </summary>
     public static class ExceptionSerializerTypeUtil
     {
-        private static readonly DataContractSerializer ServiceExceptionDataSerializer = new DataContractSerializer(typeof(ExceptionSerializerType));
-
         /// <summary>
         /// Gets the serialized exception serializer type
         /// </summary>
