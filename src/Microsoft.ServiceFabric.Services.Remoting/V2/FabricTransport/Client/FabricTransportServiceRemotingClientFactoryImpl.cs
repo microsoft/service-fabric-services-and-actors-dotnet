@@ -83,7 +83,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 var client = new FabricTransportServiceRemotingClient(
                     this.serializersManager,
                     nativeClient,
-                    remotingHandler);
+                    remotingHandler,
+                    this.settings.ExceptionSerializerType);
                 remotingHandler.ClientConnected += this.OnFabricTransportClientConnected;
                 remotingHandler.ClientDisconnected += this.OnFabricTransportClientDisconnected;
                 return Task.FromResult(client);
