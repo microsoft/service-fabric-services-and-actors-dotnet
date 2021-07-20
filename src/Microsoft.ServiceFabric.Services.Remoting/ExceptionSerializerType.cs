@@ -11,13 +11,13 @@ namespace Microsoft.ServiceFabric
     public enum ExceptionSerializerType
     {
         /// <summary>
-        /// Represents binary formatter serializer for remoting exceptions.
-        /// </summary>
-        BinaryFormatter,
-
-        /// <summary>
         /// Represents data contract serializer for remoting exceptions.
         /// </summary>
         DataContractSerializer,
+
+        /// <summary>
+        /// Represents binary formatter serializer for remoting exceptions.
+        /// </summary>
+        BinaryFormatter,
     }
 }

@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;
             this.IsValid = true;
-            this.exceptionSerializerType = ExceptionSerializerType.BinaryFormatter;
+            this.exceptionSerializerType = ExceptionSerializerType.DataContractSerializer;
         }
 
         internal FabricTransportServiceRemotingClient(
@@ -165,7 +165,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     }
                     else
                     {
-                        isDeserialized = RemoteException.ToException(retval.GetBody().GetRecievedStream(), out e);
+                        ExceptionSerializerType exceptionSerializerType = ExceptionSerializerType.BinaryFormatter;
+                        isDeserialized = RemoteException.ToException(retval.GetBody().GetRecievedStream(), out e, exceptionSerializerType);
                     }
 
                     if (isDeserialized)

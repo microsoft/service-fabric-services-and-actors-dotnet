@@ -46,8 +46,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         {
             if (this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
             {
-               this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
-                   .UpdateCounterValue(1);
+                this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
+                    .UpdateCounterValue(1);
             }
 
             var requestStopWatch = Stopwatch.StartNew();
