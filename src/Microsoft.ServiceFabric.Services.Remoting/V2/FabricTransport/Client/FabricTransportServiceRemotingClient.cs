@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2;
@@ -105,6 +106,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         public async Task<IServiceRemotingResponseMessage> RequestResponseAsync(
             IServiceRemotingRequestMessage remotingRequestRequestMessage)
         {
+            if (ActivityIdLogicalCallContext.IsPresent())
+            {
+                ActivityIdLogicalCallContext.TryGet(out var activityId);
+#if !DotNetCoreClr
+                var headerValue = activityId.ToByteArray();
+#else
+                var headerValue = Encoding.ASCII.GetBytes(activityId);
+#endif
+                remotingRequestRequestMessage.GetHeader().AddHeader("TrackingId", headerValue);
+            }
+
             var interfaceId = remotingRequestRequestMessage.GetHeader().InterfaceId;
             var serializedHeader = this.serializersManager.GetHeaderSerializer()
                 .SerializeRequestHeader(remotingRequestRequestMessage.GetHeader());
