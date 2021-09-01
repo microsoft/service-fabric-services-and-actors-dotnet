@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
     using System.Fabric;
     using System.Globalization;
     using System.Runtime.ExceptionServices;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
@@ -103,6 +104,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
         {
+            if (requestMessage.GetHeader().TryGetHeaderValue("TrackingId", out byte[] outval))
+            {
+#if DotNetCoreClr
+                var headerValue = Encoding.ASCII.GetString(outval);
+#else
+                var headerValue = new Guid(outval);
+#endif
+                if (!ActivityIdLogicalCallContext.IsPresent())
+                {
+                    ActivityIdLogicalCallContext.Set(headerValue);
+                }
+            }
+
             if (this.IsCancellationRequest(requestMessage.GetHeader()))
             {
                 await
