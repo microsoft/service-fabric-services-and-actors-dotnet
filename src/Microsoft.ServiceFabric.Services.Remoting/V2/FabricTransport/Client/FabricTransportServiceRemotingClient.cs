@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Fabric;
     using System.Globalization;
     using System.Text;
@@ -26,6 +27,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         private ResolvedServicePartition resolvedServicePartition;
         private string listenerName;
         private ResolvedServiceEndpoint resolvedServiceEndpoint;
+#if DotNetCoreClr
+        private ActivityIdLogicalCallContext activityIdLogicalCallContext;
+#endif
 
         // we need to pass a cache of the serializers here rather than the known types,
         // the serializer cache should be maintained by the factor
@@ -38,6 +42,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;
             this.IsValid = true;
+#if DotNetCoreClr
+            this.activityIdLogicalCallContext = new ActivityIdLogicalCallContext();
+#endif
         }
 
         public bool IsValid { get; private set; }
@@ -106,16 +113,36 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         public async Task<IServiceRemotingResponseMessage> RequestResponseAsync(
             IServiceRemotingRequestMessage remotingRequestRequestMessage)
         {
-            if (ActivityIdLogicalCallContext.IsPresent())
+#if DotNetCoreClr
+            Activity currentActivity = null;
+
+            if (!this.activityIdLogicalCallContext.IsPresent())
             {
-                ActivityIdLogicalCallContext.TryGet(out var activityId);
-#if !DotNetCoreClr
-                var headerValue = activityId.ToByteArray();
-#else
-                var headerValue = Encoding.ASCII.GetBytes(activityId);
-#endif
-                remotingRequestRequestMessage.GetHeader().AddHeader("TrackingId", headerValue);
+                // Activity ID is not present, make one of W3C format
+                currentActivity = this.activityIdLogicalCallContext.CreateW3CActivity("Call from Request Response Async");
+                currentActivity.Start();
             }
+            else
+            {
+                currentActivity = this.activityIdLogicalCallContext.TryGet();
+            }
+
+            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+            {
+                remotingRequestRequestMessage.GetHeader().ActivityIdParent = currentActivity.Id.ToString();
+                remotingRequestRequestMessage.GetHeader().ActivityIdTraceStateHeader = currentActivity.TraceStateString;
+            }
+            else
+            {
+                remotingRequestRequestMessage.GetHeader().ActivityRequestId = currentActivity.Id.ToString();
+            }
+
+            foreach (var item in currentActivity.Baggage)
+            {
+                remotingRequestRequestMessage.GetHeader().ActivityIdBaggage.Add(item);
+            }
+
+#endif
 
             var interfaceId = remotingRequestRequestMessage.GetHeader().InterfaceId;
             var serializedHeader = this.serializersManager.GetHeaderSerializer()

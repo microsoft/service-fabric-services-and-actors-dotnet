@@ -5,107 +5,106 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
-    using System;
+    using System.Diagnostics;
 #if DotNetCoreClr
-    using System.Threading;
-
     /// <summary>
     /// Class ActivityIdLogicalCallContext.
     /// </summary>
-    public static class ActivityIdLogicalCallContext
+    internal class ActivityIdLogicalCallContext
     {
-        private static AsyncLocal<string> activityIDAsyncLocal = null;
-
         /// <summary>
-        /// Initializes this instance.
+        /// Creates the activity.
+        /// Note : You still need to start it.
         /// </summary>
-        public static void Initialize()
+        /// <param name="activityMessage">The activity message.</param>
+        /// <returns>Activity.</returns>
+        internal Activity CreateW3CActivity(string activityMessage = "Create new Activity")
         {
-            activityIDAsyncLocal = new AsyncLocal<string>();
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+            Activity.ForceDefaultIdFormat = true;
+            var activity = new Activity(activityMessage);
+            return activity;
+        }
+
+        internal Activity StartActivity(IServiceRemotingRequestMessage requestMessage, string activityMessage = "Start new Activity")
+        {
+            var activity = new Activity(activityMessage);
+            string parentId = null;
+            if (requestMessage.GetHeader().ActivityIdParent != null)
+            {
+                Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+                Activity.ForceDefaultIdFormat = true;
+                parentId = requestMessage.GetHeader().ActivityIdParent;
+            }
+            else
+            {
+                parentId = requestMessage.GetHeader().ActivityRequestId;
+            }
+
+            if (!string.IsNullOrEmpty(parentId))
+            {
+                activity.SetParentId(parentId);
+                if (requestMessage.GetHeader().ActivityIdTraceStateHeader != null)
+                {
+                    activity.TraceStateString = requestMessage.GetHeader().ActivityIdTraceStateHeader;
+                }
+            }
+            else
+            {
+                Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+                Activity.ForceDefaultIdFormat = true;
+                activity.Start();
+                return activity;
+            }
+
+            // We expect baggage to be empty by default
+            // Only very advanced users will be using it in near future, we encourage them to keep baggage small (few items)
+            if (requestMessage.GetHeader().ActivityIdBaggage != null)
+            {
+                var baggage = requestMessage.GetHeader().ActivityIdBaggage;
+                foreach (var item in baggage)
+                {
+                    activity.AddBaggage(item.Key, item.Value);
+                }
+            }
+
+            activity.Start();
+            return activity;
         }
 
         /// <summary>
         /// Determines whether this instance is present.
         /// </summary>
         /// <returns><c>true</c> if this instance is present; otherwise, <c>false</c>.</returns>
-        public static bool IsPresent()
+        internal bool IsPresent()
         {
-            return (activityIDAsyncLocal != null);
+            return Activity.Current != null;
         }
 
         /// <summary>
         /// Tries the get.
         /// </summary>
-        /// <param name="activityIdValue">The activity identifier value.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool TryGet(out string activityIdValue)
+        internal Activity TryGet()
         {
-            activityIdValue = activityIDAsyncLocal.Value;
-            return (activityIdValue != null);
+            return Activity.Current;
         }
 
         /// <summary>
-        /// Sets the specified activity identifier value.
+        /// Sets the specified activity.
         /// </summary>
-        /// <param name="activityIdValue">The activity identifier value.</param>
-        public static void Set(string activityIdValue)
+        /// <param name="activity">The activity.</param>
+        internal void Set(Activity activity)
         {
-            activityIDAsyncLocal.Value = activityIdValue;
+            Activity.Current = activity;
         }
 
         /// <summary>
         /// Clears this instance.
         /// </summary>
-        public static void Clear()
+        internal void Clear()
         {
-            activityIDAsyncLocal = null;
-        }
-    }
-#else
-    using System.Runtime.Remoting.Messaging;
-
-    /// <summary>
-    /// Class ActivityIdLogicalCallContext.
-    /// </summary>
-    public static class ActivityIdLogicalCallContext
-    {
-        internal const string CallContextKey = "_ActivityIdCallContext_";
-
-        /// <summary>
-        /// Determines whether this instance is present.
-        /// </summary>
-        /// <returns><c>true</c> if this instance is present; otherwise, <c>false</c>.</returns>
-        public static bool IsPresent()
-        {
-            return (CallContext.LogicalGetData(CallContextKey) != null);
-        }
-
-        /// <summary>
-        /// Tries the get.
-        /// </summary>
-        /// <param name="callContextValue">The call context value.</param>
-        /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool TryGet(out Guid callContextValue)
-        {
-            callContextValue = (Guid)CallContext.LogicalGetData(CallContextKey);
-            return (callContextValue != null);
-        }
-
-        /// <summary>
-        /// Sets the specified call context value.
-        /// </summary>
-        /// <param name="callContextValue">The call context value.</param>
-        public static void Set(Guid callContextValue)
-        {
-            CallContext.LogicalSetData(CallContextKey, callContextValue);
-        }
-
-        /// <summary>
-        /// Clears this instance.
-        /// </summary>
-        public static void Clear()
-        {
-            CallContext.FreeNamedDataSlot(CallContextKey);
+            Activity.Current = null;
         }
     }
 #endif

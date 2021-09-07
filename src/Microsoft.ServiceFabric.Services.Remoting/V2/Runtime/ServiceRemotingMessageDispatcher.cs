@@ -31,6 +31,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         private IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory;
         private ServicePerformanceCounterProvider servicePerformanceCounterProvider;
+#if DotNetCoreClr
+        private ActivityIdLogicalCallContext activityIdLogicalCallContext;
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingMessageDispatcher"/> class
@@ -59,6 +62,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             }
 
             this.Initialize(serviceContext, serviceImplementation, allRemotingTypes, true, serviceRemotingMessageBodyFactory);
+#if DotNetCoreClr
+            this.activityIdLogicalCallContext = new ActivityIdLogicalCallContext();
+#endif
         }
 
         /// <summary>
@@ -75,6 +81,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             this.Initialize(serviceContext, serviceImplementation, serviceTypeInformation.InterfaceTypes, false, serviceRemotingMessageBodyFactory);
+#if DotNetCoreClr
+            this.activityIdLogicalCallContext = new ActivityIdLogicalCallContext();
+#endif
         }
 
         /// <summary>
@@ -104,18 +113,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
         {
-            if (requestMessage.GetHeader().TryGetHeaderValue("TrackingId", out byte[] outval))
-            {
 #if DotNetCoreClr
-                var headerValue = Encoding.ASCII.GetString(outval);
-#else
-                var headerValue = new Guid(outval);
+            var activity = this.activityIdLogicalCallContext.StartActivity(requestMessage, "HandleRequestResponseAsync From Dispatcher");
+
+            // Some Log statements
 #endif
-                if (!ActivityIdLogicalCallContext.IsPresent())
-                {
-                    ActivityIdLogicalCallContext.Set(headerValue);
-                }
-            }
 
             if (this.IsCancellationRequest(requestMessage.GetHeader()))
             {
