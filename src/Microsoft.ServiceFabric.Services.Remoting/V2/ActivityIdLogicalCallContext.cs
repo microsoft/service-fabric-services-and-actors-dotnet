@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     /// <summary>
     /// Class ActivityIdLogicalCallContext.
     /// </summary>
-    internal class ActivityIdLogicalCallContext
+    internal static class ActivityIdLogicalCallContext
     {
         /// <summary>
         /// Creates the activity.
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// </summary>
         /// <param name="activityMessage">The activity message.</param>
         /// <returns>Activity.</returns>
-        internal Activity CreateW3CActivity(string activityMessage = "Create new Activity")
+        internal static Activity CreateW3CActivity(string activityMessage = "Create new Activity")
         {
             Activity.DefaultIdFormat = ActivityIdFormat.W3C;
             Activity.ForceDefaultIdFormat = true;
@@ -26,7 +26,38 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             return activity;
         }
 
-        internal Activity StartActivity(IServiceRemotingRequestMessage requestMessage, string activityMessage = "Start new Activity")
+        internal static void InjectHeaders(IServiceRemotingRequestMessage remotingRequestRequestMessage)
+        {
+            Activity currentActivity = null;
+
+            if (!ActivityIdLogicalCallContext.IsPresent())
+            {
+                // Activity ID is not present, make one of W3C format
+                currentActivity = ActivityIdLogicalCallContext.CreateW3CActivity("Call from Request Response Async");
+                currentActivity.Start();
+            }
+            else
+            {
+                currentActivity = ActivityIdLogicalCallContext.Get();
+            }
+
+            if (currentActivity.IdFormat == ActivityIdFormat.W3C)
+            {
+                remotingRequestRequestMessage.GetHeader().ActivityIdParent = currentActivity.Id.ToString();
+                remotingRequestRequestMessage.GetHeader().ActivityIdTraceStateHeader = currentActivity.TraceStateString;
+            }
+            else
+            {
+                remotingRequestRequestMessage.GetHeader().ActivityRequestId = currentActivity.Id.ToString();
+            }
+
+            foreach (var item in currentActivity.Baggage)
+            {
+                remotingRequestRequestMessage.GetHeader().ActivityIdBaggage.Add(item);
+            }
+        }
+
+        internal static Activity StartActivity(IServiceRemotingRequestMessage requestMessage, string activityMessage = "Start new Activity")
         {
             var activity = new Activity(activityMessage);
             string parentId = null;
@@ -76,7 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// Determines whether this instance is present.
         /// </summary>
         /// <returns><c>true</c> if this instance is present; otherwise, <c>false</c>.</returns>
-        internal bool IsPresent()
+        internal static bool IsPresent()
         {
             return Activity.Current != null;
         }
@@ -85,7 +116,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// Tries the get.
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        internal Activity TryGet()
+        internal static Activity Get()
         {
             return Activity.Current;
         }
@@ -94,7 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// Sets the specified activity.
         /// </summary>
         /// <param name="activity">The activity.</param>
-        internal void Set(Activity activity)
+        internal static void Set(Activity activity)
         {
             Activity.Current = activity;
         }
@@ -102,7 +133,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <summary>
         /// Clears this instance.
         /// </summary>
-        internal void Clear()
+        internal static void Clear()
         {
             Activity.Current = null;
         }

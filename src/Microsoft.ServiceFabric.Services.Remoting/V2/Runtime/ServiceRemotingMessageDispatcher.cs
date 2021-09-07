@@ -31,9 +31,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         private IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory;
         private ServicePerformanceCounterProvider servicePerformanceCounterProvider;
-#if DotNetCoreClr
-        private ActivityIdLogicalCallContext activityIdLogicalCallContext;
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingMessageDispatcher"/> class
@@ -62,9 +59,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             }
 
             this.Initialize(serviceContext, serviceImplementation, allRemotingTypes, true, serviceRemotingMessageBodyFactory);
-#if DotNetCoreClr
-            this.activityIdLogicalCallContext = new ActivityIdLogicalCallContext();
-#endif
         }
 
         /// <summary>
@@ -81,9 +75,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
             this.Initialize(serviceContext, serviceImplementation, serviceTypeInformation.InterfaceTypes, false, serviceRemotingMessageBodyFactory);
-#if DotNetCoreClr
-            this.activityIdLogicalCallContext = new ActivityIdLogicalCallContext();
-#endif
         }
 
         /// <summary>
@@ -114,7 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestMessage requestMessage)
         {
 #if DotNetCoreClr
-            var activity = this.activityIdLogicalCallContext.StartActivity(requestMessage, "HandleRequestResponseAsync From Dispatcher");
+            var activity = ActivityIdLogicalCallContext.StartActivity(requestMessage, "HandleRequestResponseAsync From Dispatcher");
 
             // Some Log statements
 #endif
