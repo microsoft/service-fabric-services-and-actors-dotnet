@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
@@ -227,6 +228,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }, kvp.Key));
                 }
             }
+
+            var actorStateMigration = ActorStateMigrationAttribute.Get(types.FirstOrDefault());
 
             return serviceReplicaListeners;
         }
