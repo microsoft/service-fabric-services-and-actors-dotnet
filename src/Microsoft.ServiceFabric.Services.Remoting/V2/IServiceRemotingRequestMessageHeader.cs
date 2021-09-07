@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Runtime.Serialization;
 
     /// <summary>
@@ -33,6 +35,28 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// Gets or sets the Method Name  of the remoting method.
         /// </summary>
         string MethodName { get; set; }
+
+#if DotNetCoreClr
+        /// <summary>
+        /// Gets or sets the ActivityId
+        /// </summary>
+        string ActivityIdParent { get; set; }
+
+        /// <summary>
+        /// Gets or sets TraceStateHeader
+        /// </summary>
+        string ActivityIdTraceStateHeader { get; set; }
+
+        /// <summary>
+        /// Gets or sets ActivityIdBaggage
+        /// </summary>
+        List<KeyValuePair<string, string>> ActivityIdBaggage { get; set; }
+
+        /// <summary>
+        /// Gets or sets activityRequestId for non W3C context
+        /// </summary>
+        string ActivityRequestId { get; set; }
+#endif
 
         /// <summary>
         /// Adds a new header with the specified name and value.

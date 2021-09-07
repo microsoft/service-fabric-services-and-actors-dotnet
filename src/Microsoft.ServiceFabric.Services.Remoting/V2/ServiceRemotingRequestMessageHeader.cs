@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Fabric;
     using System.Globalization;
     using System.Runtime.Serialization;
@@ -53,6 +54,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <value>Method Name</value>
         [DataMember(Name = "MethodName", IsRequired = false, Order = 4)]
         public string MethodName { get; set; }
+
+#if DotNetCoreClr
+        [DataMember(Name = "ActivityIdParent", IsRequired = false, Order = 5)]
+        public string ActivityIdParent { get; set; }
+
+        [DataMember(Name = "ActivityIdTraceStateHeader", IsRequired = false, Order = 6)]
+        public string ActivityIdTraceStateHeader { get; set; }
+
+        [DataMember(Name = "ActivityIdBaggage", IsRequired = false, Order = 7)]
+        public List<KeyValuePair<string, string>> ActivityIdBaggage { get; set; }
+
+        [DataMember(Name = "ActivityRequestId", IsRequired = false, Order = 8)]
+        public string ActivityRequestId { get; set; }
+#endif
 
         public void AddHeader(string headerName, byte[] headerValue)
         {
