@@ -1,0 +1,61 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Microsoft.ServiceFabric.Actors.Migration";
+
+package kvsactor_protocols;
+
+message KeyValuePair {
+	int64 version = 1;
+	string key = 2;
+	bytes value = 3;
+	bool isDeleted = 4;
+}
+
+message KeyValuePairs {
+	repeated KeyValuePair pairs = 1;
+}
+
+message Status {
+	int32 error_code = 1;
+	string message = 2;
+}
+
+message TryAbortExistingTransactionsAndRejectWritesResponse {
+	bool ready = 1;
+	Status status = 2;
+}
+
+message QueryRequest {
+	int32 region = 1;
+	string query = 2;
+}
+
+message EnumerationRequest {
+	int64 startSequenceNumber = 1;
+	bool withDeletes = 2;
+}
+
+message SequenceNumberResponse {
+	int64 sequenceNumber = 1;
+}
+
+message DeletedKey {
+	int64 version = 1;
+	string key = 2;
+}
+
+message EmptyRequest {}
+
+message LSNSplitPercentileRequest {
+	int32 percentile = 1;
+}
+
+service KvsMigration {	
+    // Endpoints needed for actors migration from KVS to RC
+    rpc GetFirstSequenceNumber(EmptyRequest) returns (SequenceNumberResponse) {}
+    rpc GetLastSequeceNumber(EmptyRequest) returns (SequenceNumberResponse) {}
+    rpc EnumerateBySequenceNumber(EnumerationRequest) returns (stream KeyValuePair) {}
+    rpc EnumerateKeysAndTombstones(EnumerationRequest) returns (stream KeyValuePair) {}
+    rpc TryAbortExistingTransactionAndRejectWrites(EmptyRequest) returns (TryAbortExistingTransactionsAndRejectWritesResponse) {}
+    rpc ResumeWrites(EmptyRequest) returns (Status) {}
+}

@@ -751,6 +751,39 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.LoadReplicatorSettings();
         }
 
+        internal Task<long> GetFirstSequeceNumberAsync(CancellationToken cancellationToken)
+        {
+            var lsn = this.storeReplica.GetLastCommittedSequenceNumber();
+
+            return this.actorStateProviderHelper.ExecuteWithRetriesAsync<long>(
+                () =>
+                {
+                    using (var txn = this.storeReplica.CreateTransaction())
+                    {
+                        var enumerator = this.storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, -1);
+
+                        while (enumerator.Current.Metadata.SequenceNumber < lsn)
+                        {
+                            var hasData = enumerator.MoveNext();
+
+                            if (hasData)
+                            {
+                                return Task.FromResult(enumerator.Current.Metadata.SequenceNumber);
+                            }
+                        }
+                    }
+
+                    return Task.FromResult(lsn);
+                },
+                "GetFirstSequeceNumber",
+                cancellationToken);
+        }
+
+        internal long GetLastSequeceNumber()
+        {
+            return this.storeReplica.GetLastCommittedSequenceNumber();
+        }
+
         private static string CreateActorStorageKey(ActorId actorId, string stateName)
         {
             if (string.IsNullOrEmpty(stateName))

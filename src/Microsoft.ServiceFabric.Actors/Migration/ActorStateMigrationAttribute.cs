@@ -3,9 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Runtime
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System;
+    using System.Collections.Generic;
     using System.Reflection;
 
     /// <summary>
@@ -27,25 +28,38 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <summary>
         /// Gets the enum representing type of actor service migration.
         /// </summary>
-        /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.ActorStateMigration"/> representing type of state store to use for the actor.</value>
+        /// <value><see cref="Microsoft.ServiceFabric.Actors.Migration.ActorStateMigration"/> representing type of state store to use for the actor.</value>
         public ActorStateMigration ActorStateMigration { get; private set; }
 
         /// <summary>
         /// Gets the enum representing type of actor service migration.
         /// </summary>
-        /// <value><see cref="Microsoft.ServiceFabric.Actors.Runtime.ActorStateMigration"/> representing type of state store to use for the actor.</value>
-        internal static ActorStateMigrationAttribute Get(Type actorImplementationType)
+        /// <value><see cref="Microsoft.ServiceFabric.Actors.Migration.ActorStateMigration"/> representing type of state store to use for the actor.</value>
+        internal static ActorStateMigrationAttribute Get(IEnumerable<Type> types = null)
         {
-            var attribute = new ActorStateMigrationAttribute(ActorStateMigration.None);
-
-            var attributes = actorImplementationType.GetTypeInfo().GetCustomAttributes(typeof(ActorStateMigrationAttribute), false);
-            var enumerator = attributes.GetEnumerator();
-            if (enumerator.MoveNext())
+            if (types != null)
             {
-                attribute.ActorStateMigration = ((ActorStateMigrationAttribute)enumerator.Current).ActorStateMigration;
+                foreach (var t in types)
+                {
+                    var attribute = t.GetTypeInfo().Assembly.GetCustomAttribute<ActorStateMigrationAttribute>();
+                    if (attribute != null)
+                    {
+                        return attribute;
+                    }
+                }
             }
 
-            return attribute;
+            var assembly = Assembly.GetEntryAssembly();
+            if (assembly != null)
+            {
+                var attribute = assembly.GetCustomAttribute<ActorStateMigrationAttribute>();
+                if (attribute != null)
+                {
+                    return attribute;
+                }
+            }
+
+            return new ActorStateMigrationAttribute(ActorStateMigration.None);
         }
     }
 }
