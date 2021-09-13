@@ -3,8 +3,8 @@
   <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
   <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
-    <ProjectGuid>{014D5847-39F5-4660-B385-82EDFBA06CD9}</ProjectGuid>
-    <RootNamespace>Microsoft.ServiceFabric.Actors</RootNamespace>
+    <ProjectGuid>{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}</ProjectGuid>
+    <RootNamespace>Microsoft.ServiceFabric.Actors.Migration</RootNamespace>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
@@ -26,19 +26,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors.Migration\Microsoft.ServiceFabric.Actors.Migration.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="SR.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>SR.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="SR.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>SR.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Protobuf Include="$(SourceCodeDir)kvsactor_service.proto" Access="Internal"/>
   </ItemGroup>
 </Project>

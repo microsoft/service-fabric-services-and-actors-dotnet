@@ -3,27 +3,26 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Runtime
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
-    using System.Fabric;
     using System.Threading.Tasks;
     using Grpc.Core;
-    using Microsoft.ServiceFabric.Actors.Migration;
+    //// using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class KvsMigrationService : KvsMigration.KvsMigrationBase
     {
-        private KvsActorStateProvider stateProvider;
+        ////private KvsActorStateProvider stateProvider;
 
-        public KvsMigrationService(KvsActorStateProvider stateProvider)
-        {
-            this.stateProvider = stateProvider;
-        }
+        ////public KvsMigrationService(KvsActorStateProvider stateProvider)
+        ////{
+        ////    this.stateProvider = stateProvider;
+        ////}
 
         public override Task<SequenceNumberResponse> GetFirstSequenceNumber(EmptyRequest request, ServerCallContext context)
         {
             return Task.FromResult(new SequenceNumberResponse
             {
-                SequenceNumber = this.stateProvider.GetFirstSequeceNumberAsync(context.CancellationToken).ConfigureAwait(false).GetAwaiter().GetResult(),
+                SequenceNumber = 0, // this.stateProvider.GetFirstSequeceNumberAsync(context.CancellationToken).ConfigureAwait(false).GetAwaiter().GetResult(),
             });
         }
 
@@ -31,7 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             return Task.FromResult(new SequenceNumberResponse
             {
-                SequenceNumber = this.stateProvider.GetLastSequeceNumber(),
+                SequenceNumber = 0, // this.stateProvider.GetLastSequeceNumber(),
             });
         }
 

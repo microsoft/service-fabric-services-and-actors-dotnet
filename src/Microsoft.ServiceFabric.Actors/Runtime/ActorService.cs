@@ -8,13 +8,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Description;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Grpc.Core;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
-    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -232,16 +228,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            if (Utility.IsMigrationSource(types))
-            {
-                if (this.StateProviderReplica is KvsActorStateProvider)
-                {
-                    serviceReplicaListeners.Add(new ServiceReplicaListener(serviceContext =>
-                    {
-                        return new GrpcCommunicationListener(serviceContext, new[] { KvsMigration.BindService(new KvsMigrationService(this.StateProviderReplica as KvsActorStateProvider)) });
-                    }));
-                }
-            }
+            ////if (Utility.IsMigrationSource(types))
+            ////{
+            ////    if (this.StateProviderReplica is KvsActorStateProvider)
+            ////    {
+            ////        serviceReplicaListeners.Add(new ServiceReplicaListener(serviceContext =>
+            ////        {
+            ////            return new GrpcCommunicationListener(serviceContext, new[] { KvsMigration.BindService(new KvsMigrationService(this.StateProviderReplica as KvsActorStateProvider)) });
+            ////        }));
+            ////    }
+            ////}
 
             return serviceReplicaListeners;
         }
