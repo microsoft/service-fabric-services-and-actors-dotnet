@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
+    using Microsoft.ServiceFabric.Migration;
 
     /// <summary>
     /// Represents the code shared by the different actor state providers (Kvs, RD, Volatile and Null).
@@ -232,7 +233,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 else
                 {
-                   stateProvider = new ReliableCollectionsActorStateProvider();
+                    stateProvider = new ReliableCollectionsActorStateProvider();
                 }
 #else
                 stateProvider = new KvsActorStateProvider();
@@ -252,6 +253,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return stateProvider;
+        }
+
+        internal static IActorStateProvider GetStateProvider(IActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
+        {
+            if (stateProvider == null)
+            {
+                // TODO: Add condition of migration attribute as well
+                return CreateDefaultStateProvider(actorTypeInfo);
+            }
+            else if (stateProvider.GetType() == typeof(ReliableCollectionsActorStateProvider))
+            {
+                // TODO: Add condition of migration attribute as well.
+                return new MigrationActorStateProvider((ReliableCollectionsActorStateProvider)stateProvider);
+            }
+            else
+            {
+                return stateProvider;
+            }
         }
 
         #endregion Static Methods
