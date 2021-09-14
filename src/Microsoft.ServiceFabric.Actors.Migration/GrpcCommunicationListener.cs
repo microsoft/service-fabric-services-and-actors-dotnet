@@ -10,14 +10,16 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Threading;
     using System.Threading.Tasks;
     using Grpc.Core;
+    using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
     internal class GrpcCommunicationListener : ICommunicationListener
     {
-        public GrpcCommunicationListener(ServiceContext serviceContext, IEnumerable<ServerServiceDefinition> serviceDefinitions)
+        public GrpcCommunicationListener(StatefulServiceContext context, ActorTypeInformation actorTypeInformation, IEnumerable<ServerServiceDefinition> serviceDefinitions)
         {
             var host = FabricRuntime.GetNodeContext().IPAddressOrFQDN;
-            var endpoint = serviceContext.CodePackageActivationContext.GetEndpoint("MigrationEndpoint");
+            var endpoint = context.CodePackageActivationContext.GetEndpoint(ActorNameFormat.GetActorKvsMigrationEndpointName(actorTypeInformation.ImplementationType));
 
             // TODO: User Secure server
             this.ServerPort = new ServerPort(host, endpoint.Port, ServerCredentials.Insecure);

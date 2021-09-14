@@ -31,6 +31,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <value><see cref="Microsoft.ServiceFabric.Actors.Migration.ActorStateMigration"/> representing type of state store to use for the actor.</value>
         public ActorStateMigration ActorStateMigration { get; private set; }
 
+        internal static string DefaultKvsMigrationListenerName
+        {
+            get { return "Kvs_Grcp_Listener"; }
+        }
+
         /// <summary>
         /// Gets the enum representing type of actor service migration.
         /// </summary>

@@ -14,6 +14,7 @@ namespace FabActUtil.Generator
     using System.Reflection;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
     using StartupServicesModel;
@@ -62,6 +63,7 @@ namespace FabActUtil.Generator
         private const string GeneratedServiceEndpointV2Name = "ServiceEndpointV2";
         private const string GeneratedServiceEndpointWrappedMessageStackName = "ServiceEndpointV2_1";
         private const string GeneratedReplicatorEndpointName = "ReplicatorEndpoint";
+        private const string GeneratedActorKvsMigrationEndpointName = "MigrationEndpoint";
         private const string GeneratedReplicatorConfigSectionName = "ReplicatorConfigSection";
         private const string GeneratedReplicatorSecurityConfigSectionName = "ReplicatorSecurityConfigSection";
         private const string GeneratedStoreConfigSectionName = "StoreConfigSection";
@@ -577,6 +579,14 @@ namespace FabActUtil.Generator
                 generatedNameFunctions.Add(GeneratedServiceEndpointWrappedMessageStackName, GetGeneratedServiceEndpointWrappedMessageStackName);
             }
 
+            var types = new List<Type> { actorTypeInfo.ImplementationType };
+            types.AddRange(actorTypeInfo.InterfaceTypes);
+
+            if (MigrationUtilityHelper.IsMigrationSource(types))
+            {
+                generatedNameFunctions.Add(GeneratedActorKvsMigrationEndpointName, GetActorKvsMigrationEndpointName);
+            }
+
             return generatedNameFunctions;
         }
 
@@ -608,6 +618,18 @@ namespace FabActUtil.Generator
                     new EndpointType()
                     {
                         Name = GetGeneratedServiceEndpointWrappedMessageStackName(actorTypeInfo),
+                    });
+            }
+
+            var types = new List<Type> { actorTypeInfo.ImplementationType };
+            types.AddRange(actorTypeInfo.InterfaceTypes);
+
+            if (MigrationUtilityHelper.IsMigrationSource(types))
+            {
+                endpoints.Add(
+                    new EndpointType()
+                    {
+                        Name = GetActorKvsMigrationEndpointName(actorTypeInfo),
                     });
             }
 
@@ -815,6 +837,11 @@ namespace FabActUtil.Generator
         private static string GetGeneratedServiceEndpointWrappedMessageStackName(ActorTypeInformation actorTypeInfo)
         {
             return ActorNameFormat.GetFabricServiceWrappedMessageEndpointName(actorTypeInfo.ImplementationType);
+        }
+
+        private static string GetActorKvsMigrationEndpointName(ActorTypeInformation actorTypeInfo)
+        {
+            return ActorNameFormat.GetActorKvsMigrationEndpointName(actorTypeInfo.ImplementationType);
         }
 
         private static EndpointType MergeEndpointResource(

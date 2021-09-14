@@ -226,6 +226,19 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
+        /// Gets the Kvs Migration Service endpoint which is specified in service manifest for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Kvs Migration Service endpoint name.</returns>
+        public static string GetActorKvsMigrationEndpointName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}MigrationEndpoint",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
         /// Gets the replicator configuration section name specified in configuration package for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
