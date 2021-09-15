@@ -25,7 +25,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public class MigrationActorStateProvider :
         IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {
-        private List<RCData> dataToSave = new List<RCData>();
         private string traceId;
         private IStatefulServicePartition servicePartition;
         private ReliableCollectionsActorStateProvider rcStateProvider;
@@ -231,6 +230,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, CancellationToken cancellationToken)
         {
+            List<RCData> dataToSave = new List<RCData>();
             foreach (KeyValuePair<string, byte[]> pair in keyValuePairs)
             {
                 byte[] rcValue = { };
@@ -288,11 +288,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 var rcKey = this.ChangeKeyFormat(pair.Key);
                 var rCData = new RCData { Key = rcKey, Dictionary = dictionary, Value = rcValue };
-                this.dataToSave.Add(rCData);
+                dataToSave.Add(rCData);
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            await this.SaveRCData(this.dataToSave, cancellationToken);
+            await this.SaveRCData(dataToSave, cancellationToken);
         }
 
         private int GetNthIndex(string s, char t, int n)
