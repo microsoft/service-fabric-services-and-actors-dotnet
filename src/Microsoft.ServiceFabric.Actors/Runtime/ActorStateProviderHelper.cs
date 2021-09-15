@@ -17,7 +17,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
-    using Microsoft.ServiceFabric.Migration;
 
     /// <summary>
     /// Represents the code shared by the different actor state providers (Kvs, RD, Volatile and Null).
@@ -226,10 +225,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
             {
 #if DotNetCoreClr
-                // Use KVSActorStatePRovide for Windows.
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                 {
                     stateProvider = new KvsActorStateProvider();
+                }
+                else if (Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType }))
+                {
+                    stateProvider = new MigrationActorStateProvider();
                 }
                 else
                 {
@@ -259,12 +261,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             if (stateProvider == null)
             {
-                // TODO: Add condition of migration attribute as well
                 return CreateDefaultStateProvider(actorTypeInfo);
             }
-            else if (stateProvider.GetType() == typeof(ReliableCollectionsActorStateProvider))
+            else if (stateProvider.GetType() == typeof(ReliableCollectionsActorStateProvider) && Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType }))
             {
-                // TODO: Add condition of migration attribute as well.
                 return new MigrationActorStateProvider((ReliableCollectionsActorStateProvider)stateProvider);
             }
             else

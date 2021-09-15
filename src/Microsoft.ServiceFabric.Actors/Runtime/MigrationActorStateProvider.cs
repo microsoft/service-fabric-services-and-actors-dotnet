@@ -3,18 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Migration
+namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Health;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Query;
-    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
 
@@ -25,8 +25,9 @@ namespace Microsoft.ServiceFabric.Migration
     public class MigrationActorStateProvider :
         IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {
-        private readonly ActorStateProviderHelper stateProviderHelper;
         private List<RCData> dataToSave = new List<RCData>();
+        private string traceId;
+        private IStatefulServicePartition servicePartition;
         private ReliableCollectionsActorStateProvider rcStateProvider;
 
         /// <summary>
@@ -35,7 +36,6 @@ namespace Microsoft.ServiceFabric.Migration
         public MigrationActorStateProvider()
         {
             this.rcStateProvider = new ReliableCollectionsActorStateProvider();
-            this.stateProviderHelper = new ActorStateProviderHelper(this);
         }
 
         /// <summary>
@@ -47,7 +47,6 @@ namespace Microsoft.ServiceFabric.Migration
         public MigrationActorStateProvider(ReliableCollectionsActorStateProvider reliableCollectionsActorStateProvider)
         {
             this.rcStateProvider = reliableCollectionsActorStateProvider;
-            this.stateProviderHelper = new ActorStateProviderHelper(this);
         }
 
         /// <inheritdoc/>
@@ -161,12 +160,14 @@ namespace Microsoft.ServiceFabric.Migration
         /// <inheritdoc/>
         public void Initialize(StatefulServiceInitializationParameters initializationParameters)
         {
+            this.traceId = ActorTrace.GetTraceIdForReplica(initializationParameters.PartitionId, initializationParameters.ReplicaId);
             ((IStateProviderReplica)this.rcStateProvider).Initialize(initializationParameters);
         }
 
         /// <inheritdoc/>
         public Task<IReplicator> OpenAsync(ReplicaOpenMode openMode, IStatefulServicePartition partition, CancellationToken cancellationToken)
         {
+            this.servicePartition = partition;
             return ((IStateProviderReplica)this.rcStateProvider).OpenAsync(openMode, partition, cancellationToken);
         }
 
@@ -232,8 +233,8 @@ namespace Microsoft.ServiceFabric.Migration
         {
             foreach (KeyValuePair<string, byte[]> pair in keyValuePairs)
             {
-                byte[] rcValue;
-                IReliableDictionary2<string, byte[]> dictionary;
+                byte[] rcValue = { };
+                IReliableDictionary2<string, byte[]> dictionary = null;
                 if (this.IsPresenceKey(pair.Key))
                 {
                     rcValue = pair.Value;
@@ -275,8 +276,14 @@ namespace Microsoft.ServiceFabric.Migration
                 }
                 else
                 {
-                    dictionary = this.rcStateProvider.GetLogicalTimeDictionary();
-                    rcValue = new byte[0];
+                    var message = "Unexpected data encountered while saving KVS data to RC";
+
+                    ActorTrace.Source.WriteErrorWithId(
+                        this.TraceType,
+                        this.traceId,
+                        message);
+
+                    this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
                 }
 
                 var rcKey = this.ChangeKeyFormat(pair.Key);
