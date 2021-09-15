@@ -14,10 +14,10 @@ namespace FabActUtil.Generator
     using System.Reflection;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
     using StartupServicesModel;
+    using Actors = Microsoft.ServiceFabric.Actors;
+    using Remoting = Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
     /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.
@@ -564,17 +564,17 @@ namespace FabActUtil.Generator
         {
             var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
 #if !DotNetCoreClr
-            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
+            if (Remoting.Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
             }
 #endif
-            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            if (Remoting.Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
             }
 
-            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            if (Remoting.Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointWrappedMessageStackName, GetGeneratedServiceEndpointWrappedMessageStackName);
             }
@@ -582,7 +582,7 @@ namespace FabActUtil.Generator
             var types = new List<Type> { actorTypeInfo.ImplementationType };
             types.AddRange(actorTypeInfo.InterfaceTypes);
 
-            if (MigrationUtilityHelper.IsMigrationSource(types))
+            if (Actors.Helper.IsMigrationSource(types))
             {
                 generatedNameFunctions.Add(GeneratedActorKvsMigrationEndpointName, GetActorKvsMigrationEndpointName);
             }
@@ -594,7 +594,7 @@ namespace FabActUtil.Generator
         {
             var endpoints = new List<EndpointType>();
 #if !DotNetCoreClr
-            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
+            if (Remoting.Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()
@@ -603,7 +603,7 @@ namespace FabActUtil.Generator
                     });
             }
 #endif
-            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            if (Remoting.Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()
@@ -612,7 +612,7 @@ namespace FabActUtil.Generator
                     });
             }
 
-            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            if (Remoting.Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()
@@ -624,7 +624,7 @@ namespace FabActUtil.Generator
             var types = new List<Type> { actorTypeInfo.ImplementationType };
             types.AddRange(actorTypeInfo.InterfaceTypes);
 
-            if (MigrationUtilityHelper.IsMigrationSource(types))
+            if (Actors.Helper.IsMigrationSource(types))
             {
                 endpoints.Add(
                     new EndpointType()

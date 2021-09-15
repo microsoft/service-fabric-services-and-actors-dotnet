@@ -10,9 +10,5 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
     internal class Utility
     {
-        internal static bool IsMigrationSource(List<Type> types)
-        {
-            return ActorStateMigrationAttribute.Get(types).ActorStateMigration.HasFlag(ActorStateMigration.Source);
-        }
     }
 }

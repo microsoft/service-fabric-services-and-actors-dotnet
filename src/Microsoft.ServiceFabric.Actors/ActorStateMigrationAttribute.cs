@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Migration
+namespace Microsoft.ServiceFabric.Actors
 {
     using System;
     using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <summary>
         /// Gets the enum representing type of actor service migration.
         /// </summary>
-        /// <value><see cref="Microsoft.ServiceFabric.Actors.Migration.ActorStateMigration"/> representing type of state store to use for the actor.</value>
+        /// <value><see cref="Microsoft.ServiceFabric.Actors.ActorStateMigration"/> representing type of state store to use for the actor.</value>
         public ActorStateMigration ActorStateMigration { get; private set; }
 
         internal static string DefaultKvsMigrationListenerName
@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <summary>
         /// Gets the enum representing type of actor service migration.
         /// </summary>
-        /// <value><see cref="Microsoft.ServiceFabric.Actors.Migration.ActorStateMigration"/> representing type of state store to use for the actor.</value>
+        /// <value><see cref="Microsoft.ServiceFabric.Actors.ActorStateMigration"/> representing type of state store to use for the actor.</value>
         internal static ActorStateMigrationAttribute Get(IEnumerable<Type> types = null)
         {
             if (types != null)

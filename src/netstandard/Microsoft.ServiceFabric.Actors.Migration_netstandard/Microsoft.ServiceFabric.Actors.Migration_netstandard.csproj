@@ -16,7 +16,7 @@
     <Compile Include="$(SourceCodeDir)*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
   </ItemGroup>
   <ItemGroup>
-    <Protobuf Include="$(SourceCodeDir)kvsactor_service.proto" Access="Internal"/>
+    <Protobuf Include="$(SourceCodeDir)kvsactor_service.proto" Access="Internal" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.17.3" />
@@ -29,6 +29,7 @@
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal)" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
   </ItemGroup>

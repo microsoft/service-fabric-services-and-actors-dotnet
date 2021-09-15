@@ -10,8 +10,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
-    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -210,13 +210,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
             var serviceReplicaListeners = new List<ServiceReplicaListener>();
 #if !DotNetCoreClr
-            if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
+            if (Services.Remoting.Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
                serviceReplicaListeners.Add(
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }));
             }
 #endif
-            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+            if (Services.Remoting.Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
                 var listeners = provider.CreateServiceRemotingListeners();
                 foreach (var kvp in listeners)
@@ -229,14 +229,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            if (Utility.IsMigrationSource(types))
+            if (Actors.Helper.IsMigrationSource(types))
             {
                 if (this.StateProviderReplica is KvsActorStateProvider)
                 {
-                    serviceReplicaListeners.Add(new ServiceReplicaListener(serviceContext =>
-                    {
-                        return new GrpcCommunicationListener(serviceContext, new[] { KvsMigration.BindService(new KvsMigrationService(this.StateProviderReplica as KvsActorStateProvider)) });
-                    }));
+                    ////serviceReplicaListeners.Add(new ServiceReplicaListener(serviceContext =>
+                    ////{
+                    ////    return new GrpcCommunicationListener(serviceContext, new[] { KvsMigration.BindService(new KvsMigrationService(this.StateProviderReplica as KvsActorStateProvider)) });
+                    ////}));
                 }
             }
 

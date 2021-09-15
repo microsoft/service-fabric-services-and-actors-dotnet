@@ -7,16 +7,16 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System.Threading.Tasks;
     using Grpc.Core;
-    //// using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class KvsMigrationService : KvsMigration.KvsMigrationBase
     {
-        ////private KvsActorStateProvider stateProvider;
+        private KvsActorStateProvider stateProvider;
 
-        ////public KvsMigrationService(KvsActorStateProvider stateProvider)
-        ////{
-        ////    this.stateProvider = stateProvider;
-        ////}
+        public KvsMigrationService(KvsActorStateProvider stateProvider)
+        {
+            this.stateProvider = stateProvider;
+        }
 
         public override Task<SequenceNumberResponse> GetFirstSequenceNumber(EmptyRequest request, ServerCallContext context)
         {

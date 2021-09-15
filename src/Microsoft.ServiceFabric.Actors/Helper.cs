@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ServiceFabric.Actors.Remoting;
 
@@ -25,6 +26,16 @@ namespace Microsoft.ServiceFabric.Actors
             {
                 return Guid.NewGuid().ToString();
             }
+        }
+
+        public static bool IsMigrationSource(List<Type> types)
+        {
+            return ActorStateMigrationAttribute.Get(types).ActorStateMigration.HasFlag(ActorStateMigration.Source);
+        }
+
+        public static bool IsMigrationTarget(List<Type> types)
+        {
+            return ActorStateMigrationAttribute.Get(types).ActorStateMigration.HasFlag(ActorStateMigration.Target);
         }
     }
 }
