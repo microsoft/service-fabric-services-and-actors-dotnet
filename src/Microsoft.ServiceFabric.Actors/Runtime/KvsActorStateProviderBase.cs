@@ -760,7 +760,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     using (var txn = this.storeReplica.CreateTransaction())
                     {
-                        var enumerator = this.storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, -1);
+                        var enumerator = this.storeReplica.Enumerate(txn);
 
                         while (enumerator.Current.Metadata.SequenceNumber < lsn)
                         {

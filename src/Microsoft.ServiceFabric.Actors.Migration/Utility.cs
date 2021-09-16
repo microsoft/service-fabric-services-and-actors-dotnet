@@ -5,10 +5,14 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-    using System;
-    using System.Collections.Generic;
+    using System.Fabric;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class Utility
     {
+        public GrpcCommunicationListener GetKVSGrpcCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KvsActorStateProvider stateProvider)
+        {
+            return new GrpcCommunicationListener(serviceContext, actorTypeInformation, new[] { KvsMigration.BindService(new KvsMigrationService(stateProvider)) });
+        }
     }
 }

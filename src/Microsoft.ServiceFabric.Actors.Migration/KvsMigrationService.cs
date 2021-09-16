@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             return Task.FromResult(new SequenceNumberResponse
             {
-                SequenceNumber = 0, // this.stateProvider.GetFirstSequeceNumberAsync(context.CancellationToken).ConfigureAwait(false).GetAwaiter().GetResult(),
+                SequenceNumber = this.stateProvider.GetFirstSequeceNumberAsync(context.CancellationToken).ConfigureAwait(false).GetAwaiter().GetResult(),
             });
         }
 
@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             return Task.FromResult(new SequenceNumberResponse
             {
-                SequenceNumber = 0, // this.stateProvider.GetLastSequeceNumber(),
+                SequenceNumber = this.stateProvider.GetLastSequeceNumber(),
             });
         }
 
