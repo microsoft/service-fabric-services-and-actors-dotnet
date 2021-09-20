@@ -224,18 +224,35 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IActorStateProvider stateProvider = new NullActorStateProvider();
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
             {
+                bool isMigrationTarget = Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType });
+                bool isMigrationSource = Utility.IsMigrationSource(new List<Type>() { actorTypeInfo.ImplementationType });
 #if DotNetCoreClr
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                 {
+                    if (isMigrationTarget)
+                    {
+                        var message = "Migration target attribute is valid only for Reliable Collection (RC) service. This is a KVS service";
+                        ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                    }
+
                     stateProvider = new KvsActorStateProvider();
-                }
-                else if (Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType }))
-                {
-                    stateProvider = new MigrationActorStateProvider();
                 }
                 else
                 {
-                    stateProvider = new ReliableCollectionsActorStateProvider();
+                    if (isMigrationTarget)
+                    {
+                        stateProvider = new MigrationActorStateProvider();
+                    }
+                    else if (isMigrationSource)
+                    {
+                        var message = "Migration source attribute is valid only for KVS service. This is an RC service ";
+                        ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                        stateProvider = new ReliableCollectionsActorStateProvider();
+                    }
+                    else
+                    {
+                        stateProvider = new ReliableCollectionsActorStateProvider();
+                    }
                 }
 #else
                 stateProvider = new KvsActorStateProvider();
