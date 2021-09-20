@@ -33,6 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string ActorsMigrationAssemblyName = "Microsoft.ServiceFabric.Actors.Migration";
         private const string ActorsMigrationUtilityClassFullName = "Microsoft.ServiceFabric.Actors.Migration.Utility";
         private const string ActorsMigrationGetKVSGrpcCommunicationListnerMethod = "GetKVSGrpcCommunicationListener";
+        private const string ActorsMigrationRejectWritesMethod = "RejectWrites";
 
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
@@ -49,6 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private object actorsMigrationUtility;
         private MethodInfo getKVSGrpcCommunicationListnerMethodInfo;
+        private MethodInfo rejectWritesMethodInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -238,14 +240,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
-            // If Migration attibute is set to source and StateProvider is
-            if (Actors.Helper.IsMigrationSource(types) && this.StateProviderReplica is KvsActorStateProvider)
+            // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
+            if (this.IsMigrationSource())
             {
                 this.InitializeActorMigrationUtility();
                 serviceReplicaListeners.Add(new ServiceReplicaListener(
                     serviceContext =>
                 {
-                    return (ICommunicationListener)this.getKVSGrpcCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.StateProviderReplica });
+                    return (ICommunicationListener)this.getKVSGrpcCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
                 },
                     "KVS Grcp Listner"));
             }
@@ -271,6 +273,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
+            // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
+            if (this.IsMigrationSource())
+            {
+                (this.stateProvider as KvsActorStateProvider).CheckTombstoneCleanupIsDisabled();
+                this.rejectWritesMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { this.StateProviderReplica });
+            }
+
             return this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
         }
 
@@ -377,6 +386,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
             this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
             this.getKVSGrpcCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSGrpcCommunicationListnerMethod);
+            this.rejectWritesMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationRejectWritesMethod);
+        }
+
+        private bool IsMigrationSource()
+        {
+            var types = new List<Type> { this.ActorTypeInformation.ImplementationType };
+            types.AddRange(this.ActorTypeInformation.InterfaceTypes);
+
+            return (Actors.Helper.IsMigrationSource(types) && this.StateProviderReplica is KvsActorStateProvider);
         }
     }
 }

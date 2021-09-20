@@ -46,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Migration", "src\Microsoft.ServiceFabric.Actors.Migration\Microsoft.ServiceFabric.Actors.Migration.csproj", "{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Migration_netstandard", "src\netstandard\Microsoft.ServiceFabric.Actors.Migration_netstandard\Microsoft.ServiceFabric.Actors.Migration_netstandard.csproj", "{E5B52C61-66BE-4D71-88D2-E50F78011C72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Migration_netstandard", "src\netstandard\Microsoft.ServiceFabric.Actors.Migration\Microsoft.ServiceFabric.Actors.Migration_netstandard.csproj", "{E5B52C61-66BE-4D71-88D2-E50F78011C72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

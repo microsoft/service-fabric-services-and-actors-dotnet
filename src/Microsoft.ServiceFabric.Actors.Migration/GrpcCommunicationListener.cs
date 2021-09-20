@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             var host = FabricRuntime.GetNodeContext().IPAddressOrFQDN;
             var endpoint = context.CodePackageActivationContext.GetEndpoint(ActorNameFormat.GetActorKvsMigrationEndpointName(actorTypeInformation.ImplementationType));
 
-            // TODO: User Secure server
+            // TODO: Use Secure server
             this.ServerPort = new ServerPort(host, endpoint.Port, ServerCredentials.Insecure);
             this.ServiceDefinitions = serviceDefinitions;
         }

@@ -14,6 +14,7 @@
   <ItemGroup>
     <!--Add required .cs files to build for dotnet core-->
     <Compile Include="$(SourceCodeDir)*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)Extensions\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="$(SourceCodeDir)kvsactor_service.proto" Access="Internal" />

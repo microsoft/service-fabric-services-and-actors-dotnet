@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System.Fabric;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class Utility
@@ -13,6 +14,16 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         public GrpcCommunicationListener GetKVSGrpcCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KvsActorStateProvider stateProvider)
         {
             return new GrpcCommunicationListener(serviceContext, actorTypeInformation, new[] { KvsMigration.BindService(new KvsMigrationService(stateProvider)) });
+        }
+
+        public bool RejectWrites(KvsActorStateProvider stateProvider)
+        {
+            if (stateProvider.GetKvsRejectWriteStatusAsync())
+            {
+                return stateProvider.TryAbortExistingTransactionsAndRejectWrites();
+            }
+
+            return false;
         }
     }
 }

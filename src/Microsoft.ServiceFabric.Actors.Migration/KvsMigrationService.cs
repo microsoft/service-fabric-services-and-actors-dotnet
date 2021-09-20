@@ -11,6 +11,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
     internal class KvsMigrationService : KvsMigration.KvsMigrationBase
     {
+        private const string TraceType = "KvsMigrationService";
+
         private KvsActorStateProvider stateProvider;
 
         public KvsMigrationService(KvsActorStateProvider stateProvider)
@@ -18,12 +20,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             this.stateProvider = stateProvider;
         }
 
-        public override Task<SequenceNumberResponse> GetFirstSequenceNumber(EmptyRequest request, ServerCallContext context)
+        public override async Task<SequenceNumberResponse> GetFirstSequenceNumber(EmptyRequest request, ServerCallContext context)
         {
-            return Task.FromResult(new SequenceNumberResponse
-            {
-                SequenceNumber = this.stateProvider.GetFirstSequeceNumberAsync(context.CancellationToken).ConfigureAwait(false).GetAwaiter().GetResult(),
-            });
+            var result = await this.stateProvider.GetFirstSequeceNumberAsync(context.CancellationToken);
+            return new SequenceNumberResponse
+                    {
+                        SequenceNumber = result,
+                    };
         }
 
         public override Task<SequenceNumberResponse> GetLastSequeceNumber(EmptyRequest emptyRequest, ServerCallContext context)
@@ -34,24 +37,40 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             });
         }
 
-        public override Task EnumerateBySequenceNumber(EnumerationRequest request, IServerStreamWriter<KeyValuePair> responseStream, ServerCallContext context)
+        public override Task EnumerateBySequenceNumber(EnumerationRequest request, IServerStreamWriter<KeyValuePairs> responseStream, ServerCallContext context)
         {
-            return base.EnumerateBySequenceNumber(request, responseStream, context);
+            request.IncludeDeletes = false;
+            return this.stateProvider.EnumerateAsync(request, responseStream, context.CancellationToken);
         }
 
-        public override Task EnumerateKeysAndTombstones(EnumerationRequest request, IServerStreamWriter<KeyValuePair> responseStream, ServerCallContext context)
+        public override Task EnumerateKeysAndTombstones(EnumerationRequest request, IServerStreamWriter<KeyValuePairs> responseStream, ServerCallContext context)
         {
-            return base.EnumerateKeysAndTombstones(request, responseStream, context);
+            request.IncludeDeletes = true;
+            return this.stateProvider.EnumerateAsync(request, responseStream, context.CancellationToken);
         }
 
-        public override Task<TryAbortExistingTransactionsAndRejectWritesResponse> TryAbortExistingTransactionAndRejectWrites(EmptyRequest request, ServerCallContext context)
+        public override async Task<RejectOrResumeWritesResponse> TryAbortExistingTransactionsAndRejectWrites(EmptyRequest request, ServerCallContext context)
         {
-            return base.TryAbortExistingTransactionAndRejectWrites(request, context);
+            var ready = this.stateProvider.TryAbortExistingTransactionsAndRejectWrites();
+
+            await this.stateProvider.SaveKvsRejectWriteStatusAsync(ready);
+
+            return new RejectOrResumeWritesResponse()
+                    {
+                        Ready = ready,
+                    };
         }
 
-        public override Task<Migration.Status> ResumeWrites(EmptyRequest request, ServerCallContext context)
+        public override async Task<RejectOrResumeWritesResponse> ResumeWrites(EmptyRequest request, ServerCallContext context)
         {
-            return base.ResumeWrites(request, context);
+            await this.stateProvider.SaveKvsRejectWriteStatusAsync(false);
+
+            //// TODO: Restart Actor Service Replica
+
+            return new RejectOrResumeWritesResponse()
+            {
+                Ready = true,
+            };
         }
     }
 }
