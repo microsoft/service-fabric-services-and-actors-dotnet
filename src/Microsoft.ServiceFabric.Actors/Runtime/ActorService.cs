@@ -255,7 +255,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return serviceReplicaListeners;
         }
 
-        /// <summary>H
+        /// <summary>
         /// Overrides <see cref="StatefulServiceBase.RunAsync(CancellationToken)"/>.
         /// </summary>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
