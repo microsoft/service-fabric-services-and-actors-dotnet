@@ -25,6 +25,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public class MigrationActorStateProvider :
         IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {
+        private static readonly DataContractSerializer ReminderCompletedDataContractSerializer = new DataContractSerializer(typeof(ReminderCompletedData));
+        private static readonly DataContractSerializer ReminderDataContractSerializer = new DataContractSerializer(typeof(ActorReminderData));
+        private static readonly DataContractSerializer LogicalTimestampDataContractSerializer = new DataContractSerializer(typeof(LogicalTimestamp));
+
         private string traceId;
         private IStatefulServicePartition servicePartition;
         private ReliableCollectionsActorStateProvider rcStateProvider;
@@ -230,69 +234,93 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, CancellationToken cancellationToken)
         {
-            List<RCData> dataToSave = new List<RCData>();
-            foreach (KeyValuePair<string, byte[]> pair in keyValuePairs)
+            List<string> keysMigrated = new List<string>();
+            int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
+            using (var tx = this.rcStateProvider.GetStateManager().CreateTransaction())
             {
-                byte[] rcValue = { };
-                IReliableDictionary2<string, byte[]> dictionary = null;
-                if (this.IsPresenceKey(pair.Key))
+                foreach (KeyValuePair<string, byte[]> pair in keyValuePairs)
                 {
-                    rcValue = pair.Value;
-                    var index = pair.Key.LastIndexOf('_');
-                    var actorId = new ActorId(pair.Key.Substring(index + 1));
-                    dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
-                }
-                else if (this.IsActorStateKey(pair.Key))
-                {
-                    rcValue = pair.Value;
-                    var startIndex = this.GetNthIndex(pair.Key, '_', 2);
-                    var endIndex = this.GetNthIndex(pair.Key, '_', 3);
-                    var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                    dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
-                }
-                else if (this.IsReminderCompletedKey(pair.Key))
-                {
-                    ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(pair.Value);
-                    rcValue = this.SerializeReminderCompletedData(reminderCompletedData);
-                    var startIndex = this.GetNthIndex(pair.Key, '_', 2);
-                    var endIndex = this.GetNthIndex(pair.Key, '_', 3);
-                    var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                    dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
-                }
-                else if (this.IsLogicalTimeKey(pair.Key))
-                {
-                    LogicalTimestamp logicalTimestamp = this.DeserializeLogicalTime(pair.Value);
-                    rcValue = this.SerializeLogicalTime(logicalTimestamp);
-                    dictionary = this.rcStateProvider.GetLogicalTimeDictionary();
-                }
-                else if (this.IsReminderKey(pair.Key))
-                {
-                    ActorReminderData actorReminderData = this.DeserializeReminder(pair.Value);
-                    rcValue = this.SerializeReminder(actorReminderData);
-                    var startIndex = this.GetNthIndex(pair.Key, '_', 2);
-                    var endIndex = this.GetNthIndex(pair.Key, '_', 3);
-                    var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                    dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
-                }
-                else
-                {
-                    var message = "Unexpected data encountered while saving KVS data to RC";
+                    byte[] rcValue = { };
+                    IReliableDictionary2<string, byte[]> dictionary = null;
+                    if (pair.Key.StartsWith("@@"))
+                    {
+                        rcValue = pair.Value;
+                        var index = pair.Key.LastIndexOf('_');
+                        var actorId = new ActorId(pair.Key.Substring(index + 1));
+                        dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
+                        presenceKeyCount++;
+                    }
+                    else if (pair.Key.StartsWith("Actor"))
+                    {
+                        rcValue = pair.Value;
+                        var startIndex = this.GetNthIndex(pair.Key, '_', 2);
+                        var endIndex = this.GetNthIndex(pair.Key, '_', 3);
+                        var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                        dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
+                        actorStateCount++;
+                    }
+                    else if (pair.Key.StartsWith("RC@@"))
+                    {
+                        ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(pair.Value);
+                        rcValue = this.SerializeReminderCompletedData(reminderCompletedData);
+                        var startIndex = this.GetNthIndex(pair.Key, '_', 2);
+                        var endIndex = this.GetNthIndex(pair.Key, '_', 3);
+                        var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                        dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
+                        reminderCompletedKeyCount++;
+                    }
+                    else if (pair.Key.Equals("Timestamp_VLTM"))
+                    {
+                        LogicalTimestamp logicalTimestamp = this.DeserializeLogicalTime(pair.Value);
+                        rcValue = this.SerializeLogicalTime(logicalTimestamp);
+                        dictionary = this.rcStateProvider.GetLogicalTimeDictionary();
+                        logicalTimeCount++;
+                    }
+                    else if (pair.Key.StartsWith("Reminder"))
+                    {
+                        ActorReminderData actorReminderData = this.DeserializeReminder(pair.Value);
+                        rcValue = this.SerializeReminder(actorReminderData);
+                        var startIndex = this.GetNthIndex(pair.Key, '_', 2);
+                        var endIndex = this.GetNthIndex(pair.Key, '_', 3);
+                        var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                        dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
+                        reminderCount++;
+                    }
+                    else
+                    {
+                        var message = "Migration Error: Failed to parse the KVS key - " + pair.Key;
 
-                    ActorTrace.Source.WriteErrorWithId(
-                        this.TraceType,
-                        this.traceId,
-                        message);
+                        ActorTrace.Source.WriteErrorWithId(
+                            this.TraceType,
+                            this.traceId,
+                            message);
 
-                    this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
+                        this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
+                        continue;
+                    }
+
+                    var rcKey = this.TransformKVSKeyToRCFormat(pair.Key);
+                    if (rcValue.Length > 0)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await dictionary.AddOrUpdateAsync(tx, rcKey, rcValue, (k, v) => rcValue);
+                    }
+
+                    keysMigrated.Add(pair.Key);
                 }
 
-                var rcKey = this.ChangeKeyFormat(pair.Key);
-                var rCData = new RCData { Key = rcKey, Dictionary = dictionary, Value = rcValue };
-                dataToSave.Add(rCData);
+                cancellationToken.ThrowIfCancellationRequested();
+                await tx.CommitAsync();
+
+                ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, string.Join(",", keysMigrated));
+
+                string infoLevelMessage = "Migrated " + presenceKeyCount + " presence keys, "
+                    + reminderCompletedKeyCount + " reminder completed keys, "
+                    + logicalTimeCount + " logical timestamps, "
+                    + actorStateCount + " actor states and "
+                    + reminderCount + " reminders.";
+                ActorTrace.Source.WriteInfoWithId(this.TraceType, this.traceId, infoLevelMessage);
             }
-
-            cancellationToken.ThrowIfCancellationRequested();
-            await this.SaveRCData(dataToSave, cancellationToken);
         }
 
         private int GetNthIndex(string s, char t, int n)
@@ -313,86 +341,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return -1;
         }
 
-        private async Task SaveRCData(List<RCData> rcDataList, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            using (var tx = this.rcStateProvider.GetStateManager().CreateTransaction())
-            {
-                foreach (RCData data in rcDataList)
-                {
-                    if (data.Value.Length > 0)
-                    {
-                        var dict = data.Dictionary;
-                        cancellationToken.ThrowIfCancellationRequested();
-                        await dict.AddOrUpdateAsync(tx, data.Key, data.Value, (k, v) => data.Value);
-                    }
-                }
-
-                await tx.CommitAsync();
-            }
-        }
-
-        private bool IsPresenceKey(string key)
-        {
-            string[] splitString = key.Split('_');
-            if (splitString.Length != 3 || splitString[0] != "@@")
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool IsReminderCompletedKey(string key)
-        {
-            string[] splitString = key.Split('_');
-            if (splitString.Length != 4 || splitString[0] != "RC@@")
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool IsLogicalTimeKey(string key)
-        {
-            string[] splitString = key.Split('_');
-            if (splitString.Length != 2 || splitString[1] != "VLTM")
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool IsActorStateKey(string key)
-        {
-            string[] splitString = key.Split('_');
-            if (splitString.Length != 4 || splitString[0] != "Actor")
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool IsReminderKey(string key)
-        {
-            string[] splitString = key.Split('_');
-            if (splitString.Length != 4 || splitString[0] != "Reminder")
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private ReminderCompletedData DeserializeReminderCompletedData(byte[] data)
         {
-            DataContractSerializer serializer = new DataContractSerializer(typeof(ReminderCompletedData));
             using (var reader = XmlDictionaryReader.CreateBinaryReader(data, XmlDictionaryReaderQuotas.Max))
             {
-                return (ReminderCompletedData)serializer.ReadObject(reader);
+                return (ReminderCompletedData)ReminderCompletedDataContractSerializer.ReadObject(reader);
             }
         }
 
@@ -403,10 +356,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private ActorReminderData DeserializeReminder(byte[] data)
         {
-            DataContractSerializer serializer = new DataContractSerializer(typeof(ActorReminderData));
             using (var reader = XmlDictionaryReader.CreateBinaryReader(data, XmlDictionaryReaderQuotas.Max))
             {
-                return (ActorReminderData)serializer.ReadObject(reader);
+                return (ActorReminderData)ReminderDataContractSerializer.ReadObject(reader);
             }
         }
 
@@ -417,10 +369,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private LogicalTimestamp DeserializeLogicalTime(byte[] data)
         {
-            DataContractSerializer serializer = new DataContractSerializer(typeof(LogicalTimestamp));
             using (var reader = XmlDictionaryReader.CreateBinaryReader(data, XmlDictionaryReaderQuotas.Max))
             {
-                return (LogicalTimestamp)serializer.ReadObject(reader);
+                return (LogicalTimestamp)LogicalTimestampDataContractSerializer.ReadObject(reader);
             }
         }
 
@@ -429,17 +380,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return LogicalTimestampSerializer.Serialize(data);
         }
 
-        private string ChangeKeyFormat(string key)
+        private string TransformKVSKeyToRCFormat(string key)
         {
             int firstUnderscorePosition = key.IndexOf("_");
-            return key.Substring(firstUnderscorePosition + 1);
-        }
+            if (key.StartsWith("@@"))
+            {
+                return key.Substring(firstUnderscorePosition + 1) + "_";
+            }
 
-        private struct RCData
-        {
-            public string Key;
-            public byte[] Value;
-            public IReliableDictionary2<string, byte[]> Dictionary;
+            return key.Substring(firstUnderscorePosition + 1);
         }
     }
 }

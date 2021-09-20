@@ -263,9 +263,29 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 return CreateDefaultStateProvider(actorTypeInfo);
             }
-            else if (stateProvider.GetType() == typeof(ReliableCollectionsActorStateProvider) && Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType }))
+
+            if (Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType }))
             {
-                return new MigrationActorStateProvider((ReliableCollectionsActorStateProvider)stateProvider);
+                if (stateProvider.GetType() == typeof(ReliableCollectionsActorStateProvider))
+                {
+                    return new MigrationActorStateProvider((ReliableCollectionsActorStateProvider)stateProvider);
+                }
+                else
+                {
+                    var message = "Migration target attribute is valid only for Reliable Collection (RC) service";
+                    ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                    return stateProvider;
+                }
+            }
+            else if (Utility.IsMigrationSource(new List<Type>() { actorTypeInfo.ImplementationType }))
+            {
+                if (stateProvider.GetType() != typeof(KvsActorStateProvider))
+                {
+                    var message = "Migration source attribute is valid only for KVS service";
+                    ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                }
+
+                return stateProvider;
             }
             else
             {
