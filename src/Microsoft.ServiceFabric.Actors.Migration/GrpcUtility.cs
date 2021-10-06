@@ -5,33 +5,33 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-    using System;
-    using System.Reflection;
-    using Google.Protobuf;
+    ////using System;
+    ////using System.Reflection;
+    ////using Google.Protobuf;
 
-    internal static class GrpcUtility
-    {
-        private const string TraceType = "GrpcUtility";
+    ////internal static class GrpcUtility
+    ////{
+    ////    private const string TraceType = "GrpcUtility";
 
-        // Static method to do zero-copy byte[] to ByteString conversion
-        // This is internal to GRPC since can be easily used improperly,
-        // but this is exactly what we need for our use case
-        private static readonly MethodInfo AttachBytesMethodInfo = null;
+    ////    // Static method to do zero-copy byte[] to ByteString conversion
+    ////    // This is internal to GRPC since can be easily used improperly,
+    ////    // but this is exactly what we need for our use case
+    ////    private static readonly MethodInfo AttachBytesMethodInfo = null;
 
-        static GrpcUtility()
-        {
-                var type = typeof(ByteString);
-                AttachBytesMethodInfo = type.GetMethod(
-                    "AttachBytes",
-                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy,
-                    null,
-                    new Type[] { typeof(byte[]) },
-                    null);
-        }
+    ////    static GrpcUtility()
+    ////    {
+    ////            var type = typeof(ByteString);
+    ////            AttachBytesMethodInfo = type.GetMethod(
+    ////                "AttachBytes",
+    ////                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy,
+    ////                null,
+    ////                new Type[] { typeof(byte[]) },
+    ////                null);
+    ////    }
 
-        internal static ByteString ZeroCopyByteString(byte[] data)
-        {
-            return (ByteString)(AttachBytesMethodInfo.Invoke(null, new object[] { data }));
-        }
-    }
+    ////    internal static ByteString ZeroCopyByteString(byte[] data)
+    ////    {
+    ////        return (ByteString)(AttachBytesMethodInfo.Invoke(null, new object[] { data }));
+    ////    }
+    ////}
 }

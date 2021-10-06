@@ -32,7 +32,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private const string ActorsMigrationAssemblyName = "Microsoft.ServiceFabric.Actors.Migration";
         private const string ActorsMigrationUtilityClassFullName = "Microsoft.ServiceFabric.Actors.Migration.Utility";
-        private const string ActorsMigrationGetKVSGrpcCommunicationListnerMethod = "GetKVSGrpcCommunicationListener";
+#if !DotNetCoreClr
+        private const string ActorsMigrationGetKVSOwinCommunicationListnerMethod = "GetKVSOwinCommunicationListener";
+#else
+        private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
+#endif
         private const string ActorsMigrationRejectWritesMethod = "RejectWrites";
 
         private readonly ActorTypeInformation actorTypeInformation;
@@ -49,7 +53,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
 
         private object actorsMigrationUtility;
-        private MethodInfo getKVSGrpcCommunicationListnerMethodInfo;
+#if !DotNetCoreClr
+        private MethodInfo getKVSOwinCommunicationListnerMethodInfo;
+#else
+        private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
+#endif
         private MethodInfo rejectWritesMethodInfo;
 
         /// <summary>
@@ -151,7 +159,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
-        #region IActorService Members
+#region IActorService Members
 
         /// <summary>
         /// Deletes an Actor from the Actor service.
@@ -188,7 +196,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
-        #endregion
+#endregion
 
         internal IActorStateManager CreateStateManager(ActorBase actor)
         {
@@ -206,7 +214,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
-        #region StatefulServiceBase Overrides
+#region StatefulServiceBase Overrides
 
         /// <summary>
         /// Overrides <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase.CreateServiceReplicaListeners()"/>.
@@ -247,9 +255,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 serviceReplicaListeners.Add(new ServiceReplicaListener(
                     serviceContext =>
                 {
-                    return (ICommunicationListener)this.getKVSGrpcCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
+#if !DotNetCoreClr
+                    return (ICommunicationListener)this.getKVSOwinCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
+#else
+                    return (ICommunicationListener)this.getKVSKestrelCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
+#endif
                 },
-                    "KVS Grcp Listner"));
+                    "KVS Migration Listner"));
             }
 
             return serviceReplicaListeners;
@@ -347,7 +359,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorManagerAdapter.Abort();
         }
 
-        #endregion
+#endregion
         private static IActorStateManager DefaultActorStateManagerFactory(
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)
@@ -385,7 +397,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
             this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
-            this.getKVSGrpcCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSGrpcCommunicationListnerMethod);
+#if !DotNetCoreClr
+            this.getKVSOwinCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSOwinCommunicationListnerMethod);
+#else
+            this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
+#endif
             this.rejectWritesMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationRejectWritesMethod);
         }
 
