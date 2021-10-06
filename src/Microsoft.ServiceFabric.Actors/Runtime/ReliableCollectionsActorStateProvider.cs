@@ -571,6 +571,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.logicalTimeDictionary;
         }
 
+        internal IReliableDictionary2<string, byte[]> GetActorPresenceDictionary()
+        {
+            return this.actorPresenceDictionary;
+        }
+
+        internal IReliableDictionary2<string, byte[]> GetReminderCompletedDictionary()
+        {
+            return this.reminderCompletedDictionary;
+        }
+
         internal IReliableDictionary2<string, byte[]> GetActorStateDictionary(ActorId actorId)
         {
             var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());

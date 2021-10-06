@@ -19,10 +19,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Data.Collections;
 
     /// <summary>
-    /// Provides an implementation of <see cref="MigrationActorStateProvider"/> which
+    /// Provides an implementation of <see cref="KVStoRCMigrationActorStateProvider"/> which
     /// uses <see cref="ReliableCollectionsActorStateProvider"/> to store and persist the actor state.
     /// </summary>
-    public class MigrationActorStateProvider :
+    public class KVStoRCMigrationActorStateProvider :
         IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {
         private static readonly DataContractSerializer ReminderCompletedDataContractSerializer = new DataContractSerializer(typeof(ReminderCompletedData));
@@ -34,20 +34,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ReliableCollectionsActorStateProvider rcStateProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MigrationActorStateProvider"/> class.
+        /// Initializes a new instance of the <see cref="KVStoRCMigrationActorStateProvider"/> class.
         /// </summary>
-        public MigrationActorStateProvider()
+        public KVStoRCMigrationActorStateProvider()
         {
             this.rcStateProvider = new ReliableCollectionsActorStateProvider();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MigrationActorStateProvider"/> class with specified reliableCollectionsActorStateProvider
+        /// Initializes a new instance of the <see cref="KVStoRCMigrationActorStateProvider"/> class with specified reliableCollectionsActorStateProvider
         /// </summary>
         /// <param name="reliableCollectionsActorStateProvider">
         /// The <see cref="ReliableCollectionsActorStateProvider"/> that carries out regular operations of state provider.
         /// </param>
-        public MigrationActorStateProvider(ReliableCollectionsActorStateProvider reliableCollectionsActorStateProvider)
+        public KVStoRCMigrationActorStateProvider(ReliableCollectionsActorStateProvider reliableCollectionsActorStateProvider)
         {
             this.rcStateProvider = reliableCollectionsActorStateProvider;
         }
@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <inheritdoc/>
         public string TraceType
         {
-            get { return "MigrationActorStateProvider"; }
+            get { return "KVStoRCMigrationActorStateProvider"; }
         }
 
         /// <inheritdoc/>
@@ -245,9 +245,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     if (pair.Key.StartsWith("@@"))
                     {
                         rcValue = pair.Value;
-                        var index = pair.Key.LastIndexOf('_');
-                        var actorId = new ActorId(pair.Key.Substring(index + 1));
-                        dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
+                        dictionary = this.rcStateProvider.GetActorPresenceDictionary();
                         presenceKeyCount++;
                     }
                     else if (pair.Key.StartsWith("Actor"))
@@ -263,10 +261,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     {
                         ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(pair.Value);
                         rcValue = this.SerializeReminderCompletedData(reminderCompletedData);
-                        var startIndex = this.GetNthIndex(pair.Key, '_', 2);
-                        var endIndex = this.GetNthIndex(pair.Key, '_', 3);
-                        var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                        dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
+                        dictionary = this.rcStateProvider.GetReminderCompletedDictionary();
                         reminderCompletedKeyCount++;
                     }
                     else if (pair.Key.Equals("Timestamp_VLTM"))
