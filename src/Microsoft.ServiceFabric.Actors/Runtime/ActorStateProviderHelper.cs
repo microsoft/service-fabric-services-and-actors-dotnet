@@ -231,7 +231,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     if (isMigrationTarget)
                     {
-                        var message = "Migration target attribute is valid only for Reliable Collection (RC) service. This is a KVS service";
+                        var message = "Migration target attribute is valid only for Reliable Collection (RC) service.";
                         ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
                     }
 
@@ -245,7 +245,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                     else if (isMigrationSource)
                     {
-                        var message = "Migration source attribute is valid only for KVS services on Windows. This service is not on Windows.";
+                        var message = "Migration source attribute is valid only for KVS services.";
                         ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
                         stateProvider = new ReliableCollectionsActorStateProvider();
                     }
@@ -257,7 +257,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #else
                 if (isMigrationTarget)
                 {
-                    var message = "Migration target attribute is valid only for Reliable Collection (RC) service on DotNetCoreClr. This service is not on DotNetCoreClr";
+                    var message = "Migration target attribute is valid only for Reliable Collection (RC) service.";
                     ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
                 }
 
