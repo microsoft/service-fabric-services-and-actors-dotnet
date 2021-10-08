@@ -8,20 +8,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Runtime;
 #if DotNetCoreClr
-    using System.IO;
+    using System;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
+    using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 #endif
 
     internal class Utility
     {
-        ////public GrpcCommunicationListener GetKVSGrpcCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KvsActorStateProvider stateProvider)
-        ////{
-        ////    return new GrpcCommunicationListener(serviceContext, actorTypeInformation, new[] { KvsMigration.BindService(new KvsMigrationService(stateProvider)) });
-        ////}
-
         ////public OwinCommunicationListener GetKVSOwinCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KvsActorStateProvider stateProvider)
         ////{
         ////    return null; // new OwinCommunicationListener(serviceContext, actorTypeInformation, new[] { KvsMigration.BindService(new KvsMigrationService(stateProvider)) });
@@ -30,24 +25,39 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 #if DotNetCoreClr
         public KestrelCommunicationListener GetKVSKestrelCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KvsActorStateProvider stateProvider)
         {
-            return new KestrelCommunicationListener(serviceContext, (url, listener) =>
-                     new WebHostBuilder()
-                        .UseKestrel()
-                        .ConfigureServices(
-                             services => services
-                                 .AddSingleton<StatefulServiceContext>(serviceContext)
-                                 .AddSingleton<ActorTypeInformation>(actorTypeInformation)
-                                 .AddSingleton<KvsActorStateProvider>(stateProvider))
-                        .UseContentRoot(Directory.GetCurrentDirectory())
-                        .ConfigureLogging(logging =>
-                        {
-                            logging.ClearProviders();
-                            logging.AddEventLog();
-                        })
-                        .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
-                        .UseStartup<Startup>()
-                        .UseUrls(url)
-                        .Build());
+            var endpointName = ActorNameFormat.GetActorKvsMigrationEndpointName(actorTypeInformation.ImplementationType);
+
+            return new KestrelCommunicationListener(serviceContext, endpointName, (url, listener) =>
+                {
+                    try
+                    {
+                        var endpoint = serviceContext.CodePackageActivationContext.GetEndpoint(endpointName);
+
+                        ActorTrace.Source.WriteInfo("Migration.Utility", $"Starting Kestrel on url: {url} host: {FabricRuntime.GetNodeContext().IPAddressOrFQDN} endpointPort: {endpoint.Port}");
+
+                        var webHostBuilder =
+                            new WebHostBuilder()
+                                .UseKestrel()
+                                .ConfigureServices(
+                                    services => services
+                                        .AddSingleton<StatefulServiceContext>(serviceContext)
+                                        .AddSingleton<ActorTypeInformation>(actorTypeInformation)
+                                        .AddSingleton<KvsActorStateProvider>(stateProvider))
+                                .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
+                                .UseStartup<Startup>()
+                                .UseUrls(url)
+                                .Build();
+
+                        ActorTrace.Source.WriteInfo("Migration.Utility", "Successfully created webhostbuilder");
+
+                        return webHostBuilder;
+                    }
+                    catch (Exception ex)
+                    {
+                        ActorTrace.Source.WriteInfo("Migration.Utility", "Got exception in creating WebHostBuilder: " + ex);
+                        throw;
+                    }
+                });
         }
 #endif
 

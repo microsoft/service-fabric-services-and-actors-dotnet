@@ -630,6 +630,7 @@ namespace FabActUtil.Generator
                     new EndpointType()
                     {
                         Name = GetActorKvsMigrationEndpointName(actorTypeInfo),
+                        Protocol = EndpointTypeProtocol.http, //// TODO: HTTPS
                     });
             }
 
