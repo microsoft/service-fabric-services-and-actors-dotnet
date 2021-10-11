@@ -26,7 +26,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_0);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_0);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime, IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)

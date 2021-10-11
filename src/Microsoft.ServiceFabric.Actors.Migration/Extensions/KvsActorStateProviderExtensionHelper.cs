@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal static class KvsActorStateProviderExtensionHelper
@@ -48,59 +49,60 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return stateProvider.GetStoreReplica().GetLastCommittedSequenceNumber();
         }
 
-        ////internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, IServerStreamWriter<KeyValuePairs> responseStream, CancellationToken cancellationToken)
-        ////{
-        ////    var storeReplica = stateProvider.GetStoreReplica();
-        ////    var lsn = storeReplica.GetLastCommittedSequenceNumber();
-        ////    return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
-        ////        async () =>
-        ////        {
-        ////            using (var txn = storeReplica.CreateTransaction())
-        ////            {
-        ////                IEnumerator<KeyValueStoreItem> enumerator;
+        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request)
+        {
+            var storeReplica = stateProvider.GetStoreReplica();
+            var lsn = storeReplica.GetLastCommittedSequenceNumber();
+            return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+                async () =>
+                {
+                    using (var txn = storeReplica.CreateTransaction())
+                    {
+                        IEnumerator<KeyValueStoreItem> enumerator;
 
-        ////                if (request.IncludeDeletes)
-        ////                {
-        ////                    enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
-        ////                }
-        ////                else
-        ////                {
-        ////                    enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
-        ////                }
+                        if (request.IncludeDeletes)
+                        {
+                            enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
+                        }
+                        else
+                        {
+                            enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
+                        }
 
-        ////                var hasData = enumerator.MoveNext();
-        ////                long enumerationKeyCount = 0;
+                        var hasData = enumerator.MoveNext();
+                        long enumerationKeyCount = 0;
 
-        ////                while (hasData && enumerationKeyCount < request.NoOfItems)
-        ////                {
-        ////                    var pairs = new KeyValuePairs();
+                        while (hasData && enumerationKeyCount < request.NoOfItems)
+                        {
+                            var pairs = new List<KeyValuePair>();
 
-        ////                    var sequenceNumberFullyDrained = true;
-        ////                    while (hasData && (pairs.Pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
-        ////                    {
-        ////                        var keyValuePair = MakeKeyValuePair(enumerator.Current);
-        ////                        var currentSequenceNumber = keyValuePair.Version;
+                            var sequenceNumberFullyDrained = true;
+                            while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
+                            {
+                                var keyValuePair = MakeKeyValuePair(enumerator.Current);
+                                var currentSequenceNumber = keyValuePair.Version;
 
-        ////                        pairs.Pairs.Add(keyValuePair);
-        ////                        enumerationKeyCount++;
+                                pairs.Add(keyValuePair);
+                                enumerationKeyCount++;
 
-        ////                        hasData = enumerator.MoveNext();
+                                hasData = enumerator.MoveNext();
 
-        ////                        if (hasData)
-        ////                        {
-        ////                            var nextKeyValuePair = enumerator.Current;
-        ////                            var nextKeySequenceNumber = nextKeyValuePair.Metadata.SequenceNumber;
-        ////                            sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
-        ////                        }
-        ////                    }
+                                if (hasData)
+                                {
+                                    var nextKeyValuePair = enumerator.Current;
+                                    var nextKeySequenceNumber = nextKeyValuePair.Metadata.SequenceNumber;
+                                    sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
+                                }
+                            }
 
-        ////                    await responseStream.WriteAsync(pairs);
-        ////                }
-        ////            }
-        ////        },
-        ////        "EnumerateAsync",
-        ////        cancellationToken);
-        ////}
+                            ////await responseStream.WriteAsync(pairs);
+                            await Task.Delay(1);
+                        }
+                    }
+                },
+                "EnumerateAsync",
+                CancellationToken.None);
+        }
 
         internal static bool TryAbortExistingTransactionsAndRejectWrites(this KvsActorStateProvider stateProvider)
         {
@@ -139,17 +141,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         return false;
     }
 
-        ////private static KeyValuePair MakeKeyValuePair(KeyValueStoreItem item)
-        ////{
-        ////    bool isDeleted = item.Metadata.ValueSizeInBytes < 0;
+        private static KeyValuePair MakeKeyValuePair(KeyValueStoreItem item)
+        {
+            bool isDeleted = item.Metadata.ValueSizeInBytes < 0;
 
-        ////    return new KeyValuePair
-        ////    {
-        ////        IsDeleted = isDeleted,
-        ////        Version = item.Metadata.SequenceNumber,
-        ////        Key = item.Metadata.Key,
-        ////        Value = isDeleted ? ByteString.Empty : GrpcUtility.ZeroCopyByteString(item.Value),
-        ////    };
-        ////}
+            return new KeyValuePair
+            {
+                IsDeleted = isDeleted,
+                Version = item.Metadata.SequenceNumber,
+                Key = item.Metadata.Key,
+                Value = isDeleted ? new byte[0] : item.Value,
+            };
+        }
     }
 }

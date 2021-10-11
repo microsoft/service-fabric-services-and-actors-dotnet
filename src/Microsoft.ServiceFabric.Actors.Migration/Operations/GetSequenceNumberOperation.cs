@@ -5,7 +5,28 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration.Operations
 {
-    //////class GetSequenceNumberOperation
-    //////{
-    //////}
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.ServiceFabric.Actors.Runtime;
+
+    internal class GetSequenceNumberOperation
+    {
+        private KvsActorStateProvider kvsActorStateProvider;
+        private object first;
+        private HttpRequest request;
+
+        public GetSequenceNumberOperation(KvsActorStateProvider kvsActorStateProvider, object first, HttpRequest request)
+        {
+            this.kvsActorStateProvider = kvsActorStateProvider;
+            this.first = first;
+            this.request = request;
+        }
+
+        internal Task<long> ExecuteAsync(CancellationToken none)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

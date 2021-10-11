@@ -16,6 +16,7 @@
     <Compile Include="$(SourceCodeDir)*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Extensions\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Controllers\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)Models\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Operations\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
   </ItemGroup>
   <ItemGroup>

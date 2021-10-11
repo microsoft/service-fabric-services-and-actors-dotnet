@@ -6,20 +6,20 @@
 namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
 {
 #if DotNetCoreClr
-    using System.Collections.Generic;
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.ServiceFabric.Actors.Migration.Models;
+    using Microsoft.ServiceFabric.Actors.Migration.Operations;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
+    /// <summary>
+    /// Represents the controller class for KVS migration REST API.
+    /// </summary>
     [Route("[controller]")]
     [ApiController]
-#pragma warning disable SA1600 // Elements should be documented
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public class KvsMigrationController : ControllerBase
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning restore SA1600 // Elements should be documented
     {
         private StatefulServiceContext serviceContext;
         private ActorTypeInformation actorTypeInformation;
@@ -38,36 +38,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
             this.kvsActorStateProvider = stateProvider;
         }
 
-        // GET api/kvsmigration
-        [HttpGet]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable SA1600 // Elements should be documented
-        public ActionResult<IEnumerable<string>> Get()
-#pragma warning restore SA1600 // Elements should be documented
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/kvsmigration/5
-        [HttpGet("{id}")]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable SA1600 // Elements should be documented
-        public ActionResult<string> Get(int id)
-#pragma warning restore SA1600 // Elements should be documented
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        {
-            return $"value is {id}";
-        }
-
         /// <summary>
         /// Gets the First Sequence number of KVS
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetFirstSequenceNumber")]
-        public async Task<long> GetFirstSequenceNumber()
+        public async Task<IActionResult> GetFirstSequenceNumber()
         {
-            return await this.kvsActorStateProvider.GetFirstSequeceNumberAsync(CancellationToken.None);
+            var operation = new GetSequenceNumberOperation(this.kvsActorStateProvider, SequenceNumberType.First, this.Request);
+            var sequenceNumber = await operation.ExecuteAsync(CancellationToken.None);
+
+            return this.Ok(sequenceNumber);
         }
 
         /// <summary>
@@ -80,45 +61,56 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
             return this.kvsActorStateProvider.GetLastSequeceNumber();
         }
 
-        ///// <summary>
-        ///// Enumerates Key value store data by Sequence Number
-        ///// </summary>
-        ///// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        ////public Task<IActionResult> EnumerateBySequenceNumber()
-        ////{
-        ////    request.IncludeDeletes = false;
-        ////    return this.stateProvider.EnumerateAsync(request, responseStream, context.CancellationToken);
-        ////}
+        /// <summary>
+        /// Enumerates Key value store data by Sequence Number
+        /// </summary>
+        /// <param name="request">EnumerationRequest</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpGet("EnumerateBySequenceNumber")]
+        public Task EnumerateBySequenceNumber(EnumerationRequest request)
+        {
+            request.IncludeDeletes = false;
+            return this.kvsActorStateProvider.EnumerateAsync(request);
+        }
 
-        ////public override Task EnumerateKeysAndTombstones(EnumerationRequest request, IServerStreamWriter<KeyValuePairs> responseStream, ServerCallContext context)
-        ////{
-        ////    request.IncludeDeletes = true;
-        ////    return this.stateProvider.EnumerateAsync(request, responseStream, context.CancellationToken);
-        ////}
+        /// <summary>
+        /// Enumerates Key value store data by Sequence Number
+        /// </summary>
+        /// <param name="request">EnumerationRequest</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpGet("EnumerateKeysAndTombstones")]
+        public Task EnumerateKeysAndTombstones(EnumerationRequest request)
+        {
+            request.IncludeDeletes = true;
+            return this.kvsActorStateProvider.EnumerateAsync(request);
+        }
 
-        ////public override async Task<RejectOrResumeWritesResponse> TryAbortExistingTransactionsAndRejectWrites(EmptyRequest request, ServerCallContext context)
-        ////{
-        ////    var ready = this.stateProvider.TryAbortExistingTransactionsAndRejectWrites();
+        /// <summary>
+        /// Gets the Last Sequence number of KVS
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [HttpPut("TryAbortExistingTransactionsAndRejectWrites")]
+        public async Task<bool> TryAbortExistingTransactionsAndRejectWrites()
+        {
+            var ready = this.kvsActorStateProvider.TryAbortExistingTransactionsAndRejectWrites();
 
-        ////    await this.stateProvider.SaveKvsRejectWriteStatusAsync(ready);
+            await this.kvsActorStateProvider.SaveKvsRejectWriteStatusAsync(ready);
 
-        ////    return new RejectOrResumeWritesResponse()
-        ////    {
-        ////        Ready = ready,
-        ////    };
-        ////}
+            return ready;
+        }
 
-        ////public override async Task<RejectOrResumeWritesResponse> ResumeWrites(EmptyRequest request, ServerCallContext context)
-        ////{
-        ////    await this.stateProvider.SaveKvsRejectWriteStatusAsync(false);
+        /// <summary>
+        /// Enumerates Key value store data by Sequence Number
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        [HttpPut("ResumeWrites")]
+        public async Task<bool> ResumeWrites()
+        {
+            await this.kvsActorStateProvider.SaveKvsRejectWriteStatusAsync(false);
 
-        ////    //// TODO: Restart Actor Service Replica
-
-        ////    return new RejectOrResumeWritesResponse()
-        ////    {
-        ////        Ready = true,
-        ////    };
-        ////}
+            //// TODO: Restart Actor Service Replica
+            return true;
+        }
     }
 #endif
 }
