@@ -8,8 +8,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.IO;
+    using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Xml;
+#if DotNetCoreClr
+    using Microsoft.AspNetCore.Http;
+#endif
     using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
@@ -44,65 +50,90 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 cancellationToken);
         }
 
-        internal static long GetLastSequeceNumber(this KvsActorStateProvider stateProvider)
+        internal static long GetLastSequenceNumber(this KvsActorStateProvider stateProvider)
         {
             return stateProvider.GetStoreReplica().GetLastCommittedSequenceNumber();
         }
 
-        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request)
+#if DotNetCoreClr
+        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, CancellationToken cancellationToken)
         {
             var storeReplica = stateProvider.GetStoreReplica();
             var lsn = storeReplica.GetLastCommittedSequenceNumber();
             return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
                 async () =>
                 {
-                    using (var txn = storeReplica.CreateTransaction())
+                    try
                     {
-                        IEnumerator<KeyValueStoreItem> enumerator;
-
-                        if (request.IncludeDeletes)
+                        using (var txn = storeReplica.CreateTransaction())
                         {
-                            enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
-                        }
-                        else
-                        {
-                            enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
-                        }
+                            IEnumerator<KeyValueStoreItem> enumerator;
 
-                        var hasData = enumerator.MoveNext();
-                        long enumerationKeyCount = 0;
-
-                        while (hasData && enumerationKeyCount < request.NoOfItems)
-                        {
-                            var pairs = new List<KeyValuePair>();
-
-                            var sequenceNumberFullyDrained = true;
-                            while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
+                            if (request.IncludeDeletes)
                             {
-                                var keyValuePair = MakeKeyValuePair(enumerator.Current);
-                                var currentSequenceNumber = keyValuePair.Version;
-
-                                pairs.Add(keyValuePair);
-                                enumerationKeyCount++;
-
-                                hasData = enumerator.MoveNext();
-
-                                if (hasData)
-                                {
-                                    var nextKeyValuePair = enumerator.Current;
-                                    var nextKeySequenceNumber = nextKeyValuePair.Metadata.SequenceNumber;
-                                    sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
-                                }
+                                enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
+                            }
+                            else
+                            {
+                                enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
                             }
 
-                            ////await responseStream.WriteAsync(pairs);
-                            await Task.Delay(1);
+                            var hasData = enumerator.MoveNext();
+                            long enumerationKeyCount = 0;
+
+                            while (hasData && enumerationKeyCount < request.NoOfItems)
+                            {
+                                var pairs = new List<KeyValuePair>();
+
+                                var sequenceNumberFullyDrained = true;
+                                while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
+                                {
+                                    var keyValuePair = MakeKeyValuePair(enumerator.Current);
+                                    var currentSequenceNumber = keyValuePair.Version;
+
+                                    pairs.Add(keyValuePair);
+                                    enumerationKeyCount++;
+
+                                    hasData = enumerator.MoveNext();
+
+                                    if (hasData)
+                                    {
+                                        var nextKeyValuePair = enumerator.Current;
+                                        var nextKeySequenceNumber = nextKeyValuePair.Metadata.SequenceNumber;
+                                        sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
+                                    }
+                                }
+
+                                var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+                                using var memoryStream = new MemoryStream();
+                                var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
+                                keyvaluepairserializer.WriteObject(binaryWriter, pairs);
+                                binaryWriter.Flush();
+
+                                var byteArray = memoryStream.ToArray();
+
+                                ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
+
+                                // Set the content type
+                                response.ContentType = "application/xml; charset=utf-8";
+                                await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
+                                await response.Body.FlushAsync();
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        ActorTrace.Source.WriteError("KvsActorStateProviderExtensionHelper", $"{e.Message} {e.StackTrace}");
+                        if (e.InnerException != null)
+                        {
+                            ActorTrace.Source.WriteError("KvsActorStateProviderExtensionHelper", $"{e.InnerException.Message} {e.InnerException.StackTrace}/n");
                         }
                     }
                 },
                 "EnumerateAsync",
-                CancellationToken.None);
+                cancellationToken);
         }
+#endif
 
         internal static bool TryAbortExistingTransactionsAndRejectWrites(this KvsActorStateProvider stateProvider)
         {

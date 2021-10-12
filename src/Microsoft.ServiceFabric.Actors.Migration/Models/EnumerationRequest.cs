@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
     /// EnumerationRequest
     /// </summary>
@@ -13,16 +15,19 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Models
         /// <summary>
         /// Gets or Sets StartSN
         /// </summary>
+        [Required]
         public long StartSN { get; set; }
 
         /// <summary>
         /// Gets or Sets NoOfItems
         /// </summary>
+        [Required]
         public long NoOfItems { get; set; }
 
         /// <summary>
         /// Gets or Sets ChunkSize
         /// </summary>
+        [Required]
         public long ChunkSize { get; set; }
 
         /// <summary>

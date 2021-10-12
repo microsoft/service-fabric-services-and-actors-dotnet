@@ -11,14 +11,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.ServiceFabric.Actors.Migration.Models;
-    using Microsoft.ServiceFabric.Actors.Migration.Operations;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     /// <summary>
     /// Represents the controller class for KVS migration REST API.
     /// </summary>
     [Route("[controller]")]
-    [ApiController]
     public class KvsMigrationController : ControllerBase
     {
         private StatefulServiceContext serviceContext;
@@ -43,10 +41,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetFirstSequenceNumber")]
-        public async Task<IActionResult> GetFirstSequenceNumber()
+        public async Task<ActionResult<long>> GetFirstSequenceNumber()
         {
-            var operation = new GetSequenceNumberOperation(this.kvsActorStateProvider, SequenceNumberType.First, this.Request);
-            var sequenceNumber = await operation.ExecuteAsync(CancellationToken.None);
+            var sequenceNumber = await this.kvsActorStateProvider.GetFirstSequeceNumberAsync(CancellationToken.None);
 
             return this.Ok(sequenceNumber);
         }
@@ -55,10 +52,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// Gets the Last Sequence number of KVS
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [HttpGet("GetLastSequeceNumber")]
-        public long GetLastSequeceNumber()
+        [HttpGet("GetLastSequenceNumber")]
+        public ActionResult<long> GetLastSequenceNumber()
         {
-            return this.kvsActorStateProvider.GetLastSequeceNumber();
+            return this.kvsActorStateProvider.GetLastSequenceNumber();
         }
 
         /// <summary>
@@ -67,10 +64,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// <param name="request">EnumerationRequest</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("EnumerateBySequenceNumber")]
-        public Task EnumerateBySequenceNumber(EnumerationRequest request)
+        public Task EnumerateBySequenceNumber([FromBody] EnumerationRequest request)
         {
             request.IncludeDeletes = false;
-            return this.kvsActorStateProvider.EnumerateAsync(request);
+            return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None);
         }
 
         /// <summary>
@@ -79,10 +76,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// <param name="request">EnumerationRequest</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("EnumerateKeysAndTombstones")]
-        public Task EnumerateKeysAndTombstones(EnumerationRequest request)
+        public Task EnumerateKeysAndTombstones([FromBody] EnumerationRequest request)
         {
             request.IncludeDeletes = true;
-            return this.kvsActorStateProvider.EnumerateAsync(request);
+            return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None);
         }
 
         /// <summary>
@@ -90,7 +87,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPut("TryAbortExistingTransactionsAndRejectWrites")]
-        public async Task<bool> TryAbortExistingTransactionsAndRejectWrites()
+        public async Task<ActionResult<bool>> TryAbortExistingTransactionsAndRejectWrites()
         {
             var ready = this.kvsActorStateProvider.TryAbortExistingTransactionsAndRejectWrites();
 
@@ -104,11 +101,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [HttpPut("ResumeWrites")]
-        public async Task<bool> ResumeWrites()
+        public async Task<ActionResult<bool>> ResumeWrites()
         {
             await this.kvsActorStateProvider.SaveKvsRejectWriteStatusAsync(false);
 
-            //// TODO: Restart Actor Service Replica
+            //// TOOD: Restart Primary REplica
+            await new FabricClient().ServiceManager.RestartReplicaAsync(this.serviceContext.NodeContext.NodeName, this.serviceContext.PartitionId, this.serviceContext.ReplicaId);
+
             return true;
         }
     }
