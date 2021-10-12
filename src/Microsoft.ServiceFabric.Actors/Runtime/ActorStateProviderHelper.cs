@@ -224,17 +224,43 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IActorStateProvider stateProvider = new NullActorStateProvider();
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
             {
+                bool isMigrationTarget = Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType });
+                bool isMigrationSource = Utility.IsMigrationSource(new List<Type>() { actorTypeInfo.ImplementationType });
 #if DotNetCoreClr
-                // Use KVSActorStatePRovide for Windows.
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                 {
+                    if (isMigrationTarget)
+                    {
+                        var message = "Migration target attribute is valid only for Reliable Collection (RC) service.";
+                        ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                    }
+
                     stateProvider = new KvsActorStateProvider();
                 }
                 else
                 {
-                   stateProvider = new ReliableCollectionsActorStateProvider();
+                    if (isMigrationTarget)
+                    {
+                        stateProvider = new KVStoRCMigrationActorStateProvider();
+                    }
+                    else if (isMigrationSource)
+                    {
+                        var message = "Migration source attribute is valid only for KVS services.";
+                        ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                        stateProvider = new ReliableCollectionsActorStateProvider();
+                    }
+                    else
+                    {
+                        stateProvider = new ReliableCollectionsActorStateProvider();
+                    }
                 }
 #else
+                if (isMigrationTarget)
+                {
+                    var message = "Migration target attribute is valid only for Reliable Collection (RC) service.";
+                    ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                }
+
                 stateProvider = new KvsActorStateProvider();
 #endif
             }
@@ -252,6 +278,42 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return stateProvider;
+        }
+
+        internal static IActorStateProvider GetStateProvider(IActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
+        {
+            if (stateProvider == null)
+            {
+                return CreateDefaultStateProvider(actorTypeInfo);
+            }
+
+            if (Utility.IsMigrationTarget(new List<Type>() { actorTypeInfo.ImplementationType }))
+            {
+                if (stateProvider.GetType() == typeof(ReliableCollectionsActorStateProvider))
+                {
+                    return new KVStoRCMigrationActorStateProvider((ReliableCollectionsActorStateProvider)stateProvider);
+                }
+                else
+                {
+                    var message = "Migration target attribute is valid only for Reliable Collection (RC) service";
+                    ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                    return stateProvider;
+                }
+            }
+            else if (Utility.IsMigrationSource(new List<Type>() { actorTypeInfo.ImplementationType }))
+            {
+                if (stateProvider.GetType() != typeof(KvsActorStateProvider))
+                {
+                    var message = "Migration source attribute is valid only for KVS service";
+                    ActorTrace.Source.WriteWarning("ActorStateProviderHelper", message);
+                }
+
+                return stateProvider;
+            }
+            else
+            {
+                return stateProvider;
+            }
         }
 
         #endregion Static Methods

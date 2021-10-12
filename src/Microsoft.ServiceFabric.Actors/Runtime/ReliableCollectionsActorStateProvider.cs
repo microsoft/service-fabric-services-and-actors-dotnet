@@ -561,6 +561,40 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.stateManager.RestoreAsync(backupFolderPath, restorePolicy, cancellationToken);
         }
 
+        internal IReliableStateManagerReplica2 GetStateManager()
+        {
+            return this.stateManager;
+        }
+
+        internal IReliableDictionary2<string, byte[]> GetLogicalTimeDictionary()
+        {
+            return this.logicalTimeDictionary;
+        }
+
+        internal IReliableDictionary2<string, byte[]> GetActorPresenceDictionary()
+        {
+            return this.actorPresenceDictionary;
+        }
+
+        internal IReliableDictionary2<string, byte[]> GetReminderCompletedDictionary()
+        {
+            return this.reminderCompletedDictionary;
+        }
+
+        internal IReliableDictionary2<string, byte[]> GetActorStateDictionary(ActorId actorId)
+        {
+            var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
+            var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.actorStateDictionaries.Length;
+            return this.actorStateDictionaries[storageIdx];
+        }
+
+        internal IReliableDictionary2<string, byte[]> GetReminderDictionary(ActorId actorId)
+        {
+            var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
+            var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.reminderDictionaries.Length;
+            return this.reminderDictionaries[storageIdx];
+        }
+
         private static async Task RemoveKeysWithPrefixAsync(
             ITransaction tx,
             IReliableDictionary2<string, byte[]> relDict,
@@ -935,20 +969,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return dicts;
-        }
-
-        private IReliableDictionary2<string, byte[]> GetActorStateDictionary(ActorId actorId)
-        {
-            var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
-            var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.actorStateDictionaries.Length;
-            return this.actorStateDictionaries[storageIdx];
-        }
-
-        private IReliableDictionary2<string, byte[]> GetReminderDictionary(ActorId actorId)
-        {
-            var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
-            var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.reminderDictionaries.Length;
-            return this.reminderDictionaries[storageIdx];
         }
 
         private async Task<Dictionary<string, ReminderCompletedData>> GetReminderCompletedDataMapAsync(CancellationToken cancellationToken)

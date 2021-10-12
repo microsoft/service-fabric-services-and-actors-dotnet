@@ -58,7 +58,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorServiceSettings settings = null)
             : base(
                 context,
-                stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo))
+                ActorStateProviderHelper.GetStateProvider(stateProvider, actorTypeInfo))
         {
             this.actorTypeInformation = actorTypeInfo;
             this.stateProvider = (IActorStateProvider)this.StateProviderReplica;
