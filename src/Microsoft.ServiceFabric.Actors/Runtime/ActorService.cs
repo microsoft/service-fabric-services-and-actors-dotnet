@@ -37,7 +37,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #else
         private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
 #endif
-        private const string ActorsMigrationRejectWritesMethod = "RejectWrites";
 
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
@@ -58,7 +57,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #else
         private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
 #endif
-        private MethodInfo rejectWritesMethodInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -289,7 +287,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (this.IsMigrationSource())
             {
                 (this.stateProvider as KvsActorStateProvider).CheckTombstoneCleanupIsDisabled();
-                this.rejectWritesMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { this.StateProviderReplica });
             }
 
             return this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
@@ -402,7 +399,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #else
             this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
 #endif
-            this.rejectWritesMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationRejectWritesMethod);
         }
 
         private bool IsMigrationSource()

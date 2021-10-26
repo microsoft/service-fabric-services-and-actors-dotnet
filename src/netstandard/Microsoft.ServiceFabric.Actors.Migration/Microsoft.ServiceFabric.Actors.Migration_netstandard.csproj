@@ -17,12 +17,11 @@
     <Compile Include="$(SourceCodeDir)Extensions\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Controllers\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Models\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
-    <Compile Include="$(SourceCodeDir)Operations\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)CommunicationListener\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)Middleware\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" Version="$(NugetPkg_Version_Microsoft_ServiceFabric)" />
-    <PackageReference Include="Microsoft.ServiceFabric.AspNetCore.Kestrel" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_AspNetCore)" />
-    <PackageReference Include="Microsoft.ServiceFabric.AspNetCore.Configuration" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_AspNetCore)" />
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal)" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />

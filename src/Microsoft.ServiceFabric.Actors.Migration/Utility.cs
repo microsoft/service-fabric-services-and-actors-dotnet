@@ -12,7 +12,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 #endif
 
     internal class Utility
@@ -60,15 +59,5 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 });
         }
 #endif
-
-        public bool RejectWrites(KvsActorStateProvider stateProvider)
-        {
-            if (stateProvider.GetKvsRejectWriteStatusAsync())
-            {
-                return stateProvider.TryAbortExistingTransactionsAndRejectWrites();
-            }
-
-            return false;
-        }
     }
 }

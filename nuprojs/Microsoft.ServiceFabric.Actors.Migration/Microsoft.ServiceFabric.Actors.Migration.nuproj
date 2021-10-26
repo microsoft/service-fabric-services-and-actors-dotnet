@@ -95,26 +95,20 @@
       <Dependency Include="Microsoft.ServiceFabric.Actors">
         <Version>[$(NuGetPackageVersion)]</Version>
       </Dependency>
-      <Dependency Include="Microsoft.ServiceFabric.AspNetCore.Kestrel">
-        <Version>[$(NugetPkg_Version_Microsoft_ServiceFabric_AspNetCore)]</Version>
-      </Dependency>
-      <Dependency Include="Microsoft.ServiceFabric.AspNetCore.Configuration">
-        <Version>[$(NugetPkg_Version_Microsoft_ServiceFabric_AspNetCore)]</Version>
-      </Dependency>
       <Dependency Include="Microsoft.AspNetCore.Mvc">
-        <Version>[2.2.0]</Version>
+        <Version>2.2.0</Version>
       </Dependency>
       <Dependency Include="Microsoft.AspNetCore.Hosting">
-        <Version>[2.2.7]</Version>
+        <Version>2.2.7</Version>
       </Dependency>
       <Dependency Include="Microsoft.AspNetCore.Server.Kestrel">
-        <Version>[2.2.0]</Version>
+        <Version>2.2.0</Version>
       </Dependency>
       <Dependency Include="Microsoft.AspNetCore.Diagnostics">
-        <Version>[2.2.0]</Version>
+        <Version>2.2.0</Version>
       </Dependency>
       <Dependency Include="Microsoft.AspNetCore.HttpsPolicy">
-        <Version>[2.2.0]</Version>
+        <Version>2.2.0</Version>
       </Dependency>      
     </ItemGroup>
   </Project>

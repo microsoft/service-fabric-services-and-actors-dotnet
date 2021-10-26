@@ -65,27 +65,30 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 {
                     try
                     {
-                        using (var txn = storeReplica.CreateTransaction())
+                        bool hasData;
+                        long enumerationKeyCount = 0;
+                        var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+
+                        do
                         {
-                            IEnumerator<KeyValueStoreItem> enumerator;
+                            var pairs = new List<KeyValuePair>();
+                            var sequenceNumberFullyDrained = true;
 
-                            if (request.IncludeDeletes)
+                            using (var txn = storeReplica.CreateTransaction())
                             {
-                                enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
-                            }
-                            else
-                            {
-                                enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
-                            }
+                                IEnumerator<KeyValueStoreItem> enumerator;
 
-                            var hasData = enumerator.MoveNext();
-                            long enumerationKeyCount = 0;
+                                if (request.IncludeDeletes)
+                                {
+                                    enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
+                                }
+                                else
+                                {
+                                    enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
+                                }
 
-                            while (hasData && enumerationKeyCount < request.NoOfItems)
-                            {
-                                var pairs = new List<KeyValuePair>();
+                                hasData = enumerator.MoveNext();
 
-                                var sequenceNumberFullyDrained = true;
                                 while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
                                 {
                                     var keyValuePair = MakeKeyValuePair(enumerator.Current);
@@ -103,23 +106,23 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                                         sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
                                     }
                                 }
-
-                                var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
-                                using var memoryStream = new MemoryStream();
-                                var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
-                                keyvaluepairserializer.WriteObject(binaryWriter, pairs);
-                                binaryWriter.Flush();
-
-                                var byteArray = memoryStream.ToArray();
-
-                                ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
-
-                                // Set the content type
-                                response.ContentType = "application/xml; charset=utf-8";
-                                await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
-                                await response.Body.FlushAsync();
                             }
+
+                            using var memoryStream = new MemoryStream();
+                            var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
+                            keyvaluepairserializer.WriteObject(binaryWriter, pairs);
+                            binaryWriter.Flush();
+
+                            var byteArray = memoryStream.ToArray();
+
+                            ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
+
+                            // Set the content type
+                            response.ContentType = "application/xml; charset=utf-8";
+                            await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
+                            await response.Body.FlushAsync();
                         }
+                        while (hasData && enumerationKeyCount < request.NoOfItems);
                     }
                     catch (Exception e)
                     {
@@ -140,37 +143,54 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites();
         }
 
-        internal static async Task SaveKvsRejectWriteStatusAsync(this KvsActorStateProvider stateProvider, bool ready)
+        internal static async Task RejectWritesAsync(this KvsActorStateProvider stateProvider)
         {
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
                 if (stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey) != null)
                 {
-                    stateProvider.GetStoreReplica().TryUpdate(tx, Constants.RejectWritesKey, BitConverter.GetBytes(ready));
+                    stateProvider.GetStoreReplica().TryUpdate(tx, Constants.RejectWritesKey, BitConverter.GetBytes(true));
                 }
                 else
                 {
-                    stateProvider.GetStoreReplica().TryAdd(tx, Constants.RejectWritesKey, BitConverter.GetBytes(ready));
+                    stateProvider.GetStoreReplica().TryAdd(tx, Constants.RejectWritesKey, BitConverter.GetBytes(true));
                 }
 
                 await tx.CommitAsync();
             }
         }
 
-        internal static bool GetKvsRejectWriteStatusAsync(this KvsActorStateProvider stateProvider)
-    {
-        using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+        internal static async Task ResumeWritesAsync(this KvsActorStateProvider stateProvider)
         {
-            var result = stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey);
-
-            if (result != null)
+            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
-                return BitConverter.ToBoolean(result.Value, 0);
+                if (stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey) != null)
+                {
+                    stateProvider.GetStoreReplica().TryUpdate(tx, Constants.RejectWritesKey, BitConverter.GetBytes(false));
+                }
+                else
+                {
+                    stateProvider.GetStoreReplica().TryAdd(tx, Constants.RejectWritesKey, BitConverter.GetBytes(false));
+                }
+
+                await tx.CommitAsync();
             }
         }
 
-        return false;
-    }
+        internal static bool GetWriteStatusAsync(this KvsActorStateProvider stateProvider)
+        {
+            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+            {
+                var result = stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey);
+
+                if (result != null)
+                {
+                    return BitConverter.ToBoolean(result.Value, 0);
+                }
+            }
+
+            return false;
+        }
 
         private static KeyValuePair MakeKeyValuePair(KeyValueStoreItem item)
         {

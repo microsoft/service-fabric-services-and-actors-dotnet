@@ -66,19 +66,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         [HttpGet("EnumerateBySequenceNumber")]
         public Task EnumerateBySequenceNumber([FromBody] EnumerationRequest request)
         {
-            request.IncludeDeletes = false;
-            return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Enumerates Key value store data by Sequence Number
-        /// </summary>
-        /// <param name="request">EnumerationRequest</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [HttpGet("EnumerateKeysAndTombstones")]
-        public Task EnumerateKeysAndTombstones([FromBody] EnumerationRequest request)
-        {
-            request.IncludeDeletes = true;
             return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None);
         }
 
@@ -86,14 +73,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// Gets the Last Sequence number of KVS
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        [HttpPut("TryAbortExistingTransactionsAndRejectWrites")]
-        public async Task<ActionResult<bool>> TryAbortExistingTransactionsAndRejectWrites()
+        [HttpPut("RejectWrites")]
+        public async Task RejectWritesAsync()
         {
-            var ready = this.kvsActorStateProvider.TryAbortExistingTransactionsAndRejectWrites();
-
-            await this.kvsActorStateProvider.SaveKvsRejectWriteStatusAsync(ready);
-
-            return ready;
+            await this.kvsActorStateProvider.RejectWritesAsync();
         }
 
         /// <summary>
@@ -101,14 +84,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [HttpPut("ResumeWrites")]
-        public async Task<ActionResult<bool>> ResumeWrites()
+        public async Task ResumeWritesAsync()
         {
-            await this.kvsActorStateProvider.SaveKvsRejectWriteStatusAsync(false);
-
-            //// TOOD: Restart Primary REplica
-            await new FabricClient().ServiceManager.RestartReplicaAsync(this.serviceContext.NodeContext.NodeName, this.serviceContext.PartitionId, this.serviceContext.ReplicaId);
-
-            return true;
+            await this.kvsActorStateProvider.ResumeWritesAsync();
         }
     }
 #endif
