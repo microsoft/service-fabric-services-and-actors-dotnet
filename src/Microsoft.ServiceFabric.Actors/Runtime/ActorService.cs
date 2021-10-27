@@ -32,11 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private const string ActorsMigrationAssemblyName = "Microsoft.ServiceFabric.Actors.Migration";
         private const string ActorsMigrationUtilityClassFullName = "Microsoft.ServiceFabric.Actors.Migration.Utility";
-#if !DotNetCoreClr
-        private const string ActorsMigrationGetKVSOwinCommunicationListnerMethod = "GetKVSOwinCommunicationListener";
-#else
         private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
-#endif
 
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
@@ -52,11 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
 
         private object actorsMigrationUtility;
-#if !DotNetCoreClr
-        private MethodInfo getKVSOwinCommunicationListnerMethodInfo;
-#else
         private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -253,11 +245,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 serviceReplicaListeners.Add(new ServiceReplicaListener(
                     serviceContext =>
                 {
-#if !DotNetCoreClr
-                    return (ICommunicationListener)this.getKVSOwinCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
-#else
                     return (ICommunicationListener)this.getKVSKestrelCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
-#endif
                 },
                     "KVS Migration Listner"));
             }
@@ -394,11 +382,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
             this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
-#if !DotNetCoreClr
-            this.getKVSOwinCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSOwinCommunicationListnerMethod);
-#else
             this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
-#endif
         }
 
         private bool IsMigrationSource()

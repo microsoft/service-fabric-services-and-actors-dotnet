@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
 {
-#if DotNetCoreClr
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
@@ -17,7 +16,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
     /// Represents the controller class for KVS migration REST API.
     /// </summary>
     [Route("[controller]")]
+#pragma warning disable CS3009 // Base type is not CLS-compliant
     public class KvsMigrationController : ControllerBase
+#pragma warning restore CS3009 // Base type is not CLS-compliant
     {
         private StatefulServiceContext serviceContext;
         private ActorTypeInformation actorTypeInformation;
@@ -41,11 +42,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetFirstSequenceNumber")]
-        public async Task<ActionResult<long>> GetFirstSequenceNumber()
+        public async Task<long> GetFirstSequenceNumber()
         {
             var sequenceNumber = await this.kvsActorStateProvider.GetFirstSequeceNumberAsync(CancellationToken.None);
 
-            return this.Ok(sequenceNumber);
+            return sequenceNumber;
         }
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetLastSequenceNumber")]
-        public ActionResult<long> GetLastSequenceNumber()
+        public long GetLastSequenceNumber()
         {
             return this.kvsActorStateProvider.GetLastSequenceNumber();
         }
@@ -89,5 +90,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
             await this.kvsActorStateProvider.ResumeWritesAsync();
         }
     }
-#endif
 }

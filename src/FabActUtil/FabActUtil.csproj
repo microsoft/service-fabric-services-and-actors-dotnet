@@ -18,7 +18,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors.Migration\Microsoft.ServiceFabric.Actors.Migration.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>
   <ItemGroup>

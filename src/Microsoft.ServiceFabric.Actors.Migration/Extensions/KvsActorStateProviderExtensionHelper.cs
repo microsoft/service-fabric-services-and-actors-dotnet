@@ -13,9 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
-#if DotNetCoreClr
     using Microsoft.AspNetCore.Http;
-#endif
     using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
@@ -55,7 +53,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return stateProvider.GetStoreReplica().GetLastCommittedSequenceNumber();
         }
 
-#if DotNetCoreClr
         internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, CancellationToken cancellationToken)
         {
             var storeReplica = stateProvider.GetStoreReplica();
@@ -136,7 +133,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 "EnumerateAsync",
                 cancellationToken);
         }
-#endif
 
         internal static bool TryAbortExistingTransactionsAndRejectWrites(this KvsActorStateProvider stateProvider)
         {

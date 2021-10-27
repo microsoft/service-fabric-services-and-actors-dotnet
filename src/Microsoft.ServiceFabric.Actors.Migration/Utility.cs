@@ -5,23 +5,15 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-    using System.Fabric;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-#if DotNetCoreClr
     using System;
+    using System.Fabric;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Actors.Generator;
-#endif
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class Utility
     {
-        ////public OwinCommunicationListener GetKVSOwinCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KvsActorStateProvider stateProvider)
-        ////{
-        ////    return null; // new OwinCommunicationListener(serviceContext, actorTypeInformation, new[] { KvsMigration.BindService(new KvsMigrationService(stateProvider)) });
-        ////}
-
-#if DotNetCoreClr
         public KestrelCommunicationListener GetKVSKestrelCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KvsActorStateProvider stateProvider)
         {
             var endpointName = ActorNameFormat.GetActorKvsMigrationEndpointName(actorTypeInformation.ImplementationType);
@@ -58,6 +50,5 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     }
                 });
         }
-#endif
     }
 }

@@ -8,7 +8,7 @@
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
@@ -21,6 +21,11 @@
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />

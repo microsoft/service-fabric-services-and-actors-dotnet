@@ -5,10 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
     using System.Fabric;
-    using System.Fabric.Description;
     using System.Globalization;
     using Microsoft.AspNetCore.Hosting;
 
@@ -65,5 +63,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return listenUrl;
         }
     }
-#endif
 }

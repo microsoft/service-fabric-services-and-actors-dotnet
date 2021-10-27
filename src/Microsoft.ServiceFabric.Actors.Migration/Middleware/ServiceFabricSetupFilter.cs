@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -33,5 +32,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             };
         }
     }
-#endif
 }

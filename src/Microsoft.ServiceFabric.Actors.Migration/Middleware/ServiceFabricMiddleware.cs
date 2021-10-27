@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
@@ -99,5 +98,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
         }
     }
-#endif
 }

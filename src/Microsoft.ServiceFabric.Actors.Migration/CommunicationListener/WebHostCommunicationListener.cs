@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
     using System.Fabric;
     using System.Linq;
@@ -82,5 +81,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return url;
         }
     }
-#endif
 }

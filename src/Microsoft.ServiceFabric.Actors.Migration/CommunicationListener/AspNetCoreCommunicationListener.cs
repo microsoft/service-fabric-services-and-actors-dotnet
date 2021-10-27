@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
     using System.Fabric;
     using System.Fabric.Description;
@@ -159,5 +158,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return this.serviceContext.CodePackageActivationContext.GetEndpoint(endpointName);
         }
     }
-#endif
 }

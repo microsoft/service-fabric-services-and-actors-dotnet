@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
     using Microsoft.AspNetCore.Builder;
 
@@ -36,5 +35,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return builder.UseMiddleware<ServiceFabricMiddleware>(urlSuffix);
         }
     }
-#endif
 }

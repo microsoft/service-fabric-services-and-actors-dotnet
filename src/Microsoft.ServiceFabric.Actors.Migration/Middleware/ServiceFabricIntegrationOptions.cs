@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
 
     /// <summary>
@@ -24,5 +23,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// </summary>
         UseUniqueServiceUrl = 0x01,
     }
-#endif
 }

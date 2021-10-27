@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-#if DotNetCoreClr
     using System;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
@@ -56,5 +55,4 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return hostBuilder;
         }
     }
-#endif
 }
