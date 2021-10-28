@@ -28,7 +28,7 @@
     <!-- Only include V2 stack -->
     <Compile Include="$(SourceCodeDir)Remoting\V2\**\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Compile Include="$(SourceCodeDir)SR.Designer.cs">
       <Link>SR.Designer.cs</Link>
