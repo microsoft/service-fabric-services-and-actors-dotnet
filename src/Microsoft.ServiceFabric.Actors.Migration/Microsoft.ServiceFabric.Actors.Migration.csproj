@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
+  <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
+  <PropertyGroup>
+    <ProjectGuid>{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}</ProjectGuid>
+    <RootNamespace>Microsoft.ServiceFabric.Actors.Migration</RootNamespace>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <TargetFramework>net461</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ServiceFabric" Version="$(NugetPkg_Version_Microsoft_ServiceFabric)" />
+    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_Diagnostics_Internal)" />
+    <PackageReference Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="$(NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+</Project>

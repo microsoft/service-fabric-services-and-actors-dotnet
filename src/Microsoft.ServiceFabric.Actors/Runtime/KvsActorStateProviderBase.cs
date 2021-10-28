@@ -42,6 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string BackupRootFolderPrefix = "kvsasp_";
         private const string KvsHealthSourceId = "KvsActorStateProvider";
         private const string BackupCallbackSlowCancellationHealthProperty = "BackupCallbackSlowCancellation";
+        private const string TombstoneCleanupIsNotDisabledForMigrationHealthProperty = "TombstoneCleanupIsNotDisabledForMigration";
         private static readonly byte[] ActorPresenceValue = { byte.MinValue };
 
         private readonly DataContractSerializer reminderSerializer;
@@ -749,6 +750,35 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return this.LoadReplicatorSettings();
+        }
+
+        internal KeyValueStoreReplica GetStoreReplica()
+        {
+            return this.storeReplica;
+        }
+
+        internal ActorStateProviderHelper GetActorStateProviderHelper()
+        {
+            return this.actorStateProviderHelper;
+        }
+
+        internal void CheckTombstoneCleanupIsDisabled()
+        {
+            if (!this.storeReplica.KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
+            {
+                var description = string.Format(
+                "Tombstone cleanup must be disabled during the migration so that deletes can be tracked and copied from KVS to Reliable Collections. KeyValueStoreReplicaSettings.DisableTombstoneCleanup = {0}",
+                this.storeReplica.KeyValueStoreReplicaSettings.DisableTombstoneCleanup);
+
+                var healthInfo = new HealthInformation(KvsHealthSourceId, TombstoneCleanupIsNotDisabledForMigrationHealthProperty, HealthState.Warning)
+                {
+                    TimeToLive = TimeSpan.MaxValue,
+                    RemoveWhenExpired = false,
+                    Description = description,
+                };
+
+                this.ReportPartitionHealth(healthInfo);
+            }
         }
 
         private static string CreateActorStorageKey(ActorId actorId, string stateName)

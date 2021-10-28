@@ -8,8 +8,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
@@ -27,6 +29,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public class ActorService : StatefulServiceBase, IActorService
     {
         private const string TraceType = "ActorService";
+
+        private const string ActorsMigrationAssemblyName = "Microsoft.ServiceFabric.Actors.Migration";
+        private const string ActorsMigrationUtilityClassFullName = "Microsoft.ServiceFabric.Actors.Migration.Utility";
+        private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
+
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
         private readonly ActorServiceSettings settings;
@@ -39,6 +46,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
         private ReplicaRole replicaRole;
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
+
+        private object actorsMigrationUtility;
+        private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -139,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
-        #region IActorService Members
+#region IActorService Members
 
         /// <summary>
         /// Deletes an Actor from the Actor service.
@@ -176,7 +186,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
-        #endregion
+#endregion
 
         internal IActorStateManager CreateStateManager(ActorBase actor)
         {
@@ -194,7 +204,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
-        #region StatefulServiceBase Overrides
+#region StatefulServiceBase Overrides
 
         /// <summary>
         /// Overrides <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase.CreateServiceReplicaListeners()"/>.
@@ -209,13 +219,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
             var serviceReplicaListeners = new List<ServiceReplicaListener>();
 #if !DotNetCoreClr
-            if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
+            if (Services.Remoting.Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
                serviceReplicaListeners.Add(
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }));
             }
 #endif
-            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+            if (Services.Remoting.Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
                 var listeners = provider.CreateServiceRemotingListeners();
                 foreach (var kvp in listeners)
@@ -226,6 +236,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         return kvp.Value(this);
                     }, kvp.Key));
                 }
+            }
+
+            // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
+            if (this.IsMigrationSource())
+            {
+                this.InitializeActorMigrationUtility();
+                serviceReplicaListeners.Add(new ServiceReplicaListener(
+                    serviceContext =>
+                {
+                    return (ICommunicationListener)this.getKVSKestrelCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
+                },
+                    "KVS Migration Listner"));
             }
 
             return serviceReplicaListeners;
@@ -249,6 +271,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         protected override Task RunAsync(CancellationToken cancellationToken)
         {
+            // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
+            if (this.IsMigrationSource())
+            {
+                (this.stateProvider as KvsActorStateProvider).CheckTombstoneCleanupIsDisabled();
+            }
+
             return this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
         }
 
@@ -316,7 +344,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorManagerAdapter.Abort();
         }
 
-        #endregion
+#endregion
         private static IActorStateManager DefaultActorStateManagerFactory(
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)
@@ -330,6 +358,39 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.ActorTypeInformation.ImplementationType,
                 actorService,
                 actorId);
+        }
+
+        private void InitializeActorMigrationUtility()
+        {
+            var currentAssembly = typeof(ActorService).GetTypeInfo().Assembly;
+
+            var actorsMigrationAssembly = new AssemblyName
+            {
+                Name = ActorsMigrationAssemblyName,
+                Version = currentAssembly.GetName().Version,
+#if !DotNetCoreClr
+                CultureInfo = currentAssembly.GetName().CultureInfo,
+#endif
+                ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
+            };
+
+            actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
+
+            var actorsMigrationUtilityTypeName = Actors.Helper.CreateQualifiedNameForAssembly(
+                actorsMigrationAssembly.FullName,
+                ActorsMigrationUtilityClassFullName);
+
+            var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
+            this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
+            this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
+        }
+
+        private bool IsMigrationSource()
+        {
+            var types = new List<Type> { this.ActorTypeInformation.ImplementationType };
+            types.AddRange(this.ActorTypeInformation.InterfaceTypes);
+
+            return (Actors.Helper.IsMigrationSource(types) && this.StateProviderReplica is KvsActorStateProvider);
         }
     }
 }
