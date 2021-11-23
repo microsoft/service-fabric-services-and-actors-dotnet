@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using System.Reflection;
     using System.Resources;
     using System.Runtime.InteropServices;
-    using System.Runtime.Remoting;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Xml;
@@ -330,7 +329,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
-                {
+                /*{
                     "System.Runtime.Remoting.RemotingException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
@@ -345,7 +344,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ServerException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
-                },
+                },*/
                 {
                     "System.Runtime.Serialization.SerializationException", new ConvertorFuncs()
                     {
@@ -458,14 +457,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
-                {
+                /*{
                     "System.UriTemplateMatchException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<UriTemplateMatchException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
-                },
+                },*/
         };
 
         private static Exception[] GetInnerExceptions(Exception exception)

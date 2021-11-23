@@ -13,6 +13,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     {
         private IList<IExceptionConvertor> convertors;
 
+        public ExceptionConvertorHelper(IList<IExceptionConvertor> convertors)
+        {
+            this.convertors = convertors;
+        }
+
         public Exception FromServiceException(ServiceException serviceException)
         {
             List<Exception> innerExceptions = new List<Exception>();
