@@ -6,7 +6,6 @@
 namespace Microsoft.ServiceFabric.Services.Communication
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Provides an information about an exception from the service. This exception is thrown when the actual
@@ -37,20 +36,5 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// Gets the ActualExceptionType is the type of actual exception thrown.
         /// </summary>
         public string ActualExceptionType { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the actual exception stack trace.
-        /// </summary>
-        public string ActualExceptionStackTrace { get; set; }
-
-        /// <summary>
-        /// Gets or sets additional data about the actual exception.
-        /// </summary>
-        public IDictionary<object, object> ActualExceptionData { get; set; }
-
-        /// <summary>
-        /// Gets or sets the list of inner exceptions.
-        /// </summary>
-        public IList<ServiceException> ActualInnerExceptions { get; set; }
     }
 }
