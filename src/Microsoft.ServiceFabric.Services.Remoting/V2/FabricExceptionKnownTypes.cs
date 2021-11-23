@@ -294,26 +294,40 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     "System.Fabric.FabricTransportCallbackNotFoundException ", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
-                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricTransportCallbackNotFoundException >(svcEx, innerEx),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricTransportCallbackNotFoundException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 }, // TODO add actor exceptions
             };
 
-        private static ServiceException ToServiceException(FabricException exception)
+        private static ServiceException ToServiceException(FabricException fabricEx)
         {
-            return null;
+            var serviceException = new ServiceException(fabricEx.GetType().ToString(), fabricEx.Message);
+            serviceException.ActualExceptionStackTrace = fabricEx.StackTrace;
+            serviceException.ActualExceptionData = new Dictionary<object, object>()
+            {
+                { "HResult", fabricEx.HResult },
+                { "FabricErrorCode", fabricEx.ErrorCode },
+            };
+
+            return serviceException;
         }
 
         private static T FromServiceException<T>(ServiceException serviceException, params Exception[] innerExceptions)
             where T : FabricException
         {
-            return default(T);
+            var firstInnerEx = innerExceptions == null || innerExceptions.Length == 0 ? null : innerExceptions[0];
+            var originalEx = (T)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message, firstInnerEx, serviceException.ActualExceptionData["FabricErrorCode"] });
+
+            // HResult property setter is public only starting netcore 3.0
+            originalEx.Data.Add("HResult", serviceException.ActualExceptionData["HResult"]); // Check if Data is initialized
+
+            return originalEx;
         }
 
         private static Exception[] GetInnerExceptions(Exception exception)
         {
-            return null;
+            return new Exception[] { exception.InnerException };
         }
 
         internal class ConvertorFuncs

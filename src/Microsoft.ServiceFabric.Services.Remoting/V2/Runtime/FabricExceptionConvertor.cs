@@ -16,36 +16,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
     /// </summary>
     internal class FabricExceptionConvertor : ExceptionConvertorBase
     {
-        private const string HResultField = "HResult";
-        private const string FabricErrorCodeField = "FabricErrorCode";
-
         public FabricExceptionConvertor(IList<IExceptionConvertor> convertors)
             : base(convertors)
         {
         }
 
-        public override IList<Exception> GetInnerExceptions(Exception originalException)
+        public override Exception[] GetInnerExceptions(Exception originalException)
         {
-            return originalException.InnerException != null ? new List<Exception>() { originalException.InnerException } : null;
+            return FabricExceptionKnownTypes.ServiceExceptionConvertors[originalException.GetType().ToString()].InnerExFunc(originalException as FabricException);
         }
 
-        public override ServiceException ToServiceException(Exception originalException)
+        public override bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
         {
-            var fabricEx = originalException as FabricException;
-            var serviceException = new ServiceException(fabricEx.GetType().ToString(), fabricEx.Message);
-            serviceException.ActualExceptionStackTrace = fabricEx.StackTrace;
-            serviceException.ActualExceptionData = new Dictionary<string, string>()
+            serviceException = null;
+            if (originalException is FabricException && FabricExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().ToString(), out var func))
             {
-                { HResultField, fabricEx.HResult.ToString() },
-                { FabricErrorCodeField, fabricEx.ErrorCode.ToString() },
-            };
+                serviceException = func.ToServiceExFunc(originalException as FabricException);
 
-            return serviceException;
-        }
+                return true;
+            }
 
-        public override bool IsKnownType(Exception originalException)
-        {
-            return originalException is FabricException;
+            return false;
         }
     }
 }

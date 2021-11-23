@@ -16,21 +16,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         {
         }
 
-        public override IList<Exception> GetInnerExceptions(Exception originalException)
+        public override Exception[] GetInnerExceptions(Exception originalException)
         {
             return SystemExceptionKnownTypes.ServiceExceptionConvertors[originalException.GetType().ToString()].InnerExFunc.Invoke(originalException);
         }
 
-        public override bool IsKnownType(Exception originalException)
+        public override bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
         {
-            return SystemExceptionKnownTypes.ServiceExceptionConvertors.ContainsKey(originalException.GetType().ToString());
-        }
+            serviceException = null;
+            if (SystemExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().ToString(), out var func))
+            {
+                serviceException = func.ToServiceExFunc(originalException);
 
-        public override ServiceException ToServiceException(Exception originalException)
-        {
-            var convFunc = SystemExceptionKnownTypes.ServiceExceptionConvertors[originalException.GetType().ToString()].ToServiceExFunc;
+                return true;
+            }
 
-            return convFunc.Invoke(originalException);
+            return false;
         }
     }
 }

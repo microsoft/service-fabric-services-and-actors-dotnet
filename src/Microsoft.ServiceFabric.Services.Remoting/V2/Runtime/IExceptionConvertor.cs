@@ -20,5 +20,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <param name="serviceException">ServiceException converted from actual exception.</param>
         /// <returns>True if the exception is handled, false otherwise.</returns>
         bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException);
+
+        /// <summary>
+        /// Gets the list of inner exceptions.
+        /// </summary>
+        /// <param name="exception">Exception for which inner exceptions are being retrieved.</param>
+        /// <returns>List of inner exceptions.</returns>
+        Exception[] GetInnerExceptions(Exception exception);
     }
 }
