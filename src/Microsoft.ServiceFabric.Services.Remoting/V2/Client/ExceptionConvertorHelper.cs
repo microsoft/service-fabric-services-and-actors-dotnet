@@ -7,13 +7,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Xml;
     using Microsoft.ServiceFabric.Services.Communication;
 
     internal class ExceptionConvertorHelper
     {
-        private IList<IExceptionConvertor> convertors;
+        private IEnumerable<IExceptionConvertor> convertors;
 
-        public ExceptionConvertorHelper(IList<IExceptionConvertor> convertors)
+        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors)
         {
             this.convertors = convertors;
         }
@@ -63,6 +66,64 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
 
             return actualEx != null ? actualEx : serviceException;
+        }
+
+        public List<ServiceException> FromRemoteExceptionWrapper(RemoteException2Wrapper exWrapper)
+        {
+            var svcExList = new List<ServiceException>();
+            foreach (var remoteEx in exWrapper.Exceptions)
+            {
+                svcExList.Add(this.FromRemoteException(remoteEx));
+            }
+
+            return svcExList;
+        }
+
+        public ServiceException FromRemoteException(RemoteException2 remoteEx)
+        {
+            var svcEx = new ServiceException(remoteEx.Type, remoteEx.Message);
+            svcEx.ActualExceptionStackTrace = remoteEx.StackTrace;
+            svcEx.ActualExceptionData = remoteEx.Data;
+
+            if (remoteEx.InnerExceptions != null && remoteEx.InnerExceptions.Count > 0)
+            {
+                svcEx.ActualInnerExceptions = new List<ServiceException>();
+                foreach (var inner in remoteEx.InnerExceptions)
+                {
+                    svcEx.ActualInnerExceptions.Add(this.FromRemoteException(inner));
+                }
+            }
+
+            return svcEx;
+        }
+
+        public bool TryDeserializeRemoteException(Stream stream, out RemoteException2Wrapper exWrapper)
+        {
+            exWrapper = null;
+            var serializer = new DataContractSerializer(
+                typeof(RemoteException2Wrapper),
+                new DataContractSerializerSettings()
+                {
+                    MaxItemsInObjectGraph = int.MaxValue,
+                    KnownTypes = new List<Type>() { typeof(RemoteException2) },
+                });
+
+            try
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                using (var reader = XmlDictionaryReader.CreateBinaryReader(stream, XmlDictionaryReaderQuotas.Max))
+                {
+                    exWrapper = (RemoteException2Wrapper)serializer.ReadObject(reader);
+
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // Throw
+            }
+
+            return false;
         }
     }
 }

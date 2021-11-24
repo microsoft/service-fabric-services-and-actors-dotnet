@@ -464,7 +464,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<UriTemplateMatchException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
-                },*/
+                },*/ //// TODO Handle ArgumentNullException, PathTooLongException, FileNotFoundException DirectoryNotFoundException, ObjectDisposedException
         };
 
         private static Exception[] GetInnerExceptions(Exception exception)

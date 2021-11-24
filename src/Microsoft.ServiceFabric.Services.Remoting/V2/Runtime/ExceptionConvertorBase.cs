@@ -11,11 +11,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
     internal abstract class ExceptionConvertorBase : IExceptionConvertor
     {
-        private IList<IExceptionConvertor> convertors;
-
-        public ExceptionConvertorBase(IList<IExceptionConvertor> convertors)
+        public ExceptionConvertorBase()
         {
-            this.convertors = convertors;
         }
 
         public virtual Exception[] GetInnerExceptions(Exception originalException)

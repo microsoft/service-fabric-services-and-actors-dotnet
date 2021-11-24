@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
+    using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Common;
     using System.Threading;
@@ -41,11 +42,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// </param>
         /// <param name="serializationProvider">It is used to serialize deserialize request and response body </param>
         /// <param name="remotingListenerSettings">The settings for the listener</param>
+        /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
         public FabricTransportServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            IServiceRemotingMessageSerializationProvider serializationProvider = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
             : this(
                   serviceContext,
                   new ServiceRemotingMessageDispatcher(
@@ -53,7 +56,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     serviceImplementation,
                     GetMessageBodyFactory(serializationProvider, remotingListenerSettings)),
                   remotingListenerSettings,
-                  serializationProvider)
+                  serializationProvider,
+                  exceptionConvertors)
         {
         }
 
@@ -70,16 +74,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// </param>
         /// <param name="serializationProvider">It is used to serialize deserialize request and response body </param>
         /// <param name="remotingListenerSettings">The settings for the listener</param>
+        /// <param name="exceptionConvertors">Covertors to convert user exception to service exception.</param>
         public FabricTransportServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            IServiceRemotingMessageSerializationProvider serializationProvider = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null) // TODO Check existing usage
             : this(
                 serviceContext,
                 serviceRemotingMessageHandler,
                 InitializeSerializersManager(serializationProvider, remotingListenerSettings),
-                remotingListenerSettings)
+                remotingListenerSettings,
+                exceptionConvertors)
         {
         }
 
@@ -87,7 +94,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
-            FabricTransportRemotingListenerSettings remotingListenerSettings = null)
+            FabricTransportRemotingListenerSettings remotingListenerSettings = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
         {
             Requires.ThrowIfNull(serviceContext, "serviceContext");
 
@@ -109,9 +117,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 }
             }
 
+            var svcExceptionConvertors = new List<IExceptionConvertor>();
+            if (exceptionConvertors != null)
+            {
+                svcExceptionConvertors.AddRange(exceptionConvertors);
+            }
+
+            svcExceptionConvertors.Add(new FabricExceptionConvertor());
+            svcExceptionConvertors.Add(new SystemExceptionConvertor());
+            svcExceptionConvertors.Add(new ExceptionConvertorHelper.DefaultExceptionConvetor());
+
             this.transportMessageHandler = new FabricTransportMessageHandler(
                 serviceRemotingMessageHandler,
                 serializersManager,
+                svcExceptionConvertors,
                 serviceContext.PartitionId,
                 serviceContext.ReplicaOrInstanceId);
 

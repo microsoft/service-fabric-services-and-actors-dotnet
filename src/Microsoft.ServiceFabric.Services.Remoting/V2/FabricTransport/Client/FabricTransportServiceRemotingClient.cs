@@ -25,14 +25,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         private ResolvedServicePartition resolvedServicePartition;
         private string listenerName;
         private ResolvedServiceEndpoint resolvedServiceEndpoint;
+        private ExceptionConvertorHelper exceptionConvertorHelper;
 
         // we need to pass a cache of the serializers here rather than the known types,
         // the serializer cache should be maintained by the factor
         internal FabricTransportServiceRemotingClient(
             ServiceRemotingMessageSerializersManager serializersManager,
             FabricTransportClient fabricTransportClient,
-            FabricTransportRemotingClientEventHandler remotingHandler)
+            FabricTransportRemotingClientEventHandler remotingHandler,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
         {
+            this.exceptionConvertorHelper = new ExceptionConvertorHelper(exceptionConvertors);
             this.fabricTransportClient = fabricTransportClient;
             this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;
@@ -135,6 +138,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
+                    // Attempt DCS first
+                    if (this.exceptionConvertorHelper.TryDeserializeRemoteException(retval.GetBody().GetRecievedStream(), out var exWrapper))
+                    {
+                        var svcExList = this.exceptionConvertorHelper.FromRemoteExceptionWrapper(exWrapper);
+
+                        var exList = new List<Exception>();
+                        foreach (var svcEx in svcExList)
+                        {
+                            exList.Add(this.exceptionConvertorHelper.FromServiceException(svcEx));
+                        }
+
+                        throw new AggregateException(exList);
+                    }
+
                     var isDeserialzied =
                         RemoteException.ToException(
                             retval.GetBody().GetRecievedStream(),

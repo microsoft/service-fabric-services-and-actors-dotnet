@@ -16,8 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
     /// </summary>
     internal class FabricExceptionConvertor : ExceptionConvertorBase
     {
-        public FabricExceptionConvertor(IList<IExceptionConvertor> convertors)
-            : base(convertors)
+        public FabricExceptionConvertor()
         {
         }
 

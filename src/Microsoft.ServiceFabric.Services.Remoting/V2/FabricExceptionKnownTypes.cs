@@ -291,13 +291,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     }
                 },
                 {
-                    "System.Fabric.FabricTransportCallbackNotFoundException ", new ConvertorFuncs()
+                    "Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime.FabricTransportCallbackNotFoundException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricTransportCallbackNotFoundException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
-                }, // TODO add actor exceptions
+                },
             };
 
         private static ServiceException ToServiceException(FabricException fabricEx)
@@ -316,8 +316,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         private static T FromServiceException<T>(ServiceException serviceException, params Exception[] innerExceptions)
             where T : FabricException
         {
-            var firstInnerEx = innerExceptions == null || innerExceptions.Length == 0 ? null : innerExceptions[0];
-            var originalEx = (T)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message, firstInnerEx, serviceException.ActualExceptionData["FabricErrorCode"] });
+            T originalEx;
+            if (typeof(T) == typeof(FabricTransportCallbackNotFoundException))
+            {
+                originalEx = (T)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message });
+            }
+            else
+            {
+                var firstInnerEx = innerExceptions == null || innerExceptions.Length == 0 ? null : innerExceptions[0];
+                originalEx = (T)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message, firstInnerEx, serviceException.ActualExceptionData["FabricErrorCode"] });
+            }
 
             // HResult property setter is public only starting netcore 3.0
             originalEx.Data.Add("HResult", serviceException.ActualExceptionData["HResult"]); // Check if Data is initialized

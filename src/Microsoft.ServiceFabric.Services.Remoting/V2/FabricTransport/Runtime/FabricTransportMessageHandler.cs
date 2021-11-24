@@ -23,10 +23,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly long replicaOrInstanceId;
         private readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
+        private ExceptionConvertorHelper exceptionConvertorHelper;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
+            IEnumerable<IExceptionConvertor> exceptionConvertors,
             Guid partitionId,
             long replicaOrInstanceId)
         {
@@ -38,6 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.partitionId,
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
+            this.exceptionConvertorHelper = new ExceptionConvertorHelper(exceptionConvertors);
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(
@@ -111,10 +114,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var header = new ServiceRemotingResponseMessageHeader();
             header.AddHeader("HasRemoteException", new byte[0]);
             var serializedHeader = this.serializersManager.GetHeaderSerializer().SerializeResponseHeader(header);
-            var serializedMsg = RemoteException.FromException(ex);
+
+            var exWrapper = new RemoteException2Wrapper()
+            {
+                Exceptions = new List<RemoteException2>(),
+            };
+
+            if (ex is AggregateException aggEx)
+            {
+                foreach (var inner in aggEx.Flatten().InnerExceptions)
+                {
+                    var svcEx = this.exceptionConvertorHelper.ToServiceException(inner);
+                    exWrapper.Exceptions.Add(this.exceptionConvertorHelper.ToRemoteException(svcEx));
+                }
+            }
+            else
+            {
+                var svcEx = this.exceptionConvertorHelper.ToServiceException(ex);
+                exWrapper.Exceptions.Add(this.exceptionConvertorHelper.ToRemoteException(svcEx));
+            }
+
+            var serializedMsg = this.exceptionConvertorHelper.SerializeRemoteException(exWrapper);
             var msg = new FabricTransportMessage(
                 new FabricTransportRequestHeader(serializedHeader.GetSendBuffer(), serializedHeader.Dispose),
-                new FabricTransportRequestBody(serializedMsg.Data, null));
+                new FabricTransportRequestBody(serializedMsg, null));
             return msg;
         }
 
