@@ -316,16 +316,52 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         private static T FromServiceException<T>(ServiceException serviceException, params Exception[] innerExceptions)
             where T : FabricException
         {
-            T originalEx;
+            var args = new List<object>();
+            var firstInnerEx = innerExceptions == null || innerExceptions.Length == 0 ? null : innerExceptions[0];
             if (typeof(T) == typeof(FabricTransportCallbackNotFoundException))
             {
-                originalEx = (T)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message });
+                args.Add(serviceException.Message);
+            }
+            else if (typeof(T) == typeof(FabricMissingFullBackupException)
+                || typeof(T) == typeof(FabricNotReadableException)
+                || typeof(T) == typeof(FabricBackupInProgressException)
+                || typeof(T) == typeof(FabricBackupDirectoryNotEmptyException)
+                || typeof(T) == typeof(FabricReplicationOperationTooLargeException)
+                || typeof(T) == typeof(FabricServiceNotFoundException)
+                || typeof(T) == typeof(FabricMessageTooLargeException)
+                || typeof(T) == typeof(FabricEndpointNotFoundException)
+                || typeof(T) == typeof(FabricDeleteBackupFileFailedException)
+                || typeof(T) == typeof(FabricInvalidTestCommandStateException)
+                || typeof(T) == typeof(FabricTestCommandOperationIdAlreadyExistsException)
+                || typeof(T) == typeof(FabricChaosAlreadyRunningException)
+                || typeof(T) == typeof(FabricChaosEngineException)
+                || typeof(T) == typeof(FabricRestoreSafeCheckFailedException)
+                || typeof(T) == typeof(FabricPeriodicBackupNotEnabledException))
+            {
+                args.Add(serviceException.Message);
+                args.Add(firstInnerEx);
+            }
+            else if (typeof(T) == typeof(FabricInvalidPartitionSelectorException)
+                || typeof(T) == typeof(FabricInvalidReplicaSelectorException))
+            {
+                args.Add(serviceException.Message);
+                if (firstInnerEx != null)
+                {
+                    args.Add(firstInnerEx);
+                }
+                else
+                {
+                    args.Add(serviceException.ActualExceptionData["FabricErrorCode"]);
+                }
             }
             else
             {
-                var firstInnerEx = innerExceptions == null || innerExceptions.Length == 0 ? null : innerExceptions[0];
-                originalEx = (T)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message, firstInnerEx, serviceException.ActualExceptionData["FabricErrorCode"] });
+                args.Add(serviceException.Message);
+                args.Add(firstInnerEx);
+                args.Add(serviceException.ActualExceptionData["FabricErrorCode"]);
             }
+
+            T originalEx = (T)Activator.CreateInstance(typeof(T), args.ToArray());
 
             // HResult property setter is public only starting netcore 3.0
             originalEx.Data.Add("HResult", serviceException.ActualExceptionData["HResult"]); // Check if Data is initialized
@@ -335,7 +371,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         private static Exception[] GetInnerExceptions(Exception exception)
         {
-            return new Exception[] { exception.InnerException };
+            return exception.InnerException != null ? new Exception[] { exception.InnerException } : null;
         }
 
         internal class ConvertorFuncs

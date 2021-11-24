@@ -111,7 +111,7 @@ namespace Microsoft.ServiceFabric.Actors
 
         private static Exception[] GetInnerExceptions(Exception exception)
         {
-            return new Exception[] { exception.InnerException };
+            return exception.InnerException != null ? new Exception[] { exception.InnerException } : null;
         }
 
         internal class ConvertorFuncs

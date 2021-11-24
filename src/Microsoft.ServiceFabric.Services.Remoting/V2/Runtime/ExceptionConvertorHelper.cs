@@ -82,7 +82,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new List<Type>() { typeof(RemoteException2) },
+                    KnownTypes = new List<Type>()
+                    {
+                        typeof(FabricErrorCode),
+                        typeof(RemoteException2),
+                    },
                 });
 
             using (var stream = new MemoryStream())

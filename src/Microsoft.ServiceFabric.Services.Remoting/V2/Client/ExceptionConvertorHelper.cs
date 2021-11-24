@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.Fabric;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Xml;
@@ -105,7 +106,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new List<Type>() { typeof(RemoteException2) },
+                    KnownTypes = new List<Type>()
+                    {
+                        typeof(FabricErrorCode),
+                        typeof(RemoteException2),
+                    },
                 });
 
             try
