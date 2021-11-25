@@ -8,8 +8,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Resources;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.ExceptionServices;
     using System.Runtime.InteropServices;
     using System.Runtime.Serialization;
     using System.Threading;
@@ -80,7 +83,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     }
                 },
                 {
-                    "System.KeyNotFoundException", new ConvertorFuncs()
+                    "System.Collections.Generic.KeyNotFoundException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<KeyNotFoundException>(svcEx, innerEx),
@@ -354,7 +357,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     }
                 },
                 {
-                    "System.System.StackOverflowException", new ConvertorFuncs()
+                    "System.StackOverflowException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<StackOverflowException>(svcEx, innerEx),
@@ -364,7 +367,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 {
                     "System.Threading.AbandonedMutexException", new ConvertorFuncs()
                     {
-                        ToServiceExFunc = ex => ToServiceException((AbandonedMutexException)ex),
+                        ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<AbandonedMutexException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
@@ -386,26 +389,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     }
                 },
                 {
-                    "System.Threading.ThreadAbortException", new ConvertorFuncs()
-                    {
-                        ToServiceExFunc = ex => ToServiceException((ThreadAbortException)ex),
-                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ThreadAbortException>(svcEx, innerEx),
-                        InnerExFunc = ex => GetInnerExceptions(ex),
-                    }
-                },
-                {
                     "System.Threading.ThreadInterruptedException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ThreadInterruptedException>(svcEx, innerEx),
-                        InnerExFunc = ex => GetInnerExceptions(ex),
-                    }
-                },
-                {
-                    "System.Threading.ThreadStartException", new ConvertorFuncs()
-                    {
-                        ToServiceExFunc = ex => ToServiceException(ex),
-                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ThreadStartException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
@@ -457,6 +444,46 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
+                {
+                    "System.ArgumentNullException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException((ArgumentNullException)ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ArgumentNullException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "System.IO.FileNotFoundException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException((FileNotFoundException)ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FileNotFoundException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "System.IO.DirectoryNotFoundException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<DirectoryNotFoundException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "System.ObjectDisposedException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException((ObjectDisposedException)ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ObjectDisposedException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "System.AggregateException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException((AggregateException)ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<AggregateException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions((AggregateException)ex),
+                    }
+                },
                 /*{
                     "System.UriTemplateMatchException", new ConvertorFuncs()
                     {
@@ -464,7 +491,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<UriTemplateMatchException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
-                },*/ //// TODO Handle ArgumentNullException, PathTooLongException, FileNotFoundException DirectoryNotFoundException, ObjectDisposedException
+                },*/ //// TODO Handle ArgumentNullException, PathTooLongException,  DirectoryNotFoundException, ObjectDisposedException
         };
 
         private static Exception[] GetInnerExceptions(Exception exception)
@@ -477,13 +504,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             return exception.LoaderExceptions;
         }
 
+        private static Exception[] GetInnerExceptions(AggregateException exception)
+        {
+            return exception.InnerExceptions.ToArray();
+        }
+
         private static ServiceException ToServiceException(Exception exception)
         {
             var serviceException = new ServiceException(exception.GetType().ToString(), exception.Message);
             serviceException.ActualExceptionStackTrace = exception.StackTrace;
-            serviceException.ActualExceptionData = new Dictionary<object, object>()
+            serviceException.ActualExceptionData = new Dictionary<string, string>()
             {
-                { "HResult", exception.HResult },
+                { "HResult", exception.HResult.ToString() },
             };
 
             return serviceException;
@@ -492,22 +524,85 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         private static ServiceException ToServiceException(ArgumentException exception)
         {
             var serviceException = ToServiceException((Exception)exception);
-
             serviceException.ActualExceptionData.Add("ParamName", exception.ParamName);
 
             return serviceException;
         }
 
+        private static AggregateException AggregateExceptionFromServiceEx(ServiceException serviceException, Exception[] innerExceptions)
+        {
+            var args = new List<object>();
+            args.Add(serviceException.Message);
+            if (innerExceptions != null)
+            {
+                args.Add(new List<Exception>(innerExceptions));
+            }
+
+            var originalEx = (AggregateException)Activator.CreateInstance(typeof(AggregateException), args.ToArray());
+
+            return originalEx;
+        }
+
         private static ArgumentException ArgumentExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
         {
-            ArgumentException originalEx;
             var args = new List<object>();
-
             args.Add(serviceException.Message);
-            args.Add(serviceException.ActualExceptionData.ContainsKey("ParamName"));
+            args.Add(serviceException.ActualExceptionData["ParamName"]);
             args.Add(innerException);
 
-            originalEx = (ArgumentException)Activator.CreateInstance(typeof(ArgumentException), args.ToArray());
+            var originalEx = (ArgumentException)Activator.CreateInstance(typeof(ArgumentException), args.ToArray());
+
+            return originalEx;
+        }
+
+        private static ServiceException ToServiceException(ArgumentNullException exception)
+        {
+            return ToServiceException((ArgumentException)exception);
+        }
+
+        private static ArgumentNullException ArgumentNullExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
+        {
+            var args = new List<object>();
+            if (innerException == null)
+            {
+                args.Add(serviceException.ActualExceptionData["ParamName"] == null ? string.Empty : serviceException.ActualExceptionData["ParamName"]);
+                args.Add(serviceException.Message == null ? string.Empty : serviceException.Message);
+            }
+            else
+            {
+                args.Add(serviceException.Message);
+                args.Add(innerException);
+            }
+
+            var originalEx = (ArgumentNullException)Activator.CreateInstance(typeof(ArgumentNullException), args.ToArray());
+
+            return originalEx;
+        }
+
+        private static ServiceException ToServiceException(ObjectDisposedException exception)
+        {
+            var serviceException = ToServiceException((Exception)exception);
+
+            serviceException.ActualExceptionData.Add("ObjectName", exception.ObjectName);
+
+            return serviceException;
+        }
+
+        private static ObjectDisposedException ObjectDisposedExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
+        {
+            var args = new List<object>();
+            if (serviceException.ActualExceptionData["ObjectName"] != null)
+            {
+                args.Add(serviceException.ActualExceptionData["ObjectName"]);
+                args.Add(serviceException.Message);
+            }
+            else
+            {
+                args.Add(serviceException.Message);
+                args.Add(innerException);
+            }
+
+            var originalEx = (ObjectDisposedException)Activator.CreateInstance(typeof(ObjectDisposedException), args.ToArray());
 
             return originalEx;
         }
@@ -531,7 +626,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             args.Add(serviceException.ActualExceptionData["FileName"]);
             args.Add(innerException);
 
-            originalEx = (BadImageFormatException)Activator.CreateInstance(typeof(ArgumentException), args.ToArray());
+            originalEx = (BadImageFormatException)Activator.CreateInstance(typeof(BadImageFormatException), args.ToArray());
 
             originalEx.Data.Add("FusionLog", serviceException.ActualExceptionData["FusionLog"]);
 
@@ -543,7 +638,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             var serviceException = ToServiceException((Exception)exception);
 
             var types = exception.Types != null
-                ? SerializeObject<Type[]>(exception.Types)
+                ? string.Join("|", exception.Types.Select(type => type.AssemblyQualifiedName).ToArray())
                 : null;
 
             serviceException.ActualExceptionData.Add("Types", types);
@@ -553,16 +648,31 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         private static ReflectionTypeLoadException ReflectionTypeLoadExceptionFromServiceEx(ServiceException serviceException, Exception[] innerExceptions)
         {
-            ReflectionTypeLoadException originalEx;
             var args = new List<object>();
+            Type[] types = null;
+            if (serviceException.ActualExceptionData["Types"] != null)
+            {
+                var typeList = new List<Type>();
+                foreach (var type in ((string)serviceException.ActualExceptionData["Types"]).Split('|'))
+                {
+                    try
+                    {
+                        typeList.Add(Type.GetType(type));
+                    }
+                    catch (Exception)
+                    {
+                        // Throw
+                    }
+                }
 
-            args.Add(serviceException.ActualExceptionData["Types"] != null
-                ? DeserializeObject<Type[]>((byte[])serviceException.ActualExceptionData["Types"])
-                : null);
+                types = typeList.ToArray();
+            }
+
+            args.Add(types);
             args.Add(innerExceptions);
             args.Add(serviceException.Message);
 
-            originalEx = (ReflectionTypeLoadException)Activator.CreateInstance(typeof(ReflectionTypeLoadException), args.ToArray());
+            var originalEx = (ReflectionTypeLoadException)Activator.CreateInstance(typeof(ReflectionTypeLoadException), args.ToArray());
 
             return originalEx;
         }
@@ -607,85 +717,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         private static ExternalException ExternalExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
         {
-            ExternalException originalEx;
             var args = new List<object>();
-
             args.Add(serviceException.Message);
-
             if (innerException != null)
             {
                 args.Add(innerException);
             }
-            else if (serviceException.ActualExceptionData["ErrorCode"] != null)
+            else
             {
-                args.Add(serviceException.ActualExceptionData["ErrorCode"]);
+                args.Add(int.Parse(serviceException.ActualExceptionData["ErrorCode"]));
             }
 
-            originalEx = (ExternalException)Activator.CreateInstance(typeof(ExternalException), args.ToArray());
-
-            return originalEx;
-        }
-
-        private static ServiceException ToServiceException(AbandonedMutexException exception)
-        {
-            var serviceException = ToServiceException((Exception)exception);
-
-            if (exception.Mutex != null)
-            {
-                var serString = SerializeObject(exception.Mutex);
-                if (serString != null)
-                {
-                    serviceException.ActualExceptionData.Add("Mutex", serString);
-                }
-            }
-
-            serviceException.ActualExceptionData.Add("MutexIndex", exception.MutexIndex.ToString());
-
-            return serviceException;
-        }
-
-        private static AbandonedMutexException AbandonedMutexExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
-        {
-            AbandonedMutexException originalEx;
-            var args = new List<object>();
-
-            args.Add(serviceException.Message);
-            args.Add(innerException);
-            args.Add(serviceException.ActualExceptionData["MutexIndex"]);
-            args.Add(serviceException.ActualExceptionData.ContainsKey("Mutex")
-                ? DeserializeObject<Mutex>((byte[])serviceException.ActualExceptionData["Mutex"])
-                : null);
-
-            originalEx = (AbandonedMutexException)Activator.CreateInstance(typeof(AbandonedMutexException), args.ToArray());
-
-            return originalEx;
-        }
-
-        private static ServiceException ToServiceException(ThreadAbortException exception)
-        {
-            var serviceException = ToServiceException((Exception)exception);
-
-            if (exception.ExceptionState != null)
-            {
-                var serString = SerializeObject(exception.ExceptionState);
-                if (serString != null)
-                {
-                    serviceException.ActualExceptionData.Add("ExceptionState", serString);
-                }
-            }
-
-            return serviceException;
-        }
-
-        private static ThreadAbortException ThreadAbortExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
-        {
-            ThreadAbortException originalEx;
-            originalEx = (ThreadAbortException)Activator.CreateInstance(typeof(ThreadAbortException));
-
-            if (serviceException.ActualExceptionData.ContainsKey("ExceptionState"))
-            {
-                originalEx.Data.Add("ExceptionState", DeserializeObject<object>((byte[])serviceException.ActualExceptionData["ExceptionState"]));
-            }
+            var originalEx = (ExternalException)Activator.CreateInstance(typeof(ExternalException), args.ToArray());
 
             return originalEx;
         }
@@ -701,20 +744,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         private static TypeInitializationException TypeInitializationExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
         {
-            TypeInitializationException originalEx;
             var args = new List<object>();
+            args.Add(serviceException.ActualExceptionData["TypeName"]);
+            args.Add(innerException);
+            var originalEx = (TypeInitializationException)Activator.CreateInstance(typeof(TypeInitializationException), args.ToArray());
 
-            if (innerException != null)
+            return originalEx;
+        }
+
+        private static InvalidCastException InvalidCastExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
+        {
+            var args = new List<object>();
+            if (innerException == null)
             {
-                args.Add(serviceException.ActualExceptionData["TypeName"]);
-                args.Add(innerException);
+                args.Add(serviceException.Message);
+                args.Add(int.Parse(serviceException.ActualExceptionData["HResult"]));
             }
             else
             {
                 args.Add(serviceException.Message);
+                args.Add(innerException);
             }
 
-            originalEx = (TypeInitializationException)Activator.CreateInstance(typeof(TypeInitializationException), args.ToArray());
+            var originalEx = (InvalidCastException)Activator.CreateInstance(typeof(InvalidCastException), args.ToArray());
 
             return originalEx;
         }
@@ -743,6 +795,50 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             return originalEx;
         }
 
+        private static ServiceException ToServiceException(FileNotFoundException exception)
+        {
+            var serviceException = ToServiceException((Exception)exception);
+
+            serviceException.ActualExceptionData.Add("FileName", exception.FileName);
+            serviceException.ActualExceptionData.Add("FusionLog", exception.FusionLog);
+
+            return serviceException;
+        }
+
+        private static FileNotFoundException FileNotFoundExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
+        {
+            var args = new List<object>();
+
+            args.Add(serviceException.Message);
+            args.Add(serviceException.ActualExceptionData["FileName"]);
+            args.Add(innerException);
+
+            var originalEx = (FileNotFoundException)Activator.CreateInstance(typeof(FileNotFoundException), args.ToArray());
+
+            originalEx.Data.Add("FusionLog", serviceException.ActualExceptionData["FusionLog"]);
+
+            return originalEx;
+        }
+
+        private static IOException IOExceptionFromServiceEx(ServiceException serviceException, Exception innerException)
+        {
+            var args = new List<object>();
+            if (innerException != null)
+            {
+                args.Add(serviceException.Message);
+                args.Add(innerException);
+            }
+            else
+            {
+                args.Add(serviceException.Message);
+                args.Add(int.Parse(serviceException.ActualExceptionData["HResult"]));
+            }
+
+            var originalEx = (IOException)Activator.CreateInstance(typeof(IOException), args.ToArray());
+
+            return originalEx;
+        }
+
         private static T FromServiceException<T>(ServiceException serviceException, params Exception[] innerExceptions)
             where T : Exception
         {
@@ -752,6 +848,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             if (typeof(T) == typeof(ArgumentException))
             {
                 originalEx = ArgumentExceptionFromServiceEx(serviceException, firstInnerEx);
+            }
+            else if (typeof(T) == typeof(ArgumentNullException))
+            {
+                originalEx = ArgumentNullExceptionFromServiceEx(serviceException, firstInnerEx);
             }
             else if (typeof(T) == typeof(BadImageFormatException))
             {
@@ -769,14 +869,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 originalEx = ExternalExceptionFromServiceEx(serviceException, firstInnerEx);
             }
-            else if (typeof(T) == typeof(AbandonedMutexException))
-            {
-                originalEx = AbandonedMutexExceptionFromServiceEx(serviceException, firstInnerEx);
-            }
-            else if (typeof(T) == typeof(ThreadAbortException))
-            {
-                originalEx = ThreadAbortExceptionFromServiceEx(serviceException, firstInnerEx);
-            }
             else if (typeof(T) == typeof(TypeInitializationException))
             {
                 originalEx = TypeInitializationExceptionFromServiceEx(serviceException, firstInnerEx);
@@ -785,60 +877,43 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 originalEx = TypeLoadExceptionFromServiceEx(serviceException, firstInnerEx);
             }
+            else if (typeof(T) == typeof(FileNotFoundException))
+            {
+                originalEx = FileNotFoundExceptionFromServiceEx(serviceException, firstInnerEx);
+            }
+            else if (typeof(T) == typeof(ObjectDisposedException))
+            {
+                originalEx = ObjectDisposedExceptionFromServiceEx(serviceException, firstInnerEx);
+            }
+            else if (typeof(T) == typeof(InvalidCastException))
+            {
+                originalEx = InvalidCastExceptionFromServiceEx(serviceException, firstInnerEx);
+            }
+            else if (typeof(T) == typeof(IOException))
+            {
+                originalEx = IOExceptionFromServiceEx(serviceException, firstInnerEx);
+            }
+            else if (typeof(T) == typeof(AggregateException))
+            {
+                originalEx = AggregateExceptionFromServiceEx(serviceException, innerExceptions);
+            }
             else
             {
-                originalEx = (Exception)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message, firstInnerEx });
+                if (firstInnerEx == null)
+                {
+                    originalEx = (Exception)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message });
+                }
+                else
+                {
+                    originalEx = (Exception)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message, (Exception)firstInnerEx });
+                }
             }
 
             // HResult property setter is public only starting netcore 3.0
-            originalEx.Data.Add("HResult", serviceException.ActualExceptionData["HResult"]); // Check if Data is initialized
+            originalEx.Data.Add("RemoteHResult", serviceException.ActualExceptionData["HResult"]);
+            originalEx.Data.Add("RemoteStackTrace", serviceException.ActualExceptionStackTrace);
 
             return (T)originalEx;
-        }
-
-        private static byte[] SerializeObject<T>(T obj)
-        {
-            try
-            {
-                using (var memStm = new MemoryStream())
-                {
-                    using (var writer = XmlDictionaryWriter.CreateBinaryWriter(memStm))
-                    {
-                        var serializer = new DataContractSerializer(typeof(T));
-                        serializer.WriteObject(writer, obj);
-                        writer.Flush();
-
-                        return memStm.ToArray();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // Trace
-            }
-
-            return null;
-        }
-
-        private static T DeserializeObject<T>(byte[] serObj)
-        {
-            try
-            {
-                using (var memStm = new MemoryStream(serObj))
-                {
-                    using (var reader = XmlDictionaryReader.CreateBinaryReader(memStm, XmlDictionaryReaderQuotas.Max))
-                    {
-                        var serializer = new DataContractSerializer(typeof(T));
-                        return (T)serializer.ReadObject(reader);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // Trace
-            }
-
-            return default(T);
         }
 
         internal class ConvertorFuncs

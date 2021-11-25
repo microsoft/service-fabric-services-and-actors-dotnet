@@ -304,10 +304,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         {
             var serviceException = new ServiceException(fabricEx.GetType().ToString(), fabricEx.Message);
             serviceException.ActualExceptionStackTrace = fabricEx.StackTrace;
-            serviceException.ActualExceptionData = new Dictionary<object, object>()
+            serviceException.ActualExceptionData = new Dictionary<string, string>()
             {
-                { "HResult", fabricEx.HResult },
-                { "FabricErrorCode", fabricEx.ErrorCode },
+                { "HResult", fabricEx.HResult.ToString() },
+                { "FabricErrorCode", ((long)fabricEx.ErrorCode).ToString() },
             };
 
             return serviceException;
@@ -351,20 +351,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 }
                 else
                 {
-                    args.Add(serviceException.ActualExceptionData["FabricErrorCode"]);
+                    args.Add((FabricErrorCode)long.Parse(serviceException.ActualExceptionData["FabricErrorCode"]));
                 }
             }
             else
             {
                 args.Add(serviceException.Message);
                 args.Add(firstInnerEx);
-                args.Add(serviceException.ActualExceptionData["FabricErrorCode"]);
+                args.Add((FabricErrorCode)long.Parse(serviceException.ActualExceptionData["FabricErrorCode"]));
             }
 
             T originalEx = (T)Activator.CreateInstance(typeof(T), args.ToArray());
 
             // HResult property setter is public only starting netcore 3.0
-            originalEx.Data.Add("HResult", serviceException.ActualExceptionData["HResult"]); // Check if Data is initialized
+            originalEx.Data.Add("RemoteHResult", serviceException.ActualExceptionData["HResult"]);
+            originalEx.Data.Add("RemoteFabricErrorCode", serviceException.ActualExceptionData["FabricErrorCode"]);
+            originalEx.Data.Add("RemoteStackTrace", serviceException.ActualExceptionStackTrace);
 
             return originalEx;
         }

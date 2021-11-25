@@ -5,8 +5,10 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
 {
+    using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
@@ -17,17 +19,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
     /// </summary>
     public class FabricExceptionConvertorTest
     {
-        private static List<Microsoft.ServiceFabric.Services.Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors
-            = new List<Microsoft.ServiceFabric.Services.Remoting.V2.Runtime.IExceptionConvertor>() { new Microsoft.ServiceFabric.Services.Remoting.V2.Runtime.FabricExceptionConvertor() };
+        private static List<Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors
+            = new List<Remoting.V2.Runtime.IExceptionConvertor>()
+            {
+                new Remoting.V2.Runtime.FabricExceptionConvertor(),
+                new Remoting.V2.Runtime.SystemExceptionConvertor(),
+                new Remoting.V2.Runtime.ExceptionConvertorHelper.DefaultExceptionConvetor(),
+            };
 
-        private static Microsoft.ServiceFabric.Services.Remoting.V2.Runtime.ExceptionConvertorHelper runtimeHelper
-            = new Microsoft.ServiceFabric.Services.Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors);
+        private static Remoting.V2.Runtime.ExceptionConvertorHelper runtimeHelper
+            = new Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors, 2);
 
-        private static List<Microsoft.ServiceFabric.Services.Remoting.V2.Client.IExceptionConvertor> clientConvertors
-            = new List<Microsoft.ServiceFabric.Services.Remoting.V2.Client.IExceptionConvertor>() { new Microsoft.ServiceFabric.Services.Remoting.V2.Client.FabricExceptionConvertor() };
+        private static List<Remoting.V2.Client.IExceptionConvertor> clientConvertors
+            = new List<Remoting.V2.Client.IExceptionConvertor>()
+            {
+                new Remoting.V2.Client.SystemExceptionConvertor(),
+                new Remoting.V2.Client.FabricExceptionConvertor(),
+            };
 
-        private static Microsoft.ServiceFabric.Services.Remoting.V2.Client.ExceptionConvertorHelper clientHelper
-            = new Microsoft.ServiceFabric.Services.Remoting.V2.Client.ExceptionConvertorHelper(clientConvertors);
+        private static Remoting.V2.Client.ExceptionConvertorHelper clientHelper
+            = new Remoting.V2.Client.ExceptionConvertorHelper(clientConvertors);
 
         private static List<FabricException> fabricExceptions = new List<FabricException>()
         {
@@ -72,28 +83,61 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         /// Known types test.
         /// </summary>
         [Fact]
-        public static void FabricExceptionSerializationTest()
+        public static void KnownFabricExceptionSerializationTest()
         {
             foreach (var exception in fabricExceptions)
             {
-                var svcEx = runtimeHelper.ToServiceException(exception);
-                var remoteEx = runtimeHelper.ToRemoteException(svcEx);
-                var remoteExWrapper = new RemoteException2Wrapper()
-                {
-                    Exceptions = new List<RemoteException2>() { remoteEx },
-                };
-
-                var serializedData = runtimeHelper.SerializeRemoteException(remoteExWrapper);
+                var serializedData = runtimeHelper.SerializeRemoteException(exception);
                 var msgStream = new SegmentedReadMemoryStream(serializedData);
 
-                var isdeserialzied = clientHelper.TryDeserializeRemoteException(msgStream, out var resultWrapper);
-                Assert.True(isdeserialzied);
-                var resultSvcEx = clientHelper.FromRemoteException(resultWrapper.Exceptions[0]);
-                var resultFabricEx = clientHelper.FromServiceException(resultSvcEx);
-
+                var isdeserialized = clientHelper.TryDeserializeRemoteException(msgStream, out Exception resultFabricEx);
+                Assert.True(isdeserialized);
                 Assert.Equal(resultFabricEx.GetType(), exception.GetType());
                 Assert.Equal(resultFabricEx.Message, exception.Message);
                 Assert.Equal(resultFabricEx.HResult, exception.HResult);
+            }
+        }
+
+        /// <summary>
+        /// Unknown types test.
+        /// </summary>
+        [Fact]
+        public static void UnknownFabricExceptionSerializationTest()
+        {
+            FabricException customFabricEx = null;
+            try
+            {
+                ThrowFabricException();
+            }
+            catch (FabricException ex)
+            {
+                customFabricEx = ex;
+            }
+
+            var serializedData = runtimeHelper.SerializeRemoteException(customFabricEx);
+            var msgStream = new SegmentedReadMemoryStream(serializedData);
+
+            var isdeserialized = clientHelper.TryDeserializeRemoteException(msgStream, out Exception resultFabricEx);
+            Assert.True(isdeserialized);
+
+            Assert.True(resultFabricEx.GetType().Equals(typeof(ServiceException)));
+            var resultSvcEx1 = resultFabricEx as ServiceException;
+            Assert.Equal(resultSvcEx1.ActualExceptionType, customFabricEx.GetType().ToString());
+            Assert.Equal(resultSvcEx1.Message, customFabricEx.Message);
+            Assert.Equal(resultSvcEx1.ActualExceptionData["FabricErrorCode"], ((long)customFabricEx.ErrorCode).ToString());
+            Assert.Equal(resultSvcEx1.ActualExceptionStackTrace, customFabricEx.StackTrace);
+        }
+
+        private static void ThrowFabricException()
+        {
+            throw new MyFabricException("Thrown from ThrowFabricException");
+        }
+
+        internal class MyFabricException : FabricException
+        {
+            public MyFabricException(string msg)
+                : base(msg)
+            {
             }
         }
     }

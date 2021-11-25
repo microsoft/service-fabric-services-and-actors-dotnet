@@ -16,13 +16,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
     internal class ExceptionConvertorHelper
     {
         private IEnumerable<IExceptionConvertor> convertors;
+        private int remotingExceptionDepth;
 
-        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors)
+        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors, int remotingExceptionDepth)
         {
             this.convertors = convertors;
+            this.remotingExceptionDepth = remotingExceptionDepth;
         }
 
-        public ServiceException ToServiceException(Exception originalException)
+        public ServiceException ToServiceException(Exception originalException, int currentDepth)
         {
             ServiceException serviceException = null;
             foreach (var convertor in this.convertors)
@@ -31,13 +33,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                 {
                     if (convertor.TryConvertToServiceException(originalException, out serviceException))
                     {
-                        var innerEx = convertor.GetInnerExceptions(originalException); // TODO limit the recursion to a degree
+                        if (++currentDepth > this.remotingExceptionDepth)
+                        {
+                            break;
+                        }
+
+                        var innerEx = convertor.GetInnerExceptions(originalException);
                         if (innerEx != null && innerEx.Length > 0)
                         {
                             serviceException.ActualInnerExceptions = new List<ServiceException>();
+                            int currentBreadth = 0;
                             foreach (var inner in innerEx)
                             {
-                                serviceException.ActualInnerExceptions.Add(this.ToServiceException(inner));
+                                if (++currentBreadth > this.remotingExceptionDepth)
+                                {
+                                    break;
+                                }
+
+                                serviceException.ActualInnerExceptions.Add(this.ToServiceException(inner, currentDepth));
                             }
                         }
 
@@ -51,6 +64,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             }
 
             return serviceException;
+        }
+
+        public ServiceException ToServiceException(Exception originalException)
+        {
+            return this.ToServiceException(originalException, 1);
         }
 
         public RemoteException2 ToRemoteException(ServiceException serviceException)
@@ -75,25 +93,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             return remoteException;
         }
 
-        public List<ArraySegment<byte>> SerializeRemoteException(RemoteException2Wrapper remoteException2Wrapper)
+        public List<ArraySegment<byte>> SerializeRemoteException(RemoteException2 remoteException)
         {
             var serializer = new DataContractSerializer(
-                typeof(RemoteException2Wrapper),
+                typeof(RemoteException2),
                 new DataContractSerializerSettings()
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-                    KnownTypes = new List<Type>()
-                    {
-                        typeof(FabricErrorCode),
-                        typeof(RemoteException2),
-                    },
                 });
 
             using (var stream = new MemoryStream())
             {
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(stream))
                 {
-                    serializer.WriteObject(writer, remoteException2Wrapper);
+                    serializer.WriteObject(writer, remoteException);
                     writer.Flush();
                     return new List<ArraySegment<byte>>()
                     {
@@ -101,6 +114,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                     };
                 }
             }
+        }
+
+        public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
+        {
+            var svcEx = this.ToServiceException(exception);
+            var remoteEx = this.ToRemoteException(svcEx);
+
+            return this.SerializeRemoteException(remoteEx);
         }
 
         public class DefaultExceptionConvetor : IExceptionConvertor
@@ -114,14 +135,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             {
                 serviceException = new ServiceException(originalException.GetType().ToString(), originalException.Message);
                 serviceException.ActualExceptionStackTrace = originalException.StackTrace;
-                serviceException.ActualExceptionData = new Dictionary<object, object>()
+                serviceException.ActualExceptionData = new Dictionary<string, string>()
                 {
-                    { "HResult", originalException.HResult },
+                    { "HResult", originalException.HResult.ToString() },
                 };
 
                 if (originalException is FabricException fabricEx)
                 {
-                    serviceException.ActualExceptionData.Add("FabricErrorCode", fabricEx.ErrorCode);
+                    serviceException.ActualExceptionData.Add("FabricErrorCode", ((long)fabricEx.ErrorCode).ToString());
                 }
 
                 return true;

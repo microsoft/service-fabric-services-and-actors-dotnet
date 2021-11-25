@@ -88,10 +88,10 @@ namespace Microsoft.ServiceFabric.Actors
         {
             var serviceException = new ServiceException(fabricEx.GetType().ToString(), fabricEx.Message);
             serviceException.ActualExceptionStackTrace = fabricEx.StackTrace;
-            serviceException.ActualExceptionData = new Dictionary<object, object>()
+            serviceException.ActualExceptionData = new Dictionary<string, string>()
             {
-                { "HResult", fabricEx.HResult },
-                { "FabricErrorCode", fabricEx.ErrorCode },
+                { "HResult", fabricEx.HResult.ToString() },
+                { "FabricErrorCode", ((long)fabricEx.ErrorCode).ToString() },
             };
 
             return serviceException;
@@ -104,7 +104,9 @@ namespace Microsoft.ServiceFabric.Actors
             T originalEx = (T)Activator.CreateInstance(typeof(T), new object[] { serviceException.Message, firstInnerEx });
 
             // HResult property setter is public only starting netcore 3.0
-            originalEx.Data.Add("HResult", serviceException.ActualExceptionData["HResult"]); // Check if Data is initialized
+            originalEx.Data.Add("RemoteHResult", serviceException.ActualExceptionData["HResult"]);
+            originalEx.Data.Add("RemoteFabricErrorCode", (FabricErrorCode)long.Parse(serviceException.ActualExceptionData["HResult"]));
+            originalEx.Data.Add("RemoteStackTrace", serviceException.ActualExceptionStackTrace);
 
             return originalEx;
         }

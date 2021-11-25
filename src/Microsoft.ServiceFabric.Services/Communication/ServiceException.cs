@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Communication
         /// <summary>
         /// Gets or sets additional data about the actual exception.
         /// </summary>
-        public Dictionary<object, object> ActualExceptionData { get; set; }
+        public Dictionary<string, string> ActualExceptionData { get; set; }
 
         /// <summary>
         /// Gets or sets the list of inner exceptions.

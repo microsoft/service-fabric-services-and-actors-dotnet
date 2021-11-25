@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         public string StackTrace { get; set; }
 
         [DataMember(Name = "Data", Order = 3)]
-        public Dictionary<object, object> Data { get; set; } // TODO does object work ?
+        public Dictionary<string, string> Data { get; set; }
 
         [DataMember(Name = "InnerExceptions", Order = 4)]
         public List<RemoteException2> InnerExceptions { get; set; }

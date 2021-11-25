@@ -18,10 +18,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     public class FabricTransportRemotingListenerSettings
     {
         private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
+        private static readonly int DefaultRemotingExceptionDepth = 2;
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
         private bool useWrappedMessage;
+        private int remotingExceptionDepth;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRemotingListenerSettings"/> class with default values.
@@ -32,6 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
+            this.remotingExceptionDepth = DefaultRemotingExceptionDepth;
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
@@ -171,6 +174,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         {
             get { return this.useWrappedMessage; }
             set { this.useWrappedMessage = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the depth of exceptions to be sent to the client incase of remoting call failing with exception.
+        /// </summary>
+        public int RemotingExceptionDepth
+        {
+            get
+            {
+                return this.remotingExceptionDepth;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    this.remotingExceptionDepth = int.MaxValue;
+                }
+                else
+                {
+                    this.remotingExceptionDepth = value;
+                }
+            }
         }
 
         internal static object DefaultEndpointResourceName

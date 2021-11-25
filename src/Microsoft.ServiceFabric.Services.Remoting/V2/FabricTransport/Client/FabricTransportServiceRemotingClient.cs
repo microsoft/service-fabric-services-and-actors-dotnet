@@ -139,17 +139,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
                     // Attempt DCS first
-                    if (this.exceptionConvertorHelper.TryDeserializeRemoteException(retval.GetBody().GetRecievedStream(), out var exWrapper))
+                    if (this.exceptionConvertorHelper.TryDeserializeRemoteException(retval.GetBody().GetRecievedStream(), out Exception exception))
                     {
-                        var svcExList = this.exceptionConvertorHelper.FromRemoteExceptionWrapper(exWrapper);
-
-                        var exList = new List<Exception>();
-                        foreach (var svcEx in svcExList)
+                        if (exception is AggregateException)
                         {
-                            exList.Add(this.exceptionConvertorHelper.FromServiceException(svcEx));
+                            throw exception;
                         }
 
-                        throw new AggregateException(exList);
+                        throw new AggregateException(exception);
                     }
 
                     var isDeserialzied =
