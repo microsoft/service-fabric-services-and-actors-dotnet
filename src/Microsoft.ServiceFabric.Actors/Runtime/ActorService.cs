@@ -277,6 +277,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 (this.stateProvider as KvsActorStateProvider).CheckTombstoneCleanupIsDisabled();
             }
 
+            if (Utility.IsMigrationTarget(new List<Type>() { this.actorTypeInformation.ImplementationType })
+                && this.stateProvider.GetType() == typeof(KVStoRCMigrationActorStateProvider))
+            {
+                var migrationOrchestrator = new MigrationOrchestrator((KVStoRCMigrationActorStateProvider)this.stateProvider, this.actorTypeInformation);
+                var task = migrationOrchestrator.StartMigration(cancellationToken);
+                task.Wait();
+            }
+
             return this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
         }
 
