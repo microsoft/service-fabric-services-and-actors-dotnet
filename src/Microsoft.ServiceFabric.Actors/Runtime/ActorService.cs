@@ -32,6 +32,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private const string ActorsMigrationAssemblyName = "Microsoft.ServiceFabric.Actors.Migration";
         private const string ActorsMigrationUtilityClassFullName = "Microsoft.ServiceFabric.Actors.Migration.Utility";
+        private const string KVSToRCMigrationActorStateProviderClassFullName = "Microsoft.ServiceFabric.Actors.Migration.KVStoRCMigrationActorStateProvider";
+        private const string MigrationOrchestratorClassFullName = "Microsoft.ServiceFabric.Actors.Migration.MigrationOrchestrator";
         private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
 
         private readonly ActorTypeInformation actorTypeInformation;
@@ -278,9 +280,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             if (Utility.IsMigrationTarget(new List<Type>() { this.actorTypeInformation.ImplementationType })
-                && this.stateProvider.GetType() == typeof(KVStoRCMigrationActorStateProvider))
+                && this.stateProvider.GetType() == this.GetKVStoRCMigrationActorStateProviderType())
             {
-                var migrationOrchestrator = new MigrationOrchestrator((KVStoRCMigrationActorStateProvider)this.stateProvider, this.actorTypeInformation);
+                var migrationOrchestrator = (IMigrationOrchestrator)this.GetMigrationOrchestratorObject();
                 var task = migrationOrchestrator.StartMigration(cancellationToken);
                 task.Wait();
             }
@@ -391,6 +393,52 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
             this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
             this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
+        }
+
+        private Type GetKVStoRCMigrationActorStateProviderType()
+        {
+            var currentAssembly = typeof(ActorService).GetTypeInfo().Assembly;
+
+            var actorsMigrationAssembly = new AssemblyName
+            {
+                Name = ActorsMigrationAssemblyName,
+                Version = currentAssembly.GetName().Version,
+#if !DotNetCoreClr
+                CultureInfo = currentAssembly.GetName().CultureInfo,
+#endif
+                ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
+            };
+
+            actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
+            var kVStoRCMigrationActorStateProviderTypeName = Actors.Helper.CreateQualifiedNameForAssembly(
+                actorsMigrationAssembly.FullName,
+                KVSToRCMigrationActorStateProviderClassFullName);
+
+            return Type.GetType(kVStoRCMigrationActorStateProviderTypeName, true);
+        }
+
+        private object GetMigrationOrchestratorObject()
+        {
+            var currentAssembly = typeof(ActorService).GetTypeInfo().Assembly;
+
+            var actorsMigrationAssembly = new AssemblyName
+            {
+                Name = ActorsMigrationAssemblyName,
+                Version = currentAssembly.GetName().Version,
+#if !DotNetCoreClr
+                CultureInfo = currentAssembly.GetName().CultureInfo,
+#endif
+                ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
+            };
+
+            actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
+
+            var actorsMigrationOrchestratorTypeName = Actors.Helper.CreateQualifiedNameForAssembly(
+                actorsMigrationAssembly.FullName,
+                MigrationOrchestratorClassFullName);
+
+            var actorsMigrationOrchestratorType = Type.GetType(actorsMigrationOrchestratorTypeName, true);
+            return Activator.CreateInstance(actorsMigrationOrchestratorType, new object[] { this.stateProvider, this.actorTypeInformation });
         }
 
         private bool IsMigrationSource()

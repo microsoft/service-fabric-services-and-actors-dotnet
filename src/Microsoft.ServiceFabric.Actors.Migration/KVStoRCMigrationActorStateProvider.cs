@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Runtime
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System;
     using System.Collections.Generic;
@@ -16,6 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Xml;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Query;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
 
@@ -506,13 +507,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             if (unexpectedException != null)
             {
-                var mssgFormat = "StartStateProviderInitialization() failed due to " +
+                var msgFormat = "StartStateProviderInitialization() failed due to " +
                                  "an unexpected Exception causing replica to fault: {0}";
 
                 ActorTrace.Source.WriteErrorWithId(
                     this.TraceType,
                     this.traceId,
-                    string.Format(mssgFormat, unexpectedException.ToString()));
+                    string.Format(msgFormat, unexpectedException.ToString()));
 
                 this.servicePartition.ReportFault(FaultType.Transient);
             }
@@ -526,9 +527,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             catch (Exception ex)
             {
-                ReleaseAssert.Failfast(
-                    "CancelStateProviderInitializationAsync() unexpected exception: {0}.",
-                    ex.ToString());
+                var msgFormat = "StartStateProviderInitialization() failed due to " +
+                                 "an unexpected Exception causing replica to fault: {0}";
+
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    string.Format(msgFormat, ex.ToString()));
+
+                this.servicePartition.ReportFault(FaultType.Transient);
             }
             finally
             {

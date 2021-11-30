@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Runtime
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System;
     using System.Collections.Generic;
@@ -13,10 +13,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
 
-    internal class MigrationOrchestrator
+    internal class MigrationOrchestrator : IMigrationOrchestrator
     {
         private static readonly HttpClient Client = new HttpClient();
         private KVStoRCMigrationActorStateProvider stateProvider;

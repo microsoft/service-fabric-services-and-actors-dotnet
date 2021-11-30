@@ -3,26 +3,26 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Runtime
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
     /// <summary>
-    /// Indicates actor service migration state.
+    /// Indicates actor service migration phase.
     /// </summary>
-    public enum ActorStateMigration
+    public enum MigrationStatus
     {
         /// <summary>
-        /// Actor service is not migration ready.
+        /// Migration not started.
         /// </summary>
-        None = 0,
+        Uninitialized = 0,
 
         /// <summary>
-        /// Actor service is migration ready and configured as source service.
+        /// Copy phase of migration.
         /// </summary>
-        Source = 1,
+        InProgress = 1,
 
         /// <summary>
-        /// Actor service is migration ready and configured as target service.
+        /// Catchup phase of migration.
         /// </summary>
-        Target = 2,
+        Completed = 2,
     }
 }
