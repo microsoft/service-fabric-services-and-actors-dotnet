@@ -71,7 +71,18 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         }
 
         /// <summary>
-        /// Gets the Last Sequence number of KVS
+        /// Enumerates Key value store data by Sequence Number
+        /// </summary>
+        /// <param name="request">EnumerationRequest</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpGet("EnumerateActorIdKindString")]
+        public Task EnumerateActorIdKindString([FromBody] EnumerationRequest request)
+        {
+            return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, "Actor_String", CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Sets metadata flag for KVS service to reject writes
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPut("RejectWrites")]
@@ -81,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         }
 
         /// <summary>
-        /// Enumerates Key value store data by Sequence Number
+        /// Sets metadata flag for KVS service to resume writes
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [HttpPut("ResumeWrites")]

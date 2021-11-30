@@ -55,6 +55,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, CancellationToken cancellationToken)
         {
+            return EnumerateAsync(stateProvider, request, response, string.Empty, cancellationToken);
+        }
+
+        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, string suffix, CancellationToken cancellationToken)
+        {
             var storeReplica = stateProvider.GetStoreReplica();
             var lsn = storeReplica.GetLastCommittedSequenceNumber();
             return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
@@ -91,7 +96,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                                     var keyValuePair = MakeKeyValuePair(enumerator.Current);
                                     var currentSequenceNumber = keyValuePair.Version;
 
-                                    pairs.Add(keyValuePair);
+                                    if (keyValuePair.Key.StartsWith(suffix) || string.IsNullOrEmpty(suffix))
+                                    {
+                                        pairs.Add(keyValuePair);
+                                    }
+
                                     enumerationKeyCount++;
 
                                     hasData = enumerator.MoveNext();
