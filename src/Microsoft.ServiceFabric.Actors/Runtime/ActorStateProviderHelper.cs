@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric;
     using System.Fabric.Description;
     using System.Globalization;
+    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -27,6 +28,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         internal const string ActorPresenceStorageKeyPrefix = "@@";
         internal const string ReminderCompletedStorageKeyPrefix = "RC@@";
+        private const string ActorsMigrationAssemblyName = "Microsoft.ServiceFabric.Actors.Migration";
+        private const string KVSToRCMigrationActorStateProviderClassFullName = "Microsoft.ServiceFabric.Actors.Migration.KVStoRCMigrationActorStateProvider";
         private const long DefaultMaxPrimaryReplicationQueueSize = 8192;
         private const long DefaultMaxSecondaryReplicationQueueSize = 16384;
         private readonly IActorStateProviderInternal owner;
@@ -241,7 +244,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     if (isMigrationTarget)
                     {
-                        stateProvider = new KVStoRCMigrationActorStateProvider();
+                        stateProvider = (IActorStateProvider)GetKVSToRCMigrationStateProvider();
                     }
                     else if (isMigrationSource)
                     {
@@ -291,7 +294,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 if (stateProvider.GetType() == typeof(ReliableCollectionsActorStateProvider))
                 {
-                    return new KVStoRCMigrationActorStateProvider((ReliableCollectionsActorStateProvider)stateProvider);
+                    return (IActorStateProvider)GetKVSToRCMigrationStateProvider((ReliableCollectionsActorStateProvider)stateProvider);
                 }
                 else
                 {
@@ -316,6 +319,37 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        internal static object GetKVSToRCMigrationStateProvider(ReliableCollectionsActorStateProvider reliableCollectionsActorStateProvider = null)
+        {
+            var currentAssembly = typeof(ActorStateProviderHelper).GetTypeInfo().Assembly;
+
+            var actorsMigrationAssembly = new AssemblyName
+            {
+                Name = ActorsMigrationAssemblyName,
+                Version = currentAssembly.GetName().Version,
+#if !DotNetCoreClr
+                CultureInfo = currentAssembly.GetName().CultureInfo,
+#endif
+                ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
+            };
+
+            actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
+
+            var kvsToRCMigrationStateProviderTypeName = Helper.CreateQualifiedNameForAssembly(
+                actorsMigrationAssembly.FullName,
+                KVSToRCMigrationActorStateProviderClassFullName);
+
+            var kvsToRCMigrationStateProviderType = Type.GetType(kvsToRCMigrationStateProviderTypeName, true);
+
+            if (reliableCollectionsActorStateProvider == null)
+            {
+                return Activator.CreateInstance(kvsToRCMigrationStateProviderType);
+            }
+            else
+            {
+                return Activator.CreateInstance(kvsToRCMigrationStateProviderType, new object[] { reliableCollectionsActorStateProvider });
+            }
+        }
         #endregion Static Methods
 
         internal Task ExecuteWithRetriesAsync(

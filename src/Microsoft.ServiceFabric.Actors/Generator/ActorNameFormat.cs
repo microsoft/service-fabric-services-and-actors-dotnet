@@ -255,6 +255,19 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
+        /// Gets the migration configuration section name for KVS to RC migration which is specified in configuration package for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Migration configuration section name.</returns>
+        public static string GetMigrationConfigSectionName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}MigrationConfig",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
         /// Gets the fabrictransport configuration section name specified in configuration package for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
