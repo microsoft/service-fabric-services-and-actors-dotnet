@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
     using System.Diagnostics;
-#if DotNetCoreClr
+
     /// <summary>
     /// Class ActivityIdLogicalCallContext.
     /// </summary>
@@ -138,5 +138,4 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             Activity.Current = null;
         }
     }
-#endif
 }

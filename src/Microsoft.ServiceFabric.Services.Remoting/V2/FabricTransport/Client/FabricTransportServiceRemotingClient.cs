@@ -107,9 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         public async Task<IServiceRemotingResponseMessage> RequestResponseAsync(
             IServiceRemotingRequestMessage remotingRequestRequestMessage)
         {
-#if DotNetCoreClr
             ActivityIdLogicalCallContext.InjectHeaders(remotingRequestRequestMessage);
-#endif
 
             var interfaceId = remotingRequestRequestMessage.GetHeader().InterfaceId;
             var serializedHeader = this.serializersManager.GetHeaderSerializer()

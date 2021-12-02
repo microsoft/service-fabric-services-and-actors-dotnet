@@ -55,7 +55,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         [DataMember(Name = "MethodName", IsRequired = false, Order = 4)]
         public string MethodName { get; set; }
 
-#if DotNetCoreClr
         [DataMember(Name = "ActivityIdParent", IsRequired = false, Order = 5)]
         public string ActivityIdParent { get; set; }
 
@@ -67,7 +66,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         [DataMember(Name = "ActivityRequestId", IsRequired = false, Order = 8)]
         public string ActivityRequestId { get; set; }
-#endif
 
         public void AddHeader(string headerName, byte[] headerValue)
         {

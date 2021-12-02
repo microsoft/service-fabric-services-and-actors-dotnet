@@ -36,7 +36,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// </summary>
         string MethodName { get; set; }
 
-#if DotNetCoreClr
         /// <summary>
         /// Gets or sets the ActivityId
         /// </summary>
@@ -56,7 +55,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// Gets or sets activityRequestId for non W3C context
         /// </summary>
         string ActivityRequestId { get; set; }
-#endif
 
         /// <summary>
         /// Adds a new header with the specified name and value.

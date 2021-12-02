@@ -104,12 +104,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
         {
-#if DotNetCoreClr
+            Console.Write(Activity.Current);
             var activity = ActivityIdLogicalCallContext.StartActivity(requestMessage, "HandleRequestResponseAsync From Dispatcher");
 
             // Some Log statements
-#endif
-
             if (this.IsCancellationRequest(requestMessage.GetHeader()))
             {
                 await
