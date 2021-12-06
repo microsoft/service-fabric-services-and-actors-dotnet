@@ -311,6 +311,22 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
+        /// Gets Key Value store configuration section name specified in configuration package for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Key Value store configuration section name.</returns>
+        /// <remarks>Values specified in Key Value store configuration section are used to configure <see cref="System.Fabric.KeyValueStoreReplicaSettings"/>
+        /// for storing the state of actor.
+        /// </remarks>
+        public static string GetKeyValueStoreSettingsConfigSectionName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}KeyValueStoreConfig",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
         /// Gets the configuration package name used in service package for the actor.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
