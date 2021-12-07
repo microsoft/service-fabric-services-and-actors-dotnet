@@ -30,19 +30,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         {
             Activity currentActivity = null;
 
-            if (!ActivityIdLogicalCallContext.IsPresent())
+            if (ActivityIdLogicalCallContext.IsPresent())
             {
-                // Activity ID is not present, make one of W3C format
-                currentActivity = ActivityIdLogicalCallContext.CreateW3CActivity("Call from Request Response Async");
-                currentActivity.Start();
+                currentActivity = ActivityIdLogicalCallContext.Get();
             }
             else
             {
-                currentActivity = ActivityIdLogicalCallContext.Get();
+                // If activity ID is not present in AsyncLocal then there's nothing to inject
+                return;
             }
 
             if (currentActivity.IdFormat == ActivityIdFormat.W3C)
             {
+                // If W3C then pass over ID, TraceState and Baggage
                 remotingRequestRequestMessage.GetHeader().ActivityIdParent = currentActivity.Id.ToString();
                 remotingRequestRequestMessage.GetHeader().ActivityIdTraceStateHeader = currentActivity.TraceStateString;
             }
@@ -59,7 +59,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         internal static Activity StartActivity(IServiceRemotingRequestMessage requestMessage, string activityMessage = "Start new Activity")
         {
-            var activity = new Activity(activityMessage);
             string parentId = null;
             if (requestMessage.GetHeader().ActivityIdParent != null)
             {
@@ -72,9 +71,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 parentId = requestMessage.GetHeader().ActivityRequestId;
             }
 
+            var activity = ServiceFabricActivitySource.StartActivity("StatefulDatabaseIncomingRemoteCall", ActivityKind.Server, CreateActivityContextFromTraceParent(parentId));
+
             if (!string.IsNullOrEmpty(parentId))
             {
-                activity.SetParentId(parentId);
                 if (requestMessage.GetHeader().ActivityIdTraceStateHeader != null)
                 {
                     activity.TraceStateString = requestMessage.GetHeader().ActivityIdTraceStateHeader;
@@ -99,7 +99,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 }
             }
 
-            activity.Start();
             return activity;
         }
 
@@ -136,6 +135,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         internal static void Clear()
         {
             Activity.Current = null;
+        }
+
+        private static ActivityContext CreateActivityContextFromTraceParent(string traceParent)
+        {
+            if (traceParent != null)
+            {
+                var splitString = traceParent.Split('-');
+
+                if (splitString.Length >= 3)
+                {
+                    var traceId = ActivityTraceId.CreateFromString(splitString[1].ToCharArray());
+                    var spanId = ActivitySpanId.CreateFromString(splitString[2].ToCharArray());
+                    ActivityContext ctx = new ActivityContext(traceId: traceId, spanId: spanId, traceFlags: ActivityTraceFlags.Recorded);
+                    return ctx;
+                }
+            }
+
+            return default;
         }
     }
 }
