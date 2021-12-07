@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             }
         }
 
-        internal static Activity StartActivity(IServiceRemotingRequestMessage requestMessage, string activityMessage = "Start new Activity")
+        internal static void StartActivity(IServiceRemotingRequestMessage requestMessage, string activityMessage = "Start new Activity")
         {
             string parentId = null;
             if (requestMessage.GetHeader().ActivityIdParent != null)
@@ -66,26 +66,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 Activity.ForceDefaultIdFormat = true;
                 parentId = requestMessage.GetHeader().ActivityIdParent;
             }
-            else
+            else if (requestMessage.GetHeader().ActivityRequestId != null)
             {
                 parentId = requestMessage.GetHeader().ActivityRequestId;
+            }
+            else
+            {
+                return;
             }
 
             var activity = ServiceFabricActivitySource.StartActivity("StatefulDatabaseIncomingRemoteCall", ActivityKind.Server, CreateActivityContextFromTraceParent(parentId));
 
             if (!string.IsNullOrEmpty(parentId))
             {
+                // if W3C
                 if (requestMessage.GetHeader().ActivityIdTraceStateHeader != null)
                 {
                     activity.TraceStateString = requestMessage.GetHeader().ActivityIdTraceStateHeader;
                 }
-            }
-            else
-            {
-                Activity.DefaultIdFormat = ActivityIdFormat.W3C;
-                Activity.ForceDefaultIdFormat = true;
-                activity.Start();
-                return activity;
             }
 
             // We expect baggage to be empty by default
@@ -98,8 +96,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     activity.AddBaggage(item.Key, item.Value);
                 }
             }
-
-            return activity;
         }
 
         /// <summary>
