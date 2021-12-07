@@ -15,33 +15,33 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     /// <summary>
     /// Out of Box support for ActivitySource within SF SDK
     /// </summary>
-    internal class ServiceFabricActivitySource
+    internal static class ServiceFabricActivitySource
     {
-        private readonly ActivitySource serviceFabricActivitySource;
-        private readonly string serviceFabricActivitySourceName = "Microsoft.ServiceFabric.ActivitySource";
+        private static ActivitySource serviceFabricActivitySource;
+        private static string serviceFabricActivitySourceName = "Microsoft.ServiceFabric.ActivitySource";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceFabricActivitySource"/> class.
+        /// Initializes static members of the <see cref="ServiceFabricActivitySource"/> class.
         /// </summary>
-        internal ServiceFabricActivitySource()
+        static ServiceFabricActivitySource()
         {
-            this.serviceFabricActivitySource = new ActivitySource(this.serviceFabricActivitySourceName);
+            serviceFabricActivitySource = new ActivitySource(serviceFabricActivitySourceName);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceFabricActivitySource"/> class.
+        /*/// <summary>
+        /// Initializes static members of the <see cref="ServiceFabricActivitySource"/> class.
         /// </summary>
         /// <param name="name">Name of Activity</param>
         /// <param name="kind">Kind of Activity</param>
-        internal ServiceFabricActivitySource(string name, string kind = "")
+        static ServiceFabricActivitySource(string name, string kind = "")
         {
-            this.serviceFabricActivitySource = new ActivitySource(name, kind);
+            serviceFabricActivitySource = new ActivitySource(name, kind);
         }
 
         // public override bool Equals(object obj)
         // {
         //    return this.serviceFabricActivitySource.Equals(obj);
-        // }
+        // }*/
 
         /// <summary>
         /// Adds a listener to the activity starting and stopping events.
@@ -56,36 +56,36 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// Returns the activity source name.
         /// </summary>
         /// <returns>Name of activity source</returns>
-        internal string Name()
+        internal static string Name()
         {
-            return this.serviceFabricActivitySource.Name;
+            return serviceFabricActivitySource.Name;
         }
 
         /// <summary>
         /// Returns the activity source version.
         /// </summary>
         /// <returns>version of activity source</returns>
-        internal string Version()
+        internal static string Version()
         {
-            return this.serviceFabricActivitySource.Version;
+            return serviceFabricActivitySource.Version;
         }
 
         /// <summary>
         /// Disposes the activity source object, removes the current instance from the global list,
         /// and empties the listeners list.
         /// </summary>
-        internal void Dispose()
+        internal static void Dispose()
         {
-            this.serviceFabricActivitySource.Dispose();
+            serviceFabricActivitySource.Dispose();
         }
 
         /// <summary>
         /// Checks if there are any listeners for this activity source.
         /// </summary>
         /// <returns>true if there is a listener registered for this activity source; otherwise, false.</returns>
-        internal bool HasListeners()
+        internal static bool HasListeners()
         {
-            return this.serviceFabricActivitySource.HasListeners();
+            return serviceFabricActivitySource.HasListeners();
         }
 
         /// <summary>
@@ -96,9 +96,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <param name="name">The operation name of the activity.</param>
         /// <param name="kind">The activity kind.</param>
         /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
-        internal Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
+        internal static Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
         {
-            return this.serviceFabricActivitySource.StartActivity(name, kind);
+            return serviceFabricActivitySource.StartActivity(name, kind);
         }
 
         /// <summary>
@@ -113,9 +113,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <param name="links">The optional ActivityLink list to initialize the created activity object with.</param>
         /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
         /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
-        internal Activity StartActivity(string name, ActivityKind kind, string parentId, IEnumerable<KeyValuePair<string, object>> tags = null, IEnumerable<ActivityLink> links = null, DateTimeOffset startTime = default)
+        internal static Activity StartActivity(string name, ActivityKind kind, string parentId, IEnumerable<KeyValuePair<string, object>> tags = null, IEnumerable<ActivityLink> links = null, DateTimeOffset startTime = default)
         {
-            return this.serviceFabricActivitySource.StartActivity(name, kind, parentId, tags, links, startTime);
+            return serviceFabricActivitySource.StartActivity(name, kind, parentId, tags, links, startTime);
         }
 
         /// <summary>
@@ -130,9 +130,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <param name="links">The optional ActivityLink list to initialize the created activity object with.</param>
         /// <param name="startTime">The optional start timestamp to set on the created activity object.</param>
         /// <returns>The created activity object, if it had active listeners, or null if it has no event listeners.</returns>
-        internal Activity StartActivity(string name, ActivityKind kind, ActivityContext parentContext, IEnumerable<KeyValuePair<string, object>> tags = null, IEnumerable<ActivityLink> links = null, DateTimeOffset startTime = default)
+        internal static Activity StartActivity(string name, ActivityKind kind, ActivityContext parentContext, IEnumerable<KeyValuePair<string, object>> tags = null, IEnumerable<ActivityLink> links = null, DateTimeOffset startTime = default)
         {
-            return this.serviceFabricActivitySource.StartActivity(name, kind, parentContext, tags, links, startTime);
+            return serviceFabricActivitySource.StartActivity(name, kind, parentContext, tags, links, startTime);
         }
     }
 }
