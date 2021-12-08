@@ -243,11 +243,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <param name="keyValuePairs">
         /// Data from KVS store that needs to be modified and saved in RC
         /// </param>
+        /// <param name="lastAppliedSNKey">
+        /// Key to update metadata dictionary after save is completed
+        /// </param>
+        /// <param name="lastAppliedSNvalue">
+        /// last applied sequence number to update metadata dictionary after save is complete
+        /// </param>
         /// <param name="cancellationToken">
         /// Cancellation token
         /// </param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, CancellationToken cancellationToken)
+        public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, string lastAppliedSNKey, byte[] lastAppliedSNvalue, CancellationToken cancellationToken)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
@@ -319,6 +325,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     keysMigrated.Add(pair.Key);
                 }
 
+                await this.metadataDictionary.AddOrUpdateAsync(tx, lastAppliedSNKey, lastAppliedSNvalue, (k, v) => lastAppliedSNvalue);
                 cancellationToken.ThrowIfCancellationRequested();
                 await tx.CommitAsync();
 

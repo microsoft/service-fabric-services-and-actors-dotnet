@@ -39,12 +39,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         internal async Task StartMigrationWorker(MigrationPhase phase, long startSN, long endSN, int workerIdentifier, CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfo("MigrationWorker", "Inititating migration worker " + workerIdentifier.ToString() + " in " + phase.ToString() + " phase.");
             this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
             if (endSN - startSN < this.itemsPerEnumeration || this.itemsPerEnumeration == -1)
             {
-                var dataToMigrate = await this.GetEnumeratedDataFromKvsAsync(phase, startSN, endSN - startSN);
-                await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, cancellationToken);
-                await this.UpdateMetadataOnCompletion(phase, workerIdentifier, endSN);
+                cancellationToken.ThrowIfCancellationRequested();
+                await this.GetDataFromKvsAndSaveToRCAsync(phase, startSN, endSN - startSN, workerIdentifier, cancellationToken);
             }
             else
             {
@@ -52,51 +52,72 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 var endSNForChunk = lastUpdatedSN + this.itemsPerEnumeration;
                 while (endSNForChunk <= endSN)
                 {
-                    var dataToMigrate = await this.GetEnumeratedDataFromKvsAsync(phase, lastUpdatedSN + 1, this.itemsPerEnumeration);
-                    await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await this.GetDataFromKvsAndSaveToRCAsync(phase, lastUpdatedSN + 1, this.itemsPerEnumeration, workerIdentifier, cancellationToken);
                     lastUpdatedSN = endSNForChunk;
                     endSNForChunk += this.itemsPerEnumeration;
-                    await this.UpdateMetadataForLastAppliedSN(phase, workerIdentifier, lastUpdatedSN);
                 }
 
                 if (lastUpdatedSN < endSN)
                 {
-                    var dataToMigrate = await this.GetEnumeratedDataFromKvsAsync(phase, lastUpdatedSN + 1, endSN - lastUpdatedSN);
-                    await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await this.GetDataFromKvsAndSaveToRCAsync(phase, lastUpdatedSN + 1, endSN - lastUpdatedSN, workerIdentifier, cancellationToken);
                 }
 
+                ActorTrace.Source.WriteInfo("MigrationWorker", "Completed migration worker " + workerIdentifier.ToString() + " payload in " + phase.ToString() + " phase.");
                 await this.UpdateMetadataOnCompletion(phase, workerIdentifier, endSN);
             }
         }
 
-        private async Task<List<KeyValuePair<string, byte[]>>> GetEnumeratedDataFromKvsAsync(MigrationPhase phase, long start, long enumerationSize)
+        private async Task GetDataFromKvsAndSaveToRCAsync(MigrationPhase phase, long start, long enumerationSize, int workerIdentifier, CancellationToken cancellationToken)
         {
             var apiName = phase == MigrationPhase.Copy ? MigrationConstants.EnumeratebySNEndpoint : MigrationConstants.EnumerateKeysAndTombstonesEndpoint;
             bool includeDeletes = phase == MigrationPhase.Copy;
-            var requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
-            var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair<string, byte[]>>));
+            var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
 
-            var enumerationRequestContent = this.CreateEnumerationRequestObject(start, enumerationSize, includeDeletes);
+            var kvsApiRequest = this.CreateKvsApiRequestMessage(start, enumerationSize, includeDeletes, apiName);
 
-            using var memoryStream = new MemoryStream();
-            var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
-            requestserializer.WriteObject(binaryWriter, enumerationRequestContent);
-            binaryWriter.Flush();
-
-            var byteArray = memoryStream.ToArray();
-            var content = new ByteArrayContent(byteArray);
-            var kvsApiRequest = new HttpRequestMessage
+            try
             {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(this.endpoint + apiName),
-                Content = content,
-            };
+                cancellationToken.ThrowIfCancellationRequested();
+                var response = await Client.SendAsync(kvsApiRequest, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                {
+                    using (var streamReader = new StreamReader(stream))
+                    {
+                        string responseLine = streamReader.ReadLine();
+                        cancellationToken.ThrowIfCancellationRequested();
+                        while (responseLine != null)
+                        {
+                            List<KeyValuePair> kvsData = new List<KeyValuePair>();
+                            using (Stream memoryStream = new MemoryStream())
+                            {
+                                byte[] data = Encoding.UTF8.GetBytes(responseLine);
+                                memoryStream.Write(data, 0, data.Length);
+                                memoryStream.Position = 0;
 
-            var response = await Client.SendAsync(kvsApiRequest);
-            response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
+                                using (var reader = XmlDictionaryReader.CreateTextReader(memoryStream, XmlDictionaryReaderQuotas.Max))
+                                {
+                                    kvsData = (List<KeyValuePair>)keyvaluepairserializer.ReadObject(reader);
+                                }
+                            }
 
-            return (List<KeyValuePair<string, byte[]>>)keyvaluepairserializer.ReadObject(stream);
+                            if (kvsData.Count > 0)
+                            {
+                                await this.InitiateSaveState(kvsData, workerIdentifier, phase, cancellationToken);
+                            }
+
+                            responseLine = streamReader.ReadLine();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = "Exception occured while fetching and saving Kvs data to RC for worker " + workerIdentifier.ToString() + " in " + phase.ToString() + " phase." + ex.Message;
+                ActorTrace.Source.WriteError("MigrationWorker", message);
+            }
         }
 
         private EnumerationRequest CreateEnumerationRequestObject(long startSN, long enumerationSize, bool includeDeletes)
@@ -110,38 +131,66 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return req;
         }
 
-        private async Task UpdateMetadataForLastAppliedSN(MigrationPhase phase, int workerIdentifier, long lastAppliedSN)
+        private HttpRequestMessage CreateKvsApiRequestMessage(long startSN, long enumerationSize, bool includeDeletes, string apiName)
         {
+            var requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
+            var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN, enumerationSize, includeDeletes);
+
+            using var memoryStream = new MemoryStream();
+            var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
+            requestserializer.WriteObject(binaryWriter, enumerationRequestContent);
+            binaryWriter.Flush();
+
+            var byteArray = memoryStream.ToArray();
+            var content = new ByteArrayContent(byteArray);
+            return new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(this.endpoint + apiName),
+                Content = content,
+            };
+        }
+
+        private async Task InitiateSaveState(List<KeyValuePair> kvsDataChunk, int workerIdentifier, MigrationPhase phase, CancellationToken cancellationToken)
+        {
+            var endSN = kvsDataChunk[kvsDataChunk.Count - 1].Version;
+            List<KeyValuePair<string, byte[]>> dataToSave = new List<KeyValuePair<string, byte[]>>();
+
+            foreach (KeyValuePair kvsData in kvsDataChunk)
+            {
+                dataToSave.Add(new KeyValuePair<string, byte[]>(kvsData.Key, kvsData.Value));
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            await this.stateProvider.SaveStatetoRCAsync(
+                dataToSave,
+                this.GetKeyForLastAppliedSN(phase, workerIdentifier),
+                this.GetLastAppliedSNByteArray(endSN),
+                cancellationToken);
+        }
+
+        private string GetKeyForLastAppliedSN(MigrationPhase phase, int workerIdentifier)
+        {
+            string key = string.Empty;
             if (phase == MigrationPhase.Copy)
             {
-                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                {
-                    string key = MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerIdentifier);
-                    byte[] value = Encoding.ASCII.GetBytes(lastAppliedSN.ToString());
-                    await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
-                    await tx.CommitAsync();
-                }
+                key = MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerIdentifier);
             }
             else if (phase == MigrationPhase.Catchup)
             {
-                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                {
-                    string key = MigrationConstants.GetCatchupWorkerLastAppliedSNKey(workerIdentifier);
-                    byte[] value = Encoding.ASCII.GetBytes(lastAppliedSN.ToString());
-                    await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
-                    await tx.CommitAsync();
-                }
+                key = MigrationConstants.GetCatchupWorkerLastAppliedSNKey(workerIdentifier);
             }
             else if (phase == MigrationPhase.Downtime)
             {
-                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                {
-                    string key = MigrationConstants.DowntimeWorkerLastAppliedSNKey;
-                    byte[] value = Encoding.ASCII.GetBytes(lastAppliedSN.ToString());
-                    await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
-                    await tx.CommitAsync();
-                }
+                key = MigrationConstants.DowntimeWorkerLastAppliedSNKey;
             }
+
+            return key;
+        }
+
+        private byte[] GetLastAppliedSNByteArray(long lastAppliedSN)
+        {
+            return Encoding.ASCII.GetBytes(lastAppliedSN.ToString());
         }
 
         private async Task UpdateMetadataOnCompletion(MigrationPhase phase, int workerIdentifier, long lastAppliedSN)
@@ -193,7 +242,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private void GetUserSettingsOrDefault(ActorTypeInformation actorTypeInfo)
         {
-            this.itemsPerEnumeration = -1;
+            this.itemsPerEnumeration = 1024 * 16;
             this.chunkSize = 100;
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
