@@ -86,6 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 activitySourceListenerPresent = false;
                 activity = new Activity("StatefulDatabaseIncomingRemoteCall");
+                activity.SetParentId(parentId);
             }
 
             if (!string.IsNullOrEmpty(parentId))
