@@ -31,6 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         private IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory;
         private ServicePerformanceCounterProvider servicePerformanceCounterProvider;
+        private ActivitySource serviceActivitySource;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingMessageDispatcher"/> class
@@ -40,11 +41,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <param name="serviceContext">The service fabric service context.</param>
         /// <param name="serviceImplementation">Object that implements the speciifed remoted interfaces.</param>
         /// <param name="serviceRemotingMessageBodyFactory">The factory that will be used by the dispatcher to create response message bodies.</param>
+        /// <param name="activitySourceName">Name of the ActivitySource to be used for tracing</param>
+        /// <param name="activitySourceVersion">Version of ActivitySource to be used for tracing</param>
         public ServiceRemotingMessageDispatcher(
             IEnumerable<Type> remotingTypes,
             ServiceContext serviceContext,
             object serviceImplementation,
-            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory = null)
+            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory = null,
+            string activitySourceName = "Microsoft.ServiceFabric.ActivitySource",
+            string activitySourceVersion = "")
         {
             var allRemotingTypes = new List<Type>();
             foreach (var type in remotingTypes)
@@ -58,7 +63,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                 }
             }
 
-            this.Initialize(serviceContext, serviceImplementation, allRemotingTypes, true, serviceRemotingMessageBodyFactory);
+            this.Initialize(serviceContext, serviceImplementation, allRemotingTypes, true, serviceRemotingMessageBodyFactory, activitySourceName, activitySourceVersion);
         }
 
         /// <summary>
@@ -68,13 +73,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         /// <param name="serviceContext">Service context</param>
         /// <param name="serviceImplementation">Service implementation that implements interfaces of type <see cref="IService"/></param>
         /// <param name="serviceRemotingMessageBodyFactory">The factory that will be used by the dispatcher to create response message bodies.</param>
+        /// <param name="activitySourceName">Name of the ActivitySource to be used for tracing</param>
+        /// <param name="activitySourceVersion">Version of ActivitySource to be used for tracing</param>
         public ServiceRemotingMessageDispatcher(
             ServiceContext serviceContext,
             IService serviceImplementation,
-            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory = null)
+            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory = null,
+            string activitySourceName = "Microsoft.ServiceFabric.ActivitySource",
+            string activitySourceVersion = "")
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
-            this.Initialize(serviceContext, serviceImplementation, serviceTypeInformation.InterfaceTypes, false, serviceRemotingMessageBodyFactory);
+            this.Initialize(serviceContext, serviceImplementation, serviceTypeInformation.InterfaceTypes, false, serviceRemotingMessageBodyFactory, activitySourceName, activitySourceVersion);
         }
 
         /// <summary>
@@ -104,8 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
         {
-            Console.Write(Activity.Current);
-            ActivityIdLogicalCallContext.StartActivity(requestMessage, "HandleRequestResponseAsync From Dispatcher");
+            ActivityIdLogicalCallContext.StartActivity(requestMessage, this.serviceActivitySource);
 
             // Some Log statements
             if (this.IsCancellationRequest(requestMessage.GetHeader()))
@@ -294,7 +302,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             object serviceImplementation,
             IEnumerable<Type> remotedInterfaces,
             bool nonServiceInterface,
-            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
+            IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory,
+            string activitySourceName = "",
+            string activitySourceVersion = "")
         {
             this.serviceRemotingMessageBodyFactory = serviceRemotingMessageBodyFactory ?? new DataContractRemotingMessageFactory();
 
@@ -330,6 +340,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                         interfaceDescriptions,
                         false);
             }
+
+            this.serviceActivitySource = new ActivitySource(activitySourceName, activitySourceVersion);
         }
 
         private async Task<IServiceRemotingResponseMessageBody> HandleRequestResponseAsync(

@@ -57,25 +57,28 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             }
         }
 
-        internal static void StartActivity(IServiceRemotingRequestMessage requestMessage, string activityMessage = "Start new Activity")
+        internal static void StartActivity(IServiceRemotingRequestMessage requestMessage, ActivitySource activitySource)
         {
             string parentId = null;
             if (requestMessage.GetHeader().ActivityIdParent != null)
             {
+                // if W3C
                 Activity.DefaultIdFormat = ActivityIdFormat.W3C;
                 Activity.ForceDefaultIdFormat = true;
                 parentId = requestMessage.GetHeader().ActivityIdParent;
             }
             else if (requestMessage.GetHeader().ActivityRequestId != null)
             {
+                // if old scenario
                 parentId = requestMessage.GetHeader().ActivityRequestId;
             }
             else
             {
+                // if activity not present
                 return;
             }
 
-            var activity = ServiceFabricActivitySource.StartActivity("StatefulDatabaseIncomingRemoteCall", ActivityKind.Server, CreateActivityContextFromTraceParent(parentId));
+            var activity = activitySource.StartActivity("StatefulDatabaseIncomingRemoteCall", ActivityKind.Server, CreateActivityContextFromTraceParent(parentId));
 
             if (!string.IsNullOrEmpty(parentId))
             {
