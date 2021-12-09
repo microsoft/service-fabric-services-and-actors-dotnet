@@ -81,57 +81,57 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Resuming migration from copy phase failover");
             ConditionalValue<byte[]> copyPhaseWorkerCountValue, copyPhaseEndSNValue;
-                    cancellationToken.ThrowIfCancellationRequested();
-                    using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                    {
+            cancellationToken.ThrowIfCancellationRequested();
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
                 copyPhaseWorkerCountValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CopyWorkerCountKey);
                 copyPhaseEndSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CopyPhaseEndSNKey);
-                        }
+            }
 
             int.TryParse(Encoding.ASCII.GetString(copyPhaseWorkerCountValue.Value), out var workerCountForCopyPhase);
             long.TryParse(Encoding.ASCII.GetString(copyPhaseEndSNValue.Value), out var endSNForCopyPhase);
             var isWorkerTaskIncomplete = await this.GetWorkersWithIncompleteTasksAsync(workerCountForCopyPhase, cancellationToken);
 
-                    if (isWorkerTaskIncomplete.Contains(true))
-                    {
+            if (isWorkerTaskIncomplete.Contains(true))
+            {
                 // Ensure copy workers complete tasks.
-                        var tasks = new List<Task>();
+                var tasks = new List<Task>();
 
                 Parallel.For(0, workerCountForCopyPhase, async i =>
-                        {
-                            if (isWorkerTaskIncomplete[i])
-                            {
-                                var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+                {
+                    if (isWorkerTaskIncomplete[i])
+                    {
+                        var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
                         ConditionalValue<byte[]> startSNMetadataValue, endSNMetadataValue, lastAppliedSNMetadataValue;
-                                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                                {
+                        using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+                        {
                             startSNMetadataValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerStartSNKey(i));
                             endSNMetadataValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerEndSNKey(i));
                             lastAppliedSNMetadataValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerLastAppliedSNKey(i));
-                                }
+                        }
 
                         long.TryParse(Encoding.ASCII.GetString(startSNMetadataValue.Value), out long startSNForCopyWorker);
                         long.TryParse(Encoding.ASCII.GetString(endSNMetadataValue.Value), out long endSNForCopyWorker);
                         long.TryParse(Encoding.ASCII.GetString(lastAppliedSNMetadataValue.Value), out long lastAppliedSNForCopyWorker);
 
                         if (lastAppliedSNForCopyWorker != -1)
-                                {
+                        {
                             tasks.Add(worker.StartMigrationWorker(MigrationPhase.Copy, lastAppliedSNForCopyWorker + 1, endSNForCopyWorker, i, cancellationToken));
-                                }
-                                else
-                                {
+                        }
+                        else
+                        {
                             tasks.Add(worker.StartMigrationWorker(MigrationPhase.Copy, startSNForCopyWorker, endSNForCopyWorker, i, cancellationToken));
-                                }
-                            }
-                        });
-                        await Task.WhenAll(tasks);
+                        }
+                    }
+                });
+                await Task.WhenAll(tasks);
             }
 
             return endSNForCopyPhase;
-                    }
+        }
 
         private async Task<List<bool>> GetWorkersWithIncompleteTasksAsync(int workerCount, CancellationToken cancellationToken)
-                    {
+        {
             var isWorkerTaskIncomplete = new List<bool>(workerCount);
             cancellationToken.ThrowIfCancellationRequested();
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
@@ -141,102 +141,102 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     var workerStatusValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerStatusKey(i));
                     MigrationStatus.TryParse(Encoding.ASCII.GetString(workerStatusValue.Value), out MigrationStatus status);
                     isWorkerTaskIncomplete[i] = status != MigrationStatus.Completed;
-                    }
                 }
+            }
 
             return isWorkerTaskIncomplete;
         }
 
         private async Task<long> ResumeCatchupPhaseFromFailover(CancellationToken cancellationToken)
-                {
+        {
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Resuming migration from catchup phase failover");
-                    ConditionalValue<byte[]> iterationValue, startSNValue;
-                    using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                    {
-                        iterationValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CatchupIterationKey);
-                        startSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CatchupStartSNKey);
-                    }
+            ConditionalValue<byte[]> iterationValue, startSNValue;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                iterationValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CatchupIterationKey);
+                startSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CatchupStartSNKey);
+            }
 
             long lastAppliedSNInCatchupPhase;
-                    if (!iterationValue.HasValue)
-                    {
+            if (!iterationValue.HasValue)
+            {
                 // No catchup iterations started before failover.
-                        long.TryParse(Encoding.ASCII.GetString(startSNValue.Value), out long startSN);
+                long.TryParse(Encoding.ASCII.GetString(startSNValue.Value), out long startSN);
                 lastAppliedSNInCatchupPhase = await this.StartCatchupPhaseWorkload(startSN - 1, cancellationToken);
+            }
+            else
+            {
+                int.TryParse(Encoding.ASCII.GetString(iterationValue.Value), out int catchupIterationCount);
+                ConditionalValue<byte[]> lastSNValue, lastAppliedSNValue;
+                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+                {
+                    lastSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerEndSNKey(catchupIterationCount));
+                    lastAppliedSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerLastAppliedSNKey(catchupIterationCount));
+                }
+
+                if (lastAppliedSNValue.HasValue)
+                {
+                    long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out long lastAppliedSNBeforeFailover);
+                    long.TryParse(Encoding.ASCII.GetString(lastSNValue.Value), out long lastSN);
+                    var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+
+                    if (lastAppliedSNBeforeFailover != lastSN || (endSequenceNumber - lastAppliedSNBeforeFailover > this.downtimeThreshold))
+                    {
+                        // More catchup iterations are needed before moving to downtime phase
+                        lastAppliedSNInCatchupPhase = await this.StartCatchupIteration(catchupIterationCount, lastAppliedSNBeforeFailover, cancellationToken);
                     }
                     else
                     {
-                int.TryParse(Encoding.ASCII.GetString(iterationValue.Value), out int catchupIterationCount);
-                        ConditionalValue<byte[]> lastSNValue, lastAppliedSNValue;
-                        using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                        {
-                    lastSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerEndSNKey(catchupIterationCount));
-                    lastAppliedSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerLastAppliedSNKey(catchupIterationCount));
-                        }
-
-                        if (lastAppliedSNValue.HasValue)
-                        {
-                    long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out long lastAppliedSNBeforeFailover);
-                            long.TryParse(Encoding.ASCII.GetString(lastSNValue.Value), out long lastSN);
-                            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
-
-                    if (lastAppliedSNBeforeFailover != lastSN || (endSequenceNumber - lastAppliedSNBeforeFailover > this.downtimeThreshold))
-                            {
-                        // More catchup iterations are needed before moving to downtime phase
-                        lastAppliedSNInCatchupPhase = await this.StartCatchupIteration(catchupIterationCount, lastAppliedSNBeforeFailover, cancellationToken);
-                            }
-                            else
-                            {
                         lastAppliedSNInCatchupPhase = lastAppliedSNBeforeFailover;
-                            }
-                        }
-                        else
-                        {
-                    // Last catchup iteration didn't start before failover.
-                            ConditionalValue<byte[]> prevIterationLastAppliedSNValue;
-                            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-                            {
-                        prevIterationLastAppliedSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerLastAppliedSNKey(catchupIterationCount - 1));
-                            }
-
-                            long.TryParse(Encoding.ASCII.GetString(prevIterationLastAppliedSNValue.Value), out long prevIterationLastAppliedSN);
-                    lastAppliedSNInCatchupPhase = await this.StartCatchupIteration(catchupIterationCount - 1, prevIterationLastAppliedSN, cancellationToken);
-                        }
                     }
-
-            return lastAppliedSNInCatchupPhase;
                 }
-
-        private async Task ResumeDowntimePhaseFromFailover(CancellationToken cancellationToken)
+                else
                 {
-            ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Resuming migration from downtime phase failover");
-            ConditionalValue<byte[]> lastAppliedSNValueForDowntime, startSNValueForDowntime, lastSNValueForDowntime;
+                    // Last catchup iteration didn't start when failover occurred.
+                    ConditionalValue<byte[]> prevIterationLastAppliedSNValue;
                     using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                     {
+                        prevIterationLastAppliedSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerLastAppliedSNKey(catchupIterationCount - 1));
+                    }
+
+                    long.TryParse(Encoding.ASCII.GetString(prevIterationLastAppliedSNValue.Value), out long prevIterationLastAppliedSN);
+                    lastAppliedSNInCatchupPhase = await this.StartCatchupIteration(catchupIterationCount - 1, prevIterationLastAppliedSN, cancellationToken);
+                }
+            }
+
+            return lastAppliedSNInCatchupPhase;
+        }
+
+        private async Task ResumeDowntimePhaseFromFailover(CancellationToken cancellationToken)
+        {
+            ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Resuming migration from downtime phase failover");
+            ConditionalValue<byte[]> lastAppliedSNValueForDowntime, startSNValueForDowntime, lastSNValueForDowntime;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
                 lastAppliedSNValueForDowntime = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.DowntimeWorkerLastAppliedSNKey);
                 startSNValueForDowntime = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.DowntimeStartSNKey);
                 lastSNValueForDowntime = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.DowntimeEndSNKey);
-                    }
+            }
 
             long.TryParse(Encoding.ASCII.GetString(lastSNValueForDowntime.Value), out long lastSNForDowntime);
 
             if (lastAppliedSNValueForDowntime.HasValue)
-                    {
+            {
                 long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValueForDowntime.Value), out long lastAppliedSNBeforeFailure);
                 if (lastAppliedSNBeforeFailure != lastSNForDowntime)
-                        {
-                            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+                {
+                    var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
                     await worker.StartMigrationWorker(MigrationPhase.Downtime, lastAppliedSNBeforeFailure + 1, lastSNForDowntime, -1, cancellationToken);
-                        }
+                }
 
                 await this.MarkMigrationCompleted(cancellationToken);
-                    }
-                    else
-                    {
+            }
+            else
+            {
                 long.TryParse(Encoding.ASCII.GetString(startSNValueForDowntime.Value), out long startSN);
-                        await this.StartDowntimePhaseWorkload(startSN, cancellationToken);
-                    }
-                }
+                await this.StartDowntimePhaseWorkload(startSN - 1, cancellationToken);
+            }
+        }
 
         private async Task StartCompleteMigration(CancellationToken cancellationToken)
         {

@@ -98,14 +98,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                                 memoryStream.Position = 0;
 
                                 using (var reader = XmlDictionaryReader.CreateTextReader(memoryStream, XmlDictionaryReaderQuotas.Max))
-            {
+                                {
                                     kvsData = (List<KeyValuePair>)keyvaluepairserializer.ReadObject(reader);
                                 }
                             }
 
                             if (kvsData.Count > 0)
                             {
-                                await this.InitiateSaveState(kvsData, workerIdentifier, phase, cancellationToken);
+                                await this.SaveKvsDataInRC(kvsData, workerIdentifier, phase, cancellationToken);
                             }
 
                             responseLine = streamReader.ReadLine();
@@ -144,22 +144,22 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             var byteArray = memoryStream.ToArray();
             var content = new ByteArrayContent(byteArray);
             return new HttpRequestMessage
-        {
+            {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(this.endpoint + apiName),
                 Content = content,
             };
         }
 
-        private async Task InitiateSaveState(List<KeyValuePair> kvsDataChunk, int workerIdentifier, MigrationPhase phase, CancellationToken cancellationToken)
-            {
-            var endSN = kvsDataChunk[kvsDataChunk.Count - 1].Version;
+        private async Task SaveKvsDataInRC(List<KeyValuePair> kvsData, int workerIdentifier, MigrationPhase phase, CancellationToken cancellationToken)
+        {
+            var endSN = kvsData[kvsData.Count - 1].Version;
             List<KeyValuePair<string, byte[]>> dataToSave = new List<KeyValuePair<string, byte[]>>();
 
-            foreach (KeyValuePair kvsData in kvsDataChunk)
-                {
-                dataToSave.Add(new KeyValuePair<string, byte[]>(kvsData.Key, kvsData.Value));
-                }
+            foreach (KeyValuePair data in kvsData)
+            {
+                dataToSave.Add(new KeyValuePair<string, byte[]>(data.Key, data.Value));
+            }
 
             cancellationToken.ThrowIfCancellationRequested();
             await this.stateProvider.SaveStatetoRCAsync(
@@ -167,15 +167,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 this.GetKeyForLastAppliedSN(phase, workerIdentifier),
                 this.GetLastAppliedSNByteArray(endSN),
                 cancellationToken);
-            }
+        }
 
         private string GetKeyForLastAppliedSN(MigrationPhase phase, int workerIdentifier)
-            {
+        {
             string key = string.Empty;
             if (phase == MigrationPhase.Copy)
-                {
+            {
                 key = MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerIdentifier);
-                }
+            }
             else if (phase == MigrationPhase.Catchup)
             {
                 key = MigrationConstants.GetCatchupWorkerLastAppliedSNKey(workerIdentifier);
@@ -183,10 +183,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             else if (phase == MigrationPhase.Downtime)
             {
                 key = MigrationConstants.DowntimeWorkerLastAppliedSNKey;
-                }
+            }
 
             return key;
-            }
+        }
 
         private byte[] GetLastAppliedSNByteArray(long lastAppliedSN)
         {
