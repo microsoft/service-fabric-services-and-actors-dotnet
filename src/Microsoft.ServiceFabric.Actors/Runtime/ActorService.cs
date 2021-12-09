@@ -309,6 +309,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.actorManagerAdapter.ActorManager = new ActorManager(this);
                 await this.actorManagerAdapter.OpenAsync(this.Partition, cancellationToken);
                 this.ActorManager.DiagnosticsEventManager.ActorChangeRole(this.replicaRole, newRole);
+
+                // If Migration attibute is set to target and StateProvider is not KvsActorStateProvider
+                if (this.IsMigrationTarget())
+                {
+                    // this.ambiguousActorIdManager
+                }
             }
             else
             {
@@ -447,6 +453,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             types.AddRange(this.ActorTypeInformation.InterfaceTypes);
 
             return (Actors.Helper.IsMigrationSource(types) && this.StateProviderReplica is KvsActorStateProvider);
+        }
+
+        private bool IsMigrationTarget()
+        {
+            var types = new List<Type> { this.ActorTypeInformation.ImplementationType };
+            types.AddRange(this.ActorTypeInformation.InterfaceTypes);
+
+            return (Actors.Helper.IsMigrationTarget(types) && !(this.StateProviderReplica is KvsActorStateProvider));
         }
     }
 }
