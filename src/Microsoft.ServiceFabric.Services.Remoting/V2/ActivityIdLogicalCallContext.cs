@@ -78,7 +78,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 return;
             }
 
+            // If there are any Listeners then create Activity using ActivitySource
             var activity = activitySource.StartActivity("StatefulDatabaseIncomingRemoteCall", ActivityKind.Server, CreateActivityContextFromTraceParent(parentId));
+            bool activitySourceListenerPresent = true;
+
+            if (activity == null)
+            {
+                activitySourceListenerPresent = false;
+                activity = new Activity("StatefulDatabaseIncomingRemoteCall");
+            }
 
             if (!string.IsNullOrEmpty(parentId))
             {
@@ -98,6 +106,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 {
                     activity.AddBaggage(item.Key, item.Value);
                 }
+            }
+
+            if (!activitySourceListenerPresent)
+            {
+                activity.Start();
             }
         }
 
