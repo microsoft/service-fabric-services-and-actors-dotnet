@@ -79,7 +79,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             ServiceContext serviceContext,
             IService serviceImplementation,
             IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory = null,
-            string activitySourceName = "Microsoft.ServiceFabric.ActivitySource",
+            string activitySourceName = "Microsoft.ServiceFabric.Services.Remoting.ActivitySource",
             string activitySourceVersion = "")
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
         {
-            ActivityIdLogicalCallContext.StartActivity(requestMessage, this.serviceActivitySource);
+            ActivityIdLogicalCallContext.StartActivityIfNeeded(requestMessage, this.serviceActivitySource);
 
             // Some Log statements
             if (this.IsCancellationRequest(requestMessage.GetHeader()))

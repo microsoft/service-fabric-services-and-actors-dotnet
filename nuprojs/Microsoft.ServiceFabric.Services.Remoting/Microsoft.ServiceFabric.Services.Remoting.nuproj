@@ -99,7 +99,7 @@
         <Version>[$(NugetPkg_Version_Microsoft_ServiceFabric_FabricTransport_Internal)]</Version>
       </Dependency>
 	  <Dependency Include="System.Diagnostics.DiagnosticSource">
-		<Version>[5.0.0.0]</Version>
+		<Version>5.0.0.0</Version>
 	  </Dependency>
     </ItemGroup>
   </Project>

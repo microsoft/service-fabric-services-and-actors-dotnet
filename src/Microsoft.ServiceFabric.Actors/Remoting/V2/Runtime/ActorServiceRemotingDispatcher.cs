@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
 {
     using System;
+    using System.Diagnostics;
     using System.Fabric;
     using System.Fabric.Common;
     using System.Globalization;
@@ -26,6 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
     {
         private readonly ActorService actorService;
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
+        private ActivitySource actorActivitySource;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorServiceRemotingDispatcher"/> class. This can dispatch messages to an actor service and
@@ -33,9 +35,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         /// </summary>
         /// <param name="actorService">An actor service instance.</param>
         /// <param name="serviceRemotingRequestMessageBodyFactory">Factory for creating remtoing request body and response body objects.</param>
+        /// <param name="activitySourceName">Name of the ActivitySource to be used for tracing</param>
+        /// <param name="activitySourceVersion">Version of ActivitySource to be used for tracing</param>
         public ActorServiceRemotingDispatcher(
             ActorService actorService,
-            IServiceRemotingMessageBodyFactory serviceRemotingRequestMessageBodyFactory)
+            IServiceRemotingMessageBodyFactory serviceRemotingRequestMessageBodyFactory,
+            string activitySourceName = "Microsoft.ServiceFabric.Actors.Remoting.ActivitySource",
+            string activitySourceVersion = "")
             : base(
                 GetContext(actorService),
                 actorService,
@@ -43,6 +49,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         {
             this.actorService = actorService;
             this.cancellationHelper = new ServiceRemotingCancellationHelper(actorService.Context.TraceId);
+            this.actorActivitySource = new ActivitySource(activitySourceName, activitySourceVersion);
         }
 
         /// <summary>
@@ -56,6 +63,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
         {
+            ActivityIdLogicalCallContext.StartActivityIfNeeded(requestMessage, this.actorActivitySource);
+
             Requires.ThrowIfNull(requestMessage, "requestMessage");
             Requires.ThrowIfNull(requestMessage.GetHeader(), "RequestMessageHeader");
 

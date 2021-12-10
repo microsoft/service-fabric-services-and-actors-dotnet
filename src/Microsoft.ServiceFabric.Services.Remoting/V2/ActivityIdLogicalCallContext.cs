@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             }
         }
 
-        internal static void StartActivity(IServiceRemotingRequestMessage requestMessage, ActivitySource activitySource)
+        internal static void StartActivityIfNeeded(IServiceRemotingRequestMessage requestMessage, ActivitySource activitySource)
         {
             string parentId = null;
             if (requestMessage.GetHeader().ActivityIdParent != null)
@@ -79,13 +79,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             }
 
             // If there are any Listeners then create Activity using ActivitySource
-            var activity = activitySource.StartActivity("StatefulDatabaseIncomingRemoteCall", ActivityKind.Server, CreateActivityContextFromTraceParent(parentId));
+            var activity = activitySource.StartActivity("RemotingIncomingRemoteCall", ActivityKind.Server, CreateActivityContextFromTraceParent(parentId));
             bool activitySourceListenerPresent = true;
 
             if (activity == null)
             {
                 activitySourceListenerPresent = false;
-                activity = new Activity("StatefulDatabaseIncomingRemoteCall");
+                activity = new Activity("RemotingIncomingRemoteCall");
                 activity.SetParentId(parentId);
             }
 
@@ -125,29 +125,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         }
 
         /// <summary>
-        /// Tries the get.
+        /// Gets the Activity in Async Local
         /// </summary>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         internal static Activity Get()
         {
             return Activity.Current;
-        }
-
-        /// <summary>
-        /// Sets the specified activity.
-        /// </summary>
-        /// <param name="activity">The activity.</param>
-        internal static void Set(Activity activity)
-        {
-            Activity.Current = activity;
-        }
-
-        /// <summary>
-        /// Clears this instance.
-        /// </summary>
-        internal static void Clear()
-        {
-            Activity.Current = null;
         }
 
         private static ActivityContext CreateActivityContextFromTraceParent(string traceParent)
