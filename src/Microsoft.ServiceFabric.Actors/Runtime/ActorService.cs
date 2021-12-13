@@ -35,6 +35,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string KVSToRCMigrationActorStateProviderClassFullName = "Microsoft.ServiceFabric.Actors.Migration.KVStoRCMigrationActorStateProvider";
         private const string MigrationOrchestratorClassFullName = "Microsoft.ServiceFabric.Actors.Migration.MigrationOrchestrator";
         private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
+        private const string AmbiguousActorIdHandlerClassFullName = "Microsoft.ServiceFabric.Actors.Migration.AmbiguousActorIdHandler";
+        private const string AmbiguousActorIdHandlerPopulateCacheMethod = "PopulateCache";
 
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
@@ -51,6 +53,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private object actorsMigrationUtility;
         private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
+        private object ambiguousActorIdHandler;
+        private MethodInfo ambiguousActorIdHandlerPopulateCacheMethodInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -84,6 +88,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
                 this.StateProviderReplica.GetType().ToString());
+
+            if (this.IsMigrationTarget() || this.IsMigrationSource())
+            {
+                this.InitializeActorMigrationLibrary();
+            }
         }
 
         /// <summary>
@@ -243,7 +252,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
             if (this.IsMigrationSource())
             {
-                this.InitializeActorMigrationUtility();
                 serviceReplicaListeners.Add(new ServiceReplicaListener(
                     serviceContext =>
                 {
@@ -313,7 +321,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // If Migration attibute is set to target and StateProvider is not KvsActorStateProvider
                 if (this.IsMigrationTarget())
                 {
-                    // this.ambiguousActorIdManager
+                    this.ambiguousActorIdHandlerPopulateCacheMethodInfo.Invoke(this.ambiguousActorIdHandler, new object[] { });
                 }
             }
             else
@@ -376,7 +384,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorId);
         }
 
-        private void InitializeActorMigrationUtility()
+        private void InitializeActorMigrationLibrary()
         {
             var currentAssembly = typeof(ActorService).GetTypeInfo().Assembly;
 
@@ -399,6 +407,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
             this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
             this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
+
+            var ambiguousActorIdHandlerTypeName = Actors.Helper.CreateQualifiedNameForAssembly(
+                actorsMigrationAssembly.FullName,
+                AmbiguousActorIdHandlerClassFullName);
+
+            var ambiguousActorIdHandlerType = Type.GetType(ambiguousActorIdHandlerTypeName, true);
+            this.ambiguousActorIdHandler = Activator.CreateInstance(ambiguousActorIdHandlerType, new object[] { this.stateProvider, this.actorTypeInformation });
+            this.ambiguousActorIdHandlerPopulateCacheMethodInfo = actorsMigrationUtilityType.GetMethod(AmbiguousActorIdHandlerPopulateCacheMethod);
         }
 
         private Type GetKVStoRCMigrationActorStateProviderType()
