@@ -40,24 +40,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         ///     for message processing.
         /// </param>
         /// <param name="serializationProvider">It is used to serialize deserialize request and response body </param>
-        /// <param name="activitySourceName">Name of the ActivitySource to be used for tracing</param>
-        /// <param name="activitySourceVersion">Version of ActivitySource to be used for tracing</param>
         /// <param name="remotingListenerSettings">The settings for the listener</param>
         public FabricTransportServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null,
-            string activitySourceName = "Microsoft.ServiceFabric.ActivitySource",
-            string activitySourceVersion = "")
+            IServiceRemotingMessageSerializationProvider serializationProvider = null)
             : this(
                   serviceContext,
                   new ServiceRemotingMessageDispatcher(
                     serviceContext,
                     serviceImplementation,
                     GetMessageBodyFactory(serializationProvider, remotingListenerSettings),
-                    activitySourceName,
-                    activitySourceVersion),
+                    string.Empty,
+                    string.Empty),
                   remotingListenerSettings,
                   serializationProvider)
         {
