@@ -318,6 +318,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        internal IReliableStateManagerReplica2 GetStateManager()
+        {
+            return this.rcStateProvider.GetStateManager();
+        }
+
         private int GetNthIndex(string s, char t, int n)
         {
             int count = 0;
