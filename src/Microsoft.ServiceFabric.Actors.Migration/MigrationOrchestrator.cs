@@ -88,8 +88,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 copyPhaseEndSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CopyPhaseEndSNKey);
             }
 
-            int.TryParse(Encoding.ASCII.GetString(copyPhaseWorkerCountValue.Value), out var workerCountForCopyPhase);
-            long.TryParse(Encoding.ASCII.GetString(copyPhaseEndSNValue.Value), out var endSNForCopyPhase);
+            var workerCountForCopyPhase = int.Parse(Encoding.ASCII.GetString(copyPhaseWorkerCountValue.Value));
+            var endSNForCopyPhase = long.Parse(Encoding.ASCII.GetString(copyPhaseEndSNValue.Value));
             var isWorkerTaskIncomplete = await this.GetWorkersWithIncompleteTasksAsync(workerCountForCopyPhase, cancellationToken);
 
             if (isWorkerTaskIncomplete.Contains(true))
@@ -110,9 +110,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                             lastAppliedSNMetadataValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerLastAppliedSNKey(i));
                         }
 
-                        long.TryParse(Encoding.ASCII.GetString(startSNMetadataValue.Value), out long startSNForCopyWorker);
-                        long.TryParse(Encoding.ASCII.GetString(endSNMetadataValue.Value), out long endSNForCopyWorker);
-                        long.TryParse(Encoding.ASCII.GetString(lastAppliedSNMetadataValue.Value), out long lastAppliedSNForCopyWorker);
+                        long startSNForCopyWorker = long.Parse(Encoding.ASCII.GetString(startSNMetadataValue.Value));
+                        long endSNForCopyWorker = long.Parse(Encoding.ASCII.GetString(endSNMetadataValue.Value));
+                        long lastAppliedSNForCopyWorker = long.Parse(Encoding.ASCII.GetString(lastAppliedSNMetadataValue.Value));
 
                         if (lastAppliedSNForCopyWorker != -1)
                         {
@@ -161,12 +161,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             if (!iterationValue.HasValue)
             {
                 // No catchup iterations started before failover.
-                long.TryParse(Encoding.ASCII.GetString(startSNValue.Value), out long startSN);
+                long startSN = long.Parse(Encoding.ASCII.GetString(startSNValue.Value));
                 lastAppliedSNInCatchupPhase = await this.StartCatchupPhaseWorkload(startSN - 1, cancellationToken);
             }
             else
             {
-                int.TryParse(Encoding.ASCII.GetString(iterationValue.Value), out int catchupIterationCount);
+                int catchupIterationCount = int.Parse(Encoding.ASCII.GetString(iterationValue.Value));
                 ConditionalValue<byte[]> lastSNValue, lastAppliedSNValue;
                 using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                 {
@@ -176,8 +176,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                 if (lastAppliedSNValue.HasValue)
                 {
-                    long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out long lastAppliedSNBeforeFailover);
-                    long.TryParse(Encoding.ASCII.GetString(lastSNValue.Value), out long lastSN);
+                    long lastAppliedSNBeforeFailover = long.Parse(Encoding.ASCII.GetString(lastAppliedSNValue.Value));
+                    long lastSN = long.Parse(Encoding.ASCII.GetString(lastSNValue.Value));
                     var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
 
                     if (lastAppliedSNBeforeFailover != lastSN || (endSequenceNumber - lastAppliedSNBeforeFailover > this.downtimeThreshold))
@@ -199,7 +199,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         prevIterationLastAppliedSNValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerLastAppliedSNKey(catchupIterationCount - 1));
                     }
 
-                    long.TryParse(Encoding.ASCII.GetString(prevIterationLastAppliedSNValue.Value), out long prevIterationLastAppliedSN);
+                    long prevIterationLastAppliedSN = long.Parse(Encoding.ASCII.GetString(prevIterationLastAppliedSNValue.Value));
                     lastAppliedSNInCatchupPhase = await this.StartCatchupIteration(catchupIterationCount - 1, prevIterationLastAppliedSN, cancellationToken);
                 }
             }
@@ -218,11 +218,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 lastSNValueForDowntime = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.DowntimeEndSNKey);
             }
 
-            long.TryParse(Encoding.ASCII.GetString(lastSNValueForDowntime.Value), out long lastSNForDowntime);
+            long lastSNForDowntime = long.Parse(Encoding.ASCII.GetString(lastSNValueForDowntime.Value));
 
             if (lastAppliedSNValueForDowntime.HasValue)
             {
-                long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValueForDowntime.Value), out long lastAppliedSNBeforeFailure);
+                long lastAppliedSNBeforeFailure = long.Parse(Encoding.ASCII.GetString(lastAppliedSNValueForDowntime.Value));
                 if (lastAppliedSNBeforeFailure != lastSNForDowntime)
                 {
                     var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
@@ -233,7 +233,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
             else
             {
-                long.TryParse(Encoding.ASCII.GetString(startSNValueForDowntime.Value), out long startSN);
+                long startSN = long.Parse(Encoding.ASCII.GetString(startSNValueForDowntime.Value));
                 await this.StartDowntimePhaseWorkload(startSN - 1, cancellationToken);
             }
         }
