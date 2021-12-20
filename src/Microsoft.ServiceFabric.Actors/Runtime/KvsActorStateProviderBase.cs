@@ -1375,11 +1375,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                return this.actorStateProviderHelper.GetStoredActorIdsAsync(
+                return this.actorStateProviderHelper.GetStoredActorIdsForKvsAsync(
                     itemsCount,
                     continuationToken,
-                    () => this.storeReplica.EnumerateMetadata(tx, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix),
-                    metadata => metadata.Key,
+                    this.storeReplica,
                     cancellationToken);
             }
         }
