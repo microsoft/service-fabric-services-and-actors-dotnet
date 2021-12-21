@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.transportMessageHandler = new FabricTransportMessageHandler(
                 serviceRemotingMessageHandler,
                 serializersManager,
-                new ExceptionConvertorHelper(svcExceptionConvertors, remotingSettings.RemotingExceptionDepth),
+                new ExceptionConvertorHelper(svcExceptionConvertors, remotingSettings),
                 serviceContext.PartitionId,
                 serviceContext.ReplicaOrInstanceId);
 

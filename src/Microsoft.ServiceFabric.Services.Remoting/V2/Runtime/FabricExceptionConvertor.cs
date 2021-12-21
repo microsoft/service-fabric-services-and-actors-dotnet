@@ -6,9 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 {
     using System;
-    using System.Collections.Generic;
     using System.Fabric;
-    using System.Runtime.InteropServices;
     using Microsoft.ServiceFabric.Services.Communication;
 
     /// <summary>

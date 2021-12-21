@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication;
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
@@ -28,7 +29,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
             };
 
         private static Services.Remoting.V2.Runtime.ExceptionConvertorHelper runtimeHelper
-            = new Services.Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors, 2);
+            = new Services.Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors, new FabricTransportRemotingListenerSettings()
+            {
+                RemotingExceptionDepth = 2,
+                ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
+            });
 
         private static List<Services.Remoting.V2.Client.IExceptionConvertor> clientConvertors
             = new List<Services.Remoting.V2.Client.IExceptionConvertor>()
@@ -37,7 +42,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
             };
 
         private static Services.Remoting.V2.Client.ExceptionConvertorHelper clientHelper
-            = new Services.Remoting.V2.Client.ExceptionConvertorHelper(clientConvertors);
+            = new Services.Remoting.V2.Client.ExceptionConvertorHelper(
+                clientConvertors,
+                new FabricTransportRemotingSettings()
+                {
+                    ExceptionDeserializationTechnique = FabricTransportRemotingSettings.ExceptionDeserialization.Default,
+                });
 
         private static List<FabricException> fabricExceptions = new List<FabricException>()
         {
@@ -62,8 +72,17 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
                 var serializedData = runtimeHelper.SerializeRemoteException(exception);
                 var msgStream = new SegmentedReadMemoryStream(serializedData);
 
-                var isdeserialized = clientHelper.TryDeserializeRemoteException(msgStream, out Exception resultFabricEx);
-                Assert.True(isdeserialized);
+                Exception resultFabricEx = null;
+                try
+                {
+                    clientHelper.DeserializeRemoteExceptionAndThrow(msgStream);
+                }
+                catch (Exception ex)
+                {
+                    resultFabricEx = ex;
+                }
+
+                Assert.True(resultFabricEx != null);
                 Assert.Equal(resultFabricEx.GetType(), exception.GetType());
                 Assert.Equal(resultFabricEx.Message, exception.Message);
                 Assert.Equal(resultFabricEx.HResult, exception.HResult);

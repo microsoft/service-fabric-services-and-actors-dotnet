@@ -7,19 +7,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
     using System;
     using System.Collections.Generic;
-    using System.Fabric;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Xml;
     using Microsoft.ServiceFabric.Services.Communication;
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 
     internal class ExceptionConvertorHelper
     {
+        private static readonly string TraceEventType = "ExceptionConvertorHelper";
         private IEnumerable<IExceptionConvertor> convertors;
+        private FabricTransportRemotingSettings remotingSettings;
 
-        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors)
+        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingSettings remotingSettings)
         {
             this.convertors = convertors;
+            this.remotingSettings = remotingSettings;
         }
 
         public Exception FromServiceException(ServiceException serviceException)
@@ -60,16 +64,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Throw
+                    ServiceTrace.Source.WriteWarning(
+                        TraceEventType,
+                        "Failed to convert ServiceException({0}) to ActualException : Reason - {1}",
+                        serviceException.ActualExceptionType,
+                        ex);
                 }
             }
 
             return actualEx != null ? actualEx : serviceException;
         }
 
-        public ServiceException FromRemoteException(RemoteException2 remoteEx)
+        public ServiceException FromRemoteException2(RemoteException2 remoteEx)
         {
             var svcEx = new ServiceException(remoteEx.Type, remoteEx.Message);
             svcEx.ActualExceptionStackTrace = remoteEx.StackTrace;
@@ -80,16 +88,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                 svcEx.ActualInnerExceptions = new List<ServiceException>();
                 foreach (var inner in remoteEx.InnerExceptions)
                 {
-                    svcEx.ActualInnerExceptions.Add(this.FromRemoteException(inner));
+                    svcEx.ActualInnerExceptions.Add(this.FromRemoteException2(inner));
                 }
             }
 
             return svcEx;
         }
 
-        public bool TryDeserializeRemoteException(Stream stream, out RemoteException2 remoteException)
+        public RemoteException2 DeserializeRemoteException2(Stream stream)
         {
-            remoteException = null;
             var serializer = new DataContractSerializer(
                 typeof(RemoteException2),
                 new DataContractSerializerSettings()
@@ -102,31 +109,77 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                 stream.Seek(0, SeekOrigin.Begin);
                 using (var reader = XmlDictionaryReader.CreateBinaryReader(stream, XmlDictionaryReaderQuotas.Max))
                 {
-                    remoteException = (RemoteException2)serializer.ReadObject(reader);
-
-                    return true;
+                    return (RemoteException2)serializer.ReadObject(reader);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // Throw
-            }
+                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Default)
+                {
+                    ServiceTrace.Source.WriteWarning(
+                       TraceEventType,
+                       "Failed to deserialize stream to RemoteException2: Reason - {0}",
+                       e);
+                }
+                else
+                {
+                    ServiceTrace.Source.WriteInfo(
+                       TraceEventType,
+                       "Failed to deserialize stream to RemoteException2: Reason - {0}",
+                       e);
+                }
 
-            return false;
+                throw e;
+            }
         }
 
-        public bool TryDeserializeRemoteException(Stream stream, out Exception exception)
+        public void DeserializeRemoteExceptionAndThrow(Stream stream)
         {
-            exception = null;
-            if (this.TryDeserializeRemoteException(stream, out RemoteException2 remoteException))
+            Exception exceptionToThrow = null;
+            try
             {
-                var svcEx = this.FromRemoteException(remoteException);
-                exception = this.FromServiceException(svcEx);
+                var remoteException2 = this.DeserializeRemoteException2(stream);
+                var svcEx = this.FromRemoteException2(remoteException2);
+                var ex = this.FromServiceException(svcEx);
 
-                return true;
+                if (ex is AggregateException)
+                {
+                    exceptionToThrow = ex;
+                }
+                else
+                {
+                    exceptionToThrow = new AggregateException(ex);
+                }
+            }
+            catch (Exception dcsE)
+            {
+                var serEx = new ServiceException(dcsE.GetType().FullName, string.Format(
+                        CultureInfo.InvariantCulture,
+                        SR.ErrorDeserializationFailure,
+                        dcsE.ToString()));
+
+                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
+                {
+                    stream.Seek(0, SeekOrigin.Begin);
+                    var isDeserialized =
+                        RemoteException.ToException(
+                            stream,
+                            out var bfE);
+                    if (isDeserialized)
+                    {
+                        exceptionToThrow = new AggregateException(bfE);
+                    }
+                    else
+                    {
+                        exceptionToThrow = new ServiceException(bfE.GetType().FullName, string.Format(
+                            CultureInfo.InvariantCulture,
+                            SR.ErrorDeserializationFailure,
+                            bfE.ToString()));
+                    }
+                }
             }
 
-            return false;
+            throw exceptionToThrow;
         }
     }
 }

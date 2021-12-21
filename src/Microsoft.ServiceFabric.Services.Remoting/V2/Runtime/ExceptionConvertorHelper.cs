@@ -12,16 +12,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
     using System.Runtime.Serialization;
     using System.Xml;
     using Microsoft.ServiceFabric.Services.Communication;
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
     internal class ExceptionConvertorHelper
     {
+        private static readonly string TraceEventType = "ExceptionConvertorHelper";
         private IEnumerable<IExceptionConvertor> convertors;
-        private int remotingExceptionDepth;
+        private FabricTransportRemotingListenerSettings listenerSettings;
 
-        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors, int remotingExceptionDepth)
+        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingListenerSettings listenerSettings)
         {
             this.convertors = convertors;
-            this.remotingExceptionDepth = remotingExceptionDepth;
+            this.listenerSettings = listenerSettings;
         }
 
         public ServiceException ToServiceException(Exception originalException, int currentDepth)
@@ -33,7 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                 {
                     if (convertor.TryConvertToServiceException(originalException, out serviceException))
                     {
-                        if (++currentDepth > this.remotingExceptionDepth)
+                        if (++currentDepth > this.listenerSettings.RemotingExceptionDepth)
                         {
                             break;
                         }
@@ -45,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                             int currentBreadth = 0;
                             foreach (var inner in innerEx)
                             {
-                                if (++currentBreadth > this.remotingExceptionDepth)
+                                if (++currentBreadth > this.listenerSettings.RemotingExceptionDepth)
                                 {
                                     break;
                                 }
@@ -57,9 +59,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                         break;
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Throw
+                    ServiceTrace.Source.WriteWarning(
+                       TraceEventType,
+                       "Failed to convert ActualException({0}) to ServiceException : Reason - {1}",
+                       originalException.GetType().Name,
+                       ex);
                 }
             }
 
@@ -118,10 +124,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
         {
-            var svcEx = this.ToServiceException(exception);
-            var remoteEx = this.ToRemoteException(svcEx);
+            if (this.listenerSettings.ExceptionSerializationTechnique == FabricTransportRemotingListenerSettings.ExceptionSerialization.Default)
+            {
+                var svcEx = this.ToServiceException(exception);
+                var remoteEx = this.ToRemoteException(svcEx);
 
-            return this.SerializeRemoteException(remoteEx);
+                return this.SerializeRemoteException(remoteEx);
+            }
+            else
+            {
+                return RemoteException.FromException(exception).Data;
+            }
         }
 
         public class DefaultExceptionConvetor : IExceptionConvertor

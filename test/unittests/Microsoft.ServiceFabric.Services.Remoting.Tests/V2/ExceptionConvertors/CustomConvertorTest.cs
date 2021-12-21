@@ -33,12 +33,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 {
                     new CustomConvertorRuntime(),
                 },
-                3);
+                new FabricTransportRemotingListenerSettings()
+                {
+                    RemotingExceptionDepth = 3,
+                    ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
+                });
 
         private static Remoting.V2.Client.ExceptionConvertorHelper clientHelper
-            = new Remoting.V2.Client.ExceptionConvertorHelper(new List<Remoting.V2.Client.IExceptionConvertor>()
+            = new Remoting.V2.Client.ExceptionConvertorHelper(
+                new List<Remoting.V2.Client.IExceptionConvertor>()
                 {
                     new CustomConvertorClient(),
+                },
+                new FabricTransport.FabricTransportRemotingSettings()
+                {
+                    ExceptionDeserializationTechnique = FabricTransport.FabricTransportRemotingSettings.ExceptionDeserialization.Default,
                 });
 
         /// <summary>
@@ -60,8 +69,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             var serializedData = runtimeHelper.SerializeRemoteException(exception);
             var msgStream = new SegmentedReadMemoryStream(serializedData);
 
-            var isdeserialized = clientHelper.TryDeserializeRemoteException(msgStream, out Exception resultEx);
-            Assert.True(isdeserialized);
+            Exception resultEx = null;
+            try
+            {
+                clientHelper.DeserializeRemoteExceptionAndThrow(msgStream);
+            }
+            catch (AggregateException ex)
+            {
+                resultEx = ex.InnerException;
+            }
+
+            Assert.True(resultEx != null);
             Assert.Equal(resultEx.GetType(), exception.GetType());
             Assert.Equal(resultEx.Message, exception.Message);
             Assert.Equal(resultEx.HResult, exception.HResult);

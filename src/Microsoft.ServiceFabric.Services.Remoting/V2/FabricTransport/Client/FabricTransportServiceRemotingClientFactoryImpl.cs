@@ -87,6 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     this.serializersManager,
                     nativeClient,
                     remotingHandler,
+                    this.settings,
                     this.exceptionConvertors);
                 remotingHandler.ClientConnected += this.OnFabricTransportClientConnected;
                 remotingHandler.ClientDisconnected += this.OnFabricTransportClientDisconnected;

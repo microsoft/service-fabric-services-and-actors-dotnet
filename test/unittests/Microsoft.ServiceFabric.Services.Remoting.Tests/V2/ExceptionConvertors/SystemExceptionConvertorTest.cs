@@ -36,7 +36,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
            };
 
         private static Remoting.V2.Runtime.ExceptionConvertorHelper runtimeHelper
-            = new Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors, 3);
+            = new Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors, new FabricTransportRemotingListenerSettings()
+            {
+                RemotingExceptionDepth = 3,
+                ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
+            });
 
         private static List<Remoting.V2.Client.IExceptionConvertor> clientConvertors
             = new List<Remoting.V2.Client.IExceptionConvertor>()
@@ -46,7 +50,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             };
 
         private static Remoting.V2.Client.ExceptionConvertorHelper clientHelper
-            = new Remoting.V2.Client.ExceptionConvertorHelper(clientConvertors);
+            = new Remoting.V2.Client.ExceptionConvertorHelper(
+                clientConvertors,
+                new FabricTransport.FabricTransportRemotingSettings()
+                {
+                    ExceptionDeserializationTechnique = FabricTransport.FabricTransportRemotingSettings.ExceptionDeserialization.Default,
+                });
 
         private static List<SystemException> systemExceptions = new List<SystemException>()
         {
@@ -131,8 +140,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 var serializedData = runtimeHelper.SerializeRemoteException(exception);
                 var msgStream = new SegmentedReadMemoryStream(serializedData);
 
-                var isdeserialized = clientHelper.TryDeserializeRemoteException(msgStream, out Exception resultEx);
-                Assert.True(isdeserialized);
+                Exception resultEx = null;
+                try
+                {
+                    clientHelper.DeserializeRemoteExceptionAndThrow(msgStream);
+                }
+                catch (AggregateException ex)
+                {
+                    resultEx = ex.InnerException;
+                }
+
+                Assert.True(resultEx != null);
                 Assert.Equal(resultEx.GetType(), exception.GetType());
                 if (!exception.GetType().Equals(typeof(ArgumentException))
                     && !exception.GetType().Equals(typeof(ArgumentNullException))
@@ -195,7 +213,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             var serializedData = runtimeHelper.SerializeRemoteException(aggregateException);
             var msgStream = new SegmentedReadMemoryStream(serializedData);
 
-            var isdeserialized = clientHelper.TryDeserializeRemoteException(msgStream, out Exception resultEx);
+            Exception resultEx = null;
+            try
+            {
+                clientHelper.DeserializeRemoteExceptionAndThrow(msgStream);
+            }
+            catch (AggregateException ex)
+            {
+                resultEx = ex.InnerException;
+            }
+
+            Assert.True(resultEx != null);
 
             Assert.True(((AggregateException)resultEx).InnerExceptions.Count == 3);
             Assert.True(((AggregateException)((AggregateException)resultEx).InnerExceptions[0]).InnerExceptions.Count == 3);

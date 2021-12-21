@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using Microsoft.ServiceFabric.FabricTransport.V2;
     using Microsoft.ServiceFabric.FabricTransport.V2.Client;
     using Microsoft.ServiceFabric.Services.Communication;
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
@@ -33,9 +34,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             ServiceRemotingMessageSerializersManager serializersManager,
             FabricTransportClient fabricTransportClient,
             FabricTransportRemotingClientEventHandler remotingHandler,
+            FabricTransportRemotingSettings remotingSettings,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null)
         {
-            this.exceptionConvertorHelper = new ExceptionConvertorHelper(exceptionConvertors);
+            this.exceptionConvertorHelper = new ExceptionConvertorHelper(exceptionConvertors, remotingSettings);
             this.fabricTransportClient = fabricTransportClient;
             this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;
@@ -138,32 +140,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
-                    // Attempt DCS first
-                    if (this.exceptionConvertorHelper.TryDeserializeRemoteException(retval.GetBody().GetRecievedStream(), out Exception exception))
-                    {
-                        if (exception is AggregateException)
-                        {
-                            throw exception;
-                        }
-
-                        throw new AggregateException(exception);
-                    }
-
-                    var isDeserialzied =
-                        RemoteException.ToException(
-                            retval.GetBody().GetRecievedStream(),
-                            out var e);
-                    if (isDeserialzied)
-                    {
-                        throw new AggregateException(e);
-                    }
-                    else
-                    {
-                        throw new ServiceException(e.GetType().FullName, string.Format(
-                            CultureInfo.InvariantCulture,
-                            Remoting.SR.ErrorDeserializationFailure,
-                            e.ToString()));
-                    }
+                    this.exceptionConvertorHelper.DeserializeRemoteExceptionAndThrow(retval.GetBody().GetRecievedStream());
                 }
 
                 var responseSerializer = this.serializersManager.GetResponseBodySerializer(interfaceId);
