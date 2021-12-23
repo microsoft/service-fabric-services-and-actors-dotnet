@@ -220,11 +220,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             }
             catch (AggregateException ex)
             {
-                resultEx = ex.InnerException;
+                resultEx = ex;
             }
 
             Assert.True(resultEx != null);
-
             Assert.True(((AggregateException)resultEx).InnerExceptions.Count == 3);
             Assert.True(((AggregateException)((AggregateException)resultEx).InnerExceptions[0]).InnerExceptions.Count == 3);
             Assert.True(((AggregateException)((AggregateException)((AggregateException)resultEx).InnerExceptions[0]).InnerExceptions[0]).InnerExceptions.Count == 0);

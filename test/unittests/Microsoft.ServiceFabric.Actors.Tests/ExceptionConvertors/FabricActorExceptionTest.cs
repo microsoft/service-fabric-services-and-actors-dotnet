@@ -77,9 +77,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
                 {
                     clientHelper.DeserializeRemoteExceptionAndThrow(msgStream);
                 }
-                catch (Exception ex)
+                catch (AggregateException ex)
                 {
-                    resultFabricEx = ex;
+                    resultFabricEx = ex.InnerException;
                 }
 
                 Assert.True(resultFabricEx != null);
