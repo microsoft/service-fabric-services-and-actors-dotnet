@@ -6,11 +6,15 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Runtime.Serialization;
     using System.Threading;
 
-    internal class ActorReminderState : IActorReminderState
+    [DataContract(Name = "ActorReminderState")]
+    public class ActorReminderState : IActorReminderState
     {
+        [DataMember(Name = "Reminder", Order = 0, IsRequired = true)]
         private readonly ActorReminderData reminder;
+        [DataMember(Name = "NextDueTime", Order = 1, IsRequired = true)]
         private readonly TimeSpan nextDueTime;
 
         public ActorReminderState(ActorReminderData reminder, TimeSpan currentLogicalTime, ReminderCompletedData reminderCompletedData)
@@ -27,27 +31,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        TimeSpan IActorReminderState.RemainingDueTime
+        public TimeSpan RemainingDueTime
         {
             get { return this.nextDueTime; }
         }
 
-        string IActorReminder.Name
+        public string Name
         {
             get { return this.reminder.Name; }
         }
 
-        TimeSpan IActorReminder.DueTime
+        public TimeSpan DueTime
         {
             get { return this.reminder.DueTime; }
         }
 
-        TimeSpan IActorReminder.Period
+        public TimeSpan Period
         {
             get { return this.reminder.Period; }
         }
 
-        byte[] IActorReminder.State
+        public byte[] State
         {
             get { return this.reminder.State; }
         }

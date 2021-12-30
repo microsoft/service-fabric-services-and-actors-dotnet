@@ -6,12 +6,14 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Common;
     using System.Fabric.Health;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -433,6 +435,96 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 () => this.GetStoredActorIdsAsync(numItemsToReturn, continuationToken, cancellationToken),
                 "GetActorsAsync",
                 cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(int numItemsToReturn, ActorId actorId, ContinuationToken continuationToken, CancellationToken cancellationToken)
+        {
+            return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+               async () =>
+               {
+                   return await Task.Run(() =>
+                   {
+                       var result = new ConcurrentDictionary<ActorId, List<ActorReminderState>>();
+                       var reminderkey = actorId == null
+                           ? ReminderStorageKeyPrefix
+                           : $"{ReminderStorageKeyPrefix}_{actorId.GetStorageKey()}";
+                       var reminders = new List<ActorReminderData>();
+                       var nextContinuationMarker = string.Empty;
+                       var hasMore = false;
+
+                       using (var tx = this.storeReplica.CreateTransaction())
+                       {
+                           IEnumerator<KeyValueStoreItem> enumerator = null;
+                           try
+                           {
+                               if (continuationToken != null)
+                               {
+                                   enumerator = this.storeReplica.Enumerate(tx, continuationToken.Marker.ToString(), false);
+                                   hasMore = enumerator.MoveNext()
+                                       ? enumerator.MoveNext()
+                                       : false; // Skip the first match as the previous page already contains it.
+                               }
+                               else
+                               {
+                                   enumerator = this.storeReplica.Enumerate(tx, reminderkey, true);
+                                   hasMore = enumerator.MoveNext();
+                               }
+
+                               int itemCount = 0;
+                               while (hasMore)
+                               {
+                                   cancellationToken.ThrowIfCancellationRequested();
+                                   var currentKey = enumerator.Current.Metadata.Key;
+                                   if (!currentKey.StartsWith(reminderkey) || itemCount++ >= numItemsToReturn)
+                                   {
+                                       break;
+                                   }
+
+                                   var item = enumerator.Current;
+                                   var reminderData = this.DeserializeReminder(item.Value);
+                                   if (reminderData != null)
+                                   {
+                                       reminders.Add(reminderData);
+                                   }
+
+                                   nextContinuationMarker = currentKey;
+                                   hasMore = enumerator.MoveNext();
+                               }
+                           }
+                           finally
+                           {
+                               if (enumerator != null)
+                               {
+                                   enumerator.Dispose();
+                               }
+                           }
+
+                           foreach (var reminderData in reminders)
+                           {
+                               cancellationToken.ThrowIfCancellationRequested();
+                               var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(reminderData.ActorId, reminderData.Name);
+                               var completedValue = this.storeReplica.TryGetValue(tx, reminderCompletedKey);
+                               ReminderCompletedData reminderCompletedData = null;
+                               if (completedValue != null)
+                               {
+                                   reminderCompletedData = this.DeserializeReminderCompletedData(completedValue);
+                               }
+
+                               result.GetOrAdd(reminderData.ActorId, a => new List<ActorReminderState>())
+                                   .Add(new ActorReminderState(reminderData, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
+                           }
+                       }
+
+                       return new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+                       {
+                           Items = result.AsEnumerable(),
+                           ContinuationToken = hasMore && nextContinuationMarker != string.Empty ? new ContinuationToken(nextContinuationMarker) : null,
+                       };
+                   });
+               },
+               "GetRemindersAsync",
+               cancellationToken);
         }
 
         /// <summary>

@@ -10,7 +10,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Common;
+    using System.Fabric.Query;
     using System.Globalization;
+    using System.Linq;
+    using System.Security.Cryptography;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Query;
@@ -199,6 +202,56 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 continuationToken,
                 this.GetActorPresenceKeyEnumerator,
                 storageKey => storageKey,
+                cancellationToken);
+        }
+
+        async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(
+            int numItemsToReturn,
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken)
+        {
+            return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+                async () =>
+                {
+                    return await Task.Run(() =>
+                    {
+                        var result = new ConcurrentDictionary<ActorId, List<ActorReminderState>>();
+                        var reminderkey = actorId == null
+                               ? ReminderKeyPrefix
+                               : $"{ReminderKeyPrefix}_{actorId.GetStorageKey()}";
+                        using var enumerator = this.GetActorReminderEnumerator(reminderkey);
+                        var nextMarker = string.Empty;
+                        int itemCount = 0;
+                        bool hasMore = false;
+                        while (hasMore = enumerator.MoveNext())
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            if (itemCount++ >= numItemsToReturn)
+                            {
+                                break;
+                            }
+
+                            var key = CreateReminderStorageKey(enumerator.Current.ActorId, enumerator.Current.Name);
+                            if (continuationToken != null &&
+                                    string.Compare(key, continuationToken.Marker.ToString(), StringComparison.InvariantCulture) <= 0)
+                            {
+                                continue;
+                            }
+
+                            nextMarker = key;
+                            result.GetOrAdd(enumerator.Current.ActorId, new List<ActorReminderState>())
+                                .Add(new ActorReminderState(enumerator.Current, TimeSpan.Zero, null));
+                        }
+
+                        return new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+                        {
+                            Items = result.AsEnumerable(),
+                            ContinuationToken = hasMore && nextMarker != string.Empty ? new ContinuationToken(nextMarker) : null,
+                        };
+                    });
+                },
+                "GetRemindersAsync",
                 cancellationToken);
         }
 
@@ -519,6 +572,41 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             actorPresenceKeyList.Sort();
             return actorPresenceKeyList.GetEnumerator();
+        }
+
+        private IEnumerator<ActorReminderData> GetActorReminderEnumerator(string prefix)
+        {
+            var reminderList = new List<ActorReminderData>();
+
+            foreach (var kvPair in this.stateDictionary)
+            {
+                if (kvPair.Key.StartsWith(prefix))
+                {
+                    reminderList.Add(kvPair.Value as ActorReminderData);
+                }
+            }
+
+            reminderList.Sort(delegate(ActorReminderData r1, ActorReminderData r2)
+            {
+                if (r1 == null && r2 == null)
+                {
+                    return 0;
+                }
+                else if (r1 == null)
+                {
+                    return -1;
+                }
+                else if (r2 == null)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return r1.ActorId.CompareTo(r2.ActorId);
+                }
+            });
+
+            return reminderList.GetEnumerator();
         }
 
         #endregion

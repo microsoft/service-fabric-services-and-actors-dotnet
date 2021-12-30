@@ -6,10 +6,12 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Common;
     using System.Globalization;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -357,6 +359,80 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <inheritdoc/>
+        async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(
+            int numItemsToReturn,
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken)
+        {
+            await this.EnsureStateProviderInitializedAsync(cancellationToken);
+
+            await this.stateProviderHelper.ExecuteWithRetriesAsync(
+                async () =>
+                {
+                    var result = new ConcurrentDictionary<ActorId, List<ActorReminderState>>();
+                    Func<string, bool> filterFunc;
+                    if (actorId == null)
+                    {
+                        filterFunc = null;
+                    }
+                    else
+                    {
+                        filterFunc = key => key.StartsWith(actorId.GetStorageKey());
+                    }
+
+                    var reminders = new List<ActorReminderData>();
+                    var tasks = new List<Task<List<ActorReminderData>>>();
+                    foreach (var reminderDict in this.reminderDictionaries)
+                    {
+                        tasks.Add(this.GetRemindersAsync(reminderDict, filterFunc, cancellationToken));
+                    }
+
+                    await Task.WhenAll(tasks);
+                    foreach (var task in tasks)
+                    {
+                        reminders.AddRange(task.Result);
+                    }
+
+                    this.SortReminders(reminders);
+                    var reminderCompletedDataDict = await this.GetReminderCompletedDataMapAsync(filterFunc, cancellationToken);
+                    var itemCount = 0;
+                    var nextMarker = string.Empty;
+                    var hasMore = false;
+                    foreach (var reminder in reminders)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        if (itemCount++ >= numItemsToReturn)
+                        {
+                            hasMore = true;
+                            break;
+                        }
+
+                        var key = CreateStorageKey(reminder.ActorId, reminder.Name);
+                        if (continuationToken != null &&
+                            string.Compare(key, continuationToken.Marker.ToString(), StringComparison.InvariantCulture) <= 0)
+                        {
+                            continue;
+                        }
+
+                        reminderCompletedDataDict.TryGetValue(key, out var reminderCompletedData);
+                        result.GetOrAdd(reminder.ActorId, new List<ActorReminderState>())
+                            .Add(new ActorReminderState(reminder, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
+
+                        nextMarker = key;
+                    }
+
+                    return new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+                    {
+                        Items = result.AsEnumerable(),
+                        ContinuationToken = hasMore && nextMarker != string.Empty ? new ContinuationToken(nextMarker) : null,
+                    };
+                },
+                "GetRemindersAsync",
+                cancellationToken);
+        }
+
+            /// <inheritdoc/>
         async Task IActorStateProvider.SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
@@ -951,13 +1027,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.reminderDictionaries[storageIdx];
         }
 
-        private async Task<Dictionary<string, ReminderCompletedData>> GetReminderCompletedDataMapAsync(CancellationToken cancellationToken)
+        private async Task<Dictionary<string, ReminderCompletedData>> GetReminderCompletedDataMapAsync(Func<string, bool> filter, CancellationToken cancellationToken)
         {
             var reminderCompletedDataDict = new Dictionary<string, ReminderCompletedData>();
 
             using (var tx = this.stateManager.CreateTransaction())
             {
-                var enumerable = await this.reminderCompletedDictionary.CreateEnumerableAsync(tx);
+                IAsyncEnumerable<KeyValuePair<string, byte[]>> enumerable;
+                if (filter == null)
+                {
+                    enumerable = await this.reminderCompletedDictionary.CreateEnumerableAsync(tx);
+                }
+                else
+                {
+                    enumerable = await this.reminderCompletedDictionary.CreateEnumerableAsync(tx, filter, EnumerationMode.Ordered);
+                }
+
                 var enumerator = enumerable.GetAsyncEnumerator();
 
                 while (await enumerator.MoveNextAsync(cancellationToken))
@@ -1010,7 +1095,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private async Task<IActorReminderCollection> EnumerateRemindersAsync(CancellationToken cancellationToken)
         {
             var reminderCollection = new ActorReminderCollection();
-            var reminderCompletedDataDict = await this.GetReminderCompletedDataMapAsync(cancellationToken);
+            var reminderCompletedDataDict = await this.GetReminderCompletedDataMapAsync(null, cancellationToken);
 
             var enumTasks = new List<Task>();
 
@@ -1243,6 +1328,57 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 return result;
             }
+        }
+
+        private async Task<List<ActorReminderData>> GetRemindersAsync(
+            IReliableDictionary2<string, byte[]> reminderDictionary,
+            Func<string, bool> filterFunc,
+            CancellationToken cancellationToken)
+        {
+            var list = new List<ActorReminderData>();
+            using (var tx = this.stateManager.CreateTransaction())
+            {
+                var enumerable = await reminderDictionary.CreateEnumerableAsync(tx, filterFunc, EnumerationMode.Ordered);
+                var enumerator = enumerable.GetAsyncEnumerator();
+
+                while (await enumerator.MoveNextAsync(cancellationToken))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var data = enumerator.Current.Value;
+
+                    if (data == null)
+                    {
+                        continue;
+                    }
+
+                    list.Add(ActorReminderDataSerializer.Deserialize(data));
+                }
+            }
+
+            return list;
+        }
+
+        private void SortReminders(List<ActorReminderData> reminders)
+        {
+            reminders.Sort(delegate(ActorReminderData r1, ActorReminderData r2)
+            {
+                if (r1 == null && r2 == null)
+                {
+                    return 0;
+                }
+                else if (r1 == null)
+                {
+                    return -1;
+                }
+                else if (r2 == null)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return r1.ActorId.CompareTo(r2.ActorId);
+                }
+            });
         }
     }
 }

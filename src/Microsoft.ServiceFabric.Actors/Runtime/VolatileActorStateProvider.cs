@@ -6,11 +6,13 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Common;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -447,6 +449,96 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     ActorStateType.Actor,
                     key => key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix)),
                 storageKey => storageKey,
+                cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(
+            int numItemsToReturn,
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken)
+        {
+            return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+                async () =>
+                {
+                    return await Task.Run(() =>
+                    {
+                        var result = new ConcurrentDictionary<ActorId, List<ActorReminderState>>();
+                        Func<string, bool> filterFunc = key => true;
+                        if (actorId != null)
+                        {
+                            filterFunc = key => key.StartsWith(actorId.GetStorageKey());
+                        }
+
+                        using var enumerator = this.stateTable.GetSortedValueEnumerator(
+                            ActorStateType.Reminder,
+                            filterFunc,
+                            delegate(ActorStateData r1, ActorStateData r2)
+                            {
+                                if (r1 == null && r2 == null)
+                                {
+                                    return 0;
+                                }
+                                else if (r1 == null)
+                                {
+                                    return -1;
+                                }
+                                else if (r2 == null)
+                                {
+                                    return 1;
+                                }
+                                else
+                                {
+                                    return r1.ActorReminderData.ActorId.CompareTo(r2.ActorReminderData.ActorId);
+                                }
+                            });
+
+                        var hasMore = false;
+                        var itemCount = 0;
+                        var nextMarker = string.Empty;
+                        while (hasMore = enumerator.MoveNext())
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            var reminderData = enumerator.Current.ActorReminderData;
+                            if (reminderData == null)
+                            {
+                                continue;
+                            }
+
+                            if (itemCount++ >= numItemsToReturn)
+                            {
+                                break;
+                            }
+
+                            var key = CreateReminderStorageKey(reminderData.ActorId, reminderData.Name);
+                            if (continuationToken != null &&
+                                    string.Compare(key, continuationToken.Marker.ToString(), StringComparison.InvariantCulture) <= 0)
+                            {
+                                continue;
+                            }
+
+                            var reminderCompletedKey =
+                                ActorStateProviderHelper.CreateReminderCompletedStorageKey(reminderData.ActorId, reminderData.Name);
+                            ReminderCompletedData reminderCompletedData = null;
+                            if (this.stateTable.TryGetValue(ActorStateType.Actor, reminderCompletedKey, out var data))
+                            {
+                                reminderCompletedData = data.ReminderLastCompletedData;
+                            }
+
+                            nextMarker = key;
+                            result.GetOrAdd(reminderData.ActorId, new List<ActorReminderState>())
+                                .Add(new ActorReminderState(reminderData, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
+                        }
+
+                        return new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+                        {
+                            Items = result.AsEnumerable(),
+                            ContinuationToken = hasMore && nextMarker != string.Empty ? new ContinuationToken(nextMarker) : null,
+                        };
+                    });
+                },
+                "GetRemindersAsync",
                 cancellationToken);
         }
 

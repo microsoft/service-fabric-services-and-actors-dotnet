@@ -16,7 +16,6 @@ namespace Microsoft.ServiceFabric.Actors.Query
     [DataContract(Name = "PagedResult", Namespace = Constants.Namespace)]
     [KnownType(typeof(List<ActorInformation>))]
     public sealed class PagedResult<T>
-        where T : class
     {
         /// <summary>
         /// Max number of items to return in Query Result.
