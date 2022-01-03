@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         [HttpGet("EnumerateActorIdKindString")]
         public Task EnumerateActorIdKindString([FromBody] EnumerationRequest request)
         {
-            return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, "Actor_String", CancellationToken.None);
+            return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, MigrationConstants.StringTypeActorIdPrefix, CancellationToken.None);
         }
 
         /// <summary>

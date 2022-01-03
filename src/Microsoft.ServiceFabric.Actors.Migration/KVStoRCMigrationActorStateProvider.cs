@@ -243,11 +243,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <param name="keyValuePairs">
         /// Data from KVS store that needs to be modified and saved in RC
         /// </param>
+        /// <param name="ambiguousActorIdHandler">ambiguousActorIdHandler object</param>
         /// <param name="cancellationToken">
         /// Cancellation token
         /// </param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, CancellationToken cancellationToken)
+        public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, AmbiguousActorIdHandler ambiguousActorIdHandler, CancellationToken cancellationToken)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
@@ -269,6 +270,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         var startIndex = this.GetNthIndex(pair.Key, '_', 2);
                         var endIndex = this.GetNthIndex(pair.Key, '_', 3);
                         var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+
+                        if (pair.Key.StartsWith(MigrationConstants.StringTypeActorIdPrefix))
+                        {
+                            var temp = pair.Key.Substring(MigrationConstants.StringTypeActorIdPrefix.Length, pair.Key.Length - MigrationConstants.StringTypeActorIdPrefix.Length - 1);
+                            actorId = ambiguousActorIdHandler.GetActorId(temp);
+                        }
+
                         dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
                         actorStateCount++;
                     }
@@ -293,6 +301,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         var startIndex = this.GetNthIndex(pair.Key, '_', 2);
                         var endIndex = this.GetNthIndex(pair.Key, '_', 3);
                         var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+
+                        if (pair.Key.StartsWith(MigrationConstants.StringTypeReminderPrefix))
+                        {
+                            var temp = pair.Key.Substring(MigrationConstants.StringTypeReminderPrefix.Length, pair.Key.Length - MigrationConstants.StringTypeReminderPrefix.Length - 1);
+                            actorId = ambiguousActorIdHandler.GetActorId(temp);
+                        }
+
                         dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
                         reminderCount++;
                     }
@@ -347,6 +362,23 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal IReliableStateManagerReplica2 GetStateManager()
         {
             return this.rcStateProvider.GetStateManager();
+        }
+
+        internal void ReportPartitionHealth(HealthInformation healthInformation)
+        {
+            try
+            {
+                this.servicePartition.ReportPartitionHealth(healthInformation);
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteWarningWithId(
+                    this.TraceType,
+                    this.traceId,
+                    "ReportPartitionHealth() failed with: {0} while reporting health information: {1}.",
+                    ex.ToString(),
+                    healthInformation.ToString());
+            }
         }
 
         private int GetNthIndex(string s, char t, int n)

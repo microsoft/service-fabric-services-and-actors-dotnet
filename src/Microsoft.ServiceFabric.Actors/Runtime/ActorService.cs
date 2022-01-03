@@ -414,7 +414,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var ambiguousActorIdHandlerType = Type.GetType(ambiguousActorIdHandlerTypeName, true);
             this.ambiguousActorIdHandler = Activator.CreateInstance(ambiguousActorIdHandlerType, new object[] { this.stateProvider, this.actorTypeInformation });
-            this.ambiguousActorIdHandlerPopulateCacheMethodInfo = actorsMigrationUtilityType.GetMethod(AmbiguousActorIdHandlerPopulateCacheMethod);
+            this.ambiguousActorIdHandlerPopulateCacheMethodInfo = ambiguousActorIdHandlerType.GetMethod(AmbiguousActorIdHandlerPopulateCacheMethod);
         }
 
         private Type GetKVStoRCMigrationActorStateProviderType()
@@ -460,7 +460,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 MigrationOrchestratorClassFullName);
 
             var actorsMigrationOrchestratorType = Type.GetType(actorsMigrationOrchestratorTypeName, true);
-            return Activator.CreateInstance(actorsMigrationOrchestratorType, new object[] { this.stateProvider, this.actorTypeInformation });
+            return Activator.CreateInstance(actorsMigrationOrchestratorType, new object[] { this.stateProvider, this.actorTypeInformation, this.ambiguousActorIdHandler });
         }
 
         private bool IsMigrationSource()

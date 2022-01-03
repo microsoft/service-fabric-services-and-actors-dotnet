@@ -8,11 +8,16 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.IO;
+    using System.Linq;
     using System.Net.Http;
+    using System.Runtime.Serialization;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
@@ -23,16 +28,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private KVStoRCMigrationActorStateProvider stateProvider;
         private ActorTypeInformation actorTypeInfo;
         private IReliableDictionary2<string, byte[]> metadataDict;
-        private int workerCount;
-        private long downtimeThreshold;
-        private string kvsEndpoint;
         private StatefulServiceInitializationParameters initParams;
+        private AmbiguousActorIdHandler ambiguousActorIdHandler;
+        private UserSettings userSettings;
 
-        public MigrationOrchestrator(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
+        public MigrationOrchestrator(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, AmbiguousActorIdHandler ambiguousActorIdHandler)
         {
             this.stateProvider = stateProvider;
             this.actorTypeInfo = actorTypeInfo;
             this.initParams = this.stateProvider.GetInitParams();
+            this.ambiguousActorIdHandler = ambiguousActorIdHandler;
+            this.userSettings = this.GetUserSettingsOrDefault();
         }
 
         public async Task StartMigration(CancellationToken cancellationToken)
@@ -54,6 +60,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 {
                     ConditionalValue<byte[]> workerCountValue, endSNValue;
                     cancellationToken.ThrowIfCancellationRequested();
+
+                    // Fetching all String ActorIds to handel ambigious actor Ids during migration
+                    await this.FetchStringActorIds(cancellationToken);
+
                     using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                     {
                         workerCountValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.CopyWorkerCountKey);
@@ -83,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         {
                             if (isWorkerTaskIncomplete[i])
                             {
-                                var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+                                var worker = new MigrationWorker(this.stateProvider, this.userSettings, this.ambiguousActorIdHandler);
                                 ConditionalValue<byte[]> startSNValue, endSNValue, lastAppliedSNValue;
                                 using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                                 {
@@ -147,9 +157,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         {
                             long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out long lastAppliedSN);
                             long.TryParse(Encoding.ASCII.GetString(lastSNValue.Value), out long lastSN);
-                            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+                            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetEndSNEndpoint));
 
-                            if (lastAppliedSN != lastSN || (endSequenceNumber - lastAppliedSN > this.downtimeThreshold))
+                            if (lastAppliedSN != lastSN || (endSequenceNumber - lastAppliedSN > this.userSettings.DowntimeThreshold))
                             {
                                 lastAppliedSN = await this.StartCatchupIteration(iterationCount, lastAppliedSN, cancellationToken);
                                 await this.StartDowntimePhaseWorkload(lastAppliedSN, cancellationToken);
@@ -191,7 +201,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out long lastAppliedSN);
                         if (lastAppliedSN != lastSN)
                         {
-                            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+                            var worker = new MigrationWorker(this.stateProvider, this.userSettings, this.ambiguousActorIdHandler);
                             await worker.StartMigrationWorker(MigrationPhase.Downtime, lastAppliedSN + 1, lastSN, -1, cancellationToken);
                             await this.ResumeWritesAndMarkeMigrationCompleted(cancellationToken);
                         }
@@ -217,6 +227,67 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
         }
 
+        private async Task FetchStringActorIds(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var startSN = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetStartSNEndpoint));
+            var endSN = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+
+            if (endSN - startSN < this.userSettings.ItemsPerEnumeration || this.userSettings.ItemsPerEnumeration == -1)
+            {
+                this.ambiguousActorIdHandler.AddRange(await this.GetStringActorIdsFromKvsAsync(startSN, endSN - startSN, cancellationToken));
+            }
+            else
+            {
+                var lastUpdatedSN = startSN - 1;
+                var endSNForChunk = lastUpdatedSN + this.userSettings.ItemsPerEnumeration;
+                while (endSNForChunk <= endSN)
+                {
+                    this.ambiguousActorIdHandler.AddRange(await this.GetStringActorIdsFromKvsAsync(lastUpdatedSN + 1, this.userSettings.ItemsPerEnumeration, cancellationToken));
+                    lastUpdatedSN = endSNForChunk;
+                    endSNForChunk += this.userSettings.ItemsPerEnumeration;
+                }
+
+                if (lastUpdatedSN < endSN)
+                {
+                    this.ambiguousActorIdHandler.AddRange(await this.GetStringActorIdsFromKvsAsync(lastUpdatedSN + 1, endSN - lastUpdatedSN, cancellationToken));
+                }
+            }
+        }
+
+        private async Task<List<string>> GetStringActorIdsFromKvsAsync(long start, long enumerationSize, CancellationToken cancellationToken)
+        {
+            var apiName = MigrationConstants.EnumerateActorIdKindStringEndpoint;
+            bool includeDeletes = false;
+            var requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
+            var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair<string, byte[]>>));
+
+            var enumerationRequestContent = Utility.CreateEnumerationRequestObject(start, this.userSettings.ChunkSize, enumerationSize, includeDeletes);
+
+            using var memoryStream = new MemoryStream();
+            var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
+            requestserializer.WriteObject(binaryWriter, enumerationRequestContent);
+            binaryWriter.Flush();
+
+            var byteArray = memoryStream.ToArray();
+            var content = new ByteArrayContent(byteArray);
+            var kvsApiRequest = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(this.userSettings.KvsEndpoint + apiName),
+                Content = content,
+            };
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var response = await Client.SendAsync(kvsApiRequest);
+            response.EnsureSuccessStatusCode();
+            var stream = await response.Content.ReadAsStreamAsync();
+
+            return ((List<KeyValuePair<string, byte[]>>)keyvaluepairserializer.ReadObject(stream)).Select(x => x.Key).ToList();
+        }
+
         private async Task StartCompleteMigration(CancellationToken cancellationToken)
         {
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
@@ -236,27 +307,27 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task<long> StartCopyPhaseWorkload(CancellationToken cancellationToken)
         {
-            var startSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetStartSNEndpoint));
-            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+            var startSequenceNumber = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetStartSNEndpoint));
+            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetEndSNEndpoint));
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Copy.ToString());
-                this.AddOrUpdateMetadata(tx, MigrationConstants.CopyWorkerCountKey, this.workerCount.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.CopyWorkerCountKey, this.userSettings.WorkerCount.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseStartSNKey, startSequenceNumber.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseEndSNKey, endSequenceNumber.ToString());
                 await tx.CommitAsync();
             }
 
-            List<MigrationWorker> workers = new List<MigrationWorker>(this.workerCount);
-            for (int i = 0; i < this.workerCount; i++)
+            List<MigrationWorker> workers = new List<MigrationWorker>(this.userSettings.WorkerCount);
+            for (int i = 0; i < this.userSettings.WorkerCount; i++)
             {
-                workers.Add(new MigrationWorker(this.stateProvider, this.actorTypeInfo));
+                workers.Add(new MigrationWorker(this.stateProvider, this.userSettings, this.ambiguousActorIdHandler));
             }
 
             var workerLoad = this.GetEndSequenceNumberForEachWorker(startSequenceNumber, endSequenceNumber);
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
-                for (int i = 0; i < this.workerCount; i++)
+                for (int i = 0; i < this.userSettings.WorkerCount; i++)
                 {
                     this.AddOrUpdateMetadata(tx, MigrationConstants.GetCopyWorkerStatusKey(i), MigrationStatus.InProgress.ToString());
                     if (i == 0)
@@ -276,7 +347,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
 
             var tasks = new List<Task>();
-            Parallel.For(0, this.workerCount, index =>
+            Parallel.For(0, this.userSettings.WorkerCount, index =>
             {
                 if (index == 0)
                 {
@@ -307,16 +378,16 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task<long> StartCatchupIteration(int catchupCount, long lastUpdatedRecord, CancellationToken cancellationToken)
         {
-            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetEndSNEndpoint));
 
             if (endSequenceNumber <= lastUpdatedRecord)
             {
                 return lastUpdatedRecord;
             }
 
-            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+            var worker = new MigrationWorker(this.stateProvider, this.userSettings, this.ambiguousActorIdHandler);
             cancellationToken.ThrowIfCancellationRequested();
-            while (endSequenceNumber - lastUpdatedRecord > this.downtimeThreshold)
+            while (endSequenceNumber - lastUpdatedRecord > this.userSettings.DowntimeThreshold)
             {
                 catchupCount++;
                 cancellationToken.ThrowIfCancellationRequested();
@@ -330,7 +401,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                 await worker.StartMigrationWorker(MigrationPhase.Catchup, lastUpdatedRecord + 1, endSequenceNumber, catchupCount, cancellationToken);
                 lastUpdatedRecord = endSequenceNumber;
-                endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+                endSequenceNumber = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetEndSNEndpoint));
             }
 
             return lastUpdatedRecord;
@@ -338,15 +409,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task StartDowntimePhaseWorkload(long lastUpdatedRecord, CancellationToken cancellationToken)
         {
-            await Client.PutAsync(this.kvsEndpoint + MigrationConstants.RejectWritesAPIEndpoint, null);
+            await Client.PutAsync(this.userSettings.KvsEndpoint + MigrationConstants.RejectWritesAPIEndpoint, null);
 
-            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.userSettings.KvsEndpoint + MigrationConstants.GetEndSNEndpoint));
             if (endSequenceNumber <= lastUpdatedRecord)
             {
                 return;
             }
 
-            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+            var worker = new MigrationWorker(this.stateProvider, this.userSettings, this.ambiguousActorIdHandler);
 
             cancellationToken.ThrowIfCancellationRequested();
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
@@ -363,7 +434,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task ResumeWritesAndMarkeMigrationCompleted(CancellationToken cancellationToken)
         {
-            await Client.PutAsync(this.kvsEndpoint + MigrationConstants.ResumeWritesAPIEndpoint, null);
+            await Client.PutAsync(this.userSettings.KvsEndpoint + MigrationConstants.ResumeWritesAPIEndpoint, null);
             cancellationToken.ThrowIfCancellationRequested();
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
@@ -376,17 +447,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private List<long> GetEndSequenceNumberForEachWorker(long startLSN, long endLSN)
         {
             var recordCount = endLSN - startLSN + 1;
-            var n = recordCount / this.workerCount;
+            var n = recordCount / this.userSettings.WorkerCount;
 
-            var list = new List<long>(this.workerCount);
-            for (int i = 0; i < this.workerCount; ++i)
+            var list = new List<long>(this.userSettings.WorkerCount);
+            for (int i = 0; i < this.userSettings.WorkerCount; ++i)
             {
                 list.Add(n);
             }
 
-            if (recordCount % this.workerCount != 0)
+            if (recordCount % this.userSettings.WorkerCount != 0)
             {
-                var q = recordCount % this.workerCount;
+                var q = recordCount % this.userSettings.WorkerCount;
                 for (int i = 0; i < q; ++i)
                 {
                     list[i] += 1;
@@ -394,7 +465,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
 
             var lastEndLSN = startLSN - 1;
-            for (int i = 0; i < this.workerCount; i++)
+            for (int i = 0; i < this.userSettings.WorkerCount; i++)
             {
                 list[i] += lastEndLSN;
                 lastEndLSN = list[i];
@@ -415,10 +486,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             await this.metadataDict.AddOrUpdateAsync(tx, key, metadataEntry, (k, v) => metadataEntry);
         }
 
-        private void GetUserSettingsOrDefault()
+        private UserSettings GetUserSettingsOrDefault()
         {
-            this.workerCount = 8;
-            this.downtimeThreshold = 1000;
+            int workerCount = 8;
+            long downtimeThreshold = 1000;
+            long itemsPerEnumeration = -1;
+            long chunkSize = 100;
+            string kvsEndpoint = string.Empty;
 
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
@@ -430,17 +504,31 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     var migrationSettings = configPackageObj.Settings.Sections[migrationConfigLabel];
                     if (migrationSettings.Parameters.Contains("CopyPhaseParallelism"))
                     {
-                        this.workerCount = int.Parse(migrationSettings.Parameters["CopyPhaseParallelism"].Value);
+                        workerCount = int.Parse(migrationSettings.Parameters["CopyPhaseParallelism"].Value);
                     }
 
                     if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
                     {
-                        this.kvsEndpoint = migrationSettings.Parameters["KVSActorServiceUri"].Value;
+                        kvsEndpoint = migrationSettings.Parameters["KVSActorServiceUri"].Value;
+                    }
+                    else
+                    {
+                        ActorTrace.Source.WriteError("MigrationOrchestrator", "Kvs actor service endpoint not provided in settings.");
                     }
 
                     if (migrationSettings.Parameters.Contains("DowntimeThreshold"))
                     {
-                        this.downtimeThreshold = int.Parse(migrationSettings.Parameters["DowntimeThreshold"].Value);
+                        downtimeThreshold = int.Parse(migrationSettings.Parameters["DowntimeThreshold"].Value);
+                    }
+
+                    if (migrationSettings.Parameters.Contains("ItemsPerEnumeration"))
+                    {
+                        itemsPerEnumeration = int.Parse(migrationSettings.Parameters["ItemsPerEnumeration"].Value);
+                    }
+
+                    if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
+                    {
+                        chunkSize = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
                     }
                 }
             }
@@ -448,6 +536,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             {
                 ActorTrace.Source.WriteError("MigrationOrchestrator", e.Message);
             }
+
+            return new UserSettings(workerCount, downtimeThreshold, chunkSize, itemsPerEnumeration, kvsEndpoint);
         }
     }
 }

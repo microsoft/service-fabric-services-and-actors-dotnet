@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class Utility
@@ -49,6 +50,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         throw;
                     }
                 });
+        }
+
+        internal static EnumerationRequest CreateEnumerationRequestObject(long startSN, long chunkSize, long enumerationSize, bool includeDeletes)
+        {
+            var req = new EnumerationRequest();
+            req.StartSN = startSN;
+            req.ChunkSize = chunkSize;
+            req.NoOfItems = enumerationSize;
+            req.IncludeDeletes = includeDeletes;
+
+            return req;
         }
     }
 }

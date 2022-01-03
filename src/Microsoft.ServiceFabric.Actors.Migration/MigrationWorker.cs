@@ -25,44 +25,42 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private static readonly HttpClient Client = new HttpClient();
         private KVStoRCMigrationActorStateProvider stateProvider;
         private IReliableDictionary2<string, byte[]> metadataDict;
-        private StatefulServiceInitializationParameters initParams;
-        private long chunkSize;
-        private long itemsPerEnumeration;
-        private string endpoint;
+        private UserSettings userSettings;
+        private AmbiguousActorIdHandler ambiguousActorIdHandler;
 
-        public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
+        public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, UserSettings userSettings, AmbiguousActorIdHandler ambiguousActorIdHandler)
         {
             this.stateProvider = stateProvider;
-            this.initParams = this.stateProvider.GetInitParams();
-            this.GetUserSettingsOrDefault(actorTypeInfo);
+            this.userSettings = userSettings;
+            this.ambiguousActorIdHandler = ambiguousActorIdHandler;
         }
 
         internal async Task StartMigrationWorker(MigrationPhase phase, long startSN, long endSN, int workerIdentifier, CancellationToken cancellationToken)
         {
             this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
-            if (endSN - startSN < this.itemsPerEnumeration || this.itemsPerEnumeration == -1)
+            if (endSN - startSN < this.userSettings.ItemsPerEnumeration || this.userSettings.ItemsPerEnumeration == -1)
             {
                 var dataToMigrate = await this.GetEnumeratedDataFromKvsAsync(phase, startSN, endSN - startSN);
-                await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, cancellationToken);
+                await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, this.ambiguousActorIdHandler, cancellationToken);
                 await this.UpdateMetadataOnCompletion(phase, workerIdentifier, endSN);
             }
             else
             {
                 var lastUpdatedSN = startSN - 1;
-                var endSNForChunk = lastUpdatedSN + this.itemsPerEnumeration;
+                var endSNForChunk = lastUpdatedSN + this.userSettings.ItemsPerEnumeration;
                 while (endSNForChunk <= endSN)
                 {
-                    var dataToMigrate = await this.GetEnumeratedDataFromKvsAsync(phase, lastUpdatedSN + 1, this.itemsPerEnumeration);
-                    await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, cancellationToken);
+                    var dataToMigrate = await this.GetEnumeratedDataFromKvsAsync(phase, lastUpdatedSN + 1, this.userSettings.ItemsPerEnumeration);
+                    await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, this.ambiguousActorIdHandler, cancellationToken);
                     lastUpdatedSN = endSNForChunk;
-                    endSNForChunk += this.itemsPerEnumeration;
+                    endSNForChunk += this.userSettings.ItemsPerEnumeration;
                     await this.UpdateMetadataForLastAppliedSN(phase, workerIdentifier, lastUpdatedSN);
                 }
 
                 if (lastUpdatedSN < endSN)
                 {
                     var dataToMigrate = await this.GetEnumeratedDataFromKvsAsync(phase, lastUpdatedSN + 1, endSN - lastUpdatedSN);
-                    await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, cancellationToken);
+                    await this.stateProvider.SaveStatetoRCAsync(dataToMigrate, this.ambiguousActorIdHandler, cancellationToken);
                 }
 
                 await this.UpdateMetadataOnCompletion(phase, workerIdentifier, endSN);
@@ -76,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             var requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
             var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair<string, byte[]>>));
 
-            var enumerationRequestContent = this.CreateEnumerationRequestObject(start, enumerationSize, includeDeletes);
+            var enumerationRequestContent = Utility.CreateEnumerationRequestObject(start, this.userSettings.ChunkSize, enumerationSize, includeDeletes);
 
             using var memoryStream = new MemoryStream();
             var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
@@ -88,7 +86,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             var kvsApiRequest = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(this.endpoint + apiName),
+                RequestUri = new Uri(this.userSettings.KvsEndpoint + apiName),
                 Content = content,
             };
 
@@ -97,17 +95,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             var stream = await response.Content.ReadAsStreamAsync();
 
             return (List<KeyValuePair<string, byte[]>>)keyvaluepairserializer.ReadObject(stream);
-        }
-
-        private EnumerationRequest CreateEnumerationRequestObject(long startSN, long enumerationSize, bool includeDeletes)
-        {
-            var req = new EnumerationRequest();
-            req.StartSN = startSN;
-            req.ChunkSize = this.chunkSize;
-            req.NoOfItems = enumerationSize;
-            req.IncludeDeletes = includeDeletes;
-
-            return req;
         }
 
         private async Task UpdateMetadataForLastAppliedSN(MigrationPhase phase, int workerIdentifier, long lastAppliedSN)
@@ -188,45 +175,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                     await tx.CommitAsync();
                 }
-            }
-        }
-
-        private void GetUserSettingsOrDefault(ActorTypeInformation actorTypeInfo)
-        {
-            this.itemsPerEnumeration = -1;
-            this.chunkSize = 100;
-            var configPackageName = ActorNameFormat.GetConfigPackageName();
-            try
-            {
-                var configPackageObj = this.initParams.CodePackageActivationContext.GetConfigurationPackageObject(configPackageName);
-                var migrationConfigLabel = ActorNameFormat.GetMigrationConfigSectionName(actorTypeInfo.ImplementationType);
-                if (configPackageObj.Settings.Sections.Contains(migrationConfigLabel))
-                {
-                    var migrationSettings = configPackageObj.Settings.Sections[migrationConfigLabel];
-
-                    if (migrationSettings.Parameters.Contains("ItemsPerEnumeration"))
-                    {
-                        this.itemsPerEnumeration = int.Parse(migrationSettings.Parameters["ItemsPerEnumeration"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
-                    {
-                        this.chunkSize = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
-                    {
-                        this.endpoint = migrationSettings.Parameters["KVSActorServiceUri"].Value;
-                    }
-                    else
-                    {
-                        ActorTrace.Source.WriteError("MigrationWorker", "Kvs actor service endpoint not provided in settings.");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ActorTrace.Source.WriteError("MigrationWorker", e.Message);
             }
         }
     }
