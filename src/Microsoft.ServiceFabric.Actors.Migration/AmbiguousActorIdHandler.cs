@@ -10,7 +10,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Fabric.Health;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -46,9 +45,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             this.resolvers = this.GetActorIdResolvers();
         }
 
-        /// <summary>
-        /// Gets Trace Type
-        /// </summary>
         private string TraceType
         {
             get { return "AmbiguousActorIdHandler"; }
