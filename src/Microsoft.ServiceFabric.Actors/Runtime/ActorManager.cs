@@ -634,7 +634,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken cancellationToken)
         {
             // Get the Actors list from State provider and mark them Active or Inactive
-            const int maxCount = PagedResult<ActorInformation>.MaxItemsToReturn;
+            int maxCount = PagedResult<ActorInformation>.MaxItemsToReturn;
             var queryResult = await this.StateProvider.GetActorsAsync(maxCount, continuationToken, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -647,6 +647,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 Items = actorInfos,
                 ContinuationToken = queryResult.ContinuationToken,
             };
+        }
+
+        public async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken)
+        {
+            return await this.StateProvider.GetRemindersAsync(
+                PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.MaxItemsToReturn,
+                actorId,
+                continuationToken,
+                cancellationToken);
         }
 
         public string GetActorTraceId(ActorId actorId)

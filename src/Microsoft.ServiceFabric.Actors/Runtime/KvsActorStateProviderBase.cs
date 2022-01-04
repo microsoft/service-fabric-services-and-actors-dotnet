@@ -461,9 +461,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                                if (continuationToken != null)
                                {
                                    enumerator = this.storeReplica.Enumerate(tx, continuationToken.Marker.ToString(), false);
-                                   hasMore = enumerator.MoveNext()
-                                       ? enumerator.MoveNext()
-                                       : false; // Skip the first match as the previous page already contains it.
+                                   hasMore = enumerator.MoveNext();
+                                   if (hasMore && enumerator.Current.Metadata.Key == continuationToken.Marker.ToString())
+                                   {
+                                       // Check if the next element is equal to continuation token and skip.
+                                       // ContinuationToken wouldn't match with next element if the reminder is deleted between paging calls.
+                                       hasMore = enumerator.MoveNext();
+                                   }
                                }
                                else
                                {

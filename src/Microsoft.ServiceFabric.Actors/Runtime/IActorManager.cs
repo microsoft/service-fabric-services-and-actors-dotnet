@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Collections.Generic;
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
@@ -234,6 +235,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="cancellationToken">Token to cancel the request.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task<PagedResult<ActorInformation>> GetActorsFromStateProvider(
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the list of reminders.
+        /// </summary>
+        /// <param name="actorId">ActorId for which reminders to be fetched. A null value indicates all actors in the service.</param>
+        /// <param name="continuationToken">
+        /// A continuation token to start querying the results from.
+        /// A null value of continuation token means start returning values form the beginning.
+        /// </param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation of call to server.</returns>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+        Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
+            ActorId actorId,
             ContinuationToken continuationToken,
             CancellationToken cancellationToken);
 

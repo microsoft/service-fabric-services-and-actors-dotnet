@@ -367,7 +367,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             await this.EnsureStateProviderInitializedAsync(cancellationToken);
 
-            await this.stateProviderHelper.ExecuteWithRetriesAsync(
+            return await this.stateProviderHelper.ExecuteWithRetriesAsync(
                 async () =>
                 {
                     var result = new ConcurrentDictionary<ActorId, List<ActorReminderState>>();

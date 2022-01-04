@@ -22,7 +22,9 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// Default MessageSize of 4 MB with DataContract serialization can include up to 85000 items when ActorInformation only includes ActorId.
         /// Its set to 10000 to allow for custom serialization and future changes in ActorInformation.
         /// </summary>
-        internal const int MaxItemsToReturn = 10000;
+#pragma warning disable SA1401 // Fields should be private
+        public static int MaxItemsToReturn = 10000;
+#pragma warning restore SA1401 // Fields should be private
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PagedResult{T}"/> class.
