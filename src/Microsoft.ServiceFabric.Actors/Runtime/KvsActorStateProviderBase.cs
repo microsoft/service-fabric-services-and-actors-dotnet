@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Web;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
@@ -451,6 +452,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                            : $"{ReminderStorageKeyPrefix}_{actorId.GetStorageKey()}";
                        var reminders = new List<ActorReminderData>();
                        var nextContinuationMarker = string.Empty;
+                       var nextKey = string.Empty;
                        var hasMore = false;
 
                        using (var tx = this.storeReplica.CreateTransaction())
@@ -480,6 +482,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                                {
                                    cancellationToken.ThrowIfCancellationRequested();
                                    var currentKey = enumerator.Current.Metadata.Key;
+                                   nextKey = currentKey;
                                    if (!currentKey.StartsWith(reminderkey) || itemCount++ >= numItemsToReturn)
                                    {
                                        break;
@@ -523,7 +526,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                        return new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
                        {
                            Items = result.AsEnumerable(),
-                           ContinuationToken = hasMore && nextContinuationMarker != string.Empty ? new ContinuationToken(nextContinuationMarker) : null,
+                           ContinuationToken = hasMore && nextKey.StartsWith(reminderkey) ? new ContinuationToken(nextContinuationMarker) : null,
                        };
                    });
                },

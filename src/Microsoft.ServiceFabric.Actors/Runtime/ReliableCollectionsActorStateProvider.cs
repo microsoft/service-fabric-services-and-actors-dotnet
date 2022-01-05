@@ -399,25 +399,26 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     var itemCount = 0;
                     var nextMarker = string.Empty;
                     var hasMore = false;
-                    foreach (var reminder in reminders)
+                    var enumerator = reminders.GetEnumerator();
+                    while (hasMore = enumerator.MoveNext())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        if (itemCount++ >= numItemsToReturn)
-                        {
-                            hasMore = true;
-                            break;
-                        }
 
-                        var key = CreateStorageKey(reminder.ActorId, reminder.Name);
+                        var key = CreateStorageKey(enumerator.Current.ActorId, enumerator.Current.Name);
                         if (continuationToken != null &&
                             string.Compare(key, continuationToken.Marker.ToString(), StringComparison.InvariantCulture) <= 0)
                         {
                             continue;
                         }
 
+                        if (itemCount++ >= numItemsToReturn)
+                        {
+                            break;
+                        }
+
                         reminderCompletedDataDict.TryGetValue(key, out var reminderCompletedData);
-                        result.GetOrAdd(reminder.ActorId, new List<ActorReminderState>())
-                            .Add(new ActorReminderState(reminder, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
+                        result.GetOrAdd(enumerator.Current.ActorId, new List<ActorReminderState>())
+                            .Add(new ActorReminderState(enumerator.Current, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
 
                         nextMarker = key;
                     }
@@ -1376,7 +1377,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 else
                 {
-                    return r1.ActorId.CompareTo(r2.ActorId);
+                    return CreateStorageKey(r1.ActorId, r1.Name).CompareTo(CreateStorageKey(r2.ActorId, r2.Name));
                 }
             });
         }

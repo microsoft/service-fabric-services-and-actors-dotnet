@@ -6,8 +6,10 @@
 namespace Microsoft.ServiceFabric.Actors.Query
 {
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
+    using StartupServicesModel;
 
     /// <summary>
     /// Represents the result of actor query calls.
@@ -22,9 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// Default MessageSize of 4 MB with DataContract serialization can include up to 85000 items when ActorInformation only includes ActorId.
         /// Its set to 10000 to allow for custom serialization and future changes in ActorInformation.
         /// </summary>
-#pragma warning disable SA1401 // Fields should be private
-        public static int MaxItemsToReturn = 10000;
-#pragma warning restore SA1401 // Fields should be private
+        private static int maxItemsToReturn = 10000;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PagedResult{T}"/> class.
@@ -53,5 +53,19 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// needs to called again to get more results </value>
         [DataMember(Name = "ContinuationToken", IsRequired = false, Order = 1)]
         public ContinuationToken ContinuationToken { get; set; }
+
+        /// <summary>
+        /// Sets the new default page size.
+        /// </summary>
+        /// <param name="newSize">New size.</param>
+        public static void SetDefaultPageSize(int newSize)
+        {
+            maxItemsToReturn = newSize;
+        }
+
+        internal static int GetDefaultPageSize()
+        {
+            return maxItemsToReturn;
+        }
     }
 }

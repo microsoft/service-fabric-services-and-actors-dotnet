@@ -490,7 +490,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                                 }
                                 else
                                 {
-                                    return r1.ActorReminderData.ActorId.CompareTo(r2.ActorReminderData.ActorId);
+                                    return CreateReminderStorageKey(r1.ActorReminderData.ActorId, r1.ActorReminderData.Name)
+                                        .CompareTo(CreateReminderStorageKey(r2.ActorReminderData.ActorId, r2.ActorReminderData.Name));
                                 }
                             });
 
@@ -506,16 +507,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                                 continue;
                             }
 
-                            if (itemCount++ >= numItemsToReturn)
-                            {
-                                break;
-                            }
-
                             var key = CreateReminderStorageKey(reminderData.ActorId, reminderData.Name);
                             if (continuationToken != null &&
                                     string.Compare(key, continuationToken.Marker.ToString(), StringComparison.InvariantCulture) <= 0)
                             {
                                 continue;
+                            }
+
+                            if (itemCount++ >= numItemsToReturn)
+                            {
+                                break;
                             }
 
                             var reminderCompletedKey =

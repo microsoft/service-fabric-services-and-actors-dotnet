@@ -227,16 +227,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         while (hasMore = enumerator.MoveNext())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            if (itemCount++ >= numItemsToReturn)
-                            {
-                                break;
-                            }
-
                             var key = CreateReminderStorageKey(enumerator.Current.ActorId, enumerator.Current.Name);
                             if (continuationToken != null &&
                                     string.Compare(key, continuationToken.Marker.ToString(), StringComparison.InvariantCulture) <= 0)
                             {
                                 continue;
+                            }
+
+                            if (itemCount++ >= numItemsToReturn)
+                            {
+                                break;
                             }
 
                             nextMarker = key;
@@ -602,7 +602,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 else
                 {
-                    return r1.ActorId.CompareTo(r2.ActorId);
+                    return CreateReminderStorageKey(r1.ActorId, r1.Name).CompareTo(CreateReminderStorageKey(r2.ActorId, r2.Name));
                 }
             });
 
