@@ -496,9 +496,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return Task.FromResult(actorQueryResult);
         }
 
-        #region Private Helpers
-
-        private bool GetContinuationPointByActorCount<T>(
+        internal bool GetContinuationPointByActorCount<T>(
             long previousActorCount,
             IEnumerator<T> enumerator,
             CancellationToken cancellationToken)
@@ -518,6 +516,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return enumHasMoreEntries;
         }
 
+        #region Private Helpers
+
         private bool GetContinuationPointByActorStorageKey<T>(
             string lastSeenActorStorageKey,
             IEnumerator<T> enumerator,
@@ -525,6 +525,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken cancellationToken)
         {
             bool enumHasMoreEntries = true;
+
             var storageKey = getStorageKeyFunc(enumerator.Current);
 
             // Skip the previous returned entries

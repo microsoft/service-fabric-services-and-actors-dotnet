@@ -1375,13 +1375,107 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                return this.actorStateProviderHelper.GetStoredActorIdsAsync(
+                return this.GetStoredActorIdsForKvsAsync(
                     itemsCount,
                     continuationToken,
-                    () => this.storeReplica.EnumerateMetadata(tx, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix),
-                    metadata => metadata.Key,
+                    this.storeReplica,
                     cancellationToken);
             }
+        }
+
+        private Task<PagedResult<ActorId>> GetStoredActorIdsForKvsAsync(
+            int itemsCount,
+            ContinuationToken continuationToken,
+            KeyValueStoreReplica replica,
+            CancellationToken cancellationToken)
+        {
+            var actorIdList = new List<ActorId>();
+            var actorQueryResult = new PagedResult<ActorId>();
+
+            IEnumerator<KeyValueStoreItem> enumerator;
+            bool enumHasMoreEntries;
+            using var txn = replica.CreateTransaction();
+
+            // Find continuation point for enumeration
+            if (continuationToken != null)
+            {
+                long previousActorCount = 0L;
+                if (long.TryParse((string)continuationToken.Marker, out previousActorCount))
+                {
+                    enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
+                    enumHasMoreEntries = this.actorStateProviderHelper.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken);
+                    enumHasMoreEntries = enumerator.MoveNext();
+                }
+                else
+                {
+                    string lastSeenActorStorageKey = continuationToken.Marker.ToString();
+                    enumerator = replica.Enumerate(txn, lastSeenActorStorageKey, false);
+                    enumHasMoreEntries = enumerator.MoveNext();
+                    var storageKey = enumerator.Current.Metadata.Key;
+                    if (enumHasMoreEntries && storageKey == lastSeenActorStorageKey)
+                    {
+                        enumHasMoreEntries = enumerator.MoveNext();
+                    }
+                }
+
+                if (!enumHasMoreEntries)
+                {
+                    // We are here means the current snapshot that enumerator represents
+                    // has less entries that what ContinuationToken contains.
+                    return Task.FromResult(actorQueryResult);
+                }
+            }
+            else
+            {
+                enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
+                enumHasMoreEntries = enumerator.MoveNext();
+            }
+
+            if (!enumHasMoreEntries)
+            {
+                return Task.FromResult(actorQueryResult);
+            }
+
+            while (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var storageKey = enumerator.Current.Metadata.Key;
+                var actorId = ActorStateProviderHelper.GetActorIdFromPresenceStorageKey(storageKey);
+
+                if (actorId != null)
+                {
+                    actorIdList.Add(actorId);
+                }
+                else
+                {
+                    ActorTrace.Source.WriteWarningWithId(
+                        TraceType,
+                        this.traceId,
+                        string.Format("Failed to parse ActorId from storage key: {0}", storageKey));
+                }
+
+                enumHasMoreEntries = enumerator.MoveNext();
+
+                if (actorIdList.Count == itemsCount)
+                {
+                    actorQueryResult.Items = actorIdList.AsReadOnly();
+
+                    // If enumerator has more elements, then set the continuation token.
+                    if (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
+                    {
+                        actorQueryResult.ContinuationToken = new ContinuationToken(storageKey.ToString());
+                    }
+
+                    return Task.FromResult(actorQueryResult);
+                }
+            }
+
+            // We are here means 'actorIdList' contains less than 'itemsCount'
+            // item or it is empty. The continuation token will remain null.
+            actorQueryResult.Items = actorIdList.AsReadOnly();
+
+            return Task.FromResult(actorQueryResult);
         }
 
         private class ReminderKeyInfo
