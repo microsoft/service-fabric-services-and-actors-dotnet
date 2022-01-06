@@ -1462,7 +1462,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     actorQueryResult.Items = actorIdList.AsReadOnly();
 
                     // If enumerator has more elements, then set the continuation token.
-                    if (enumHasMoreEntries)
+                    if (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
                     {
                         actorQueryResult.ContinuationToken = new ContinuationToken(storageKey.ToString());
                     }
