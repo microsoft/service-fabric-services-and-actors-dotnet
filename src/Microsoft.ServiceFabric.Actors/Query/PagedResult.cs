@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Query
     using System.Collections.Generic;
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
-    
+
     /// <summary>
     /// Represents the result of actor query calls.
     /// </summary>
