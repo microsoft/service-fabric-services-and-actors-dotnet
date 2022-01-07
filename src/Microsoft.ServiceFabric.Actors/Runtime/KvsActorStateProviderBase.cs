@@ -1491,82 +1491,92 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorIdList = new List<ActorId>();
             var actorQueryResult = new PagedResult<ActorId>();
 
-            IEnumerator<KeyValueStoreItem> enumerator;
+            IEnumerator<KeyValueStoreItem> enumerator = null;
             bool enumHasMoreEntries;
             using var txn = replica.CreateTransaction();
 
-            // Find continuation point for enumeration
-            if (continuationToken != null)
+            try
             {
-                long previousActorCount = 0L;
-                if (long.TryParse((string)continuationToken.Marker, out previousActorCount))
+                // Find continuation point for enumeration
+                if (continuationToken != null)
                 {
-                    enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
-                    enumHasMoreEntries = this.actorStateProviderHelper.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken);
-                    enumHasMoreEntries = enumerator.MoveNext();
+                    long previousActorCount = 0L;
+                    if (long.TryParse((string)continuationToken.Marker, out previousActorCount))
+                    {
+                        enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
+                        enumHasMoreEntries = this.actorStateProviderHelper.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken);
+                        enumHasMoreEntries = enumerator.MoveNext();
+                    }
+                    else
+                    {
+                        string lastSeenActorStorageKey = continuationToken.Marker.ToString();
+                        enumerator = replica.Enumerate(txn, lastSeenActorStorageKey, false);
+                        enumHasMoreEntries = enumerator.MoveNext();
+                        var storageKey = enumerator.Current.Metadata.Key;
+                        if (enumHasMoreEntries && storageKey == lastSeenActorStorageKey)
+                        {
+                            enumHasMoreEntries = enumerator.MoveNext();
+                        }
+                    }
+
+                    if (!enumHasMoreEntries)
+                    {
+                        // We are here means the current snapshot that enumerator represents
+                        // has less entries that what ContinuationToken contains.
+                        return Task.FromResult(actorQueryResult);
+                    }
                 }
                 else
                 {
-                    string lastSeenActorStorageKey = continuationToken.Marker.ToString();
-                    enumerator = replica.Enumerate(txn, lastSeenActorStorageKey, false);
+                    enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
                     enumHasMoreEntries = enumerator.MoveNext();
-                    var storageKey = enumerator.Current.Metadata.Key;
-                    if (enumHasMoreEntries && storageKey == lastSeenActorStorageKey)
-                    {
-                        enumHasMoreEntries = enumerator.MoveNext();
-                    }
                 }
 
                 if (!enumHasMoreEntries)
                 {
-                    // We are here means the current snapshot that enumerator represents
-                    // has less entries that what ContinuationToken contains.
                     return Task.FromResult(actorQueryResult);
                 }
-            }
-            else
-            {
-                enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
-                enumHasMoreEntries = enumerator.MoveNext();
-            }
 
-            if (!enumHasMoreEntries)
-            {
-                return Task.FromResult(actorQueryResult);
-            }
-
-            while (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var storageKey = enumerator.Current.Metadata.Key;
-                var actorId = ActorStateProviderHelper.GetActorIdFromPresenceStorageKey(storageKey);
-
-                if (actorId != null)
+                while (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
                 {
-                    actorIdList.Add(actorId);
-                }
-                else
-                {
-                    ActorTrace.Source.WriteWarningWithId(
-                        TraceType,
-                        this.traceId,
-                        string.Format("Failed to parse ActorId from storage key: {0}", storageKey));
-                }
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                enumHasMoreEntries = enumerator.MoveNext();
+                    var storageKey = enumerator.Current.Metadata.Key;
+                    var actorId = ActorStateProviderHelper.GetActorIdFromPresenceStorageKey(storageKey);
 
-                if (actorIdList.Count == itemsCount)
-                {
-                    actorQueryResult.Items = actorIdList.AsReadOnly();
-
-                    // If enumerator has more elements, then set the continuation token.
-                    if (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
+                    if (actorId != null)
                     {
-                        actorQueryResult.ContinuationToken = new ContinuationToken(storageKey.ToString());
+                        actorIdList.Add(actorId);
+                    }
+                    else
+                    {
+                        ActorTrace.Source.WriteWarningWithId(
+                            TraceType,
+                            this.traceId,
+                            string.Format("Failed to parse ActorId from storage key: {0}", storageKey));
                     }
 
-                    return Task.FromResult(actorQueryResult);
+                    enumHasMoreEntries = enumerator.MoveNext();
+
+                    if (actorIdList.Count == itemsCount)
+                    {
+                        actorQueryResult.Items = actorIdList.AsReadOnly();
+
+                        // If enumerator has more elements, then set the continuation token.
+                        if (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
+                        {
+                            actorQueryResult.ContinuationToken = new ContinuationToken(storageKey.ToString());
+                        }
+
+                        return Task.FromResult(actorQueryResult);
+                    }
+                }
+            }
+            finally
+            {
+                if (enumerator != null)
+                {
+                    enumerator.Dispose();
                 }
             }
 
