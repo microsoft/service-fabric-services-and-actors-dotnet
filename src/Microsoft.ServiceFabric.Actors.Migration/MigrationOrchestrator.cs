@@ -70,8 +70,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         for (int i = 0; i < workerCount; i++)
                         {
                             var workerStatusValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerStatusKey(i));
-                            MigrationStatus.TryParse(Encoding.ASCII.GetString(workerStatusValue.Value), out MigrationStatus status);
-                            isWorkerTaskIncomplete[i] = status != MigrationStatus.Completed;
+                            MigrationState.TryParse(Encoding.ASCII.GetString(workerStatusValue.Value), out MigrationState status);
+                            isWorkerTaskIncomplete[i] = status != MigrationState.Completed;
                         }
                     }
 
@@ -222,7 +222,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Uninitialized.ToString());
-                this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStatusKey, MigrationStatus.InProgress.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStateKey, MigrationState.InProgress.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStartTimeUtcKey, DateTime.UtcNow.ToString());
                 await tx.CommitAsync();
             }
 
@@ -244,6 +245,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyWorkerCountKey, this.workerCount.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseStartSNKey, startSequenceNumber.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseEndSNKey, endSequenceNumber.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey, DateTime.UtcNow.ToString());
                 await tx.CommitAsync();
             }
 
@@ -258,7 +260,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             {
                 for (int i = 0; i < this.workerCount; i++)
                 {
-                    this.AddOrUpdateMetadata(tx, MigrationConstants.GetCopyWorkerStatusKey(i), MigrationStatus.InProgress.ToString());
+                    this.AddOrUpdateMetadata(tx, MigrationConstants.GetCopyWorkerStatusKey(i), MigrationState.InProgress.ToString());
                     if (i == 0)
                     {
                         this.AddOrUpdateMetadata(tx, MigrationConstants.GetCopyWorkerStartSNKey(i), startSequenceNumber.ToString());
@@ -299,6 +301,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             {
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Catchup.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CatchupStartSNKey, lastUpdatedRecord + 1.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey, DateTime.UtcNow.ToString());
                 await tx.CommitAsync();
             }
 
@@ -354,6 +357,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Downtime.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.DowntimeStartSNKey, lastUpdatedRecord + 1.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.DowntimeEndSNKey, endSequenceNumber.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey, DateTime.UtcNow.ToString());
                 await tx.CommitAsync();
             }
 
@@ -368,7 +372,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Completed.ToString());
-                this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStatusKey, MigrationStatus.Completed.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStateKey, MigrationState.Completed.ToString());
                 await tx.CommitAsync();
             }
         }

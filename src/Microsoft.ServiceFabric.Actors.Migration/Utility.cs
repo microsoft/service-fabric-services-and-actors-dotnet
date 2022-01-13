@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     {
                         var endpoint = serviceContext.CodePackageActivationContext.GetEndpoint(endpointName);
 
-                        ActorTrace.Source.WriteInfo("Migration.Utility", $"Starting Kestrel on url: {url} host: {FabricRuntime.GetNodeContext().IPAddressOrFQDN} endpointPort: {endpoint.Port}");
+                        ActorTrace.Source.WriteInfo("Migration.Utility.GetKVSKestrelCommunicationListener", $"Starting Kestrel on url: {url} host: {FabricRuntime.GetNodeContext().IPAddressOrFQDN} endpointPort: {endpoint.Port}");
 
                         var webHostBuilder =
                             new WebHostBuilder()
@@ -39,16 +39,53 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                                 .UseUrls(url)
                                 .Build();
 
-                        ActorTrace.Source.WriteInfo("Migration.Utility", "Successfully created webhostbuilder");
+                        ActorTrace.Source.WriteInfo("Migration.Utility.GetKVSKestrelCommunicationListener", "Successfully created webhostbuilder");
 
                         return webHostBuilder;
                     }
                     catch (Exception ex)
                     {
-                        ActorTrace.Source.WriteInfo("Migration.Utility", "Got exception in creating WebHostBuilder: " + ex);
+                        ActorTrace.Source.WriteInfo("Migration.Utility.GetKVSKestrelCommunicationListener", "Got exception in creating WebHostBuilder: " + ex);
                         throw;
                     }
                 });
+        }
+
+        public KestrelCommunicationListener GetRCKestrelCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KVStoRCMigrationActorStateProvider stateProvider)
+        {
+            var endpointName = ActorNameFormat.GetActorRcMigrationEndpointName(actorTypeInformation.ImplementationType);
+
+            return new KestrelCommunicationListener(serviceContext, endpointName, (url, listener) =>
+            {
+                try
+                {
+                    var endpoint = serviceContext.CodePackageActivationContext.GetEndpoint(endpointName);
+
+                    ActorTrace.Source.WriteInfo("Migration.Utility.GetRCKestrelCommunicationListener", $"Starting Kestrel on url: {url} host: {FabricRuntime.GetNodeContext().IPAddressOrFQDN} endpointPort: {endpoint.Port}");
+
+                    var webHostBuilder =
+                        new WebHostBuilder()
+                            .UseKestrel()
+                            .ConfigureServices(
+                                services => services
+                                    .AddSingleton<StatefulServiceContext>(serviceContext)
+                                    .AddSingleton<ActorTypeInformation>(actorTypeInformation)
+                                    .AddSingleton<KVStoRCMigrationActorStateProvider>(stateProvider))
+                            .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
+                            .UseStartup<Startup>()
+                            .UseUrls(url)
+                            .Build();
+
+                    ActorTrace.Source.WriteInfo("Migration.Utility.GetRCKestrelCommunicationListener", "Successfully created webhostbuilder");
+
+                    return webHostBuilder;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteInfo("Migration.Utility.GetRCKestrelCommunicationListener", "Got exception in creating WebHostBuilder: " + ex);
+                    throw;
+                }
+            });
         }
     }
 }
