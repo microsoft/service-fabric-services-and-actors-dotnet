@@ -252,6 +252,36 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        public IEnumerator<TValue> GetSortedValueEnumerator(TType type, Func<TKey, bool> filter, Comparison<TValue> comparer)
+        {
+            using (this.rwLock.AcquireWriteLock())
+            {
+                var committedValueList = new List<TValue>();
+
+                if (this.committedEntriesTable.TryGetValue(type, out var keyTable))
+                {
+                    foreach (var kvPair in keyTable)
+                    {
+                        if (filter(kvPair.Key))
+                        {
+                            committedValueList.Add(kvPair.Value.ActorStateDataWrapper.Value);
+                        }
+                    }
+
+                    if (comparer == null)
+                    {
+                        committedValueList.Sort();
+                    }
+                    else
+                    {
+                        committedValueList.Sort(comparer);
+                    }
+                }
+
+                return committedValueList.GetEnumerator();
+            }
+        }
+
         public IReadOnlyDictionary<TKey, TValue> GetActorStateDictionary(TType type)
         {
             using (this.rwLock.AcquireReadLock())
