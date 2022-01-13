@@ -35,6 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string KVSToRCMigrationActorStateProviderClassFullName = "Microsoft.ServiceFabric.Actors.Migration.KVStoRCMigrationActorStateProvider";
         private const string MigrationOrchestratorClassFullName = "Microsoft.ServiceFabric.Actors.Migration.MigrationOrchestrator";
         private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
+        private const string ActorsMigrationGetRCKestrelCommunicationListnerMethod = "GetRCKestrelCommunicationListener";
 
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
@@ -51,6 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private object actorsMigrationUtility;
         private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
+        private MethodInfo getRCKestrelCommunicationListnerMethodInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -251,6 +253,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 },
                     "KVS Migration Listner"));
             }
+            else if (this.IsMigrationTarget())
+            {
+                this.InitializeActorMigrationUtility();
+                serviceReplicaListeners.Add(new ServiceReplicaListener(
+                    serviceContext =>
+                    {
+                        return (ICommunicationListener)this.getRCKestrelCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
+                    },
+                    "RC Migration Listner"));
+            }
 
             return serviceReplicaListeners;
         }
@@ -392,6 +404,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
             this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
             this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
+            this.getRCKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetRCKestrelCommunicationListnerMethod);
         }
 
         private Type GetKVStoRCMigrationActorStateProviderType()
@@ -446,6 +459,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             types.AddRange(this.ActorTypeInformation.InterfaceTypes);
 
             return (Actors.Helper.IsMigrationSource(types) && this.StateProviderReplica is KvsActorStateProvider);
+        }
+
+        private bool IsMigrationTarget()
+        {
+            var types = new List<Type> { this.ActorTypeInformation.ImplementationType };
+            types.AddRange(this.ActorTypeInformation.InterfaceTypes);
+
+            return (Actors.Helper.IsMigrationTarget(types) && (this.StateProviderReplica.GetType() == this.GetKVStoRCMigrationActorStateProviderType()));
         }
     }
 }
