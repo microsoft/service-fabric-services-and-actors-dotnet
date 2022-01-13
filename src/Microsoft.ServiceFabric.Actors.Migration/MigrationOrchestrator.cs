@@ -139,8 +139,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 for (int i = 0; i < workerCount; i++)
                 {
                     var workerStatusValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerStatusKey(i));
-                    MigrationStatus.TryParse(Encoding.ASCII.GetString(workerStatusValue.Value), out MigrationStatus status);
-                    isWorkerTaskIncomplete[i] = status != MigrationStatus.Completed;
+                    MigrationState.TryParse(Encoding.ASCII.GetString(workerStatusValue.Value), out MigrationState status);
+                    isWorkerTaskIncomplete[i] = status != MigrationState.Completed;
                 }
             }
 
