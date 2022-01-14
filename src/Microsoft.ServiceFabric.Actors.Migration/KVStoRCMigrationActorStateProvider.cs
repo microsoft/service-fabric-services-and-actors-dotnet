@@ -407,6 +407,25 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                         long.TryParse(Encoding.ASCII.GetString(endSNValue.Value), out long endSN);
                         migrationStatus.KVS_LSN = endSN;
+
+                        int.TryParse(Encoding.ASCII.GetString(workerCountValue.Value), out int workerCount);
+                        for (int workerNo = 0; workerNo < workerCount; workerNo++)
+                        {
+                            ConditionalValue<byte[]> startSNMetadataValue, lastAppliedSNMetadataValue;
+                            using (var tx = this.GetStateManager().CreateTransaction())
+                            {
+                                startSNMetadataValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerStartSNKey(workerNo));
+                                lastAppliedSNMetadataValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerNo));
+                            }
+
+                            migrationStatus.WorkerStatuses.Add(new WorkerStatus
+                                            {
+                                                WorkerId = "CopyWorker_" + workerNo.ToString(),
+                                                FirstAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(startSNMetadataValue.Value)),
+                                                LastAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(lastAppliedSNMetadataValue.Value)),
+                                            });
+                        }
+
                         break;
                     case MigrationPhase.Catchup:
                         ConditionalValue<byte[]> iterationValue, startSNValue;
@@ -451,11 +470,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         long.TryParse(Encoding.ASCII.GetString(startSNValue.Value), out startSN);
                         long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out lastAppliedSN);
                         migrationStatus.KVS_LSN = lastSN;
-                        workerStatus = new WorkerStatus();
-                        workerStatus.WorkerId = "DownTime Worker";
-                        workerStatus.FirstAppliedSeqNum = startSN;
-                        workerStatus.LastAppliedSeqNum = lastAppliedSN;
-                        migrationStatus.WorkerStatuses.Add(workerStatus);
+                        migrationStatus.WorkerStatuses.Add(new WorkerStatus
+                        {
+                            WorkerId = "DownTime Worker",
+                            FirstAppliedSeqNum = startSN,
+                            LastAppliedSeqNum = lastAppliedSN,
+                        });
                         break;
                     case MigrationPhase.Completed:
                     case MigrationPhase.Uninitialized:
