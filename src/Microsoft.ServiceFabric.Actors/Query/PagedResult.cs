@@ -8,13 +8,15 @@ namespace Microsoft.ServiceFabric.Actors.Query
     using System.Collections.Generic;
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     /// <summary>
     /// Represents the result of actor query calls.
     /// </summary>
     /// <typeparam name="T"><see cref="System.Type"/> of the items this query result contains.</typeparam>
-    [DataContract(Name = "PagedResult", Namespace = Constants.Namespace)]
+    [DataContract] // Workaround until the right fix for the request/response types with generics is implemented
     [KnownType(typeof(List<ActorInformation>))]
+    [KnownType(typeof(List<KeyValuePair<ActorId, List<ActorReminderState>>>))]
     public sealed class PagedResult<T>
     {
         /// <summary>
