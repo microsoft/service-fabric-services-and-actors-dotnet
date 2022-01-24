@@ -87,5 +87,26 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 }
             });
         }
+
+        public bool GetRejectWriteState(IActorStateProvider stateProvider)
+        {
+            if (stateProvider is KvsActorStateProvider)
+            {
+                return (stateProvider as KvsActorStateProvider).GetRejectWriteState();
+            }
+
+            if (stateProvider is KVStoRCMigrationActorStateProvider)
+            {
+                MigrationState migrationState = (stateProvider as KVStoRCMigrationActorStateProvider).GetMigrationStateAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                // reject writes if migration is InProgress
+                if (migrationState == MigrationState.InProgress)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

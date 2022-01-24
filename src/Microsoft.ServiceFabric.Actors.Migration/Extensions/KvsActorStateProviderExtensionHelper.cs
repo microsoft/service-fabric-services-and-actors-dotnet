@@ -176,7 +176,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
         }
 
-        internal static bool GetWriteStatusAsync(this KvsActorStateProvider stateProvider)
+        internal static bool GetRejectWriteState(this KvsActorStateProvider stateProvider)
         {
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {

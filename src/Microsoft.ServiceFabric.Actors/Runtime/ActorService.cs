@@ -36,6 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string MigrationOrchestratorClassFullName = "Microsoft.ServiceFabric.Actors.Migration.MigrationOrchestrator";
         private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
         private const string ActorsMigrationGetRCKestrelCommunicationListnerMethod = "GetRCKestrelCommunicationListener";
+        private const string ActorsMigrationGetRejectWriteStateMethod = "GetRejectWriteState";
 
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
@@ -53,6 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private object actorsMigrationUtility;
         private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
         private MethodInfo getRCKestrelCommunicationListnerMethodInfo;
+        private MethodInfo getGetRejectWriteStateMethodInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -153,7 +155,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
-#region IActorService Members
+        #region IActorService Members
 
         /// <summary>
         /// Deletes an Actor from the Actor service.
@@ -206,6 +208,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #endif
             this.MethodDispatcherMapV2 =
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
+        }
+
+        internal bool GetRejectWriteState()
+        {
+            return (bool)this.getGetRejectWriteStateMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { this.stateProvider });
         }
 
 #region StatefulServiceBase Overrides
@@ -405,6 +412,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
             this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
             this.getRCKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetRCKestrelCommunicationListnerMethod);
+            this.getGetRejectWriteStateMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetRejectWriteStateMethod);
         }
 
         private Type GetKVStoRCMigrationActorStateProviderType()

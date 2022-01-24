@@ -1102,15 +1102,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        // TODO: Check RejectWritesKey set to true before throwing exception
         private void ThrowIfMigrationInProgress()
         {
-            if (Utility.IsMigrationSource(this.actorService.ActorTypeInformation.InterfaceTypes.ToList()))
-            {
-                throw new ActorStateMigrationInProgressException();
-            }
-
-            if (Utility.IsMigrationTarget(this.actorService.ActorTypeInformation.InterfaceTypes.ToList()))
+            bool rejectWriteState = this.actorService.GetRejectWriteState();
+            if ((Utility.IsMigrationSource(this.actorService.ActorTypeInformation.InterfaceTypes.ToList())
+                || Utility.IsMigrationTarget(this.actorService.ActorTypeInformation.InterfaceTypes.ToList()))
+                && rejectWriteState)
             {
                 throw new ActorStateMigrationInProgressException();
             }

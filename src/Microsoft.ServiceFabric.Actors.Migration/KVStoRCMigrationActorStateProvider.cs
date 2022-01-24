@@ -358,6 +358,20 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return this.rcStateProvider.GetStateManager();
         }
 
+        internal async Task<MigrationState> GetMigrationStateAsync()
+        {
+            var metaDataDictionary = await this.GetMetadataDictionaryAsync();
+            ConditionalValue<byte[]> migrationStateValue;
+            using (var tx = this.GetStateManager().CreateTransaction())
+            {
+                migrationStateValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationStateKey);
+            }
+
+            MigrationState.TryParse(Encoding.ASCII.GetString(migrationStateValue.Value), out MigrationState migrationState);
+
+            return migrationState;
+        }
+
         internal async Task<MigrationStatus> GetMigrationStatusAsync(CancellationToken cancellationToken)
         {
             var metaDataDictionary = await this.GetMetadataDictionaryAsync();
