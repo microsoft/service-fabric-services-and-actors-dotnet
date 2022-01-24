@@ -634,7 +634,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken cancellationToken)
         {
             // Get the Actors list from State provider and mark them Active or Inactive
-            int maxCount = PagedResult<ActorInformation>.GetDefaultPageSize();
+            const int maxCount = PagedResult<ActorInformation>.MaxItemsToReturn;
             var queryResult = await this.StateProvider.GetActorsAsync(maxCount, continuationToken, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -649,13 +649,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             };
         }
 
-        public async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
+        public async Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
             ActorId actorId,
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
             return await this.StateProvider.GetRemindersAsync(
-                PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize(),
+                ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize(),
                 actorId,
                 continuationToken,
                 cancellationToken);

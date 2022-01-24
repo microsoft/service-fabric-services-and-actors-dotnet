@@ -8,23 +8,22 @@ namespace Microsoft.ServiceFabric.Actors.Query
     using System.Collections.Generic;
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
-    using Microsoft.ServiceFabric.Actors.Runtime;
 
     /// <summary>
     /// Represents the result of actor query calls.
     /// </summary>
     /// <typeparam name="T"><see cref="System.Type"/> of the items this query result contains.</typeparam>
-    [DataContract] // Workaround until the right fix for the request/response types with generics is implemented
+    [DataContract(Name = "PagedResult", Namespace = Constants.Namespace)]
     [KnownType(typeof(List<ActorInformation>))]
-    [KnownType(typeof(List<KeyValuePair<ActorId, List<ActorReminderState>>>))]
     public sealed class PagedResult<T>
+        where T : class
     {
         /// <summary>
         /// Max number of items to return in Query Result.
         /// Default MessageSize of 4 MB with DataContract serialization can include up to 85000 items when ActorInformation only includes ActorId.
         /// Its set to 10000 to allow for custom serialization and future changes in ActorInformation.
         /// </summary>
-        private static int maxItemsToReturn = 10000;
+        internal const int MaxItemsToReturn = 10000;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PagedResult{T}"/> class.
@@ -53,19 +52,5 @@ namespace Microsoft.ServiceFabric.Actors.Query
         /// needs to called again to get more results </value>
         [DataMember(Name = "ContinuationToken", IsRequired = false, Order = 1)]
         public ContinuationToken ContinuationToken { get; set; }
-
-        /// <summary>
-        /// Sets the new default page size.
-        /// </summary>
-        /// <param name="newSize">New size.</param>
-        public static void SetDefaultPageSize(int newSize)
-        {
-            maxItemsToReturn = newSize;
-        }
-
-        internal static int GetDefaultPageSize()
-        {
-            return maxItemsToReturn;
-        }
     }
 }
