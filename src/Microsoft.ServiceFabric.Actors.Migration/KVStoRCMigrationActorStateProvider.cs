@@ -367,9 +367,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 migrationStateValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationStateKey);
             }
 
-            MigrationState.TryParse(Encoding.ASCII.GetString(migrationStateValue.Value), out MigrationState migrationState);
-
-            return migrationState;
+            if (MigrationState.TryParse(Encoding.ASCII.GetString(migrationStateValue.Value), out MigrationState migrationState))
+            {
+                return migrationState;
+            }
+            else
+            {
+                return MigrationState.Uninitialized;
+            }
         }
 
         internal async Task<MigrationStatus> GetMigrationStatusAsync(CancellationToken cancellationToken)
@@ -380,122 +385,138 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             migrationStatus.ParitionId = this.servicePartition.PartitionInfo.Id;
 
-            ConditionalValue<byte[]> migrationPhaseValue;
-            cancellationToken.ThrowIfCancellationRequested();
-            using (var tx = this.GetStateManager().CreateTransaction())
+            try
             {
-                migrationPhaseValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationPhaseKey);
-            }
-
-            if (migrationPhaseValue.HasValue)
-            {
-                MigrationPhase.TryParse(Encoding.ASCII.GetString(migrationPhaseValue.Value), out MigrationPhase phase);
-                migrationStatus.CurrentMigrationPhase = phase.ToString();
-
-                ConditionalValue<byte[]> migrationStartTimeUtcValue, currentMigrationPhaseStartTimeUtcValue;
-                ConditionalValue<byte[]> lastAppliedSNValue;
-                long lastAppliedSN, startSN, lastSN;
-
+                ConditionalValue<byte[]> migrationPhaseValue;
                 cancellationToken.ThrowIfCancellationRequested();
                 using (var tx = this.GetStateManager().CreateTransaction())
                 {
-                    migrationStartTimeUtcValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationStartTimeUtcKey);
-                    currentMigrationPhaseStartTimeUtcValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey);
+                    migrationPhaseValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationPhaseKey);
                 }
 
-                DateTime.TryParse(Encoding.ASCII.GetString(migrationStartTimeUtcValue.Value), out DateTime migrationStartTimeUtc);
-                migrationStatus.MigrationStartTimeUtc = migrationStartTimeUtc;
-                DateTime.TryParse(Encoding.ASCII.GetString(migrationStartTimeUtcValue.Value), out DateTime currentMigrationPhaseSartTimeUtc);
-                migrationStatus.CurrentMigrationPhaseStartTimeUtc = currentMigrationPhaseSartTimeUtc;
-
-                switch (phase)
+                if (migrationPhaseValue.HasValue)
                 {
-                    case MigrationPhase.Copy:
-                        ConditionalValue<byte[]> workerCountValue, endSNValue;
-                        cancellationToken.ThrowIfCancellationRequested();
-                        using (var tx = this.GetStateManager().CreateTransaction())
-                        {
-                            workerCountValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CopyWorkerCountKey);
-                            endSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CopyPhaseEndSNKey);
-                        }
+                    if (MigrationPhase.TryParse(Encoding.ASCII.GetString(migrationPhaseValue.Value), out MigrationPhase phase))
+                    {
+                        migrationStatus.CurrentMigrationPhase = phase.ToString();
+                    }
 
-                        long.TryParse(Encoding.ASCII.GetString(endSNValue.Value), out long endSN);
-                        migrationStatus.KVS_LSN = endSN;
+                    ConditionalValue<byte[]> migrationStartTimeUtcValue, currentMigrationPhaseStartTimeUtcValue;
+                    ConditionalValue<byte[]> lastAppliedSNValue;
 
-                        int.TryParse(Encoding.ASCII.GetString(workerCountValue.Value), out int workerCount);
-                        for (int workerNo = 0; workerNo < workerCount; workerNo++)
-                        {
-                            ConditionalValue<byte[]> startSNMetadataValue, lastAppliedSNMetadataValue;
+                    cancellationToken.ThrowIfCancellationRequested();
+                    using (var tx = this.GetStateManager().CreateTransaction())
+                    {
+                        migrationStartTimeUtcValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationStartTimeUtcKey);
+                        currentMigrationPhaseStartTimeUtcValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey);
+                    }
+
+                    migrationStatus.MigrationStartTimeUtc = DateTime.Parse(Encoding.ASCII.GetString(migrationStartTimeUtcValue.Value));
+                    migrationStatus.CurrentMigrationPhaseStartTimeUtc = DateTime.Parse(Encoding.ASCII.GetString(migrationStartTimeUtcValue.Value));
+
+                    switch (phase)
+                    {
+                        case MigrationPhase.Copy:
+                            ConditionalValue<byte[]> workerCountValue, endSNValue;
+                            cancellationToken.ThrowIfCancellationRequested();
                             using (var tx = this.GetStateManager().CreateTransaction())
                             {
-                                startSNMetadataValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerStartSNKey(workerNo));
-                                lastAppliedSNMetadataValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerNo));
+                                workerCountValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CopyWorkerCountKey);
+                                endSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CopyPhaseEndSNKey);
                             }
+
+                            migrationStatus.KVS_LSN = long.Parse(Encoding.ASCII.GetString(endSNValue.Value));
+
+                            int workerCount = int.Parse(Encoding.ASCII.GetString(workerCountValue.Value));
+                            for (int workerNo = 0; workerNo < workerCount; workerNo++)
+                            {
+                                ConditionalValue<byte[]> startSNMetadataValue, lastAppliedSNMetadataValue;
+                                cancellationToken.ThrowIfCancellationRequested();
+                                using (var tx = this.GetStateManager().CreateTransaction())
+                                {
+                                    startSNMetadataValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerStartSNKey(workerNo));
+                                    lastAppliedSNMetadataValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerNo));
+                                }
+
+                                migrationStatus.WorkerStatuses.Add(new WorkerStatus
+                                {
+                                    WorkerId = "CopyWorker_" + workerNo.ToString(),
+                                    FirstAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(startSNMetadataValue.Value)),
+                                    LastAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(lastAppliedSNMetadataValue.Value)),
+                                });
+                            }
+
+                            break;
+                        case MigrationPhase.Catchup:
+                            ConditionalValue<byte[]> iterationValue, startSNValue;
+                            cancellationToken.ThrowIfCancellationRequested();
+                            using (var tx = this.GetStateManager().CreateTransaction())
+                            {
+                                iterationValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CatchupIterationKey);
+                                startSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CatchupStartSNKey);
+                            }
+
+                            migrationStatus.KVS_LSN = long.Parse(Encoding.ASCII.GetString(startSNValue.Value));
+
+                            var workerStatus = new WorkerStatus();
+                            workerStatus.WorkerId = "Catchup Worker";
+                            workerStatus.FirstAppliedSeqNum = migrationStatus.KVS_LSN;
+
+                            if (iterationValue.HasValue)
+                            {
+                                var iterationCount = int.Parse(Encoding.ASCII.GetString(iterationValue.Value));
+                                cancellationToken.ThrowIfCancellationRequested();
+                                using (var tx = this.GetStateManager().CreateTransaction())
+                                {
+                                    lastAppliedSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerLastAppliedSNKey(iterationCount));
+                                }
+
+                                workerStatus.LastAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(lastAppliedSNValue.Value));
+                            }
+
+                            migrationStatus.WorkerStatuses.Add(workerStatus);
+                            break;
+                        case MigrationPhase.Downtime:
+                            ConditionalValue<byte[]> lastSNValue;
+                            cancellationToken.ThrowIfCancellationRequested();
+                            using (var tx = this.GetStateManager().CreateTransaction())
+                            {
+                                lastAppliedSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.DowntimeWorkerLastAppliedSNKey);
+                                startSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.DowntimeStartSNKey);
+                                lastSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.DowntimeEndSNKey);
+                            }
+
+                            migrationStatus.KVS_LSN = long.Parse(Encoding.ASCII.GetString(lastSNValue.Value));
 
                             migrationStatus.WorkerStatuses.Add(new WorkerStatus
-                                            {
-                                                WorkerId = "CopyWorker_" + workerNo.ToString(),
-                                                FirstAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(startSNMetadataValue.Value)),
-                                                LastAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(lastAppliedSNMetadataValue.Value)),
-                                            });
-                        }
-
-                        break;
-                    case MigrationPhase.Catchup:
-                        ConditionalValue<byte[]> iterationValue, startSNValue;
-                        cancellationToken.ThrowIfCancellationRequested();
-                        using (var tx = this.GetStateManager().CreateTransaction())
-                        {
-                            iterationValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CatchupIterationKey);
-                            startSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.CatchupStartSNKey);
-                        }
-
-                        long.TryParse(Encoding.ASCII.GetString(startSNValue.Value), out startSN);
-                        migrationStatus.KVS_LSN = startSN;
-
-                        var workerStatus = new WorkerStatus();
-                        workerStatus.WorkerId = "Catchup Worker";
-                        workerStatus.FirstAppliedSeqNum = startSN;
-
-                        if (iterationValue.HasValue)
-                        {
-                            int.TryParse(Encoding.ASCII.GetString(iterationValue.Value), out int iterationCount);
-                            using (var tx = this.GetStateManager().CreateTransaction())
                             {
-                                lastAppliedSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.GetCatchupWorkerLastAppliedSNKey(iterationCount));
-                            }
-
-                            long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out lastAppliedSN);
-                            workerStatus.LastAppliedSeqNum = lastAppliedSN;
-                        }
-
-                        migrationStatus.WorkerStatuses.Add(workerStatus);
-                        break;
-                    case MigrationPhase.Downtime:
-                        ConditionalValue<byte[]> lastSNValue;
-                        using (var tx = this.GetStateManager().CreateTransaction())
-                        {
-                            lastAppliedSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.DowntimeWorkerLastAppliedSNKey);
-                            startSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.DowntimeStartSNKey);
-                            lastSNValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.DowntimeEndSNKey);
-                        }
-
-                        long.TryParse(Encoding.ASCII.GetString(lastSNValue.Value), out lastSN);
-                        long.TryParse(Encoding.ASCII.GetString(startSNValue.Value), out startSN);
-                        long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out lastAppliedSN);
-                        migrationStatus.KVS_LSN = lastSN;
-                        migrationStatus.WorkerStatuses.Add(new WorkerStatus
-                        {
-                            WorkerId = "DownTime Worker",
-                            FirstAppliedSeqNum = startSN,
-                            LastAppliedSeqNum = lastAppliedSN,
-                        });
-                        break;
-                    case MigrationPhase.Completed:
-                    case MigrationPhase.Uninitialized:
-                    default:
-                        break;
+                                WorkerId = "DownTime Worker",
+                                FirstAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(startSNValue.Value)),
+                                LastAppliedSeqNum = long.Parse(Encoding.ASCII.GetString(lastAppliedSNValue.Value)),
+                            });
+                            break;
+                        case MigrationPhase.Completed:
+                        case MigrationPhase.Uninitialized:
+                        default:
+                            break;
+                    }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (ArgumentNullException e)
+            {
+                ActorTrace.Source.WriteWarningWithId(this.TraceType, this.traceId, $"GetMigrationStatusAsync Failed. {e.Message} \n {e.StackTrace}");
+            }
+            catch (FormatException e)
+            {
+                ActorTrace.Source.WriteWarningWithId(this.TraceType, this.traceId, $"GetMigrationStatusAsync Failed. {e.Message} \n {e.StackTrace}");
+            }
+            catch (OverflowException e)
+            {
+                ActorTrace.Source.WriteWarningWithId(this.TraceType, this.traceId, $"GetMigrationStatusAsync Failed. {e.Message} \n {e.StackTrace}");
             }
 
             return migrationStatus;

@@ -180,6 +180,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
+                // TODO: Consider caching this value.
                 var result = stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey);
 
                 if (result != null)
