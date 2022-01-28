@@ -81,7 +81,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 cancellationToken.ThrowIfCancellationRequested();
                 var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
                 {
-                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(client.EndpointUri, start, enumerationSize, includeDeletes, apiName), HttpCompletionOption.ResponseHeadersRead);
+                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(start, enumerationSize, includeDeletes, apiName), HttpCompletionOption.ResponseHeadersRead);
                 });
 
                 response.EnsureSuccessStatusCode();
@@ -134,7 +134,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return req;
         }
 
-        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseEndpointUri, long startSN, long enumerationSize, bool includeDeletes, string apiName)
+        private HttpRequestMessage CreateKvsApiRequestMessage(long startSN, long enumerationSize, bool includeDeletes, string apiName)
         {
             var requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
             var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN, enumerationSize, includeDeletes);
@@ -149,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(baseEndpointUri, $"{MigrationConstants.KVSMigrationControllerName}/{apiName}"),
+                RequestUri = new Uri($"{MigrationConstants.KVSMigrationControllerName}/{apiName}"),
                 Content = content,
             };
         }

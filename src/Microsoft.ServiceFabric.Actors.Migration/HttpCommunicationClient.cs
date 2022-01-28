@@ -17,8 +17,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public HttpCommunicationClient(string address)
         {
-            this.endpointUri = new Uri(address);
-            this.httpClient = new HttpClient();
+            this.endpointUri = new Uri(address.EndsWith("/") ? address : $"{address}/");
+            this.httpClient = new HttpClient()
+            {
+                BaseAddress = this.endpointUri,
+            };
         }
 
         public Uri EndpointUri { get => this.endpointUri; }

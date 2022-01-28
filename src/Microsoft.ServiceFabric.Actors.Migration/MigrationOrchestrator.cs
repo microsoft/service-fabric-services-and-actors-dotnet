@@ -378,7 +378,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Inititating downtime phase of migration");
             await this.servicePartitionClient.InvokeWithRetryAsync(async client =>
             {
-                return await client.HttpClient.PutAsync(new Uri(client.EndpointUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.RejectWritesAPIEndpoint}"), null);
+                return await client.HttpClient.PutAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.RejectWritesAPIEndpoint}", null);
             });
 
             var endSequenceNumber = await this.GetEndSequenceNumber();
@@ -418,7 +418,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             var endSNString = await this.servicePartitionClient.InvokeWithRetryAsync<string>(async client =>
             {
-                return await client.HttpClient.GetStringAsync(new Uri(client.EndpointUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetEndSNEndpoint}"));
+                return await client.HttpClient.GetStringAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetEndSNEndpoint}");
             });
 
             return long.Parse(endSNString);
@@ -428,7 +428,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             var startSNString = await this.servicePartitionClient.InvokeWithRetryAsync<string>(async client =>
             {
-                return await client.HttpClient.GetStringAsync(new Uri(client.EndpointUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetStartSNEndpoint}"));
+                return await client.HttpClient.GetStringAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetStartSNEndpoint}");
             });
 
             return long.Parse(startSNString);
