@@ -16,17 +16,19 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     internal class MigrationOrchestrator : IMigrationOrchestrator
     {
-        private static readonly HttpClient Client = new HttpClient();
         private KVStoRCMigrationActorStateProvider stateProvider;
         private ActorTypeInformation actorTypeInfo;
         private IReliableDictionary2<string, byte[]> metadataDict;
         private int workerCount;
         private long downtimeThreshold;
-        private string kvsEndpoint;
+        private Uri kvsServiceUri;
         private StatefulServiceInitializationParameters initParams;
+        private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
 
         public MigrationOrchestrator(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
         {
@@ -38,6 +40,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         public async Task StartMigration(CancellationToken cancellationToken)
         {
             this.GetUserSettingsOrDefault();
+            var partitionInformation = this.stateProvider.StatefulServicePartition.PartitionInfo as Int64RangePartitionInformation;
+            this.servicePartitionClient = new ServicePartitionClient<HttpCommunicationClient>(
+                new HttpCommunicationClientFactory(null, new List<IExceptionHandler>() { new HttpExceptionHandler() }),
+                this.kvsServiceUri,
+                new ServicePartitionKey(partitionInformation.LowKey),
+                TargetReplicaSelector.PrimaryReplica,
+                MigrationConstants.KVSMigrationListenerName);
             this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
 
             ConditionalValue<byte[]> migrationPhaseValue;
@@ -83,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         {
                             if (isWorkerTaskIncomplete[i])
                             {
-                                var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+                                var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
                                 ConditionalValue<byte[]> startSNValue, endSNValue, lastAppliedSNValue;
                                 using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                                 {
@@ -147,8 +156,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         {
                             long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out long lastAppliedSN);
                             long.TryParse(Encoding.ASCII.GetString(lastSNValue.Value), out long lastSN);
-                            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
-
+                            var endSequenceNumber = await this.GetEndSequenceNumber();
                             if (lastAppliedSN != lastSN || (endSequenceNumber - lastAppliedSN > this.downtimeThreshold))
                             {
                                 lastAppliedSN = await this.StartCatchupIteration(iterationCount, lastAppliedSN, cancellationToken);
@@ -191,7 +199,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         long.TryParse(Encoding.ASCII.GetString(lastAppliedSNValue.Value), out long lastAppliedSN);
                         if (lastAppliedSN != lastSN)
                         {
-                            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+                            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
                             await worker.StartMigrationWorker(MigrationPhase.Downtime, lastAppliedSN + 1, lastSN, -1, cancellationToken);
                             await this.ResumeWritesAndMarkeMigrationCompleted(cancellationToken);
                         }
@@ -236,8 +244,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task<long> StartCopyPhaseWorkload(CancellationToken cancellationToken)
         {
-            var startSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetStartSNEndpoint));
-            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+            var startSequenceNumber = await this.GetStartSequenceNumber();
+            var endSequenceNumber = await this.GetEndSequenceNumber();
+
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Copy.ToString());
@@ -250,7 +259,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             List<MigrationWorker> workers = new List<MigrationWorker>(this.workerCount);
             for (int i = 0; i < this.workerCount; i++)
             {
-                workers.Add(new MigrationWorker(this.stateProvider, this.actorTypeInfo));
+                workers.Add(new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient));
             }
 
             var workerLoad = this.GetEndSequenceNumberForEachWorker(startSequenceNumber, endSequenceNumber);
@@ -307,14 +316,18 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task<long> StartCatchupIteration(int catchupCount, long lastUpdatedRecord, CancellationToken cancellationToken)
         {
-            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+            var endSNString = await this.servicePartitionClient.InvokeWithRetryAsync<string>(async client =>
+            {
+                return await client.HttpClient.GetStringAsync(new Uri(client.EndpointUri, MigrationConstants.GetEndSNEndpoint));
+            });
+            var endSequenceNumber = long.Parse(endSNString);
 
             if (endSequenceNumber <= lastUpdatedRecord)
             {
                 return lastUpdatedRecord;
             }
 
-            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
             cancellationToken.ThrowIfCancellationRequested();
             while (endSequenceNumber - lastUpdatedRecord > this.downtimeThreshold)
             {
@@ -330,7 +343,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                 await worker.StartMigrationWorker(MigrationPhase.Catchup, lastUpdatedRecord + 1, endSequenceNumber, catchupCount, cancellationToken);
                 lastUpdatedRecord = endSequenceNumber;
-                endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+                endSequenceNumber = await this.GetEndSequenceNumber();
             }
 
             return lastUpdatedRecord;
@@ -338,15 +351,18 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task StartDowntimePhaseWorkload(long lastUpdatedRecord, CancellationToken cancellationToken)
         {
-            await Client.PutAsync(this.kvsEndpoint + MigrationConstants.RejectWritesAPIEndpoint, null);
+            await this.servicePartitionClient.InvokeWithRetryAsync(async client =>
+            {
+                return await client.HttpClient.PutAsync(new Uri(client.EndpointUri, MigrationConstants.RejectWritesAPIEndpoint), null);
+            });
 
-            var endSequenceNumber = long.Parse(await Client.GetStringAsync(this.kvsEndpoint + MigrationConstants.GetEndSNEndpoint));
+            var endSequenceNumber = await this.GetEndSequenceNumber();
             if (endSequenceNumber <= lastUpdatedRecord)
             {
                 return;
             }
 
-            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo);
+            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
 
             cancellationToken.ThrowIfCancellationRequested();
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
@@ -363,7 +379,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task ResumeWritesAndMarkeMigrationCompleted(CancellationToken cancellationToken)
         {
-            await Client.PutAsync(this.kvsEndpoint + MigrationConstants.ResumeWritesAPIEndpoint, null);
+            await this.servicePartitionClient.InvokeWithRetryAsync(async client =>
+            {
+                return await client.HttpClient.PutAsync(new Uri(client.EndpointUri, MigrationConstants.ResumeWritesAPIEndpoint), null);
+            });
+
             cancellationToken.ThrowIfCancellationRequested();
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
@@ -371,6 +391,26 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStatusKey, MigrationStatus.Completed.ToString());
                 await tx.CommitAsync();
             }
+        }
+
+        private async Task<long> GetEndSequenceNumber()
+        {
+            var endSNString = await this.servicePartitionClient.InvokeWithRetryAsync<string>(async client =>
+            {
+                return await client.HttpClient.GetStringAsync(new Uri(client.EndpointUri, MigrationConstants.GetEndSNEndpoint));
+            });
+
+            return long.Parse(endSNString);
+        }
+
+        private async Task<long> GetStartSequenceNumber()
+        {
+            var startSNString = await this.servicePartitionClient.InvokeWithRetryAsync<string>(async client =>
+            {
+                return await client.HttpClient.GetStringAsync(new Uri(client.EndpointUri, MigrationConstants.GetStartSNEndpoint));
+            });
+
+            return long.Parse(startSNString);
         }
 
         private List<long> GetEndSequenceNumberForEachWorker(long startLSN, long endLSN)
@@ -435,7 +475,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                     if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
                     {
-                        this.kvsEndpoint = migrationSettings.Parameters["KVSActorServiceUri"].Value;
+                        this.kvsServiceUri = new Uri(migrationSettings.Parameters["KVSActorServiceUri"].Value);
                     }
 
                     if (migrationSettings.Parameters.Contains("DowntimeThreshold"))

@@ -19,6 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     internal class MigrationWorker
     {
@@ -28,13 +29,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private StatefulServiceInitializationParameters initParams;
         private long chunkSize;
         private long itemsPerEnumeration;
-        private string endpoint;
+        private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
 
-        public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
+        public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, ServicePartitionClient<HttpCommunicationClient> servicePartitionClient)
         {
             this.stateProvider = stateProvider;
             this.initParams = this.stateProvider.GetInitParams();
             this.GetUserSettingsOrDefault(actorTypeInfo);
+            this.servicePartitionClient = servicePartitionClient;
         }
 
         internal async Task StartMigrationWorker(MigrationPhase phase, long startSN, long endSN, int workerIdentifier, CancellationToken cancellationToken)
@@ -85,14 +87,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             var byteArray = memoryStream.ToArray();
             var content = new ByteArrayContent(byteArray);
-            var kvsApiRequest = new HttpRequestMessage
+            var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
             {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(this.endpoint + apiName),
-                Content = content,
-            };
-
-            var response = await Client.SendAsync(kvsApiRequest);
+                return await client.HttpClient.SendAsync(new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri(client.EndpointUri, apiName),
+                    Content = content,
+                });
+            });
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();
 
@@ -212,15 +215,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
                     {
                         this.chunkSize = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
-                    {
-                        this.endpoint = migrationSettings.Parameters["KVSActorServiceUri"].Value;
-                    }
-                    else
-                    {
-                        ActorTrace.Source.WriteError("MigrationWorker", "Kvs actor service endpoint not provided in settings.");
                     }
                 }
             }

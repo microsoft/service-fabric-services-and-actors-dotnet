@@ -7,6 +7,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 {
     internal static class MigrationConstants
     {
+        internal static readonly string KVSMigrationListenerName = "_KVSMigrationEP_";
+        internal static readonly string RCMigrationListenerName = "_RCMigrationEP_";
         internal static readonly string MetadataDictionaryName = "store://kvsrcmigration//metadata";
         internal static readonly string ResumeWritesAPIEndpoint = "/ResumeWrites";
         internal static readonly string RejectWritesAPIEndpoint = "/RejectWrites";

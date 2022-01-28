@@ -88,6 +88,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <inheritdoc/>
         public long RoleChangeTracker { get => ((IActorStateProviderInternal)this.rcStateProvider).RoleChangeTracker; }
 
+        internal IStatefulServicePartition StatefulServicePartition { get => this.servicePartition; }
+
         /// <inheritdoc/>
         public void Initialize(ActorTypeInformation actorTypeInformation)
         {
