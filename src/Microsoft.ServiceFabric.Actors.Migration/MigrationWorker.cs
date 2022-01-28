@@ -205,7 +205,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
 
                     key = MigrationConstants.GetCopyWorkerStatusKey(workerIdentifier);
-                    value = Encoding.ASCII.GetBytes(MigrationStatus.Completed.ToString());
+                    value = Encoding.ASCII.GetBytes(MigrationState.Completed.ToString());
                     await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
                     await tx.CommitAsync();
                 }
@@ -219,7 +219,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
 
                     key = MigrationConstants.GetCatchupWorkerStatusKey(workerIdentifier);
-                    value = Encoding.ASCII.GetBytes(MigrationStatus.Completed.ToString());
+                    value = Encoding.ASCII.GetBytes(MigrationState.Completed.ToString());
                     await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
                     await tx.CommitAsync();
                 }
@@ -233,7 +233,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
 
                     key = MigrationConstants.DowntimeWorkerStatusKey;
-                    value = Encoding.ASCII.GetBytes(MigrationStatus.Completed.ToString());
+                    value = Encoding.ASCII.GetBytes(MigrationState.Completed.ToString());
                     await this.metadataDict.AddOrUpdateAsync(tx, key, value, (k, v) => value);
 
                     await tx.CommitAsync();

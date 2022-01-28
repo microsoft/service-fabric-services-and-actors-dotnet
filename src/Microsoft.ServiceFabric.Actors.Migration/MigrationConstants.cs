@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
 
         internal static readonly string MigrationPhaseKey = "MigrationPhase";
-        internal static readonly string MigrationStatusKey = "MigrationStatus";
+        internal static readonly string MigrationStateKey = "MigrationState";
 
         internal static readonly string CopyWorkerCountKey = "WorkerCount";
         internal static readonly string CopyPhaseStartSNKey = "Migration_Copy_StartSN";
@@ -31,6 +31,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string DowntimeStartSNKey = "Migration_Downtime_StartSN";
         internal static readonly string DowntimeEndSNKey = "Migration_Downtime_EndSN";
         internal static readonly string DowntimeWorkerLastAppliedSNKey = "DowntimeWorker_LastAppliedSN";
+
+        internal static readonly string MigrationStartTimeUtcKey = "MigrationStartTimeUtc";
+        internal static readonly string CurrentMigrationPhaseStartTimeUtcKey = "CurrentMigrationPhaseStartTimeUtc";
 
         internal static string GetCopyWorkerStatusKey(int workerIdentifier)
         {

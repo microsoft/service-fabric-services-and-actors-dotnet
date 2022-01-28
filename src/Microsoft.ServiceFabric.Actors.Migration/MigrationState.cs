@@ -6,9 +6,9 @@
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
     /// <summary>
-    /// Indicates actor service migration phase.
+    /// Indicates actor service migration state.
     /// </summary>
-    public enum MigrationStatus
+    public enum MigrationState
     {
         /// <summary>
         /// Migration not started.

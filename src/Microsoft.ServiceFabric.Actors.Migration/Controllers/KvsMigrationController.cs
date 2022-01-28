@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         }
 
         /// <summary>
-        /// Gets the Last Sequence number of KVS
+        /// Sets the flag in KVS to reject all write operations
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPut("RejectWrites")]
@@ -81,7 +81,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         }
 
         /// <summary>
-        /// Enumerates Key value store data by Sequence Number
+        /// Sets the flag in KVS to resume all write opeations
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [HttpPut("ResumeWrites")]
