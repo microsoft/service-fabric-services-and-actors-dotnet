@@ -19,22 +19,23 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     internal class MigrationWorker
     {
-        private static readonly HttpClient Client = new HttpClient();
         private KVStoRCMigrationActorStateProvider stateProvider;
         private IReliableDictionary2<string, byte[]> metadataDict;
         private StatefulServiceInitializationParameters initParams;
         private long chunkSize;
         private long itemsPerEnumeration;
-        private string endpoint;
+        private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
 
-        public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
+        public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, ServicePartitionClient<HttpCommunicationClient> servicePartitionClient)
         {
             this.stateProvider = stateProvider;
             this.initParams = this.stateProvider.GetInitParams();
             this.GetUserSettingsOrDefault(actorTypeInfo);
+            this.servicePartitionClient = servicePartitionClient;
         }
 
         internal async Task StartMigrationWorker(MigrationPhase phase, long startSN, long endSN, int workerIdentifier, CancellationToken cancellationToken)
@@ -75,12 +76,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             bool includeDeletes = phase == MigrationPhase.Copy;
             var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
 
-            var kvsApiRequest = this.CreateKvsApiRequestMessage(start, enumerationSize, includeDeletes, apiName);
-
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await Client.SendAsync(kvsApiRequest, HttpCompletionOption.ResponseHeadersRead);
+                var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
+                {
+                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(client.EndpointUri, start, enumerationSize, includeDeletes, apiName), HttpCompletionOption.ResponseHeadersRead);
+                });
+
                 response.EnsureSuccessStatusCode();
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 {
@@ -131,7 +134,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return req;
         }
 
-        private HttpRequestMessage CreateKvsApiRequestMessage(long startSN, long enumerationSize, bool includeDeletes, string apiName)
+        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseEndpointUri, long startSN, long enumerationSize, bool includeDeletes, string apiName)
         {
             var requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
             var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN, enumerationSize, includeDeletes);
@@ -146,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(this.endpoint + apiName),
+                RequestUri = new Uri(baseEndpointUri, $"{MigrationConstants.KVSMigrationControllerName}/{apiName}"),
                 Content = content,
             };
         }
@@ -261,15 +264,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
                     {
                         this.chunkSize = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
-                    {
-                        this.endpoint = migrationSettings.Parameters["KVSActorServiceUri"].Value;
-                    }
-                    else
-                    {
-                        ActorTrace.Source.WriteError("MigrationWorker", "Kvs actor service endpoint not provided in settings.");
                     }
                 }
             }

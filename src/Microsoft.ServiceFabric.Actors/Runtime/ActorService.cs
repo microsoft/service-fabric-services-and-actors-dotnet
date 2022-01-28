@@ -249,7 +249,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     return (ICommunicationListener)this.getKVSKestrelCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
                 },
-                    "KVS Migration Listner"));
+                    "_KVSMigrationEP_"/*TODO: Get the listener name from constants*/));
             }
 
             return serviceReplicaListeners;
