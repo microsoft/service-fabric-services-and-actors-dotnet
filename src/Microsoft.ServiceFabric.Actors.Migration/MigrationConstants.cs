@@ -11,12 +11,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string KVSMigrationControllerName = "KvsMigration";
         internal static readonly string RCMigrationListenerName = "_RCMigrationEP_";
         internal static readonly string MetadataDictionaryName = "store://kvsrcmigration//metadata";
-        internal static readonly string ResumeWritesAPIEndpoint = "/ResumeWrites";
-        internal static readonly string RejectWritesAPIEndpoint = "/RejectWrites";
-        internal static readonly string GetStartSNEndpoint = "/GetFirstSequenceNumberAsync";
-        internal static readonly string GetEndSNEndpoint = "/GetLastSequenceNumberAsync";
-        internal static readonly string EnumeratebySNEndpoint = "/EnumerateBySequenceNumber";
-        internal static readonly string EnumerateKeysAndTombstonesEndpoint = "/EnumerateKeysAndTombstones";
+        internal static readonly string ResumeWritesAPIEndpoint = "ResumeWrites";
+        internal static readonly string RejectWritesAPIEndpoint = "RejectWrites";
+        internal static readonly string GetStartSNEndpoint = "GetFirstSequenceNumber";
+        internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
+        internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
+        internal static readonly string EnumerateKeysAndTombstonesEndpoint = "EnumerateKeysAndTombstones";
 
         internal static readonly string MigrationPhaseKey = "MigrationPhase";
         internal static readonly string MigrationStatusKey = "MigrationStatus";
