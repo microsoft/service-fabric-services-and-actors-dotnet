@@ -149,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(baseEndpointUri, apiName),
+                RequestUri = new Uri(baseEndpointUri, $"{MigrationConstants.KVSMigrationControllerName}/{apiName}"),
                 Content = content,
             };
         }
