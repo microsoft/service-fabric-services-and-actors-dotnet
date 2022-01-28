@@ -16,7 +16,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string GetStartSNEndpoint = "GetFirstSequenceNumber";
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
-        internal static readonly string EnumerateKeysAndTombstonesEndpoint = "EnumerateKeysAndTombstones";
 
         internal static readonly string MigrationPhaseKey = "MigrationPhase";
         internal static readonly string MigrationStateKey = "MigrationState";

@@ -72,7 +72,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private async Task GetDataFromKvsAndSaveToRCAsync(MigrationPhase phase, long start, long enumerationSize, int workerIdentifier, CancellationToken cancellationToken)
         {
-            var apiName = phase == MigrationPhase.Copy ? MigrationConstants.EnumeratebySNEndpoint : MigrationConstants.EnumerateKeysAndTombstonesEndpoint;
             bool includeDeletes = phase == MigrationPhase.Copy;
             var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
 
@@ -81,7 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 cancellationToken.ThrowIfCancellationRequested();
                 var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
                 {
-                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(start, enumerationSize, includeDeletes, apiName), HttpCompletionOption.ResponseHeadersRead);
+                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(client.EndpointUri, start, enumerationSize, includeDeletes, MigrationConstants.EnumeratebySNEndpoint), HttpCompletionOption.ResponseHeadersRead);
                 });
 
                 response.EnsureSuccessStatusCode();
@@ -120,6 +119,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             {
                 string message = "Exception occured while fetching and saving Kvs data to RC for worker " + workerIdentifier.ToString() + " in " + phase.ToString() + " phase." + ex.Message;
                 ActorTrace.Source.WriteError("MigrationWorker", message);
+                throw ex;
             }
         }
 
@@ -134,23 +134,21 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return req;
         }
 
-        private HttpRequestMessage CreateKvsApiRequestMessage(long startSN, long enumerationSize, bool includeDeletes, string apiName)
+        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseUri, long startSN, long enumerationSize, bool includeDeletes, string apiName)
         {
-            var requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
+            var requestserializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(EnumerationRequest));
             var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN, enumerationSize, includeDeletes);
 
-            using var memoryStream = new MemoryStream();
-            var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
-            requestserializer.WriteObject(binaryWriter, enumerationRequestContent);
-            binaryWriter.Flush();
+            var stream = new MemoryStream();
+            requestserializer.WriteObject(stream, enumerationRequestContent);
 
-            var byteArray = memoryStream.ToArray();
-            var content = new ByteArrayContent(byteArray);
+            var content = Encoding.UTF8.GetString(stream.ToArray());
+
             return new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{MigrationConstants.KVSMigrationControllerName}/{apiName}"),
-                Content = content,
+                RequestUri = new Uri(baseUri, $"{MigrationConstants.KVSMigrationControllerName}/{apiName}"),
+                Content = new StringContent(content, Encoding.UTF8, "application/json"),
             };
         }
 
