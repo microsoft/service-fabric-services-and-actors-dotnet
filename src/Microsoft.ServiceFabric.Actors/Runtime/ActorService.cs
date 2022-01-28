@@ -271,7 +271,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// can impact availibility of your service.
         /// </para>
         /// </remarks>
-        protected override Task RunAsync(CancellationToken cancellationToken)
+        protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
             if (this.IsMigrationSource())
@@ -283,11 +283,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 && this.stateProvider.GetType() == this.GetKVStoRCMigrationActorStateProviderType())
             {
                 var migrationOrchestrator = (IMigrationOrchestrator)this.GetMigrationOrchestratorObject();
-                var task = migrationOrchestrator.StartMigration(cancellationToken);
-                task.Wait();
+                await migrationOrchestrator.StartMigration(cancellationToken);
             }
 
-            return this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+            await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
         }
 
         /// <summary>
