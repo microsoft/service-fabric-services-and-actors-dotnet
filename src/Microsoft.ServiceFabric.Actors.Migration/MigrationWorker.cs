@@ -26,16 +26,19 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private KVStoRCMigrationActorStateProvider stateProvider;
         private IReliableDictionary2<string, byte[]> metadataDict;
         private StatefulServiceInitializationParameters initParams;
-        private long chunkSize;
-        private long itemsPerEnumeration;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
+        private MigrationSettings migrationSettings;
 
-        public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, ServicePartitionClient<HttpCommunicationClient> servicePartitionClient)
+        public MigrationWorker(
+            KVStoRCMigrationActorStateProvider stateProvider,
+            ActorTypeInformation actorTypeInfo,
+            ServicePartitionClient<HttpCommunicationClient> servicePartitionClient,
+            MigrationSettings migrationSettings)
         {
             this.stateProvider = stateProvider;
             this.initParams = this.stateProvider.GetInitParams();
-            this.GetUserSettingsOrDefault(actorTypeInfo);
             this.servicePartitionClient = servicePartitionClient;
+            this.migrationSettings = migrationSettings;
         }
 
         internal static string GetKeyForKeysMigrated(MigrationPhase phase, int workerIdentifier)
@@ -61,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             ActorTrace.Source.WriteInfo("MigrationWorker", "Inititating migration worker " + workerIdentifier.ToString() + " in " + phase.ToString() + " phase.");
             this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
-            if (endSN - startSN < this.itemsPerEnumeration || this.itemsPerEnumeration == -1)
+            if (endSN - startSN < this.migrationSettings.ItemsPerEnumeration || this.migrationSettings.ItemsPerEnumeration == -1)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await this.GetDataFromKvsAndSaveToRCAsync(phase, startSN, endSN - startSN, workerIdentifier, cancellationToken);
@@ -69,13 +72,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             else
             {
                 var lastUpdatedSN = startSN - 1;
-                var endSNForChunk = lastUpdatedSN + this.itemsPerEnumeration;
+                var endSNForChunk = lastUpdatedSN + this.migrationSettings.ItemsPerEnumeration;
                 while (endSNForChunk <= endSN)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    await this.GetDataFromKvsAndSaveToRCAsync(phase, lastUpdatedSN + 1, this.itemsPerEnumeration, workerIdentifier, cancellationToken);
+                    await this.GetDataFromKvsAndSaveToRCAsync(phase, lastUpdatedSN + 1, this.migrationSettings.ItemsPerEnumeration, workerIdentifier, cancellationToken);
                     lastUpdatedSN = endSNForChunk;
-                    endSNForChunk += this.itemsPerEnumeration;
+                    endSNForChunk += this.migrationSettings.ItemsPerEnumeration;
                 }
 
                 if (lastUpdatedSN < endSN)
@@ -170,7 +173,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             var req = new EnumerationRequest();
             req.StartSN = startSN;
-            req.ChunkSize = this.chunkSize;
+            req.ChunkSize = this.migrationSettings.ItemsPerChunk;
             req.NoOfItems = enumerationSize;
             req.IncludeDeletes = includeDeletes;
 
@@ -258,36 +261,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                     await tx.CommitAsync();
                 }
-            }
-        }
-
-        private void GetUserSettingsOrDefault(ActorTypeInformation actorTypeInfo)
-        {
-            this.itemsPerEnumeration = 1024 * 16;
-            this.chunkSize = 100;
-            var configPackageName = ActorNameFormat.GetConfigPackageName();
-            try
-            {
-                var configPackageObj = this.initParams.CodePackageActivationContext.GetConfigurationPackageObject(configPackageName);
-                var migrationConfigLabel = ActorNameFormat.GetMigrationConfigSectionName(actorTypeInfo.ImplementationType);
-                if (configPackageObj.Settings.Sections.Contains(migrationConfigLabel))
-                {
-                    var migrationSettings = configPackageObj.Settings.Sections[migrationConfigLabel];
-
-                    if (migrationSettings.Parameters.Contains("ItemsPerEnumeration"))
-                    {
-                        this.itemsPerEnumeration = int.Parse(migrationSettings.Parameters["ItemsPerEnumeration"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
-                    {
-                        this.chunkSize = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ActorTrace.Source.WriteError("MigrationWorker", e.Message);
             }
         }
     }

@@ -8,11 +8,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Net.Http;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.DataProtection.Repositories;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
@@ -25,19 +23,19 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private KVStoRCMigrationActorStateProvider stateProvider;
         private ActorTypeInformation actorTypeInfo;
         private IReliableDictionary2<string, byte[]> metadataDict;
-        private int workerCount;
-        private long downtimeThreshold;
-        private Uri kvsServiceUri;
         private StatefulServiceInitializationParameters initParams;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
         private StatefulServiceContext serviceContext;
+        private MigrationSettings migrationSettings;
 
         public MigrationOrchestrator(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext)
         {
             this.stateProvider = stateProvider;
             this.actorTypeInfo = actorTypeInfo;
             this.initParams = this.stateProvider.GetInitParams();
-            this.GetUserSettingsOrDefault();
+            this.migrationSettings = MigrationSettings.LoadFrom(
+                this.initParams.CodePackageActivationContext,
+                ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInfo.ImplementationType));
             this.serviceContext = serviceContext;
         }
 
@@ -48,7 +46,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 var partitionInformation = this.stateProvider.StatefulServicePartition.PartitionInfo as Int64RangePartitionInformation;
                 this.servicePartitionClient = new ServicePartitionClient<HttpCommunicationClient>(
                     new HttpCommunicationClientFactory(null, new List<IExceptionHandler>() { new HttpExceptionHandler() }),
-                    this.kvsServiceUri,
+                    this.migrationSettings.KVSActorServiceUri,
                     new ServicePartitionKey(partitionInformation.LowKey),
                     TargetReplicaSelector.PrimaryReplica,
                     MigrationConstants.KVSMigrationListenerName);
@@ -105,7 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     ActorTrace.Source.WriteError("MigrationOrchestrator", ex2.Message);
                 }
 
-                ActorTelemetry.KVSToRCMigrationCompletionWithFailureEvent(this.serviceContext, this.kvsServiceUri.OriginalString, DateTime.UtcNow - startTime, ex.Message);
+                ActorTelemetry.KVSToRCMigrationCompletionWithFailureEvent(this.serviceContext, this.migrationSettings.KVSActorServiceUri.OriginalString, DateTime.UtcNow - startTime, ex.Message);
                 throw ex;
             }
         }
@@ -134,7 +132,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 {
                     if (isWorkerTaskIncomplete[i])
                     {
-                        var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
+                        var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient, this.migrationSettings);
                         ConditionalValue<byte[]> startSNMetadataValue, endSNMetadataValue, lastAppliedSNMetadataValue;
                         using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                         {
@@ -220,7 +218,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     long lastSN = long.Parse(Encoding.ASCII.GetString(lastSNValue.Value));
                     var endSequenceNumber = await this.GetEndSequenceNumber();
 
-                    if (lastAppliedSNBeforeFailover != lastSN || (endSequenceNumber - lastAppliedSNBeforeFailover > this.downtimeThreshold))
+                    if (lastAppliedSNBeforeFailover != lastSN || (endSequenceNumber - lastAppliedSNBeforeFailover > this.migrationSettings.DowntimeThreshold))
                     {
                         // More catchup iterations are needed before moving to downtime phase
                         lastAppliedSNInCatchupPhase = await this.StartCatchupIteration(catchupIterationCount, lastAppliedSNBeforeFailover, cancellationToken);
@@ -265,7 +263,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 long lastAppliedSNBeforeFailure = long.Parse(Encoding.ASCII.GetString(lastAppliedSNValueForDowntime.Value));
                 if (lastAppliedSNBeforeFailure != lastSNForDowntime)
                 {
-                    var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
+                    var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient, this.migrationSettings);
                     await worker.StartMigrationWorker(MigrationPhase.Downtime, lastAppliedSNBeforeFailure + 1, lastSNForDowntime, -1, cancellationToken);
                 }
 
@@ -317,32 +315,32 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             ActorTelemetry.KVSToRCMigrationStartEvent(
                 this.serviceContext,
-                this.kvsServiceUri.OriginalString,
+                this.migrationSettings.KVSActorServiceUri.OriginalString,
                 startTimeUtc,
                 endSequenceNumber - startSequenceNumber,
-                this.workerCount,
-                this.downtimeThreshold);
+                this.migrationSettings.CopyPhaseParallelism,
+                this.migrationSettings.DowntimeThreshold);
 
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Copy.ToString());
-                this.AddOrUpdateMetadata(tx, MigrationConstants.CopyWorkerCountKey, this.workerCount.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.CopyWorkerCountKey, this.migrationSettings.CopyPhaseParallelism.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseStartSNKey, startSequenceNumber.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseEndSNKey, endSequenceNumber.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey, startTimeUtc.ToString());
                 await tx.CommitAsync();
             }
 
-            List<MigrationWorker> workers = new List<MigrationWorker>(this.workerCount);
-            for (int i = 0; i < this.workerCount; i++)
+            List<MigrationWorker> workers = new List<MigrationWorker>(this.migrationSettings.CopyPhaseParallelism);
+            for (int i = 0; i < this.migrationSettings.CopyPhaseParallelism; i++)
             {
-                workers.Add(new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient));
+                workers.Add(new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient, this.migrationSettings));
             }
 
             var workerLoad = this.GetEndSequenceNumberForEachWorker(startSequenceNumber, endSequenceNumber);
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
-                for (int i = 0; i < this.workerCount; i++)
+                for (int i = 0; i < this.migrationSettings.CopyPhaseParallelism; i++)
                 {
                     this.AddOrUpdateMetadata(tx, MigrationConstants.GetCopyWorkerStatusKey(i), MigrationState.InProgress.ToString());
                     if (i == 0)
@@ -362,7 +360,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
 
             var tasks = new List<Task>();
-            Parallel.For(0, this.workerCount, index =>
+            Parallel.For(0, this.migrationSettings.CopyPhaseParallelism, index =>
             {
                 if (index == 0)
                 {
@@ -389,7 +387,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             int totalKeysMigrated = 0;
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
-                for (int i = 0; i < this.workerCount; i++)
+                for (int i = 0; i < this.migrationSettings.CopyPhaseParallelism; i++)
                 {
                     var result = await this.metadataDict.GetValueAsync(tx, MigrationWorker.GetKeyForKeysMigrated(MigrationPhase.Copy, i));
                     int currentKeyCount;
@@ -403,7 +401,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 await this.metadataDict.AddOrUpdateAsync(tx, MigrationConstants.CopyPhaseKeysMigrated, keyMigratedVal, (k, v) => keyMigratedVal);
             }
 
-            ActorTelemetry.KVSToRCMigrationCopyPhaseEvent(this.serviceContext, this.kvsServiceUri.OriginalString, endTime - startTime, totalKeysMigrated);
+            ActorTelemetry.KVSToRCMigrationCopyPhaseEvent(this.serviceContext, this.migrationSettings.KVSActorServiceUri.OriginalString, endTime - startTime, totalKeysMigrated);
         }
 
         private async Task UpdateKeysMigratedForDowntimePhaseAsync(DateTime startTime, DateTime endTime)
@@ -419,7 +417,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 }
             }
 
-            ActorTelemetry.KVSToRCMigrationDowntimePhaseEvent(this.serviceContext, this.kvsServiceUri.OriginalString, endTime - startTime, totalKeysMigrated);
+            ActorTelemetry.KVSToRCMigrationDowntimePhaseEvent(this.serviceContext, this.migrationSettings.KVSActorServiceUri.OriginalString, endTime - startTime, totalKeysMigrated);
         }
 
         private async Task<long> StartCatchupPhaseWorkload(long lastUpdatedRecord, CancellationToken cancellationToken)
@@ -446,9 +444,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 return lastUpdatedRecord;
             }
 
-            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
+            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient, this.migrationSettings);
             cancellationToken.ThrowIfCancellationRequested();
-            while (endSequenceNumber - lastUpdatedRecord > this.downtimeThreshold)
+            while (endSequenceNumber - lastUpdatedRecord > this.migrationSettings.DowntimeThreshold)
             {
                 catchupCount++;
                 cancellationToken.ThrowIfCancellationRequested();
@@ -493,7 +491,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 }
             }
 
-            ActorTelemetry.KVSToRCMigrationCatchupPhaseEvent(this.serviceContext, this.kvsServiceUri.OriginalString, endTime - startTime, catchupCount, totalCount);
+            ActorTelemetry.KVSToRCMigrationCatchupPhaseEvent(this.serviceContext, this.migrationSettings.KVSActorServiceUri.OriginalString, endTime - startTime, catchupCount, totalCount);
         }
 
         private async Task StartDowntimePhaseWorkload(long lastUpdatedRecord, CancellationToken cancellationToken)
@@ -510,7 +508,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 return;
             }
 
-            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient);
+            var worker = new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient, this.migrationSettings);
 
             cancellationToken.ThrowIfCancellationRequested();
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
@@ -550,7 +548,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 await tx.CommitAsync();
             }
 
-            ActorTelemetry.KVSToRCMigrationCompletionWithSuccessEvent(this.serviceContext, this.kvsServiceUri.OriginalString, DateTime.UtcNow - startTime, totalKeyMigrated);
+            ActorTelemetry.KVSToRCMigrationCompletionWithSuccessEvent(this.serviceContext, this.migrationSettings.KVSActorServiceUri.OriginalString, DateTime.UtcNow - startTime, totalKeyMigrated);
         }
 
         private async Task<long> GetEndSequenceNumber()
@@ -575,18 +573,19 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         private List<long> GetEndSequenceNumberForEachWorker(long startLSN, long endLSN)
         {
+            var workerCount = this.migrationSettings.CopyPhaseParallelism;
             var recordCount = endLSN - startLSN + 1;
-            var n = recordCount / this.workerCount;
+            var n = recordCount / workerCount;
 
-            var list = new List<long>(this.workerCount);
-            for (int i = 0; i < this.workerCount; ++i)
+            var list = new List<long>(workerCount);
+            for (int i = 0; i < workerCount; ++i)
             {
                 list.Add(n);
             }
 
-            if (recordCount % this.workerCount != 0)
+            if (recordCount % workerCount != 0)
             {
-                var q = recordCount % this.workerCount;
+                var q = recordCount % workerCount;
                 for (int i = 0; i < q; ++i)
                 {
                     list[i] += 1;
@@ -594,7 +593,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
 
             var lastEndLSN = startLSN - 1;
-            for (int i = 0; i < this.workerCount; i++)
+            for (int i = 0; i < workerCount; i++)
             {
                 list[i] += lastEndLSN;
                 lastEndLSN = list[i];
@@ -613,41 +612,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             byte[] metadataEntry = Encoding.ASCII.GetBytes(value);
             await this.metadataDict.AddOrUpdateAsync(tx, key, metadataEntry, (k, v) => metadataEntry);
-        }
-
-        private void GetUserSettingsOrDefault()
-        {
-            this.workerCount = Environment.ProcessorCount;
-            this.downtimeThreshold = 1024;
-
-            var configPackageName = ActorNameFormat.GetConfigPackageName();
-            try
-            {
-                var configPackageObj = this.initParams.CodePackageActivationContext.GetConfigurationPackageObject(configPackageName);
-                var migrationConfigLabel = ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInfo.ImplementationType);
-                if (configPackageObj.Settings.Sections.Contains(migrationConfigLabel))
-                {
-                    var migrationSettings = configPackageObj.Settings.Sections[migrationConfigLabel];
-                    if (migrationSettings.Parameters.Contains("CopyPhaseParallelism"))
-                    {
-                        this.workerCount = int.Parse(migrationSettings.Parameters["CopyPhaseParallelism"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
-                    {
-                        this.kvsServiceUri = new Uri(migrationSettings.Parameters["KVSActorServiceUri"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("DowntimeThreshold"))
-                    {
-                        this.downtimeThreshold = int.Parse(migrationSettings.Parameters["DowntimeThreshold"].Value);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ActorTrace.Source.WriteError("MigrationOrchestrator", e.Message);
-            }
         }
     }
 }
