@@ -8,10 +8,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Description;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
-
+    using static System.Fabric.KeyValueStoreReplica;
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
     using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
@@ -26,6 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly LocalStoreSettings userDefinedLocalStoreSettings;
         private readonly bool userDefinedEnableIncrementalBackup;
         private readonly int? userDefinedLogTruncationInterval;
+        private readonly KeyValueStoreReplicaSettings userDefinedKeyValueStoreReplicaSettings;
 
         #region C'tors
 
@@ -34,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Creates an instance of <see cref="KvsActorStateProvider"/> with default settings.
         /// </summary>
         public KvsActorStateProvider()
-            : this(null, null, false, null)
+            : this(null, null, null, false, null)
         {
         }
 
@@ -48,8 +50,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="localStoreSettings">
         /// A <see cref="LocalStoreSettings"/> that describes local key value store settings.
         /// </param>
-        public KvsActorStateProvider(ReplicatorSettings replicatorSettings = null, LocalStoreSettings localStoreSettings = null)
-            : this(replicatorSettings, localStoreSettings, false, null)
+        /// <param name="keyValueStoreReplicaSettings"> Key value store settings.</param>
+        public KvsActorStateProvider(
+            ReplicatorSettings replicatorSettings = null,
+            LocalStoreSettings localStoreSettings = null,
+            KeyValueStoreReplicaSettings keyValueStoreReplicaSettings = null)
+            : this(replicatorSettings, localStoreSettings, keyValueStoreReplicaSettings, false, null)
         {
         }
 
@@ -60,8 +66,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Indicates whether to enable incremental backup feature.
         /// This sets the <see cref="LocalEseStoreSettings.EnableIncrementalBackup"/> setting.
         /// </param>
-        public KvsActorStateProvider(bool enableIncrementalBackup)
-            : this(null, null, enableIncrementalBackup, null)
+        /// <param name="keyValueStoreReplicaSettings"> Key value store settings.</param>
+        public KvsActorStateProvider(bool enableIncrementalBackup, KeyValueStoreReplicaSettings keyValueStoreReplicaSettings = null)
+            : this(null, null, keyValueStoreReplicaSettings, enableIncrementalBackup, null)
         {
         }
 
@@ -83,13 +90,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// automatically truncates the logs.
         /// </remarks>
         public KvsActorStateProvider(bool enableIncrementalBackup, int logTruncationIntervalInMinutes)
-            : this(null, null, enableIncrementalBackup, logTruncationIntervalInMinutes)
+            : this(null, null, null, enableIncrementalBackup, logTruncationIntervalInMinutes)
         {
         }
 
         private KvsActorStateProvider(
             ReplicatorSettings replicatorSettings,
             LocalStoreSettings localStoreSettings,
+            KeyValueStoreReplicaSettings keyValueStoreReplicaSettings,
             bool enableIncrementalBackup,
             int? logTruncationIntervalInMinutes)
             : base(replicatorSettings)
@@ -97,6 +105,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.userDefinedLocalStoreSettings = localStoreSettings;
             this.userDefinedEnableIncrementalBackup = enableIncrementalBackup;
             this.userDefinedLogTruncationInterval = logTruncationIntervalInMinutes;
+            this.userDefinedKeyValueStoreReplicaSettings = keyValueStoreReplicaSettings;
         }
 
         #endregion
@@ -166,17 +175,113 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private KeyValueStoreReplicaSettings GetKvsReplicaSettings()
         {
-            var kvsReplicaSettings = new KeyValueStoreReplicaSettings
+            if (this.userDefinedKeyValueStoreReplicaSettings == null)
             {
-                SecondaryNotificationMode = KeyValueStoreReplica.SecondaryNotificationMode.NonBlockingQuorumAcked,
-            };
+                var configPackageName = ActorNameFormat.GetConfigPackageName(this.ActorTypeInformation.ImplementationType);
+                var kvsSettingsSectionName = ActorNameFormat.GetKeyValueStoreSettingsConfigSectionName(this.ActorTypeInformation.ImplementationType);
+                var configPackageObj = this.InitParams.CodePackageActivationContext.GetConfigurationPackageObject(configPackageName);
 
-            if (this.userDefinedLogTruncationInterval.HasValue)
-            {
-                kvsReplicaSettings.LogTruncationIntervalInMinutes = this.userDefinedLogTruncationInterval.Value;
+                KeyValueStoreReplicaSettings kvsReplicaSettings;
+                if (configPackageObj.Settings.Sections.Contains(kvsSettingsSectionName))
+                {
+                    kvsReplicaSettings = KeyValueStoreReplicaSettingsLoader.LoadFrom(
+                        this.InitParams.CodePackageActivationContext,
+                        configPackageName,
+                        kvsSettingsSectionName);
+                }
+                else
+                {
+                    kvsReplicaSettings = new KeyValueStoreReplicaSettings()
+                    {
+                        SecondaryNotificationMode = SecondaryNotificationMode.NonBlockingQuorumAcked,
+                    };
+                }
+
+                if (this.userDefinedLogTruncationInterval.HasValue)
+                {
+                    kvsReplicaSettings.LogTruncationIntervalInMinutes = this.userDefinedLogTruncationInterval.Value;
+                }
+
+                return kvsReplicaSettings;
             }
 
-            return kvsReplicaSettings;
+            return this.userDefinedKeyValueStoreReplicaSettings;
+        }
+
+        private static class KeyValueStoreReplicaSettingsLoader
+        {
+            public static KeyValueStoreReplicaSettings LoadFrom(
+                CodePackageActivationContext codePackageActivationContext,
+                string configPackageName,
+                string sectionName)
+            {
+                var kvsSettings = new KeyValueStoreReplicaSettings();
+                var configPackage = codePackageActivationContext.GetConfigurationPackageObject(configPackageName);
+                if (configPackage.Settings.Sections.Contains(sectionName))
+                {
+                    var section = configPackage.Settings.Sections[sectionName];
+
+                    string value;
+                    if (TryReadSettingValue(section, "TransactionDrainTimeout", out value))
+                    {
+                        kvsSettings.TransactionDrainTimeout = TimeSpan.Parse(value);
+                    }
+
+                    if (TryReadSettingValue(section, "SecondaryNotificationMode", out value))
+                    {
+                        kvsSettings.SecondaryNotificationMode = (SecondaryNotificationMode)Enum.Parse(typeof(SecondaryNotificationMode), value, true /* IgnoreCase */);
+                    }
+                    else
+                    {
+                        kvsSettings.SecondaryNotificationMode = SecondaryNotificationMode.NonBlockingQuorumAcked;
+                    }
+
+                    if (TryReadSettingValue(section, "EnableCopyNotificationPrefetch", out value))
+                    {
+                        kvsSettings.EnableCopyNotificationPrefetch = bool.Parse(value);
+                    }
+
+                    if (TryReadSettingValue(section, "FullCopyMode", out value))
+                    {
+                        kvsSettings.FullCopyMode = (FullCopyMode)Enum.Parse(typeof(FullCopyMode), value, true /* IgnoreCase */);
+                    }
+
+                    if (TryReadSettingValue(section, "LogicalCopyProbabilityInPercent", out value))
+                    {
+                        kvsSettings.LogicalCopyProbabilityInPercent = int.Parse(value);
+                    }
+
+                    if (TryReadSettingValue(section, "RunTransactionCommitContinuationsAsynchronously", out value))
+                    {
+                        kvsSettings.RunTransactionCommitContinuationsAsynchronously = bool.Parse(value);
+                    }
+
+                    if (TryReadSettingValue(section, "LogTruncationIntervalInMinutes", out value))
+                    {
+                        kvsSettings.LogTruncationIntervalInMinutes = int.Parse(value);
+                    }
+
+                    if (TryReadSettingValue(section, "DisableTombstoneCleanup", out value))
+                    {
+                        kvsSettings.DisableTombstoneCleanup = bool.Parse(value);
+                    }
+                }
+
+                return kvsSettings;
+            }
+
+            private static bool TryReadSettingValue(ConfigurationSection section, string settingsName, out string settingsValue)
+            {
+                settingsValue = null;
+                if (section.Parameters.Contains(settingsName))
+                {
+                    settingsValue = section.Parameters[settingsName].Value?.Trim();
+
+                    return true;
+                }
+
+                return false;
+            }
         }
 
         private class KeyValueStoreWrapper : KeyValueStoreReplica
