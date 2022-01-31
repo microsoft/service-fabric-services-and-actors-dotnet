@@ -38,6 +38,25 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             this.servicePartitionClient = servicePartitionClient;
         }
 
+        internal static string GetKeyForKeysMigrated(MigrationPhase phase, int workerIdentifier)
+        {
+            string key = string.Empty;
+            if (phase == MigrationPhase.Copy)
+            {
+                key = MigrationConstants.GetCopyWorkerKeysMigratedKey(workerIdentifier);
+            }
+            else if (phase == MigrationPhase.Catchup)
+            {
+                key = MigrationConstants.GetCatchupWorkerKeysMigratedKey(workerIdentifier);
+            }
+            else if (phase == MigrationPhase.Downtime)
+            {
+                key = MigrationConstants.DowntimePhaseKeysMigrated;
+            }
+
+            return key;
+        }
+
         internal async Task StartMigrationWorker(MigrationPhase phase, long startSN, long endSN, int workerIdentifier, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfo("MigrationWorker", "Inititating migration worker " + workerIdentifier.ToString() + " in " + phase.ToString() + " phase.");
@@ -68,6 +87,30 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 ActorTrace.Source.WriteInfo("MigrationWorker", "Completed migration worker " + workerIdentifier.ToString() + " payload in " + phase.ToString() + " phase.");
                 await this.UpdateMetadataOnCompletion(phase, workerIdentifier, endSN);
             }
+        }
+
+        private static string GetKeyForLastAppliedSN(MigrationPhase phase, int workerIdentifier)
+        {
+            string key = string.Empty;
+            if (phase == MigrationPhase.Copy)
+            {
+                key = MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerIdentifier);
+            }
+            else if (phase == MigrationPhase.Catchup)
+            {
+                key = MigrationConstants.GetCatchupWorkerLastAppliedSNKey(workerIdentifier);
+            }
+            else if (phase == MigrationPhase.Downtime)
+            {
+                key = MigrationConstants.DowntimeWorkerLastAppliedSNKey;
+            }
+
+            return key;
+        }
+
+        private static byte[] GetLastAppliedSNByteArray(long lastAppliedSN)
+        {
+            return Encoding.ASCII.GetBytes(lastAppliedSN.ToString());
         }
 
         private async Task GetDataFromKvsAndSaveToRCAsync(MigrationPhase phase, long start, long enumerationSize, int workerIdentifier, CancellationToken cancellationToken)
@@ -165,33 +208,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             cancellationToken.ThrowIfCancellationRequested();
             await this.stateProvider.SaveStatetoRCAsync(
                 dataToSave,
-                this.GetKeyForLastAppliedSN(phase, workerIdentifier),
-                this.GetLastAppliedSNByteArray(endSN),
+                GetKeyForKeysMigrated(phase, workerIdentifier),
+                GetKeyForLastAppliedSN(phase, workerIdentifier),
+                GetLastAppliedSNByteArray(endSN),
                 cancellationToken);
-        }
-
-        private string GetKeyForLastAppliedSN(MigrationPhase phase, int workerIdentifier)
-        {
-            string key = string.Empty;
-            if (phase == MigrationPhase.Copy)
-            {
-                key = MigrationConstants.GetCopyWorkerLastAppliedSNKey(workerIdentifier);
-            }
-            else if (phase == MigrationPhase.Catchup)
-            {
-                key = MigrationConstants.GetCatchupWorkerLastAppliedSNKey(workerIdentifier);
-            }
-            else if (phase == MigrationPhase.Downtime)
-            {
-                key = MigrationConstants.DowntimeWorkerLastAppliedSNKey;
-            }
-
-            return key;
-        }
-
-        private byte[] GetLastAppliedSNByteArray(long lastAppliedSN)
-        {
-            return Encoding.ASCII.GetBytes(lastAppliedSN.ToString());
         }
 
         private async Task UpdateMetadataOnCompletion(MigrationPhase phase, int workerIdentifier, long lastAppliedSN)

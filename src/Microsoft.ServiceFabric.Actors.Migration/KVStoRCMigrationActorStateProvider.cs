@@ -253,6 +253,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <param name="keyValuePairs">
         /// Data from KVS store that needs to be modified and saved in RC
         /// </param>
+        /// <param name="keysMigratedKey">Key to update metadata dictionary with number of keys migrated.</param>
         /// <param name="lastAppliedSNKey">
         /// Key to update metadata dictionary after save is completed
         /// </param>
@@ -263,7 +264,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// Cancellation token
         /// </param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, string lastAppliedSNKey, byte[] lastAppliedSNvalue, CancellationToken cancellationToken)
+        public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, string keysMigratedKey, string lastAppliedSNKey, byte[] lastAppliedSNvalue, CancellationToken cancellationToken)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
@@ -336,6 +337,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 }
 
                 await this.metadataDictionary.AddOrUpdateAsync(tx, lastAppliedSNKey, lastAppliedSNvalue, (k, v) => lastAppliedSNvalue);
+                await this.metadataDictionary.AddOrUpdateAsync(tx, keysMigratedKey, Encoding.ASCII.GetBytes(keysMigrated.Count.ToString()), (k, v) =>
+                {
+                    var previousCount = int.Parse(Encoding.ASCII.GetString(v));
+                    var currentCount = previousCount + keysMigrated.Count;
+                    return Encoding.ASCII.GetBytes(currentCount.ToString());
+                });
+
                 cancellationToken.ThrowIfCancellationRequested();
                 await tx.CommitAsync();
 

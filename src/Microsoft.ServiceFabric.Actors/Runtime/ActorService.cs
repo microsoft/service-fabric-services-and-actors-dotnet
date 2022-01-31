@@ -470,7 +470,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 MigrationOrchestratorClassFullName);
 
             var actorsMigrationOrchestratorType = Type.GetType(actorsMigrationOrchestratorTypeName, true);
-            return Activator.CreateInstance(actorsMigrationOrchestratorType, new object[] { this.stateProvider, this.actorTypeInformation });
+            return Activator.CreateInstance(actorsMigrationOrchestratorType, new object[] { this.stateProvider, this.actorTypeInformation, this.ServiceContext });
         }
 
         private bool IsMigrationSource()

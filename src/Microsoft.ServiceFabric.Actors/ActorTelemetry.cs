@@ -108,6 +108,201 @@ namespace Microsoft.ServiceFabric.Actors
                 actorStateProviderReplicaType);
         }
 
+        internal static void KVSToRCMigrationStartEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            DateTime startTimeUtc,
+            long noOfSNtoMigrate,
+            int copyPhaseParallelism,
+            long downtimeThreshold)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationStartEvent(
+                ActorTelemetryConstants.KVSToRCMigrationStartEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                startTimeUtc,
+                noOfSNtoMigrate,
+                copyPhaseParallelism,
+                downtimeThreshold);
+        }
+
+        internal static void KVSToRCMigrationCopyPhaseEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationCopyPhaseEvent(
+                ActorTelemetryConstants.KVSToRCMigrationCopyPhaseEndEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        internal static void KVSToRCMigrationCatchupPhaseEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            int noOfIterations,
+            long noOfKeysMigrated)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationCatchupPhaseEvent(
+                ActorTelemetryConstants.KVSToRCMigrationCatchupPhaseEndEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfIterations,
+                noOfKeysMigrated);
+        }
+
+        internal static void KVSToRCMigrationDowntimePhaseEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationDowntimePhaseEvent(
+                ActorTelemetryConstants.KVSToRCMigrationDowntimePhaseEndEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        internal static void KVSToRCMigrationDataValidationWithSuccessEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated,
+            long noOfKeysValidated)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationDataValidationWithSuccessEvent(
+                ActorTelemetryConstants.KVSToRCMigrationDataValidationSuccessEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated,
+                noOfKeysValidated);
+        }
+
+        internal static void KVSToRCMigrationDataValidationWithFailureEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            bool isUserTestHook,
+            string errorMessage)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationDataValidationWithFailureEvent(
+                ActorTelemetryConstants.KVSToRCMigrationDataValidationFailureEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                isUserTestHook,
+                errorMessage);
+        }
+
+        internal static void KVSToRCMigrationCompletionWithSuccessEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationCompletedWithSuccessEvent(
+                ActorTelemetryConstants.KVSToRCMigrationCompletionWithSuccessEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        internal static void KVSToRCMigrationCompletionWithFailureEvent(
+            StatefulServiceContext context,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            string errorMessage)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationCompletedWithFailureEvent(
+                ActorTelemetryConstants.KVSToRCMigrationCompletionWithFailureEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                errorMessage);
+        }
+
+        internal static void KVSToRCMigrationResumeWritesEvent(
+            StatefulServiceContext context,
+            string kvsServiceName)
+        {
+            ActorEventSource.Instance.KVSToRCMigrationResumeWritesEvent(
+                ActorTelemetryConstants.KVSToRCMigrationResumeWritesEvent,
+                TelemetryConstants.OsType,
+                TelemetryConstants.RuntimePlatform,
+                context.PartitionId.ToString(),
+                context.ReplicaId.ToString(),
+                context.ServiceName.OriginalString,
+                context.ServiceTypeName,
+                context.CodePackageActivationContext.ApplicationName,
+                context.CodePackageActivationContext.ApplicationTypeName,
+                kvsServiceName);
+        }
+
         private static void ActorServiceLifecycleEvent(StatefulServiceContext context, string lifecycleEvent)
         {
             ServiceEventSource.Instance.ServiceLifecycleEventWrapper(

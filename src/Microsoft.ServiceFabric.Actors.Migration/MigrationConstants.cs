@@ -23,17 +23,21 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string CopyWorkerCountKey = "WorkerCount";
         internal static readonly string CopyPhaseStartSNKey = "Migration_Copy_StartSN";
         internal static readonly string CopyPhaseEndSNKey = "Migration_Copy_EndSN";
+        internal static readonly string CopyPhaseKeysMigrated = "Migration_Copy_KeysMigrated";
 
         internal static readonly string CatchupIterationKey = "Migration_Catchup_IterationCount";
         internal static readonly string CatchupStartSNKey = "Migration_Catchup_StartSN";
+        internal static readonly string CatchupPhaseKeysMigrated = "Migration_Catchup_KeysMigrated";
 
         internal static readonly string DowntimeWorkerStatusKey = "DowntimeWorker_status";
         internal static readonly string DowntimeStartSNKey = "Migration_Downtime_StartSN";
         internal static readonly string DowntimeEndSNKey = "Migration_Downtime_EndSN";
         internal static readonly string DowntimeWorkerLastAppliedSNKey = "DowntimeWorker_LastAppliedSN";
+        internal static readonly string DowntimePhaseKeysMigrated = "Migration_Downtime_KeysMigrated";
 
         internal static readonly string MigrationStartTimeUtcKey = "MigrationStartTimeUtc";
         internal static readonly string CurrentMigrationPhaseStartTimeUtcKey = "CurrentMigrationPhaseStartTimeUtc";
+        internal static readonly string TotalKeysMigrated = "Migration_TotalKeysMigrated";
 
         internal static string GetCopyWorkerStatusKey(int workerIdentifier)
         {
@@ -55,6 +59,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return "CopyWorker_" + workerIdentifier.ToString() + "_LastAppliedSN";
         }
 
+        internal static string GetCopyWorkerKeysMigratedKey(int workerIdentifier)
+        {
+            return "CopyWorker_" + workerIdentifier.ToString() + "_KeysMigrated";
+        }
+
         internal static string GetCatchupWorkerStatusKey(int catchupCount)
         {
             return "CatchupWorker_" + catchupCount.ToString() + "_status";
@@ -63,6 +72,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static string GetCatchupWorkerLastAppliedSNKey(int catchupCount)
         {
             return "CatchupWorker_" + catchupCount.ToString() + "_LastAppliedSN";
+        }
+
+        internal static string GetCatchupWorkerKeysMigratedKey(int catchupCount)
+        {
+            return "CatchupWorker_" + catchupCount.ToString() + "_KeysMigrated";
         }
 
         internal static string GetCatchupWorkerEndSNKey(int catchupCount)

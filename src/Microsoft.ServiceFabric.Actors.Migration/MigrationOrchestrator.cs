@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.DataProtection.Repositories;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
@@ -29,60 +30,83 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private Uri kvsServiceUri;
         private StatefulServiceInitializationParameters initParams;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
+        private StatefulServiceContext serviceContext;
 
-        public MigrationOrchestrator(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo)
+        public MigrationOrchestrator(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext)
         {
             this.stateProvider = stateProvider;
             this.actorTypeInfo = actorTypeInfo;
             this.initParams = this.stateProvider.GetInitParams();
+            this.GetUserSettingsOrDefault();
+            this.serviceContext = serviceContext;
         }
 
         public async Task StartMigration(CancellationToken cancellationToken)
         {
-            this.GetUserSettingsOrDefault();
-            var partitionInformation = this.stateProvider.StatefulServicePartition.PartitionInfo as Int64RangePartitionInformation;
-            this.servicePartitionClient = new ServicePartitionClient<HttpCommunicationClient>(
-                new HttpCommunicationClientFactory(null, new List<IExceptionHandler>() { new HttpExceptionHandler() }),
-                this.kvsServiceUri,
-                new ServicePartitionKey(partitionInformation.LowKey),
-                TargetReplicaSelector.PrimaryReplica,
-                MigrationConstants.KVSMigrationListenerName);
-            this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
-
-            ConditionalValue<byte[]> migrationPhaseValue;
-            cancellationToken.ThrowIfCancellationRequested();
-            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            try
             {
-                migrationPhaseValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.MigrationPhaseKey);
-            }
+                var partitionInformation = this.stateProvider.StatefulServicePartition.PartitionInfo as Int64RangePartitionInformation;
+                this.servicePartitionClient = new ServicePartitionClient<HttpCommunicationClient>(
+                    new HttpCommunicationClientFactory(null, new List<IExceptionHandler>() { new HttpExceptionHandler() }),
+                    this.kvsServiceUri,
+                    new ServicePartitionKey(partitionInformation.LowKey),
+                    TargetReplicaSelector.PrimaryReplica,
+                    MigrationConstants.KVSMigrationListenerName);
+                this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
 
-            if (migrationPhaseValue.HasValue)
-            {
-                MigrationPhase.TryParse(Encoding.ASCII.GetString(migrationPhaseValue.Value), out MigrationPhase phase);
-                if (phase == MigrationPhase.Copy)
+                ConditionalValue<byte[]> migrationPhaseValue;
+                cancellationToken.ThrowIfCancellationRequested();
+                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                 {
-                    var lastAppliedSN = await this.ResumeCopyPhaseFromFailover(cancellationToken);
-                    lastAppliedSN = await this.StartCatchupPhaseWorkload(lastAppliedSN, cancellationToken);
-                    await this.StartDowntimePhaseWorkload(lastAppliedSN, cancellationToken);
+                    migrationPhaseValue = await this.metadataDict.TryGetValueAsync(tx, MigrationConstants.MigrationPhaseKey);
                 }
-                else if (phase == MigrationPhase.Catchup)
+
+                if (migrationPhaseValue.HasValue)
                 {
-                    var lastAppliedSNInCatchupPhase = await this.ResumeCatchupPhaseFromFailover(cancellationToken);
-                    cancellationToken.ThrowIfCancellationRequested();
-                    await this.StartDowntimePhaseWorkload(lastAppliedSNInCatchupPhase, cancellationToken);
+                    MigrationPhase.TryParse(Encoding.ASCII.GetString(migrationPhaseValue.Value), out MigrationPhase phase);
+                    if (phase == MigrationPhase.Copy)
+                    {
+                        var lastAppliedSN = await this.ResumeCopyPhaseFromFailover(cancellationToken);
+                        lastAppliedSN = await this.StartCatchupPhaseWorkload(lastAppliedSN, cancellationToken);
+                        await this.StartDowntimePhaseWorkload(lastAppliedSN, cancellationToken);
+                    }
+                    else if (phase == MigrationPhase.Catchup)
+                    {
+                        var lastAppliedSNInCatchupPhase = await this.ResumeCatchupPhaseFromFailover(cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await this.StartDowntimePhaseWorkload(lastAppliedSNInCatchupPhase, cancellationToken);
+                    }
+                    else if (phase == MigrationPhase.Downtime)
+                    {
+                        await this.ResumeDowntimePhaseFromFailover(cancellationToken);
+                    }
+                    else if (phase == MigrationPhase.Uninitialized)
+                    {
+                        await this.StartCompleteMigration(cancellationToken);
+                    }
                 }
-                else if (phase == MigrationPhase.Downtime)
-                {
-                    await this.ResumeDowntimePhaseFromFailover(cancellationToken);
-                }
-                else if (phase == MigrationPhase.Uninitialized)
+                else
                 {
                     await this.StartCompleteMigration(cancellationToken);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                await this.StartCompleteMigration(cancellationToken);
+                DateTime startTime = DateTime.UtcNow;
+                try
+                {
+                    using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+                    {
+                        startTime = DateTime.Parse(Encoding.ASCII.GetString(await this.metadataDict.GetValueAsync(tx, MigrationConstants.MigrationStartTimeUtcKey)));
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    ActorTrace.Source.WriteError("MigrationOrchestrator", ex2.Message);
+                }
+
+                ActorTelemetry.KVSToRCMigrationCompletionWithFailureEvent(this.serviceContext, this.kvsServiceUri.OriginalString, DateTime.UtcNow - startTime, ex.Message);
+                throw ex;
             }
         }
 
@@ -134,6 +158,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     }
                 });
                 await Task.WhenAll(tasks);
+            }
+
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                var startTimebytes = await this.metadataDict.GetValueAsync(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey);
+                var startTime = DateTime.Parse(Encoding.ASCII.GetString(startTimebytes));
+                await this.UpdateKeysMigratedForCopyPhaseAsync(startTime, DateTime.UtcNow);
             }
 
             return endSNForCopyPhase;
@@ -238,6 +269,16 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     await worker.StartMigrationWorker(MigrationPhase.Downtime, lastAppliedSNBeforeFailure + 1, lastSNForDowntime, -1, cancellationToken);
                 }
 
+                DateTime startDateTime = DateTime.UtcNow;
+                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+                {
+                    var startDateTimeBytes = await this.metadataDict.GetValueAsync(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey);
+                    var startDateTimeString = Encoding.ASCII.GetString(startDateTimeBytes);
+                    startDateTime = DateTime.Parse(startDateTimeString);
+                }
+
+                await this.UpdateKeysMigratedForDowntimePhaseAsync(startDateTime, DateTime.UtcNow);
+
                 await this.MarkMigrationCompleted(cancellationToken);
             }
             else
@@ -272,13 +313,23 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Inititating copy phase of migration");
             var startSequenceNumber = await this.GetStartSequenceNumber();
             var endSequenceNumber = await this.GetEndSequenceNumber();
+            var startTimeUtc = DateTime.UtcNow;
+
+            ActorTelemetry.KVSToRCMigrationStartEvent(
+                this.serviceContext,
+                this.kvsServiceUri.OriginalString,
+                startTimeUtc,
+                endSequenceNumber - startSequenceNumber,
+                this.workerCount,
+                this.downtimeThreshold);
+
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Copy.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyWorkerCountKey, this.workerCount.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseStartSNKey, startSequenceNumber.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.CopyPhaseEndSNKey, endSequenceNumber.ToString());
-                this.AddOrUpdateMetadata(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey, DateTime.UtcNow.ToString());
+                this.AddOrUpdateMetadata(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey, startTimeUtc.ToString());
                 await tx.CommitAsync();
             }
 
@@ -325,8 +376,50 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             cancellationToken.ThrowIfCancellationRequested();
             await Task.WhenAll(tasks);
+
+            await this.UpdateKeysMigratedForCopyPhaseAsync(startTimeUtc, DateTime.UtcNow);
+
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Completed copy phase of migration");
+
             return endSequenceNumber;
+        }
+
+        private async Task UpdateKeysMigratedForCopyPhaseAsync(DateTime startTime, DateTime endTime)
+        {
+            int totalKeysMigrated = 0;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                for (int i = 0; i < this.workerCount; i++)
+                {
+                    var result = await this.metadataDict.GetValueAsync(tx, MigrationWorker.GetKeyForKeysMigrated(MigrationPhase.Copy, i));
+                    int currentKeyCount;
+                    if (int.TryParse(Encoding.ASCII.GetString(result), out currentKeyCount))
+                    {
+                        totalKeysMigrated += currentKeyCount;
+                    }
+                }
+
+                var keyMigratedVal = Encoding.ASCII.GetBytes(totalKeysMigrated.ToString());
+                await this.metadataDict.AddOrUpdateAsync(tx, MigrationConstants.CopyPhaseKeysMigrated, keyMigratedVal, (k, v) => keyMigratedVal);
+            }
+
+            ActorTelemetry.KVSToRCMigrationCopyPhaseEvent(this.serviceContext, this.kvsServiceUri.OriginalString, endTime - startTime, totalKeysMigrated);
+        }
+
+        private async Task UpdateKeysMigratedForDowntimePhaseAsync(DateTime startTime, DateTime endTime)
+        {
+            int totalKeysMigrated = 0;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                var result = await this.metadataDict.GetValueAsync(tx, MigrationWorker.GetKeyForKeysMigrated(MigrationPhase.Downtime, -1));
+                int currentKeyCount;
+                if (int.TryParse(Encoding.ASCII.GetString(result), out currentKeyCount))
+                {
+                    totalKeysMigrated = currentKeyCount;
+                }
+            }
+
+            ActorTelemetry.KVSToRCMigrationDowntimePhaseEvent(this.serviceContext, this.kvsServiceUri.OriginalString, endTime - startTime, totalKeysMigrated);
         }
 
         private async Task<long> StartCatchupPhaseWorkload(long lastUpdatedRecord, CancellationToken cancellationToken)
@@ -372,8 +465,35 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 endSequenceNumber = await this.GetEndSequenceNumber();
             }
 
+            DateTime startDateTime = DateTime.UtcNow;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                var startDateTimeBytes = await this.metadataDict.GetValueAsync(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey);
+                var startDateTimeString = Encoding.ASCII.GetString(startDateTimeBytes);
+                startDateTime = DateTime.Parse(startDateTimeString);
+            }
+
+            await this.UpdateKeyMigratedForCatchupPhaseAsync(startDateTime, DateTime.UtcNow, catchupCount);
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Completed catchup phase of migration");
             return lastUpdatedRecord;
+        }
+
+        private async Task UpdateKeyMigratedForCatchupPhaseAsync(DateTime startTime, DateTime endTime, int catchupCount)
+        {
+            int totalCount = 0;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                for (int i = 1; i <= catchupCount; i++)
+                {
+                    var currentCountBytes = await this.metadataDict.GetValueAsync(tx, MigrationWorker.GetKeyForKeysMigrated(MigrationPhase.Catchup, i));
+                    var curretnCountString = Encoding.ASCII.GetString(currentCountBytes);
+                    var currentCount = int.Parse(curretnCountString);
+                    totalCount += currentCount;
+                    await this.metadataDict.AddAsync(tx, MigrationConstants.CatchupPhaseKeysMigrated, Encoding.ASCII.GetBytes(totalCount.ToString()));
+                }
+            }
+
+            ActorTelemetry.KVSToRCMigrationCatchupPhaseEvent(this.serviceContext, this.kvsServiceUri.OriginalString, endTime - startTime, catchupCount, totalCount);
         }
 
         private async Task StartDowntimePhaseWorkload(long lastUpdatedRecord, CancellationToken cancellationToken)
@@ -403,6 +523,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
 
             await worker.StartMigrationWorker(MigrationPhase.Downtime, lastUpdatedRecord + 1, endSequenceNumber, -1, cancellationToken);
+            DateTime startDateTime = DateTime.UtcNow;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                var startDateTimeBytes = await this.metadataDict.GetValueAsync(tx, MigrationConstants.CurrentMigrationPhaseStartTimeUtcKey);
+                var startDateTimeString = Encoding.ASCII.GetString(startDateTimeBytes);
+                startDateTime = DateTime.Parse(startDateTimeString);
+            }
+
+            await this.UpdateKeysMigratedForDowntimePhaseAsync(startDateTime, DateTime.UtcNow);
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Completed downtime phase of migration");
             await this.MarkMigrationCompleted(cancellationToken);
         }
@@ -410,12 +539,18 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private async Task MarkMigrationCompleted(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            long totalKeyMigrated = 0L;
+            DateTime startTime = DateTime.UtcNow;
             using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
             {
+                totalKeyMigrated += int.Parse(Encoding.ASCII.GetString(await this.metadataDict.GetValueAsync(tx, MigrationConstants.CopyPhaseKeysMigrated)));
+                startTime = DateTime.Parse(Encoding.ASCII.GetString(await this.metadataDict.GetValueAsync(tx, MigrationConstants.MigrationStartTimeUtcKey)));
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationPhaseKey, MigrationPhase.Completed.ToString());
                 this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStateKey, MigrationState.Completed.ToString());
                 await tx.CommitAsync();
             }
+
+            ActorTelemetry.KVSToRCMigrationCompletionWithSuccessEvent(this.serviceContext, this.kvsServiceUri.OriginalString, DateTime.UtcNow - startTime, totalKeyMigrated);
         }
 
         private async Task<long> GetEndSequenceNumber()

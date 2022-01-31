@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors
 {
+    using System;
     using System.Diagnostics.Tracing;
     using System.Globalization;
     using Microsoft.ServiceFabric.Diagnostics.Tracing;
@@ -23,6 +24,15 @@ namespace Microsoft.ServiceFabric.Actors
         private const int ActorStateProviderUsageEventId = 5;
         private const int CustomActorServiceUsageEventId = 6;
         private const int ActorReminderRegisterationEventId = 7;
+        private const int KVSToRCMigrationStartEventId = 8;
+        private const int KVSToRCMigrationCopyPhaseEventId = 9;
+        private const int KVSToRCMigrationCatchupPhaseEventId = 10;
+        private const int KVSToRCMigrationDowntimePhaseEventId = 11;
+        private const int KVSToRCMigrationDataValidationSuccessEventId = 12;
+        private const int KVSToRCMigrationDataValidationFailureEventId = 13;
+        private const int KVSToRCMigrationSuccessEventId = 14;
+        private const int KVSToRCMigrationFailureEventId = 15;
+        private const int KVSToRCMigrationResumeWritesEventId = 16;
 
         private const string ActorStateProviderUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
@@ -36,6 +46,54 @@ namespace Microsoft.ServiceFabric.Actors
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
             "ownerActorId = {9}, reminderPeriod = {10}, reminderName = {11}";
+
+        #region KVS to RC Migration event formats
+
+        private const string KVSToRCMigrationStartEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, starttimeUTC = {10}, noOfSNtoMigrate = {11}, copyPhaseParallelism = {12}, downtimeThreshold = {13}";
+
+        private const string KVSToRCMigrationCopyPhaseEndEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, timeSpent = {10}, noOfKeysMigrated = {11}";
+
+        private const string KVSToRCMigrationCatchupPhaseEndEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, timeSpent = {10}, noOfIterations = {11}, noOfKeysMigrated = {12}";
+
+        private const string KVSToRCMigrationDowntimePhaseEndEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, timeSpent = {10}, noOfKeysMigrated = {11}";
+
+        private const string KVSToRCMigrationDataValidationWithSuccessEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, timeSpent = {10}, noOfKeysMigrated{11}, noOfKeysValidated = {12}";
+
+        private const string KVSToRCMigrationDataValidationWithFailureEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, timeSpent = {10}, isUserTestHook = {11}, errorMessage = {12}";
+
+        private const string KVSToRCMigrationCompletedWithSuccessEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, timeSpent = {10}, noOfKeysMigrated = {11}";
+
+        private const string KVSToRCMigrationCompletedWithFailureEventTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
+            "kvsServiceName = {9}, timeSpent = {10}, errorMessage = {13}";
+
+        private const string KVSToRCMigrationResumeWritesTraceFormat = "{0} : clusterOsType = {1}, " +
+            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
+            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, kvsServiceName = {9}";
+
+        #endregion KVS to RC Migration event formats
 
         /// <summary>
         /// Prevents a default instance of the <see cref="ActorEventSource" /> class from being created.
@@ -194,6 +252,286 @@ namespace Microsoft.ServiceFabric.Actors
                 reminderName.GetHashCode().ToString());
         }
 
+        #region KVS to RC migration non events
+
+        [NonEvent]
+        internal void KVSToRCMigrationStartEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            DateTime startTimeUtc,
+            long noOfSNtoMigrate,
+            int copyPhaseParallelism,
+            long downtimeThreshold)
+        {
+            Instance.KVSToRCMigrationStartEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                startTimeUtc,
+                noOfSNtoMigrate,
+                copyPhaseParallelism,
+                downtimeThreshold);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationCopyPhaseEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            Instance.KVSToRCMigrationCopyPhaseEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationCatchupPhaseEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            int noOfIterations,
+            long noOfKeysMigrated)
+        {
+            Instance.KVSToRCMigrationCatchupPhaseEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                timeSpent,
+                noOfIterations,
+                noOfKeysMigrated);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationDowntimePhaseEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            Instance.KVSToRCMigrationDowntimePhaseEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationDataValidationWithSuccessEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated,
+            long noOfKeysValidated)
+        {
+            Instance.KVSToRCMigrationDataValidationWithSuccessEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                timeSpent,
+                noOfKeysMigrated,
+                noOfKeysValidated);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationDataValidationWithFailureEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            bool isUserTestHook,
+            string errorMessage)
+        {
+            Instance.KVSToRCMigrationDataValidationWithFailureEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                timeSpent,
+                isUserTestHook,
+                errorMessage);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationCompletedWithSuccessEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            Instance.KVSToRCMigrationCompletedWithSuccessEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationCompletedWithFailureEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            string errorMessage)
+        {
+            Instance.KVSToRCMigrationCompletedWithFailureEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString(),
+                timeSpent,
+                errorMessage);
+        }
+
+        [NonEvent]
+        internal void KVSToRCMigrationResumeWritesEvent(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName)
+        {
+            Instance.KVSToRCMigrationResumeWritesEventInternal(
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName.GetHashCode().ToString(),
+                serviceTypeName.GetHashCode().ToString(),
+                applicationName.GetHashCode().ToString(),
+                applicationTypeName.GetHashCode().ToString(),
+                kvsServiceName.GetHashCode().ToString());
+        }
+
+        #endregion KVS to RC migration non events
+
         #endregion
 
         #region Events
@@ -295,6 +633,295 @@ namespace Microsoft.ServiceFabric.Actors
                 reminderPeriod,
                 reminderName);
         }
+
+        #region KVS to RC Migration events
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationStartEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationStartEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            DateTime startTimeUtc,
+            long noOfSNtoMigrate,
+            int copyPhaseParallelism,
+            long downtimeThreshold)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationStartEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                startTimeUtc,
+                noOfSNtoMigrate,
+                copyPhaseParallelism,
+                downtimeThreshold);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationCopyPhaseEndEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationCopyPhaseEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationCopyPhaseEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationCatchupPhaseEndEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationCatchupPhaseEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            int noOfIterations,
+            long noOfKeysMigrated)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationCatchupPhaseEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfIterations,
+                noOfKeysMigrated);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationDowntimePhaseEndEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationDowntimePhaseEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationDowntimePhaseEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationDataValidationWithSuccessEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationDataValidationWithSuccessEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated,
+            long noOfKeysValidated)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationDataValidationSuccessEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated,
+                noOfKeysValidated);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationDataValidationWithFailureEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationDataValidationWithFailureEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            bool isUserTestHook,
+            string errorMessage)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationDataValidationFailureEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                isUserTestHook,
+                errorMessage);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationCompletedWithSuccessEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationCompletedWithSuccessEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            long noOfKeysMigrated)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationSuccessEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                noOfKeysMigrated);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationCompletedWithFailureEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationCompletedWithFailureEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName,
+            TimeSpan timeSpent,
+            string errorMessage)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationFailureEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName,
+                timeSpent,
+                errorMessage);
+        }
+
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationResumeWritesTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationResumeWritesEventInternal(
+            string type,
+            string clusterOsType,
+            string runtimePlatform,
+            string partitionId,
+            string replicaId,
+            string serviceName,
+            string serviceTypeName,
+            string applicationName,
+            string applicationTypeName,
+            string kvsServiceName)
+        {
+            this.WriteEvent(
+                KVSToRCMigrationFailureEventId,
+                type,
+                clusterOsType,
+                runtimePlatform,
+                partitionId,
+                replicaId,
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                kvsServiceName);
+        }
+
+        #endregion KVS to RC Migration events
 
         #endregion
 
