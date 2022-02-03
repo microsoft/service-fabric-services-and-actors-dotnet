@@ -298,8 +298,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 (this.stateProvider as KvsActorStateProvider).CheckTombstoneCleanupIsDisabled();
             }
 
-            if (Utility.IsMigrationTarget(new List<Type>() { this.actorTypeInformation.ImplementationType })
-                && this.stateProvider.GetType() == this.GetKVStoRCMigrationActorStateProviderType())
+            if (this.IsMigrationTarget())
             {
                 var migrationOrchestrator = (IMigrationOrchestrator)this.GetMigrationOrchestratorObject();
                 await migrationOrchestrator.StartMigration(cancellationToken);

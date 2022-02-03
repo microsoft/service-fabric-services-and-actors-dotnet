@@ -192,6 +192,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return false;
         }
 
+        internal static bool GetDisableTombstoneCleanupSetting(this KvsActorStateProvider stateProvider)
+        {
+            return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
+        }
+
         private static KeyValuePair MakeKeyValuePair(KeyValueStoreItem item)
         {
             bool isDeleted = item.Metadata.ValueSizeInBytes < 0;
