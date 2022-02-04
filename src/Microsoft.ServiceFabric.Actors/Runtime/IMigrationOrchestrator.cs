@@ -20,6 +20,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>
         /// A task that represents the asynchronous migration operation.
         /// </returns>
-        public Task StartMigration(CancellationToken cancellationToken);
+        public Task StartMigrationAsync(CancellationToken cancellationToken);
     }
 }

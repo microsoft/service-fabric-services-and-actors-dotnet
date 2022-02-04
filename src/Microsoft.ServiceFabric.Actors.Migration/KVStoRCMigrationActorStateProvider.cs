@@ -8,8 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common;
-    using System.Fabric.Health;
     using System.Runtime.Serialization;
     using System.Text;
     using System.Threading;
@@ -36,7 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private string traceId;
         private ReliableCollectionsActorStateProvider rcStateProvider;
         private IStatefulServicePartition servicePartition;
-        private IReliableDictionary2<string, byte[]> metadataDictionary;
+        private IReliableDictionary2<string, string> metadataDictionary;
         private bool isMetadataDictInitialized = false;
         private Task stateProviderInitTask;
         private StatefulServiceInitializationParameters initParams;
@@ -250,99 +248,85 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <summary>
         /// Modifies data from KVS store into a suitable format for RC. Saves the modified data in RC store.
         /// </summary>
-        /// <param name="keyValuePairs">
+        /// <param name="kvsData">
         /// Data from KVS store that needs to be modified and saved in RC
-        /// </param>
-        /// <param name="keysMigratedKey">Key to update metadata dictionary with number of keys migrated.</param>
-        /// <param name="lastAppliedSNKey">
-        /// Key to update metadata dictionary after save is completed
-        /// </param>
-        /// <param name="lastAppliedSNvalue">
-        /// last applied sequence number to update metadata dictionary after save is complete
         /// </param>
         /// <param name="cancellationToken">
         /// Cancellation token
         /// </param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task SaveStatetoRCAsync(List<KeyValuePair<string, byte[]>> keyValuePairs, string keysMigratedKey, string lastAppliedSNKey, byte[] lastAppliedSNvalue, CancellationToken cancellationToken)
+        public async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
-            using (var tx = this.rcStateProvider.GetStateManager().CreateTransaction())
+            long lastAppliedSN = -1;
+            using (var tx = this.GetStateManager().CreateTransaction())
             {
-                foreach (KeyValuePair<string, byte[]> pair in keyValuePairs)
+                foreach (var data in kvsData)
                 {
                     byte[] rcValue = { };
                     IReliableDictionary2<string, byte[]> dictionary = null;
-                    if (pair.Key.StartsWith("@@"))
+                    if (data.Key.StartsWith("@@"))
                     {
-                        rcValue = pair.Value;
+                        rcValue = data.Value;
                         dictionary = this.rcStateProvider.GetActorPresenceDictionary();
                         presenceKeyCount++;
                     }
-                    else if (pair.Key.StartsWith("Actor"))
+                    else if (data.Key.StartsWith("Actor"))
                     {
-                        rcValue = pair.Value;
-                        var startIndex = this.GetNthIndex(pair.Key, '_', 2);
-                        var endIndex = this.GetNthIndex(pair.Key, '_', 3);
-                        var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                        rcValue = data.Value;
+                        var startIndex = this.GetNthIndex(data.Key, '_', 2);
+                        var endIndex = this.GetNthIndex(data.Key, '_', 3);
+                        var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
                         dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
                         actorStateCount++;
                     }
-                    else if (pair.Key.StartsWith("RC@@"))
+                    else if (data.Key.StartsWith("RC@@"))
                     {
-                        ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(pair.Value);
+                        ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(data.Value);
                         rcValue = this.SerializeReminderCompletedData(reminderCompletedData);
                         dictionary = this.rcStateProvider.GetReminderCompletedDictionary();
                         reminderCompletedKeyCount++;
                     }
-                    else if (pair.Key.Equals("Timestamp_VLTM"))
+                    else if (data.Key.Equals("Timestamp_VLTM"))
                     {
-                        LogicalTimestamp logicalTimestamp = this.DeserializeLogicalTime(pair.Value);
+                        LogicalTimestamp logicalTimestamp = this.DeserializeLogicalTime(data.Value);
                         rcValue = this.SerializeLogicalTime(logicalTimestamp);
                         dictionary = this.rcStateProvider.GetLogicalTimeDictionary();
                         logicalTimeCount++;
                     }
-                    else if (pair.Key.StartsWith("Reminder"))
+                    else if (data.Key.StartsWith("Reminder"))
                     {
-                        ActorReminderData actorReminderData = this.DeserializeReminder(pair.Value);
+                        ActorReminderData actorReminderData = this.DeserializeReminder(data.Value);
                         rcValue = this.SerializeReminder(actorReminderData);
-                        var startIndex = this.GetNthIndex(pair.Key, '_', 2);
-                        var endIndex = this.GetNthIndex(pair.Key, '_', 3);
-                        var actorId = new ActorId(pair.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                        var startIndex = this.GetNthIndex(data.Key, '_', 2);
+                        var endIndex = this.GetNthIndex(data.Key, '_', 3);
+                        var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
                         dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
                         reminderCount++;
                     }
                     else
                     {
-                        var message = "Migration Error: Failed to parse the KVS key - " + pair.Key;
+                        var message = "Migration Error: Failed to parse the KVS key - " + data.Key;
 
-                        ActorTrace.Source.WriteErrorWithId(
+                        ActorTrace.Source.WriteInfoWithId(
                             this.TraceType,
                             this.traceId,
                             message);
 
-                        this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
                         continue;
                     }
 
-                    var rcKey = this.TransformKVSKeyToRCFormat(pair.Key);
+                    var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
                     if (rcValue.Length > 0)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         await dictionary.AddOrUpdateAsync(tx, rcKey, rcValue, (k, v) => rcValue);
                     }
 
-                    keysMigrated.Add(pair.Key);
+                    keysMigrated.Add(data.Key);
+                    lastAppliedSN = data.Version;
                 }
-
-                await this.metadataDictionary.AddOrUpdateAsync(tx, lastAppliedSNKey, lastAppliedSNvalue, (k, v) => lastAppliedSNvalue);
-                await this.metadataDictionary.AddOrUpdateAsync(tx, keysMigratedKey, Encoding.ASCII.GetBytes(keysMigrated.Count.ToString()), (k, v) =>
-                {
-                    var previousCount = int.Parse(Encoding.ASCII.GetString(v));
-                    var currentCount = previousCount + keysMigrated.Count;
-                    return Encoding.ASCII.GetBytes(currentCount.ToString());
-                });
 
                 cancellationToken.ThrowIfCancellationRequested();
                 await tx.CommitAsync();
@@ -356,9 +340,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     + reminderCount + " reminders.";
                 ActorTrace.Source.WriteInfoWithId(this.TraceType, this.traceId, infoLevelMessage);
             }
+
+            return keysMigrated.Count;
         }
 
-        internal async Task<IReliableDictionary2<string, byte[]>> GetMetadataDictionaryAsync()
+        internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()
         {
             await this.stateProviderInitTask;
             return this.metadataDictionary;
@@ -731,5 +717,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 this.stateProviderInitTask = null;
             }
         }
+
+        public class SaveResult
+        {
+            public long NoOfKeysApplied { get; set; }
+
+            public long LastAppliedSN { get; set; }
+        }
+
     }
 }

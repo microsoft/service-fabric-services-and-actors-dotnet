@@ -25,9 +25,7 @@ namespace Microsoft.ServiceFabric.Actors
         private const int CustomActorServiceUsageEventId = 6;
         private const int ActorReminderRegisterationEventId = 7;
         private const int KVSToRCMigrationStartEventId = 8;
-        private const int KVSToRCMigrationCopyPhaseEventId = 9;
-        private const int KVSToRCMigrationCatchupPhaseEventId = 10;
-        private const int KVSToRCMigrationDowntimePhaseEventId = 11;
+        private const int KVSToRCMigrationPhaseEndEventId = 11;
         private const int KVSToRCMigrationDataValidationSuccessEventId = 12;
         private const int KVSToRCMigrationDataValidationFailureEventId = 13;
         private const int KVSToRCMigrationSuccessEventId = 14;
@@ -54,20 +52,10 @@ namespace Microsoft.ServiceFabric.Actors
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
             "kvsServiceName = {9}, starttimeUTC = {10}, noOfSNtoMigrate = {11}, copyPhaseParallelism = {12}, downtimeThreshold = {13}";
 
-        private const string KVSToRCMigrationCopyPhaseEndEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        private const string KVSToRCMigrationPhaseEndEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
-            "kvsServiceName = {9}, timeSpent = {10}, noOfKeysMigrated = {11}";
-
-        private const string KVSToRCMigrationCatchupPhaseEndEventTraceFormat = "{0} : clusterOsType = {1}, " +
-            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
-            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
-            "kvsServiceName = {9}, timeSpent = {10}, noOfIterations = {11}, noOfKeysMigrated = {12}";
-
-        private const string KVSToRCMigrationDowntimePhaseEndEventTraceFormat = "{0} : clusterOsType = {1}, " +
-            "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
-            "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
-            "kvsServiceName = {9}, timeSpent = {10}, noOfKeysMigrated = {11}";
+            "kvsServiceName = {9}, timeSpent = {10}, noOfKeysMigrated = {11}, noOfWorkers = {12}, noOfIterations = {13}";
 
         private const string KVSToRCMigrationDataValidationWithSuccessEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
@@ -289,7 +277,7 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         [NonEvent]
-        internal void KVSToRCMigrationCopyPhaseEvent(
+        internal void KVSToRCMigrationPhaseEndEvent(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -301,9 +289,11 @@ namespace Microsoft.ServiceFabric.Actors
             string applicationTypeName,
             string kvsServiceName,
             TimeSpan timeSpent,
-            long noOfKeysMigrated)
+            long noOfKeysMigrated,
+            int workerCount,
+            int iterationCount)
         {
-            Instance.KVSToRCMigrationCopyPhaseEventInternal(
+            Instance.KVSToRCMigrationPhaseEndEventInternal(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -315,69 +305,9 @@ namespace Microsoft.ServiceFabric.Actors
                 applicationTypeName.GetHashCode().ToString(),
                 kvsServiceName.GetHashCode().ToString(),
                 timeSpent,
-                noOfKeysMigrated);
-        }
-
-        [NonEvent]
-        internal void KVSToRCMigrationCatchupPhaseEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string kvsServiceName,
-            TimeSpan timeSpent,
-            int noOfIterations,
-            long noOfKeysMigrated)
-        {
-            Instance.KVSToRCMigrationCatchupPhaseEventInternal(
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
-                kvsServiceName.GetHashCode().ToString(),
-                timeSpent,
-                noOfIterations,
-                noOfKeysMigrated);
-        }
-
-        [NonEvent]
-        internal void KVSToRCMigrationDowntimePhaseEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string kvsServiceName,
-            TimeSpan timeSpent,
-            long noOfKeysMigrated)
-        {
-            Instance.KVSToRCMigrationDowntimePhaseEventInternal(
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
-                kvsServiceName.GetHashCode().ToString(),
-                timeSpent,
-                noOfKeysMigrated);
+                noOfKeysMigrated,
+                workerCount,
+                iterationCount);
         }
 
         [NonEvent]
@@ -671,8 +601,8 @@ namespace Microsoft.ServiceFabric.Actors
                 downtimeThreshold);
         }
 
-        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationCopyPhaseEndEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void KVSToRCMigrationCopyPhaseEventInternal(
+        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationPhaseEndEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void KVSToRCMigrationPhaseEndEventInternal(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -684,10 +614,12 @@ namespace Microsoft.ServiceFabric.Actors
             string applicationTypeName,
             string kvsServiceName,
             TimeSpan timeSpent,
-            long noOfKeysMigrated)
+            long noOfKeysMigrated,
+            int workerCount,
+            int iterationCount)
         {
             this.WriteEvent(
-                KVSToRCMigrationCopyPhaseEventId,
+                KVSToRCMigrationPhaseEndEventId,
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -699,71 +631,9 @@ namespace Microsoft.ServiceFabric.Actors
                 applicationTypeName,
                 kvsServiceName,
                 timeSpent,
-                noOfKeysMigrated);
-        }
-
-        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationCatchupPhaseEndEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void KVSToRCMigrationCatchupPhaseEventInternal(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string kvsServiceName,
-            TimeSpan timeSpent,
-            int noOfIterations,
-            long noOfKeysMigrated)
-        {
-            this.WriteEvent(
-                KVSToRCMigrationCatchupPhaseEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                kvsServiceName,
-                timeSpent,
-                noOfIterations,
-                noOfKeysMigrated);
-        }
-
-        [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationDowntimePhaseEndEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void KVSToRCMigrationDowntimePhaseEventInternal(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string kvsServiceName,
-            TimeSpan timeSpent,
-            long noOfKeysMigrated)
-        {
-            this.WriteEvent(
-                KVSToRCMigrationDowntimePhaseEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                kvsServiceName,
-                timeSpent,
-                noOfKeysMigrated);
+                noOfKeysMigrated,
+                workerCount,
+                iterationCount);
         }
 
         [Event(ActorStateProviderUsageEventId, Message = KVSToRCMigrationDataValidationWithSuccessEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]

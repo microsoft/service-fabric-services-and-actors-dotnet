@@ -5,8 +5,11 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
+    using System;
+
     internal static class MigrationConstants
     {
+        internal static readonly TimeSpan DefaultRCTimeout = TimeSpan.FromMinutes(5);
         internal static readonly string KVSMigrationListenerName = "_KVSMigrationEP_";
         internal static readonly string KVSMigrationControllerName = "KvsMigration";
         internal static readonly string RCMigrationListenerName = "_RCMigrationEP_";
@@ -17,76 +20,42 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
 
-        internal static readonly string MigrationPhaseKey = "MigrationPhase";
-        internal static readonly string MigrationStateKey = "MigrationState";
+        #region Global Migration constants
+        internal static readonly string MigrationStartDateTimeUTC = "_MigrationStartDateTimeUTC_";
+        internal static readonly string MigrationEndDateTimeUTC = "_MigrationEndDateTimeUTC_";
+        internal static readonly string MigrationCurrentStatus = "_MigrationCurrentStatus_";
+        internal static readonly string MigrationNoOfKeysMigrated = "_MigrationNoOfKeysMigrated_";
+        internal static readonly string MigrationCurrentPhase = "_MigrationCurrentPhase_";
+        internal static readonly string MigrationStartSeqNum = "_MigrationStartSeqNum_";
+        internal static readonly string MigrationEndSeqNum = "_MigrationEndSeqNum_";
+        internal static readonly string MigrationLastAppliedSeqNum = "_MigrationLastAppliedSeqNum_";
+        #endregion Global Migration constants
 
-        internal static readonly string CopyWorkerCountKey = "WorkerCount";
-        internal static readonly string CopyPhaseStartSNKey = "Migration_Copy_StartSN";
-        internal static readonly string CopyPhaseEndSNKey = "Migration_Copy_EndSN";
-        internal static readonly string CopyPhaseKeysMigrated = "Migration_Copy_KeysMigrated";
+        #region Phase constants
+        internal static readonly string PhaseStartDateTimeUTC = "_{0}Phase_Iteration-{1}_StartDateTimeUTC_";
+        internal static readonly string PhaseEndDateTimeUTC = "_{0}Phase_Iteration-{1}_EndDateTimeUTC_";
+        internal static readonly string PhaseCurrentStatus = "_{0}Phase_Iteration-{1}_CurrentStatus_";
+        internal static readonly string PhaseStartSeqNum = "_{0}Phase_Iteration-{1}_StartSeqNum_";
+        internal static readonly string PhaseEndSeqNum = "_{0}Phase_Iteration-{1}_EndSeqNum_";
+        internal static readonly string PhaseLastAppliedSeqNum = "_{0}Phase_Iteration-{1}_LastAppliedSeqNum_";
+        internal static readonly string PhaseNoOfKeysMigrated = "_{0}Phase_Iteration-{1}_NoOfKeysMigrated_";
+        internal static readonly string PhaseWorkerCount = "_{0}Phase_Iteration-{1}_WorkerCount_";
+        internal static readonly string PhaseIterationCount = "_{0}Phase_IterationCount_";
+        #endregion Phase constants
 
-        internal static readonly string CatchupIterationKey = "Migration_Catchup_IterationCount";
-        internal static readonly string CatchupStartSNKey = "Migration_Catchup_StartSN";
-        internal static readonly string CatchupPhaseKeysMigrated = "Migration_Catchup_KeysMigrated";
+        #region Worker constants
+        internal static readonly string PhaseWorkerStartDateTimeUTC = "_{0}Phase_Iteration-{1}_Worker{2}_StartDateTimeUTC_";
+        internal static readonly string PhaseWorkerEndDateTimeUTC = "_{0}Phase_Iteration-{1}_Worker{2}_EndDateTimeUTC_";
+        internal static readonly string PhaseWorkerCurrentStatus = "_{0}Phase_Iteration-{1}_Worker{2}_CurrentStatus_";
+        internal static readonly string PhaseWorkerStartSeqNum = "_{0}Phase_Iteration-{1}_Worker{2}_StartSeqNum_";
+        internal static readonly string PhaseWorkerEndSeqNum = "_{0}Phase_Iteration-{1}_Worker{2}_EndSeqNum_";
+        internal static readonly string PhaseWorkerLastAppliedSeqNum = "_{0}Phase_Iteration-{1}_Worker{2}_LastAppliedSeqNum_";
+        internal static readonly string PhaseWorkerNoOfKeysMigrated = "_{0}Phase_Iteration-{1}_Worker{2}_NoOfKeysMigrated_";
+        #endregion Worker constants
 
-        internal static readonly string DowntimeWorkerStatusKey = "DowntimeWorker_status";
-        internal static readonly string DowntimeStartSNKey = "Migration_Downtime_StartSN";
-        internal static readonly string DowntimeEndSNKey = "Migration_Downtime_EndSN";
-        internal static readonly string DowntimeWorkerLastAppliedSNKey = "DowntimeWorker_LastAppliedSN";
-        internal static readonly string DowntimePhaseKeysMigrated = "Migration_Downtime_KeysMigrated";
-
-        internal static readonly string MigrationStartTimeUtcKey = "MigrationStartTimeUtc";
-        internal static readonly string CurrentMigrationPhaseStartTimeUtcKey = "CurrentMigrationPhaseStartTimeUtc";
-        internal static readonly string TotalKeysMigrated = "Migration_TotalKeysMigrated";
-
-        internal static string GetCopyWorkerStatusKey(int workerIdentifier)
+        public static string Key(string format, params object[] args)
         {
-            return "CopyWorker_" + workerIdentifier.ToString() + "_status";
-        }
-
-        internal static string GetCopyWorkerStartSNKey(int workerIdentifier)
-        {
-            return "CopyWorker_" + workerIdentifier.ToString() + "_StartSN";
-        }
-
-        internal static string GetCopyWorkerEndSNKey(int workerIdentifier)
-        {
-            return "CopyWorker_" + workerIdentifier.ToString() + "_EndSN";
-        }
-
-        internal static string GetCopyWorkerLastAppliedSNKey(int workerIdentifier)
-        {
-            return "CopyWorker_" + workerIdentifier.ToString() + "_LastAppliedSN";
-        }
-
-        internal static string GetCopyWorkerKeysMigratedKey(int workerIdentifier)
-        {
-            return "CopyWorker_" + workerIdentifier.ToString() + "_KeysMigrated";
-        }
-
-        internal static string GetCatchupWorkerStatusKey(int catchupCount)
-        {
-            return "CatchupWorker_" + catchupCount.ToString() + "_status";
-        }
-
-        internal static string GetCatchupWorkerLastAppliedSNKey(int catchupCount)
-        {
-            return "CatchupWorker_" + catchupCount.ToString() + "_LastAppliedSN";
-        }
-
-        internal static string GetCatchupWorkerKeysMigratedKey(int catchupCount)
-        {
-            return "CatchupWorker_" + catchupCount.ToString() + "_KeysMigrated";
-        }
-
-        internal static string GetCatchupWorkerEndSNKey(int catchupCount)
-        {
-            return "Migration_Catchup_" + catchupCount.ToString() + "_EndSN";
-        }
-
-        internal static string GetCatchupWorkerStartSNKey(int catchupCount)
-        {
-            return "Migration_Catchup_" + catchupCount.ToString() + "_StartSN";
+            return string.Format(format, args);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <summary>
         /// Migration not started.
         /// </summary>
-        Uninitialized = 0,
+        None = 0,
 
         /// <summary>
         /// Copy phase of migration.

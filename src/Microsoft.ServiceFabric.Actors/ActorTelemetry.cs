@@ -133,14 +133,17 @@ namespace Microsoft.ServiceFabric.Actors
                 downtimeThreshold);
         }
 
-        internal static void KVSToRCMigrationCopyPhaseEvent(
+        internal static void KVSToRCMigrationPhaseEndEvent(
+            string telemetryKey,
             StatefulServiceContext context,
             string kvsServiceName,
             TimeSpan timeSpent,
-            long noOfKeysMigrated)
+            long noOfKeysMigrated,
+            int workerCount,
+            int iterationCount)
         {
-            ActorEventSource.Instance.KVSToRCMigrationCopyPhaseEvent(
-                ActorTelemetryConstants.KVSToRCMigrationCopyPhaseEndEvent,
+            ActorEventSource.Instance.KVSToRCMigrationPhaseEndEvent(
+                telemetryKey,
                 TelemetryConstants.OsType,
                 TelemetryConstants.RuntimePlatform,
                 context.PartitionId.ToString(),
@@ -151,51 +154,9 @@ namespace Microsoft.ServiceFabric.Actors
                 context.CodePackageActivationContext.ApplicationTypeName,
                 kvsServiceName,
                 timeSpent,
-                noOfKeysMigrated);
-        }
-
-        internal static void KVSToRCMigrationCatchupPhaseEvent(
-            StatefulServiceContext context,
-            string kvsServiceName,
-            TimeSpan timeSpent,
-            int noOfIterations,
-            long noOfKeysMigrated)
-        {
-            ActorEventSource.Instance.KVSToRCMigrationCatchupPhaseEvent(
-                ActorTelemetryConstants.KVSToRCMigrationCatchupPhaseEndEvent,
-                TelemetryConstants.OsType,
-                TelemetryConstants.RuntimePlatform,
-                context.PartitionId.ToString(),
-                context.ReplicaId.ToString(),
-                context.ServiceName.OriginalString,
-                context.ServiceTypeName,
-                context.CodePackageActivationContext.ApplicationName,
-                context.CodePackageActivationContext.ApplicationTypeName,
-                kvsServiceName,
-                timeSpent,
-                noOfIterations,
-                noOfKeysMigrated);
-        }
-
-        internal static void KVSToRCMigrationDowntimePhaseEvent(
-            StatefulServiceContext context,
-            string kvsServiceName,
-            TimeSpan timeSpent,
-            long noOfKeysMigrated)
-        {
-            ActorEventSource.Instance.KVSToRCMigrationDowntimePhaseEvent(
-                ActorTelemetryConstants.KVSToRCMigrationDowntimePhaseEndEvent,
-                TelemetryConstants.OsType,
-                TelemetryConstants.RuntimePlatform,
-                context.PartitionId.ToString(),
-                context.ReplicaId.ToString(),
-                context.ServiceName.OriginalString,
-                context.ServiceTypeName,
-                context.CodePackageActivationContext.ApplicationName,
-                context.CodePackageActivationContext.ApplicationTypeName,
-                kvsServiceName,
-                timeSpent,
-                noOfKeysMigrated);
+                noOfKeysMigrated,
+                workerCount,
+                iterationCount);
         }
 
         internal static void KVSToRCMigrationDataValidationWithSuccessEvent(
