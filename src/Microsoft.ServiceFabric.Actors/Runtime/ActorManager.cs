@@ -1104,12 +1104,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void ThrowIfMigrationInProgress()
         {
-            bool rejectWriteState = this.actorService.GetRejectWriteState();
-            if ((Utility.IsMigrationSource(this.actorService.ActorTypeInformation.InterfaceTypes.ToList())
+            if (Utility.IsMigrationSource(this.actorService.ActorTypeInformation.InterfaceTypes.ToList())
                 || Utility.IsMigrationTarget(this.actorService.ActorTypeInformation.InterfaceTypes.ToList()))
-                && rejectWriteState)
             {
-                throw new ActorStateMigrationInProgressException();
+                bool rejectWriteState = this.actorService.GetRejectWriteState();
+
+                if (rejectWriteState)
+                {
+                    throw new ActorStateMigrationInProgressException();
+                }
             }
         }
 

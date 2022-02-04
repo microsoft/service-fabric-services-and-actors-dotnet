@@ -306,6 +306,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
                         reminderCount++;
                     }
+                    else if (pair.Key.StartsWith(Constants.RejectWritesKey))
+                    {
+                        ActorTrace.Source.WriteInfoWithId(
+                            this.TraceType,
+                            this.traceId,
+                            "Ignoring KVS key - {0}",
+                            pair.Key);
+                        continue;
+                    }
                     else
                     {
                         var message = "Migration Error: Failed to parse the KVS key - " + pair.Key;
@@ -369,14 +378,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 migrationStateValue = await metaDataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationStateKey);
             }
 
-            if (MigrationState.TryParse(Encoding.ASCII.GetString(migrationStateValue.Value), out MigrationState migrationState))
+            if (migrationStateValue.HasValue)
             {
-                return migrationState;
+                if (MigrationState.TryParse(Encoding.ASCII.GetString(migrationStateValue.Value), out MigrationState migrationState))
+                {
+                    return migrationState;
+                }
             }
-            else
-            {
-                return MigrationState.Uninitialized;
-            }
+
+            return MigrationState.Uninitialized;
         }
 
         internal async Task<MigrationStatus> GetMigrationStatusAsync(CancellationToken cancellationToken)
