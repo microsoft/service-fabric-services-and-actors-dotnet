@@ -19,7 +19,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using static Microsoft.ServiceFabric.Actors.Migration.KVStoRCMigrationActorStateProvider;
     using static Microsoft.ServiceFabric.Actors.Migration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.Migration.MigrationInput;
     using static Microsoft.ServiceFabric.Actors.Migration.MigrationResult;
@@ -59,43 +58,55 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.traceId,
-                        $"Starting or resuming migration worker for {this.Input.Phase} - {this.Input.Iteration} Phase - /*DUMP input*/");
+                        $"Starting or resuming migration worker - /*DUMP input*/");
 
-            var startSN = this.workerInput.StartSeqNum;
-            var endSN = startSN + this.migrationSettings.ItemsPerEnumeration;
-            long keysMigrated = -1L;
-
-            while (startSN < this.workerInput.EndSeqNum)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (endSN < this.workerInput.EndSeqNum)
+                var startSN = this.workerInput.StartSeqNum;
+                var endSN = startSN + this.migrationSettings.ItemsPerEnumeration;
+                long keysMigrated = -1L;
+
+                while (startSN < this.workerInput.EndSeqNum)
                 {
-                    endSN = this.workerInput.EndSeqNum;
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (endSN < this.workerInput.EndSeqNum)
+                    {
+                        endSN = this.workerInput.EndSeqNum;
+                    }
+
+                    keysMigrated = await this.FetchAndSaveAsync(startSN, endSN, cancellationToken);
+                    startSN = endSN + 1;
+                    endSN += this.migrationSettings.ItemsPerEnumeration;
                 }
 
-                keysMigrated = await this.FetchAndSaveAsync(startSN, endSN, cancellationToken);
-                startSN = endSN + 1;
-                endSN += this.migrationSettings.ItemsPerEnumeration;
+                ActorTrace.Source.WriteInfoWithId(
+                            TraceType,
+                            this.traceId,
+                            $"Completed migration worker - /*DUMP result*/");
+
+                return new WorkerResult
+                {
+                    EndDateTimeUTC = DateTime.UtcNow,
+                    EndSeqNum = this.Input.EndSeqNum,
+                    Iteration = this.Input.Iteration,
+                    LastAppliedSeqNum = this.Input.LastAppliedSeqNum,
+                    NoOfKeysMigrated = keysMigrated,
+                    Phase = this.Input.Phase,
+                    StartDateTimeUTC = this.Input.StartDateTimeUTC,
+                    StartSeqNum = this.Input.StartSeqNum,
+                    Status = MigrationState.Completed,
+                    WorkerId = this.Input.WorkerId,
+                };
             }
-
-            ActorTrace.Source.WriteInfoWithId(
-                        TraceType,
-                        this.traceId,
-                        $"Completed migration worker for {this.Input.Phase} - {this.Input.Iteration} Phase - /*DUMP result*/");
-
-            return new WorkerResult
+            catch (Exception ex)
             {
-                EndDateTimeUTC = DateTime.UtcNow,
-                EndSeqNum = this.Input.EndSeqNum,
-                Iteration = this.Input.Iteration,
-                LastAppliedSeqNum = this.Input.LastAppliedSeqNum,
-                NoOfKeysMigrated = keysMigrated,
-                Phase = this.Input.Phase,
-                StartDateTimeUTC = this.Input.StartDateTimeUTC,
-                StartSeqNum = this.Input.StartSeqNum,
-                Status = MigrationState.Completed,
-                WorkerId = this.Input.WorkerId,
-            };
+                ActorTrace.Source.WriteErrorWithId(
+                            TraceType,
+                            this.traceId,
+                            $"Migration worker failed with error: {ex} \n Input: /*Dump input*/");
+
+                throw ex;
+            }
         }
 
         private async Task<long> FetchAndSaveAsync(long startSN, long snCount, CancellationToken cancellationToken)
@@ -124,6 +135,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         cancellationToken.ThrowIfCancellationRequested();
                         while (responseLine != null)
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
+
                             List<KeyValuePair> kvsData = new List<KeyValuePair>();
                             using (Stream memoryStream = new MemoryStream())
                             {

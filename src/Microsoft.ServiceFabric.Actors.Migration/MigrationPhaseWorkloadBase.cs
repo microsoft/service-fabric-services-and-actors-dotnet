@@ -55,6 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             this.currentIteration = currentIteration;
             this.workerCount = workerCount;
             this.traceId = traceId;
+            this.metadataDict = this.stateProvider.GetMetadataDictionaryAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public IReliableDictionary2<string, string> MetaDataDictionary { get => this.metadataDict; }
@@ -79,38 +80,58 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public async Task<MigrationResult> StartOrResumeMigrationAsync(CancellationToken cancellationToken)
         {
-            var input = await this.GetOrAddInputAsync(cancellationToken);
-            if (input.Status == MigrationState.Completed)
-            {
-                ActorTrace.Source.WriteInfoWithId(
-                    TraceType,
-                    this.traceId,
-                    $"{this.migrationPhase} - {this.currentIteration} Phase already completed /*DUMP input*/");
+            MigrationInput input = null;
 
-                return await this.GetResultAsync(input, cancellationToken);
-            }
-            else
+            try
             {
-                ActorTrace.Source.WriteInfoWithId(
-                    TraceType,
-                    this.traceId,
-                    $"Starting or resuming {this.migrationPhase} - {this.currentIteration} Phase - /*DUMP input*/");
-            }
-
-            var workers = this.CreateMigrationWorkers(input);
-            var tasks = new List<Task<WorkerResult>>();
-            foreach (var worker in workers)
-            {
-                if (worker.Input.Status != MigrationState.Completed)
+                input = await this.GetOrAddInputAsync(cancellationToken);
+                if (input.Status == MigrationState.Completed)
                 {
-                    tasks.Add(worker.StartMigrationAsync(cancellationToken));
+                    ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        $"Phase already completed: /*DUMP input*/");
+
+                    return await this.GetResultAsync(input, cancellationToken);
                 }
+                else
+                {
+                    ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        $"Starting or resuming {this.migrationPhase} - {this.currentIteration} Phase - /*DUMP input*/");
+                }
+
+                var workers = this.CreateMigrationWorkers(input, cancellationToken);
+                var tasks = new List<Task<WorkerResult>>();
+                foreach (var worker in workers)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    if (worker.Input.Status != MigrationState.Completed)
+                    {
+                        tasks.Add(worker.StartMigrationAsync(cancellationToken));
+                    }
+                }
+
+                var results = await Task.WhenAll(tasks);
+                var migrationResult = await this.AddOrUpdateResultAsync(input, results, cancellationToken);
+
+                ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        $"Completed Migration phase - /*DUMP result*/");
+
+                return migrationResult;
             }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        this.traceId,
+                        $"Migration phase failed with error: {ex} \n Input: /*DUMP input*/");
 
-            var results = await Task.WhenAll(tasks);
-            var migrationResult = await this.AddOrUpdateResultAsync(input, results, cancellationToken);
-
-            return migrationResult;
+                throw ex;
+            }
         }
 
         protected virtual async Task<long> GetEndSequenceNumberAsync(CancellationToken cancellationToken)
@@ -146,6 +167,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         protected virtual async Task<MigrationInput> GetOrAddInputAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var input = new MigrationInput();
             using (var tx = this.Transaction)
             {
@@ -230,6 +253,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 input.WorkerInputs = new List<WorkerInput>();
                 for (int i = 1; i <= this.workerCount; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     if (i == this.workerCount)
                     {
                         perWorkerEndSN += (input.EndSeqNum - input.StartSeqNum + 1) % this.workerCount;
@@ -306,12 +331,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return input;
         }
 
-        protected virtual List<MigrationWorker> CreateMigrationWorkers(MigrationInput input)
+        protected virtual List<MigrationWorker> CreateMigrationWorkers(MigrationInput input, CancellationToken cancellationToken)
         {
             var workers = new List<MigrationWorker>();
 
             foreach (var workerInput in input.WorkerInputs)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 workers.Add(new MigrationWorker(
                     this.StateProvider,
                     this.ActorTypeInformation,
@@ -326,6 +353,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         protected virtual async Task<MigrationResult> GetResultAsync(MigrationInput migrationInput, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var result = new MigrationResult();
             using (var tx = this.Transaction)
             {
@@ -407,6 +436,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                 for (int i = 1; i <= result.WorkerCount; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var workerResult = new WorkerResult();
                     workerResult.StartDateTimeUTC = await ParseDateTimeAsync(
                         () => this.MetaDataDictionary.GetAsync(
@@ -479,6 +510,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         protected virtual async Task<MigrationResult> AddOrUpdateResultAsync(MigrationInput migrationInput, WorkerResult[] workerResults, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             long keysMigrated = 0;
             var endTime = DateTime.UtcNow;
             using (var tx = this.Transaction)

@@ -20,6 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
     internal class MigrationOrchestrator : IMigrationOrchestrator
     {
+        private static readonly string TraceType = typeof(MigrationOrchestrator).Name;
         private KVStoRCMigrationActorStateProvider stateProvider;
         private ActorTypeInformation actorTypeInfo;
         private IReliableDictionary2<string, string> metadataDict;
@@ -29,9 +30,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private MigrationSettings migrationSettings;
         private string traceId;
 
-        public MigrationOrchestrator(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext)
+        public MigrationOrchestrator(IActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext)
         {
-            this.stateProvider = stateProvider;
+            this.stateProvider = stateProvider as KVStoRCMigrationActorStateProvider;
             this.actorTypeInfo = actorTypeInfo;
             this.initParams = this.stateProvider.GetInitParams();
             this.migrationSettings = MigrationSettings.LoadFrom(
@@ -69,22 +70,56 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public async Task StartMigrationAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                "Starting Migration.");
             await this.InitializeIfRequiredAsync(cancellationToken);
-            var workloadRunner = await this.NextWorkloadRunnerAsync(MigrationPhase.None, cancellationToken);
+            IMigrationPhaseWorkload workloadRunner = null;
 
-            MigrationResult currentResult = null;
-            while (workloadRunner != null)
+            try
             {
-                await this.UpdateStartMetadataAsync(workloadRunner, cancellationToken);
-                currentResult = await workloadRunner.StartOrResumeMigrationAsync(cancellationToken);
-                await this.UpdateEndMetadataAsync(currentResult, cancellationToken);
-                workloadRunner = await this.NextWorkloadRunnerAsync(currentResult, cancellationToken);
-            }
+                workloadRunner = await this.NextWorkloadRunnerAsync(MigrationPhase.None, cancellationToken);
 
-            if (currentResult != null)
-            {
-                await this.CompleteMigrationAsync(currentResult, cancellationToken);
+                MigrationResult currentResult = null;
+                while (workloadRunner != null)
+                {
+                    await this.UpdateStartMetadataAsync(workloadRunner, cancellationToken);
+                    currentResult = await workloadRunner.StartOrResumeMigrationAsync(cancellationToken);
+                    await this.UpdateEndMetadataAsync(currentResult, cancellationToken);
+                    workloadRunner = await this.NextWorkloadRunnerAsync(currentResult, cancellationToken);
+                }
+
+                if (currentResult != null)
+                {
+                    await this.CompleteMigrationAsync(currentResult, cancellationToken);
+
+                    ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.TraceId,
+                        $"Migration successfully completed - {currentResult.ToString()}"); // TODO dump object
+                }
             }
+            catch (Exception e)
+            {
+                var currentPhase = workloadRunner != null ? workloadRunner.Phase : MigrationPhase.None;
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    $"Migration {currentPhase} Phase failed with error: {e}");
+
+                throw e;
+            }
+        }
+
+        public async Task InvokeResumeWritesAsync(CancellationToken cancellationToken)
+        {
+            await this.ServicePartitionClient.InvokeWithRetryAsync(
+                async client =>
+                {
+                    return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{ResumeWritesAPIEndpoint}", null);
+                },
+                cancellationToken);
         }
 
         private async Task CompleteMigrationAsync(MigrationResult result, CancellationToken cancellationToken)
@@ -172,7 +207,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             await this.ServicePartitionClient.InvokeWithRetryAsync(
                 async client =>
                 {
-                    return await client.HttpClient.PutAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.RejectWritesAPIEndpoint}", null);
+                    return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{RejectWritesAPIEndpoint}", null);
                 },
                 cancellationToken);
         }
@@ -180,10 +215,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private async Task<IMigrationPhaseWorkload> NextWorkloadRunnerAsync(MigrationResult currentResult, CancellationToken cancellationToken)
         {
             var endSN = await this.GetEndSequenceNumberAsync(cancellationToken);
-            if ((currentResult.Phase == MigrationPhase.Catchup && endSN - currentResult.EndSeqNum < this.MigrationSettings.DowntimeThreshold))
+            var delta = endSN - currentResult.EndSeqNum;
+            if (currentResult.Phase == MigrationPhase.Catchup)
             {
+                if (delta > this.MigrationSettings.DowntimeThreshold)
+                {
+                    return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
+                }
+
                 await this.InvokeRejectWritesAsync(cancellationToken);
-                return await this.NextWorkloadRunnerAsync(MigrationPhase.Downtime, cancellationToken);
             }
 
             return await this.NextWorkloadRunnerAsync(currentResult.Phase + 1, cancellationToken);

@@ -16,7 +16,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Runtime;
 
     /// <summary>
@@ -314,7 +313,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 && this.stateProvider.GetType() == this.GetKVStoRCMigrationActorStateProviderType())
             {
                 var migrationOrchestrator = (IMigrationOrchestrator)this.GetMigrationOrchestratorObject();
-                await migrationOrchestrator.StartMigration(cancellationToken);
+                await migrationOrchestrator.StartMigrationAsync(cancellationToken);
             }
 
             await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);

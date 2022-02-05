@@ -21,5 +21,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// A task that represents the asynchronous migration operation.
         /// </returns>
         public Task StartMigrationAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Resumes KVS writes.
+        /// </summary>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task that represents the asynchronous migration operation.
+        /// </returns>
+        public Task InvokeResumeWritesAsync(CancellationToken cancellationToken);
     }
 }

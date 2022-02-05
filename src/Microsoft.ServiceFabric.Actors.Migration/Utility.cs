@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 });
         }
 
-        public KestrelCommunicationListener GetRCKestrelCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, KVStoRCMigrationActorStateProvider stateProvider)
+        public KestrelCommunicationListener GetRCKestrelCommunicationListener(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, IActorStateProvider stateProvider)
         {
             var endpointName = ActorNameFormat.GetActorRcMigrationEndpointName(actorTypeInformation.ImplementationType);
 
@@ -68,9 +68,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                             .UseKestrel()
                             .ConfigureServices(
                                 services => services
-                                    .AddSingleton<StatefulServiceContext>(serviceContext)
-                                    .AddSingleton<ActorTypeInformation>(actorTypeInformation)
-                                    .AddSingleton<KVStoRCMigrationActorStateProvider>(stateProvider))
+                                    .AddSingleton<IMigrationOrchestrator>(new MigrationOrchestrator(stateProvider, actorTypeInformation, serviceContext)))
                             .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
                             .UseStartup<Startup>()
                             .UseUrls(url)
@@ -90,23 +88,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public bool GetRejectWriteState(IActorStateProvider stateProvider)
         {
-            if (stateProvider is KvsActorStateProvider)
-            {
-                return (stateProvider as KvsActorStateProvider).GetRejectWriteState();
-            }
-
-            if (stateProvider is KVStoRCMigrationActorStateProvider)
-            {
-                MigrationState migrationState = (stateProvider as KVStoRCMigrationActorStateProvider).GetMigrationStateAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-                // reject writes if migration is InProgress
-                if (migrationState == MigrationState.InProgress)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            throw new NotImplementedException();
         }
     }
 }

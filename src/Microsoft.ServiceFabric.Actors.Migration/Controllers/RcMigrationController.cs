@@ -6,12 +6,9 @@
 namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
 {
     using System;
-    using System.Fabric;
-    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Migration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
@@ -23,24 +20,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
     public class RcMigrationController : ControllerBase
 #pragma warning restore CS3009 // Base type is not CLS-compliant
     {
-        private static readonly HttpClient Client = new HttpClient();
-        private StatefulServiceContext serviceContext;
-        private ActorTypeInformation actorTypeInformation;
-        private KVStoRCMigrationActorStateProvider kvsToRcMigrationActorStateProvider;
-        private string kvsEndpoint;
+        private IMigrationOrchestrator migrationOrchestrator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RcMigrationController"/> class.
         /// </summary>
-        /// <param name="context">StatefulServiceContext</param>
-        /// <param name="actorTypeInfo">ActorTypeInformation</param>
-        /// <param name="stateProvider">KvsActorStateProvider</param>
-        public RcMigrationController(StatefulServiceContext context, ActorTypeInformation actorTypeInfo, KVStoRCMigrationActorStateProvider stateProvider)
+        /// <param name="migrationOrchestrator">Migration orchestrator</param>
+        public RcMigrationController(IMigrationOrchestrator migrationOrchestrator)
         {
-            this.serviceContext = context;
-            this.actorTypeInformation = actorTypeInfo;
-            this.kvsToRcMigrationActorStateProvider = stateProvider;
-            this.GetUserSettingsOrDefault();
+            this.migrationOrchestrator = migrationOrchestrator;
         }
 
         /// <summary>
@@ -49,11 +37,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetMigrationStatus")]
-        public async Task<MigrationStatus> GetMigrationStatusAsync(CancellationToken cancellationToken)
+        public Task<MigrationStatus> GetMigrationStatusAsync(CancellationToken cancellationToken)
         {
-            var migrationStatus = await this.kvsToRcMigrationActorStateProvider.GetMigrationStatusAsync(cancellationToken);
-
-            return migrationStatus;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -63,39 +49,18 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         [HttpPut("VerifyMigration")]
         public string VerifyMigrationAsync()
         {
-            return "TODO: Implementaion pending.";
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// Calls ResumeWritesOnKVS API on KVS service to resume accepting write calls
         /// </summary>
+        /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         [HttpPut("ResumeWritesOnKVSService")]
-        public async Task ResumeWritesOnKVSServiceAsync()
+        public async Task ResumeWritesOnKVSServiceAsync(CancellationToken cancellationToken)
         {
-            await Client.PutAsync(this.kvsEndpoint + MigrationConstants.ResumeWritesAPIEndpoint, null);
-        }
-
-        private void GetUserSettingsOrDefault()
-        {
-            var configPackageName = ActorNameFormat.GetConfigPackageName();
-            try
-            {
-                var configPackageObj = this.serviceContext.CodePackageActivationContext.GetConfigurationPackageObject(configPackageName);
-                var migrationConfigLabel = ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInformation.ImplementationType);
-                if (configPackageObj.Settings.Sections.Contains(migrationConfigLabel))
-                {
-                    var migrationSettings = configPackageObj.Settings.Sections[migrationConfigLabel];
-                    if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
-                    {
-                        this.kvsEndpoint = migrationSettings.Parameters["KVSActorServiceUri"].Value;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                ActorTrace.Source.WriteError("RcMigrationController", e.Message);
-            }
+            await this.migrationOrchestrator.InvokeResumeWritesAsync(cancellationToken);
         }
     }
 }

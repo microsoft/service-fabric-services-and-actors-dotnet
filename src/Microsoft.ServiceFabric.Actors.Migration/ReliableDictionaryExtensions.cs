@@ -29,27 +29,5 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             throw new KeyNotFoundException(key.ToString()); // TODO consider throwing SF exception.
         }
-
-        public static async Task AddAsync<TKey, TValue>(
-            this IReliableDictionary2<TKey, TValue> dict,
-            Data.ITransaction tx,
-            TKey key,
-            TValue value,
-            CancellationToken cancellationToken)
-            where TKey : IComparable<TKey>, IEquatable<TKey>
-        {
-            await dict.AddAsync(tx, key, value, MigrationConstants.DefaultRCTimeout, cancellationToken);
-        }
-
-        public static async Task<TValue> AddOrUpdateAsync<TKey, TValue>(
-           this IReliableDictionary2<TKey, TValue> dict,
-           Data.ITransaction tx,
-           TKey key,
-           TValue value,
-           CancellationToken cancellationToken)
-           where TKey : IComparable<TKey>, IEquatable<TKey>
-        {
-            return await dict.AddOrUpdateAsync(tx, key, value, (k, v) => v, MigrationConstants.DefaultRCTimeout, cancellationToken);
-        }
     }
 }

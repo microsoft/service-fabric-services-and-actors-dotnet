@@ -50,6 +50,5 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             public MigrationState Status { get; set; }
         }
-
     }
 }
