@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
     internal abstract class MigrationPhaseWorkloadBase : IMigrationPhaseWorkload
     {
-        private static readonly string TraceType = typeof(MigrationPhaseWorkloadBase).ToString();
+        private static readonly string TraceType = typeof(MigrationPhaseWorkloadBase).Name;
         private MigrationPhase migrationPhase;
         private IReliableDictionary2<string, string> metadataDict;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
@@ -90,7 +90,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.traceId,
-                        $"Phase already completed: /*DUMP input*/");
+                        $"Phase already completed \n Input: {input.ToString()}");
 
                     return await this.GetResultAsync(input, cancellationToken);
                 }
@@ -99,7 +99,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.traceId,
-                        $"Starting or resuming {this.migrationPhase} - {this.currentIteration} Phase - /*DUMP input*/");
+                        $"Starting or resuming {this.migrationPhase} - {this.currentIteration} Phase\n Input: {input.ToString()}");
                 }
 
                 var workers = this.CreateMigrationWorkers(input, cancellationToken);
@@ -119,7 +119,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.traceId,
-                        $"Completed Migration phase - /*DUMP result*/");
+                        $"Completed Migration phase\n Result: {migrationResult.ToString()}");
 
                 return migrationResult;
             }
@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 ActorTrace.Source.WriteErrorWithId(
                         TraceType,
                         this.traceId,
-                        $"Migration phase failed with error: {ex} \n Input: /*DUMP input*/");
+                        $"Migration phase failed with error: {ex} \n Input: {input.ToString()}");
 
                 throw ex;
             }
@@ -250,7 +250,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 long perWorker = (input.EndSeqNum - input.StartSeqNum + 1) / this.workerCount;
                 var perWorkerStartSN = input.StartSeqNum;
                 var perWorkerEndSN = input.StartSeqNum + perWorker;
-                input.WorkerInputs = new List<WorkerInput>();
+                var workerInputs = new List<WorkerInput>();
                 for (int i = 1; i <= this.workerCount; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -323,7 +323,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                     perWorkerStartSN = perWorkerEndSN + 1;
                     perWorkerEndSN = perWorkerStartSN + perWorker;
+
+                    workerInputs.Add(workerInput);
                 }
+
+                input.WorkerInputs = workerInputs.ToArray();
 
                 await tx.CommitAsync();
             }
@@ -432,7 +436,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     cancellationToken),
                     this.TraceId);
 
-                result.WorkerResults = new List<WorkerResult>();
+                var workerResults = new List<WorkerResult>();
 
                 for (int i = 1; i <= result.WorkerCount; i++)
                 {
@@ -499,8 +503,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     workerResult.Iteration = this.currentIteration;
                     workerResult.WorkerId = i;
 
-                    result.WorkerResults.Add(workerResult);
+                    workerResults.Add(workerResult);
                 }
+
+                result.WorkerResults = workerResults.ToArray();
 
                 await tx.CommitAsync();
             }
@@ -539,7 +545,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     Key(PhaseNoOfKeysMigrated, this.migrationPhase, this.currentIteration),
                     _ =>
                     {
-                        long newVal = 0L;
+                        long? newVal = 0L;
                         foreach (var workerResult in workerResults)
                         {
                             newVal += workerResult.NoOfKeysMigrated;
@@ -549,7 +555,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     },
                     (k, v) =>
                     {
-                        long newVal = ParseLong(v, this.TraceId);
+                        long? newVal = ParseLong(v, this.TraceId);
                         foreach (var workerResult in workerResults)
                         {
                             newVal += workerResult.NoOfKeysMigrated;
@@ -605,7 +611,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 Status = MigrationState.Completed,
                 WorkerCount = migrationInput.WorkerCount,
                 Phase = migrationInput.Phase,
-                WorkerResults = new List<WorkerResult>(workerResults),
+                WorkerResults = workerResults,
             };
         }
 

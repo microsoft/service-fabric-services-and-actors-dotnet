@@ -6,48 +6,89 @@
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System;
-    using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
+    using System.Text;
 
+    [DataContract]
     internal class MigrationInput
     {
+        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(MigrationInput), new DataContractJsonSerializerSettings
+        {
+            UseSimpleDictionaryFormat = true,
+        });
+
+        [DataMember]
         public DateTime StartDateTimeUTC { get; set; }
 
-        public DateTime EndDateTimeUTC { get; set; }
+        [DataMember]
+        public DateTime? EndDateTimeUTC { get; set; }
 
+        [DataMember]
         public long StartSeqNum { get; set; }
 
+        [DataMember]
         public long EndSeqNum { get; set; }
 
-        public long LastAppliedSeqNum { get; set; }
+        [DataMember]
+        public long? LastAppliedSeqNum { get; set; }
 
+        [DataMember]
         public MigrationState Status { get; set; }
 
+        [DataMember]
         public int WorkerCount { get; set; }
 
+        [DataMember]
         public int IterationCount { get; set; }
 
+        [DataMember]
         public MigrationPhase Phase { get; set; }
 
-        public List<WorkerInput> WorkerInputs { get; set; }
+        [DataMember]
+        public WorkerInput[] WorkerInputs { get; set; }
 
+        public override string ToString()
+        {
+            using (var stream = new MemoryStream())
+            {
+                serializer.WriteObject(stream, this);
+
+                var returnVal = Encoding.ASCII.GetString(stream.GetBuffer());
+
+                return returnVal;
+            }
+        }
+
+        [DataContract]
         public class WorkerInput
         {
+            [DataMember]
             public int WorkerId { get; set; }
 
+            [DataMember]
             public int Iteration { get; set; }
 
+            [DataMember]
             public DateTime StartDateTimeUTC { get; set; }
 
-            public DateTime EndDateTimeUTC { get; set; }
+            [DataMember]
+            public DateTime? EndDateTimeUTC { get; set; }
 
+            [DataMember]
             public long StartSeqNum { get; set; }
 
+            [DataMember]
             public long EndSeqNum { get; set; }
 
-            public long LastAppliedSeqNum { get; set; }
+            [DataMember]
+            public long? LastAppliedSeqNum { get; set; }
 
+            [DataMember]
             public MigrationPhase Phase { get; set; }
 
+            [DataMember]
             public MigrationState Status { get; set; }
         }
     }

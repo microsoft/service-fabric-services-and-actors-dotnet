@@ -58,7 +58,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.traceId,
-                        $"Starting or resuming migration worker - /*DUMP input*/");
+                        $"Starting or resuming migration worker\n Input: {this.Input.ToString()}");
 
             try
             {
@@ -79,12 +79,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     endSN += this.migrationSettings.ItemsPerEnumeration;
                 }
 
-                ActorTrace.Source.WriteInfoWithId(
-                            TraceType,
-                            this.traceId,
-                            $"Completed migration worker - /*DUMP result*/");
-
-                return new WorkerResult
+                var result = new WorkerResult
                 {
                     EndDateTimeUTC = DateTime.UtcNow,
                     EndSeqNum = this.Input.EndSeqNum,
@@ -97,6 +92,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     Status = MigrationState.Completed,
                     WorkerId = this.Input.WorkerId,
                 };
+
+                ActorTrace.Source.WriteInfoWithId(
+                           TraceType,
+                           this.traceId,
+                           $"Completed migration worker\n Result: {result.ToString()} ");
+
+                return result;
             }
             catch (Exception ex)
             {

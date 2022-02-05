@@ -97,7 +97,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.TraceId,
-                        $"Migration successfully completed - {currentResult.ToString()}"); // TODO dump object
+                        $"Migration successfully completed - {currentResult.ToString()}");
                 }
             }
             catch (Exception e)
