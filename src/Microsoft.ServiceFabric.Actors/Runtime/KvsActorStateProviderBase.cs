@@ -439,7 +439,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         /// <inheritdoc/>
-        async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(int numItemsToReturn, ActorId actorId, ContinuationToken continuationToken, CancellationToken cancellationToken)
+        async Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(int numItemsToReturn, ActorId actorId, ContinuationToken continuationToken, CancellationToken cancellationToken)
         {
             return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                async () =>
@@ -523,7 +523,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                            }
                        }
 
-                       return new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+                       return new ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
                        {
                            Items = result.AsEnumerable(),
                            ContinuationToken = hasMore && nextKey.StartsWith(reminderkey) ? new ContinuationToken(nextContinuationMarker) : null,
