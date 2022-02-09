@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Description;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
@@ -70,11 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public async Task StartMigrationAsync(CancellationToken cancellationToken)
         {
-            int i = 0;
-            while (i == 0)
-            {
-                Thread.Sleep(5000);
-            }
+            await this.ThrowIfInvalidConfigForMigrationAsync(cancellationToken);
 
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -399,6 +396,65 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                 await tx.CommitAsync();
             }
+        }
+
+        private async Task ThrowIfInvalidConfigForMigrationAsync(CancellationToken cancellationToken)
+        {
+            if (this.MigrationSettings.KVSActorServiceUri == null)
+            {
+                throw new ActorStateInvalidMigrationConfigException("KVSServiceName is not configured in Settings.xml");
+            }
+
+            var fabricClient = new FabricClient();
+            var kvsServiceDescription = await fabricClient.ServiceManager.GetServiceDescriptionAsync(this.MigrationSettings.KVSActorServiceUri);
+            if (kvsServiceDescription == null)
+            {
+                throw new ActorStateInvalidMigrationConfigException($"Could not find Service Description for {this.MigrationSettings.KVSActorServiceUri}.");
+            }
+
+            var kvsServicePartitionCount = this.GetServicePartitionCount(kvsServiceDescription);
+            var rcServiceDescription = await fabricClient.ServiceManager.GetServiceDescriptionAsync(this.initParams.ServiceName);
+            var rcServicePartitionCount = this.GetServicePartitionCount(rcServiceDescription);
+            var isDisableTombstoneCleanup = await this.GetKVSDisableTombstoneCleanupSettingAsync(cancellationToken);
+
+            ActorTrace.Source.WriteInfo("MigrationOrchestrator", "kvsServiceDescription.PartitionSchemeDescription.Scheme = {0}; kvsServicePartitionCount = {1}; rcServiceDescription.PartitionSchemeDescription.Scheme = {2}; rcServicePartitionCount = {3}; isDisableTombstoneCleanup = {4}", kvsServiceDescription.PartitionSchemeDescription.Scheme, kvsServicePartitionCount, rcServiceDescription.PartitionSchemeDescription.Scheme, rcServicePartitionCount, isDisableTombstoneCleanup);
+
+            if (kvsServiceDescription.PartitionSchemeDescription.Scheme != rcServiceDescription.PartitionSchemeDescription.Scheme
+                || kvsServicePartitionCount != rcServicePartitionCount
+                || !isDisableTombstoneCleanup)
+            {
+                throw new ActorStateInvalidMigrationConfigException($"kvsServiceDescription.PartitionSchemeDescription.Scheme = {kvsServiceDescription.PartitionSchemeDescription.Scheme}; " +
+                    $"kvsServicePartitionCount = {kvsServicePartitionCount}; rcServiceDescription.PartitionSchemeDescription.Scheme = {rcServiceDescription.PartitionSchemeDescription.Scheme}; " +
+                    $"rcServicePartitionCount = {rcServicePartitionCount}; isDisableTombstoneCleanup = {isDisableTombstoneCleanup}");
+            }
+        }
+
+        private int GetServicePartitionCount(ServiceDescription serviceDescription)
+        {
+            switch (serviceDescription.PartitionSchemeDescription.Scheme)
+            {
+                case PartitionScheme.Singleton:
+                    return 1;
+                case PartitionScheme.UniformInt64Range:
+                    return (serviceDescription.PartitionSchemeDescription as UniformInt64RangePartitionSchemeDescription).PartitionCount;
+                case PartitionScheme.Named:
+                    return (serviceDescription.PartitionSchemeDescription as NamedPartitionSchemeDescription).PartitionNames.Count;
+                case PartitionScheme.Invalid:
+                default:
+                    return 0;
+            }
+        }
+
+        private async Task<bool> GetKVSDisableTombstoneCleanupSettingAsync(CancellationToken cancellationToken)
+        {
+            var kvsDisableTCSString = await this.servicePartitionClient.InvokeWithRetryAsync<string>(
+                async client =>
+                {
+                    return await client.HttpClient.GetStringAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetDisableTCSEndpoint}");
+                },
+                cancellationToken);
+
+            return bool.Parse(kvsDisableTCSString);
         }
     }
 }

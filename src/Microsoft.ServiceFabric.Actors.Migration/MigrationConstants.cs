@@ -19,6 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string GetStartSNEndpoint = "GetFirstSequenceNumber";
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
+        internal static readonly string GetDisableTCSEndpoint = "GetDisableTombstoneCleanupSetting";
 
         #region Global Migration constants
         internal static readonly string MigrationStartDateTimeUTC = "_MigrationStartDateTimeUTC_";

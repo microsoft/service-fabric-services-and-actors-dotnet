@@ -305,6 +305,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
                         reminderCount++;
                     }
+                    else if (data.Key.StartsWith(Constants.RejectWritesKey))
+                    {
+                        ActorTrace.Source.WriteInfoWithId(
+                            this.TraceType,
+                            this.traceId,
+                            "Ignoring KVS key - {0}",
+                            data.Key);
+                        continue;
+                    }
                     else
                     {
                         var message = "Migration Error: Failed to parse the KVS key - " + data.Key;
