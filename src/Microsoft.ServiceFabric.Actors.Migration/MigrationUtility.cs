@@ -34,9 +34,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return string.Empty;
         }
 
-        public static async Task<DateTime> ParseDateTimeAsync(Func<Task<string>> func, string traceId)
+        public static async Task<DateTime?> ParseDateTimeAsync(Func<Task<string>> func, string traceId)
         {
             string valueString = await func();
+            if (string.IsNullOrEmpty(valueString))
+            {
+                return null;
+            }
+
             if (!DateTime.TryParse(valueString, out var value))
             {
                 TraceAndThrowException(valueString, traceId);
@@ -45,20 +50,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return value;
         }
 
-        public static async Task<DateTime> ParseDateTimeOrGetDefaultAsync(Func<Task<string>> func, string traceId)
+        public static async Task<long?> ParseLongAsync(Func<Task<string>> func, string traceId)
         {
             string valueString = await func();
-            if (!DateTime.TryParse(valueString, out var value))
+            if (string.IsNullOrEmpty(valueString))
             {
-                return default(DateTime);
+                return null;
             }
 
-            return value;
-        }
-
-        public static async Task<long> ParseLongAsync(Func<Task<string>> func, string traceId)
-        {
-            string valueString = await func();
             if (!long.TryParse(valueString, out var value))
             {
                 TraceAndThrowException(valueString, traceId);
@@ -77,22 +76,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return value;
         }
 
-        public static async Task<long> ParseLongOrGetDefaultAsync(Func<Task<ConditionalValue<string>>> func, string traceId)
-        {
-            var result = await func();
-            if (result.HasValue)
-            {
-                if (!long.TryParse(result.Value, out var value))
-                {
-                    TraceAndThrowException(result.Value, traceId);
-                }
-
-                return value;
-            }
-
-            return -1L;
-        }
-
         public static async Task<int> ParseIntAsync(Func<Task<string>> func, string traceId)
         {
             string valueString = await func();
@@ -104,9 +87,30 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return value;
         }
 
+        public static async Task<int> ParseIntAsync(Func<Task<string>> func, int defaultValue, string traceId)
+        {
+            string valueString = await func();
+            if (string.IsNullOrEmpty(valueString))
+            {
+                return defaultValue;
+            }
+
+            if (!int.TryParse(valueString, out var value))
+            {
+                TraceAndThrowException(valueString, traceId);
+            }
+
+            return value;
+        }
+
         public static async Task<MigrationPhase> ParseMigrationPhaseAsync(Func<Task<string>> func, string traceId)
         {
             string valueString = await func();
+            if (string.IsNullOrEmpty(valueString))
+            {
+                return MigrationPhase.None;
+            }
+
             if (!Enum.TryParse<MigrationPhase>(valueString, out var value))
             {
                 TraceAndThrowException(valueString, traceId);
@@ -118,28 +122,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         public static async Task<MigrationState> ParseMigrationStateAsync(Func<Task<string>> func, string traceId)
         {
             string valueString = await func();
+            if (string.IsNullOrEmpty(valueString))
+            {
+                return MigrationState.None;
+            }
+
             if (!Enum.TryParse<MigrationState>(valueString, out var value))
             {
                 TraceAndThrowException(valueString, traceId);
             }
 
             return value;
-        }
-
-        public static async Task<MigrationState> ParseMigrationStateOrGetDefaultAsync(Func<Task<ConditionalValue<string>>> func, string traceId)
-        {
-            var result = await func();
-            if (result.HasValue)
-            {
-                if (!Enum.TryParse<MigrationState>(result.Value, out var value))
-                {
-                    TraceAndThrowException(result.Value, traceId);
-                }
-
-                return value;
-            }
-
-            return MigrationState.None;
         }
 
         private static void TraceAndThrowException<TData>(TData data, string traceId)

@@ -37,9 +37,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetMigrationStatus")]
-        public Task<MigrationStatus> GetMigrationStatusAsync(CancellationToken cancellationToken)
+        public async Task<MigrationResult> GetMigrationStatusAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await ((MigrationOrchestrator)this.migrationOrchestrator).GetResultAsync(cancellationToken);
         }
 
         /// <summary>

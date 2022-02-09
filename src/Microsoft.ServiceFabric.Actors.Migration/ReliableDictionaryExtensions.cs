@@ -13,13 +13,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
     internal static class ReliableDictionaryExtensions
     {
-        public static async Task<TValue> GetAsync<TKey, TValue>(
-            this IReliableDictionary2<TKey, TValue> dict,
+        public static async Task<string> GetAsync(
+            this IReliableDictionary2<string, string> dict,
             Data.ITransaction tx,
-            TKey key,
+            string key,
             TimeSpan timeout,
             CancellationToken cancellationToken)
-            where TKey : IComparable<TKey>, IEquatable<TKey>
         {
             var result = await dict.TryGetValueAsync(tx, key, timeout, cancellationToken);
             if (result.HasValue)
@@ -28,6 +27,38 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
 
             throw new KeyNotFoundException(key.ToString()); // TODO consider throwing SF exception.
+        }
+
+        public static async Task UpdateAsync(
+            this IReliableDictionary2<string, string> dict,
+            Data.ITransaction tx,
+            string key,
+            string value,
+            string comparisionValue,
+            TimeSpan timeout,
+            CancellationToken cancellationToken)
+        {
+            var result = await dict.TryUpdateAsync(tx, key, value, comparisionValue, timeout, cancellationToken);
+            if (!result)
+            {
+                throw new Exception($"failed to update  Key: {key}, NewValue: {value}, ComparisonValue: {comparisionValue}"); // TODO: Fabric ex
+            }
+        }
+
+        public static async Task<string> GetValueOrDefaultAsync(
+            this IReliableDictionary2<string, string> dict,
+            Data.ITransaction tx,
+            string key,
+            TimeSpan timeout,
+            CancellationToken cancellationToken)
+        {
+            var result = await dict.TryGetValueAsync(tx, key, timeout, cancellationToken);
+            if (result.HasValue)
+            {
+                return result.Value;
+            }
+
+            return null;
         }
     }
 }

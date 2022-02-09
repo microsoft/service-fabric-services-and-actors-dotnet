@@ -47,14 +47,14 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 }
                 else
                 {
-                    return await ParseLongAsync(
+                    return (await ParseLongAsync(
                        () => this.ServicePartitionClient.InvokeWithRetryAsync<string>(
                        async client =>
                        {
                            return await client.HttpClient.GetStringAsync($"{KVSMigrationControllerName}/{GetStartSNEndpoint}");
                        },
                        cancellationToken),
-                       this.TraceId);
+                       this.TraceId)).Value;
                 }
             }
 

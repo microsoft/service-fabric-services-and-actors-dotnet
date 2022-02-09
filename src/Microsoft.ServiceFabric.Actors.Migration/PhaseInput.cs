@@ -12,9 +12,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Text;
 
     [DataContract]
-    internal class MigrationInput
+    internal class PhaseInput
     {
-        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(MigrationInput), new DataContractJsonSerializerSettings
+        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhaseInput), new DataContractJsonSerializerSettings
         {
             UseSimpleDictionaryFormat = true,
         });

@@ -11,47 +11,75 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Runtime.Serialization.Json;
     using System.Text;
 
+    /// <summary>
+    /// Migration result.
+    /// </summary>
     [DataContract]
-    internal class MigrationResult
+    public class MigrationResult
     {
         private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(MigrationResult), new DataContractJsonSerializerSettings
         {
             UseSimpleDictionaryFormat = true,
         });
 
+        /// <summary>
+        /// Gets or sets the migration start time.
+        /// </summary>
         [DataMember]
         public DateTime StartDateTimeUTC { get; set; }
 
+        /// <summary>
+        /// Gets or sets the migration end time.
+        /// </summary>
         [DataMember]
         public DateTime? EndDateTimeUTC { get; set; }
 
-        [DataMember]
-        public long StartSeqNum { get; set; }
-
-        [DataMember]
-        public long EndSeqNum { get; set; }
-
-        [DataMember]
-        public long? LastAppliedSeqNum { get; set; }
-
+        /// <summary>
+        /// Gets or sets the migration status.
+        /// </summary>
         [DataMember]
         public MigrationState Status { get; set; }
 
+        /// <summary>
+        /// Gets or sets the current migration phase.
+        /// </summary>
         [DataMember]
-        public int WorkerCount { get; set; }
+        public MigrationPhase CurrentPhase { get; set; }
 
+        /// <summary>
+        /// Gets or sets the start sequence num.
+        /// </summary>
         [DataMember]
-        public int IterationCount { get; set; }
+        public long StartSeqNum { get; set; }
 
+        /// <summary>
+        /// Gets or sets the end sequence nummber.
+        /// </summary>
+        [DataMember]
+        public long? EndSeqNum { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last applied sequence number.
+        /// </summary>
+        [DataMember]
+        public long? LastAppliedSeqNum { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of sequence numbers migrated.
+        /// </summary>
         [DataMember]
         public long? NoOfKeysMigrated { get; set; }
 
+        /// <summary>
+        /// Gets or sets the phase wise results.
+        /// </summary>
         [DataMember]
-        public MigrationPhase Phase { get; set; }
+        public PhaseResult[] PhaseResults { get; set; }
 
-        [DataMember]
-        public WorkerResult[] WorkerResults { get; set; }
-
+        /// <summary>
+        /// String representation of the object.
+        /// </summary>
+        /// <returns>Returns the string representation of the object.</returns>
         public override string ToString()
         {
             using (var stream = new MemoryStream())
@@ -62,40 +90,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                 return returnVal;
             }
-        }
-
-        [DataContract]
-        public class WorkerResult
-        {
-            [DataMember]
-            public int WorkerId { get; set; }
-
-            [DataMember]
-            public int Iteration { get; set; }
-
-            [DataMember]
-            public DateTime StartDateTimeUTC { get; set; }
-
-            [DataMember]
-            public DateTime? EndDateTimeUTC { get; set; }
-
-            [DataMember]
-            public long StartSeqNum { get; set; }
-
-            [DataMember]
-            public long EndSeqNum { get; set; }
-
-            [DataMember]
-            public long? LastAppliedSeqNum { get; set; }
-
-            [DataMember]
-            public MigrationPhase Phase { get; set; }
-
-            [DataMember]
-            public MigrationState Status { get; set; }
-
-            [DataMember]
-            public long? NoOfKeysMigrated { get; set; }
         }
     }
 }

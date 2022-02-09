@@ -23,6 +23,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// </summary>
         /// <param name="cancellationToken">Token to cancel the task.</param>
         /// <returns>Returns the migration result.</returns>
-        Task<MigrationResult> StartOrResumeMigrationAsync(CancellationToken cancellationToken);
+        Task<PhaseResult> StartOrResumeMigrationAsync(CancellationToken cancellationToken);
     }
 }

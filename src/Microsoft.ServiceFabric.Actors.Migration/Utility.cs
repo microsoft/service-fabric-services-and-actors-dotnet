@@ -88,7 +88,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public bool GetRejectWriteState(IActorStateProvider stateProvider)
         {
-            throw new NotImplementedException();
+            // TODO:  NotImplemented
+            return false;
         }
     }
 }
