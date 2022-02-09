@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Description;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
@@ -48,6 +49,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 TargetReplicaSelector.PrimaryReplica,
                 MigrationConstants.KVSMigrationListenerName);
             this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
+
+            this.ThrowIfInvalidConfigForMigration();
 
             ConditionalValue<byte[]> migrationPhaseValue;
             cancellationToken.ThrowIfCancellationRequested();
@@ -498,9 +501,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                         this.workerCount = int.Parse(migrationSettings.Parameters["CopyPhaseParallelism"].Value);
                     }
 
-                    if (migrationSettings.Parameters.Contains("KVSActorServiceUri"))
+                    if (migrationSettings.Parameters.Contains("KVSServiceName"))
                     {
-                        this.kvsServiceUri = new Uri(migrationSettings.Parameters["KVSActorServiceUri"].Value);
+                        this.kvsServiceUri = new Uri(migrationSettings.Parameters["KVSServiceName"].Value);
                     }
 
                     if (migrationSettings.Parameters.Contains("DowntimeThreshold"))
@@ -513,6 +516,63 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             {
                 ActorTrace.Source.WriteError("MigrationOrchestrator", e.Message);
             }
+        }
+
+        private void ThrowIfInvalidConfigForMigration()
+        {
+            if (this.kvsServiceUri == null)
+            {
+                throw new ActorStateInvalidMigrationConfigException("KVSServiceName is not configured in Settings.xml");
+            }
+
+            var fabricClient = new FabricClient();
+            var kvsServiceDescription = fabricClient.ServiceManager.GetServiceDescriptionAsync(this.kvsServiceUri).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (kvsServiceDescription == null)
+            {
+                throw new ActorStateInvalidMigrationConfigException($"Could not find Service Description for {this.kvsServiceUri}.");
+            }
+
+            var kvsServicePartitionCount = this.GetServicePartitionCount(kvsServiceDescription);
+            var rcServiceDescription = fabricClient.ServiceManager.GetServiceDescriptionAsync(this.initParams.ServiceName).ConfigureAwait(false).GetAwaiter().GetResult();
+            var rcServicePartitionCount = this.GetServicePartitionCount(rcServiceDescription);
+            var isDisableTombstoneCleanup = this.GetKVSDisableTombstoneCleanupSetting().ConfigureAwait(false).GetAwaiter().GetResult();
+
+            ActorTrace.Source.WriteInfo("MigrationOrchestrator", "kvsServiceDescription.PartitionSchemeDescription.Scheme = {0}; kvsServicePartitionCount = {1}; rcServiceDescription.PartitionSchemeDescription.Scheme = {2}; rcServicePartitionCount = {3}; isDisableTombstoneCleanup = {4}", kvsServiceDescription.PartitionSchemeDescription.Scheme, kvsServicePartitionCount, rcServiceDescription.PartitionSchemeDescription.Scheme, rcServicePartitionCount, isDisableTombstoneCleanup);
+
+            if (kvsServiceDescription.PartitionSchemeDescription.Scheme != rcServiceDescription.PartitionSchemeDescription.Scheme
+                || kvsServicePartitionCount != rcServicePartitionCount
+                || !isDisableTombstoneCleanup)
+            {
+                throw new ActorStateInvalidMigrationConfigException($"kvsServiceDescription.PartitionSchemeDescription.Scheme = {kvsServiceDescription.PartitionSchemeDescription.Scheme}; " +
+                    $"kvsServicePartitionCount = {kvsServicePartitionCount}; rcServiceDescription.PartitionSchemeDescription.Scheme = {rcServiceDescription.PartitionSchemeDescription.Scheme}; " +
+                    $"rcServicePartitionCount = {rcServicePartitionCount}; isDisableTombstoneCleanup = {isDisableTombstoneCleanup}");
+            }
+        }
+
+        private int GetServicePartitionCount(ServiceDescription serviceDescription)
+        {
+            switch (serviceDescription.PartitionSchemeDescription.Scheme)
+            {
+                case PartitionScheme.Singleton:
+                    return 1;
+                case PartitionScheme.UniformInt64Range:
+                    return (serviceDescription.PartitionSchemeDescription as UniformInt64RangePartitionSchemeDescription).PartitionCount;
+                case PartitionScheme.Named:
+                    return (serviceDescription.PartitionSchemeDescription as NamedPartitionSchemeDescription).PartitionNames.Count;
+                case PartitionScheme.Invalid:
+                default:
+                    return 0;
+            }
+        }
+
+        private async Task<bool> GetKVSDisableTombstoneCleanupSetting()
+        {
+            var kvsDisableTCSString = await this.servicePartitionClient.InvokeWithRetryAsync<string>(async client =>
+            {
+                return await client.HttpClient.GetStringAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetDisableTCSEndpoint}");
+            });
+
+            return bool.Parse(kvsDisableTCSString);
         }
     }
 }

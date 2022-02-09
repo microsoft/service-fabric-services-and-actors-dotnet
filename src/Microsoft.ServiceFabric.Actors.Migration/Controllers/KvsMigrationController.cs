@@ -89,5 +89,15 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Controllers
         {
             await this.kvsActorStateProvider.ResumeWritesAsync();
         }
+
+        /// <summary>
+        /// Gets DisableTombstoneCleanup Setting value if KVSReplica
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpGet("GetDisableTombstoneCleanupSetting")]
+        public bool GetDisableTombstoneCleanupSetting()
+        {
+            return this.kvsActorStateProvider.GetDisableTombstoneCleanupSetting();
+        }
     }
 }
