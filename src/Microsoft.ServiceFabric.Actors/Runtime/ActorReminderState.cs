@@ -6,14 +6,28 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Runtime.Serialization;
     using System.Threading;
 
-    internal class ActorReminderState : IActorReminderState
+    /// <summary>
+    /// Represents state of Actor Reminder.
+    /// </summary>
+    [DataContract(Name = "ActorReminderState")]
+    public class ActorReminderState : IActorReminderState
     {
+        [DataMember(Name = "Reminder", Order = 0, IsRequired = true)]
         private readonly ActorReminderData reminder;
+
+        [DataMember(Name = "NextDueTime", Order = 1, IsRequired = true)]
         private readonly TimeSpan nextDueTime;
 
-        public ActorReminderState(ActorReminderData reminder, TimeSpan currentLogicalTime, ReminderCompletedData reminderCompletedData)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActorReminderState"/> class
+        /// </summary>
+        /// <param name="reminder">Reminder data.</param>
+        /// <param name="currentLogicalTime">Current Logical time.</param>
+        /// <param name="reminderCompletedData">Reminder completed data.</param>
+        internal ActorReminderState(ActorReminderData reminder, TimeSpan currentLogicalTime, ReminderCompletedData reminderCompletedData)
         {
             this.reminder = reminder;
 
@@ -27,27 +41,42 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        TimeSpan IActorReminderState.RemainingDueTime
+        /// <summary>
+        /// Gets the remaining due time for the reminder.
+        /// </summary>
+        public TimeSpan RemainingDueTime
         {
             get { return this.nextDueTime; }
         }
 
-        string IActorReminder.Name
+        /// <summary>
+        /// Gets the name of the reminder.
+        /// </summary>
+        public string Name
         {
             get { return this.reminder.Name; }
         }
 
-        TimeSpan IActorReminder.DueTime
+        /// <summary>
+        /// Gets the duetime configured for the reminder.
+        /// </summary>
+        public TimeSpan DueTime
         {
             get { return this.reminder.DueTime; }
         }
 
-        TimeSpan IActorReminder.Period
+        /// <summary>
+        /// Gets the period configured for the reminder.
+        /// </summary>
+        public TimeSpan Period
         {
             get { return this.reminder.Period; }
         }
 
-        byte[] IActorReminder.State
+        /// <summary>
+        /// Gets the user state stored with the rmeinder.
+        /// </summary>
+        public byte[] State
         {
             get { return this.reminder.State; }
         }
