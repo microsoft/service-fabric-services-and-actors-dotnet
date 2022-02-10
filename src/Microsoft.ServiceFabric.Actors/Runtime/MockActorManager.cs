@@ -243,12 +243,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return string.Empty;
         }
 
-        public Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
+        public Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
             ActorId actorId,
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
-            return Task.FromResult(new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>());
+            return Task.FromResult(new ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>());
         }
     }
 }

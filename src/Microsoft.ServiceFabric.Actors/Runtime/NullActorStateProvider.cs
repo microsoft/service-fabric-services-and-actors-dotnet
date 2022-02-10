@@ -205,7 +205,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
-        async Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(
+        async Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(
             int numItemsToReturn,
             ActorId actorId,
             ContinuationToken continuationToken,
@@ -244,7 +244,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                                 .Add(new ActorReminderState(enumerator.Current, TimeSpan.Zero, null));
                         }
 
-                        return new PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+                        return new ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
                         {
                             Items = result.AsEnumerable(),
                             ContinuationToken = hasMore && nextMarker != string.Empty ? new ContinuationToken(nextMarker) : null,
