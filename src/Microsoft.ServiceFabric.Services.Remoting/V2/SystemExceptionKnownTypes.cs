@@ -511,7 +511,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         private static ServiceException ToServiceException(Exception exception)
         {
-            var serviceException = new ServiceException(exception.GetType().ToString(), exception.Message);
+            var serviceException = new ServiceException(exception.GetType().FullName, exception.Message);
             serviceException.ActualExceptionStackTrace = exception.StackTrace;
             serviceException.ActualExceptionData = new Dictionary<string, string>()
             {

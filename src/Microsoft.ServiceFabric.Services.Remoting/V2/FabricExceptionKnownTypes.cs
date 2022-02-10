@@ -302,7 +302,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
 
         private static ServiceException ToServiceException(FabricException fabricEx)
         {
-            var serviceException = new ServiceException(fabricEx.GetType().ToString(), fabricEx.Message);
+            var serviceException = new ServiceException(fabricEx.GetType().FullName, fabricEx.Message);
             serviceException.ActualExceptionStackTrace = fabricEx.StackTrace;
             serviceException.ActualExceptionData = new Dictionary<string, string>()
             {

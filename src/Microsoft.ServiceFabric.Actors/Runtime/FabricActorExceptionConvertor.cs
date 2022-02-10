@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public override bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
         {
             serviceException = null;
-            if (originalException is FabricException && FabricActorExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().ToString(), out var func))
+            if (originalException is FabricException && FabricActorExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().FullName, out var func))
             {
                 serviceException = func.ToServiceExFunc(originalException as FabricException);
 

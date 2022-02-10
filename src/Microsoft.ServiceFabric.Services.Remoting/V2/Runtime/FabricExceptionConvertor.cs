@@ -20,13 +20,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         public override Exception[] GetInnerExceptions(Exception originalException)
         {
-            return FabricExceptionKnownTypes.ServiceExceptionConvertors[originalException.GetType().ToString()].InnerExFunc(originalException as FabricException);
+            return FabricExceptionKnownTypes.ServiceExceptionConvertors[originalException.GetType().FullName].InnerExFunc(originalException as FabricException);
         }
 
         public override bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
         {
             serviceException = null;
-            if (originalException is FabricException && FabricExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().ToString(), out var func))
+            if (originalException is FabricException && FabricExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().FullName, out var func))
             {
                 serviceException = func.ToServiceExFunc(originalException as FabricException);
 

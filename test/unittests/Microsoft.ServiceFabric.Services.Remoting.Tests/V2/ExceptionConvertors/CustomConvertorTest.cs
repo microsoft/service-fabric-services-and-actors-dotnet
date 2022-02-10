@@ -99,7 +99,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             public bool TryConvertFromServiceException(ServiceException serviceException, out Exception actualException)
             {
                 actualException = null;
-                if (serviceException.ActualExceptionType == typeof(CustomException).ToString())
+                if (serviceException.ActualExceptionType == typeof(CustomException).FullName)
                 {
                     actualException = new CustomException(
                         serviceException.Message,
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 serviceException = null;
                 if (originalException is CustomException customEx)
                 {
-                    serviceException = new ServiceException(customEx.GetType().ToString(), customEx.Message);
+                    serviceException = new ServiceException(customEx.GetType().FullName, customEx.Message);
                     serviceException.ActualExceptionStackTrace = originalException.StackTrace;
                     serviceException.ActualExceptionData = new Dictionary<string, string>()
                     {

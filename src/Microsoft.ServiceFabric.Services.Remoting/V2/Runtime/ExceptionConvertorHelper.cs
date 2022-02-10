@@ -146,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
             public bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
             {
-                serviceException = new ServiceException(originalException.GetType().ToString(), originalException.Message);
+                serviceException = new ServiceException(originalException.GetType().FullName, originalException.Message);
                 serviceException.ActualExceptionStackTrace = originalException.StackTrace;
                 serviceException.ActualExceptionData = new Dictionary<string, string>()
                 {

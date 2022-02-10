@@ -17,13 +17,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         public override Exception[] GetInnerExceptions(Exception originalException)
         {
-            return SystemExceptionKnownTypes.ServiceExceptionConvertors[originalException.GetType().ToString()].InnerExFunc.Invoke(originalException);
+            return SystemExceptionKnownTypes.ServiceExceptionConvertors[originalException.GetType().FullName].InnerExFunc.Invoke(originalException);
         }
 
         public override bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
         {
             serviceException = null;
-            if (SystemExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().ToString(), out var func))
+            if (SystemExceptionKnownTypes.ServiceExceptionConvertors.TryGetValue(originalException.GetType().FullName, out var func))
             {
                 serviceException = func.ToServiceExFunc(originalException);
 
