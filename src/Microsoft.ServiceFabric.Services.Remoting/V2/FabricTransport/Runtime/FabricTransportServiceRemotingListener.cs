@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
             FabricTransportRemotingListenerSettings remotingListenerSettings = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null) // TODO Check existing usage
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
             : this(
                 serviceContext,
                 serviceRemotingMessageHandler,
@@ -142,7 +142,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             ServiceTelemetry.FabricTransportServiceRemotingV2Event(
                 serviceContext,
-                !remotingSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None));
+                !remotingSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None),
+                remotingListenerSettings.ExceptionSerializationTechnique.ToString());
         }
 
         /// <summary>

@@ -64,6 +64,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <summary>
         /// Gets or sets the exception serialization technique.
         /// </summary>
+        /// <remarks>Applies only to V2 Remoting.</remarks>
         public ExceptionSerialization ExceptionSerializationTechnique { get; set; }
 
         /// <summary>
