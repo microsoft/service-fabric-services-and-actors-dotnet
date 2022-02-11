@@ -8,6 +8,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
+    /// <summary>
+    /// Class to represent user exception in DCS serializable form.
+    /// BinaryFormatter will continue to use RemoteException.
+    /// </summary>
     [DataContract(Name = "RemoteException2", Namespace = Constants.ServiceCommunicationNamespace)]
     internal class RemoteException2
     {

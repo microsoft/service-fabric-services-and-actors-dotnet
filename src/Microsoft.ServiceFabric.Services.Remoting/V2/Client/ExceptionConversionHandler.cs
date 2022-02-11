@@ -14,13 +14,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 
-    internal class ExceptionConvertorHelper
+    internal class ExceptionConversionHandler
     {
-        private static readonly string TraceEventType = "ExceptionConvertorHelper";
+        private static readonly string TraceEventType = "ExceptionConversionHandler";
         private IEnumerable<IExceptionConvertor> convertors;
         private FabricTransportRemotingSettings remotingSettings;
 
-        public ExceptionConvertorHelper(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingSettings remotingSettings)
+        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingSettings remotingSettings)
         {
             this.convertors = convertors;
             this.remotingSettings = remotingSettings;

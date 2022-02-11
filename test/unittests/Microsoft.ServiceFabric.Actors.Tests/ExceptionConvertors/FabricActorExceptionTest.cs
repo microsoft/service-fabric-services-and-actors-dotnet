@@ -9,10 +9,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
     using System.Collections.Generic;
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Xunit;
 
@@ -25,11 +23,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
             = new List<Services.Remoting.V2.Runtime.IExceptionConvertor>()
             {
                 new Actors.Runtime.FabricActorExceptionConvertor(),
-                new Services.Remoting.V2.Runtime.ExceptionConvertorHelper.DefaultExceptionConvetor(),
+                new Services.Remoting.V2.Runtime.ExceptionConversionHandler.DefaultExceptionConvertor(),
             };
 
-        private static Services.Remoting.V2.Runtime.ExceptionConvertorHelper runtimeHelper
-            = new Services.Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors, new FabricTransportRemotingListenerSettings()
+        private static Services.Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
+            = new Services.Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, new FabricTransportRemotingListenerSettings()
             {
                 RemotingExceptionDepth = 2,
                 ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
@@ -41,8 +39,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
                 new Actors.Client.FabricActorExceptionConvertor(),
             };
 
-        private static Services.Remoting.V2.Client.ExceptionConvertorHelper clientHelper
-            = new Services.Remoting.V2.Client.ExceptionConvertorHelper(
+        private static Services.Remoting.V2.Client.ExceptionConversionHandler clientHandler
+            = new Services.Remoting.V2.Client.ExceptionConversionHandler(
                 clientConvertors,
                 new FabricTransportRemotingSettings()
                 {
@@ -69,13 +67,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
         {
             foreach (var exception in fabricExceptions)
             {
-                var serializedData = runtimeHelper.SerializeRemoteException(exception);
+                var serializedData = runtimeHandler.SerializeRemoteException(exception);
                 var msgStream = new SegmentedReadMemoryStream(serializedData);
 
                 Exception resultFabricEx = null;
                 try
                 {
-                    clientHelper.DeserializeRemoteExceptionAndThrow(msgStream);
+                    clientHandler.DeserializeRemoteExceptionAndThrow(msgStream);
                 }
                 catch (AggregateException ex)
                 {

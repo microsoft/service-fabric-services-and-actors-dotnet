@@ -23,11 +23,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
            {
                 new Remoting.V2.Runtime.FabricExceptionConvertor(),
                 new Remoting.V2.Runtime.SystemExceptionConvertor(),
-                new Remoting.V2.Runtime.ExceptionConvertorHelper.DefaultExceptionConvetor(),
+                new Remoting.V2.Runtime.ExceptionConversionHandler.DefaultExceptionConvertor(),
            };
 
-        private static Remoting.V2.Runtime.ExceptionConvertorHelper runtimeHelper
-            = new Remoting.V2.Runtime.ExceptionConvertorHelper(runtimeConvertors, FabricTransportRemotingListenerSettings.GetDefault());
+        private static Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
+            = new Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, FabricTransportRemotingListenerSettings.GetDefault());
 
         private static List<Remoting.V2.Client.IExceptionConvertor> clientConvertors
             = new List<Remoting.V2.Client.IExceptionConvertor>()
@@ -36,8 +36,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 new Remoting.V2.Client.FabricExceptionConvertor(),
             };
 
-        private static Remoting.V2.Client.ExceptionConvertorHelper clientHelper
-            = new Remoting.V2.Client.ExceptionConvertorHelper(
+        private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
+            = new Remoting.V2.Client.ExceptionConversionHandler(
                 clientConvertors,
                 FabricTransportRemotingSettings.GetDefault());
 
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         public static void OldClientTest()
         {
             var exception = new ArgumentException("My arg is invalid");
-            var serializedData = runtimeHelper.SerializeRemoteException(exception);
+            var serializedData = runtimeHandler.SerializeRemoteException(exception);
             var msgStream = new SegmentedReadMemoryStream(serializedData);
 
             var isDes = RemoteException.ToException(msgStream, out var resultEx);
@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Exception resultEx = null;
             try
             {
-                clientHelper.DeserializeRemoteExceptionAndThrow(msgStream);
+                clientHandler.DeserializeRemoteExceptionAndThrow(msgStream);
             }
             catch (AggregateException ex)
             {

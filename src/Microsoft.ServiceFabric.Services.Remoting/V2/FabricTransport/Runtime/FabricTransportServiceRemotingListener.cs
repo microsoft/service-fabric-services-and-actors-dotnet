@@ -125,12 +125,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             svcExceptionConvertors.Add(new FabricExceptionConvertor());
             svcExceptionConvertors.Add(new SystemExceptionConvertor());
-            svcExceptionConvertors.Add(new ExceptionConvertorHelper.DefaultExceptionConvetor());
+            svcExceptionConvertors.Add(new ExceptionConversionHandler.DefaultExceptionConvertor());
 
             this.transportMessageHandler = new FabricTransportMessageHandler(
                 serviceRemotingMessageHandler,
                 serializersManager,
-                new ExceptionConvertorHelper(svcExceptionConvertors, remotingSettings),
+                new ExceptionConversionHandler(svcExceptionConvertors, remotingSettings),
                 serviceContext.PartitionId,
                 serviceContext.ReplicaOrInstanceId);
 
