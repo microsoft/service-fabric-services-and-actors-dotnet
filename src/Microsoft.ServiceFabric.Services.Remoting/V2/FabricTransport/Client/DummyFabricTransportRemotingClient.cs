@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2.Client;
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     internal class DummyFabricTransportRemotingClient : FabricTransportServiceRemotingClient
@@ -18,7 +19,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             : base(
                 serializersManager,
                 fabricTransportClient,
-                null)
+                null,
+                FabricTransportRemotingSettings.GetDefault())
         {
         }
 

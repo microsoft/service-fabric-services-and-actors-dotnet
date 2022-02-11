@@ -35,6 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
+            this.ExceptionDeserializationTechnique = ExceptionDeserialization.Fallback;
         }
 
         internal FabricTransportRemotingSettings(FabricTransportSettings fabricTransportSettings)
@@ -42,6 +43,28 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         {
             this.fabricTransportSettings = fabricTransportSettings;
         }
+
+        /// <summary>
+        /// Exception Deserialization option to use(applies to V2 Remoting only).
+        /// </summary>
+        public enum ExceptionDeserialization
+        {
+            /// <summary>
+            /// Uses only DCS to deserialize the service remoting message containing exception details.
+            /// </summary>
+            Default,
+
+            /// <summary>
+            /// Attempts to deserialize using DCS and fallsback to BinaryFormatter if DCS fails.
+            /// To be used in compat scenarios. Fallback option will be deprecated in future.
+            /// </summary>
+            Fallback,
+        }
+
+        /// <summary>
+        /// Gets or sets the exception deserialization techinique to use.
+        /// </summary>
+        public ExceptionDeserialization ExceptionDeserializationTechnique { get; set; }
 
         /// <summary>
         /// Gets or sets the operation Timeout  which governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.

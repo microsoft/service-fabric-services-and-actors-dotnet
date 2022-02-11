@@ -18,10 +18,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     public class FabricTransportRemotingListenerSettings
     {
         private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
+        private static readonly int DefaultRemotingExceptionDepth = 2;
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
         private bool useWrappedMessage;
+        private int remotingExceptionDepth;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRemotingListenerSettings"/> class with default values.
@@ -32,6 +34,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
+            this.remotingExceptionDepth = DefaultRemotingExceptionDepth;
+            this.ExceptionSerializationTechnique = ExceptionSerialization.BinaryFormatter;
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
@@ -39,6 +43,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         {
             this.listenerSettings = listenerSettings;
         }
+
+        /// <summary>
+        /// Exception serialization option to use(applicable only to V2 Remoting).
+        /// </summary>
+        public enum ExceptionSerialization
+        {
+            /// <summary>
+            /// Uses DCS to serialize exception details in service remoting message.
+            /// </summary>
+            Default,
+
+            /// <summary>
+            /// Uses binary formatter to serialize exception details in service remoting message.
+            /// To be used in compat scenarios. This option will be deprecated in future.
+            /// </summary>
+            BinaryFormatter,
+        }
+
+        /// <summary>
+        /// Gets or sets the exception serialization technique.
+        /// </summary>
+        /// <remarks>Applies only to V2 Remoting.</remarks>
+        public ExceptionSerialization ExceptionSerializationTechnique { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the endpoint resource specified in ServiceManifest.
@@ -171,6 +198,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         {
             get { return this.useWrappedMessage; }
             set { this.useWrappedMessage = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the depth of exceptions to be sent to the client incase of remoting call failing with exception.
+        /// </summary>
+        /// <remarks>The allowed values are greater than or equal to 1. If the supplied value is less than 1, then the field is set to int.MaxValue.</remarks>
+        public int RemotingExceptionDepth
+        {
+            get
+            {
+                return this.remotingExceptionDepth;
+            }
+
+            set
+            {
+                if (value <= 0)
+                {
+                    this.remotingExceptionDepth = int.MaxValue;
+                }
+                else
+                {
+                    this.remotingExceptionDepth = value;
+                }
+            }
         }
 
         internal static object DefaultEndpointResourceName
