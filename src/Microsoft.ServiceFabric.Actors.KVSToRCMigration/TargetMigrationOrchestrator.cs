@@ -19,6 +19,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
 
+    /// <summary>
+    /// Orchestrator for Target(RC based) service.
+    /// </summary>
     internal class TargetMigrationOrchestrator : MigrationOrchestratorBase
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;
@@ -29,8 +32,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private volatile bool isMigrationCompleted = false;
         private CancellationTokenSource childCancellationTokenSource;
 
-        public TargetMigrationOrchestrator(IActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext, Action<bool> stateProviderStateChangeCallback)
-            : base(serviceContext, actorTypeInfo, stateProviderStateChangeCallback)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TargetMigrationOrchestrator"/> class.
+        /// </summary>
+        /// <param name="stateProvider">KVS actor state provider.</param>
+        /// <param name="actorTypeInfo">The type information of the Actor.</param>
+        /// <param name="serviceContext">Service context the actor service is operating under.</param>
+        public TargetMigrationOrchestrator(IActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext)
+            : base(serviceContext, actorTypeInfo)
         {
             if (stateProvider.GetType() != typeof(ReliableCollectionsActorStateProvider))
             {
@@ -38,15 +47,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             this.migrationActorStateProvider = new KVStoRCMigrationActorStateProvider(stateProvider as ReliableCollectionsActorStateProvider);
-            this.isMigrationCompleted = this.IsMigrationCompleted(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-            this.StateProviderStateChangeCallback(this.isMigrationCompleted);
         }
 
-        public Data.ITransaction Transaction { get => this.migrationActorStateProvider.GetStateManager().CreateTransaction(); }
+        internal Data.ITransaction Transaction { get => this.migrationActorStateProvider.GetStateManager().CreateTransaction(); }
 
-        public IReliableDictionary2<string, string> MetaDataDictionary { get => this.metadataDict; }
+        internal IReliableDictionary2<string, string> MetaDataDictionary { get => this.metadataDict; }
 
-        public ServicePartitionClient<HttpCommunicationClient> ServicePartitionClient
+        internal ServicePartitionClient<HttpCommunicationClient> ServicePartitionClient
         {
             get
             {
@@ -70,12 +77,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        public KVStoRCMigrationActorStateProvider StateProvider { get => this.migrationActorStateProvider; }
+        internal KVStoRCMigrationActorStateProvider StateProvider { get => this.migrationActorStateProvider; }
 
+        /// <inheritdoc/>
         public async override Task StartMigrationAsync(CancellationToken cancellationToken)
         {
+            int i = 0;
+            while (i == 0)
+            {
+                Thread.Sleep(5000);
+            }
+
             if (this.isMigrationCompleted)
             {
+                this.StateProviderStateChangeCallback(this.isMigrationCompleted);
                 return;
             }
 
@@ -91,6 +106,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var childToken = this.childCancellationTokenSource.Token;
 
             await this.ThrowIfInvalidConfigForMigrationAsync(childToken);
+            this.isMigrationCompleted = await this.IsMigrationCompleted(childToken);
+            this.StateProviderStateChangeCallback(this.isMigrationCompleted);
 
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -132,6 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
+        /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
             if (this.childCancellationTokenSource != null)
@@ -147,7 +165,25 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                cancellationToken);
         }
 
-        public async Task<MigrationResult> GetResultAsync(CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public override Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(this.isMigrationCompleted);
+        }
+
+        /// <inheritdoc/>
+        public override IActorStateProvider GetMigrationActorStateProvider()
+        {
+            return this.migrationActorStateProvider;
+        }
+
+        /// <inheritdoc/>
+        public override Task StartDowntimeAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal async Task<MigrationResult> GetResultAsync(CancellationToken cancellationToken)
         {
             var startSN = await this.GetStartSequenceNumberAsync(cancellationToken);
             var endSN = await this.GetStartSequenceNumberAsync(cancellationToken);
@@ -252,23 +288,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        public override Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken)
-        {
-            return Task.FromResult(this.isMigrationCompleted);
-        }
-
-        public override IActorStateProvider GetMigrationActorStateProvider()
-        {
-            return this.migrationActorStateProvider;
-        }
-
-        public override Task StartDowntimeAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <inheritdoc/>
         protected override string GetMigrationEndpointName()
         {
+            // TODO: Validate migration EP in service manifest
             return ActorNameFormat.GetMigrationTargetEndpointName(this.ActorTypeInformation.ImplementationType);
         }
 
@@ -486,13 +509,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             var kvsServicePartitionCount = this.GetServicePartitionCount(kvsServiceDescription);
-            var initParams = this.migrationActorStateProvider.GetInitParams();
-            if (initParams == null)
-            {
-                // TODO throw
-            }
-
-            var rcServiceDescription = await fabricClient.ServiceManager.GetServiceDescriptionAsync(initParams.ServiceName);
+            var rcServiceDescription = await fabricClient.ServiceManager.GetServiceDescriptionAsync(this.StatefulServiceContext.ServiceName);
             var rcServicePartitionCount = this.GetServicePartitionCount(rcServiceDescription);
             var isDisableTombstoneCleanup = await this.GetKVSDisableTombstoneCleanupSettingAsync(cancellationToken);
 

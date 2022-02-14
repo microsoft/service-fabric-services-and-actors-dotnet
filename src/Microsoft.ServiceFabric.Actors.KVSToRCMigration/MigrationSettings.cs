@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Generator;
 
-    internal class MigrationSettings : Actors.Migration.MigrationSettings
+    internal class MigrationSettings : Actors.Runtime.Migration.MigrationSettings
     {
         private static readonly string TraceType = typeof(MigrationSettings).ToString();
 

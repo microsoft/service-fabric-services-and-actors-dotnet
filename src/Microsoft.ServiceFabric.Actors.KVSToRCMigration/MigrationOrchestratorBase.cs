@@ -13,8 +13,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
+    /// <summary>
+    /// Base class for migration orchestration.
+    /// </summary>
     internal abstract class MigrationOrchestratorBase : IMigrationOrchestrator
     {
         private static readonly string TraceType = typeof(MigrationOrchestratorBase).Name;
@@ -25,32 +29,39 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private Action<bool> stateProviderStateChangeCallback;
         private MigrationSettings migrationSettings;
 
-        public MigrationOrchestratorBase(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, Action<bool> stateProviderStateChangeCallback)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MigrationOrchestratorBase"/> class.
+        /// </summary>
+        /// <param name="actorTypeInformation">The type information of the Actor.</param>
+        /// <param name="serviceContext">Service context the actor service is operating under.</param>
+        public MigrationOrchestratorBase(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation)
         {
             this.actorTypeInformation = actorTypeInformation;
             this.serviceContext = serviceContext;
             this.traceId = this.serviceContext.TraceId;
-            this.stateProviderStateChangeCallback = stateProviderStateChangeCallback;
             this.migrationSettings = new MigrationSettings();
             this.migrationSettings.LoadFrom(
                  this.StatefulServiceContext.CodePackageActivationContext,
                  ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInformation.ImplementationType));
         }
 
-        public ActorTypeInformation ActorTypeInformation { get => this.actorTypeInformation; }
+        internal ActorTypeInformation ActorTypeInformation { get => this.actorTypeInformation; }
 
-        public StatefulServiceContext StatefulServiceContext { get => this.serviceContext; }
+        internal StatefulServiceContext StatefulServiceContext { get => this.serviceContext; }
 
-        public string TraceId { get => this.traceId; }
+        internal string TraceId { get => this.traceId; }
 
-        public Action<bool> StateProviderStateChangeCallback { get => this.stateProviderStateChangeCallback; }
+        internal Action<bool> StateProviderStateChangeCallback { get => this.stateProviderStateChangeCallback; }
 
-        public MigrationSettings MigrationSettings { get => this.migrationSettings; }
+        internal MigrationSettings MigrationSettings { get => this.migrationSettings; }
 
+        /// <inheritdoc/>
         public abstract Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken);
 
+        /// <inheritdoc/>
         public abstract IActorStateProvider GetMigrationActorStateProvider();
 
+        /// <inheritdoc/>
         public ICommunicationListener GetMigrationCommunicationListener()
         {
             var endpointName = this.GetMigrationEndpointName();
@@ -91,12 +102,25 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             });
         }
 
+        /// <inheritdoc/>
+        public virtual void RegisterStateChangeCallback(Action<bool> stateProviderStateChangeCallback)
+        {
+            this.stateProviderStateChangeCallback = stateProviderStateChangeCallback;
+        }
+
+        /// <inheritdoc/>
         public abstract Task StartDowntimeAsync(CancellationToken cancellationToken);
 
+        /// <inheritdoc/>
         public abstract Task StartMigrationAsync(CancellationToken cancellationToken);
 
+        /// <inheritdoc/>
         public abstract Task AbortMigrationAsync(CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Gets the migration endpoint name.
+        /// </summary>
+        /// <returns>Migration endpoint name.</returns>
         protected abstract string GetMigrationEndpointName();
     }
 }

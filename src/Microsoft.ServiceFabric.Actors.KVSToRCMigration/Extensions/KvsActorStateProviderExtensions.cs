@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal static class KvsActorStateProviderExtensions
     {
-        internal static async Task<long> GetFirstSequeceNumberAsync(this KvsActorStateProvider stateProvider, CancellationToken cancellationToken)
+        internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, CancellationToken cancellationToken)
         {
             var storeReplica = stateProvider.GetStoreReplica();
             var lsn = storeReplica.GetLastCommittedSequenceNumber();

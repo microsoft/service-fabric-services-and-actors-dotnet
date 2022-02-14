@@ -9,8 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.ServiceFabric.Actors.Migration.Models;
-    using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
 
     /// <summary>
     /// Represents the controller class for KVS migration REST API.
@@ -25,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="RcMigrationController"/> class.
         /// </summary>
-        /// <param name="migrationOrchestrator">Migration orchestrator</param>
+        /// <param name="migrationOrchestrator">Target Migration orchestrator</param>
         public RcMigrationController(IMigrationOrchestrator migrationOrchestrator)
         {
             this.migrationOrchestrator = migrationOrchestrator;
@@ -39,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetMigrationStatus")]
         public async Task<MigrationResult> GetMigrationStatusAsync(CancellationToken cancellationToken)
         {
-            return await ((MigrationOrchestrator)this.migrationOrchestrator).GetResultAsync(cancellationToken);
+            return await ((TargetMigrationOrchestrator)this.migrationOrchestrator).GetResultAsync(cancellationToken);
         }
 
         /// <summary>
@@ -60,7 +59,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("ResumeWritesOnKVSService")]
         public async Task ResumeWritesOnKVSServiceAsync(CancellationToken cancellationToken)
         {
-            await this.migrationOrchestrator.InvokeResumeWritesAsync(cancellationToken);
+            await this.migrationOrchestrator.AbortMigrationAsync(cancellationToken);
         }
     }
 }

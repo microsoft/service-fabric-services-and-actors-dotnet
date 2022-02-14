@@ -9,8 +9,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.ServiceFabric.Actors.Migration.Models;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
 
     /// <summary>
     /// Represents the controller class for KVS migration REST API.
@@ -20,21 +21,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     public class KvsMigrationController : ControllerBase
 #pragma warning restore CS3009 // Base type is not CLS-compliant
     {
-        private StatefulServiceContext serviceContext;
-        private ActorTypeInformation actorTypeInformation;
+        private IMigrationOrchestrator migrationOrchestrator;
         private KvsActorStateProvider kvsActorStateProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KvsMigrationController"/> class.
         /// </summary>
-        /// <param name="context">StatefulServiceContext</param>
-        /// <param name="actorTypeInfo">ActorTypeInformation</param>
-        /// <param name="stateProvider">KvsActorStateProvider</param>
-        public KvsMigrationController(StatefulServiceContext context, ActorTypeInformation actorTypeInfo, KvsActorStateProvider stateProvider)
+        /// <param name="migrationOrchestrator">Source migraiton orchestrator</param>
+        public KvsMigrationController(IMigrationOrchestrator migrationOrchestrator)
         {
-            this.serviceContext = context;
-            this.actorTypeInformation = actorTypeInfo;
-            this.kvsActorStateProvider = stateProvider;
+            this.migrationOrchestrator = migrationOrchestrator;
+            this.kvsActorStateProvider = (KvsActorStateProvider)this.migrationOrchestrator.GetMigrationActorStateProvider();
         }
 
         /// <summary>
@@ -44,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetFirstSequenceNumber")]
         public async Task<long> GetFirstSequenceNumber()
         {
-            var sequenceNumber = await this.kvsActorStateProvider.GetFirstSequeceNumberAsync(CancellationToken.None);
+            var sequenceNumber = await this.kvsActorStateProvider.GetFirstSequenceNumberAsync(CancellationToken.None);
 
             return sequenceNumber;
         }

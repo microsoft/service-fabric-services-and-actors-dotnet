@@ -3,8 +3,9 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Runtime
+namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -60,5 +61,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// A task with true result indicates actor calls are allowed on the actor service, false otherwise
         /// </returns>
         public Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Register callback to invoke when state provider state changes.
+        /// </summary>
+        /// <param name="stateProviderStateChangeCallback">State change callback.</param>
+        public void RegisterStateChangeCallback(Action<bool> stateProviderStateChangeCallback);
     }
 }

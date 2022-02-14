@@ -18,6 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
@@ -1116,15 +1117,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void ThrowIfMigrationInProgress()
         {
-            if (Utility.IsMigrationSource(this.actorService.ActorTypeInformation.InterfaceTypes.ToList())
-                || Utility.IsMigrationTarget(this.actorService.ActorTypeInformation.InterfaceTypes.ToList()))
+            if (!this.actorService.AreActorCallsAllowed)
             {
-                bool rejectWriteState = this.actorService.GetRejectWriteState();
-
-                if (rejectWriteState)
-                {
-                    throw new ActorStateMigrationInProgressException();
-                }
+                throw new ActorStateMigrationInProgressException();
             }
         }
 

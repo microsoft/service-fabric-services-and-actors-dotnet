@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors
+namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
     /// <summary>
     /// Indicates actor service migration state.
     /// </summary>
-    public enum ActorStateMigration
+    public enum StateMigration
     {
         /// <summary>
         /// Actor service is not migration ready.

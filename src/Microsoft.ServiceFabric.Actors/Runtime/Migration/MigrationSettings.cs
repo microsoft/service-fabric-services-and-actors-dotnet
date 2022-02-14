@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Migration
+namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
     using System;
     using System.Fabric;
@@ -15,8 +15,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public MigrationSettings()
         {
-            this.MigrationSourceOrchestratorNameSpace = "Microsoft.ServiceFabric.Actors.KVSToRCMigration,Microsoft.ServiceFabric.Actors.KVSToRCMigration.SourceMigrationOrchestrator";
-            this.MigrationTargetOrchestratorNameSpace = "Microsoft.ServiceFabric.Actors.KVSToRCMigration,Microsoft.ServiceFabric.Actors.KVSToRCMigration.TargetMigrationOrchestrator";
+            this.MigrationSourceOrchestratorNameSpace = "Microsoft.ServiceFabric.Actors.KVSToRCMigration.SourceMigrationOrchestrator, Microsoft.ServiceFabric.Actors.KVSToRCMigration";
+            this.MigrationTargetOrchestratorNameSpace = "Microsoft.ServiceFabric.Actors.KVSToRCMigration.TargetMigrationOrchestrator, Microsoft.ServiceFabric.Actors.KVSToRCMigration";
+            this.MigrationMode = MigrationMode.Auto;
         }
 
         public Uri SourceServiceUri { get; set; }

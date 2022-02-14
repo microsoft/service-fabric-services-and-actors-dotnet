@@ -15,15 +15,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
-    using Microsoft.ServiceFabric.Actors.Migration.Models;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using static Microsoft.ServiceFabric.Actors.Migration.MigrationConstants;
-    using static Microsoft.ServiceFabric.Actors.Migration.MigrationUtility;
-    using static Microsoft.ServiceFabric.Actors.Migration.PhaseInput;
-    using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseResult;
 
     internal class MigrationWorker
     {

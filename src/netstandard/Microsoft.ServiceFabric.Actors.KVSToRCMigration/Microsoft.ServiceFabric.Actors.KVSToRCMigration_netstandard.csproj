@@ -2,10 +2,10 @@
   <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
   <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
-    <Description>Microsoft.ServiceFabric.Actors.Migration Library</Description>
-    <AssemblyName>Microsoft.ServiceFabric.Actors.Migration</AssemblyName>
+    <Description>Microsoft.ServiceFabric.Actors.KVSToRCMigration Library</Description>
+    <AssemblyName>Microsoft.ServiceFabric.Actors.KVSToRCMigration</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-    <SourceCodeDir>$(RepoRoot)src\Microsoft.ServiceFabric.Actors.Migration\</SourceCodeDir>
+    <SourceCodeDir>$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\</SourceCodeDir>
     <TargetFramework>netstandard2.0</TargetFramework>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

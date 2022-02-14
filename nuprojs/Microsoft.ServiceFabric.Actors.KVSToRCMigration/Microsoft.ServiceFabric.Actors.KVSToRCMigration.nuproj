@@ -3,8 +3,8 @@
     <Import Project="..\..\properties\service_fabric_nuget.props" />
     
     <PropertyGroup>
-      <Id>Microsoft.ServiceFabric.Actors.Migration</Id>
-      <Title>Microsoft.ServiceFabric.Actors.Migration</Title>
+      <Id>Microsoft.ServiceFabric.Actors.KVSToRCMigration</Id>
+      <Title>Microsoft.ServiceFabric.Actors.KVSToRCMigration</Title>
       <Description>This package contains the Actor Framework KVS to RC Migration APIs.</Description>
       <Summary>This package contains the Actor Framework KVS to RC Migration APIs.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric Actors</Tags>
@@ -14,55 +14,55 @@
     <Import Project="$(NuProjPath)\NuProj.targets" />
 
     <ItemGroup>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>lib\net461</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.xml">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
         <TargetPath>lib\net461</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>lib\net462</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.xml">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
         <TargetPath>lib\net462</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>lib\net47</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.xml">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
         <TargetPath>lib\net47</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>lib\net471</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.xml">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
         <TargetPath>lib\net471</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>lib\net472</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.xml">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
         <TargetPath>lib\net472</TargetPath>
       </File>
-      <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>lib\netstandard2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Actors.Migration.xml">
+      <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
         <TargetPath>lib\netstandard2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>runtimes\win\lib\net461</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>runtimes\win\lib\net462</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>runtimes\win\lib\net47</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>runtimes\win\lib\net471</TargetPath>
       </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Migration.dll">
+      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>runtimes\win\lib\net472</TargetPath>
       </File>
     </ItemGroup>

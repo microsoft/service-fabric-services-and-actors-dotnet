@@ -1,0 +1,144 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services", "src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj", "{F416C4C3-250D-48F3-822C-1C589E8F851C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting", "src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj", "{A01358E6-D5E1-44B5-948A-45709D2421A5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Wcf", "src\Microsoft.ServiceFabric.Services.Wcf\Microsoft.ServiceFabric.Services.Wcf.csproj", "{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors", "src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj", "{014D5847-39F5-4660-B385-82EDFBA06CD9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Wcf", "src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj", "{BA2E8FE4-2970-40D4-BA55-5415E84C7B50}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FabActUtil", "src\FabActUtil\FabActUtil.csproj", "{F6E091C3-9136-4058-91CF-57CDF383DF74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services_netstandard", "src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj", "{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting_netstandard", "src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj", "{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors_netstandard", "src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj", "{997C67FC-4571-4DAC-8C2F-9BB62756AFFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FabActUtil_netstandard", "src\netstandard\FabActUtil\FabActUtil_netstandard.csproj", "{BD88FA2D-1F61-4107-8113-8D78FB5697F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnetframework", "dotnetframework", "{861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnetstandard", "dotnetstandard", "{8B80B63B-5107-4845-9F19-647CFA7911A3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E1B4B64-112D-4D58-B156-C7E94B6D9D11}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DEC12940-3D38-4526-9157-27CB8BD23D3D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unittests", "unittests", "{BB93122C-21C5-4BB8-B385-74FC423D6027}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Tests", "test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj", "{63B58D31-66BB-4879-B4F1-0969FA3F4464}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj", "{AE4034AC-27BC-43B8-9176-068B4794E25E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.KVSToRCMigration", "src\Microsoft.ServiceFabric.Actors.Migration\Microsoft.ServiceFabric.Actors.KVSToRCMigration.csproj", "{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Migration_netstandard", "src\netstandard\Microsoft.ServiceFabric.Actors.Migration\Microsoft.ServiceFabric.Actors.Migration_netstandard.csproj", "{E5B52C61-66BE-4D71-88D2-E50F78011C72}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Debug|x64.ActiveCfg = Debug|x64
+		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Debug|x64.Build.0 = Debug|x64
+		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Release|x64.ActiveCfg = Release|x64
+		{F416C4C3-250D-48F3-822C-1C589E8F851C}.Release|x64.Build.0 = Release|x64
+		{A01358E6-D5E1-44B5-948A-45709D2421A5}.Debug|x64.ActiveCfg = Debug|x64
+		{A01358E6-D5E1-44B5-948A-45709D2421A5}.Debug|x64.Build.0 = Debug|x64
+		{A01358E6-D5E1-44B5-948A-45709D2421A5}.Release|x64.ActiveCfg = Release|x64
+		{A01358E6-D5E1-44B5-948A-45709D2421A5}.Release|x64.Build.0 = Release|x64
+		{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8}.Debug|x64.ActiveCfg = Debug|x64
+		{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8}.Debug|x64.Build.0 = Debug|x64
+		{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8}.Release|x64.ActiveCfg = Release|x64
+		{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8}.Release|x64.Build.0 = Release|x64
+		{014D5847-39F5-4660-B385-82EDFBA06CD9}.Debug|x64.ActiveCfg = Debug|x64
+		{014D5847-39F5-4660-B385-82EDFBA06CD9}.Debug|x64.Build.0 = Debug|x64
+		{014D5847-39F5-4660-B385-82EDFBA06CD9}.Release|x64.ActiveCfg = Release|x64
+		{014D5847-39F5-4660-B385-82EDFBA06CD9}.Release|x64.Build.0 = Release|x64
+		{BA2E8FE4-2970-40D4-BA55-5415E84C7B50}.Debug|x64.ActiveCfg = Debug|x64
+		{BA2E8FE4-2970-40D4-BA55-5415E84C7B50}.Debug|x64.Build.0 = Debug|x64
+		{BA2E8FE4-2970-40D4-BA55-5415E84C7B50}.Release|x64.ActiveCfg = Release|x64
+		{BA2E8FE4-2970-40D4-BA55-5415E84C7B50}.Release|x64.Build.0 = Release|x64
+		{F6E091C3-9136-4058-91CF-57CDF383DF74}.Debug|x64.ActiveCfg = Debug|x64
+		{F6E091C3-9136-4058-91CF-57CDF383DF74}.Debug|x64.Build.0 = Debug|x64
+		{F6E091C3-9136-4058-91CF-57CDF383DF74}.Release|x64.ActiveCfg = Release|x64
+		{F6E091C3-9136-4058-91CF-57CDF383DF74}.Release|x64.Build.0 = Release|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Debug|x64.ActiveCfg = Debug|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Debug|x64.Build.0 = Debug|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Release|x64.ActiveCfg = Release|x64
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633}.Release|x64.Build.0 = Release|x64
+		{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590}.Debug|x64.ActiveCfg = Debug|x64
+		{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590}.Debug|x64.Build.0 = Debug|x64
+		{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590}.Release|x64.ActiveCfg = Release|x64
+		{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590}.Release|x64.Build.0 = Release|x64
+		{997C67FC-4571-4DAC-8C2F-9BB62756AFFA}.Debug|x64.ActiveCfg = Debug|x64
+		{997C67FC-4571-4DAC-8C2F-9BB62756AFFA}.Debug|x64.Build.0 = Debug|x64
+		{997C67FC-4571-4DAC-8C2F-9BB62756AFFA}.Release|x64.ActiveCfg = Release|x64
+		{997C67FC-4571-4DAC-8C2F-9BB62756AFFA}.Release|x64.Build.0 = Release|x64
+		{BD88FA2D-1F61-4107-8113-8D78FB5697F3}.Debug|x64.ActiveCfg = Debug|x64
+		{BD88FA2D-1F61-4107-8113-8D78FB5697F3}.Debug|x64.Build.0 = Debug|x64
+		{BD88FA2D-1F61-4107-8113-8D78FB5697F3}.Release|x64.ActiveCfg = Release|x64
+		{BD88FA2D-1F61-4107-8113-8D78FB5697F3}.Release|x64.Build.0 = Release|x64
+		{63B58D31-66BB-4879-B4F1-0969FA3F4464}.Debug|x64.ActiveCfg = Debug|x64
+		{63B58D31-66BB-4879-B4F1-0969FA3F4464}.Debug|x64.Build.0 = Debug|x64
+		{63B58D31-66BB-4879-B4F1-0969FA3F4464}.Release|x64.ActiveCfg = Release|x64
+		{63B58D31-66BB-4879-B4F1-0969FA3F4464}.Release|x64.Build.0 = Release|x64
+		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Debug|x64.ActiveCfg = Debug|x64
+		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Debug|x64.Build.0 = Debug|x64
+		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Release|x64.ActiveCfg = Release|x64
+		{AE4034AC-27BC-43B8-9176-068B4794E25E}.Release|x64.Build.0 = Release|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Debug|x64.ActiveCfg = Debug|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Debug|x64.Build.0 = Debug|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.ActiveCfg = Release|x64
+		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.Build.0 = Release|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Debug|x64.ActiveCfg = Debug|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Debug|x64.Build.0 = Debug|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Release|x64.ActiveCfg = Release|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Release|x64.Build.0 = Release|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Debug|x64.ActiveCfg = Debug|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Debug|x64.Build.0 = Debug|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Release|x64.ActiveCfg = Release|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F416C4C3-250D-48F3-822C-1C589E8F851C} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{A01358E6-D5E1-44B5-948A-45709D2421A5} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{014D5847-39F5-4660-B385-82EDFBA06CD9} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{BA2E8FE4-2970-40D4-BA55-5415E84C7B50} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{F6E091C3-9136-4058-91CF-57CDF383DF74} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{E93A1CC5-C164-4C4D-8314-A35B4B3AF633} = {8B80B63B-5107-4845-9F19-647CFA7911A3}
+		{C6FF32EC-DCB6-4684-ACB5-4D8A9B6BB590} = {8B80B63B-5107-4845-9F19-647CFA7911A3}
+		{997C67FC-4571-4DAC-8C2F-9BB62756AFFA} = {8B80B63B-5107-4845-9F19-647CFA7911A3}
+		{BD88FA2D-1F61-4107-8113-8D78FB5697F3} = {8B80B63B-5107-4845-9F19-647CFA7911A3}
+		{861D6F40-D3CE-46CF-B8AD-0215B9F38BE1} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
+		{8B80B63B-5107-4845-9F19-647CFA7911A3} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
+		{BB93122C-21C5-4BB8-B385-74FC423D6027} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{63B58D31-66BB-4879-B4F1-0969FA3F4464} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{AE4034AC-27BC-43B8-9176-068B4794E25E} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{ECB3825D-B309-4C76-A20D-76544459F611} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72} = {8B80B63B-5107-4845-9F19-647CFA7911A3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8CC7D7F7-CBD9-428B-A190-7A4D56C920FE}
+	EndGlobalSection
+EndGlobal

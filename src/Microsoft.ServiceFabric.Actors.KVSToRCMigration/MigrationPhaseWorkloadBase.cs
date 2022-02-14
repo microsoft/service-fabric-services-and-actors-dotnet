@@ -13,10 +13,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using static Microsoft.ServiceFabric.Actors.Migration.MigrationConstants;
-    using static Microsoft.ServiceFabric.Actors.Migration.MigrationUtility;
-    using static Microsoft.ServiceFabric.Actors.Migration.PhaseInput;
-    using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseResult;
 
     internal abstract class MigrationPhaseWorkloadBase : IMigrationPhaseWorkload
     {
@@ -575,7 +575,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             ActorTelemetry.KVSToRCMigrationPhaseEndEvent(
                 MigrationUtility.GetPhaseEndTelemetryKey(this.migrationPhase),
                 this.statefulServiceContext,
-                this.migrationSettings.KVSActorServiceUri.OriginalString,
+                this.migrationSettings.SourceServiceUri.OriginalString,
                 timeSpent,
                 keysMigrated,
                 workerCount,

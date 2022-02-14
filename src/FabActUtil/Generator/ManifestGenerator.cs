@@ -581,11 +581,6 @@ namespace FabActUtil.Generator
             var types = new List<Type> { actorTypeInfo.ImplementationType };
             types.AddRange(actorTypeInfo.InterfaceTypes);
 
-            if (Actors.Helper.IsMigrationSource(types))
-            {
-                generatedNameFunctions.Add(GeneratedActorKvsMigrationEndpointName, GetActorKvsMigrationEndpointName);
-            }
-
             return generatedNameFunctions;
         }
 
@@ -622,16 +617,6 @@ namespace FabActUtil.Generator
 
             var types = new List<Type> { actorTypeInfo.ImplementationType };
             types.AddRange(actorTypeInfo.InterfaceTypes);
-
-            if (Actors.Helper.IsMigrationSource(types))
-            {
-                endpoints.Add(
-                    new EndpointType()
-                    {
-                        Name = GetActorKvsMigrationEndpointName(actorTypeInfo),
-                        Protocol = EndpointTypeProtocol.http, //// TODO: HTTPS
-                    });
-            }
 
             return endpoints;
         }
@@ -837,11 +822,6 @@ namespace FabActUtil.Generator
         private static string GetGeneratedServiceEndpointWrappedMessageStackName(ActorTypeInformation actorTypeInfo)
         {
             return ActorNameFormat.GetFabricServiceWrappedMessageEndpointName(actorTypeInfo.ImplementationType);
-        }
-
-        private static string GetActorKvsMigrationEndpointName(ActorTypeInformation actorTypeInfo)
-        {
-            return ActorNameFormat.GetActorKvsMigrationEndpointName(actorTypeInfo.ImplementationType);
         }
 
         private static EndpointType MergeEndpointResource(

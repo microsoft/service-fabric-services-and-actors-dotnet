@@ -4,7 +4,7 @@
   <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <ProjectGuid>{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}</ProjectGuid>
-    <RootNamespace>Microsoft.ServiceFabric.Actors.Migration</RootNamespace>
+    <RootNamespace>Microsoft.ServiceFabric.Actors.KVSToRCMigration</RootNamespace>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>

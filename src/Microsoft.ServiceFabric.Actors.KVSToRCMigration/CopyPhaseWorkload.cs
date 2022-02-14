@@ -10,8 +10,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Client;
-    using static Microsoft.ServiceFabric.Actors.Migration.MigrationConstants;
-    using static Microsoft.ServiceFabric.Actors.Migration.MigrationUtility;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
 
     internal class CopyPhaseWorkload : MigrationPhaseWorkloadBase
     {

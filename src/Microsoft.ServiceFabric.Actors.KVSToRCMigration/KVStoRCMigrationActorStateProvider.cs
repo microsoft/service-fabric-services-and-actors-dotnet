@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Migration.Models;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
@@ -305,7 +305,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
                         reminderCount++;
                     }
-                    else if (data.Key.StartsWith(Constants.RejectWritesKey))
+                    else if (data.Key.StartsWith(MigrationConstants.RejectWritesKey))
                     {
                         ActorTrace.Source.WriteInfoWithId(
                             this.TraceType,

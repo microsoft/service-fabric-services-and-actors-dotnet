@@ -13,14 +13,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
+    /// <summary>
+    /// Migration orchestrator for source(KVS based) service.
+    /// </summary>
     internal class SourceMigrationOrchestrator : MigrationOrchestratorBase
     {
         private static readonly string TraceType = typeof(SourceMigrationOrchestrator).Name;
         private static readonly string TombstoneCleanupIsNotDisabledForMigrationHealthProperty = "TombstoneCleanupIsNotDisabledForMigration";
         private KvsActorStateProvider migrationActorStateProvider;
 
-        public SourceMigrationOrchestrator(IActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext, Action<bool> stateProviderStateChangeCallback)
-            : base(serviceContext, actorTypeInfo, stateProviderStateChangeCallback)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SourceMigrationOrchestrator"/> class.
+        /// </summary>
+        /// <param name="stateProvider">KVS actor state provider.</param>
+        /// <param name="actorTypeInfo">The type information of the Actor.</param>
+        /// <param name="serviceContext">Service context the actor service is operating under.</param>
+        public SourceMigrationOrchestrator(IActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, StatefulServiceContext serviceContext)
+            : base(serviceContext, actorTypeInfo)
         {
             if (stateProvider.GetType() != typeof(KvsActorStateProvider))
             {
@@ -28,37 +37,42 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             this.migrationActorStateProvider = stateProvider as KvsActorStateProvider;
-            this.StateProviderStateChangeCallback(this.AreActorCallsAllowed());
         }
 
+        /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
             await this.migrationActorStateProvider.RejectWritesAsync();
             this.StateProviderStateChangeCallback(true);
         }
 
+        /// <inheritdoc/>
         public override Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken)
         {
             var rejectWrites = this.migrationActorStateProvider.GetRejectWriteState();
             return Task.FromResult(!rejectWrites);
         }
 
+        /// <inheritdoc/>
         public override IActorStateProvider GetMigrationActorStateProvider()
         {
            return this.migrationActorStateProvider;
         }
 
+        /// <inheritdoc/>
         public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
             await this.migrationActorStateProvider.RejectWritesAsync();
             this.StateProviderStateChangeCallback(false);
         }
 
+        /// <inheritdoc/>
         public override async Task StartMigrationAsync(CancellationToken cancellationToken)
         {
+            this.StateProviderStateChangeCallback(this.AreActorCallsAllowed());
             await Task.Run(() =>
             {
-                if (this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
+                if (!this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
                 {
                     ActorTrace.Source.WriteWarningWithId(
                         TraceType,
@@ -77,8 +91,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             });
         }
 
+        /// <inheritdoc/>
         protected override string GetMigrationEndpointName()
         {
+            // TODO: Validate migration EP in service manifest
             return ActorNameFormat.GetMigrationSourceEndpointName(this.ActorTypeInformation.ImplementationType);
         }
 
