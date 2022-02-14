@@ -5,8 +5,15 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
-    internal static class Constants
+    using System;
+
+    [Flags]
+    internal enum MigrationMode
     {
-        internal const string RejectWritesKey = "RejectWrites";
+        Auto,
+
+        Manual,
+
+        ManualDowntime,
     }
 }

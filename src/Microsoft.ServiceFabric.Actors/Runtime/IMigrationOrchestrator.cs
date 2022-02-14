@@ -7,28 +7,58 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
     /// <summary>
-    /// Represents an interface that exposes methods to start migration of KVS data to RC />.
+    /// Interface definition for migraiton operations./>.
     /// </summary>
     public interface IMigrationOrchestrator
     {
         /// <summary>
-        /// Starts KVS to RC migration.
+        /// Gets the Migration ready actor state provider.
         /// </summary>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        /// <returns>
-        /// A task that represents the asynchronous migration operation.
-        /// </returns>
+        /// <returns>Migration ready actor state provider.</returns>
+        public IActorStateProvider GetMigrationActorStateProvider();
+
+        /// <summary>
+        /// Gets the communication listener to opne migration endpoint.
+        /// </summary>
+        /// <returns>Migration specific communication listener.</returns>
+        public ICommunicationListener GetMigrationCommunicationListener();
+
+        /// <summary>
+        /// Starts the migration operation.
+        /// </summary>
+        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
+        /// <returns>A task that represents the asynchronous migration operation.</returns>
         public Task StartMigrationAsync(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Resumes KVS writes.
+        /// Starts the downtime phase.
+        /// For source service, downtime phase indicates unavailability for any actor operations.
+        /// For target service, downtime phase indicates catching up final sequence numbers from source service
         /// </summary>
-        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
+        /// <returns>A task that represents the asynchronous migration operation.</returns>
+        public Task StartDowntimeAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Aborts the migration workflow.
+        /// </summary>
+        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
+        /// <returns>A task that represents the asynchronous migration operation.</returns>
+        public Task AbortMigrationAsync(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the actor service state.
+        /// A true value indicates state provider is in a state to accept read/write operation.
+        /// A false value indicates state provider is either not ready yet or in reject state post migration.
+        /// </summary>
+        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
         /// <returns>
         /// A task that represents the asynchronous migration operation.
+        /// A task with true result indicates actor calls are allowed on the actor service, false otherwise
         /// </returns>
-        public Task InvokeResumeWritesAsync(CancellationToken cancellationToken);
+        public Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken);
     }
 }

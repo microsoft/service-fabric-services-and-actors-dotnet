@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-namespace Microsoft.ServiceFabric.Actors.Migration
+namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using Microsoft.AspNetCore.Hosting;
@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// <summary>
     /// Class containing Service Fabric related extension methods for Microsoft.AspNetCore.Hosting.IWebHostBuilder.
     /// </summary>
-    internal static class WebHostBuilderServiceFabricExtension
+    internal static class WebHostBuilderServiceFabricExtensions
     {
         private static readonly string SettingName = "UseServiceFabricIntegration";
 

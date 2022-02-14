@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Migration
+namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using System.Collections.Generic;
@@ -15,10 +15,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.ServiceFabric.Actors.Migration.Models;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
-    internal static class KvsActorStateProviderExtensionHelper
+    internal static class KvsActorStateProviderExtensions
     {
         internal static async Task<long> GetFirstSequeceNumberAsync(this KvsActorStateProvider stateProvider, CancellationToken cancellationToken)
         {
@@ -146,13 +147,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
-                if (stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey) != null)
+                if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
                 {
-                    stateProvider.GetStoreReplica().TryUpdate(tx, Constants.RejectWritesKey, BitConverter.GetBytes(true));
+                    stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(true));
                 }
                 else
                 {
-                    stateProvider.GetStoreReplica().TryAdd(tx, Constants.RejectWritesKey, BitConverter.GetBytes(true));
+                    stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(true));
                 }
 
                 await tx.CommitAsync();
@@ -163,13 +164,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
-                if (stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey) != null)
+                if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
                 {
-                    stateProvider.GetStoreReplica().TryUpdate(tx, Constants.RejectWritesKey, BitConverter.GetBytes(false));
+                    stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(false));
                 }
                 else
                 {
-                    stateProvider.GetStoreReplica().TryAdd(tx, Constants.RejectWritesKey, BitConverter.GetBytes(false));
+                    stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(false));
                 }
 
                 await tx.CommitAsync();
@@ -181,7 +182,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
                 // TODO: Consider caching this value.
-                var result = stateProvider.GetStoreReplica().TryGet(tx, Constants.RejectWritesKey);
+                var result = stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey);
 
                 if (result != null)
                 {

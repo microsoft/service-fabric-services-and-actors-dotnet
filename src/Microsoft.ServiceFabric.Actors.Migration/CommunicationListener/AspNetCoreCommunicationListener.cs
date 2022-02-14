@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Migration
+namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using System.Fabric;
@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         /// <summary>
         /// Gets the url suffix to be used based on <see cref="ServiceFabricIntegrationOptions"/> specified in
-        /// <see cref="WebHostBuilderServiceFabricExtension.UseServiceFabricIntegration"/>.
+        /// <see cref="WebHostBuilderServiceFabricExtensions.UseServiceFabricIntegration"/>.
         /// </summary>
         public string UrlSuffix
         {

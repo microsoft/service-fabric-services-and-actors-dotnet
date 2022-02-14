@@ -2,12 +2,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-namespace Microsoft.ServiceFabric.Actors.Migration
+namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
 
     /// <summary>
-    /// Integration options for <see cref="WebHostBuilderServiceFabricExtension.UseServiceFabricIntegration"/> method when used with Microsoft.AspNetCore.Hosting.IWebHostBuilder.
+    /// Integration options for <see cref="WebHostBuilderServiceFabricExtensions.UseServiceFabricIntegration"/> method when used with Microsoft.AspNetCore.Hosting.IWebHostBuilder.
     /// </summary>
     [Flags]
     internal enum ServiceFabricIntegrationOptions

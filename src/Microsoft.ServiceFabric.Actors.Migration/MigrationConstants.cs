@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Migration
+namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
 
@@ -20,6 +20,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
         internal static readonly string GetDisableTCSEndpoint = "GetDisableTombstoneCleanupSetting";
+
+        internal static readonly string RejectWritesKey = "_RejectWrites_";
 
         #region Global Migration constants
         internal static readonly string MigrationStartDateTimeUTC = "_MigrationStartDateTimeUTC_";
