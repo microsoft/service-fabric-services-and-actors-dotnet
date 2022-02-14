@@ -143,7 +143,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             ServiceTelemetry.FabricTransportServiceRemotingV2Event(
                 serviceContext,
                 !remotingSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None),
-                remotingListenerSettings.ExceptionSerializationTechnique.ToString());
+                remotingSettings.ExceptionSerializationTechnique.ToString());
         }
 
         /// <summary>

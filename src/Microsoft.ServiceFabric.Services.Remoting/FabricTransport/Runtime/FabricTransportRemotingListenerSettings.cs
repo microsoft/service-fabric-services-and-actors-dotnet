@@ -299,7 +299,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
             AppTrace.TraceSource.WriteInfo(
                 Tracetype,
-                "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," + "HeaderBufferCount {7} ",
+                "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," + "HeaderBufferCount {7} , ExceptionSerializationTechinique {8} , RemotingExceptionDepth {9}",
                 settings.MaxMessageSize,
                 settings.MaxConcurrentCalls,
                 settings.MaxQueueSize,
@@ -307,7 +307,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 settings.KeepAliveTimeout.TotalSeconds,
                 settings.SecurityCredentials.CredentialType,
                 settings.HeaderBufferSize,
-                settings.HeaderMaxBufferCount);
+                settings.HeaderMaxBufferCount,
+                settings.ExceptionSerializationTechnique.ToString(),
+                settings.RemotingExceptionDepth);
 
             return settings;
         }

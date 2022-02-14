@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
@@ -90,8 +91,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         /// <summary>
         /// Known types test.
         /// </summary>
+        /// <returns>Task representing async operation.</returns>
         [Fact]
-        public static void KnownFabricExceptionSerializationTest()
+        public static async Task KnownFabricExceptionSerializationTest()
         {
             foreach (var exception in fabricExceptions)
             {
@@ -101,7 +103,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 Exception resultFabricEx = null;
                 try
                 {
-                    clientHandler.DeserializeRemoteExceptionAndThrow(msgStream);
+                    await clientHandler.DeserializeRemoteExceptionAndThrowAsync(msgStream);
                 }
                 catch (AggregateException ex)
                 {
@@ -118,8 +120,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         /// <summary>
         /// Unknown types test.
         /// </summary>
+        /// <returns>Task representing async operation.</returns>
         [Fact]
-        public static void UnknownFabricExceptionSerializationTest()
+        public static async Task UnknownFabricExceptionSerializationTest()
         {
             FabricException customFabricEx = null;
             try
@@ -137,7 +140,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Exception resultFabricEx = null;
             try
             {
-                clientHandler.DeserializeRemoteExceptionAndThrow(msgStream);
+                await clientHandler.DeserializeRemoteExceptionAndThrowAsync(msgStream);
             }
             catch (AggregateException ex)
             {

@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
@@ -43,8 +44,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         /// <summary>
         /// Custom types test.
         /// </summary>
+        /// <returns>Task representing async operation.</returns>
         [Fact]
-        public static void KnownCustomExceptionSerializationTest()
+        public static async Task KnownCustomExceptionSerializationTest()
         {
             CustomException exception = null;
             try
@@ -62,7 +64,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Exception resultEx = null;
             try
             {
-                clientHandler.DeserializeRemoteExceptionAndThrow(msgStream);
+                await clientHandler.DeserializeRemoteExceptionAndThrowAsync(msgStream);
             }
             catch (AggregateException ex)
             {
