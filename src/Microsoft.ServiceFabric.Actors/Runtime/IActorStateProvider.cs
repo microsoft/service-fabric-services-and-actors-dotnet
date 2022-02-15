@@ -151,7 +151,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation of call to server.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        Task<PagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersAsync(
+        Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersAsync(
             int numItemsToReturn,
             ActorId actorId,
             ContinuationToken continuationToken,

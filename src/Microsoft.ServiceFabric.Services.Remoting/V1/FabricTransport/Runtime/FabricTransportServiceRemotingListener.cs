@@ -177,7 +177,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 
             ServiceTelemetry.FabricTransportServiceRemotingV1Event(
                 serviceContext,
-                !listenerSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None));
+                !listenerSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None),
+                FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter.ToString());
         }
 
         /// <summary>

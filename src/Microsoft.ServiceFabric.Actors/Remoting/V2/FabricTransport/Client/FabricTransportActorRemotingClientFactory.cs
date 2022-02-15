@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
 {
     using System.Collections.Generic;
+    using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
@@ -56,23 +57,40 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
         ///     Id to use in diagnostics traces from this component.
         /// </param>
         /// <param name="serializationProvider">This is used to serialize remoting request/response.</param>
+        /// <param name="exceptionConvertors">Convertors to convert service exception to user exception.</param>
         public FabricTransportActorRemotingClientFactory(
             FabricTransportRemotingSettings fabricTransportRemotingSettings,
             IServiceRemotingCallbackMessageHandler callbackMessageHandler = null,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             string traceId = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            IServiceRemotingMessageSerializationProvider serializationProvider = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
             : base(
                  IntializeSerializationManager(
-                serializationProvider,
-                fabricTransportRemotingSettings),
+                    serializationProvider,
+                    fabricTransportRemotingSettings),
                  fabricTransportRemotingSettings,
                  callbackMessageHandler,
                  servicePartitionResolver,
                  GetExceptionHandlers(exceptionHandlers),
+                 exceptionConvertors: GetExceptionConvertors(exceptionConvertors),
                  traceId)
         {
+        }
+
+        private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
+        {
+            var actorConvertors = new List<IExceptionConvertor>();
+            if (exceptionConvertors != null)
+            {
+                actorConvertors.AddRange(exceptionConvertors);
+            }
+
+            actorConvertors.Add(new FabricActorExceptionConvertor());
+
+            return actorConvertors;
         }
 
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
