@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Services
         private const string ServiceRemotingUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
-            "isSecure = {9}, remotingVersion = {10}, communicationListenerType = {11}";
+            "isSecure = {9}, remotingVersion = {10}, communicationListenerType = {11}, exceptionSerializationTechnique = {12}";
 
         /// <summary>
         /// Prevents a default instance of the <see cref="ServiceEventSource" /> class from being created.
@@ -183,7 +183,8 @@ namespace Microsoft.ServiceFabric.Services
             string applicationTypeName,
             bool isSecure,
             string remotingVersion,
-            string communicationListenerType)
+            string communicationListenerType,
+            string exceptionSerializationTechnique)
         {
             Instance.ServiceRemotingUsageEvent(
                 type,
@@ -197,7 +198,8 @@ namespace Microsoft.ServiceFabric.Services
                 applicationTypeName.GetHashCode().ToString(),
                 isSecure,
                 remotingVersion,
-                communicationListenerType);
+                communicationListenerType,
+                exceptionSerializationTechnique);
         }
 
         [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
@@ -293,7 +295,8 @@ namespace Microsoft.ServiceFabric.Services
             string applicationTypeName,
             bool isSecure,
             string remotingVersion,
-            string communicationListenerType)
+            string communicationListenerType,
+            string exceptionSerializationTechnique)
         {
             this.WriteEvent(
                 ServiceRemotingUsageEventId,
@@ -308,7 +311,8 @@ namespace Microsoft.ServiceFabric.Services
                 applicationTypeName,
                 isSecure,
                 remotingVersion,
-                communicationListenerType);
+                communicationListenerType,
+                exceptionSerializationTechnique);
         }
 
         public static class Keywords
