@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
+    using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
@@ -95,7 +96,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             return svcEx;
         }
 
-        public RemoteException2 DeserializeRemoteException2(Stream stream)
+        public RemoteException2 DeserializeRemoteException2(byte[] buffer)
         {
             var serializer = new DataContractSerializer(
                 typeof(RemoteException2),
@@ -106,8 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
             try
             {
-                stream.Seek(0, SeekOrigin.Begin);
-                using (var reader = XmlDictionaryReader.CreateBinaryReader(stream, XmlDictionaryReaderQuotas.Max))
+                using (var reader = XmlDictionaryReader.CreateBinaryReader(buffer, XmlDictionaryReaderQuotas.Max))
                 {
                     return (RemoteException2)serializer.ReadObject(reader);
                 }
@@ -133,12 +133,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
         }
 
-        public void DeserializeRemoteExceptionAndThrow(Stream stream)
+        public async Task DeserializeRemoteExceptionAndThrowAsync(Stream stream)
         {
             Exception exceptionToThrow = null;
+
+            // Workaround as NativeMessageStream doesn't suport multi read.
+            var streamLength = stream.Length;
+            var buffer = new byte[streamLength];
+            await stream.ReadAsync(buffer, 0, buffer.Length);
             try
             {
-                var remoteException2 = this.DeserializeRemoteException2(stream);
+                var remoteException2 = this.DeserializeRemoteException2(buffer);
                 var svcEx = this.FromRemoteException2(remoteException2);
                 var ex = this.FromServiceException(svcEx);
 
@@ -160,21 +165,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
                 if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
                 {
-                    stream.Seek(0, SeekOrigin.Begin);
-                    var isDeserialized =
-                        RemoteException.ToException(
-                            stream,
-                            out var bfE);
-                    if (isDeserialized)
+                    using (var tSteam = new MemoryStream(buffer))
                     {
-                        exceptionToThrow = new AggregateException(bfE);
-                    }
-                    else
-                    {
-                        exceptionToThrow = new ServiceException(bfE.GetType().FullName, string.Format(
-                            CultureInfo.InvariantCulture,
-                            SR.ErrorDeserializationFailure,
-                            bfE.ToString()));
+                        var isDeserialized =
+                            RemoteException.ToException(
+                                tSteam,
+                                out var bfE);
+                        if (isDeserialized)
+                        {
+                            exceptionToThrow = new AggregateException(bfE);
+                        }
+                        else
+                        {
+                            exceptionToThrow = new ServiceException(bfE.GetType().FullName, string.Format(
+                                CultureInfo.InvariantCulture,
+                                SR.ErrorDeserializationFailure,
+                                bfE.ToString()));
+                        }
                     }
                 }
             }

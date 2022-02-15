@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
@@ -62,8 +63,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
         /// <summary>
         /// Known types test.
         /// </summary>
+        /// <returns>Task representing async operation.</returns>
         [Fact]
-        public static void KnownFabricActorExceptionSerializationTest()
+        public static async Task KnownFabricActorExceptionSerializationTest()
         {
             foreach (var exception in fabricExceptions)
             {
@@ -73,7 +75,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
                 Exception resultFabricEx = null;
                 try
                 {
-                    clientHandler.DeserializeRemoteExceptionAndThrow(msgStream);
+                    await clientHandler.DeserializeRemoteExceptionAndThrowAsync(msgStream);
                 }
                 catch (AggregateException ex)
                 {

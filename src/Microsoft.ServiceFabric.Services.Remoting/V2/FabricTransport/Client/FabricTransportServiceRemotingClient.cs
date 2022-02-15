@@ -138,7 +138,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
-                    this.exceptionConversionHandler.DeserializeRemoteExceptionAndThrow(retval.GetBody().GetRecievedStream());
+                    await this.exceptionConversionHandler.DeserializeRemoteExceptionAndThrowAsync(retval.GetBody().GetRecievedStream());
                 }
 
                 var responseSerializer = this.serializersManager.GetResponseBodySerializer(interfaceId);
