@@ -285,7 +285,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // Add migration endpoint
             if (this.migrationOrchestrator != null)
             {
-                serviceReplicaListeners.Add(new ServiceReplicaListener(_ => this.migrationOrchestrator.GetMigrationCommunicationListener(), "_MigrationListener_"));
+                serviceReplicaListeners.Add(new ServiceReplicaListener(_ => this.migrationOrchestrator.GetMigrationCommunicationListener(), Migration.Constants.MigrationListenerName));
             }
 
             return serviceReplicaListeners;

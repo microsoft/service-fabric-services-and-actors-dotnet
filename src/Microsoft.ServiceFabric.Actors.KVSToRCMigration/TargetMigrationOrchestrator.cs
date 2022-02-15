@@ -70,7 +70,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             this.MigrationSettings.SourceServiceUri,
                             new ServicePartitionKey(partitionInformation.LowKey),
                             TargetReplicaSelector.PrimaryReplica,
-                            KVSMigrationListenerName);
+                            Runtime.Migration.Constants.MigrationListenerName);
                 }
 
                 return this.partitionClient;
@@ -88,12 +88,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 Thread.Sleep(5000);
             }
 
-            if (this.isMigrationCompleted)
-            {
-                this.StateProviderStateChangeCallback(this.isMigrationCompleted);
-                return;
-            }
-
             if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1) != 0)
             {
                 ActorTrace.Source.WriteWarningWithId(
@@ -106,14 +100,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var childToken = this.childCancellationTokenSource.Token;
 
             await this.ThrowIfInvalidConfigForMigrationAsync(childToken);
+            await this.InitializeIfRequiredAsync(childToken);
             this.isMigrationCompleted = await this.IsMigrationCompleted(childToken);
             this.StateProviderStateChangeCallback(this.isMigrationCompleted);
+            if (this.isMigrationCompleted)
+            {
+                return;
+            }
 
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
                 "Starting Migration.");
-            await this.InitializeIfRequiredAsync(childToken);
             IMigrationPhaseWorkload workloadRunner = null;
 
             try

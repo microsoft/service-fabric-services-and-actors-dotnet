@@ -5,15 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
-    using System;
-
-    [Flags]
-    internal enum MigrationMode
+    internal static class Constants
     {
-        Auto,
-        /*
-        Manual,
-
-        ManualDowntime,*/
+        internal static readonly string MigrationListenerName = "Migration Listener";
     }
 }
