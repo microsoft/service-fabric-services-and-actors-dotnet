@@ -82,12 +82,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public async override Task StartMigrationAsync(CancellationToken cancellationToken)
         {
-            int i = 0;
-            while (i == 0)
-            {
-                Thread.Sleep(5000);
-            }
-
             if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1) != 0)
             {
                 ActorTrace.Source.WriteWarningWithId(
