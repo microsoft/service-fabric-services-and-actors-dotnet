@@ -91,6 +91,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             });
         }
 
+        protected override Int64RangePartitionInformation GetInt64RangePartitionInformation()
+        {
+            var servicePartition = this.migrationActorStateProvider.StatefulServicePartition;
+            if (servicePartition == null)
+            {
+                // TODO throw
+            }
+
+            return servicePartition.PartitionInfo as Int64RangePartitionInformation;
+        }
+
         /// <inheritdoc/>
         protected override string GetMigrationEndpointName()
         {

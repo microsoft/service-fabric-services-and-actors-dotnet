@@ -8,7 +8,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
     /// Interface definition for migraiton operations./>.
@@ -26,6 +28,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         /// </summary>
         /// <returns>Migration specific communication listener.</returns>
         public ICommunicationListener GetMigrationCommunicationListener();
+
+        /// <summary>
+        /// Gets the message handler that forwards requests when the current service is unable to service the request.
+        /// </summary>
+        /// <param name="actorService">Actor service.</param>
+        /// <param name="messageHandler">Original message handler.</param>
+        /// <param name="requestForwarderFactory">Request forwarder factory.</param>
+        /// <returns>Request forwardable message handler.</returns>
+        public IServiceRemotingMessageHandler GetMessageHandler(ActorService actorService, IServiceRemotingMessageHandler messageHandler, Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory);
 
         /// <summary>
         /// Starts the migration operation.

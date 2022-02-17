@@ -179,6 +179,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #region Migration
         internal bool AreActorCallsAllowed { get => this.actorCallsAllowed; }
+
+        internal IMigrationOrchestrator MigrationOrchestrator { get => this.migrationOrchestrator; }
         #endregion Migration
 
         #region IActorService Members
@@ -248,7 +250,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
-#region StatefulServiceBase Overrides
+        #region Migration
+        internal bool IsConfiguredForMigration()
+        {
+            return this.migrationOrchestrator != null;
+        }
+        #endregion Migration
+
+        #region StatefulServiceBase Overrides
 
         /// <summary>
         /// Overrides <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase.CreateServiceReplicaListeners()"/>.

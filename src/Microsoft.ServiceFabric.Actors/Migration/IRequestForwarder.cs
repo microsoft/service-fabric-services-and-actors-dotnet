@@ -3,9 +3,8 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
-    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
@@ -13,16 +12,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     /// <summary>
     /// Interface definition for forwardding actor requests if the current service cannot service the request.
     /// </summary>
-    internal interface IRequestForwarder
+    public interface IRequestForwarder
     {
         /// <summary>
         /// Forwards the actor and actorservice proxy request to the remote service.
         /// </summary>
-        /// <param name="request">Request Message.</param>
-        /// <param name="token">Cancellation token to signal cancellation on async operation.</param>
+        /// <param name="requestContext">Contains additional information about the request.</param>
+        /// <param name="requestMessage">The request message.</param>
         /// <returns>Task to represent the status of the async operation.</returns>
-        public Task<IServiceRemotingResponseMessage> ForwardActorRequestAsync(
-            IServiceRemotingRequestMessage request,
-            CancellationToken token);
+        public Task<IServiceRemotingResponseMessage> ForwardRequestResponseAsync(
+            IServiceRemotingRequestContext requestContext,
+            IServiceRemotingRequestMessage requestMessage);
     }
 }

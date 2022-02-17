@@ -59,12 +59,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 if (this.partitionClient == null)
                 {
-                    if (this.migrationActorStateProvider.StatefulServicePartition == null)
-                    {
-                        // throw state provider not initialized exception
-                    }
-
-                    var partitionInformation = this.migrationActorStateProvider.StatefulServicePartition.PartitionInfo as Int64RangePartitionInformation;
+                    var partitionInformation = this.GetInt64RangePartitionInformation();
                     this.partitionClient = new ServicePartitionClient<HttpCommunicationClient>(
                             new HttpCommunicationClientFactory(null, new List<IExceptionHandler>() { new HttpExceptionHandler() }),
                             this.MigrationSettings.SourceServiceUri,
@@ -284,6 +279,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                 return result;
             }
+        }
+
+        protected override Int64RangePartitionInformation GetInt64RangePartitionInformation()
+        {
+            var servicePartition = this.migrationActorStateProvider.StatefulServicePartition;
+            if (servicePartition == null)
+            {
+                // TODO throw
+            }
+
+            return servicePartition.PartitionInfo as Int64RangePartitionInformation;
         }
 
         /// <inheritdoc/>

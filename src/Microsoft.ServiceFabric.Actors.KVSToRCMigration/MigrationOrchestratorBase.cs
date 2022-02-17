@@ -12,9 +12,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Migration;
+    using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
+    using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
     /// Base class for migration orchestration.
@@ -103,6 +108,44 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
+        public IServiceRemotingMessageHandler GetMessageHandler(ActorService actorService, IServiceRemotingMessageHandler messageHandler, Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory)
+        {
+            var forwardServiceUri = this.GetForwardServiceUri();
+            if (forwardServiceUri == null)
+            {
+                // Service is not configured to forward requests.
+                return messageHandler;
+            }
+
+            if (requestForwarderFactory == null)
+            {
+                requestForwarderFactory = requestForwarderContext =>
+                {
+                    return new DefaultActorRequestForwarder(
+                        actorService,
+                        requestForwarderContext,
+                        Runtime.Migration.Constants.MigrationListenerName,
+                        callbackMessageHandler => new FabricTransportActorRemotingClientFactory(callbackMessageHandler),
+                        null);
+                };
+            }
+
+            var partitionInformation = this.GetInt64RangePartitionInformation();
+            var lowKey = partitionInformation.LowKey;
+
+            return new RequestForwardableRemotingDispatcher(
+                actorService,
+                messageHandler,
+                requestForwarderFactory.Invoke(new RequestForwarderContext
+                {
+                    ServiceUri = this.StatefulServiceContext.ServiceName,
+                    ServicePartitionKey = new ServicePartitionKey(lowKey),
+                    ReplicaSelector = TargetReplicaSelector.PrimaryReplica,
+                    TraceId = this.StatefulServiceContext.TraceId,
+                }));
+        }
+
+        /// <inheritdoc/>
         public virtual void RegisterStateChangeCallback(Action<bool> stateProviderStateChangeCallback)
         {
             this.stateProviderStateChangeCallback = stateProviderStateChangeCallback;
@@ -122,5 +165,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// </summary>
         /// <returns>Migration endpoint name.</returns>
         protected abstract string GetMigrationEndpointName();
+
+        protected abstract Int64RangePartitionInformation GetInt64RangePartitionInformation();
+
+        protected abstract Uri GetForwardServiceUri();
     }
 }
