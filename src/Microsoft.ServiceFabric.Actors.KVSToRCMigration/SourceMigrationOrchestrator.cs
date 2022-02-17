@@ -91,6 +91,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             });
         }
 
+        protected override Uri GetForwardServiceUri()
+        {
+            return this.MigrationSettings.TargetServiceUri;
+        }
+
         protected override Int64RangePartitionInformation GetInt64RangePartitionInformation()
         {
             var servicePartition = this.migrationActorStateProvider.StatefulServicePartition;

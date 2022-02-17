@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     public interface IRequestForwarder
     {
         /// <summary>
-        /// Forwards the actor and actorservice proxy request to the remote service.
+        /// Forwards the actor/service proxy requests to the remote service.
         /// </summary>
         /// <param name="requestContext">Contains additional information about the request.</param>
         /// <param name="requestMessage">The request message.</param>

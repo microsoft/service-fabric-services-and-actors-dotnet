@@ -10,7 +10,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Remoting.V2;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -19,8 +18,10 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
-    // TODO: Public
-    internal class DefaultActorRequestForwarder : IRequestForwarder
+    /// <summary>
+    /// Default implementation for actor request forwarding scenario.
+    /// </summary>
+    public class DefaultActorRequestForwarder : IRequestForwarder
     {
         private static readonly string TraceType = typeof(DefaultActorRequestForwarder).Name;
         private ServiceRemotingPartitionClient remotingClient;
@@ -29,9 +30,17 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private ActorService actorService;
         private string traceId;
 
-        internal DefaultActorRequestForwarder(
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultActorRequestForwarder"/> class
+        /// </summary>
+        /// <param name="actorService">Actor service.</param>
+        /// <param name="requestForwarderContext">Context for request forwarder.</param>
+        /// <param name="listenerName">Remote service listener name. If specified null, "Migration Listener" will be used as default.</param>
+        /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
+        /// <param name="retrySettings">Retry settings for the remote object calls made by proxy.</param>
+        public DefaultActorRequestForwarder(
             ActorService actorService,
-            RequestForwarderContext forwardContext,
+            RequestForwarderContext requestForwarderContext,
             string listenerName = null,
             Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory> createServiceRemotingClientFactory = null,
             OperationRetrySettings retrySettings = null)
@@ -45,15 +54,16 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             this.remotingClient = new ServiceRemotingPartitionClient(
                 serviceRemotingClientFactory,
-                forwardContext.ServiceUri,
-                forwardContext.ServicePartitionKey,
-                forwardContext.ReplicaSelector,
+                requestForwarderContext.ServiceUri,
+                requestForwarderContext.ServicePartitionKey,
+                requestForwarderContext.ReplicaSelector,
                 listenerName ?? Runtime.Migration.Constants.MigrationListenerName,
                 retrySettings);
 
-            this.traceId = forwardContext.TraceId;
+            this.traceId = requestForwarderContext.TraceId;
         }
 
+        /// <inheritdoc/>
         public async Task<IServiceRemotingResponseMessage> ForwardRequestResponseAsync(
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
