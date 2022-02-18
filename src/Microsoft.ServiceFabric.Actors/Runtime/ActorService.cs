@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
@@ -43,7 +42,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ReplicaRole replicaRole;
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
 
-        private volatile bool actorCallsAllowed = true;
         private IMigrationOrchestrator migrationOrchestrator;
 
         /// <summary>
@@ -100,12 +98,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             // Migration initialization
             this.migrationOrchestrator = migrationOrchestrator;
-            if (this.migrationOrchestrator != null)
-            {
-                // Migration workflow is running
-                this.migrationOrchestrator.RegisterStateChangeCallback(stateChange => this.actorCallsAllowed = stateChange);
-                this.actorCallsAllowed = false;
-            }
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -178,7 +170,31 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #region Migration
-        internal bool AreActorCallsAllowed { get => this.actorCallsAllowed; }
+        internal bool AreActorCallsAllowed
+        {
+            get
+            {
+                if (this.migrationOrchestrator != null)
+                {
+                    return this.migrationOrchestrator.AreActorCallsAllowed();
+                }
+
+                return true;
+            }
+        }
+
+        internal bool IsActorCallToBeForwarded
+        {
+            get
+            {
+                if (this.migrationOrchestrator != null)
+                {
+                    return this.migrationOrchestrator.IsActorCallToBeForwarded();
+                }
+
+                return false;
+            }
+        }
 
         internal IMigrationOrchestrator MigrationOrchestrator { get => this.migrationOrchestrator; }
         #endregion Migration

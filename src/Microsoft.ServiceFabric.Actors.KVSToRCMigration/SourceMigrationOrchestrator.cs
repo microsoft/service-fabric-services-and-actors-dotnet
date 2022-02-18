@@ -21,6 +21,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private static readonly string TraceType = typeof(SourceMigrationOrchestrator).Name;
         private static readonly string TombstoneCleanupIsNotDisabledForMigrationHealthProperty = "TombstoneCleanupIsNotDisabledForMigration";
         private KvsActorStateProvider migrationActorStateProvider;
+        private bool actorCallsAllowed;
+        private bool forwardRequest;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceMigrationOrchestrator"/> class.
@@ -36,6 +38,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 // TODO throw
             }
 
+            this.actorCallsAllowed = false;
+            this.forwardRequest = false;
             this.migrationActorStateProvider = stateProvider as KvsActorStateProvider;
         }
 
@@ -43,14 +47,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
             await this.migrationActorStateProvider.RejectWritesAsync();
+            this.actorCallsAllowed = true;
+            this.forwardRequest = false;
             this.StateProviderStateChangeCallback(true);
         }
 
         /// <inheritdoc/>
-        public override Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken)
+        public override bool AreActorCallsAllowed()
         {
-            var rejectWrites = this.migrationActorStateProvider.GetRejectWriteState();
-            return Task.FromResult(!rejectWrites);
+            return this.actorCallsAllowed;
         }
 
         /// <inheritdoc/>
@@ -63,13 +68,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
             await this.migrationActorStateProvider.RejectWritesAsync();
-            this.StateProviderStateChangeCallback(false);
+            this.actorCallsAllowed = false;
+            this.forwardRequest = true;
+            this.StateProviderStateChangeCallback(this.actorCallsAllowed);
         }
 
         /// <inheritdoc/>
         public override async Task StartMigrationAsync(CancellationToken cancellationToken)
         {
-            this.StateProviderStateChangeCallback(this.AreActorCallsAllowed());
+            this.actorCallsAllowed = this.AreActorCallsAllowedInternal();
+            this.forwardRequest = !this.actorCallsAllowed;
+            this.StateProviderStateChangeCallback(this.actorCallsAllowed);
             await Task.Run(() =>
             {
                 if (!this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
@@ -89,6 +98,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
                 }
             });
+        }
+
+        public override bool IsActorCallToBeForwarded()
+        {
+            return this.forwardRequest && this.MigrationSettings.TargetServiceUri != null;
         }
 
         protected override Uri GetForwardServiceUri()
@@ -114,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return ActorNameFormat.GetMigrationSourceEndpointName(this.ActorTypeInformation.ImplementationType);
         }
 
-        private bool AreActorCallsAllowed()
+        private bool AreActorCallsAllowedInternal()
         {
             return !this.migrationActorStateProvider.GetRejectWriteState();
         }

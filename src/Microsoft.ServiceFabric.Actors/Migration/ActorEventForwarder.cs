@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
+    using System;
     using Microsoft.ServiceFabric.Actors.Remoting.V2;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -13,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
     internal class ActorEventForwarder : IServiceRemotingCallbackMessageHandler
     {
+        private static readonly string TraceType = typeof(ActorEventForwarder).Name;
         private ActorService actorService;
         private string traceId;
         private EventSubscriptionCache subscriptionCache;
@@ -27,16 +29,29 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
         public void HandleOneWayMessage(IServiceRemotingRequestMessage requestMessage)
         {
-            if (this.actorService.AreActorCallsAllowed)
+            if (this.actorService.IsActorCallToBeForwarded)
             {
-                this.eventManager.HandleOneWayMessage(requestMessage);
+                var actorHeaders = (IActorRemotingMessageHeaders)requestMessage.GetHeader();
+                foreach (var entry in this.subscriptionCache.GetSubscriptions(actorHeaders.ActorId, actorHeaders.MethodId).Values)
+                {
+                    ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Forwarding actor event message - ActorId : {actorHeaders.ActorId}, MethodName : {requestMessage.GetHeader().MethodName}");
+                    try
+                    {
+                        entry.SendOneWay(requestMessage);
+                    }
+                    catch (Exception e)
+                    {
+                        ActorTrace.Source.WriteErrorWithId(TraceType, this.traceId, $"Error encountered while forwarding actor event message - ActorId : {actorHeaders.ActorId}, MethodName : {requestMessage.GetHeader().MethodName}, Exception : {e}");
+                        throw e;
+                    }
+
+                    ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Successfully forwarded actor event message - ActorId : {actorHeaders.ActorId}, MethodName : {requestMessage.GetHeader().MethodName}");
+                }
+
+                return;
             }
 
-            var actorHeaders = (IActorRemotingMessageHeaders)requestMessage.GetHeader();
-            foreach (var entry in this.subscriptionCache.GetSubscriptions(actorHeaders.ActorId, actorHeaders.MethodId).Values)
-            {
-                entry.SendOneWay(requestMessage);
-            }
+            this.eventManager.HandleOneWayMessage(requestMessage);
         }
     }
 }

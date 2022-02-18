@@ -42,20 +42,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 
         public async Task<IServiceRemotingResponseMessage> HandleRequestResponseAsync(IServiceRemotingRequestContext requestContext, IServiceRemotingRequestMessage requestMessage)
         {
-            if (this.actorService.AreActorCallsAllowed)
+            if (this.actorService.IsActorCallToBeForwarded)
             {
-                return await this.actualMessageHandler.HandleRequestResponseAsync(requestContext, requestMessage);
+                var messageHeaders = requestMessage.GetHeader();
+                return await this.cancellationHelper.DispatchRequest(
+                    messageHeaders.InterfaceId,
+                    messageHeaders.MethodId,
+                    messageHeaders.InvocationId,
+                    async token =>
+                    {
+                        return await this.requestForwarder.ForwardRequestResponseAsync(requestContext, requestMessage);
+                    });
             }
 
-            var messageHeaders = requestMessage.GetHeader();
-            return await this.cancellationHelper.DispatchRequest(
-                messageHeaders.InterfaceId,
-                messageHeaders.MethodId,
-                messageHeaders.InvocationId,
-                async token =>
-                {
-                    return await this.requestForwarder.ForwardRequestResponseAsync(requestContext, requestMessage);
-                });
+            return await this.actualMessageHandler.HandleRequestResponseAsync(requestContext, requestMessage);
         }
 
         public void Dispose()

@@ -66,12 +66,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         /// A true value indicates state provider is in a state to accept read/write operation.
         /// A false value indicates state provider is either not ready yet or in reject state post migration.
         /// </summary>
-        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
         /// <returns>
-        /// A task that represents the asynchronous migration operation.
-        /// A task with true result indicates actor calls are allowed on the actor service, false otherwise
+        /// A True result indicates actor calls are allowed on the actor service, false otherwise.
         /// </returns>
-        public Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken);
+        public bool AreActorCallsAllowed();
+
+        /// <summary>
+        /// Is actor call to be forwarded if the current actor service cannot service the request.
+        /// </summary>
+        /// <returns>True if the request needs to be forwarded, false otherwise.</returns>
+        public bool IsActorCallToBeForwarded();
 
         /// <summary>
         /// Register callback to invoke when state provider state changes.

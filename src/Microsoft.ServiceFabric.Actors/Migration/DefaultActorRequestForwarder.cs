@@ -100,12 +100,19 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Forwarding actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
 
-            requestMessage.GetHeader().AddHeader("ActorRequestForwarded", new byte[0]);
-            var retVal = await this.remotingClient.InvokeAsync(requestMessage, requestMessage.GetHeader().MethodName, CancellationToken.None);
+            try
+            {
+                requestMessage.GetHeader().AddHeader("ActorRequestForwarded", new byte[0]);
+                var retVal = await this.remotingClient.InvokeAsync(requestMessage, requestMessage.GetHeader().MethodName, CancellationToken.None);
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Successfully received response for the forwarded actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
 
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Successfully received response for the forwarded actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
-
-            return retVal;
+                return retVal;
+            }
+            catch (Exception e)
+            {
+                ActorTrace.Source.WriteErrorWithId(TraceType, this.traceId, $"Error encountered while forwarding actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}, Exception : {e}");
+                throw e;
+            }
         }
     }
 }

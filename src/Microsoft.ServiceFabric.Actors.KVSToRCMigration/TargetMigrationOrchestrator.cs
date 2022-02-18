@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;
         private static volatile int isMigrationWorkflowRunning = 0;
+        private MigrationPhase currentPhase;
         private KVStoRCMigrationActorStateProvider migrationActorStateProvider;
         private IReliableDictionary2<string, string> metadataDict;
         private ServicePartitionClient<HttpCommunicationClient> partitionClient;
@@ -46,6 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 // TODO throw
             }
 
+            this.currentPhase = MigrationPhase.None;
             this.migrationActorStateProvider = new KVStoRCMigrationActorStateProvider(stateProvider as ReliableCollectionsActorStateProvider);
         }
 
@@ -100,6 +102,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.StateProviderStateChangeCallback(this.isMigrationCompleted);
             if (this.isMigrationCompleted)
             {
+                this.currentPhase = MigrationPhase.Completed;
                 return;
             }
 
@@ -116,6 +119,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 PhaseResult currentResult = null;
                 while (workloadRunner != null)
                 {
+                    this.currentPhase = workloadRunner.Phase;
                     currentResult = await workloadRunner.StartOrResumeMigrationAsync(childToken);
                     workloadRunner = await this.NextWorkloadRunnerAsync(currentResult, childToken);
                 }
@@ -123,6 +127,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 if (currentResult != null)
                 {
                     await this.CompleteMigrationAsync(currentResult, childToken);
+                    this.currentPhase = MigrationPhase.Completed;
 
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,
@@ -159,9 +164,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken)
+        public override bool AreActorCallsAllowed()
         {
-            return Task.FromResult(this.isMigrationCompleted);
+            return this.isMigrationCompleted;
         }
 
         /// <inheritdoc/>
@@ -174,6 +179,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public override Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        public override bool IsActorCallToBeForwarded()
+        {
+            // No reason to forward the call in downtime phase as the KVS service also cannot service the request.
+            return this.currentPhase < MigrationPhase.Downtime && this.MigrationSettings.SourceServiceUri != null;
         }
 
         internal async Task<MigrationResult> GetResultAsync(CancellationToken cancellationToken)

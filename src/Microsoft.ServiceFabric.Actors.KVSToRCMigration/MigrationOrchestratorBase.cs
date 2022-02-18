@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal MigrationSettings MigrationSettings { get => this.migrationSettings; }
 
         /// <inheritdoc/>
-        public abstract Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken);
+        public abstract bool AreActorCallsAllowed();
 
         /// <inheritdoc/>
         public abstract IActorStateProvider GetMigrationActorStateProvider();
@@ -159,6 +159,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         /// <inheritdoc/>
         public abstract Task AbortMigrationAsync(CancellationToken cancellationToken);
+
+        public abstract bool IsActorCallToBeForwarded();
 
         /// <summary>
         /// Gets the migration endpoint name.
