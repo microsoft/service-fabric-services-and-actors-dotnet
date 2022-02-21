@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("RejectWrites")]
         public async Task RejectWritesAsync()
         {
-            await this.kvsActorStateProvider.RejectWritesAsync();
+            await this.migrationOrchestrator.StartDowntimeAsync(CancellationToken.None);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("ResumeWrites")]
         public async Task ResumeWritesAsync()
         {
-            await this.kvsActorStateProvider.ResumeWritesAsync();
+            await this.migrationOrchestrator.AbortMigrationAsync(CancellationToken.None);
         }
 
         /// <summary>

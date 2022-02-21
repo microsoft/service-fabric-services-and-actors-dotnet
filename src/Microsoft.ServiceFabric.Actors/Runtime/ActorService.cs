@@ -340,6 +340,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // TODO: Manual start.
                 await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
                 await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+
+                return;
             }
 
             await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);

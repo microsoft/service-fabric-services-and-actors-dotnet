@@ -257,6 +257,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken)
         {
+            // TODO: Add noise level tracing to emit each kv pair for debugging purposes.
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
             long lastAppliedSN = -1;
