@@ -241,6 +241,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     await worker.StartMigrationWorker(MigrationPhase.Downtime, lastAppliedSNBeforeFailure + 1, lastSNForDowntime, -1, cancellationToken);
                 }
 
+                await this.StartMigrationDataValidation(cancellationToken);
                 await this.MarkMigrationCompleted(cancellationToken);
             }
             else
@@ -407,7 +408,67 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             await worker.StartMigrationWorker(MigrationPhase.Downtime, lastUpdatedRecord + 1, endSequenceNumber, -1, cancellationToken);
             ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Completed downtime phase of migration");
+            await this.StartMigrationDataValidation(cancellationToken);
+            ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Completed validation phase of migration");
             await this.MarkMigrationCompleted(cancellationToken);
+        }
+
+        private async Task StartMigrationDataValidation(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Starting Migration Data Validation.");
+
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                this.AddOrUpdateMetadata(tx, MigrationConstants.MigrationStateKey, MigrationState.Validating.ToString());
+                await tx.CommitAsync();
+            }
+
+            var migratedKeys = await this.stateProvider.GetMigratedKeysAsync(cancellationToken);
+
+            List<MigrationWorker> workers = new List<MigrationWorker>(this.workerCount);
+            for (int i = 0; i < this.workerCount; i++)
+            {
+                workers.Add(new MigrationWorker(this.stateProvider, this.actorTypeInfo, this.servicePartitionClient));
+            }
+
+            var workerLoad = this.GetEndSequenceNumberForEachWorker(0, migratedKeys.Count);
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                for (int i = 0; i < this.workerCount; i++)
+                {
+                    this.AddOrUpdateMetadata(tx, MigrationConstants.GetValidationWorkerStatusKey(i), MigrationState.Validating.ToString());
+                    if (i == 0)
+                    {
+                        this.AddOrUpdateMetadata(tx, MigrationConstants.GetValidationWorkerStartSNKey(i), 0.ToString());
+                    }
+                    else
+                    {
+                        this.AddOrUpdateMetadata(tx, MigrationConstants.GetValidationWorkerStartSNKey(i), workerLoad[i - 1] + 1.ToString());
+                    }
+
+                    this.AddOrUpdateMetadata(tx, MigrationConstants.GetValidationWorkerEndSNKey(i), workerLoad[i].ToString());
+                }
+
+                await tx.CommitAsync();
+            }
+
+            var tasks = new List<Task>();
+            Parallel.For(0, this.workerCount, index =>
+            {
+                if (index == 0)
+                {
+                    tasks.Add(workers[index].StartMigrationValidationWorker(migratedKeys, 0, workerLoad[index], index, cancellationToken));
+                }
+                else
+                {
+                    tasks.Add(workers[index].StartMigrationValidationWorker(migratedKeys, workerLoad[index - 1] + 1, workerLoad[index], index, cancellationToken));
+                }
+            });
+
+            cancellationToken.ThrowIfCancellationRequested();
+            await Task.WhenAll(tasks);
+            ActorTrace.Source.WriteInfo("MigrationOrchestrator", "Completed validation phase of migration");
         }
 
         private async Task MarkMigrationCompleted(CancellationToken cancellationToken)

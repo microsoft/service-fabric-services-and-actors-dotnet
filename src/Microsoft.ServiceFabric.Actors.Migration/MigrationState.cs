@@ -16,13 +16,23 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         Uninitialized = 0,
 
         /// <summary>
-        /// Copy phase of migration.
+        /// Migration InProgress.
         /// </summary>
         InProgress = 1,
 
         /// <summary>
-        /// Catchup phase of migration.
+        /// Migration Completed.
         /// </summary>
         Completed = 2,
+
+        /// <summary>
+        /// Validating Migration Data.
+        /// </summary>
+        Validating = 3,
+
+        /// <summary>
+        /// Migration Failed.
+        /// </summary>
+        Failed = 4,
     }
 }

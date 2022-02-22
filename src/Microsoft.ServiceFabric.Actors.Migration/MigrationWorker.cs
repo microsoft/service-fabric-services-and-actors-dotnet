@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Management.ServiceModel;
     using System.IO;
     using System.Net.Http;
     using System.Runtime.Serialization;
@@ -29,6 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         private long chunkSize;
         private long itemsPerEnumeration;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
+        private float validateDataPercent;
 
         public MigrationWorker(KVStoRCMigrationActorStateProvider stateProvider, ActorTypeInformation actorTypeInfo, ServicePartitionClient<HttpCommunicationClient> servicePartitionClient)
         {
@@ -67,6 +69,67 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
                 ActorTrace.Source.WriteInfo("MigrationWorker", "Completed migration worker " + workerIdentifier.ToString() + " payload in " + phase.ToString() + " phase.");
                 await this.UpdateMetadataOnCompletion(phase, workerIdentifier, endSN);
+            }
+        }
+
+        internal async Task StartMigrationValidationWorker(List<string> migratedKeys, long startIndex, long endIndex, int workerIdentifier, CancellationToken cancellationToken)
+        {
+            ActorTrace.Source.WriteInfo("MigrationWorker", "Inititating migration validation worker {0}.", workerIdentifier.ToString());
+            this.metadataDict = await this.stateProvider.GetMetadataDictionaryAsync();
+            cancellationToken.ThrowIfCancellationRequested();
+            for (long index = startIndex; index <= endIndex; index++)
+            {
+                // TODO: Use PercentageOfMigratedDataToValidate to limit number of keys validated
+                if (await this.GetDataFromKvsAndValidateWithRCAsync(migratedKeys[((int)index)], workerIdentifier, cancellationToken))
+                {
+                    continue;
+                }
+                else
+                {
+                    byte[] metadataEntry = Encoding.ASCII.GetBytes(MigrationState.Failed.ToString());
+                    using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+                    {
+                        await this.metadataDict.AddOrUpdateAsync(tx, MigrationConstants.GetValidationWorkerStatusKey(workerIdentifier), metadataEntry, (k, v) => metadataEntry);
+                        await tx.CommitAsync();
+                    }
+
+                    break;
+                }
+            }
+
+            ActorTrace.Source.WriteInfo("MigrationWorker", "Completed migration Validation worker {0}.", workerIdentifier.ToString());
+        }
+
+        private async Task<bool> GetDataFromKvsAndValidateWithRCAsync(string migratedKey, int workerIdentifier, CancellationToken cancellationToken)
+        {
+            var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var kvsValue = await this.servicePartitionClient.InvokeWithRetryAsync<byte[]>(async client =>
+                {
+                    return await client.HttpClient.GetByteArrayAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetKVSValueByKey}{migratedKey}");
+                });
+
+                cancellationToken.ThrowIfCancellationRequested();
+                var rcValue = await this.stateProvider.GetValueByKeyAsync(migratedKey, cancellationToken);
+
+                if (kvsValue == rcValue)
+                {
+                    return true;
+                }
+                else
+                {
+                    ActorTrace.Source.WriteError("Migration Validation Worker failed for key{0}", migratedKey);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                string message = string.Format("Exception occured while fetching and validating Kvs data with RC for worker {0}.\n{1}", workerIdentifier.ToString(), ex.Message);
+                ActorTrace.Source.WriteError("MigrationValidationWorker", message);
+                throw ex;
             }
         }
 
@@ -245,6 +308,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             this.itemsPerEnumeration = 1024 * 16;
             this.chunkSize = 100;
+            this.validateDataPercent = 10.00f;
+
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
             {
@@ -262,6 +327,11 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
                     {
                         this.chunkSize = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
+                    }
+
+                    if (migrationSettings.Parameters.Contains("PercentageOfMigratedDataToValidate"))
+                    {
+                        this.validateDataPercent = float.Parse(migrationSettings.Parameters["PercentageOfMigratedDataToValidate"].Value);
                     }
                 }
             }

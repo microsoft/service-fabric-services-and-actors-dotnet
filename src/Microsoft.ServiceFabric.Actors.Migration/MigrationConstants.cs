@@ -17,6 +17,9 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
         internal static readonly string GetDisableTCSEndpoint = "GetDisableTombstoneCleanupSetting";
+        internal static readonly string GetKVSValueByKey = "GetValueByKey?key=";
+
+        internal static readonly string MigratedKeysKey = "MigratedKeys";
 
         internal static readonly string MigrationPhaseKey = "MigrationPhase";
         internal static readonly string MigrationStateKey = "MigrationState";
@@ -74,6 +77,21 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         internal static string GetCatchupWorkerStartSNKey(int catchupCount)
         {
             return "Migration_Catchup_" + catchupCount.ToString() + "_StartSN";
+        }
+
+        internal static string GetValidationWorkerStatusKey(int workerIdentifier)
+        {
+            return "ValidationWorker_" + workerIdentifier.ToString() + "_status";
+        }
+
+        internal static string GetValidationWorkerStartSNKey(int workerIdentifier)
+        {
+            return "ValidationWorker_" + workerIdentifier.ToString() + "_StartSN";
+        }
+
+        internal static string GetValidationWorkerEndSNKey(int workerIdentifier)
+        {
+            return "ValidationWorker_" + workerIdentifier.ToString() + "_EndSN";
         }
     }
 }

@@ -197,6 +197,22 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
         }
 
+        internal static byte[] GetValueByKey(this KvsActorStateProvider stateProvider, string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                using var tx = stateProvider.GetStoreReplica().CreateTransaction();
+                var result = stateProvider.GetStoreReplica().TryGet(tx, key);
+
+                if (result != null)
+                {
+                    return result.Value;
+                }
+            }
+
+            return null;
+        }
+
         private static KeyValuePair MakeKeyValuePair(KeyValueStoreItem item)
         {
             bool isDeleted = item.Metadata.ValueSizeInBytes < 0;
