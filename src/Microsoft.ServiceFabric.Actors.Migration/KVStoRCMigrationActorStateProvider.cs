@@ -444,6 +444,62 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             }
         }
 
+        /// <summary>
+        /// Compares kvsvalue to rcvalue
+        /// </summary>
+        /// <param name="kvsValue">Value in KVS</param>
+        /// <param name="rcValue">Value in RC</param>
+        /// <param name="key">Migrated Key</param>
+        /// <returns>True or False depending on comparision</returns>
+        public bool CompareKVSandRCValue(byte[] kvsValue, byte[] rcValue, string key)
+        {
+            if (key.StartsWith("@@"))
+            {
+                return kvsValue == rcValue;
+            }
+            else if (key.StartsWith("Actor"))
+            {
+                return kvsValue == rcValue;
+            }
+            else if (key.StartsWith("RC@@"))
+            {
+                ReminderCompletedData kvsReminderCompletedData = this.DeserializeReminderCompletedData(kvsValue);
+                ReminderCompletedData rcReminderCompletedData = ReminderCompletedDataSerializer.Deserialize(rcValue);
+                return kvsReminderCompletedData.UtcTime == rcReminderCompletedData.UtcTime
+                    && kvsReminderCompletedData.LogicalTime == rcReminderCompletedData.LogicalTime;
+            }
+            else if (key.Equals("Timestamp_VLTM"))
+            {
+                LogicalTimestamp kvsLogicalTimestamp = this.DeserializeLogicalTime(kvsValue);
+                LogicalTimestamp rcLogicalTimestamp = LogicalTimestampSerializer.Deserialize(rcValue);
+                return kvsLogicalTimestamp.Timestamp == rcLogicalTimestamp.Timestamp;
+            }
+            else if (key.StartsWith("Reminder"))
+            {
+                ActorReminderData kvsActorReminderData = this.DeserializeReminder(kvsValue);
+                ActorReminderData rcActorReminderData = ActorReminderDataSerializer.Deserialize(rcValue);
+                return kvsActorReminderData.ActorId == rcActorReminderData.ActorId
+                    && kvsActorReminderData.Name == rcActorReminderData.Name
+                    && kvsActorReminderData.DueTime == rcActorReminderData.DueTime
+                    && kvsActorReminderData.Period == rcActorReminderData.Period
+                    && kvsActorReminderData.State == rcActorReminderData.State
+                    && kvsActorReminderData.LogicalCreationTime == rcActorReminderData.LogicalCreationTime;
+            }
+            else
+            {
+                var message = "Migration Error: Failed to parse the KVS key - " + key;
+
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    message);
+
+                this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
+            }
+
+            return false;
+        }
+
         internal async Task AddOrUpdateMigratedKeysAsync(ITransaction tx, List<string> keysMigrated, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();

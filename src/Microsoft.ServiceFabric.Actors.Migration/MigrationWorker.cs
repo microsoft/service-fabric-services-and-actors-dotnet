@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 cancellationToken.ThrowIfCancellationRequested();
                 var rcValue = await this.stateProvider.GetValueByKeyAsync(migratedKey, cancellationToken);
 
-                if (kvsValue == rcValue)
+                if (this.stateProvider.CompareKVSandRCValue(kvsValue, rcValue, migratedKey))
                 {
                     return true;
                 }
