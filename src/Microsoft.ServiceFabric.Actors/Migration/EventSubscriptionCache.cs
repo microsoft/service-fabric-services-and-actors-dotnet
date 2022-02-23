@@ -7,47 +7,67 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System;
     using System.Collections.Concurrent;
+    using Microsoft.ServiceFabric.Actors.Remoting.V2.Builder;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     internal class EventSubscriptionCache
     {
-        private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<int, ConcurrentDictionary<Guid, IServiceRemotingCallbackClient>>> callbackClientMap;
+        private static readonly string TraceType = typeof(EventSubscriptionCache).Name;
+        private readonly ConcurrentDictionary<Guid, IServiceRemotingCallbackClient> callbackClientMap;
+        private string traceId;
 
-        public EventSubscriptionCache()
+        public EventSubscriptionCache(ActorService actorService, string traceId)
         {
-            this.callbackClientMap =
-                new ConcurrentDictionary<ActorId, ConcurrentDictionary<int, ConcurrentDictionary<Guid, IServiceRemotingCallbackClient>>>();
-        }
+            this.traceId = traceId;
 
-        public void AddToCache(ActorId actorId, int interfaceId, Guid subscriptionId, IServiceRemotingCallbackClient callbackClient)
-        {
-            var interfaceMap = this.callbackClientMap.GetOrAdd(actorId, new ConcurrentDictionary<int, ConcurrentDictionary<Guid, IServiceRemotingCallbackClient>>());
-            var callbackMap = interfaceMap.GetOrAdd(interfaceId, new ConcurrentDictionary<Guid, IServiceRemotingCallbackClient>());
-            callbackMap.AddOrUpdate(subscriptionId, callbackClient, (_, __) => callbackClient);
-        }
-
-        public void RemoveFromCache(ActorId actorId, int interfaceId, Guid subscriptionId)
-        {
-            if (this.callbackClientMap.TryGetValue(actorId, out var interfaceMap))
+            foreach (var eventType in actorService.ActorTypeInformation.EventInterfaceTypes)
             {
-                if (interfaceMap.TryGetValue(interfaceId, out var callbackMap))
-                {
-                    callbackMap.TryRemove(subscriptionId, out var callbackClient);
-                }
+                // Required to generate interface description for IActorEvent,
+                //      incase this is the first call to the event type and needs to be forwarded.
+                ActorCodeBuilder.GetOrCreateEventProxyGenerator(eventType);
+            }
+
+            this.callbackClientMap = new ConcurrentDictionary<Guid, IServiceRemotingCallbackClient>();
+        }
+
+        public void AddToCache(Guid subscriptionId, IServiceRemotingCallbackClient callbackClient)
+        {
+            if (!this.callbackClientMap.TryAdd(subscriptionId, callbackClient))
+            {
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    $"CallbackClient already found for subscription : {subscriptionId}. Ignoring the add callbackclient request.");
+
+                return;
             }
         }
 
-        public ConcurrentDictionary<Guid, IServiceRemotingCallbackClient> GetSubscriptions(ActorId actorId, int interfaceId)
+        public void RemoveFromCache(Guid subscriptionId)
         {
-            if (this.callbackClientMap.TryGetValue(actorId, out var interfaceMap))
+            if (!this.callbackClientMap.TryRemove(subscriptionId, out var callbackClient))
             {
-                if (interfaceMap.TryGetValue(interfaceId, out var callbackMap))
-                {
-                    return callbackMap;
-                }
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    $"CallbackClient not found for subscription : {subscriptionId}. Ignoring the remove callbackclient request.");
+            }
+        }
+
+        public bool GetSubscription(Guid subscriptionId, out IServiceRemotingCallbackClient callbackClient)
+        {
+            if (!this.callbackClientMap.TryGetValue(subscriptionId, out callbackClient))
+            {
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    $"CallbackClient not found for subscription : {subscriptionId}. Ignoring the actor event.");
+
+                return false;
             }
 
-            return new ConcurrentDictionary<Guid, IServiceRemotingCallbackClient>();
+            return true;
         }
     }
 }

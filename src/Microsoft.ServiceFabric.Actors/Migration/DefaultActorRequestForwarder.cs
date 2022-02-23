@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             OperationRetrySettings retrySettings = null)
         {
             this.actorService = actorService;
-            this.eventCache = new EventSubscriptionCache();
+            this.eventCache = new EventSubscriptionCache(actorService, requestForwarderContext.TraceId);
             this.callbackHandler = new ActorEventForwarder(this.actorService, this.eventCache);
             var serviceRemotingClientFactory = createServiceRemotingClientFactory == null
                 ? new FabricTransportActorRemotingClientFactory(this.callbackHandler)
@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                                 "Value",
                                 typeof(EventSubscriptionRequestBody));
 
-                        this.eventCache.AddToCache(actorHeaders.ActorId, castedRequestMsgBody.EventInterfaceId, castedRequestMsgBody.SubscriptionId, requestContext.GetCallBackClient());
+                        this.eventCache.AddToCache(castedRequestMsgBody.SubscriptionId, requestContext.GetCallBackClient());
                     }
                     else if (actorHeaders.MethodId == ActorEventSubscription.UnSubscribeMethodId)
                     {
@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                                 "Value",
                                 typeof(EventSubscriptionRequestBody));
 
-                        this.eventCache.RemoveFromCache(actorHeaders.ActorId, castedRequestMsgBody.EventInterfaceId, castedRequestMsgBody.SubscriptionId);
+                        this.eventCache.RemoveFromCache(castedRequestMsgBody.SubscriptionId);
                     }
                 }
             }

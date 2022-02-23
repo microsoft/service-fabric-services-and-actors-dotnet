@@ -173,7 +173,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var workerResult = await MigrationWorker.GetResultAsync(metadataDict, tx, migrationPhase, currentIteration, i, traceId, cancellationToken);
-                workerResults.Add(workerResult);
+                if (workerResult.Status != MigrationState.None)
+                {
+                    workerResults.Add(workerResult);
+                }
             }
 
             result.WorkerResults = workerResults.ToArray();
@@ -572,7 +575,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private void EmitTelemetryEvent(TimeSpan timeSpent, long keysMigrated, int workerCount, int iterationCount)
         {
-            ActorTelemetry.KVSToRCMigrationPhaseEndEvent(
+            /*
+             * ActorTelemetry.KVSToRCMigrationPhaseEndEvent(
                 MigrationUtility.GetPhaseEndTelemetryKey(this.migrationPhase),
                 this.statefulServiceContext,
                 this.migrationSettings.SourceServiceUri.OriginalString,
@@ -580,6 +584,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 keysMigrated,
                 workerCount,
                 iterationCount);
+            */
         }
     }
 }

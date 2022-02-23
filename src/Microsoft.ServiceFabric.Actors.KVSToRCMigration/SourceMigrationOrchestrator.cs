@@ -46,10 +46,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                "Aborting Migration");
+
             await this.migrationActorStateProvider.RejectWritesAsync();
             this.actorCallsAllowed = true;
             this.forwardRequest = false;
-            this.StateProviderStateChangeCallback(true);
         }
 
         /// <inheritdoc/>
@@ -67,18 +71,26 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                "Starting Downtime");
+
             await this.migrationActorStateProvider.RejectWritesAsync();
             this.actorCallsAllowed = false;
             this.forwardRequest = true;
-            this.StateProviderStateChangeCallback(this.actorCallsAllowed);
         }
 
         /// <inheritdoc/>
         public override async Task StartMigrationAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                "Starting Migration");
+
             this.actorCallsAllowed = this.AreActorCallsAllowedInternal();
             this.forwardRequest = !this.actorCallsAllowed;
-            this.StateProviderStateChangeCallback(this.actorCallsAllowed);
             await Task.Run(() =>
             {
                 if (!this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)

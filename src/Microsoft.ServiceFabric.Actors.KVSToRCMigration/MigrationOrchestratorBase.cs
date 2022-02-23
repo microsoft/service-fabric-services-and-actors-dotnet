@@ -56,8 +56,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         internal string TraceId { get => this.traceId; }
 
-        internal Action<bool> StateProviderStateChangeCallback { get => this.stateProviderStateChangeCallback; }
-
         internal MigrationSettings MigrationSettings { get => this.migrationSettings; }
 
         /// <inheritdoc/>
@@ -117,19 +115,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 return messageHandler;
             }
 
-            if (requestForwarderFactory == null)
-            {
-                requestForwarderFactory = requestForwarderContext =>
-                {
-                    return new DefaultActorRequestForwarder(
-                        actorService,
-                        requestForwarderContext,
-                        Runtime.Migration.Constants.MigrationListenerName,
-                        callbackMessageHandler => new FabricTransportActorRemotingClientFactory(callbackMessageHandler),
-                        null);
-                };
-            }
-
             var partitionInformation = this.GetInt64RangePartitionInformation();
             var lowKey = partitionInformation.LowKey;
 
@@ -138,7 +123,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 messageHandler,
                 requestForwarderFactory.Invoke(new RequestForwarderContext
                 {
-                    ServiceUri = this.StatefulServiceContext.ServiceName,
+                    ServiceUri = forwardServiceUri,
                     ServicePartitionKey = new ServicePartitionKey(lowKey),
                     ReplicaSelector = TargetReplicaSelector.PrimaryReplica,
                     TraceId = this.StatefulServiceContext.TraceId,

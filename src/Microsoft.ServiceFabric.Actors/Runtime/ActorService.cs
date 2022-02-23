@@ -300,7 +300,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 foreach (var kvp in listeners)
                 {
                     serviceReplicaListeners.Add(new ServiceReplicaListener(
-                        t =>
+                    t =>
                     {
                         return kvp.Value(this);
                     }, kvp.Key));
@@ -339,7 +339,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 // TODO: Manual start.
                 await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
-                await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+
+                if (this.AreActorCallsAllowed)
+                {
+                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                }
 
                 return;
             }

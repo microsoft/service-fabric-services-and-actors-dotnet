@@ -32,12 +32,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             if (this.actorService.IsActorCallToBeForwarded)
             {
                 var actorHeaders = (IActorRemotingMessageHeaders)requestMessage.GetHeader();
-                foreach (var entry in this.subscriptionCache.GetSubscriptions(actorHeaders.ActorId, actorHeaders.MethodId).Values)
+                if (this.subscriptionCache.GetSubscription(actorHeaders.ActorId.GetGuidId(), out var callbackClient))
                 {
                     ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Forwarding actor event message - ActorId : {actorHeaders.ActorId}, MethodName : {requestMessage.GetHeader().MethodName}");
                     try
                     {
-                        entry.SendOneWay(requestMessage);
+                        callbackClient.SendOneWay(requestMessage);
                     }
                     catch (Exception e)
                     {
