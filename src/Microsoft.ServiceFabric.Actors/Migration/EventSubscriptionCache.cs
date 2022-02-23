@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     internal class EventSubscriptionCache
     {
         private static readonly string TraceType = typeof(EventSubscriptionCache).Name;
+        //// TODO: Leak when client crashes or exits without unsubscribing.
         private readonly ConcurrentDictionary<Guid, IServiceRemotingCallbackClient> callbackClientMap;
         private string traceId;
 

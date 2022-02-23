@@ -44,15 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         {
             if (this.actorService.IsActorCallToBeForwarded)
             {
-                var messageHeaders = requestMessage.GetHeader();
-                return await this.cancellationHelper.DispatchRequest(
-                    messageHeaders.InterfaceId,
-                    messageHeaders.MethodId,
-                    messageHeaders.InvocationId,
-                    async token =>
-                    {
-                        return await this.requestForwarder.ForwardRequestResponseAsync(requestContext, requestMessage);
-                    });
+                return await this.requestForwarder.ForwardRequestResponseAsync(requestContext, requestMessage);
             }
 
             return await this.actualMessageHandler.HandleRequestResponseAsync(requestContext, requestMessage);
