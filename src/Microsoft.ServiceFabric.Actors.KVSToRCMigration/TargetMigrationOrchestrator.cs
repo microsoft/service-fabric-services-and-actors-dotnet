@@ -148,6 +148,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.TraceId,
                     $"Migration {currentPhase} Phase failed with error: {e}");
 
+                //// TODO: set partition health with permanent health message
                 await this.AbortMigrationAsync(childToken);
 
                 throw e;
