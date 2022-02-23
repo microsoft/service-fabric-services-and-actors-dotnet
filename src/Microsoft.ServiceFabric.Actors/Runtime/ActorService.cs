@@ -307,13 +307,23 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
+            this.AddMigrationListener(serviceReplicaListeners);
+
+            return serviceReplicaListeners;
+        }
+
+        /// <summary>
+        /// Adds migration specific listeners.
+        /// </summary>
+        /// <param name="serviceReplicaListeners">Existing listener list.</param>
+        /// <remarks>To be used when CreateServiceReplicaListeners() is overriden by Custom implementation of Actor Service.</remarks>
+        protected void AddMigrationListener(IList<ServiceReplicaListener> serviceReplicaListeners)
+        {
             // Add migration endpoint
             if (this.migrationOrchestrator != null)
             {
                 serviceReplicaListeners.Add(new ServiceReplicaListener(_ => this.migrationOrchestrator.GetMigrationCommunicationListener(), Migration.Constants.MigrationListenerName));
             }
-
-            return serviceReplicaListeners;
         }
 
         /// <summary>
