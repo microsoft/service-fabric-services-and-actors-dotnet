@@ -230,7 +230,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
-#endregion
+        #endregion
 
         internal IActorStateManager CreateStateManager(ActorBase actor)
         {
