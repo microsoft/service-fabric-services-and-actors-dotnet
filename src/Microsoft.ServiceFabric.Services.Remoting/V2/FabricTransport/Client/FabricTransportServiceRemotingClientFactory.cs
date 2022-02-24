@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Client;
+    using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
@@ -52,6 +53,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         /// </param>
         /// <param name="serializationProvider">
         /// Serialization Provider to serialize and deserialize request and response.</param>
+        /// <param name="exceptionConvertors">
+        ///     Convertors to convert service exception to user exception.
+        /// </param>
         /// <remarks>
         ///     This factory uses an internal fabric transport exception handler to handle exceptions at the fabric TCP transport
         ///     level and a <see cref="ServiceRemotingExceptionHandler"/>, in addition to the exception handlers supplied to the
@@ -63,13 +67,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
             string traceId = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null)
+            IServiceRemotingMessageSerializationProvider serializationProvider = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null) // Check existing usage
         {
             this.Initialize(
                 remotingSettings,
                 remotingCallbackMessageHandler,
                 servicePartitionResolver,
                 exceptionHandlers,
+                exceptionConvertors,
                 traceId,
                 serializationProvider);
         }
@@ -80,6 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             IServiceRemotingCallbackMessageHandler remotingCallbackMessageHandler = null,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             string traceId = null)
         {
             this.Initialize(
@@ -87,6 +94,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 remotingCallbackMessageHandler,
                 servicePartitionResolver,
                 exceptionHandlers,
+                exceptionConvertors,
                 traceId,
                 serializersManager.GetSerializationProvider().CreateMessageBodyFactory(),
                 serializersManager);
@@ -210,6 +218,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             IServiceRemotingCallbackMessageHandler remotingCallbackMessageHandler,
             IServicePartitionResolver servicePartitionResolver,
             IEnumerable<IExceptionHandler> exceptionHandlers,
+            IEnumerable<IExceptionConvertor> exceptionConvertors,
             string traceId,
             IServiceRemotingMessageSerializationProvider serializationProvider,
             IServiceRemotingMessageHeaderSerializer headerSerializer = null)
@@ -231,6 +240,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 remotingCallbackMessageHandler,
                 servicePartitionResolver,
                 exceptionHandlers,
+                exceptionConvertors,
                 traceId,
                 serializersManager.GetSerializationProvider().CreateMessageBodyFactory(),
                 serializersManager);
@@ -241,6 +251,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             IServiceRemotingCallbackMessageHandler remotingCallbackMessageHandler,
             IServicePartitionResolver servicePartitionResolver,
             IEnumerable<IExceptionHandler> exceptionHandlers,
+            IEnumerable<IExceptionConvertor> exceptionConvertors,
             string traceId,
             IServiceRemotingMessageBodyFactory messageBodyFactory,
             ServiceRemotingMessageSerializersManager serializersManager)
@@ -252,6 +263,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 remotingCallbackMessageHandler,
                 servicePartitionResolver,
                 exceptionHandlers,
+                exceptionConvertors,
                 traceId);
             this.clientFactoryImpl.ClientConnected += this.OnClientConnected;
             this.clientFactoryImpl.ClientDisconnected += this.OnClientDisconnected;

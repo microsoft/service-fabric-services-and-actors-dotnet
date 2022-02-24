@@ -8,12 +8,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2;
     using Microsoft.ServiceFabric.FabricTransport.V2.Client;
-    using Microsoft.ServiceFabric.Services.Communication;
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
@@ -25,14 +24,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         private ResolvedServicePartition resolvedServicePartition;
         private string listenerName;
         private ResolvedServiceEndpoint resolvedServiceEndpoint;
+        private ExceptionConversionHandler exceptionConversionHandler;
 
         // we need to pass a cache of the serializers here rather than the known types,
         // the serializer cache should be maintained by the factor
         internal FabricTransportServiceRemotingClient(
             ServiceRemotingMessageSerializersManager serializersManager,
             FabricTransportClient fabricTransportClient,
-            FabricTransportRemotingClientEventHandler remotingHandler)
+            FabricTransportRemotingClientEventHandler remotingHandler,
+            FabricTransportRemotingSettings remotingSettings,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
         {
+            this.exceptionConversionHandler = new ExceptionConversionHandler(exceptionConvertors, remotingSettings);
             this.fabricTransportClient = fabricTransportClient;
             this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;
@@ -135,21 +138,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
                 if (header != null && header.TryGetHeaderValue("HasRemoteException", out var headerValue))
                 {
-                    var isDeserialzied =
-                        RemoteException.ToException(
-                            retval.GetBody().GetRecievedStream(),
-                            out var e);
-                    if (isDeserialzied)
-                    {
-                        throw new AggregateException(e);
-                    }
-                    else
-                    {
-                        throw new ServiceException(e.GetType().FullName, string.Format(
-                            CultureInfo.InvariantCulture,
-                            Remoting.SR.ErrorDeserializationFailure,
-                            e.ToString()));
-                    }
+                    await this.exceptionConversionHandler.DeserializeRemoteExceptionAndThrowAsync(retval.GetBody().GetRecievedStream());
                 }
 
                 var responseSerializer = this.serializersManager.GetResponseBodySerializer(interfaceId);

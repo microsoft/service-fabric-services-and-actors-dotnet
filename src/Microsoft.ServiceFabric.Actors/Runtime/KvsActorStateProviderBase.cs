@@ -6,15 +6,18 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Common;
     using System.Fabric.Health;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Web;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
@@ -434,6 +437,102 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 () => this.GetStoredActorIdsAsync(numItemsToReturn, continuationToken, cancellationToken),
                 "GetActorsAsync",
                 cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        async Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(int numItemsToReturn, ActorId actorId, ContinuationToken continuationToken, CancellationToken cancellationToken)
+        {
+            return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+               async () =>
+               {
+                   return await Task.Run(() =>
+                   {
+                       var result = new ConcurrentDictionary<ActorId, List<ActorReminderState>>();
+                       var reminderkey = actorId == null
+                           ? ReminderStorageKeyPrefix
+                           : $"{ReminderStorageKeyPrefix}_{actorId.GetStorageKey()}";
+                       var reminders = new List<ActorReminderData>();
+                       var nextContinuationMarker = string.Empty;
+                       var nextKey = string.Empty;
+                       var hasMore = false;
+
+                       using (var tx = this.storeReplica.CreateTransaction())
+                       {
+                           IEnumerator<KeyValueStoreItem> enumerator = null;
+                           try
+                           {
+                               if (continuationToken != null)
+                               {
+                                   enumerator = this.storeReplica.Enumerate(tx, continuationToken.Marker.ToString(), false);
+                                   hasMore = enumerator.MoveNext();
+                                   if (hasMore && enumerator.Current.Metadata.Key == continuationToken.Marker.ToString())
+                                   {
+                                       // Check if the next element is equal to continuation token and skip.
+                                       // ContinuationToken wouldn't match with next element if the reminder is deleted between paging calls.
+                                       hasMore = enumerator.MoveNext();
+                                   }
+                               }
+                               else
+                               {
+                                   enumerator = this.storeReplica.Enumerate(tx, reminderkey, true);
+                                   hasMore = enumerator.MoveNext();
+                               }
+
+                               int itemCount = 0;
+                               while (hasMore)
+                               {
+                                   cancellationToken.ThrowIfCancellationRequested();
+                                   var currentKey = enumerator.Current.Metadata.Key;
+                                   nextKey = currentKey;
+                                   if (!currentKey.StartsWith(reminderkey) || itemCount++ >= numItemsToReturn)
+                                   {
+                                       break;
+                                   }
+
+                                   var item = enumerator.Current;
+                                   var reminderData = this.DeserializeReminder(item.Value);
+                                   if (reminderData != null)
+                                   {
+                                       reminders.Add(reminderData);
+                                   }
+
+                                   nextContinuationMarker = currentKey;
+                                   hasMore = enumerator.MoveNext();
+                               }
+                           }
+                           finally
+                           {
+                               if (enumerator != null)
+                               {
+                                   enumerator.Dispose();
+                               }
+                           }
+
+                           foreach (var reminderData in reminders)
+                           {
+                               cancellationToken.ThrowIfCancellationRequested();
+                               var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(reminderData.ActorId, reminderData.Name);
+                               var completedValue = this.storeReplica.TryGetValue(tx, reminderCompletedKey);
+                               ReminderCompletedData reminderCompletedData = null;
+                               if (completedValue != null)
+                               {
+                                   reminderCompletedData = this.DeserializeReminderCompletedData(completedValue);
+                               }
+
+                               result.GetOrAdd(reminderData.ActorId, a => new List<ActorReminderState>())
+                                   .Add(new ActorReminderState(reminderData, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
+                           }
+                       }
+
+                       return new ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>()
+                       {
+                           Items = result.AsEnumerable(),
+                           ContinuationToken = hasMore && nextKey.StartsWith(reminderkey) ? new ContinuationToken(nextContinuationMarker) : null,
+                       };
+                   });
+               },
+               "GetRemindersAsync",
+               cancellationToken);
         }
 
         /// <summary>
@@ -1405,13 +1504,117 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             using (var tx = this.storeReplica.CreateTransaction())
             {
-                return this.actorStateProviderHelper.GetStoredActorIdsAsync(
+                return this.GetStoredActorIdsForKvsAsync(
                     itemsCount,
                     continuationToken,
-                    () => this.storeReplica.EnumerateMetadata(tx, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix),
-                    metadata => metadata.Key,
+                    this.storeReplica,
                     cancellationToken);
             }
+        }
+
+        private Task<PagedResult<ActorId>> GetStoredActorIdsForKvsAsync(
+            int itemsCount,
+            ContinuationToken continuationToken,
+            KeyValueStoreReplica replica,
+            CancellationToken cancellationToken)
+        {
+            var actorIdList = new List<ActorId>();
+            var actorQueryResult = new PagedResult<ActorId>();
+
+            IEnumerator<KeyValueStoreItem> enumerator = null;
+            bool enumHasMoreEntries;
+            using var txn = replica.CreateTransaction();
+
+            try
+            {
+                // Find continuation point for enumeration
+                if (continuationToken != null)
+                {
+                    long previousActorCount = 0L;
+                    if (long.TryParse((string)continuationToken.Marker, out previousActorCount))
+                    {
+                        enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
+                        enumHasMoreEntries = this.actorStateProviderHelper.GetContinuationPointByActorCount(previousActorCount, enumerator, cancellationToken);
+                        enumHasMoreEntries = enumerator.MoveNext();
+                    }
+                    else
+                    {
+                        string lastSeenActorStorageKey = continuationToken.Marker.ToString();
+                        enumerator = replica.Enumerate(txn, lastSeenActorStorageKey, false);
+                        enumHasMoreEntries = enumerator.MoveNext();
+                        var storageKey = enumerator.Current.Metadata.Key;
+                        if (enumHasMoreEntries && storageKey == lastSeenActorStorageKey)
+                        {
+                            enumHasMoreEntries = enumerator.MoveNext();
+                        }
+                    }
+
+                    if (!enumHasMoreEntries)
+                    {
+                        // We are here means the current snapshot that enumerator represents
+                        // has less entries that what ContinuationToken contains.
+                        return Task.FromResult(actorQueryResult);
+                    }
+                }
+                else
+                {
+                    enumerator = replica.Enumerate(txn, ActorStateProviderHelper.ActorPresenceStorageKeyPrefix, true);
+                    enumHasMoreEntries = enumerator.MoveNext();
+                }
+
+                if (!enumHasMoreEntries)
+                {
+                    return Task.FromResult(actorQueryResult);
+                }
+
+                while (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var storageKey = enumerator.Current.Metadata.Key;
+                    var actorId = ActorStateProviderHelper.GetActorIdFromPresenceStorageKey(storageKey);
+
+                    if (actorId != null)
+                    {
+                        actorIdList.Add(actorId);
+                    }
+                    else
+                    {
+                        ActorTrace.Source.WriteWarningWithId(
+                            TraceType,
+                            this.traceId,
+                            string.Format("Failed to parse ActorId from storage key: {0}", storageKey));
+                    }
+
+                    enumHasMoreEntries = enumerator.MoveNext();
+
+                    if (actorIdList.Count == itemsCount)
+                    {
+                        actorQueryResult.Items = actorIdList.AsReadOnly();
+
+                        // If enumerator has more elements, then set the continuation token.
+                        if (enumHasMoreEntries && enumerator.Current.Metadata.Key.StartsWith(ActorStateProviderHelper.ActorPresenceStorageKeyPrefix))
+                        {
+                            actorQueryResult.ContinuationToken = new ContinuationToken(storageKey.ToString());
+                        }
+
+                        return Task.FromResult(actorQueryResult);
+                    }
+                }
+            }
+            finally
+            {
+                if (enumerator != null)
+                {
+                    enumerator.Dispose();
+                }
+            }
+
+            // We are here means 'actorIdList' contains less than 'itemsCount'
+            // item or it is empty. The continuation token will remain null.
+            actorQueryResult.Items = actorIdList.AsReadOnly();
+
+            return Task.FromResult(actorQueryResult);
         }
 
         private class ReminderKeyInfo

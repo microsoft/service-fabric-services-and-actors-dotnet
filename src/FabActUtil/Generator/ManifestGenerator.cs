@@ -87,7 +87,6 @@ namespace FabActUtil.Generator
                 { GeneratedReplicatorEndpointName, GetFabricServiceReplicatorEndpointName },
                 { GeneratedReplicatorConfigSectionName, GetFabricServiceReplicatorConfigSectionName },
                 { GeneratedReplicatorSecurityConfigSectionName, GetFabricServiceReplicatorSecurityConfigSectionName },
-                { GeneratedStoreConfigSectionName, GetLocalEseStoreConfigSectionName },
             };
 
         private static Context toolContext;
@@ -1554,8 +1553,7 @@ namespace FabActUtil.Generator
                 string value)
             {
                 return
-                    !(this.IsExistingGeneratedName(GeneratedStoreConfigSectionName, value) ||
-                      this.IsExistingGeneratedName(GeneratedReplicatorConfigSectionName, value) ||
+                    !(this.IsExistingGeneratedName(GeneratedReplicatorConfigSectionName, value) ||
                       this.IsExistingGeneratedName(GeneratedReplicatorSecurityConfigSectionName, value));
             }
 

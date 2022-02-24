@@ -5,9 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Query;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
@@ -38,5 +41,21 @@ namespace Microsoft.ServiceFabric.Actors
         /// <para>If this method is called for a non-existent actor id in the system, it will be a no-op.</para>
         /// </remarks>
         Task DeleteActorAsync(ActorId actorId, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the list of reminders.
+        /// </summary>
+        /// <param name="actorId">ActorId for which reminders to be fetched. A null value indicates all actors in the service.</param>
+        /// <param name="continuationToken">
+        /// A continuation token to start querying the results from.
+        /// A null value of continuation token means start returning values form the beginning.
+        /// </param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation of call to server.</returns>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+        Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersAsync(
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken);
     }
 }
