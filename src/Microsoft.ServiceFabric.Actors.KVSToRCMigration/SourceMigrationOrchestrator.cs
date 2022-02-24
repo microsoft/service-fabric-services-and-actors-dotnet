@@ -21,6 +21,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private static readonly string TraceType = typeof(SourceMigrationOrchestrator).Name;
         private static readonly string TombstoneCleanupIsNotDisabledForMigrationHealthProperty = "TombstoneCleanupIsNotDisabledForMigration";
         private KvsActorStateProvider migrationActorStateProvider;
+        private bool actorCallsAllowed;
+        private bool forwardRequest;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceMigrationOrchestrator"/> class.
@@ -36,21 +38,28 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 // TODO throw
             }
 
+            this.actorCallsAllowed = false;
+            this.forwardRequest = false;
             this.migrationActorStateProvider = stateProvider as KvsActorStateProvider;
         }
 
         /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                "Aborting Migration");
+
             await this.migrationActorStateProvider.RejectWritesAsync();
-            this.StateProviderStateChangeCallback(true);
+            this.actorCallsAllowed = true;
+            this.forwardRequest = false;
         }
 
         /// <inheritdoc/>
-        public override Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken)
+        public override bool AreActorCallsAllowed()
         {
-            var rejectWrites = this.migrationActorStateProvider.GetRejectWriteState();
-            return Task.FromResult(!rejectWrites);
+            return this.actorCallsAllowed;
         }
 
         /// <inheritdoc/>
@@ -62,14 +71,26 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                "Starting Downtime");
+
             await this.migrationActorStateProvider.RejectWritesAsync();
-            this.StateProviderStateChangeCallback(false);
+            this.actorCallsAllowed = false;
+            this.forwardRequest = true;
         }
 
         /// <inheritdoc/>
         public override async Task StartMigrationAsync(CancellationToken cancellationToken)
         {
-            this.StateProviderStateChangeCallback(this.AreActorCallsAllowed());
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                "Starting Migration");
+
+            this.actorCallsAllowed = this.AreActorCallsAllowedInternal();
+            this.forwardRequest = !this.actorCallsAllowed;
             await Task.Run(() =>
             {
                 if (!this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
@@ -91,6 +112,27 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             });
         }
 
+        public override bool IsActorCallToBeForwarded()
+        {
+            return this.forwardRequest && this.MigrationSettings.TargetServiceUri != null;
+        }
+
+        protected override Uri GetForwardServiceUri()
+        {
+            return this.MigrationSettings.TargetServiceUri;
+        }
+
+        protected override Int64RangePartitionInformation GetInt64RangePartitionInformation()
+        {
+            var servicePartition = this.migrationActorStateProvider.StatefulServicePartition;
+            if (servicePartition == null)
+            {
+                // TODO throw
+            }
+
+            return servicePartition.PartitionInfo as Int64RangePartitionInformation;
+        }
+
         /// <inheritdoc/>
         protected override string GetMigrationEndpointName()
         {
@@ -98,7 +140,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return ActorNameFormat.GetMigrationSourceEndpointName(this.ActorTypeInformation.ImplementationType);
         }
 
-        private bool AreActorCallsAllowed()
+        private bool AreActorCallsAllowedInternal()
         {
             return !this.migrationActorStateProvider.GetRejectWriteState();
         }

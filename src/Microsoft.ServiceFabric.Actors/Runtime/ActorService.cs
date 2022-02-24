@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
@@ -43,7 +42,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ReplicaRole replicaRole;
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
 
-        private volatile bool actorCallsAllowed = true;
         private IMigrationOrchestrator migrationOrchestrator;
 
         /// <summary>
@@ -100,12 +98,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             // Migration initialization
             this.migrationOrchestrator = migrationOrchestrator;
-            if (this.migrationOrchestrator != null)
-            {
-                // Migration workflow is running
-                this.migrationOrchestrator.RegisterStateChangeCallback(stateChange => this.actorCallsAllowed = stateChange);
-                this.actorCallsAllowed = false;
-            }
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -178,7 +170,33 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #region Migration
-        internal bool AreActorCallsAllowed { get => this.actorCallsAllowed; }
+        internal bool AreActorCallsAllowed
+        {
+            get
+            {
+                if (this.migrationOrchestrator != null)
+                {
+                    return this.migrationOrchestrator.AreActorCallsAllowed();
+                }
+
+                return true;
+            }
+        }
+
+        internal bool IsActorCallToBeForwarded
+        {
+            get
+            {
+                if (this.migrationOrchestrator != null)
+                {
+                    return this.migrationOrchestrator.IsActorCallToBeForwarded();
+                }
+
+                return false;
+            }
+        }
+
+        internal IMigrationOrchestrator MigrationOrchestrator { get => this.migrationOrchestrator; }
         #endregion Migration
 
         #region IActorService Members
@@ -248,7 +266,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
-#region StatefulServiceBase Overrides
+        #region Migration
+        internal bool IsConfiguredForMigration()
+        {
+            return this.migrationOrchestrator != null;
+        }
+        #endregion Migration
+
+        #region StatefulServiceBase Overrides
 
         /// <summary>
         /// Overrides <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase.CreateServiceReplicaListeners()"/>.
@@ -275,20 +300,30 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 foreach (var kvp in listeners)
                 {
                     serviceReplicaListeners.Add(new ServiceReplicaListener(
-                        t =>
+                    t =>
                     {
                         return kvp.Value(this);
                     }, kvp.Key));
                 }
             }
 
+            this.AddMigrationListener(serviceReplicaListeners);
+
+            return serviceReplicaListeners;
+        }
+
+        /// <summary>
+        /// Adds migration specific listeners.
+        /// </summary>
+        /// <param name="serviceReplicaListeners">Existing listener list.</param>
+        /// <remarks>To be used when CreateServiceReplicaListeners() is overriden by Custom implementation of Actor Service.</remarks>
+        protected void AddMigrationListener(IList<ServiceReplicaListener> serviceReplicaListeners)
+        {
             // Add migration endpoint
             if (this.migrationOrchestrator != null)
             {
                 serviceReplicaListeners.Add(new ServiceReplicaListener(_ => this.migrationOrchestrator.GetMigrationCommunicationListener(), Migration.Constants.MigrationListenerName));
             }
-
-            return serviceReplicaListeners;
         }
 
         /// <summary>
@@ -314,7 +349,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 // TODO: Manual start.
                 await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
-                await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+
+                if (this.AreActorCallsAllowed)
+                {
+                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                }
 
                 return;
             }

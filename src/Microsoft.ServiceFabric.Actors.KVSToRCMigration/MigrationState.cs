@@ -16,13 +16,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         None = 0,
 
         /// <summary>
-        /// Copy phase of migration.
+        /// Migration in progress.
         /// </summary>
         InProgress = 1,
 
         /// <summary>
-        /// Catchup phase of migration.
+        /// Migration completed.
         /// </summary>
         Completed = 2,
+
+        /// <summary>
+        /// Migration aborted.
+        /// </summary>
+        Aborted = 3,
     }
 }
