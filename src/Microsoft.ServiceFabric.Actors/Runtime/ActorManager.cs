@@ -665,6 +665,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             };
         }
 
+        public async Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken)
+        {
+            return await this.StateProvider.GetRemindersAsync(
+                ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize(),
+                actorId,
+                continuationToken,
+                cancellationToken);
+        }
+
         public string GetActorTraceId(ActorId actorId)
         {
             return ActorTrace.GetTraceIdForActor(
@@ -1199,6 +1211,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private async Task LoadRemindersAsync(CancellationToken cancellationToken)
         {
             var reminders = await this.StateProvider.LoadRemindersAsync(cancellationToken);
+
+            ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    $"Loading {reminders.Count} reminders.");
 
             if (reminders.Count > 0 && !this.actorService.ActorTypeInformation.IsRemindable)
             {

@@ -147,6 +147,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         }
 
         /// <inheritdoc/>
+        public Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersAsync(int numItemsToReturn, ActorId actorId, ContinuationToken continuationToken, CancellationToken cancellationToken)
+        {
+            return ((IActorStateProvider)this.rcStateProvider).GetRemindersAsync(numItemsToReturn, actorId, continuationToken, cancellationToken);
+        }
+
+        /// <inheritdoc/>
         public Task SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken = default)
         {
             return ((IActorStateProvider)this.rcStateProvider).SaveReminderAsync(actorId, reminder, cancellationToken);

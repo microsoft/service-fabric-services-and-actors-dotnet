@@ -192,7 +192,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 cancellationToken);
         }
 
-#endregion
+        /// <inheritdoc/>
+        Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorService.GetRemindersAsync(
+           ActorId actorId,
+           ContinuationToken continuationToken,
+           CancellationToken cancellationToken)
+        {
+            return this.ActorManager.GetRemindersFromStateProviderAsync(
+                actorId,
+                continuationToken,
+                cancellationToken);
+        }
+
+        #endregion
 
         internal IActorStateManager CreateStateManager(ActorBase actor)
         {

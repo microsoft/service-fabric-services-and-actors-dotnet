@@ -140,6 +140,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task<PagedResult<ActorId>> GetActorsAsync(int numItemsToReturn, ContinuationToken continuationToken, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Gets the list of reminders from the state provider
+        /// </summary>
+        /// <param name="numItemsToReturn">Number of items requested to be returned.</param>
+        /// <param name="actorId">ActorId for which reminders to be fetched. A null value indicates all actors in the service.</param>
+        /// <param name="continuationToken">
+        /// A continuation token to start querying the results from.
+        /// A null value of continuation token means start returning values form the beginning.
+        /// </param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation of call to server.</returns>
+        /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
+        Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersAsync(
+            int numItemsToReturn,
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken);
+
+        /// <summary>
         /// Saves the specified actor ID reminder. If an actor reminder with
         /// given name does not exist, it adds the actor reminder otherwise
         /// existing actor reminder with same name is updated.
