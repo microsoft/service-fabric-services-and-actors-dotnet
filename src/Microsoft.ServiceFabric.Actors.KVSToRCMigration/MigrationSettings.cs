@@ -62,5 +62,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 throw e; // TODO: conside throwing SF Exception.
             }
         }
+
+        internal override void Validate()
+        {
+            base.Validate();
+        }
     }
 }

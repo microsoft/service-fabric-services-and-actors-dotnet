@@ -35,17 +35,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
                 string reflectionClassFQN;
                 if (migrationAttribute.StateMigration == StateMigration.Source)
                 {
-                    reflectionClassFQN = migrationSettings.MigrationSourceOrchestratorNameSpace;
+                    reflectionClassFQN = migrationSettings.MigrationSourceOrchestrator;
                 }
                 else
                 {
-                    reflectionClassFQN = migrationSettings.MigrationTargetOrchestratorNameSpace;
+                    reflectionClassFQN = migrationSettings.MigrationTargetOrchestrator;
                 }
 
                 var tokens = reflectionClassFQN.Split(',');
                 if (tokens.Length != 2)
                 {
-                    throw new ArgumentException("Migration<>OrchestratorNameSpace is invalid. Valid format is <namespace of the orchestrator class>, <library name>");
+                    throw new ArgumentException("Migration<>Orchestrator is invalid. Valid format is <orchestrator class FQN>, <Dll name>");
                 }
 
                 var className = tokens[0].Trim();

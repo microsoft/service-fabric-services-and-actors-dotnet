@@ -488,10 +488,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private async Task ThrowIfInvalidConfigForMigrationAsync(CancellationToken cancellationToken)
         {
-            if (this.MigrationSettings.SourceServiceUri == null)
-            {
-                throw new ActorStateInvalidMigrationConfigException("KVSServiceName is not configured in Settings.xml");
-            }
+            this.MigrationSettings.Validate();
 
             var fabricClient = new FabricClient();
             var kvsServiceDescription = await fabricClient.ServiceManager.GetServiceDescriptionAsync(this.MigrationSettings.SourceServiceUri);

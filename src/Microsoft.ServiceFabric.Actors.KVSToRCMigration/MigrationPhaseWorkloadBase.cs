@@ -204,13 +204,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                     return result;
                 }
-                else
-                {
-                    ActorTrace.Source.WriteInfoWithId(
-                        TraceType,
-                        this.traceId,
-                        $"Starting or resuming {this.migrationPhase} - {this.currentIteration} Phase\n Input: {input.ToString()}");
-                }
+
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    $"Starting or resuming {this.migrationPhase} - {this.currentIteration} Phase\n Input: {input.ToString()}");
 
                 var workers = this.CreateMigrationWorkers(input, cancellationToken);
                 var tasks = new List<Task<WorkerResult>>();

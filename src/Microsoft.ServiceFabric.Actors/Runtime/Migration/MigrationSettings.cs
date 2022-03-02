@@ -15,8 +15,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 
         public MigrationSettings()
         {
-            this.MigrationSourceOrchestratorNameSpace = "Microsoft.ServiceFabric.Actors.KVSToRCMigration.SourceMigrationOrchestrator, Microsoft.ServiceFabric.Actors.KVSToRCMigration";
-            this.MigrationTargetOrchestratorNameSpace = "Microsoft.ServiceFabric.Actors.KVSToRCMigration.TargetMigrationOrchestrator, Microsoft.ServiceFabric.Actors.KVSToRCMigration";
+            this.MigrationSourceOrchestrator = "Microsoft.ServiceFabric.Actors.KVSToRCMigration.SourceMigrationOrchestrator, Microsoft.ServiceFabric.Actors.KVSToRCMigration";
+            this.MigrationTargetOrchestrator = "Microsoft.ServiceFabric.Actors.KVSToRCMigration.TargetMigrationOrchestrator, Microsoft.ServiceFabric.Actors.KVSToRCMigration";
             this.MigrationMode = MigrationMode.Auto;
         }
 
@@ -26,9 +26,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 
         public MigrationMode MigrationMode { get; set; }
 
-        internal string MigrationSourceOrchestratorNameSpace { get; set; }
+        internal string MigrationSourceOrchestrator { get; set; }
 
-        internal string MigrationTargetOrchestratorNameSpace { get; set; }
+        internal string MigrationTargetOrchestrator { get; set; }
 
         internal virtual void LoadFrom(ICodePackageActivationContext codePackageActivationContext, string configSectionName = "MigrationConfig")
         {
@@ -54,11 +54,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
                         this.MigrationMode = (MigrationMode)Enum.Parse(typeof(MigrationMode), migrationSettings.Parameters["MigrationMode"].Value);
                     }
                 }
+                else
+                {
+                    ActorTrace.Source.WriteError(TraceType, $"Section {configSectionName} not found in settings file.");
+                    //// TODO: throw
+                }
             }
             catch (Exception e)
             {
                 ActorTrace.Source.WriteError(TraceType, $"Failed to load Migration settings from config package : {e.Message}");
                 throw e; // TODO: conside throwing SF Exception.
+            }
+        }
+
+        internal virtual void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(this.SourceServiceUri.ToString()))
+            {
+                // TODO: throw
             }
         }
     }

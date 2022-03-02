@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
-            await this.migrationActorStateProvider.RejectWritesAsync();
+            await this.migrationActorStateProvider.ResumeWritesAsync();
             this.StateProviderStateChangeCallback(true);
         }
 
