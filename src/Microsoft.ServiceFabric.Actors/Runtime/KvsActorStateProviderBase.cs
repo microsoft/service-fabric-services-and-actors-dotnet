@@ -192,6 +192,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        internal IStatefulServicePartition StatefulServicePartition { get => this.partition; }
+
         internal StatefulServiceInitializationParameters InitParams => this.initParams;
 
         internal ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;

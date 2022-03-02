@@ -17,10 +17,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             ServicePartitionClient<HttpCommunicationClient> servicePartitionClient,
             StatefulServiceContext statefulServiceContext,
             MigrationSettings migrationSettings,
-            StatefulServiceInitializationParameters initParams,
             ActorTypeInformation actorTypeInfo,
             string traceId)
-            : base(MigrationPhase.Catchup, curentIteration, 1, stateProvider, servicePartitionClient, statefulServiceContext, migrationSettings, initParams, actorTypeInfo, traceId)
+            : base(MigrationPhase.Catchup, curentIteration, 1, stateProvider, servicePartitionClient, statefulServiceContext, migrationSettings, actorTypeInfo, traceId)
         {
         }
     }

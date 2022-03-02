@@ -170,7 +170,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 }
 
-                var endSN = startSN + this.migrationSettings.ItemsPerEnumeration;
+                var endSN = startSN + this.migrationSettings.ItemsPerEnumeration - 1;
                 long keysMigrated = 0L;
 
                 while (startSN <= this.workerInput.EndSeqNum)
@@ -225,6 +225,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 $"Enumerating from KVS - StartSN: {startSN}, SNCount: {snCount}");
             var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
             long keysMigrated = 0L;
+            long laSN = -1;
 
             try
             {
@@ -260,7 +261,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             if (kvsData.Count > 0)
                             {
-                                long laSN = kvsData[kvsData.Count - 1].Version;
+                                laSN = kvsData[kvsData.Count - 1].Version;
                                 keysMigrated += await this.stateProvider.SaveStateAsync(kvsData, cancellationToken);
                                 using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                                 {
@@ -303,22 +304,26 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 }
 
-                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+                if (endSN == this.workerInput.EndSeqNum && laSN != endSN)
                 {
-                    await this.metadataDict.AddOrUpdateAsync(
-                        tx,
-                        Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
-                        endSN.ToString(),
-                        (_, __) => endSN.ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken);
-
-                    if (endSN == this.workerInput.EndSeqNum)
+                    // This could happen, if SN merge caused the endSN to disappear
+                    using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                     {
-                        await this.CompleteWorkerAsync(tx, cancellationToken);
-                    }
+                        await this.metadataDict.AddOrUpdateAsync(
+                            tx,
+                            Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
+                            endSN.ToString(),
+                            (_, __) => endSN.ToString(),
+                            DefaultRCTimeout,
+                            cancellationToken);
 
-                    await tx.CommitAsync();
+                        if (endSN == this.workerInput.EndSeqNum)
+                        {
+                            await this.CompleteWorkerAsync(tx, cancellationToken);
+                        }
+
+                        await tx.CommitAsync();
+                    }
                 }
 
                 return keysMigrated;
@@ -333,15 +338,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     snCount,
                     ex);
                 throw ex;
-            }
-        }
-
-        private async Task CompleteWorkerAsync(CancellationToken cancellationToken)
-        {
-            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-            {
-                await this.CompleteWorkerAsync(tx, cancellationToken);
-                await tx.CommitAsync();
             }
         }
 

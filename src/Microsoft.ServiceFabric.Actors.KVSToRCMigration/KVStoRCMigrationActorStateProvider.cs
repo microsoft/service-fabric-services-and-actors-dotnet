@@ -263,79 +263,104 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             long lastAppliedSN = -1;
             using (var tx = this.GetStateManager().CreateTransaction())
             {
-                foreach (var data in kvsData)
+                try
                 {
-                    byte[] rcValue = { };
-                    IReliableDictionary2<string, byte[]> dictionary = null;
-                    if (data.Key.StartsWith("@@"))
+                    foreach (var data in kvsData)
                     {
-                        rcValue = data.Value;
-                        dictionary = this.rcStateProvider.GetActorPresenceDictionary();
-                        presenceKeyCount++;
-                    }
-                    else if (data.Key.StartsWith("Actor"))
-                    {
-                        rcValue = data.Value;
-                        var startIndex = this.GetNthIndex(data.Key, '_', 2);
-                        var endIndex = this.GetNthIndex(data.Key, '_', 3);
-                        var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                        dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
-                        actorStateCount++;
-                    }
-                    else if (data.Key.StartsWith("RC@@"))
-                    {
-                        ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(data.Value);
-                        rcValue = this.SerializeReminderCompletedData(reminderCompletedData);
-                        dictionary = this.rcStateProvider.GetReminderCompletedDictionary();
-                        reminderCompletedKeyCount++;
-                    }
-                    else if (data.Key.Equals("Timestamp_VLTM"))
-                    {
-                        LogicalTimestamp logicalTimestamp = this.DeserializeLogicalTime(data.Value);
-                        rcValue = this.SerializeLogicalTime(logicalTimestamp);
-                        dictionary = this.rcStateProvider.GetLogicalTimeDictionary();
-                        logicalTimeCount++;
-                    }
-                    else if (data.Key.StartsWith("Reminder"))
-                    {
-                        ActorReminderData actorReminderData = this.DeserializeReminder(data.Value);
-                        rcValue = this.SerializeReminder(actorReminderData);
-                        var startIndex = this.GetNthIndex(data.Key, '_', 2);
-                        var endIndex = this.GetNthIndex(data.Key, '_', 3);
-                        var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                        dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
-                        reminderCount++;
-                    }
-                    else if (data.Key.StartsWith(MigrationConstants.RejectWritesKey))
-                    {
-                        ActorTrace.Source.WriteInfoWithId(
-                            this.TraceType,
-                            this.traceId,
-                            "Ignoring KVS key - {0}",
-                            data.Key);
-                        continue;
-                    }
-                    else
-                    {
-                        var message = "Migration Error: Failed to parse the KVS key - " + data.Key;
+                        byte[] rcValue = { };
+                        IReliableDictionary2<string, byte[]> dictionary = null;
+                        if (data.Key.StartsWith("@@"))
+                        {
+                            rcValue = data.Value;
+                            dictionary = this.rcStateProvider.GetActorPresenceDictionary();
+                            presenceKeyCount++;
+                        }
+                        else if (data.Key.StartsWith("Actor"))
+                        {
+                            rcValue = data.Value;
+                            var startIndex = this.GetNthIndex(data.Key, '_', 2);
+                            var endIndex = this.GetNthIndex(data.Key, '_', 3);
+                            var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                            dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
+                            actorStateCount++;
+                        }
+                        else if (data.Key.StartsWith("RC@@"))
+                        {
+                            ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(data.Key, data.Value);
+                            rcValue = this.SerializeReminderCompletedData(data.Key, reminderCompletedData);
+                            dictionary = this.rcStateProvider.GetReminderCompletedDictionary();
+                            reminderCompletedKeyCount++;
+                        }
+                        else if (data.Key.Equals("Timestamp_VLTM"))
+                        {
+                            LogicalTimestamp logicalTimestamp = this.DeserializeLogicalTime(data.Key, data.Value);
+                            rcValue = this.SerializeLogicalTime(data.Key, logicalTimestamp);
+                            dictionary = this.rcStateProvider.GetLogicalTimeDictionary();
+                            logicalTimeCount++;
+                        }
+                        else if (data.Key.StartsWith("Reminder"))
+                        {
+                            ActorReminderData actorReminderData = this.DeserializeReminder(data.Key, data.Value);
+                            rcValue = this.SerializeReminder(data.Key, actorReminderData);
+                            var startIndex = this.GetNthIndex(data.Key, '_', 2);
+                            var endIndex = this.GetNthIndex(data.Key, '_', 3);
+                            var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                            dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
+                            reminderCount++;
+                        }
+                        else if (data.Key.StartsWith(MigrationConstants.RejectWritesKey))
+                        {
+                            ActorTrace.Source.WriteInfoWithId(
+                                this.TraceType,
+                                this.traceId,
+                                "Ignoring KVS key - {0}",
+                                data.Key);
+                            continue;
+                        }
+                        else
+                        {
+                            var message = "Migration Error: Failed to parse the KVS key - " + data.Key;
 
-                        ActorTrace.Source.WriteInfoWithId(
-                            this.TraceType,
-                            this.traceId,
-                            message);
+                            ActorTrace.Source.WriteInfoWithId(
+                                this.TraceType,
+                                this.traceId,
+                                message);
 
-                        continue;
+                            continue;
+                        }
+
+                        var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
+                        if (rcValue.Length > 0)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            await dictionary.AddOrUpdateAsync(tx, rcKey, rcValue, (k, v) => rcValue);
+                        }
+
+                        keysMigrated.Add(data.Key);
+                        lastAppliedSN = data.Version;
                     }
+                }
+                catch (Exception ex)
+                {
+                    await this.metadataDictionary.TryAddAsync(
+                       tx,
+                       MigrationConstants.MigrationEndDateTimeUTC,
+                       DateTime.UtcNow.ToString(),
+                       MigrationConstants.DefaultRCTimeout,
+                       cancellationToken);
 
-                    var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
-                    if (rcValue.Length > 0)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        await dictionary.AddOrUpdateAsync(tx, rcKey, rcValue, (k, v) => rcValue);
-                    }
+                    await this.metadataDictionary.AddOrUpdateAsync(
+                        tx,
+                        MigrationConstants.MigrationCurrentStatus,
+                        MigrationState.Aborted.ToString(),
+                        (_, __) => MigrationState.Aborted.ToString(),
+                        MigrationConstants.DefaultRCTimeout,
+                        cancellationToken);
 
-                    keysMigrated.Add(data.Key);
-                    lastAppliedSN = data.Version;
+                    // Commit with the same transaction to avoid race condition during failover.
+                    await tx.CommitAsync();
+
+                    throw ex;
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -388,43 +413,151 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return -1;
         }
 
-        private ReminderCompletedData DeserializeReminderCompletedData(byte[] data)
+        private ReminderCompletedData DeserializeReminderCompletedData(string key, byte[] data)
         {
             using (var reader = XmlDictionaryReader.CreateBinaryReader(data, XmlDictionaryReaderQuotas.Max))
             {
-                return (ReminderCompletedData)ReminderCompletedDataContractSerializer.ReadObject(reader);
+                try
+                {
+                    var res = (ReminderCompletedData)ReminderCompletedDataContractSerializer.ReadObject(reader);
+
+                    ActorTrace.Source.WriteNoiseWithId(
+                        this.TraceType,
+                        this.traceId,
+                        $"Successfully deserialized Reminder Completed Data - Key : {key}, UtcTime : {res.UtcTime}, LogicalTime : {res.LogicalTime}");
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        this.TraceType,
+                        this.traceId,
+                        $"Failed to deserialize Reminder Completed Data - Key : {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
             }
         }
 
-        private byte[] SerializeReminderCompletedData(ReminderCompletedData data)
+        private byte[] SerializeReminderCompletedData(string key, ReminderCompletedData data)
         {
-            return ReminderCompletedDataSerializer.Serialize(data);
+            try
+            {
+                var res = ReminderCompletedDataSerializer.Serialize(data);
+                ActorTrace.Source.WriteNoiseWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Successfully serialized Reminder Completed Data - Key : {key}");
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Failed to serialize Reminder Completed Data - Key : {key}, ErrorMessage : {ex.Message}");
+
+                throw ex;
+            }
         }
 
-        private ActorReminderData DeserializeReminder(byte[] data)
+        private ActorReminderData DeserializeReminder(string key, byte[] data)
         {
             using (var reader = XmlDictionaryReader.CreateBinaryReader(data, XmlDictionaryReaderQuotas.Max))
             {
-                return (ActorReminderData)ReminderDataContractSerializer.ReadObject(reader);
+                try
+                {
+                    var res = (ActorReminderData)ReminderDataContractSerializer.ReadObject(reader);
+
+                    ActorTrace.Source.WriteNoiseWithId(
+                        this.TraceType,
+                        this.traceId,
+                        $"Successfully deserialized Reminder - Key : {key}, ActorId : {res.ActorId}, DueTime : {res.DueTime}, IsReadOnly : {res.IsReadOnly}, LogicalCreationTime : {res.LogicalCreationTime}, Name : {res.Name}, Period : {res.Period}, State : {res.State}");
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        this.TraceType,
+                        this.traceId,
+                        $"Failed to deserialize Reminder - Key : {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
             }
         }
 
-        private byte[] SerializeReminder(ActorReminderData data)
+        private byte[] SerializeReminder(string key, ActorReminderData data)
         {
-            return ActorReminderDataSerializer.Serialize(data);
+            try
+            {
+                var res = ActorReminderDataSerializer.Serialize(data);
+                ActorTrace.Source.WriteNoiseWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Successfully serialized Reminder - Key : {key}");
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Failed to serialize Reminder - Key : {key}, ErrorMessage : {ex.Message}");
+
+                throw ex;
+            }
         }
 
-        private LogicalTimestamp DeserializeLogicalTime(byte[] data)
+        private LogicalTimestamp DeserializeLogicalTime(string key, byte[] data)
         {
             using (var reader = XmlDictionaryReader.CreateBinaryReader(data, XmlDictionaryReaderQuotas.Max))
             {
-                return (LogicalTimestamp)LogicalTimestampDataContractSerializer.ReadObject(reader);
+                try
+                {
+                    var res = (LogicalTimestamp)LogicalTimestampDataContractSerializer.ReadObject(reader);
+
+                    ActorTrace.Source.WriteNoiseWithId(
+                        this.TraceType,
+                        this.traceId,
+                        $"Successfully deserialized LogicalTimestamp - Key : {key}, Timestamp : {res.Timestamp}");
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        this.TraceType,
+                        this.traceId,
+                        $"Failed to deserialize LogicalTimestamp - Key : {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
             }
         }
 
-        private byte[] SerializeLogicalTime(LogicalTimestamp data)
+        private byte[] SerializeLogicalTime(string key, LogicalTimestamp data)
         {
-            return LogicalTimestampSerializer.Serialize(data);
+            try
+            {
+                var res = LogicalTimestampSerializer.Serialize(data);
+                ActorTrace.Source.WriteNoiseWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Successfully serialized LogicalTimestamp - Key : {key}");
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Failed to serialize LogicalTimestamp - Key : {key}, ErrorMessage : {ex.Message}");
+
+                throw ex;
+            }
         }
 
         private string TransformKVSKeyToRCFormat(string key)

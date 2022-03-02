@@ -8,7 +8,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
     /// <summary>
     /// Interface definition for migraiton operations./>.
@@ -26,6 +28,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         /// </summary>
         /// <returns>Migration specific communication listener.</returns>
         public ICommunicationListener GetMigrationCommunicationListener();
+
+        /// <summary>
+        /// Gets the message handler that forwards requests when the current service is unable to service the request.
+        /// </summary>
+        /// <param name="actorService">Actor service.</param>
+        /// <param name="messageHandler">Original message handler.</param>
+        /// <param name="requestForwarderFactory">Request forwarder factory.</param>
+        /// <returns>Request forwardable message handler.</returns>
+        public IServiceRemotingMessageHandler GetMessageHandler(ActorService actorService, IServiceRemotingMessageHandler messageHandler, Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory);
 
         /// <summary>
         /// Starts the migration operation.
@@ -55,12 +66,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         /// A true value indicates state provider is in a state to accept read/write operation.
         /// A false value indicates state provider is either not ready yet or in reject state post migration.
         /// </summary>
-        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
         /// <returns>
-        /// A task that represents the asynchronous migration operation.
-        /// A task with true result indicates actor calls are allowed on the actor service, false otherwise
+        /// A True result indicates actor calls are allowed on the actor service, false otherwise.
         /// </returns>
-        public Task<bool> AreActorCallsAllowedAsync(CancellationToken cancellationToken);
+        public bool AreActorCallsAllowed();
+
+        /// <summary>
+        /// Is actor call to be forwarded if the current actor service cannot service the request.
+        /// </summary>
+        /// <returns>True if the request needs to be forwarded, false otherwise.</returns>
+        public bool IsActorCallToBeForwarded();
 
         /// <summary>
         /// Register callback to invoke when state provider state changes.

@@ -27,7 +27,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private StatefulServiceContext statefulServiceContext;
         private MigrationSettings migrationSettings;
         private KVStoRCMigrationActorStateProvider stateProvider;
-        private StatefulServiceInitializationParameters initParams;
         private string traceId;
         private ActorTypeInformation actorTypeInformation;
         private int currentIteration;
@@ -41,7 +40,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             ServicePartitionClient<HttpCommunicationClient> servicePartitionClient,
             StatefulServiceContext statefulServiceContext,
             MigrationSettings migrationSettings,
-            StatefulServiceInitializationParameters initParams,
             ActorTypeInformation actorTypeInfo,
             string traceId)
         {
@@ -50,7 +48,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.migrationSettings = migrationSettings;
             this.statefulServiceContext = statefulServiceContext;
             this.stateProvider = stateProvider;
-            this.initParams = initParams;
             this.actorTypeInformation = actorTypeInfo;
             this.currentIteration = currentIteration;
             this.workerCount = workerCount;
@@ -65,8 +62,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public StatefulServiceContext StatefulServiceContext { get => this.statefulServiceContext; }
 
         public MigrationSettings MigrationSettings { get => this.migrationSettings; }
-
-        public StatefulServiceInitializationParameters StatefulServiceInitializationParameters { get => this.initParams; }
 
         public KVStoRCMigrationActorStateProvider StateProvider { get => this.stateProvider; }
 
@@ -173,7 +168,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var workerResult = await MigrationWorker.GetResultAsync(metadataDict, tx, migrationPhase, currentIteration, i, traceId, cancellationToken);
-                workerResults.Add(workerResult);
+                if (workerResult.Status != MigrationState.None)
+                {
+                    workerResults.Add(workerResult);
+                }
             }
 
             result.WorkerResults = workerResults.ToArray();
@@ -570,7 +568,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private void EmitTelemetryEvent(TimeSpan timeSpent, long keysMigrated, int workerCount, int iterationCount)
         {
-            ActorTelemetry.KVSToRCMigrationPhaseEndEvent(
+            /*
+             * ActorTelemetry.KVSToRCMigrationPhaseEndEvent(
                 MigrationUtility.GetPhaseEndTelemetryKey(this.migrationPhase),
                 this.statefulServiceContext,
                 this.migrationSettings.SourceServiceUri.OriginalString,
@@ -578,6 +577,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 keysMigrated,
                 workerCount,
                 iterationCount);
+            */
         }
     }
 }
