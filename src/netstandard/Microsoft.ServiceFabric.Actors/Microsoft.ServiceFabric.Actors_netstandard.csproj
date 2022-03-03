@@ -14,6 +14,7 @@
   <ItemGroup>
     <!--Add required .cs files to build for dotnet core-->
     <Compile Include="$(SourceCodeDir)*.cs" Exclude="$(SourceCodeDir)SR.Designer.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)Migration\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Client\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Diagnostics\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Generator\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />

@@ -8,15 +8,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Runtime;
 
     /// <summary>
@@ -29,14 +28,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     public class ActorService : StatefulServiceBase, IActorService
     {
         private const string TraceType = "ActorService";
-
-        private const string ActorsMigrationAssemblyName = "Microsoft.ServiceFabric.Actors.Migration";
-        private const string ActorsMigrationUtilityClassFullName = "Microsoft.ServiceFabric.Actors.Migration.Utility";
-        private const string KVSToRCMigrationActorStateProviderClassFullName = "Microsoft.ServiceFabric.Actors.Migration.KVStoRCMigrationActorStateProvider";
-        private const string MigrationOrchestratorClassFullName = "Microsoft.ServiceFabric.Actors.Migration.MigrationOrchestrator";
-        private const string ActorsMigrationGetKVSKestrelCommunicationListnerMethod = "GetKVSKestrelCommunicationListener";
-        private const string ActorsMigrationGetRCKestrelCommunicationListnerMethod = "GetRCKestrelCommunicationListener";
-        private const string ActorsMigrationGetRejectWriteStateMethod = "GetRejectWriteState";
 
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly IActorStateProvider stateProvider;
@@ -51,10 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ReplicaRole replicaRole;
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
 
-        private object actorsMigrationUtility;
-        private MethodInfo getKVSKestrelCommunicationListnerMethodInfo;
-        private MethodInfo getRCKestrelCommunicationListnerMethodInfo;
-        private MethodInfo getGetRejectWriteStateMethodInfo;
+        private IMigrationOrchestrator migrationOrchestrator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -72,9 +60,31 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null,
             IActorStateProvider stateProvider = null,
             ActorServiceSettings settings = null)
+            : this(
+                context,
+                actorTypeInfo,
+                MigrationReflectionHelper.GetMigrationOrchestrator(
+                    stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo),
+                    actorTypeInfo,
+                    context),
+                actorFactory,
+                stateManagerFactory,
+                stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo),
+                settings)
+        {
+        }
+
+        internal ActorService(
+            StatefulServiceContext context,
+            ActorTypeInformation actorTypeInfo,
+            IMigrationOrchestrator migrationOrchestrator,
+            Func<ActorService, ActorId, ActorBase> actorFactory = null,
+            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null,
+            IActorStateProvider stateProvider = null,
+            ActorServiceSettings settings = null)
             : base(
                 context,
-                ActorStateProviderHelper.GetStateProvider(stateProvider, actorTypeInfo))
+                migrationOrchestrator != null ? migrationOrchestrator.GetMigrationActorStateProvider() : stateProvider)
         {
             this.actorTypeInformation = actorTypeInfo;
             this.stateProvider = (IActorStateProvider)this.StateProviderReplica;
@@ -85,6 +95,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
+
+            // Migration initialization
+            this.migrationOrchestrator = migrationOrchestrator;
+
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
                 this.StateProviderReplica.GetType().ToString());
@@ -155,6 +169,36 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
+        #region Migration
+        internal bool AreActorCallsAllowed
+        {
+            get
+            {
+                if (this.migrationOrchestrator != null)
+                {
+                    return this.migrationOrchestrator.AreActorCallsAllowed();
+                }
+
+                return true;
+            }
+        }
+
+        internal bool IsActorCallToBeForwarded
+        {
+            get
+            {
+                if (this.migrationOrchestrator != null)
+                {
+                    return this.migrationOrchestrator.IsActorCallToBeForwarded();
+                }
+
+                return false;
+            }
+        }
+
+        internal IMigrationOrchestrator MigrationOrchestrator { get => this.migrationOrchestrator; }
+        #endregion Migration
+
         #region IActorService Members
 
         /// <summary>
@@ -222,12 +266,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
-        internal bool GetRejectWriteState()
+        #region Migration
+        internal bool IsConfiguredForMigration()
         {
-            return (bool)this.getGetRejectWriteStateMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { this.stateProvider });
+            return this.migrationOrchestrator != null;
         }
+        #endregion Migration
 
-#region StatefulServiceBase Overrides
+        #region StatefulServiceBase Overrides
 
         /// <summary>
         /// Overrides <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase.CreateServiceReplicaListeners()"/>.
@@ -254,36 +300,30 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 foreach (var kvp in listeners)
                 {
                     serviceReplicaListeners.Add(new ServiceReplicaListener(
-                        t =>
+                    t =>
                     {
                         return kvp.Value(this);
                     }, kvp.Key));
                 }
             }
 
-            // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
-            if (this.IsMigrationSource())
-            {
-                this.InitializeActorMigrationUtility();
-                serviceReplicaListeners.Add(new ServiceReplicaListener(
-                    serviceContext =>
-                {
-                    return (ICommunicationListener)this.getKVSKestrelCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
-                },
-                    "_KVSMigrationEP_"/*TODO: Get the listener name from constants*/));
-            }
-            else if (this.IsMigrationTarget())
-            {
-                this.InitializeActorMigrationUtility();
-                serviceReplicaListeners.Add(new ServiceReplicaListener(
-                    serviceContext =>
-                    {
-                        return (ICommunicationListener)this.getRCKestrelCommunicationListnerMethodInfo.Invoke(this.actorsMigrationUtility, new object[] { serviceContext, this.actorTypeInformation, this.stateProvider });
-                    },
-                    "RC Migration Listner"));
-            }
+            this.AddMigrationListener(serviceReplicaListeners);
 
             return serviceReplicaListeners;
+        }
+
+        /// <summary>
+        /// Adds migration specific listeners.
+        /// </summary>
+        /// <param name="serviceReplicaListeners">Existing listener list.</param>
+        /// <remarks>To be used when CreateServiceReplicaListeners() is overriden by Custom implementation of Actor Service.</remarks>
+        protected void AddMigrationListener(IList<ServiceReplicaListener> serviceReplicaListeners)
+        {
+            // Add migration endpoint
+            if (this.migrationOrchestrator != null)
+            {
+                serviceReplicaListeners.Add(new ServiceReplicaListener(_ => this.migrationOrchestrator.GetMigrationCommunicationListener(), Migration.Constants.MigrationListenerName));
+            }
         }
 
         /// <summary>
@@ -305,15 +345,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
             // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
-            if (this.IsMigrationSource())
+            if (this.migrationOrchestrator != null)
             {
-                (this.stateProvider as KvsActorStateProvider).CheckTombstoneCleanupIsDisabled();
-            }
+                // TODO: Manual start.
+                await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
 
-            if (this.IsMigrationTarget())
-            {
-                var migrationOrchestrator = (IMigrationOrchestrator)this.GetMigrationOrchestratorObject();
-                await migrationOrchestrator.StartMigration(cancellationToken);
+                if (this.AreActorCallsAllowed)
+                {
+                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                }
+
+                return;
             }
 
             await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
@@ -350,6 +392,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             this.replicaRole = newRole;
+
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.Context.TraceId,
@@ -397,95 +440,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.ActorTypeInformation.ImplementationType,
                 actorService,
                 actorId);
-        }
-
-        private void InitializeActorMigrationUtility()
-        {
-            var currentAssembly = typeof(ActorService).GetTypeInfo().Assembly;
-
-            var actorsMigrationAssembly = new AssemblyName
-            {
-                Name = ActorsMigrationAssemblyName,
-                Version = currentAssembly.GetName().Version,
-#if !DotNetCoreClr
-                CultureInfo = currentAssembly.GetName().CultureInfo,
-#endif
-                ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
-            };
-
-            actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
-
-            var actorsMigrationUtilityTypeName = Actors.Helper.CreateQualifiedNameForAssembly(
-                actorsMigrationAssembly.FullName,
-                ActorsMigrationUtilityClassFullName);
-
-            var actorsMigrationUtilityType = Type.GetType(actorsMigrationUtilityTypeName, true);
-            this.actorsMigrationUtility = Activator.CreateInstance(actorsMigrationUtilityType);
-            this.getKVSKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetKVSKestrelCommunicationListnerMethod);
-            this.getRCKestrelCommunicationListnerMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetRCKestrelCommunicationListnerMethod);
-            this.getGetRejectWriteStateMethodInfo = actorsMigrationUtilityType.GetMethod(ActorsMigrationGetRejectWriteStateMethod);
-        }
-
-        private Type GetKVStoRCMigrationActorStateProviderType()
-        {
-            var currentAssembly = typeof(ActorService).GetTypeInfo().Assembly;
-
-            var actorsMigrationAssembly = new AssemblyName
-            {
-                Name = ActorsMigrationAssemblyName,
-                Version = currentAssembly.GetName().Version,
-#if !DotNetCoreClr
-                CultureInfo = currentAssembly.GetName().CultureInfo,
-#endif
-                ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
-            };
-
-            actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
-            var kVStoRCMigrationActorStateProviderTypeName = Actors.Helper.CreateQualifiedNameForAssembly(
-                actorsMigrationAssembly.FullName,
-                KVSToRCMigrationActorStateProviderClassFullName);
-
-            return Type.GetType(kVStoRCMigrationActorStateProviderTypeName, true);
-        }
-
-        private object GetMigrationOrchestratorObject()
-        {
-            var currentAssembly = typeof(ActorService).GetTypeInfo().Assembly;
-
-            var actorsMigrationAssembly = new AssemblyName
-            {
-                Name = ActorsMigrationAssemblyName,
-                Version = currentAssembly.GetName().Version,
-#if !DotNetCoreClr
-                CultureInfo = currentAssembly.GetName().CultureInfo,
-#endif
-                ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
-            };
-
-            actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
-
-            var actorsMigrationOrchestratorTypeName = Actors.Helper.CreateQualifiedNameForAssembly(
-                actorsMigrationAssembly.FullName,
-                MigrationOrchestratorClassFullName);
-
-            var actorsMigrationOrchestratorType = Type.GetType(actorsMigrationOrchestratorTypeName, true);
-            return Activator.CreateInstance(actorsMigrationOrchestratorType, new object[] { this.stateProvider, this.actorTypeInformation });
-        }
-
-        private bool IsMigrationSource()
-        {
-            var types = new List<Type> { this.ActorTypeInformation.ImplementationType };
-            types.AddRange(this.ActorTypeInformation.InterfaceTypes);
-
-            return (Actors.Helper.IsMigrationSource(types) && this.StateProviderReplica is KvsActorStateProvider);
-        }
-
-        private bool IsMigrationTarget()
-        {
-            var types = new List<Type> { this.ActorTypeInformation.ImplementationType };
-            types.AddRange(this.ActorTypeInformation.InterfaceTypes);
-
-            return (Actors.Helper.IsMigrationTarget(types) && (this.StateProviderReplica.GetType() == this.GetKVStoRCMigrationActorStateProviderType()));
         }
     }
 }

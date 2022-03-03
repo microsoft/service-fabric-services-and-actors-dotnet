@@ -45,7 +45,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string BackupRootFolderPrefix = "kvsasp_";
         private const string KvsHealthSourceId = "KvsActorStateProvider";
         private const string BackupCallbackSlowCancellationHealthProperty = "BackupCallbackSlowCancellation";
-        private const string TombstoneCleanupIsNotDisabledForMigrationHealthProperty = "TombstoneCleanupIsNotDisabledForMigration";
         private static readonly byte[] ActorPresenceValue = { byte.MinValue };
 
         private readonly DataContractSerializer reminderSerializer;
@@ -192,6 +191,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.onRestoreCompletedAsyncFunction = value;
             }
         }
+
+        internal IStatefulServicePartition StatefulServicePartition { get => this.partition; }
 
         internal StatefulServiceInitializationParameters InitParams => this.initParams;
 
@@ -861,22 +862,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.actorStateProviderHelper;
         }
 
-        internal void CheckTombstoneCleanupIsDisabled()
+        internal void ReportPartitionHealth(HealthInformation healthInformation)
         {
-            if (!this.storeReplica.KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
+            try
             {
-                var description = string.Format(
-                "Tombstone cleanup must be disabled during the migration so that deletes can be tracked and copied from KVS to Reliable Collections. KeyValueStoreReplicaSettings.DisableTombstoneCleanup = {0}",
-                this.storeReplica.KeyValueStoreReplicaSettings.DisableTombstoneCleanup);
-
-                var healthInfo = new HealthInformation(KvsHealthSourceId, TombstoneCleanupIsNotDisabledForMigrationHealthProperty, HealthState.Warning)
-                {
-                    TimeToLive = TimeSpan.MaxValue,
-                    RemoveWhenExpired = false,
-                    Description = description,
-                };
-
-                this.ReportPartitionHealth(healthInfo);
+                this.partition.ReportPartitionHealth(healthInformation);
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "ReportPartitionHealth() failed with: {0} while reporting health information: {1}.",
+                    ex.ToString(),
+                    healthInformation.ToString());
             }
         }
 
@@ -1175,23 +1174,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             };
 
             this.ReportPartitionHealth(healthInfo);
-        }
-
-        private void ReportPartitionHealth(HealthInformation healthInformation)
-        {
-            try
-            {
-                this.partition.ReportPartitionHealth(healthInformation);
-            }
-            catch (Exception ex)
-            {
-                ActorTrace.Source.WriteWarningWithId(
-                    TraceType,
-                    this.traceId,
-                    "ReportPartitionHealth() failed with: {0} while reporting health information: {1}.",
-                    ex.ToString(),
-                    healthInformation.ToString());
-            }
         }
 
         private ReplicatorSettings LoadReplicatorSettings()

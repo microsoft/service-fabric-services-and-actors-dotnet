@@ -27,22 +27,5 @@ namespace Microsoft.ServiceFabric.Actors
                 return Guid.NewGuid().ToString();
             }
         }
-
-        public static bool IsMigrationSource(List<Type> types)
-        {
-            return ActorStateMigrationAttribute.Get(types).ActorStateMigration.HasFlag(ActorStateMigration.Source);
-        }
-
-        public static bool IsMigrationTarget(List<Type> types)
-        {
-            return ActorStateMigrationAttribute.Get(types).ActorStateMigration.HasFlag(ActorStateMigration.Target);
-        }
-
-        // Assembly.CreateQualifiedName is not coreCLRCompliant. Implementation of the method from .NET
-        // This method creates the name of a type qualified by the display name of its assembly.
-        public static string CreateQualifiedNameForAssembly(string assemblyName, string typeName)
-        {
-            return typeName + ", " + assemblyName;
-        }
     }
 }
