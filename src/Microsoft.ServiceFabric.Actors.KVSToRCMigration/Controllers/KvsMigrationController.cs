@@ -109,5 +109,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             return this.kvsActorStateProvider.GetDisableTombstoneCleanupSetting();
         }
+
+        /// <summary>
+        /// Gets Value for given Key
+        /// </summary>
+        /// <param name="key">Value of Key to fetch</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpGet("GetValueByKey")]
+        public byte[] GetValueByKey([FromQuery] string key)
+        {
+            return this.kvsActorStateProvider.GetValueByKey(key);
+        }
     }
 }

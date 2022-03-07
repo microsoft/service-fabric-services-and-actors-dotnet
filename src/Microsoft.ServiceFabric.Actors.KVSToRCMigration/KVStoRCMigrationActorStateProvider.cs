@@ -8,8 +8,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Health;
+    using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
@@ -31,6 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private static readonly DataContractSerializer ReminderCompletedDataContractSerializer = new DataContractSerializer(typeof(ReminderCompletedData));
         private static readonly DataContractSerializer ReminderDataContractSerializer = new DataContractSerializer(typeof(ActorReminderData));
         private static readonly DataContractSerializer LogicalTimestampDataContractSerializer = new DataContractSerializer(typeof(LogicalTimestamp));
+        private static readonly DataContractSerializer MigratedKeysDataContractSerializer = new DataContractSerializer(typeof(List<string>));
 
         private string traceId;
         private ReliableCollectionsActorStateProvider rcStateProvider;
@@ -366,10 +369,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     throw ex;
                 }
 
+                await this.AddOrUpdateMigratedKeysAsync(tx, keysMigrated, cancellationToken);
+
                 cancellationToken.ThrowIfCancellationRequested();
                 await tx.CommitAsync();
 
-                ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, string.Join(",", keysMigrated));
+                ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated));
 
                 string infoLevelMessage = "Migrated " + presenceKeyCount + " presence keys, "
                     + reminderCompletedKeyCount + " reminder completed keys, "
@@ -380,6 +385,149 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             return keysMigrated.Count;
+        }
+
+        /// <summary>
+        /// Gets Value for given Key from RC state provider
+        /// </summary>
+        /// <param name="key">Key to fetch</param>
+        /// <param name="cancellationToken">cancellationToken</param>
+        /// <returns>Value for given key</returns>
+        public async Task<byte[]> GetValueByKeyAsync(string key, CancellationToken cancellationToken)
+        {
+            using (var tx = this.rcStateProvider.GetStateManager().CreateTransaction())
+            {
+                IReliableDictionary2<string, byte[]> dictionary = null;
+                if (key.StartsWith("@@"))
+                {
+                    dictionary = this.rcStateProvider.GetActorPresenceDictionary();
+                }
+                else if (key.StartsWith("Actor"))
+                {
+                    var startIndex = this.GetNthIndex(key, '_', 2);
+                    var endIndex = this.GetNthIndex(key, '_', 3);
+                    var actorId = new ActorId(key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                    dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
+                }
+                else if (key.StartsWith("RC@@"))
+                {
+                    dictionary = this.rcStateProvider.GetReminderCompletedDictionary();
+                }
+                else if (key.Equals("Timestamp_VLTM"))
+                {
+                    dictionary = this.rcStateProvider.GetLogicalTimeDictionary();
+                }
+                else if (key.StartsWith("Reminder"))
+                {
+                    var startIndex = this.GetNthIndex(key, '_', 2);
+                    var endIndex = this.GetNthIndex(key, '_', 3);
+                    var actorId = new ActorId(key.Substring(startIndex + 1, endIndex - startIndex - 1));
+                    dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
+                }
+                else
+                {
+                    var message = "Migration Validation Error: Failed to parse the KVS key - " + key;
+
+                    ActorTrace.Source.WriteErrorWithId(
+                        this.TraceType,
+                        this.traceId,
+                        message);
+
+                    this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
+                }
+
+                var rcKey = this.TransformKVSKeyToRCFormat(key);
+                cancellationToken.ThrowIfCancellationRequested();
+                var rcValue = await dictionary.TryGetValueAsync(tx, rcKey);
+                if (rcValue.HasValue)
+                {
+                    return rcValue.Value;
+                }
+
+                return new byte[] { };
+            }
+        }
+
+        /// <summary>
+        /// Compares kvsvalue to rcvalue
+        /// </summary>
+        /// <param name="kvsValue">Value in KVS</param>
+        /// <param name="rcValue">Value in RC</param>
+        /// <param name="key">Migrated Key</param>
+        /// <returns>True or False depending on comparision</returns>
+        public bool CompareKVSandRCValue(byte[] kvsValue, byte[] rcValue, string key)
+        {
+            if (key.StartsWith("@@"))
+            {
+                return kvsValue == rcValue;
+            }
+            else if (key.StartsWith("Actor"))
+            {
+                return kvsValue == rcValue;
+            }
+            else if (key.StartsWith("RC@@"))
+            {
+                ReminderCompletedData kvsReminderCompletedData = this.DeserializeReminderCompletedData(key, kvsValue);
+                ReminderCompletedData rcReminderCompletedData = ReminderCompletedDataSerializer.Deserialize(rcValue);
+                return kvsReminderCompletedData.UtcTime == rcReminderCompletedData.UtcTime
+                    && kvsReminderCompletedData.LogicalTime == rcReminderCompletedData.LogicalTime;
+            }
+            else if (key.Equals("Timestamp_VLTM"))
+            {
+                LogicalTimestamp kvsLogicalTimestamp = this.DeserializeLogicalTime(key, kvsValue);
+                LogicalTimestamp rcLogicalTimestamp = LogicalTimestampSerializer.Deserialize(rcValue);
+                return kvsLogicalTimestamp.Timestamp == rcLogicalTimestamp.Timestamp;
+            }
+            else if (key.StartsWith("Reminder"))
+            {
+                ActorReminderData kvsActorReminderData = this.DeserializeReminder(key, kvsValue);
+                ActorReminderData rcActorReminderData = ActorReminderDataSerializer.Deserialize(rcValue);
+                return kvsActorReminderData.ActorId == rcActorReminderData.ActorId
+                    && kvsActorReminderData.Name == rcActorReminderData.Name
+                    && kvsActorReminderData.DueTime == rcActorReminderData.DueTime
+                    && kvsActorReminderData.Period == rcActorReminderData.Period
+                    && kvsActorReminderData.State == rcActorReminderData.State
+                    && kvsActorReminderData.LogicalCreationTime == rcActorReminderData.LogicalCreationTime;
+            }
+            else
+            {
+                var message = "Migration Error: Failed to parse the KVS key - " + key;
+
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    message);
+
+                this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
+            }
+
+            return false;
+        }
+
+        internal async Task AddOrUpdateMigratedKeysAsync(ITransaction tx, List<string> keysMigrated, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var keysMigratedCsv = string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated);
+            ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, "New keys migrated [{0}]", keysMigratedCsv);
+
+            var savedMigratedKeys = await this.metadataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigrated);
+            string savedMigratedKeysCsv = string.Empty;
+            if (savedMigratedKeys.HasValue)
+            {
+                ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, "Previously Saved Migrated Keys [{0}]", savedMigratedKeys.Value);
+
+                savedMigratedKeysCsv += $"{savedMigratedKeys.Value},{keysMigratedCsv}";
+            }
+            else
+            {
+                savedMigratedKeysCsv = keysMigratedCsv;
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.MigrationKeysMigrated, savedMigratedKeysCsv, (k, v) => savedMigratedKeysCsv);
+
+            ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, "Final Saved Migrated Keys [{0}]", savedMigratedKeysCsv);
         }
 
         internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()

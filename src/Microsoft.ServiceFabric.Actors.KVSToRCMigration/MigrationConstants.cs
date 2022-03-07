@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal static class MigrationConstants
     {
         internal static readonly TimeSpan DefaultRCTimeout = TimeSpan.FromMinutes(5);
+        internal static readonly char DefaultDelimiter = ',';
         internal static readonly string KVSMigrationControllerName = "KvsMigration";
         internal static readonly string MetadataDictionaryName = "store://kvsrcmigration//metadata";
         internal static readonly string AbortMigrationEndpoint = "AbortMigration";
@@ -18,6 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
         internal static readonly string GetDisableTCSEndpoint = "GetDisableTombstoneCleanupSetting";
+        internal static readonly string GetKVSValueByKey = "GetValueByKey?key=";
 
         internal static readonly string RejectWritesKey = "_RejectWrites_";
 
@@ -26,6 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string MigrationEndDateTimeUTC = "_MigrationEndDateTimeUTC_";
         internal static readonly string MigrationCurrentStatus = "_MigrationCurrentStatus_";
         internal static readonly string MigrationNoOfKeysMigrated = "_MigrationNoOfKeysMigrated_";
+        internal static readonly string MigrationKeysMigrated = "_MigrationKeysMigrated_";
         internal static readonly string MigrationCurrentPhase = "_MigrationCurrentPhase_";
         internal static readonly string MigrationStartSeqNum = "_MigrationStartSeqNum_";
         internal static readonly string MigrationEndSeqNum = "_MigrationEndSeqNum_";
