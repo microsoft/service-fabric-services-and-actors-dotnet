@@ -1,4 +1,4 @@
-// ------------------------------------------------------------
+﻿// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -17,52 +17,152 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseResult;
 
-    internal class MigrationWorker : WorkerBase
+    internal class DataValidationWorker
     {
         private static readonly string TraceType = typeof(MigrationWorker).Name;
+        private KVStoRCMigrationActorStateProvider stateProvider;
+        private IReliableDictionary2<string, string> metadataDict;
         private StatefulServiceInitializationParameters initParams;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
         private MigrationSettings migrationSettings;
+        private WorkerInput workerInput;
+        private string traceId;
 
-        public MigrationWorker(
+        public DataValidationWorker(
             KVStoRCMigrationActorStateProvider stateProvider,
             ActorTypeInformation actorTypeInfo,
             ServicePartitionClient<HttpCommunicationClient> servicePartitionClient,
             MigrationSettings migrationSettings,
             WorkerInput workerInput,
             string traceId)
-            : base(stateProvider, workerInput, traceId)
         {
-            this.initParams = this.StateProvider.GetInitParams();
+            this.stateProvider = stateProvider;
+            this.initParams = this.stateProvider.GetInitParams();
             this.servicePartitionClient = servicePartitionClient;
             this.migrationSettings = migrationSettings;
+            this.workerInput = workerInput;
+            this.metadataDict = this.stateProvider.GetMetadataDictionaryAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            this.traceId = traceId;
         }
 
-        public override async Task<WorkerResult> StartWorkAsync(CancellationToken cancellationToken)
+        public WorkerInput Input { get => this.workerInput; }
+
+        public static async Task<WorkerResult> GetResultAsync(
+           IReliableDictionary2<string, string> metadataDict,
+           ITransaction tx,
+           MigrationPhase migrationPhase,
+           int currentIteration,
+           int workerId,
+           string traceId,
+           CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var status = await ParseMigrationStateAsync(
+                () => metadataDict.GetValueOrDefaultAsync(
+                tx,
+                Key(PhaseWorkerCurrentStatus, migrationPhase, currentIteration, workerId),
+                DefaultRCTimeout,
+                cancellationToken),
+                traceId);
+
+            if (status == MigrationState.None)
+            {
+                return new WorkerResult
+                {
+                    Phase = migrationPhase,
+                    Iteration = currentIteration,
+                    WorkerId = workerId,
+                    Status = MigrationState.None,
+                };
+            }
+
+            var workerResult = new WorkerResult
+            {
+                Status = status,
+                Phase = migrationPhase,
+                Iteration = currentIteration,
+                WorkerId = workerId,
+            };
+
+            workerResult.StartDateTimeUTC = (await ParseDateTimeAsync(
+                () => metadataDict.GetAsync(
+                tx,
+                Key(PhaseWorkerStartDateTimeUTC, migrationPhase, currentIteration, workerId),
+                DefaultRCTimeout,
+                cancellationToken),
+                traceId)).Value;
+
+            workerResult.EndDateTimeUTC = await ParseDateTimeAsync(
+                () => metadataDict.GetValueOrDefaultAsync(
+                tx,
+                Key(PhaseWorkerEndDateTimeUTC, migrationPhase, currentIteration, workerId),
+                DefaultRCTimeout,
+                cancellationToken),
+                traceId);
+
+            workerResult.StartSeqNum = (await ParseLongAsync(
+                () => metadataDict.GetAsync(
+                tx,
+                Key(PhaseWorkerStartSeqNum, migrationPhase, currentIteration, workerId),
+                DefaultRCTimeout,
+                cancellationToken),
+                traceId)).Value;
+
+            workerResult.EndSeqNum = (await ParseLongAsync(
+                () => metadataDict.GetAsync(
+                tx,
+                Key(PhaseWorkerEndSeqNum, migrationPhase, currentIteration, workerId),
+                DefaultRCTimeout,
+                cancellationToken),
+                traceId)).Value;
+
+            workerResult.LastAppliedSeqNum = await ParseLongAsync(
+                () => metadataDict.GetValueOrDefaultAsync(
+                tx,
+                Key(PhaseWorkerLastAppliedSeqNum, migrationPhase, currentIteration, workerId),
+                DefaultRCTimeout,
+                cancellationToken),
+                traceId);
+
+            workerResult.NoOfKeysMigrated = await ParseLongAsync(
+                () => metadataDict.GetValueOrDefaultAsync(
+                tx,
+                Key(PhaseWorkerNoOfKeysMigrated, migrationPhase, currentIteration, workerId),
+                DefaultRCTimeout,
+                cancellationToken),
+                traceId);
+
+            return workerResult;
+        }
+
+        public async Task<WorkerResult> StartMigrationAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                         TraceType,
-                        this.TraceId,
+                        this.traceId,
                         $"Starting or resuming migration worker\n Input: {this.Input.ToString()}");
 
             try
             {
-                var startSN = this.Input.StartSeqNum;
-                if (this.Input.LastAppliedSeqNum.HasValue)
+                var startSN = this.workerInput.StartSeqNum;
+                if (this.workerInput.LastAppliedSeqNum.HasValue)
                 {
-                    startSN = this.Input.LastAppliedSeqNum.Value + 1;
-                    if (startSN > this.Input.EndSeqNum)
+                    startSN = this.workerInput.LastAppliedSeqNum.Value + 1;
+                    if (startSN > this.workerInput.EndSeqNum)
                     {
-                        using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                        using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                         {
                             await this.CompleteWorkerAsync(tx, cancellationToken);
-                            WorkerResult tresult = await GetResultAsync(this.MetadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.TraceId, cancellationToken);
+                            WorkerResult tresult = await GetResultAsync(this.metadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.traceId, cancellationToken);
                             await tx.CommitAsync();
 
                             return tresult;
@@ -73,12 +173,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 var endSN = startSN + this.migrationSettings.ItemsPerEnumeration - 1;
                 long keysMigrated = 0L;
 
-                while (startSN <= this.Input.EndSeqNum)
+                while (startSN <= this.workerInput.EndSeqNum)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (endSN > this.Input.EndSeqNum)
+                    if (endSN > this.workerInput.EndSeqNum)
                     {
-                        endSN = this.Input.EndSeqNum;
+                        endSN = this.workerInput.EndSeqNum;
                     }
 
                     keysMigrated += await this.FetchAndSaveAsync(startSN, this.migrationSettings.ItemsPerEnumeration, endSN, cancellationToken);
@@ -89,7 +189,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 var result = await this.GetResultAsync(cancellationToken);
                 ActorTrace.Source.WriteInfoWithId(
                            TraceType,
-                           this.TraceId,
+                           this.traceId,
                            $"Completed migration worker\n Result: {result.ToString()} ");
 
                 return result;
@@ -98,18 +198,30 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 ActorTrace.Source.WriteErrorWithId(
                             TraceType,
-                            this.TraceId,
+                            this.traceId,
                             $"Migration worker failed with error: {ex} \n Input: /*Dump input*/");
 
                 throw ex;
             }
         }
 
+        private async Task<WorkerResult> GetResultAsync(CancellationToken cancellationToken)
+        {
+            WorkerResult result;
+            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
+            {
+                result = await GetResultAsync(this.metadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.traceId, cancellationToken);
+                await tx.CommitAsync();
+            }
+
+            return result;
+        }
+
         private async Task<long> FetchAndSaveAsync(long startSN, long snCount, long endSN, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
-                this.TraceId,
+                this.traceId,
                 $"Enumerating from KVS - StartSN: {startSN}, SNCount: {snCount}");
             var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
             long keysMigrated = 0L;
@@ -150,22 +262,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             if (kvsData.Count > 0)
                             {
                                 laSN = kvsData[kvsData.Count - 1].Version;
-                                keysMigrated += await this.StateProvider.SaveStateAsync(kvsData, cancellationToken);
-                                using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                                keysMigrated += await this.stateProvider.SaveStateAsync(kvsData, cancellationToken);
+                                using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                                 {
-                                    await this.MetadataDict.AddOrUpdateAsync(
+                                    await this.metadataDict.AddOrUpdateAsync(
                                         tx,
                                         Key(PhaseWorkerNoOfKeysMigrated, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
                                         keysMigrated.ToString(),
                                         (k, v) =>
                                         {
-                                            long currVal = ParseLong(v, this.TraceId);
+                                            long currVal = ParseLong(v, this.traceId);
                                             return (currVal + keysMigrated).ToString();
                                         },
                                         DefaultRCTimeout,
                                         cancellationToken);
 
-                                    await this.MetadataDict.AddOrUpdateAsync(
+                                    await this.metadataDict.AddOrUpdateAsync(
                                         tx,
                                         Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
                                         laSN.ToString(),
@@ -173,7 +285,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                         DefaultRCTimeout,
                                         cancellationToken);
 
-                                    if (laSN == this.Input.EndSeqNum)
+                                    if (laSN == this.workerInput.EndSeqNum)
                                     {
                                         await this.CompleteWorkerAsync(tx, cancellationToken);
                                     }
@@ -183,7 +295,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                                 ActorTrace.Source.WriteInfoWithId(
                                     TraceType,
-                                    this.TraceId,
+                                    this.traceId,
                                     $"Total Keys migrated - StartSN: {startSN}, SNCount: {snCount}, KeysFetched: {kvsData.Count}, KeysMigrated: {keysMigrated}");
                             }
 
@@ -192,12 +304,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 }
 
-                if (endSN == this.Input.EndSeqNum && laSN != endSN)
+                if (endSN == this.workerInput.EndSeqNum && laSN != endSN)
                 {
                     // This could happen, if SN merge caused the endSN to disappear
-                    using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                    using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
                     {
-                        await this.MetadataDict.AddOrUpdateAsync(
+                        await this.metadataDict.AddOrUpdateAsync(
                             tx,
                             Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
                             endSN.ToString(),
@@ -205,7 +317,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             DefaultRCTimeout,
                             cancellationToken);
 
-                        if (endSN == this.Input.EndSeqNum)
+                        if (endSN == this.workerInput.EndSeqNum)
                         {
                             await this.CompleteWorkerAsync(tx, cancellationToken);
                         }
@@ -220,7 +332,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 ActorTrace.Source.WriteErrorWithId(
                     TraceType,
-                    this.TraceId,
+                    this.traceId,
                     "Error occured while enumerating and saving data - StartSN: {0}, SNCount: {1}, Exception: {2}",
                     startSN,
                     snCount,
@@ -229,13 +341,40 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
+        private async Task CompleteWorkerAsync(ITransaction tx, CancellationToken cancellationToken)
+        {
+            await this.metadataDict.AddOrUpdateAsync(
+                tx,
+                Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
+                this.workerInput.EndSeqNum.ToString(),
+                (_, __) => this.workerInput.EndSeqNum.ToString(),
+                DefaultRCTimeout,
+                cancellationToken);
+
+            await this.metadataDict.AddOrUpdateAsync(
+                tx,
+                Key(PhaseWorkerCurrentStatus, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
+                MigrationState.Completed.ToString(),
+                (_, __) => MigrationState.Completed.ToString(),
+                DefaultRCTimeout,
+                cancellationToken);
+
+            await this.metadataDict.AddOrUpdateAsync(
+                tx,
+                Key(PhaseWorkerEndDateTimeUTC, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
+                DateTime.UtcNow.ToString(),
+                (_, v) => v,
+                DefaultRCTimeout,
+                cancellationToken);
+        }
+
         private EnumerationRequest CreateEnumerationRequestObject(long startSN, long enumerationSize)
         {
             var req = new EnumerationRequest();
             req.StartSN = startSN;
             req.ChunkSize = this.migrationSettings.ItemsPerChunk;
             req.NoOfItems = enumerationSize;
-            req.IncludeDeletes = this.Input.Phase != MigrationPhase.Copy;
+            req.IncludeDeletes = this.workerInput.Phase != MigrationPhase.Copy;
 
             return req;
         }

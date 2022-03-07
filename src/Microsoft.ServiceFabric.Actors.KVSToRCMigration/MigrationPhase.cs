@@ -26,13 +26,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         Catchup = 2,
 
         /// <summary>
+        /// Data Validation phase of migration.
+        /// </summary>
+        DataValidation = 3,
+
+        /// <summary>
         /// Downtime phase of migration.
         /// </summary>
-        Downtime = 3,
+        Downtime = 4,
 
         /// <summary>
         /// Migration completed.
         /// </summary>
-        Completed = 4,
+        Completed = 5,
     }
 }

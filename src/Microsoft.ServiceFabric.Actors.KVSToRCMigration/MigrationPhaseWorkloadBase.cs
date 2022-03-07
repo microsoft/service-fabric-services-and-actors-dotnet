@@ -167,7 +167,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             for (int i = 1; i <= result.WorkerCount; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var workerResult = await MigrationWorker.GetResultAsync(metadataDict, tx, migrationPhase, currentIteration, i, traceId, cancellationToken);
+
+                var workerResult = await WorkerBase.GetResultAsync(metadataDict, tx, migrationPhase, currentIteration, i, traceId, cancellationToken);
+
                 if (workerResult.Status != MigrationState.None)
                 {
                     workerResults.Add(workerResult);
@@ -215,7 +217,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     cancellationToken.ThrowIfCancellationRequested();
                     if (worker.Input.Status != MigrationState.Completed)
                     {
-                        tasks.Add(worker.StartMigrationAsync(cancellationToken));
+                        tasks.Add(worker.StartWorkAsync(cancellationToken));
                     }
                 }
 
@@ -452,21 +454,34 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return input;
         }
 
-        protected virtual List<MigrationWorker> CreateMigrationWorkers(PhaseInput input, CancellationToken cancellationToken)
+        protected virtual List<IWorker> CreateMigrationWorkers(PhaseInput input, CancellationToken cancellationToken)
         {
-            var workers = new List<MigrationWorker>();
+            var workers = new List<IWorker>();
 
             foreach (var workerInput in input.WorkerInputs)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                workers.Add(new MigrationWorker(
-                    this.StateProvider,
-                    this.ActorTypeInformation,
-                    this.ServicePartitionClient,
-                    this.MigrationSettings,
-                    workerInput,
-                    this.TraceId));
+                if (input.Phase == MigrationPhase.DataValidation)
+                {
+                    workers.Add(new DataValidationWorker(
+                        this.StateProvider,
+                        this.ActorTypeInformation,
+                        this.ServicePartitionClient,
+                        this.MigrationSettings,
+                        workerInput,
+                        this.TraceId));
+                }
+                else
+                {
+                    workers.Add(new MigrationWorker(
+                        this.StateProvider,
+                        this.ActorTypeInformation,
+                        this.ServicePartitionClient,
+                        this.MigrationSettings,
+                        workerInput,
+                        this.TraceId));
+                }
             }
 
             return workers;
