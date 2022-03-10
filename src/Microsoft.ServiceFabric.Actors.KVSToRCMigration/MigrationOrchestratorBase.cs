@@ -147,6 +147,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public abstract bool IsActorCallToBeForwarded();
 
+        public abstract void ThrowIfActorCallsDisallowed();
+
         /// <summary>
         /// Gets the migration endpoint name.
         /// </summary>

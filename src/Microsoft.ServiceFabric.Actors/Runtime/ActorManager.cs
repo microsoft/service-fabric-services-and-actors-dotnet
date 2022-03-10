@@ -1117,10 +1117,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void ThrowIfMigrationInProgress()
         {
-            if (!this.actorService.AreActorCallsAllowed)
-            {
-                throw new ActorStateMigrationInProgressException();
-            }
+            this.ActorService.ThrowIfActorCallsDisallowed();
         }
 
         private void DisposeDiagnosticsManager()

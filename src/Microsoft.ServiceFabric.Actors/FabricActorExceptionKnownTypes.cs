@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication;
 
@@ -79,6 +80,30 @@ namespace Microsoft.ServiceFabric.Actors
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ReminderLoadInProgressException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "Microsoft.ServiceFabric.Actors.Migration.Exceptions.ActorCallsDisallowedException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ActorCallsDisallowedException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "Microsoft.ServiceFabric.Actors.Migration.Exceptions.InvalidMigrationConfigException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<InvalidMigrationConfigException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "Microsoft.ServiceFabric.Actors.Migration.Exceptions.InvalidMigrationStateProviderException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<InvalidMigrationStateProviderException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },

@@ -82,5 +82,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         /// </summary>
         /// <param name="stateProviderStateChangeCallback">State change callback.</param>
         public void RegisterStateChangeCallback(Action<bool> stateProviderStateChangeCallback);
+
+        /// <summary>
+        /// Throws migration exception if actor calls are not allowed.
+        /// </summary>
+        public void ThrowIfActorCallsDisallowed();
     }
 }

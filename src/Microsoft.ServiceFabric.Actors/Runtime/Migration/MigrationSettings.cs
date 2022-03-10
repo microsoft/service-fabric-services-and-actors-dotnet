@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using System;
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
 
     internal class MigrationSettings
     {
@@ -30,8 +31,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 
         internal string MigrationTargetOrchestrator { get; set; }
 
+        internal string MigrationConfigSectionName { get; private set; }
+
         internal virtual void LoadFrom(ICodePackageActivationContext codePackageActivationContext, string configSectionName = "MigrationConfig")
         {
+            this.MigrationConfigSectionName = configSectionName;
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
             {
@@ -56,14 +60,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
                 }
                 else
                 {
-                    ActorTrace.Source.WriteError(TraceType, $"Section {configSectionName} not found in settings file.");
-                    //// TODO: throw
+                    var errorMsg = $"Section {configSectionName} not found in settings file.";
+                    ActorTrace.Source.WriteError(TraceType, errorMsg);
+
+                    throw new InvalidMigrationConfigException(errorMsg);
                 }
             }
             catch (Exception e)
             {
-                ActorTrace.Source.WriteError(TraceType, $"Failed to load Migration settings from config package : {e.Message}");
-                throw e; // TODO: conside throwing SF Exception.
+                var errorMsg = $"Section {configSectionName} not found in settings file.";
+                ActorTrace.Source.WriteError(TraceType, errorMsg);
+
+                throw new InvalidMigrationConfigException(errorMsg, e);
             }
         }
 
@@ -71,7 +79,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         {
             if (string.IsNullOrWhiteSpace(this.SourceServiceUri.ToString()))
             {
-                // TODO: throw
+                var errorMsg = $"SourceServiceUri is not present in {this.MigrationConfigSectionName} section of settings file.";
+                ActorTrace.Source.WriteError(TraceType, errorMsg);
+
+                throw new InvalidMigrationConfigException(errorMsg);
             }
         }
     }

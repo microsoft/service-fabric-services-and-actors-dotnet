@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Health;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
@@ -271,6 +272,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             return this.migrationOrchestrator != null;
         }
+
+        internal void ThrowIfActorCallsDisallowed()
+        {
+            if (this.migrationOrchestrator != null)
+            {
+                this.migrationOrchestrator.ThrowIfActorCallsDisallowed();
+            }
+        }
         #endregion Migration
 
         #region StatefulServiceBase Overrides
@@ -347,12 +356,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
             if (this.migrationOrchestrator != null)
             {
-                // TODO: Manual start.
-                await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
-
-                if (this.AreActorCallsAllowed)
+                try
                 {
-                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                    // TODO: Manual start.
+                    await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
+
+                    if (this.AreActorCallsAllowed)
+                    {
+                        await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var healthInfo = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
+                    {
+                        TimeToLive = TimeSpan.MaxValue,
+                        RemoveWhenExpired = false,
+                        Description = ex.Message,
+                    };
+
+                    this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
+
+                    throw ex;
                 }
 
                 return;
