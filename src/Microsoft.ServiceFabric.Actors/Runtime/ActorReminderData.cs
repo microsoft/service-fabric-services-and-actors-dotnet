@@ -62,5 +62,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                    + sizeof(long) // Attributes
                    + sizeof(long); // LogicalCreationTime
         }
+
+        public override string ToString()
+        {
+            return $"ActorId: {this.ActorId} Name: {this.Name} DueTime: {this.DueTime} Period: {this.Period} State: {this.State} LogicalCreationTime: {this.LogicalCreationTime}";
+        }
     }
 }

@@ -457,32 +457,46 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <returns>True or False depending on comparision</returns>
         public bool CompareKVSandRCValue(byte[] kvsValue, byte[] rcValue, string key)
         {
+            bool result = false;
+            string expected = string.Empty;
+            string actual = string.Empty;
+
             if (key.StartsWith("@@"))
             {
-                return kvsValue == rcValue;
+                expected = kvsValue.ToString();
+                actual = rcValue.ToString();
+                result = kvsValue == rcValue;
             }
             else if (key.StartsWith("Actor"))
             {
-                return kvsValue == rcValue;
+                expected = kvsValue.ToString();
+                actual = rcValue.ToString();
+                result = kvsValue == rcValue;
             }
             else if (key.StartsWith("RC@@"))
             {
                 ReminderCompletedData kvsReminderCompletedData = this.DeserializeReminderCompletedData(key, kvsValue);
                 ReminderCompletedData rcReminderCompletedData = ReminderCompletedDataSerializer.Deserialize(rcValue);
-                return kvsReminderCompletedData.UtcTime == rcReminderCompletedData.UtcTime
+                expected = kvsReminderCompletedData.ToString();
+                actual = rcReminderCompletedData.ToString();
+                result = kvsReminderCompletedData.UtcTime == rcReminderCompletedData.UtcTime
                     && kvsReminderCompletedData.LogicalTime == rcReminderCompletedData.LogicalTime;
             }
             else if (key.Equals("Timestamp_VLTM"))
             {
                 LogicalTimestamp kvsLogicalTimestamp = this.DeserializeLogicalTime(key, kvsValue);
                 LogicalTimestamp rcLogicalTimestamp = LogicalTimestampSerializer.Deserialize(rcValue);
-                return kvsLogicalTimestamp.Timestamp == rcLogicalTimestamp.Timestamp;
+                expected = kvsLogicalTimestamp.ToString();
+                actual = rcLogicalTimestamp.ToString();
+                result = kvsLogicalTimestamp.Timestamp == rcLogicalTimestamp.Timestamp;
             }
             else if (key.StartsWith("Reminder"))
             {
                 ActorReminderData kvsActorReminderData = this.DeserializeReminder(key, kvsValue);
                 ActorReminderData rcActorReminderData = ActorReminderDataSerializer.Deserialize(rcValue);
-                return kvsActorReminderData.ActorId == rcActorReminderData.ActorId
+                expected = kvsActorReminderData.ToString();
+                actual = rcActorReminderData.ToString();
+                result = kvsActorReminderData.ActorId == rcActorReminderData.ActorId
                     && kvsActorReminderData.Name == rcActorReminderData.Name
                     && kvsActorReminderData.DueTime == rcActorReminderData.DueTime
                     && kvsActorReminderData.Period == rcActorReminderData.Period
@@ -498,10 +512,21 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.traceId,
                     message);
 
+                var healthInfo = new HealthInformation(this.TraceType, message, HealthState.Error);
+                healthInfo.TimeToLive = TimeSpan.MaxValue;
+                healthInfo.RemoveWhenExpired = false;
                 this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
             }
 
-            return false;
+            if (!result)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Migrated data validation failed for key {key}. Expected Value: {expected} Actual Value: {actual}");
+            }
+
+            return result;
         }
 
         internal async Task AddOrUpdateMigratedKeysAsync(ITransaction tx, List<string> keysMigrated, CancellationToken cancellationToken)
@@ -511,23 +536,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var keysMigratedCsv = string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated);
             ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, "New keys migrated [{0}]", keysMigratedCsv);
 
-            var savedMigratedKeys = await this.metadataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigrated);
-            string savedMigratedKeysCsv = string.Empty;
-            if (savedMigratedKeys.HasValue)
+            var migrationKeysMigratedChunksCount = await this.metadataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount);
+            long chunksCount = 0L;
+            if (migrationKeysMigratedChunksCount.HasValue)
             {
-                ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, "Previously Saved Migrated Keys [{0}]", savedMigratedKeys.Value);
+                chunksCount = MigrationUtility.ParseLong(migrationKeysMigratedChunksCount.Value, this.traceId);
+            }
 
-                savedMigratedKeysCsv += $"{savedMigratedKeys.Value},{keysMigratedCsv}";
-            }
-            else
-            {
-                savedMigratedKeysCsv = keysMigratedCsv;
-            }
+            chunksCount++;
 
             cancellationToken.ThrowIfCancellationRequested();
-            await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.MigrationKeysMigrated, savedMigratedKeysCsv, (k, v) => savedMigratedKeysCsv);
-
-            ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, "Final Saved Migrated Keys [{0}]", savedMigratedKeysCsv);
+            await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.Key(MigrationConstants.MigrationKeysMigrated, chunksCount), keysMigratedCsv, (k, v) => keysMigratedCsv);
+            await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount, chunksCount.ToString(), (k, v) => chunksCount.ToString());
         }
 
         internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()

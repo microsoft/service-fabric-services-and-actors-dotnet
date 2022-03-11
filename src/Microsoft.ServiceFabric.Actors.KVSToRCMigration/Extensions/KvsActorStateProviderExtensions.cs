@@ -9,18 +9,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
     internal static class KvsActorStateProviderExtensions
     {
+        private static DataContractSerializer keyValuePairSerializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+
         internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, CancellationToken cancellationToken)
         {
             var storeReplica = stateProvider.GetStoreReplica();
@@ -66,7 +70,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     {
                         bool hasData;
                         long enumerationKeyCount = 0;
-                        var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
 
                         using (var txn = storeReplica.CreateTransaction())
                         {
@@ -136,6 +139,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 await response.Body.FlushAsync();
                             }
                             while (hasData && enumerationKeyCount < request.NoOfItems);
+
+                            await WriteKeyValuePairsToResponse(pairs, response);
                         }
                     }
                     catch (Exception e)
@@ -211,20 +216,50 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
         }
 
-        internal static byte[] GetValueByKey(this KvsActorStateProvider stateProvider, string key)
+        internal static Task GetValueByKeysAsync(this KvsActorStateProvider stateProvider, List<string> keys, HttpResponse response, CancellationToken cancellationToken)
         {
-            if (!string.IsNullOrEmpty(key))
-            {
-                using var tx = stateProvider.GetStoreReplica().CreateTransaction();
-                var result = stateProvider.GetStoreReplica().TryGet(tx, key);
+            var pairs = new List<KeyValuePair>();
+            return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+                        async () =>
+                        {
+                            if (keys.Any())
+                            {
+                                using var tx = stateProvider.GetStoreReplica().CreateTransaction();
 
-                if (result != null)
-                {
-                    return result.Value;
-                }
-            }
+                                foreach (var key in keys)
+                                {
+                                    var result = stateProvider.GetStoreReplica().TryGet(tx, key);
 
-            return null;
+                                    if (result != null)
+                                    {
+                                        pairs.Add(new KeyValuePair() { Key = key, Value = result.Value });
+                                    }
+                                }
+                            }
+
+                            await WriteKeyValuePairsToResponse(pairs, response);
+                        },
+                        "GetValueByKeyAsync",
+                        cancellationToken);
+        }
+
+        private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, HttpResponse response)
+        {
+            using var memoryStream = new MemoryStream();
+            var binaryWriter = XmlDictionaryWriter.CreateTextWriter(memoryStream);
+            keyValuePairSerializer.WriteObject(binaryWriter, pairs);
+            binaryWriter.Flush();
+
+            var byteArray = memoryStream.ToArray();
+            var newLine = Encoding.ASCII.GetBytes("\n");
+
+            ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
+
+            // Set the content type
+            response.ContentType = "application/xml; charset=utf-8";
+            await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
+            await response.Body.WriteAsync(newLine, 0, newLine.Length);
+            await response.Body.FlushAsync();
         }
 
         private static KeyValuePair MakeKeyValuePair(KeyValueStoreItem item)
