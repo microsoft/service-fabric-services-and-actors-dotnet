@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
 {
+    using System.Collections.Generic;
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
@@ -98,14 +99,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         }
 
         /// <summary>
-        /// Gets Value for given Key
+        /// Gets Value for given Keys
         /// </summary>
-        /// <param name="key">Value of Key to fetch</param>
+        /// <param name="keys">Value of Key to fetch</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [HttpGet("GetValueByKey")]
-        public byte[] GetValueByKey([FromQuery] string key)
+        [HttpGet("GetValueByKeys")]
+        public Task GetValueByKeys([FromBody] List<string> keys)
         {
-            return this.kvsActorStateProvider.GetValueByKey(key);
+            return this.kvsActorStateProvider.GetValueByKeysAsync(keys, this.Response, CancellationToken.None);
         }
     }
 }

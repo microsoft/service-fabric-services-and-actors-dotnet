@@ -539,9 +539,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.ActorTypeInformation,
                         this.TraceId);
                 }
-                else if (currentPhase == MigrationPhase.DataValidation)
+                else if (currentPhase == MigrationPhase.Downtime)
                 {
-                    migrationWorkload = new DataValidationPhaseWorkload(
+                    migrationWorkload = new DowntimeWorkload(
                         this.StateProvider,
                         this.ServicePartitionClient,
                         this.StatefulServiceContext,
@@ -549,9 +549,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.ActorTypeInformation,
                         this.TraceId);
                 }
-                else if (currentPhase == MigrationPhase.Downtime)
+                else if (currentPhase == MigrationPhase.DataValidation)
                 {
-                    migrationWorkload = new DowntimeWorkload(
+                    migrationWorkload = new DataValidationPhaseWorkload(
                         this.StateProvider,
                         this.ServicePartitionClient,
                         this.StatefulServiceContext,

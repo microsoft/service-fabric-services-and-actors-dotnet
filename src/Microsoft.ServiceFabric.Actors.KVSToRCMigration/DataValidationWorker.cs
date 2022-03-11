@@ -8,10 +8,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.IO;
     using System.Linq;
+    using System.Net.Http;
     using System.Runtime.Serialization;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Xml;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
@@ -50,61 +54,72 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             try
             {
-                var startSN = this.Input.StartSeqNum;
-                var endSN = this.Input.EndSeqNum;
-
-                var migratedKeys = new List<string>();
-                using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                if (this.migrationSettings.PercentageOfMigratedDataToValidate > 0 && this.Input.EndSeqNum > 0)
                 {
-                    var savedMigratedKeys = await this.MetadataDict.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigrated);
-                    if (savedMigratedKeys.HasValue)
+                    var startSN = this.Input.StartSeqNum;
+                    var endSN = this.Input.EndSeqNum;
+
+                    // Fetch saved migrated keys
+                    var migratedKeys = new List<string>();
+                    using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
                     {
-                        migratedKeys = savedMigratedKeys.Value.Split(DefaultDelimiter).ToList();
-                    }
-                }
-
-                var noOfKeysToValidate = Math.Round(migratedKeys.Count * (this.migrationSettings.PercentageOfMigratedDataToValidate / 100), 0);
-                var rand = new Random();
-                var validatedKeysIndices = new List<int>();
-
-                for (long index = startSN; index <= endSN; index++)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    if (this.migrationSettings.PercentageOfMigratedDataToValidate <= 0)
-                    {
-                        break;
-                    }
-
-                    var tIndex = rand.Next(((int)startSN), ((int)endSN));
-                    if (validatedKeysIndices.Contains(tIndex))
-                    {
-                        // skip index already validated
-                        continue;
-                    }
-
-                    if (await this.GetDataFromKvsAndValidateWithRCAsync(migratedKeys[(int)index], this.Input.WorkerId, cancellationToken))
-                    {
-                        validatedKeysIndices.Add(tIndex);
-
-                        if (validatedKeysIndices.Count == noOfKeysToValidate)
+                        var migrationKeysMigratedChunksCount = await this.MetadataDict.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount);
+                        long chunksCount = 0L;
+                        if (migrationKeysMigratedChunksCount.HasValue)
                         {
-                            break;
+                            chunksCount = MigrationUtility.ParseLong(migrationKeysMigratedChunksCount.Value, this.TraceId);
+
+                            for (int i = 1; i <= chunksCount; i++)
+                            {
+                                var savedMigratedKeys = await this.MetadataDict.TryGetValueAsync(tx, Key(MigrationConstants.MigrationKeysMigrated, i));
+                                if (savedMigratedKeys.HasValue)
+                                {
+                                    migratedKeys.AddRange(savedMigratedKeys.Value.Split(DefaultDelimiter).ToList());
+                                }
+                            }
+                        }
+                    }
+
+                    // Calculate and list keys to validate
+                    var noOfKeysToValidate = Math.Round(migratedKeys.Count * (this.migrationSettings.PercentageOfMigratedDataToValidate / 100), 0);
+                    var rand = new Random();
+                    var keysIndicesToValidate = new HashSet<int>();
+                    do
+                    {
+                        var tIndex = rand.Next(((int)startSN), ((int)endSN) + 1);
+                        keysIndicesToValidate.Add(tIndex);
+                    }
+                    while (keysIndicesToValidate.Count < noOfKeysToValidate);
+
+                    // Validate value for key in KVS and RC
+                    var migratedKeysChunk = new List<string>();
+                    foreach (var keyIndex in keysIndicesToValidate)
+                    {
+                        migratedKeysChunk.Add(migratedKeys[keyIndex]);
+
+                        // Start validation on reaching ItemsPerEnumeration or reaching end of keysIndicesToValidate
+                        if (migratedKeysChunk.Count == this.migrationSettings.ItemsPerEnumeration
+                            || keysIndicesToValidate.Last() == keyIndex)
+                        {
+                            if (await this.GetDataFromKvsAndValidateWithRcAsync(migratedKeysChunk, this.Input.WorkerId, cancellationToken))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                // Exit worker if validation fails
+                                using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                                {
+                                    await this.AbortWorkerAsync(tx, cancellationToken);
+                                    WorkerResult tresult = await GetResultAsync(this.MetadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.TraceId, cancellationToken);
+                                    await tx.CommitAsync();
+
+                                    return tresult;
+                                }
+                            }
                         }
 
-                        continue;
-                    }
-                    else
-                    {
-                        // Exit worker if validation fails
-                        using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
-                        {
-                            await this.AbortWorkerAsync(tx, cancellationToken);
-                            WorkerResult tresult = await GetResultAsync(this.MetadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.TraceId, cancellationToken);
-                            await tx.CommitAsync();
-
-                            return tresult;
-                        }
+                        migratedKeysChunk.Clear();
                     }
                 }
 
@@ -133,33 +148,73 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        private async Task<bool> GetDataFromKvsAndValidateWithRCAsync(string migratedKey, int workerIdentifier, CancellationToken cancellationToken)
+        private async Task<bool> GetDataFromKvsAndValidateWithRcAsync(List<string> migratedKeysChunk, int workerIdentifier, CancellationToken cancellationToken)
         {
             var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
 
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var kvsValue = await this.servicePartitionClient.InvokeWithRetryAsync<byte[]>(async client =>
+                var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
                 {
-                    return await client.HttpClient.GetByteArrayAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetKVSValueByKey}{migratedKey}");
+                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(client.EndpointUri, migratedKeysChunk), HttpCompletionOption.ResponseHeadersRead);
                 });
 
-                cancellationToken.ThrowIfCancellationRequested();
-                var rcValue = await this.StateProvider.GetValueByKeyAsync(migratedKey, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                bool result = false;
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                {
+                    using (var streamReader = new StreamReader(stream))
+                    {
+                        string responseLine = streamReader.ReadLine();
+                        cancellationToken.ThrowIfCancellationRequested();
+                        while (responseLine != null)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
 
-                if (this.StateProvider.CompareKVSandRCValue(kvsValue, rcValue, migratedKey))
-                {
-                    return true;
+                            List<KeyValuePair> kvsData = new List<KeyValuePair>();
+                            using (Stream memoryStream = new MemoryStream())
+                            {
+                                byte[] data = Encoding.UTF8.GetBytes(responseLine);
+                                memoryStream.Write(data, 0, data.Length);
+                                memoryStream.Position = 0;
+
+                                using (var reader = XmlDictionaryReader.CreateTextReader(memoryStream, XmlDictionaryReaderQuotas.Max))
+                                {
+                                    kvsData = (List<KeyValuePair>)keyvaluepairserializer.ReadObject(reader);
+                                }
+                            }
+
+                            if (kvsData.Count > 0)
+                            {
+                                foreach (var kv in kvsData)
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    var rcValue = await this.StateProvider.GetValueByKeyAsync(kv.Key, cancellationToken);
+
+                                    if (this.StateProvider.CompareKVSandRCValue(kv.Value, rcValue, kv.Key))
+                                    {
+                                        result = true;
+                                    }
+                                    else
+                                    {
+                                        result = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (result == false)
+                            {
+                                break;
+                            }
+
+                            responseLine = streamReader.ReadLine();
+                        }
+                    }
                 }
-                else
-                {
-                    ActorTrace.Source.WriteErrorWithId(
-                        TraceType,
-                        this.TraceId,
-                        $"Migrated data validation worker failed for key {migratedKey}");
-                    return false;
-                }
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -196,6 +251,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 (_, v) => v,
                 DefaultRCTimeout,
                 cancellationToken);
+        }
+
+        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseUri, List<string> migratedKeysChunk)
+        {
+            var requestserializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(List<string>));
+
+            var stream = new MemoryStream();
+            requestserializer.WriteObject(stream, migratedKeysChunk);
+
+            var content = Encoding.UTF8.GetString(stream.ToArray());
+
+            return new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(baseUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetKVSValueByKeys}"),
+                Content = new StringContent(content, Encoding.UTF8, "application/json"),
+            };
         }
     }
 }

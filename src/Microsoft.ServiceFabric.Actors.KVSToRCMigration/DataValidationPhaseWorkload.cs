@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 var cond = await this.MetaDataDictionary.TryGetValueAsync(
                         tx,
-                        MigrationKeysMigrated,
+                        MigrationNoOfKeysMigrated,
                         DefaultRCTimeout,
                         cancellationToken);
                 await tx.CommitAsync();
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }
             }
 
-            return 0;
+            return -1;
         }
     }
 }
