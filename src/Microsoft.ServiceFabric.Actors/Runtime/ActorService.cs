@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
@@ -98,6 +99,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             // Migration initialization
             this.migrationOrchestrator = migrationOrchestrator;
+            this.migrationOrchestrator.RegisterCompletionCallback(this.StartRemindersIfNeededAsync);
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -250,6 +252,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion
 
+        internal async Task StartRemindersIfNeededAsync(bool actorCallsAllowed, CancellationToken cancellationToken)
+        {
+            if (actorCallsAllowed)
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.Context.TraceId,
+                    "ActorCallsAllowed : TRUE - Starting reminders.");
+
+                await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+            }
+            else
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.Context.TraceId,
+                    "ActorCallsAllowed : FALSE");
+
+                //// TODO: Stop reminders from firing
+            }
+        }
+
         internal IActorStateManager CreateStateManager(ActorBase actor)
         {
             return this.stateManagerFactory.Invoke(actor, this.StateProvider);
@@ -344,18 +368,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
             if (this.migrationOrchestrator != null)
             {
-                // TODO: Manual start.
-                await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
-
-                if (this.AreActorCallsAllowed)
+                if (this.migrationOrchestrator.IsAutoStartMigration())
                 {
-                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                    await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
+                    return;
                 }
-
-                return;
             }
 
             await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
