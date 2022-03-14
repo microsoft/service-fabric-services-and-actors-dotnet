@@ -78,14 +78,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         public bool IsActorCallToBeForwarded();
 
         /// <summary>
-        /// Register callback to invoke when state provider state changes.
-        /// </summary>
-        /// <param name="stateProviderStateChangeCallback">State change callback.</param>
-        public void RegisterStateChangeCallback(Action<bool> stateProviderStateChangeCallback);
-
-        /// <summary>
         /// Throws migration exception if actor calls are not allowed.
         /// </summary>
         public void ThrowIfActorCallsDisallowed();
+
+        /// <summary>
+        /// Gets the migration start mode.
+        /// </summary>
+        /// <returns>Return true if the MigrationMode is Auto, false otherwise.</returns>
+        public bool IsAutoStartMigration();
+
+        /// <summary>
+        /// Register Migration completion callback.
+        /// </summary>
+        /// <param name="completionCallback">Completion callback</param>
+        public void RegisterCompletionCallback(Func<bool, CancellationToken, Task> completionCallback);
     }
 }

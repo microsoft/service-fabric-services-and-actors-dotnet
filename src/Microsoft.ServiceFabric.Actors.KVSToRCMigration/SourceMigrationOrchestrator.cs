@@ -61,6 +61,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.migrationActorStateProvider.ResumeWritesAsync();
             this.actorCallsAllowed = true;
             this.forwardRequest = false;
+            await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -86,6 +87,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.migrationActorStateProvider.RejectWritesAsync();
             this.actorCallsAllowed = false;
             this.forwardRequest = true;
+
+            await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -117,6 +120,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
                 }
             });
+
+            await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);
         }
 
         public override bool IsActorCallToBeForwarded()
@@ -138,6 +143,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             throw new ActorCallsDisallowedException(errorMsg);
+        }
+
+        public override bool IsAutoStartMigration()
+        {
+            return true;
         }
 
         protected override Uri GetForwardServiceUri()

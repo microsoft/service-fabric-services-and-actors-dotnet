@@ -99,6 +99,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             // Migration initialization
             this.migrationOrchestrator = migrationOrchestrator;
+            this.migrationOrchestrator.RegisterCompletionCallback(this.StartRemindersIfNeededAsync);
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -251,6 +252,44 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion
 
+        internal async Task StartRemindersIfNeededAsync(bool actorCallsAllowed, CancellationToken cancellationToken)
+        {
+            if (actorCallsAllowed)
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.Context.TraceId,
+                    "ActorCallsAllowed : TRUE - Starting reminders.");
+                try
+                {
+                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    var healthInfo = new HealthInformation("ActorService", "LoadReminders", HealthState.Error)
+                    {
+                        TimeToLive = TimeSpan.MaxValue,
+                        RemoveWhenExpired = false,
+                        Description = ex.Message,
+                    };
+
+                    this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
+
+                    throw ex;
+                }
+            }
+            else
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.Context.TraceId,
+                    "ActorCallsAllowed : FALSE");
+
+                //// TODO: Stop reminders from firing
+            }
+        }
+
         internal IActorStateManager CreateStateManager(ActorBase actor)
         {
             return this.stateManagerFactory.Invoke(actor, this.StateProvider);
@@ -353,34 +392,29 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            // If Migration attibute is set to source and StateProvider is KvsActorStateProvider
             if (this.migrationOrchestrator != null)
             {
-                try
+                if (this.migrationOrchestrator.IsAutoStartMigration())
                 {
-                    // TODO: Manual start.
-                    await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
-
-                    if (this.AreActorCallsAllowed)
+                    try
                     {
-                        await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                        await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        var healthInfo = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
+                        {
+                            TimeToLive = TimeSpan.MaxValue,
+                            RemoveWhenExpired = false,
+                            Description = ex.Message,
+                        };
+
+                        this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
+
+                        throw ex;
                     }
                 }
-                catch (Exception ex)
-                {
-                    var healthInfo = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
-                    {
-                        TimeToLive = TimeSpan.MaxValue,
-                        RemoveWhenExpired = false,
-                        Description = ex.Message,
-                    };
-
-                    this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
-
-                    throw ex;
-                }
-
-                return;
             }
 
             await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);

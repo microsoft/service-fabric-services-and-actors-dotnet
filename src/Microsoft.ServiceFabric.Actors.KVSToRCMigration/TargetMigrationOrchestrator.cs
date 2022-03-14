@@ -33,6 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private ServicePartitionClient<HttpCommunicationClient> partitionClient;
         private volatile MigrationState currentMigrationState;
         private CancellationTokenSource childCancellationTokenSource;
+        private volatile bool downtimeAllowed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetMigrationOrchestrator"/> class.
@@ -57,6 +58,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.currentPhase = MigrationPhase.None;
             this.currentMigrationState = MigrationState.None;
             this.migrationActorStateProvider = new KVStoRCMigrationActorStateProvider(stateProvider as ReliableCollectionsActorStateProvider);
+            this.downtimeAllowed = this.MigrationSettings.MigrationMode == Runtime.Migration.MigrationMode.Auto;
         }
 
         internal Data.ITransaction Transaction { get => this.migrationActorStateProvider.GetStateManager().CreateTransaction(); }
@@ -160,6 +162,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                 throw e;
             }
+
+            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), childToken);
         }
 
         /// <inheritdoc/>
@@ -199,6 +203,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 this.childCancellationTokenSource.Cancel();
             }
+
+            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -216,7 +222,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            this.downtimeAllowed = true;
+
+            return Task.CompletedTask;
         }
 
         public override bool IsActorCallToBeForwarded()
@@ -478,7 +486,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.ServicePartitionClient.InvokeWithRetryAsync(
                 async client =>
                 {
-                    return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{RejectWritesAPIEndpoint}", null);
+                    return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{StartDowntimeEndpoint}", null);
                 },
                 cancellationToken);
         }
@@ -493,7 +501,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.ServicePartitionClient.InvokeWithRetryAsync(
                async client =>
                {
-                   return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{ResumeWritesAPIEndpoint}", null);
+                   return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{AbortMigrationEndpoint}", null);
                },
                cancellationToken);
         }
@@ -504,12 +512,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var delta = endSN - currentResult.EndSeqNum;
             if (currentResult.Phase == MigrationPhase.Catchup)
             {
-                if (delta > this.MigrationSettings.DowntimeThreshold)
+                if (delta < this.MigrationSettings.DowntimeThreshold
+                    && this.downtimeAllowed == true)
                 {
+                    await this.InvokeRejectWritesAsync(cancellationToken);
+                }
+                else
+                {
+                    // Manual downtime. Invoke Catchup iteration.
                     return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
                 }
-
-                await this.InvokeRejectWritesAsync(cancellationToken);
             }
 
             return await this.NextWorkloadRunnerAsync(currentResult.Phase + 1, cancellationToken);
