@@ -97,9 +97,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
 
-            // Migration initialization
-            this.migrationOrchestrator = migrationOrchestrator;
-            this.migrationOrchestrator.RegisterCompletionCallback(this.StartRemindersIfNeededAsync);
+            if (migrationOrchestrator != null)
+            {
+                // Migration initialization
+                this.migrationOrchestrator = migrationOrchestrator;
+                this.migrationOrchestrator.RegisterCompletionCallback(this.StartRemindersIfNeededAsync);
+            }
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
