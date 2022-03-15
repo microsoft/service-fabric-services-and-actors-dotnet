@@ -7,19 +7,46 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using System.Fabric;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
+    using System.Text;
     using Microsoft.ServiceFabric.Actors.Generator;
 
+    [DataContract]
+    [KnownType(typeof(Actors.Runtime.Migration.MigrationSettings))]
     internal class MigrationSettings : Actors.Runtime.Migration.MigrationSettings
     {
         private static readonly string TraceType = typeof(MigrationSettings).ToString();
 
+        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(MigrationSettings), new DataContractJsonSerializerSettings
+        {
+            UseSimpleDictionaryFormat = true,
+        });
+
+        [DataMember]
         public int CopyPhaseParallelism { get; set; }
 
+        [DataMember]
         public long DowntimeThreshold { get; set; }
 
+        [DataMember]
         public long ItemsPerEnumeration { get; set; }
 
+        [DataMember]
         public long ItemsPerChunk { get; set; }
+
+        public override string ToString()
+        {
+            using (var stream = new MemoryStream())
+            {
+                serializer.WriteObject(stream, this);
+
+                var returnVal = Encoding.ASCII.GetString(stream.GetBuffer());
+
+                return returnVal;
+            }
+        }
 
         internal override void LoadFrom(ICodePackageActivationContext codePackageActivationContext, string configSectionName = "MigrationConfig")
         {

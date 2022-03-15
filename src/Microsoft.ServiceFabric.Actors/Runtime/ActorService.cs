@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;

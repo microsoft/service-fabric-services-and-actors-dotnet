@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
@@ -117,6 +118,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 TraceType,
                 this.TraceId,
                 "Starting Migration.");
+            MigrationTelemetry.MigrationStartEvent(this.StatefulServiceContext, this.MigrationSettings.ToString());
+
             IMigrationPhaseWorkload workloadRunner = null;
 
             try
@@ -140,6 +143,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         TraceType,
                         this.TraceId,
                         $"Migration successfully completed - {currentResult.ToString()}");
+                    MigrationTelemetry.MigrationEndEvent(this.StatefulServiceContext, currentResult.ToString());
                 }
             }
             catch (Exception e)
@@ -149,9 +153,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     TraceType,
                     this.TraceId,
                     $"Migration {currentPhase} Phase failed with error: {e}");
+                MigrationTelemetry.MigrationFailureEvent(this.StatefulServiceContext, currentPhase.ToString(), e.Message);
 
                 //// TODO: set partition health with permanent health message
-                await this.AbortMigrationAsync(childToken);
+                await this.AbortMigrationAsync(false, childToken);
 
                 throw e;
             }
@@ -162,42 +167,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.TraceId,
-                $"Aborting Migration.");
-
-            using (var tx = this.Transaction)
-            {
-                await this.metadataDict.TryAddAsync(
-                    tx,
-                    MigrationEndDateTimeUTC,
-                    DateTime.UtcNow.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
-
-                await this.metadataDict.AddOrUpdateAsync(
-                    tx,
-                    MigrationCurrentStatus,
-                    MigrationState.Aborted.ToString(),
-                    (_, __) => MigrationState.Aborted.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
-
-                await tx.CommitAsync();
-
-                this.currentMigrationState = MigrationState.Aborted;
-            }
-
-            await this.InvokeResumeWritesAsync(cancellationToken);
+            await this.AbortMigrationAsync(true, cancellationToken);
 
             // If user triggered abort, then we need to cancel the migration workflow.
             if (this.childCancellationTokenSource != null)
             {
                 this.childCancellationTokenSource.Cancel();
             }
-
-            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -286,7 +262,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.TraceId);
 
                 result.StartSeqNum = (await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetAsync(
+                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
                     tx,
                     MigrationStartSeqNum,
                     DefaultRCTimeout,
@@ -681,6 +657,41 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
 
             return bool.Parse(kvsDisableTCSString);
+        }
+
+        private async Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
+        {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                $"Aborting Migration. UserTriggered : {userTriggered}");
+            MigrationTelemetry.MigrationAbortEvent(this.StatefulServiceContext, userTriggered);
+
+            using (var tx = this.Transaction)
+            {
+                await this.metadataDict.TryAddAsync(
+                    tx,
+                    MigrationEndDateTimeUTC,
+                    DateTime.UtcNow.ToString(),
+                    DefaultRCTimeout,
+                    cancellationToken);
+
+                await this.metadataDict.AddOrUpdateAsync(
+                    tx,
+                    MigrationCurrentStatus,
+                    MigrationState.Aborted.ToString(),
+                    (_, __) => MigrationState.Aborted.ToString(),
+                    DefaultRCTimeout,
+                    cancellationToken);
+
+                await tx.CommitAsync();
+
+                this.currentMigrationState = MigrationState.Aborted;
+            }
+
+            await this.InvokeResumeWritesAsync(cancellationToken);
+
+            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
         }
     }
 }

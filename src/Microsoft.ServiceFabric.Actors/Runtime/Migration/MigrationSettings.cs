@@ -7,8 +7,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
     using System;
     using System.Fabric;
+    using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Generator;
 
+    [DataContract]
     internal class MigrationSettings
     {
         private static readonly string TraceType = typeof(MigrationSettings).ToString();
@@ -20,14 +22,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
             this.MigrationMode = MigrationMode.Auto;
         }
 
+        [DataMember]
         public Uri SourceServiceUri { get; set; }
 
+        [DataMember]
         public Uri TargetServiceUri { get; set; }
 
+        [DataMember]
         public MigrationMode MigrationMode { get; set; }
 
+        [DataMember]
         internal string MigrationSourceOrchestrator { get; set; }
 
+        [DataMember]
         internal string MigrationTargetOrchestrator { get; set; }
 
         internal virtual void LoadFrom(ICodePackageActivationContext codePackageActivationContext, string configSectionName = "MigrationConfig")

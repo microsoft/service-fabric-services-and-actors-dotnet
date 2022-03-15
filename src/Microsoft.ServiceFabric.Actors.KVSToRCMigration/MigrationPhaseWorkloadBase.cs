@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
@@ -207,6 +208,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     TraceType,
                     this.traceId,
                     $"Starting or resuming {this.migrationPhase} - {this.currentIteration} Phase\n Input: {input.ToString()}");
+                MigrationTelemetry.MigrationPhaseStartEvent(this.StatefulServiceContext, input.ToString());
 
                 var workers = this.CreateMigrationWorkers(input, cancellationToken);
                 var tasks = new List<Task<WorkerResult>>();
@@ -232,6 +234,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         TraceType,
                         this.traceId,
                         $"Completed Migration phase\n Result: {phaseResult.ToString()}");
+                MigrationTelemetry.MigrationPhaseEndEvent(this.StatefulServiceContext, phaseResult.ToString());
 
                 return phaseResult;
             }
@@ -329,6 +332,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         DefaultRCTimeout,
                         cancellationToken),
                     this.TraceId)).Value;
+
+                // Update Migration seq num if it not present(first time)
+                await this.MetaDataDictionary.GetOrAddAsync(
+                    tx,
+                    MigrationStartSeqNum,
+                    input.StartSeqNum.ToString(),
+                    DefaultRCTimeout,
+                    cancellationToken);
 
                 input.EndSeqNum = (await ParseLongAsync(
                     () => this.MetaDataDictionary.GetOrAddAsync(
@@ -564,20 +575,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             return phaseResult;
-        }
-
-        private void EmitTelemetryEvent(TimeSpan timeSpent, long keysMigrated, int workerCount, int iterationCount)
-        {
-            /*
-             * ActorTelemetry.KVSToRCMigrationPhaseEndEvent(
-                MigrationUtility.GetPhaseEndTelemetryKey(this.migrationPhase),
-                this.statefulServiceContext,
-                this.migrationSettings.SourceServiceUri.OriginalString,
-                timeSpent,
-                keysMigrated,
-                workerCount,
-                iterationCount);
-            */
         }
     }
 }
