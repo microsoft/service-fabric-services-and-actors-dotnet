@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors
     /// Actor Framework event source collected by Service Fabric runtime diagnostics system.
     /// </summary>
     [EventSource(Guid = "e2f2656b-985e-5c5b-5ba3-bbe8a851e1d7", Name = "ActorFramework")]
-    internal partial class ActorEventSource : ServiceFabricEventSource
+    internal sealed class ActorEventSource : ServiceFabricEventSource
     {
         /// <summary>
         /// Gets instance of <see cref="ActorEventSource"/> class.
