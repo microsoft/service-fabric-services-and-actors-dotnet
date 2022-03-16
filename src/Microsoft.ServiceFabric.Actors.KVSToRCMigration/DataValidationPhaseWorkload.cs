@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
 
     internal class DataValidationPhaseWorkload : MigrationPhaseWorkloadBase
     {
@@ -30,11 +31,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         protected override Task<long> GetStartSequenceNumberAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.TraceId,
+                        $"DataValidationPhaseWorkload.GetStartSequenceNumberAsync: [{0L}]");
+
             return Task.FromResult(0L);
         }
 
         protected override async Task<long> GetEndSequenceNumberAsync(CancellationToken cancellationToken)
         {
+            long eSN = -1L;
             using (var tx = this.Transaction)
             {
                 var cond = await this.MetaDataDictionary.TryGetValueAsync(
@@ -46,11 +53,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                 if (cond.HasValue)
                 {
-                    return cond.Value.Split(DefaultDelimiter).LongLength;
+                    eSN = ParseLong(cond.Value, this.TraceId);
                 }
             }
 
-            return -1;
+            ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.TraceId,
+                        $"DataValidationPhaseWorkload.GetEndSequenceNumberAsync: [{eSN}]");
+
+            return eSN;
         }
     }
 }
