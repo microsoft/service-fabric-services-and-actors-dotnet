@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
 
             try
             {
-                requestMessage.GetHeader().AddHeader("ActorRequestForwarded", new byte[0]);
+                requestMessage.GetHeader().AddHeader(Runtime.Migration.Constants.ForwardRequestHeaderName, new byte[0]);
                 var retVal = await this.remotingClient.InvokeAsync(requestMessage, requestMessage.GetHeader().MethodName, CancellationToken.None);
                 ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Successfully received response for the forwarded actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
 

@@ -78,6 +78,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         public bool IsActorCallToBeForwarded();
 
         /// <summary>
+        /// Throws migration exception if actor calls are not allowed.
+        /// </summary>
+        public void ThrowIfActorCallsDisallowed();
+
+        /// <summary>
         /// Gets the migration start mode.
         /// </summary>
         /// <returns>Return true if the MigrationMode is Auto, false otherwise.</returns>

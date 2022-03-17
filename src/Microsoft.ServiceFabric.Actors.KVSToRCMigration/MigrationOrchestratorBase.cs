@@ -157,6 +157,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public abstract bool IsActorCallToBeForwarded();
 
+        public abstract void ThrowIfActorCallsDisallowed();
+
         protected Task InvokeCompletionCallback(bool actorCallsAllowed, CancellationToken cancellationToken)
         {
             if (this.completionCallback != null)

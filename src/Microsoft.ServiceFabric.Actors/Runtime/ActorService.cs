@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Runtime.CompilerServices;
+    using System.Fabric.Health;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
@@ -97,9 +97,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
 
-            // Migration initialization
-            this.migrationOrchestrator = migrationOrchestrator;
-            this.migrationOrchestrator.RegisterCompletionCallback(this.StartRemindersIfNeededAsync);
+            if (migrationOrchestrator != null)
+            {
+                // Migration initialization
+                this.migrationOrchestrator = migrationOrchestrator;
+                this.migrationOrchestrator.RegisterCompletionCallback(this.StartRemindersIfNeededAsync);
+            }
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -260,8 +263,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     TraceType,
                     this.Context.TraceId,
                     "ActorCallsAllowed : TRUE - Starting reminders.");
+                try
+                {
+                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    var healthInfo = new HealthInformation("ActorService", "LoadReminders", HealthState.Error)
+                    {
+                        TimeToLive = TimeSpan.MaxValue,
+                        RemoveWhenExpired = false,
+                        Description = ex.Message,
+                    };
 
-                await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
+                    this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
+
+                    throw ex;
+                }
             }
             else
             {
@@ -294,6 +313,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal bool IsConfiguredForMigration()
         {
             return this.migrationOrchestrator != null;
+        }
+
+        internal void ThrowIfActorCallsDisallowed()
+        {
+            if (this.migrationOrchestrator != null)
+            {
+                this.migrationOrchestrator.ThrowIfActorCallsDisallowed();
+            }
         }
         #endregion Migration
 
@@ -372,8 +399,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 if (this.migrationOrchestrator.IsAutoStartMigration())
                 {
-                    await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
-                    return;
+                    try
+                    {
+                        await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        var healthInfo = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
+                        {
+                            TimeToLive = TimeSpan.MaxValue,
+                            RemoveWhenExpired = false,
+                            Description = ex.Message,
+                        };
+
+                        this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
+
+                        throw ex;
+                    }
                 }
             }
 
