@@ -18,6 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
@@ -665,6 +666,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             };
         }
 
+        public async Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken)
+        {
+            return await this.StateProvider.GetRemindersAsync(
+                ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize(),
+                actorId,
+                continuationToken,
+                cancellationToken);
+        }
+
         public string GetActorTraceId(ActorId actorId)
         {
             return ActorTrace.GetTraceIdForActor(
@@ -1104,16 +1117,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void ThrowIfMigrationInProgress()
         {
-            if (Utility.IsMigrationSource(this.actorService.ActorTypeInformation.InterfaceTypes.ToList())
-                || Utility.IsMigrationTarget(this.actorService.ActorTypeInformation.InterfaceTypes.ToList()))
-            {
-                bool rejectWriteState = this.actorService.GetRejectWriteState();
-
-                if (rejectWriteState)
-                {
-                    throw new ActorStateMigrationInProgressException();
-                }
-            }
+            this.ActorService.ThrowIfActorCallsDisallowed();
         }
 
         private void DisposeDiagnosticsManager()
@@ -1199,6 +1203,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private async Task LoadRemindersAsync(CancellationToken cancellationToken)
         {
             var reminders = await this.StateProvider.LoadRemindersAsync(cancellationToken);
+
+            ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    $"Loading {reminders.Count} reminders.");
 
             if (reminders.Count > 0 && !this.actorService.ActorTypeInformation.IsRemindable)
             {

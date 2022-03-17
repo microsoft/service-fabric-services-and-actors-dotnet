@@ -6,7 +6,7 @@
     <ProjectGuid>{ECB3825D-B309-4C76-A20D-76544459F611}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Services.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>

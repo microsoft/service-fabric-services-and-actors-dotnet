@@ -226,28 +226,28 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
-        /// Gets the Kvs Migration Service endpoint which is specified in service manifest for the actor service.
+        /// Gets the Migration Source Service endpoint which is specified in service manifest for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
         /// <returns>Kvs Migration Service endpoint name.</returns>
-        public static string GetActorKvsMigrationEndpointName(Type actorImplementationType)
+        public static string GetMigrationSourceEndpointName(Type actorImplementationType)
         {
             return string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}MigrationEndpoint",
+                "{0}SourceMigrationEndpoint",
                 GetActorServiceName(actorImplementationType));
         }
 
         /// <summary>
-        /// Gets the RC Migration Service endpoint which is specified in service manifest for the actor service.
+        /// Gets the Migration Target Service endpoint which is specified in service manifest for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
         /// <returns>Kvs Migration Service endpoint name.</returns>
-        public static string GetActorRcMigrationEndpointName(Type actorImplementationType)
+        public static string GetMigrationTargetEndpointName(Type actorImplementationType)
         {
             return string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}MigrationEndpoint",
+                "{0}TargetMigrationEndpoint",
                 GetActorServiceName(actorImplementationType));
         }
 

@@ -23,10 +23,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly long replicaOrInstanceId;
         private readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
+        private ExceptionConversionHandler exceptionConvertorHandler;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
+            ExceptionConversionHandler exceptionConvertorHandler,
             Guid partitionId,
             long replicaOrInstanceId)
         {
@@ -38,6 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.partitionId,
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
+            this.exceptionConvertorHandler = exceptionConvertorHandler;
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(
@@ -111,10 +114,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var header = new ServiceRemotingResponseMessageHeader();
             header.AddHeader("HasRemoteException", new byte[0]);
             var serializedHeader = this.serializersManager.GetHeaderSerializer().SerializeResponseHeader(header);
-            var serializedMsg = RemoteException.FromException(ex);
+
+            var serializedMsg = this.exceptionConvertorHandler.SerializeRemoteException(ex);
             var msg = new FabricTransportMessage(
                 new FabricTransportRequestHeader(serializedHeader.GetSendBuffer(), serializedHeader.Dispose),
-                new FabricTransportRequestBody(serializedMsg.Data, null));
+                new FabricTransportRequestBody(serializedMsg, null));
             return msg;
         }
 

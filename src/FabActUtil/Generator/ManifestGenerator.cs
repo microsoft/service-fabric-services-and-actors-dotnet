@@ -15,9 +15,8 @@ namespace FabActUtil.Generator
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting;
     using StartupServicesModel;
-    using Actors = Microsoft.ServiceFabric.Actors;
-    using Remoting = Microsoft.ServiceFabric.Services.Remoting;
 
     /// <summary>
     /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.
@@ -63,7 +62,6 @@ namespace FabActUtil.Generator
         private const string GeneratedServiceEndpointV2Name = "ServiceEndpointV2";
         private const string GeneratedServiceEndpointWrappedMessageStackName = "ServiceEndpointV2_1";
         private const string GeneratedReplicatorEndpointName = "ReplicatorEndpoint";
-        private const string GeneratedActorKvsMigrationEndpointName = "MigrationEndpoint";
         private const string GeneratedReplicatorConfigSectionName = "ReplicatorConfigSection";
         private const string GeneratedReplicatorSecurityConfigSectionName = "ReplicatorSecurityConfigSection";
         private const string GeneratedStoreConfigSectionName = "StoreConfigSection";
@@ -87,7 +85,6 @@ namespace FabActUtil.Generator
                 { GeneratedReplicatorEndpointName, GetFabricServiceReplicatorEndpointName },
                 { GeneratedReplicatorConfigSectionName, GetFabricServiceReplicatorConfigSectionName },
                 { GeneratedReplicatorSecurityConfigSectionName, GetFabricServiceReplicatorSecurityConfigSectionName },
-                { GeneratedStoreConfigSectionName, GetLocalEseStoreConfigSectionName },
             };
 
         private static Context toolContext;
@@ -564,27 +561,19 @@ namespace FabActUtil.Generator
         {
             var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
 #if !DotNetCoreClr
-            if (Remoting.Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
+            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
             }
 #endif
-            if (Remoting.Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
             }
 
-            if (Remoting.Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointWrappedMessageStackName, GetGeneratedServiceEndpointWrappedMessageStackName);
-            }
-
-            var types = new List<Type> { actorTypeInfo.ImplementationType };
-            types.AddRange(actorTypeInfo.InterfaceTypes);
-
-            if (Actors.Helper.IsMigrationSource(types))
-            {
-                generatedNameFunctions.Add(GeneratedActorKvsMigrationEndpointName, GetActorKvsMigrationEndpointName);
             }
 
             return generatedNameFunctions;
@@ -594,7 +583,7 @@ namespace FabActUtil.Generator
         {
             var endpoints = new List<EndpointType>();
 #if !DotNetCoreClr
-            if (Remoting.Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
+            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()
@@ -603,7 +592,7 @@ namespace FabActUtil.Generator
                     });
             }
 #endif
-            if (Remoting.Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
+            if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()
@@ -612,25 +601,12 @@ namespace FabActUtil.Generator
                     });
             }
 
-            if (Remoting.Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
+            if (Helper.IsRemotingV2_1(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
                     new EndpointType()
                     {
                         Name = GetGeneratedServiceEndpointWrappedMessageStackName(actorTypeInfo),
-                    });
-            }
-
-            var types = new List<Type> { actorTypeInfo.ImplementationType };
-            types.AddRange(actorTypeInfo.InterfaceTypes);
-
-            if (Actors.Helper.IsMigrationSource(types))
-            {
-                endpoints.Add(
-                    new EndpointType()
-                    {
-                        Name = GetActorKvsMigrationEndpointName(actorTypeInfo),
-                        Protocol = EndpointTypeProtocol.http, //// TODO: HTTPS
                     });
             }
 
@@ -838,11 +814,6 @@ namespace FabActUtil.Generator
         private static string GetGeneratedServiceEndpointWrappedMessageStackName(ActorTypeInformation actorTypeInfo)
         {
             return ActorNameFormat.GetFabricServiceWrappedMessageEndpointName(actorTypeInfo.ImplementationType);
-        }
-
-        private static string GetActorKvsMigrationEndpointName(ActorTypeInformation actorTypeInfo)
-        {
-            return ActorNameFormat.GetActorKvsMigrationEndpointName(actorTypeInfo.ImplementationType);
         }
 
         private static EndpointType MergeEndpointResource(
@@ -1554,8 +1525,7 @@ namespace FabActUtil.Generator
                 string value)
             {
                 return
-                    !(this.IsExistingGeneratedName(GeneratedStoreConfigSectionName, value) ||
-                      this.IsExistingGeneratedName(GeneratedReplicatorConfigSectionName, value) ||
+                    !(this.IsExistingGeneratedName(GeneratedReplicatorConfigSectionName, value) ||
                       this.IsExistingGeneratedName(GeneratedReplicatorSecurityConfigSectionName, value));
             }
 

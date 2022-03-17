@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
@@ -240,6 +241,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public string GetActorTraceId(ActorId actorId)
         {
             return string.Empty;
+        }
+
+        public Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> GetRemindersFromStateProviderAsync(
+            ActorId actorId,
+            ContinuationToken continuationToken,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>());
         }
     }
 }
