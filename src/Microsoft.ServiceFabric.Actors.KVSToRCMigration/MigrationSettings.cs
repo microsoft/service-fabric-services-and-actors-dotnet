@@ -21,12 +21,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public long ItemsPerChunk { get; set; }
 
+        public MigrationSecuritySettings SecuritySettings { get; set; }
+
         internal override void LoadFrom(ICodePackageActivationContext codePackageActivationContext, string configSectionName = "MigrationConfig")
         {
             base.LoadFrom(codePackageActivationContext, configSectionName);
 
             this.CopyPhaseParallelism = Environment.ProcessorCount;
             this.DowntimeThreshold = 1024;
+            this.SecuritySettings = new MigrationSecuritySettings();
 
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
@@ -66,6 +69,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal override void Validate()
         {
             base.Validate();
+            this.SecuritySettings?.Validate();
         }
     }
 }

@@ -7,13 +7,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using System.Fabric;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Services.Client;
@@ -48,6 +48,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.migrationSettings.LoadFrom(
                  this.StatefulServiceContext.CodePackageActivationContext,
                  ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInformation.ImplementationType));
+
+            // Load Migration Security Settings
+            this.migrationSettings.SecuritySettings.LoadFrom(
+                 this.StatefulServiceContext.CodePackageActivationContext,
+                 ActorNameFormat.GetMigrationSecurityConfigSectionName(this.actorTypeInformation.ImplementationType));
         }
 
         internal ActorTypeInformation ActorTypeInformation { get => this.actorTypeInformation; }
@@ -82,18 +87,40 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.TraceId,
                         $"Starting Kestrel on url: {url} host: {FabricRuntime.GetNodeContext().IPAddressOrFQDN} endpointPort: {endpoint.Port}");
 
-                    var webHostBuilder =
-                        new WebHostBuilder()
-                            .UseKestrel()
-                            .ConfigureServices(
-                                services => services
-                                    .AddSingleton<IMigrationOrchestrator>(this))
-                            .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
-                            .UseStartup<Startup>()
-                            .UseUrls(url)
-                            .Build();
+                    WebHostBuilder webHostBuilder = new WebHostBuilder();
 
-                    return webHostBuilder;
+                    if (string.IsNullOrEmpty(this.MigrationSettings.SecuritySettings.SecurityCredentialsType))
+                    {
+                        webHostBuilder.UseKestrel();
+                    }
+                    else
+                    {
+                        webHostBuilder.UseKestrel(serverOptions =>
+                        {
+                            serverOptions.ListenAnyIP(endpoint.Port, listenOptions =>
+                            {
+                                listenOptions.UseHttps(CertificateHelper.GetCertificates(this.MigrationSettings.SecuritySettings).First(), httpsOptions =>
+                                {
+                                    httpsOptions.ClientCertificateMode = AspNetCore.Server.Kestrel.Https.ClientCertificateMode.RequireCertificate;
+                                    httpsOptions.ClientCertificateValidation = (certificate, chain, sslPolicyErrors) =>
+                                    {
+                                        ActorTrace.Source.WriteInfoWithId(
+                                           TraceType,
+                                           this.TraceId,
+                                           $"Validating client cert: {certificate.SubjectName} {certificate.Thumbprint} {certificate.NotBefore} {certificate.NotAfter}");
+
+                                        return CertificateHelper.IsValidRemoteCert(certificate, chain, this.MigrationSettings.SecuritySettings);
+                                    };
+                                });
+                            });
+                        });
+                    }
+
+                    return webHostBuilder.ConfigureServices(services => services.AddSingleton<IMigrationOrchestrator>(this))
+                                        .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
+                                        .UseStartup<Startup>()
+                                        .UseUrls(url)
+                                        .Build();
                 }
                 catch (Exception ex)
                 {

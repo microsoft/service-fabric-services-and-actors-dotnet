@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Fabric;
     using System.Net.Http;
+    using System.Security.Cryptography.X509Certificates;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     internal class HttpCommunicationClient : ICommunicationClient
@@ -15,22 +16,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private Uri endpointUri;
         private HttpClient httpClient;
 
-        public HttpCommunicationClient(string address)
+        public HttpCommunicationClient(string address, MigrationSecuritySettings securitySettings)
         {
             this.endpointUri = new Uri(address.EndsWith("/") ? address : $"{address}/");
-#if !DotNetCoreClr
-            var handler = new WinHttpHandler();
-            this.httpClient = new HttpClient(handler)
-            {
-                BaseAddress = this.endpointUri,
-            };
-#endif
-#if DotNetCoreClr
-            this.httpClient = new HttpClient()
-            {
-                BaseAddress = this.endpointUri,
-            };
-#endif
+            this.httpClient = this.GetHttpClient(this.endpointUri, securitySettings);
         }
 
         public Uri EndpointUri { get => this.endpointUri; }
@@ -42,5 +31,54 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public string ListenerName { get; set; }
 
         public ResolvedServiceEndpoint Endpoint { get; set; }
+
+        private HttpClient GetHttpClient(Uri endpointUri, MigrationSecuritySettings securitySettings)
+        {
+            var certs = CertificateHelper.GetCertificates(securitySettings);
+            certs.AddRange(CertificateHelper.GetClientCertificates(securitySettings));
+            var handler = this.CreateRequestHandler(certs.ToArray(), securitySettings);
+
+            // CommunicationClientBase needs the BaseAddress to be set
+            var httpClient = new HttpClient(handler);
+            httpClient.BaseAddress = endpointUri;
+
+            return httpClient;
+        }
+
+#if DotNetCoreClr
+        private HttpClientHandler CreateRequestHandler(X509Certificate2[] clientCertificates, MigrationSecuritySettings securitySettings)
+        {
+            var handler = new HttpClientHandler();
+
+            if (clientCertificates != null)
+            {
+                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                handler.ClientCertificates.AddRange(clientCertificates);
+                handler.ServerCertificateCustomValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
+                {
+                    return CertificateHelper.IsValidRemoteCert(certificate, chain, securitySettings);
+                };
+            }
+
+            return handler;
+        }
+#else
+        private WinHttpHandler CreateRequestHandler(X509Certificate2[] clientCertificates, MigrationSecuritySettings securitySettings)
+        {
+            var handler = new WinHttpHandler();
+
+            if (clientCertificates != null)
+            {
+                handler.ClientCertificateOption = ClientCertificateOption.Manual;
+                handler.ClientCertificates.AddRange(clientCertificates);
+                handler.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) =>
+                {
+                    return CertificateHelper.IsValidRemoteCert(certificate, chain, securitySettings);
+                };
+            }
+
+            return handler;
+        }
+#endif
     }
 }
