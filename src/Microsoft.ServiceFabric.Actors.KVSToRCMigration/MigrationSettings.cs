@@ -41,6 +41,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         [DataMember]
         public float PercentageOfMigratedDataToValidate { get; set; }
 
+        [DataMember]
+        public MigrationSecuritySettings SecuritySettings { get; set; }
+
         public override string ToString()
         {
             using (var stream = new MemoryStream())
@@ -61,6 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.DowntimeThreshold = 1024;
             this.MigratedDataValidationPhaseParallelism = Environment.ProcessorCount;
             this.PercentageOfMigratedDataToValidate = 10.00f;
+            this.SecuritySettings = new MigrationSecuritySettings();
 
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
@@ -110,6 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal override void Validate()
         {
             base.Validate();
+            this.SecuritySettings?.Validate();
         }
     }
 }

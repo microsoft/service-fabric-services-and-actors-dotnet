@@ -13,12 +13,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal class HttpCommunicationClientFactory : CommunicationClientFactoryBase<HttpCommunicationClient>
     {
+        private MigrationSecuritySettings securitySettings;
+
         public HttpCommunicationClientFactory(
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            string traceId = null)
+            string traceId = null,
+            MigrationSecuritySettings migrationSecuritySettings = null)
             : base(servicePartitionResolver, exceptionHandlers, traceId)
         {
+            this.securitySettings = migrationSecuritySettings;
         }
 
         protected override void AbortClient(HttpCommunicationClient client)
@@ -28,7 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         protected override Task<HttpCommunicationClient> CreateClientAsync(string endpoint, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HttpCommunicationClient(endpoint));
+            return Task.FromResult(new HttpCommunicationClient(endpoint, this.securitySettings));
         }
 
         protected override bool ValidateClient(HttpCommunicationClient client)

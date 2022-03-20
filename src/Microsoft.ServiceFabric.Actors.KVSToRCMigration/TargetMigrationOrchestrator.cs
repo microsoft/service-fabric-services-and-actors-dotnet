@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     var partitionInformation = this.GetInt64RangePartitionInformation();
                     this.partitionClient = new ServicePartitionClient<HttpCommunicationClient>(
-                            new HttpCommunicationClientFactory(null, new List<IExceptionHandler>() { new HttpExceptionHandler() }),
+                            new HttpCommunicationClientFactory(null, new List<IExceptionHandler>() { new HttpExceptionHandler() }, null, this.MigrationSettings.SecuritySettings),
                             this.MigrationSettings.SourceServiceUri,
                             new ServicePartitionKey(partitionInformation.LowKey),
                             TargetReplicaSelector.PrimaryReplica,
