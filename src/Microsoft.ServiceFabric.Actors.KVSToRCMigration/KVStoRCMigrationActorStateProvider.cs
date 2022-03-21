@@ -678,10 +678,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private async Task CancelStateProviderInitializationAsync()
         {
             if (this.stateProviderInitCts != null
+                && this.stateProviderInitTask != null
                 && this.stateProviderInitCts.IsCancellationRequested == false)
             {
                 try
                 {
+                    ActorTrace.Source.WriteInfoWithId(this.TraceType, this.traceId, "Canceling state provider initialization");
+
+                    this.stateProviderInitCts.Cancel();
+
                     await this.stateProviderInitTask;
                 }
                 catch (Exception ex)
