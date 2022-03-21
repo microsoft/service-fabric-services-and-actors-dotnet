@@ -38,6 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private bool isMetadataDictInitialized = false;
         private Task stateProviderInitTask;
         private StatefulServiceInitializationParameters initParams;
+        private CancellationTokenSource stateProviderInitCts;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KVStoRCMigrationActorStateProvider"/> class.
@@ -195,7 +196,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await ((IStateProviderReplica)this.rcStateProvider).ChangeRoleAsync(newRole, cancellationToken);
             if (newRole == ReplicaRole.Primary)
             {
-                this.stateProviderInitTask = this.StartStateProviderInitialization(cancellationToken);
+                this.stateProviderInitCts = new CancellationTokenSource();
+                this.stateProviderInitTask = this.StartStateProviderInitialization(this.stateProviderInitCts.Token);
             }
             else
             {
@@ -675,25 +677,30 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private async Task CancelStateProviderInitializationAsync()
         {
-            try
+            if (this.stateProviderInitCts != null
+                && this.stateProviderInitCts.IsCancellationRequested == false)
             {
-                await this.stateProviderInitTask;
-            }
-            catch (Exception ex)
-            {
-                var msgFormat = "StartStateProviderInitialization() failed due to " +
-                                 "an unexpected Exception causing replica to fault: {0}";
+                try
+                {
+                    await this.stateProviderInitTask;
+                }
+                catch (Exception ex)
+                {
+                    var msgFormat = "StartStateProviderInitialization() failed due to " +
+                                     "an unexpected Exception causing replica to fault: {0}";
 
-                ActorTrace.Source.WriteErrorWithId(
-                    this.TraceType,
-                    this.traceId,
-                    string.Format(msgFormat, ex.ToString()));
+                    ActorTrace.Source.WriteErrorWithId(
+                        this.TraceType,
+                        this.traceId,
+                        string.Format(msgFormat, ex.ToString()));
 
-                this.servicePartition.ReportFault(FaultType.Transient);
-            }
-            finally
-            {
-                this.stateProviderInitTask = null;
+                    this.servicePartition.ReportFault(FaultType.Transient);
+                }
+                finally
+                {
+                    this.stateProviderInitCts = null;
+                    this.stateProviderInitTask = null;
+                }
             }
         }
     }
