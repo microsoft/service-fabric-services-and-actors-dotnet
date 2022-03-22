@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Migration;
+    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
@@ -44,9 +45,21 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         {
             if (this.actorService.IsActorCallToBeForwarded)
             {
+                if (requestMessage.GetHeader().TryGetHeaderValue(Runtime.Migration.Constants.ForwardRequestHeaderName, out var val))
+                {
+                    var errorMsg = $"Both migration services are in Downtime. Retry the call after Downtime phase is completed.";
+                    ActorTrace.Source.WriteInfoWithId(
+                       TraceType,
+                       this.traceId,
+                       errorMsg);
+
+                    throw new ActorCallsDisallowedException(errorMsg);
+                }
+
                 return await this.requestForwarder.ForwardRequestResponseAsync(requestContext, requestMessage);
             }
 
+            // User could observe ActorCallsDisallowedException in a race situation where service moved to downtime phase after dispatching the request.
             return await this.actualMessageHandler.HandleRequestResponseAsync(requestContext, requestMessage);
         }
 
