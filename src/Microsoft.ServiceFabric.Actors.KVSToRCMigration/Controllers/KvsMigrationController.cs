@@ -6,7 +6,6 @@
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
 {
     using System.Collections.Generic;
-    using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
@@ -18,11 +17,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     /// Represents the controller class for KVS migration REST API.
     /// </summary>
     [Route("[controller]")]
-#pragma warning disable CS3009 // Base type is not CLS-compliant
-    public class KvsMigrationController : ControllerBase
-#pragma warning restore CS3009 // Base type is not CLS-compliant
+    internal class KvsMigrationController : MigrationControllerBase
     {
-        private IMigrationOrchestrator migrationOrchestrator;
         private KvsActorStateProvider kvsActorStateProvider;
 
         /// <summary>
@@ -30,9 +26,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         /// </summary>
         /// <param name="migrationOrchestrator">Source migraiton orchestrator</param>
         public KvsMigrationController(IMigrationOrchestrator migrationOrchestrator)
+            : base(migrationOrchestrator)
         {
-            this.migrationOrchestrator = migrationOrchestrator;
-            this.kvsActorStateProvider = (KvsActorStateProvider)this.migrationOrchestrator.GetMigrationActorStateProvider();
+            this.kvsActorStateProvider = (KvsActorStateProvider)this.MigrationOrchestrator.GetMigrationActorStateProvider();
         }
 
         /// <summary>
@@ -75,7 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("RejectWrites")]
         public async Task RejectWritesAsync()
         {
-            await this.migrationOrchestrator.StartDowntimeAsync(CancellationToken.None);
+            await this.MigrationOrchestrator.StartDowntimeAsync(CancellationToken.None);
         }
 
         /// <summary>
@@ -85,7 +81,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("ResumeWrites")]
         public async Task ResumeWritesAsync()
         {
-            await this.migrationOrchestrator.AbortMigrationAsync(CancellationToken.None);
+            await this.MigrationOrchestrator.AbortMigrationAsync(CancellationToken.None);
         }
 
         /// <summary>

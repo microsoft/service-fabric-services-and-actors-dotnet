@@ -21,6 +21,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public long ItemsPerChunk { get; set; }
 
+        public int MigratedDataValidationPhaseParallelism { get; set; }
+
         public float PercentageOfMigratedDataToValidate { get; set; }
 
         internal override void LoadFrom(ICodePackageActivationContext codePackageActivationContext, string configSectionName = "MigrationConfig")
@@ -29,6 +31,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             this.CopyPhaseParallelism = Environment.ProcessorCount;
             this.DowntimeThreshold = 1024;
+            this.MigratedDataValidationPhaseParallelism = Environment.ProcessorCount;
             this.PercentageOfMigratedDataToValidate = 10.00f;
 
             var configPackageName = ActorNameFormat.GetConfigPackageName();
@@ -56,6 +59,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
                     {
                         this.ItemsPerChunk = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
+                    }
+
+                    if (migrationSettings.Parameters.Contains("MigratedDataValidationPhaseParallelism"))
+                    {
+                        this.MigratedDataValidationPhaseParallelism = int.Parse(migrationSettings.Parameters["MigratedDataValidationPhaseParallelism"].Value);
                     }
 
                     if (migrationSettings.Parameters.Contains("PercentageOfMigratedDataToValidate"))

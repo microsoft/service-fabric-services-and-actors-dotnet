@@ -15,19 +15,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     /// Represents the controller class for KVS migration REST API.
     /// </summary>
     [Route("[controller]")]
-#pragma warning disable CS3009 // Base type is not CLS-compliant
-    public class RcMigrationController : ControllerBase
-#pragma warning restore CS3009 // Base type is not CLS-compliant
+    internal class RcMigrationController : MigrationControllerBase
     {
-        private IMigrationOrchestrator migrationOrchestrator;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RcMigrationController"/> class.
         /// </summary>
         /// <param name="migrationOrchestrator">Target Migration orchestrator</param>
         public RcMigrationController(IMigrationOrchestrator migrationOrchestrator)
+            : base(migrationOrchestrator)
         {
-            this.migrationOrchestrator = migrationOrchestrator;
         }
 
         /// <summary>
@@ -38,7 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetMigrationStatus")]
         public async Task<MigrationResult> GetMigrationStatusAsync(CancellationToken cancellationToken)
         {
-            return await ((TargetMigrationOrchestrator)this.migrationOrchestrator).GetResultAsync(cancellationToken);
+            return await ((TargetMigrationOrchestrator)this.MigrationOrchestrator).GetResultAsync(cancellationToken);
         }
 
         /// <summary>
@@ -59,7 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("ResumeWritesOnKVSService")]
         public async Task ResumeWritesOnKVSServiceAsync(CancellationToken cancellationToken)
         {
-            await this.migrationOrchestrator.AbortMigrationAsync(cancellationToken);
+            await this.MigrationOrchestrator.AbortMigrationAsync(cancellationToken);
         }
     }
 }

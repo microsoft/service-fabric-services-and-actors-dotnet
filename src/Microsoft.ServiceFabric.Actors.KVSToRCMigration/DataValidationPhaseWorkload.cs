@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             MigrationSettings migrationSettings,
             ActorTypeInformation actorTypeInfo,
             string traceId)
-            : base(MigrationPhase.DataValidation, 1, migrationSettings.CopyPhaseParallelism, stateProvider, servicePartitionClient, statefulServiceContext, migrationSettings, actorTypeInfo, traceId)
+            : base(MigrationPhase.DataValidation, 1, migrationSettings.MigratedDataValidationPhaseParallelism, stateProvider, servicePartitionClient, statefulServiceContext, migrationSettings, actorTypeInfo, traceId)
         {
         }
 

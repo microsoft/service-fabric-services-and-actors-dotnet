@@ -278,6 +278,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             dictionary = this.rcStateProvider.GetActorPresenceDictionary();
                             presenceKeyCount++;
                         }
+
+                        // It is not right to assume the ActorId wouldn't have underscores.
+                        // TODO: Handle this in ambiguous ActorId PR
                         else if (data.Key.StartsWith("Actor"))
                         {
                             rcValue = data.Value;
@@ -342,6 +345,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         keysMigrated.Add(data.Key);
                         lastAppliedSN = data.Version;
                     }
+
+                    await this.AddOrUpdateMigratedKeysAsync(tx, keysMigrated, cancellationToken);
+                    await tx.CommitAsync();
                 }
                 catch (Exception ex)
                 {
@@ -365,11 +371,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                     throw ex;
                 }
-
-                await this.AddOrUpdateMigratedKeysAsync(tx, keysMigrated, cancellationToken);
-
-                cancellationToken.ThrowIfCancellationRequested();
-                await tx.CommitAsync();
 
                 ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated));
 
@@ -399,6 +400,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     dictionary = this.rcStateProvider.GetActorPresenceDictionary();
                 }
+
+                // It is not right to assume the ActorId wouldn't have underscores.
+                // TODO: Handle this in ambiguous ActorId PR
                 else if (key.StartsWith("Actor"))
                 {
                     var startIndex = this.GetNthIndex(key, '_', 2);
@@ -429,13 +433,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.TraceType,
                         this.traceId,
                         message);
-
-                    this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
                 }
 
                 var rcKey = this.TransformKVSKeyToRCFormat(key);
                 cancellationToken.ThrowIfCancellationRequested();
                 var rcValue = await dictionary.TryGetValueAsync(tx, rcKey);
+                await tx.CommitAsync();
+
                 if (rcValue.HasValue)
                 {
                     return rcValue.Value;
@@ -462,13 +466,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 expected = kvsValue.ToString();
                 actual = rcValue.ToString();
-                result = kvsValue == rcValue;
+                result = kvsValue.SequenceEqual(rcValue);
             }
             else if (key.StartsWith("Actor"))
             {
                 expected = kvsValue.ToString();
                 actual = rcValue.ToString();
-                result = kvsValue == rcValue;
+                result = kvsValue.SequenceEqual(rcValue);
             }
             else if (key.StartsWith("RC@@"))
             {
@@ -502,8 +506,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
             else
             {
-                var message = "Migration Error: Failed to parse the KVS key - " + key;
+                ActorTrace.Source.WriteErrorWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"Migration Error: Failed to parse the KVS key - {key}");
+            }
 
+            ActorTrace.Source.WriteNoiseWithId(
+                    this.TraceType,
+                    this.traceId,
+                    $"CompareKVSandRCValuekey: key: {key} actual: {actual} expected: {expected} compare result: {result}");
+
+            if (!result)
+            {
+                var message = $"Migrated data validation failed for key {key}. Expected Value: {expected} Actual Value: {actual}";
                 ActorTrace.Source.WriteErrorWithId(
                     this.TraceType,
                     this.traceId,
@@ -513,14 +529,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 healthInfo.TimeToLive = TimeSpan.MaxValue;
                 healthInfo.RemoveWhenExpired = false;
                 this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
-            }
 
-            if (!result)
-            {
-                ActorTrace.Source.WriteErrorWithId(
-                    this.TraceType,
-                    this.traceId,
-                    $"Migrated data validation failed for key {key}. Expected Value: {expected} Actual Value: {actual}");
+                throw new ActorStateMigratedDataValidationFailedException(message);
             }
 
             return result;
@@ -542,9 +552,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             chunksCount++;
 
-            cancellationToken.ThrowIfCancellationRequested();
             await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.Key(MigrationConstants.MigrationKeysMigrated, chunksCount), keysMigratedCsv, (k, v) => keysMigratedCsv);
             await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount, chunksCount.ToString(), (k, v) => chunksCount.ToString());
+
+            ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, $"MigrationKeysMigrated added: {MigrationConstants.Key(MigrationConstants.MigrationKeysMigrated, chunksCount)}");
         }
 
         internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()

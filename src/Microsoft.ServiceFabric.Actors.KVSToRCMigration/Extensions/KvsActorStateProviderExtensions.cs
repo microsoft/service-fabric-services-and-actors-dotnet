@@ -201,10 +201,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 {
                                     var result = stateProvider.GetStoreReplica().TryGet(tx, key);
 
-                                    if (result != null)
+                                    if (result == null)
                                     {
-                                        pairs.Add(new KeyValuePair() { Key = key, Value = result.Value });
+                                        throw new ActorStateMigratedDataValidationFailedException($"Could not find key: {key} in KVS");
                                     }
+
+                                    pairs.Add(new KeyValuePair() { Key = key, Value = result.Value });
                                 }
                             }
 
@@ -224,7 +226,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var byteArray = memoryStream.ToArray();
             var newLine = Encoding.ASCII.GetBytes("\n");
 
-            ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
+            ActorTrace.Source.WriteNoise("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
 
             // Set the content type
             response.ContentType = "application/xml; charset=utf-8";
