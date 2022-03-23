@@ -65,6 +65,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         [DataContract]
         public class WorkerInput
         {
+            private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(WorkerInput), new DataContractJsonSerializerSettings
+            {
+                UseSimpleDictionaryFormat = true,
+            });
+
             [DataMember]
             public int WorkerId { get; set; }
 
@@ -91,6 +96,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             [DataMember]
             public MigrationState Status { get; set; }
+
+            public override string ToString()
+            {
+                using (var stream = new MemoryStream())
+                {
+                    serializer.WriteObject(stream, this);
+
+                    var returnVal = Encoding.ASCII.GetString(stream.GetBuffer());
+
+                    return returnVal;
+                }
+            }
         }
     }
 }

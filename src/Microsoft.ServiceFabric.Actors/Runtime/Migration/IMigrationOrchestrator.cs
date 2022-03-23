@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     /// <summary>
     /// Interface definition for migraiton operations./>.
     /// </summary>
-    public interface IMigrationOrchestrator
+    internal interface IMigrationOrchestrator
     {
         /// <summary>
         /// Gets the Migration ready actor state provider.

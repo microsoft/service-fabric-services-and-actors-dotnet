@@ -45,12 +45,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.migrationSettings = migrationSettings;
         }
 
+        public ITransaction Transaction { get => this.StateProvider.GetStateManager().CreateTransaction(); }
+
         public override async Task<WorkerResult> StartWorkAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.TraceId,
-                        $"Starting or resuming data validation worker\n Input: {this.Input.ToString()}");
+                        $"#{this.Input.WorkerId}: Starting or resuming data validation worker\n Input: {this.Input.ToString()}");
 
             try
             {
@@ -58,16 +60,27 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     var startSN = this.Input.StartSeqNum;
                     var endSN = this.Input.EndSeqNum;
+                    var allKeysToValidateCount = endSN - startSN + 1;
+
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        this.TraceId,
+                        $"#{this.Input.WorkerId}: StartSeqNum: {startSN} EndSeqNum: {endSN}");
 
                     // Fetch saved migrated keys
                     var migratedKeys = new List<string>();
-                    using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                    using (var tx = this.Transaction)
                     {
                         var migrationKeysMigratedChunksCount = await this.MetadataDict.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount);
                         long chunksCount = 0L;
                         if (migrationKeysMigratedChunksCount.HasValue)
                         {
                             chunksCount = MigrationUtility.ParseLong(migrationKeysMigratedChunksCount.Value, this.TraceId);
+
+                            ActorTrace.Source.WriteNoiseWithId(
+                                TraceType,
+                                this.TraceId,
+                                $"#{this.Input.WorkerId}: chunksCount: {chunksCount}");
 
                             for (int i = 1; i <= chunksCount; i++)
                             {
@@ -77,19 +90,45 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                     migratedKeys.AddRange(savedMigratedKeys.Value.Split(DefaultDelimiter).ToList());
                                 }
                             }
+
+                            ActorTrace.Source.WriteNoiseWithId(
+                                TraceType,
+                                this.TraceId,
+                                $"#{this.Input.WorkerId}: migratedKeys: {string.Join(",", migratedKeys)}");
                         }
+
+                        await tx.CommitAsync();
                     }
 
                     // Calculate and list keys to validate
-                    var noOfKeysToValidate = Math.Round(migratedKeys.Count * (this.migrationSettings.PercentageOfMigratedDataToValidate / 100), 0);
-                    var rand = new Random();
                     var keysIndicesToValidate = new HashSet<int>();
-                    do
+                    double noOfKeysToValidate;
+                    if (this.migrationSettings.PercentageOfMigratedDataToValidate < 100)
                     {
-                        var tIndex = rand.Next(((int)startSN), ((int)endSN) + 1);
-                        keysIndicesToValidate.Add(tIndex);
+                        noOfKeysToValidate = Math.Round(migratedKeys.Count * (this.migrationSettings.PercentageOfMigratedDataToValidate / 100), 0);
+                        var rand = new Random();
+                        do
+                        {
+                            var tIndex = rand.Next(((int)startSN), ((int)endSN) + 1);
+                            keysIndicesToValidate.Add(tIndex);
+                        }
+                        while (keysIndicesToValidate.Count < noOfKeysToValidate);
                     }
-                    while (keysIndicesToValidate.Count < noOfKeysToValidate);
+                    else
+                    {
+                        noOfKeysToValidate = allKeysToValidateCount;
+                        for (int tIndex = (int)startSN; tIndex <= endSN; tIndex++)
+                        {
+                            keysIndicesToValidate.Add(tIndex);
+                        }
+                    }
+
+                    keysIndicesToValidate.Remove(migratedKeys.Count);
+
+                    ActorTrace.Source.WriteNoiseWithId(
+                                TraceType,
+                                this.TraceId,
+                                $"#{this.Input.WorkerId}: noOfKeysToValidate: {noOfKeysToValidate} keysIndicesToValidate: {string.Join(",", keysIndicesToValidate)}");
 
                     // Validate value for key in KVS and RC
                     var migratedKeysChunk = new List<string>();
@@ -103,12 +142,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         {
                             if (await this.GetDataFromKvsAndValidateWithRcAsync(migratedKeysChunk, this.Input.WorkerId, cancellationToken))
                             {
+                                // clear and continue for next chunk
+                                migratedKeysChunk.Clear();
                                 continue;
                             }
                             else
                             {
                                 // Exit worker if validation fails
-                                using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                                using (var tx = this.Transaction)
                                 {
                                     await this.AbortWorkerAsync(tx, cancellationToken);
                                     WorkerResult tresult = await GetResultAsync(this.MetadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.TraceId, cancellationToken);
@@ -118,12 +159,21 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 }
                             }
                         }
-
-                        migratedKeysChunk.Clear();
                     }
                 }
+                else
+                {
+#pragma warning disable SA1118 // Parameter should not span multiple lines
+                    ActorTrace.Source.WriteInfoWithId(
+                           TraceType,
+                           this.TraceId,
+                           $"#{this.Input.WorkerId}: No migrated data was validated. " +
+                           $"PercentageOfMigratedDataToValidate: {this.migrationSettings.PercentageOfMigratedDataToValidate} " +
+                           $"StartSeqNum: {this.Input.StartSeqNum} EndSeqNum: {this.Input.EndSeqNum}");
+#pragma warning restore SA1118 // Parameter should not span multiple lines
+                }
 
-                using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                using (var tx = this.Transaction)
                 {
                     await this.CompleteWorkerAsync(tx, cancellationToken);
                     await tx.CommitAsync();
@@ -133,7 +183,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 ActorTrace.Source.WriteInfoWithId(
                            TraceType,
                            this.TraceId,
-                           $"Completed data validation worker\n Result: {result.ToString()} ");
+                           $"#{this.Input.WorkerId}: Completed data validation worker\n Result: {result} ");
 
                 return result;
             }
@@ -142,7 +192,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 ActorTrace.Source.WriteErrorWithId(
                             TraceType,
                             this.TraceId,
-                            $"Data validation worker failed with error: {ex} \n Input: /*Dump input*/");
+                            $"#{this.Input.WorkerId}: Data validation worker failed with error: {ex} \n Input: /*Dump input*/");
+
+                using (var tx = this.Transaction)
+                {
+                    await tx.CommitAsync();
+                }
 
                 throw ex;
             }
@@ -187,6 +242,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             if (kvsData.Count > 0)
                             {
+                                ActorTrace.Source.WriteNoiseWithId(
+                                   TraceType,
+                                   this.TraceId,
+                                   $"#{this.Input.WorkerId}: kvsData: {string.Join(",", kvsData)} ");
+
                                 foreach (var kv in kvsData)
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
@@ -228,6 +288,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private async Task AbortWorkerAsync(ITransaction tx, CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteNoiseWithId(
+                                TraceType,
+                                this.TraceId,
+                                $"#{this.Input.WorkerId}: Aborting Data Validation Worker");
+
             await this.MetadataDict.AddOrUpdateAsync(
                 tx,
                 Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
