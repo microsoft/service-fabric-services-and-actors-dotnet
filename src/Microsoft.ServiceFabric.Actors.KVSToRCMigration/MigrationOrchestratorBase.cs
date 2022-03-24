@@ -31,8 +31,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private StatefulServiceContext serviceContext;
         private ActorTypeInformation actorTypeInformation;
         private string traceId;
-        private Action<bool> stateProviderStateChangeCallback;
         private MigrationSettings migrationSettings;
+        private Func<bool, CancellationToken, Task> completionCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MigrationOrchestratorBase"/> class.
@@ -57,6 +57,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal string TraceId { get => this.traceId; }
 
         internal MigrationSettings MigrationSettings { get => this.migrationSettings; }
+
+        internal Func<bool, CancellationToken, Task> CompletionCallback { get => this.completionCallback; }
 
         /// <inheritdoc/>
         public abstract bool AreActorCallsAllowed();
@@ -130,10 +132,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }));
         }
 
-        /// <inheritdoc/>
-        public virtual void RegisterStateChangeCallback(Action<bool> stateProviderStateChangeCallback)
+        /// <summary>
+        /// Gets the migration start mode.
+        /// </summary>
+        /// <returns>Return true if the MigrationMode is Auto, false otherwise.</returns>
+        public virtual bool IsAutoStartMigration()
         {
-            this.stateProviderStateChangeCallback = stateProviderStateChangeCallback;
+            return this.MigrationSettings.MigrationMode == MigrationMode.Auto;
+        }
+
+        public void RegisterCompletionCallback(Func<bool, CancellationToken, Task> completionCallback)
+        {
+            this.completionCallback = completionCallback;
         }
 
         /// <inheritdoc/>
@@ -146,6 +156,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public abstract Task AbortMigrationAsync(CancellationToken cancellationToken);
 
         public abstract bool IsActorCallToBeForwarded();
+
+        public abstract void ThrowIfActorCallsDisallowed();
+
+        protected Task InvokeCompletionCallback(bool actorCallsAllowed, CancellationToken cancellationToken)
+        {
+            if (this.completionCallback != null)
+            {
+                return this.completionCallback.Invoke(actorCallsAllowed, cancellationToken);
+            }
+
+            ActorTrace.Source.WriteWarningWithId(
+                TraceType,
+                this.TraceId,
+                "Completion callback not registered. Ignoriing callback invocation.");
+
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// Gets the migration endpoint name.

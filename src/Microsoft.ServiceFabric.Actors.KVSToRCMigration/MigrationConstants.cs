@@ -13,8 +13,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly char DefaultDelimiter = ',';
         internal static readonly string KVSMigrationControllerName = "KvsMigration";
         internal static readonly string MetadataDictionaryName = "store://kvsrcmigration//metadata";
-        internal static readonly string ResumeWritesAPIEndpoint = "ResumeWrites";
-        internal static readonly string RejectWritesAPIEndpoint = "RejectWrites";
+        internal static readonly string AbortMigrationEndpoint = "AbortMigration";
+        internal static readonly string StartDowntimeEndpoint = "StartDowntime";
         internal static readonly string GetStartSNEndpoint = "GetFirstSequenceNumber";
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
