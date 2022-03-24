@@ -118,7 +118,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
 
                             // Set the content type
-                            response.ContentType = "application/xml; charset=utf-8";
+                            if (response.ContentType == null)
+                            {
+                                response.ContentType = "application/xml; charset=utf-8";
+                            }
+
                             await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
                             await response.Body.WriteAsync(newLine, 0, newLine.Length);
                             await response.Body.FlushAsync();
