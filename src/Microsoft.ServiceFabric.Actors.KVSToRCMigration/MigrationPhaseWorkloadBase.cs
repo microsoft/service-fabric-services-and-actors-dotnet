@@ -10,13 +10,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
-    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseResult;
+    using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
 
     internal abstract class MigrationPhaseWorkloadBase : IMigrationPhaseWorkload
     {
@@ -222,12 +223,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 var results = await Task.WhenAll(tasks);
                 await this.AddOrUpdateResultAsync(input, results, cancellationToken);
                 PhaseResult phaseResult = await this.GetResultAsync(cancellationToken);
-
-                using (var tx = this.Transaction)
-                {
-                    await tx.CommitAsync();
-                }
-
                 ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.traceId,
@@ -275,7 +270,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 await tx.CommitAsync();
             }
 
-            return startSequenceNumber++;
+            return ++startSequenceNumber;
         }
 
         protected virtual async Task<PhaseInput> GetOrAddInputAsync(CancellationToken cancellationToken)
@@ -487,14 +482,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             using (var tx = this.Transaction)
             {
                 endTime = await ParseDateTimeAsync(
-                () => this.MetaDataDictionary.AddOrUpdateAsync(
-                tx,
-                Key(PhaseEndDateTimeUTC, this.migrationPhase, this.currentIteration),
-                endTime.ToString(),
-                (_, __) => endTime.ToString(),
-                DefaultRCTimeout,
-                cancellationToken),
-                this.TraceId);
+                    () => this.MetaDataDictionary.AddOrUpdateAsync(
+                    tx,
+                    Key(PhaseEndDateTimeUTC, this.migrationPhase, this.currentIteration),
+                    endTime.ToString(),
+                    (_, __) => endTime.ToString(),
+                    DefaultRCTimeout,
+                    cancellationToken),
+                    this.TraceId);
 
                 await this.MetaDataDictionary.AddOrUpdateAsync(
                     tx,

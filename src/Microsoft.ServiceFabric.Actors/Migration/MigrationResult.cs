@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System;
     using System.IO;
@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// Gets or sets the migration start time.
         /// </summary>
         [DataMember]
-        public DateTime StartDateTimeUTC { get; set; }
+        public DateTime? StartDateTimeUTC { get; set; }
 
         /// <summary>
         /// Gets or sets the migration end time.
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// Gets or sets the start sequence num.
         /// </summary>
         [DataMember]
-        public long StartSeqNum { get; set; }
+        public long? StartSeqNum { get; set; }
 
         /// <summary>
         /// Gets or sets the end sequence nummber.

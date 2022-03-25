@@ -55,6 +55,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         public Task StartDowntimeAsync(CancellationToken cancellationToken);
 
         /// <summary>
+        /// Attempts to resume migration in the event of failover.
+        /// </summary>
+        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
+        /// <returns>True indicates migration resumed post failover, false incase the migration workflow has not previously started.</returns>
+        public Task<bool> TryResumeMigrationAsync(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Aborts the migration workflow.
         /// </summary>
         /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>

@@ -13,7 +13,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Services.Client;
@@ -39,15 +38,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// </summary>
         /// <param name="actorTypeInformation">The type information of the Actor.</param>
         /// <param name="serviceContext">Service context the actor service is operating under.</param>
-        public MigrationOrchestratorBase(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation)
+        /// <param name="migrationSettings">Migration settings.</param>
+        public MigrationOrchestratorBase(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, Actors.Runtime.Migration.MigrationSettings migrationSettings)
         {
             this.actorTypeInformation = actorTypeInformation;
             this.serviceContext = serviceContext;
             this.traceId = this.serviceContext.TraceId;
-            this.migrationSettings = new MigrationSettings();
-            this.migrationSettings.LoadFrom(
-                 this.StatefulServiceContext.CodePackageActivationContext,
-                 ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInformation.ImplementationType));
+            if (migrationSettings != null && migrationSettings is MigrationSettings)
+            {
+                this.migrationSettings = (MigrationSettings)migrationSettings;
+            }
+            else
+            {
+                this.migrationSettings = new MigrationSettings();
+                this.migrationSettings.LoadFrom(
+                     this.StatefulServiceContext.CodePackageActivationContext,
+                     ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInformation.ImplementationType));
+            }
         }
 
         internal ActorTypeInformation ActorTypeInformation { get => this.actorTypeInformation; }
@@ -151,6 +158,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         /// <inheritdoc/>
         public abstract Task StartMigrationAsync(CancellationToken cancellationToken);
+
+        /// <inheritdoc/>
+        public abstract Task<bool> TryResumeMigrationAsync(CancellationToken cancellationToken);
 
         /// <inheritdoc/>
         public abstract Task AbortMigrationAsync(CancellationToken cancellationToken);
