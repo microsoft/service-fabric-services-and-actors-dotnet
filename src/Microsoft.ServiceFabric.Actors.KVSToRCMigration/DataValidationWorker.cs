@@ -134,7 +134,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     var migratedKeysChunk = new List<string>();
                     foreach (var keyIndex in keysIndicesToValidate)
                     {
-                        migratedKeysChunk.Add(migratedKeys[keyIndex]);
+                        if (!string.IsNullOrEmpty(migratedKeys[keyIndex]))
+                        {
+                            migratedKeysChunk.Add(migratedKeys[keyIndex]);
+                        }
 
                         // Start validation on reaching ItemsPerEnumeration or reaching end of keysIndicesToValidate
                         if (migratedKeysChunk.Count == this.migrationSettings.ItemsPerEnumeration
@@ -212,6 +215,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken.ThrowIfCancellationRequested();
                 var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
                 {
+                    ActorTrace.Source.WriteNoiseWithId(
+                       TraceType,
+                       this.TraceId,
+                       $"#{this.Input.WorkerId}: migratedKeysChunk = {string.Join(DefaultDelimiter.ToString(), migratedKeysChunk)}");
+
                     return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(client.EndpointUri, migratedKeysChunk), HttpCompletionOption.ResponseHeadersRead);
                 });
 
