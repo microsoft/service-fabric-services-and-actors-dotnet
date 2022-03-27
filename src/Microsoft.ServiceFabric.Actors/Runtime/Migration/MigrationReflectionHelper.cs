@@ -8,6 +8,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using System;
     using System.Fabric;
     using System.Reflection;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
 
     internal static class MigrationReflectionHelper

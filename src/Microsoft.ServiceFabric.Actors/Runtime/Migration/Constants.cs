@@ -8,5 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     internal static class Constants
     {
         internal static readonly string MigrationListenerName = "Migration Listener";
+        internal static readonly string ForwardRequestHeaderName = "ActorRequestForwarded";
     }
 }

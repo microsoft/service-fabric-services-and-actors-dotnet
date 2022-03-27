@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Client;
@@ -32,6 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private ServicePartitionClient<HttpCommunicationClient> partitionClient;
         private volatile MigrationState currentMigrationState;
         private CancellationTokenSource childCancellationTokenSource;
+        private volatile bool downtimeAllowed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetMigrationOrchestrator"/> class.
@@ -44,12 +46,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             if (stateProvider.GetType() != typeof(ReliableCollectionsActorStateProvider))
             {
-                // TODO throw
+                var errorMsg = $"{stateProvider.GetType()} not a valid state provider type for source of migration. {typeof(ReliableCollectionsActorStateProvider)} is the valid type.";
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    errorMsg);
+
+                throw new InvalidMigrationStateProviderException(errorMsg);
             }
 
             this.currentPhase = MigrationPhase.None;
             this.currentMigrationState = MigrationState.None;
             this.migrationActorStateProvider = new KVStoRCMigrationActorStateProvider(stateProvider as ReliableCollectionsActorStateProvider);
+            this.downtimeAllowed = this.MigrationSettings.MigrationMode == Runtime.Migration.MigrationMode.Auto;
         }
 
         internal Data.ITransaction Transaction { get => this.migrationActorStateProvider.GetStateManager().CreateTransaction(); }
@@ -153,6 +162,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                 throw e;
             }
+
+            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), childToken);
         }
 
         /// <inheritdoc/>
@@ -192,6 +203,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 this.childCancellationTokenSource.Cancel();
             }
+
+            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -209,13 +222,31 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            this.downtimeAllowed = true;
+
+            return Task.CompletedTask;
         }
 
         public override bool IsActorCallToBeForwarded()
         {
             // No reason to forward the call in downtime phase as the KVS service also cannot service the request.
             return (this.currentPhase < MigrationPhase.Downtime || this.currentMigrationState == MigrationState.Aborted) && this.MigrationSettings.SourceServiceUri != null;
+        }
+
+        public override void ThrowIfActorCallsDisallowed()
+        {
+            if (this.AreActorCallsAllowed())
+            {
+                return;
+            }
+
+            var errorMsg = $"Actor calls are not allowed on the service.";
+            if (this.MigrationSettings.SourceServiceUri == null)
+            {
+                errorMsg += $" Configure SourceServiceUri in {this.MigrationSettings.MigrationConfigSectionName} section of settings file to forward the request.";
+            }
+
+            throw new ActorCallsDisallowedException(errorMsg);
         }
 
         internal async Task<MigrationResult> GetResultAsync(CancellationToken cancellationToken)
@@ -455,7 +486,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.ServicePartitionClient.InvokeWithRetryAsync(
                 async client =>
                 {
-                    return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{RejectWritesAPIEndpoint}", null);
+                    return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{StartDowntimeEndpoint}", null);
                 },
                 cancellationToken);
         }
@@ -470,7 +501,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.ServicePartitionClient.InvokeWithRetryAsync(
                async client =>
                {
-                   return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{ResumeWritesAPIEndpoint}", null);
+                   return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{AbortMigrationEndpoint}", null);
                },
                cancellationToken);
         }
@@ -481,12 +512,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var delta = endSN - currentResult.EndSeqNum;
             if (currentResult.Phase == MigrationPhase.Catchup)
             {
-                if (delta > this.MigrationSettings.DowntimeThreshold)
+                if (delta < this.MigrationSettings.DowntimeThreshold
+                    && this.downtimeAllowed == true)
                 {
+                    await this.InvokeRejectWritesAsync(cancellationToken);
+                }
+                else
+                {
+                    // Manual downtime. Invoke Catchup iteration.
                     return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
                 }
-
-                await this.InvokeRejectWritesAsync(cancellationToken);
             }
 
             return await this.NextWorkloadRunnerAsync(currentResult.Phase + 1, cancellationToken);
@@ -608,17 +643,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 $"Validating Migration config.");
 
-            this.MigrationSettings.Validate();
-            if (this.MigrationSettings.SourceServiceUri == null)
-            {
-                throw new ActorStateInvalidMigrationConfigException("KVSServiceName is not configured in Settings.xml");
-            }
+            var migrationConfigSectionName = this.MigrationSettings.MigrationConfigSectionName;
 
+            this.MigrationSettings.Validate();
             var fabricClient = new FabricClient();
             var kvsServiceDescription = await fabricClient.ServiceManager.GetServiceDescriptionAsync(this.MigrationSettings.SourceServiceUri);
             if (kvsServiceDescription == null)
             {
-                throw new ActorStateInvalidMigrationConfigException($"Could not find Service Description for {this.MigrationSettings.SourceServiceUri}.");
+                var errorMsg = $"Unable to load service description for migration service name - {this.MigrationSettings.SourceServiceUri}.";
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    errorMsg);
+
+                throw new InvalidMigrationConfigException(errorMsg);
             }
 
             var kvsServicePartitionCount = this.GetServicePartitionCount(kvsServiceDescription);
@@ -636,16 +674,39 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 rcServicePartitionCount,
                 isDisableTombstoneCleanup);
 
-            if (kvsServiceDescription.PartitionSchemeDescription.Scheme != rcServiceDescription.PartitionSchemeDescription.Scheme
-                || kvsServicePartitionCount != rcServicePartitionCount
-                || !isDisableTombstoneCleanup)
+            if (kvsServiceDescription.PartitionSchemeDescription.Scheme != rcServiceDescription.PartitionSchemeDescription.Scheme)
             {
-                //// TODO: Emit telemetry
+                var errorMsg = $"Source migration service({this.MigrationSettings.SourceServiceUri}) partition scheme({kvsServiceDescription.PartitionSchemeDescription.Scheme}) does not match with target migration service({this.MigrationSettings.TargetServiceUri}) partition scheme({rcServiceDescription.PartitionSchemeDescription.Scheme})";
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    errorMsg);
 
-                throw new ActorStateInvalidMigrationConfigException($"kvsServiceDescription.PartitionSchemeDescription.Scheme = {kvsServiceDescription.PartitionSchemeDescription.Scheme}; " +
-                    $"kvsServicePartitionCount = {kvsServicePartitionCount}; rcServiceDescription.PartitionSchemeDescription.Scheme = {rcServiceDescription.PartitionSchemeDescription.Scheme}; " +
-                    $"rcServicePartitionCount = {rcServicePartitionCount}; isDisableTombstoneCleanup = {isDisableTombstoneCleanup}");
+                throw new InvalidMigrationConfigException(errorMsg);
             }
+
+            if (kvsServicePartitionCount != rcServicePartitionCount)
+            {
+                var errorMsg = $"Source migration service({this.MigrationSettings.SourceServiceUri}) partition count({kvsServicePartitionCount}) does not match with target migration service({this.MigrationSettings.TargetServiceUri}) partition count({rcServicePartitionCount})";
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    errorMsg);
+
+                throw new InvalidMigrationConfigException(errorMsg);
+            }
+
+            if (!isDisableTombstoneCleanup)
+            {
+                var errorMsg = $"DisableTombstoneCleanup is not disabled in source migration service({this.MigrationSettings.SourceServiceUri})";
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    errorMsg);
+
+                throw new InvalidMigrationConfigException(errorMsg);
+            }
+            //// TODO: Emit telemetry
         }
 
         private int GetServicePartitionCount(ServiceDescription serviceDescription)

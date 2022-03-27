@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     /// <summary>
@@ -35,7 +36,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             if (stateProvider.GetType() != typeof(KvsActorStateProvider))
             {
-                // TODO throw
+                var errorMsg = $"{stateProvider.GetType()} not a valid state provider type for source of migration. {typeof(KvsActorStateProvider)} is the valid type.";
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    errorMsg);
+
+                throw new InvalidMigrationStateProviderException(errorMsg);
             }
 
             this.actorCallsAllowed = false;
@@ -54,6 +61,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.migrationActorStateProvider.ResumeWritesAsync();
             this.actorCallsAllowed = true;
             this.forwardRequest = false;
+            await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -79,6 +87,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.migrationActorStateProvider.RejectWritesAsync();
             this.actorCallsAllowed = false;
             this.forwardRequest = true;
+
+            await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -110,11 +120,34 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
                 }
             });
+
+            await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);
         }
 
         public override bool IsActorCallToBeForwarded()
         {
             return this.forwardRequest && this.MigrationSettings.TargetServiceUri != null;
+        }
+
+        public override void ThrowIfActorCallsDisallowed()
+        {
+            if (this.actorCallsAllowed)
+            {
+                return;
+            }
+
+            var errorMsg = $"Actor calls are not allowed on the service.";
+            if (this.MigrationSettings.TargetServiceUri == null)
+            {
+                errorMsg += $" Configure TargetServiceUri in {this.MigrationSettings.MigrationConfigSectionName} section of settings file to forward the request.";
+            }
+
+            throw new ActorCallsDisallowedException(errorMsg);
+        }
+
+        public override bool IsAutoStartMigration()
+        {
+            return true;
         }
 
         protected override Uri GetForwardServiceUri()
@@ -125,11 +158,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         protected override Int64RangePartitionInformation GetInt64RangePartitionInformation()
         {
             var servicePartition = this.migrationActorStateProvider.StatefulServicePartition;
-            if (servicePartition == null)
-            {
-                // TODO throw
-            }
-
             return servicePartition.PartitionInfo as Int64RangePartitionInformation;
         }
 
