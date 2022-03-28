@@ -68,28 +68,35 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         long enumerationKeyCount = 0;
                         var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
 
-                        do
+                        using (var txn = storeReplica.CreateTransaction())
                         {
-                            var pairs = new List<KeyValuePair>();
-                            var sequenceNumberFullyDrained = true;
+                            IEnumerator<KeyValueStoreItem> enumerator;
 
-                            using (var txn = storeReplica.CreateTransaction())
+                            if (request.IncludeDeletes)
                             {
-                                IEnumerator<KeyValueStoreItem> enumerator;
+                                enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
+                            }
+                            else
+                            {
+                                enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
+                            }
 
-                                if (request.IncludeDeletes)
-                                {
-                                    enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
-                                }
-                                else
-                                {
-                                    enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
-                                }
+                            hasData = enumerator.MoveNext();
 
-                                hasData = enumerator.MoveNext();
+                            do
+                            {
+                                var pairs = new List<KeyValuePair>();
+                                var sequenceNumberFullyDrained = true;
+                                long? firstSNInChunk = null;
+                                long? endSNInChunk = null;
 
                                 while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
                                 {
+                                    if (firstSNInChunk == null)
+                                    {
+                                        firstSNInChunk = enumerator.Current.Metadata.SequenceNumber;
+                                    }
+
                                     var keyValuePair = MakeKeyValuePair(enumerator.Current);
                                     var currentSequenceNumber = keyValuePair.Version;
 
@@ -104,30 +111,32 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                         var nextKeySequenceNumber = nextKeyValuePair.Metadata.SequenceNumber;
                                         sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
                                     }
+
+                                    endSNInChunk = currentSequenceNumber;
                                 }
+
+                                using var memoryStream = new MemoryStream();
+                                var binaryWriter = XmlDictionaryWriter.CreateTextWriter(memoryStream);
+                                keyvaluepairserializer.WriteObject(binaryWriter, pairs);
+                                binaryWriter.Flush();
+
+                                var byteArray = memoryStream.ToArray();
+                                var newLine = Encoding.ASCII.GetBytes("\n");
+
+                                ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length} FirstSNInChunk: {firstSNInChunk} LastSNInChunk: {endSNInChunk}");
+
+                                // Set the content type
+                                if (response.ContentType == null)
+                                {
+                                    response.ContentType = "application/xml; charset=utf-8";
+                                }
+
+                                await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
+                                await response.Body.WriteAsync(newLine, 0, newLine.Length);
+                                await response.Body.FlushAsync();
                             }
-
-                            using var memoryStream = new MemoryStream();
-                            var binaryWriter = XmlDictionaryWriter.CreateTextWriter(memoryStream);
-                            keyvaluepairserializer.WriteObject(binaryWriter, pairs);
-                            binaryWriter.Flush();
-
-                            var byteArray = memoryStream.ToArray();
-                            var newLine = Encoding.ASCII.GetBytes("\n");
-
-                            ActorTrace.Source.WriteInfo("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
-
-                            // Set the content type
-                            if (response.ContentType == null)
-                            {
-                                response.ContentType = "application/xml; charset=utf-8";
-                            }
-
-                            await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
-                            await response.Body.WriteAsync(newLine, 0, newLine.Length);
-                            await response.Body.FlushAsync();
+                            while (hasData && enumerationKeyCount < request.NoOfItems);
                         }
-                        while (hasData && enumerationKeyCount < request.NoOfItems);
                     }
                     catch (Exception e)
                     {
