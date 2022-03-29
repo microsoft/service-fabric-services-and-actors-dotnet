@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.Migration;
 
     /// <summary>
     /// Interface definition for migration workload by phase.

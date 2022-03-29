@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Xml;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;

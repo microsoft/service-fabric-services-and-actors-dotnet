@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
     using System.Text;
+    using Microsoft.ServiceFabric.Actors.Migration;
 
     [DataContract]
     internal class PhaseInput

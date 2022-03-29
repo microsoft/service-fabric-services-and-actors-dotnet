@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
 
     /// <summary>

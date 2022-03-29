@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System.Fabric;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 

@@ -19,7 +19,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         public static IMigrationOrchestrator GetMigrationOrchestrator(
             IActorStateProvider stateProvider,
             ActorTypeInformation actorTypeInfo,
-            StatefulServiceContext serviceContext)
+            StatefulServiceContext serviceContext,
+            MigrationSettings settings)
         {
             try
             {
@@ -29,10 +30,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
                     return null;
                 }
 
-                var migrationSettings = new MigrationSettings();
-                migrationSettings.LoadFrom(
-                     serviceContext.CodePackageActivationContext,
-                     ActorNameFormat.GetMigrationConfigSectionName(actorTypeInfo.ImplementationType));
+                MigrationSettings migrationSettings = settings;
+                if (migrationSettings == null)
+                {
+                    migrationSettings = new MigrationSettings();
+                    migrationSettings.LoadFrom(
+                         serviceContext.CodePackageActivationContext,
+                         ActorNameFormat.GetMigrationConfigSectionName(actorTypeInfo.ImplementationType));
+                }
 
                 string reflectionClassFQN;
                 if (migrationAttribute.StateMigration == StateMigration.Source)
@@ -68,7 +73,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
                 var orchestratorType = Type.GetType($"{className}, {assemblyName}", true);
 
                 // TODO provide a singleton pattern or initialization
-                return (IMigrationOrchestrator)Activator.CreateInstance(orchestratorType, stateProvider, actorTypeInfo, serviceContext);
+                return (IMigrationOrchestrator)Activator.CreateInstance(orchestratorType, stateProvider, actorTypeInfo, serviceContext, migrationSettings);
             }
             catch (Exception ex)
             {

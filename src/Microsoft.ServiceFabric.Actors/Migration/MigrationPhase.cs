@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
     /// <summary>
-    /// Indicates actor service migration state.
+    /// Indicates actor service migration phase.
     /// </summary>
-    public enum MigrationState
+    public enum MigrationPhase
     {
         /// <summary>
         /// Migration not started.
@@ -16,18 +16,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         None = 0,
 
         /// <summary>
-        /// Migration in progress.
+        /// Copy phase of migration.
         /// </summary>
-        InProgress = 1,
+        Copy = 1,
+
+        /// <summary>
+        /// Catchup phase of migration.
+        /// </summary>
+        Catchup = 2,
+
+        /// <summary>
+        /// Downtime phase of migration.
+        /// </summary>
+        Downtime = 3,
 
         /// <summary>
         /// Migration completed.
         /// </summary>
-        Completed = 2,
-
-        /// <summary>
-        /// Migration aborted.
-        /// </summary>
-        Aborted = 3,
+        Completed = 4,
     }
 }
