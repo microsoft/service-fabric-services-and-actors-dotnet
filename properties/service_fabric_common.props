@@ -29,7 +29,7 @@
 
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
-    <MajorVersion>9</MajorVersion>
+    <MajorVersion>6</MajorVersion>
     <MinorVersion>1</MinorVersion>
     <BuildVersion>1</BuildVersion>
     <Revision>0</Revision>
