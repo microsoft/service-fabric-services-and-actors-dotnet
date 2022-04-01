@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Fabric;
     using System.Fabric.Description;
     using System.Globalization;
+    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -225,14 +226,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
             {
 #if DotNetCoreClr
-                // Use KVSActorStatePRovide for Windows.
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                 {
                     stateProvider = new KvsActorStateProvider();
                 }
                 else
                 {
-                   stateProvider = new ReliableCollectionsActorStateProvider();
+                    stateProvider = new ReliableCollectionsActorStateProvider();
                 }
 #else
                 stateProvider = new KvsActorStateProvider();

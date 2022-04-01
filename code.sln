@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services", "src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj", "{F416C4C3-250D-48F3-822C-1C589E8F851C}"
 EndProject
@@ -43,6 +43,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj", "{AE4034AC-27BC-43B8-9176-068B4794E25E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.KVSToRCMigration", "src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration.csproj", "{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard", "src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard.csproj", "{E5B52C61-66BE-4D71-88D2-E50F78011C72}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +106,14 @@ Global
 		{ECB3825D-B309-4C76-A20D-76544459F611}.Debug|x64.Build.0 = Debug|x64
 		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.ActiveCfg = Release|x64
 		{ECB3825D-B309-4C76-A20D-76544459F611}.Release|x64.Build.0 = Release|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Debug|x64.ActiveCfg = Debug|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Debug|x64.Build.0 = Debug|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Release|x64.ActiveCfg = Release|x64
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}.Release|x64.Build.0 = Release|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Debug|x64.ActiveCfg = Debug|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Debug|x64.Build.0 = Debug|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Release|x64.ActiveCfg = Release|x64
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -123,6 +135,8 @@ Global
 		{63B58D31-66BB-4879-B4F1-0969FA3F4464} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
 		{AE4034AC-27BC-43B8-9176-068B4794E25E} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
 		{ECB3825D-B309-4C76-A20D-76544459F611} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
+		{E5B52C61-66BE-4D71-88D2-E50F78011C72} = {8B80B63B-5107-4845-9F19-647CFA7911A3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8CC7D7F7-CBD9-428B-A190-7A4D56C920FE}

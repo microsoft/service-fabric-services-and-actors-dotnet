@@ -14,6 +14,8 @@
   <ItemGroup>
     <!--Add required .cs files to build for dotnet core-->
     <Compile Include="$(SourceCodeDir)*.cs" Exclude="$(SourceCodeDir)SR.Designer.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)Migration\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Include="$(SourceCodeDir)Migration\Exceptions\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Client\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Diagnostics\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <Compile Include="$(SourceCodeDir)Generator\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
@@ -28,7 +30,7 @@
     <!-- Only include V2 stack -->
     <Compile Include="$(SourceCodeDir)Remoting\V2\**\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Compile Include="$(SourceCodeDir)SR.Designer.cs">
       <Link>SR.Designer.cs</Link>

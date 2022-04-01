@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ServiceFabric.Actors.Remoting;
 

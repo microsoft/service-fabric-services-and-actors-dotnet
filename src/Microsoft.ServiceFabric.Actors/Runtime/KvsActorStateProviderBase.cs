@@ -192,6 +192,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        internal IStatefulServicePartition StatefulServicePartition { get => this.partition; }
+
         internal StatefulServiceInitializationParameters InitParams => this.initParams;
 
         internal ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;
@@ -850,6 +852,33 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.LoadReplicatorSettings();
         }
 
+        internal KeyValueStoreReplica GetStoreReplica()
+        {
+            return this.storeReplica;
+        }
+
+        internal ActorStateProviderHelper GetActorStateProviderHelper()
+        {
+            return this.actorStateProviderHelper;
+        }
+
+        internal void ReportPartitionHealth(HealthInformation healthInformation)
+        {
+            try
+            {
+                this.partition.ReportPartitionHealth(healthInformation);
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "ReportPartitionHealth() failed with: {0} while reporting health information: {1}.",
+                    ex.ToString(),
+                    healthInformation.ToString());
+            }
+        }
+
         private static string CreateActorStorageKey(ActorId actorId, string stateName)
         {
             if (string.IsNullOrEmpty(stateName))
@@ -1145,23 +1174,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             };
 
             this.ReportPartitionHealth(healthInfo);
-        }
-
-        private void ReportPartitionHealth(HealthInformation healthInformation)
-        {
-            try
-            {
-                this.partition.ReportPartitionHealth(healthInformation);
-            }
-            catch (Exception ex)
-            {
-                ActorTrace.Source.WriteWarningWithId(
-                    TraceType,
-                    this.traceId,
-                    "ReportPartitionHealth() failed with: {0} while reporting health information: {1}.",
-                    ex.ToString(),
-                    healthInformation.ToString());
-            }
         }
 
         private ReplicatorSettings LoadReplicatorSettings()

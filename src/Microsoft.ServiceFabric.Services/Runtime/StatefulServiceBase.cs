@@ -93,6 +93,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         }
 
         /// <summary>
+        /// Gets the Stateful service context.
+        /// </summary>
+        protected StatefulServiceContext ServiceContext { get => this.serviceContext; }
+
+        /// <summary>
         /// Gets the service partition to which current service replica belongs.
         /// </summary>
         /// <value>

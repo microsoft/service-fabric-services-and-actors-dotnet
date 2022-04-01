@@ -226,6 +226,32 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
+        /// Gets the Migration Source Service endpoint which is specified in service manifest for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Kvs Migration Service endpoint name.</returns>
+        public static string GetMigrationSourceEndpointName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}SourceMigrationEndpoint",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
+        /// Gets the Migration Target Service endpoint which is specified in service manifest for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Kvs Migration Service endpoint name.</returns>
+        public static string GetMigrationTargetEndpointName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}TargetMigrationEndpoint",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
         /// Gets the replicator configuration section name specified in configuration package for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
@@ -238,6 +264,19 @@ namespace Microsoft.ServiceFabric.Actors.Generator
             return string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}ReplicatorConfig",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
+        /// Gets the migration configuration section name for KVS to RC migration which is specified in configuration package for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Migration configuration section name.</returns>
+        public static string GetMigrationConfigSectionName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}MigrationConfig",
                 GetActorServiceName(actorImplementationType));
         }
 
