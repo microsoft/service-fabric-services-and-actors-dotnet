@@ -6,34 +6,12 @@
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
 
     internal static class MigrationUtility
     {
         private static readonly string TraceType = typeof(MigrationUtility).ToString();
-
-        public static string GetPhaseEndTelemetryKey(MigrationPhase phase)
-        {
-            if (phase == MigrationPhase.Copy)
-            {
-                return ActorTelemetryConstants.KVSToRCMigrationCopyPhaseEndEvent;
-            }
-            else if (phase == MigrationPhase.Catchup)
-            {
-                return ActorTelemetryConstants.KVSToRCMigrationCatchupPhaseEndEvent;
-            }
-            else if (phase == MigrationPhase.Downtime)
-            {
-                return ActorTelemetryConstants.KVSToRCMigrationDowntimePhaseEndEvent;
-            }
-
-            return string.Empty;
-        }
 
         public static async Task<DateTime?> ParseDateTimeAsync(Func<Task<string>> func, string traceId)
         {
