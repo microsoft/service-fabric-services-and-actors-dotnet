@@ -45,98 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.migrationSettings = migrationSettings;
         }
 
-        public WorkerInput Input { get => this.workerInput; }
-
-        public static async Task<WorkerResult> GetResultAsync(
-           IReliableDictionary2<string, string> metadataDict,
-           ITransaction tx,
-           MigrationPhase migrationPhase,
-           int currentIteration,
-           int workerId,
-           string traceId,
-           CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var status = await ParseMigrationStateAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                tx,
-                Key(PhaseWorkerCurrentStatus, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
-                traceId);
-
-            if (status == MigrationState.None)
-            {
-                return new WorkerResult
-                {
-                    Phase = migrationPhase,
-                    Iteration = currentIteration,
-                    WorkerId = workerId,
-                    Status = MigrationState.None,
-                };
-            }
-
-            var workerResult = new WorkerResult
-            {
-                Status = status,
-                Phase = migrationPhase,
-                Iteration = currentIteration,
-                WorkerId = workerId,
-            };
-
-            workerResult.StartDateTimeUTC = (await ParseDateTimeAsync(
-                () => metadataDict.GetAsync(
-                tx,
-                Key(PhaseWorkerStartDateTimeUTC, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
-                traceId)).Value;
-
-            workerResult.EndDateTimeUTC = await ParseDateTimeAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                tx,
-                Key(PhaseWorkerEndDateTimeUTC, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
-                traceId);
-
-            workerResult.StartSeqNum = (await ParseLongAsync(
-                () => metadataDict.GetAsync(
-                tx,
-                Key(PhaseWorkerStartSeqNum, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
-                traceId)).Value;
-
-            workerResult.EndSeqNum = (await ParseLongAsync(
-                () => metadataDict.GetAsync(
-                tx,
-                Key(PhaseWorkerEndSeqNum, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
-                traceId)).Value;
-
-            workerResult.LastAppliedSeqNum = await ParseLongAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                tx,
-                Key(PhaseWorkerLastAppliedSeqNum, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
-                traceId);
-
-            workerResult.NoOfKeysMigrated = await ParseLongAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                tx,
-                Key(PhaseWorkerNoOfKeysMigrated, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
-                traceId);
-
-            return workerResult;
-        }
-
-        public async Task<WorkerResult> StartMigrationAsync(CancellationToken cancellationToken)
+        public override async Task<WorkerResult> StartWorkAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                         TraceType,
@@ -154,7 +63,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
                         {
                             await this.CompleteWorkerAsync(tx, cancellationToken);
-                            WorkerResult tresult = await GetResultAsync(this.metadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.traceId, cancellationToken);
+                            WorkerResult tresult = await GetResultAsync(this.MetadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.TraceId, cancellationToken);
                             await tx.CommitAsync();
 
                             return tresult;
@@ -195,18 +104,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                 throw ex;
             }
-        }
-
-        private async Task<WorkerResult> GetResultAsync(CancellationToken cancellationToken)
-        {
-            WorkerResult result;
-            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-            {
-                result = await GetResultAsync(this.metadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.traceId, cancellationToken);
-                await tx.CommitAsync();
-            }
-
-            return result;
         }
 
         private async Task<long> FetchAndSaveAsync(long startSN, long snCount, long endSN, CancellationToken cancellationToken)

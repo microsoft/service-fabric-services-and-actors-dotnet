@@ -17,12 +17,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
+    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
-    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseResult;
+    using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
 
     internal class DataValidationWorker : WorkerBase
     {

@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
-    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseResult;
+    using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
 
     /// <summary>
     /// Interface definition for workers.
