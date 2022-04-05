@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public static async Task<WorkerResult> GetResultAsync(
            IReliableDictionary2<string, string> metadataDict,
-           ITransaction tx,
+           Func<ITransaction> txFactory,
            MigrationPhase migrationPhase,
            int currentIteration,
            int workerId,
@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             var status = await ParseMigrationStateAsync(
                 () => metadataDict.GetValueOrDefaultAsync(
-                tx,
+                txFactory,
                 Key(PhaseWorkerCurrentStatus, migrationPhase, currentIteration, workerId),
                 DefaultRCTimeout,
                 cancellationToken),
@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             workerResult.StartDateTimeUTC = (await ParseDateTimeAsync(
                 () => metadataDict.GetAsync(
-                tx,
+                txFactory,
                 Key(PhaseWorkerStartDateTimeUTC, migrationPhase, currentIteration, workerId),
                 DefaultRCTimeout,
                 cancellationToken),
@@ -91,7 +91,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             workerResult.EndDateTimeUTC = await ParseDateTimeAsync(
                 () => metadataDict.GetValueOrDefaultAsync(
-                tx,
+                txFactory,
                 Key(PhaseWorkerEndDateTimeUTC, migrationPhase, currentIteration, workerId),
                 DefaultRCTimeout,
                 cancellationToken),
@@ -99,7 +99,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             workerResult.StartSeqNum = (await ParseLongAsync(
                 () => metadataDict.GetAsync(
-                tx,
+                txFactory,
                 Key(PhaseWorkerStartSeqNum, migrationPhase, currentIteration, workerId),
                 DefaultRCTimeout,
                 cancellationToken),
@@ -107,7 +107,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             workerResult.EndSeqNum = (await ParseLongAsync(
                 () => metadataDict.GetAsync(
-                tx,
+                txFactory,
                 Key(PhaseWorkerEndSeqNum, migrationPhase, currentIteration, workerId),
                 DefaultRCTimeout,
                 cancellationToken),
@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             workerResult.LastAppliedSeqNum = await ParseLongAsync(
                 () => metadataDict.GetValueOrDefaultAsync(
-                tx,
+                txFactory,
                 Key(PhaseWorkerLastAppliedSeqNum, migrationPhase, currentIteration, workerId),
                 DefaultRCTimeout,
                 cancellationToken),
@@ -123,7 +123,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             workerResult.NoOfKeysMigrated = await ParseLongAsync(
                 () => metadataDict.GetValueOrDefaultAsync(
-                tx,
+                txFactory,
                 Key(PhaseWorkerNoOfKeysMigrated, migrationPhase, currentIteration, workerId),
                 DefaultRCTimeout,
                 cancellationToken),
@@ -135,18 +135,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public virtual Task<WorkerResult> StartWorkAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
-        }
-
-        protected async Task<WorkerResult> GetResultAsync(CancellationToken cancellationToken)
-        {
-            WorkerResult result;
-            using (var tx = this.stateProvider.GetStateManager().CreateTransaction())
-            {
-                result = await GetResultAsync(this.metadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.traceId, cancellationToken);
-                await tx.CommitAsync();
-            }
-
-            return result;
         }
 
         protected async Task CompleteWorkerAsync(ITransaction tx, CancellationToken cancellationToken)

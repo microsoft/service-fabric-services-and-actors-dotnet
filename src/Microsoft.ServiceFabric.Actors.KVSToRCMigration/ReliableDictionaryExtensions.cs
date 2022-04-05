@@ -29,6 +29,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             throw new KeyNotFoundException(key.ToString()); // TODO consider throwing SF exception.
         }
 
+        public static async Task<string> GetAsync(
+            this IReliableDictionary2<string, string> dict,
+            Func<Data.ITransaction> txFactory,
+            string key,
+            TimeSpan timeout,
+            CancellationToken cancellationToken)
+        {
+            using (var tx = txFactory.Invoke())
+            {
+                return await GetAsync(dict, tx, key, timeout, cancellationToken);
+            }
+        }
+
         public static async Task UpdateAsync(
             this IReliableDictionary2<string, string> dict,
             Data.ITransaction tx,
@@ -59,6 +72,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             return null;
+        }
+
+        public static async Task<string> GetValueOrDefaultAsync(
+            this IReliableDictionary2<string, string> dict,
+            Func<Data.ITransaction> txFactory,
+            string key,
+            TimeSpan timeout,
+            CancellationToken cancellationToken)
+        {
+            using (var tx = txFactory.Invoke())
+            {
+                return await GetValueOrDefaultAsync(dict, tx, key, timeout, cancellationToken);
+            }
         }
     }
 }

@@ -156,11 +156,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 using (var tx = this.Transaction)
                                 {
                                     await this.AbortWorkerAsync(tx, cancellationToken);
-                                    WorkerResult tresult = await GetResultAsync(this.MetadataDict, tx, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId, this.TraceId, cancellationToken);
                                     await tx.CommitAsync();
-
-                                    return tresult;
                                 }
+
+                                return await GetResultAsync(
+                                    this.MetadataDict,
+                                    () => this.StateProvider.GetStateManager().CreateTransaction(),
+                                    this.Input.Phase,
+                                    this.Input.Iteration,
+                                    this.Input.WorkerId,
+                                    this.TraceId,
+                                    cancellationToken);
                             }
                         }
                     }
@@ -183,7 +189,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     await tx.CommitAsync();
                 }
 
-                var result = await this.GetResultAsync(cancellationToken);
+                var result = await GetResultAsync(
+                    this.MetadataDict,
+                    () => this.StateProvider.GetStateManager().CreateTransaction(),
+                    this.Input.Phase,
+                    this.Input.Iteration,
+                    this.Input.WorkerId,
+                    this.TraceId,
+                    cancellationToken);
                 ActorTrace.Source.WriteInfoWithId(
                            TraceType,
                            this.TraceId,
