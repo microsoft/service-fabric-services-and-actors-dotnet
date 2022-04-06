@@ -322,16 +322,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             while (currentPhase <= result.CurrentPhase)
             {
                 var currentIteration = await ParseIntAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
                     () => this.Transaction,
                     Key(PhaseIterationCount, currentPhase),
                     DefaultRCTimeout,
                     cancellationToken),
-                0,
-                this.TraceId);
+                    0,
+                    this.TraceId);
                 for (int i = 1; i <= currentIteration; i++)
                 {
-                    phaseResults.Add(await MigrationPhaseWorkloadBase.GetResultAsync(this.MetaDataDictionary, () => this.Transaction, currentPhase, i, this.TraceId, cancellationToken));
+                    phaseResults.Add(await MigrationPhaseWorkloadBase.GetResultAsync(
+                        this.MetaDataDictionary,
+                        () => this.Transaction,
+                        currentPhase,
+                        i,
+                        this.TraceId,
+                        cancellationToken));
                 }
 
                 currentPhase++;
