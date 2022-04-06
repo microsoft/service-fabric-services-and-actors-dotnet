@@ -247,10 +247,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var endSN = await this.GetEndSequenceNumberAsync(cancellationToken);
             var status = await ParseMigrationStateAsync(
                 () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                () => this.Transaction,
-                MigrationCurrentStatus,
-                DefaultRCTimeout,
-                cancellationToken),
+                    () => this.Transaction,
+                    MigrationCurrentStatus,
+                    DefaultRCTimeout,
+                    cancellationToken),
                 this.TraceId);
             if (status == MigrationState.None)
             {
@@ -271,50 +271,50 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             result.CurrentPhase = await ParseMigrationPhaseAsync(
                 () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                () => this.Transaction,
-                MigrationCurrentPhase,
-                DefaultRCTimeout,
-                cancellationToken),
+                    () => this.Transaction,
+                    MigrationCurrentPhase,
+                    DefaultRCTimeout,
+                    cancellationToken),
                 this.TraceId);
 
             result.StartDateTimeUTC = (await ParseDateTimeAsync(
                 () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                () => this.Transaction,
-                MigrationStartDateTimeUTC,
-                DefaultRCTimeout,
-                cancellationToken),
+                    () => this.Transaction,
+                    MigrationStartDateTimeUTC,
+                    DefaultRCTimeout,
+                    cancellationToken),
                 this.TraceId));
 
             result.EndDateTimeUTC = await ParseDateTimeAsync(
                 () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                () => this.Transaction,
-                MigrationEndDateTimeUTC,
-                DefaultRCTimeout,
-                cancellationToken),
+                    () => this.Transaction,
+                    MigrationEndDateTimeUTC,
+                    DefaultRCTimeout,
+                    cancellationToken),
                 this.TraceId);
 
             result.StartSeqNum = (await ParseLongAsync(
                 () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                () => this.Transaction,
-                MigrationStartSeqNum,
-                DefaultRCTimeout,
-                cancellationToken),
+                    () => this.Transaction,
+                    MigrationStartSeqNum,
+                    DefaultRCTimeout,
+                    cancellationToken),
                 this.TraceId));
 
             result.LastAppliedSeqNum = await ParseLongAsync(
                 () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                () => this.Transaction,
-                MigrationLastAppliedSeqNum,
-                DefaultRCTimeout,
-                cancellationToken),
+                    () => this.Transaction,
+                    MigrationLastAppliedSeqNum,
+                    DefaultRCTimeout,
+                    cancellationToken),
                 this.TraceId);
 
             result.NoOfKeysMigrated = await ParseLongAsync(
                 () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                () => this.Transaction,
-                MigrationNoOfKeysMigrated,
-                DefaultRCTimeout,
-                cancellationToken),
+                    () => this.Transaction,
+                    MigrationNoOfKeysMigrated,
+                    DefaultRCTimeout,
+                    cancellationToken),
                 this.TraceId);
 
             var currentPhase = MigrationPhase.Copy;
@@ -323,10 +323,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 var currentIteration = await ParseIntAsync(
                     () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    Key(PhaseIterationCount, currentPhase),
-                    DefaultRCTimeout,
-                    cancellationToken),
+                        () => this.Transaction,
+                        Key(PhaseIterationCount, currentPhase),
+                        DefaultRCTimeout,
+                        cancellationToken),
                     0,
                     this.TraceId);
                 for (int i = 1; i <= currentIteration; i++)
@@ -434,10 +434,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 var status = await ParseMigrationStateAsync(
                     () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
-                    MigrationCurrentStatus,
-                    DefaultRCTimeout,
-                    cancellationToken),
+                        tx,
+                        MigrationCurrentStatus,
+                        DefaultRCTimeout,
+                        cancellationToken),
                     this.TraceId);
 
                 await tx.CommitAsync();
@@ -594,20 +594,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 else if (currentPhase == MigrationPhase.Catchup)
                 {
                     var currentIteration = await ParseIntAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseIterationCount, MigrationPhase.Catchup),
-                        "1",
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
+                        () => this.MetaDataDictionary.GetOrAddAsync(
+                            tx,
+                            Key(PhaseIterationCount, MigrationPhase.Catchup),
+                            "1",
+                            DefaultRCTimeout,
+                            cancellationToken),
+                        this.TraceId);
 
                     var status = await ParseMigrationStateAsync(
                         () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        tx,
-                        Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration),
-                        DefaultRCTimeout,
-                        cancellationToken),
+                            tx,
+                            Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration),
+                            DefaultRCTimeout,
+                            cancellationToken),
                         this.TraceId);
                     if (status == MigrationState.Completed)
                     {
