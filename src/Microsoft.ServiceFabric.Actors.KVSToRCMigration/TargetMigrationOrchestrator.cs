@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Description;
+    using System.Fabric.Health;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
@@ -413,8 +414,35 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     $"Migration {currentPhase} Phase failed with error: {e}");
                 MigrationTelemetry.MigrationFailureEvent(this.StatefulServiceContext, currentPhase.ToString(), e.Message);
 
-                //// TODO: set partition health with permanent health message
-                await this.AbortMigrationAsync(false, cancellationToken);
+                try
+                {
+                    await this.AbortMigrationAsync(false, cancellationToken);
+                }
+                catch (Exception e1)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        this.TraceId,
+                        $"Aborting migration failed with error : {e1}");
+                    var healthInfo1 = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
+                    {
+                        TimeToLive = TimeSpan.MaxValue,
+                        RemoveWhenExpired = false,
+                        Description = e1.Message,
+                    };
+
+                    this.migrationActorStateProvider.StatefulServicePartition.ReportPartitionHealth(healthInfo1, new HealthReportSendOptions { Immediate = true });
+                }
+
+                var healthInfo = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
+                {
+                    TimeToLive = TimeSpan.MaxValue,
+                    RemoveWhenExpired = false,
+                    Description = e.Message,
+                };
+
+                this.migrationActorStateProvider.StatefulServicePartition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
+
 
                 throw e;
             }
