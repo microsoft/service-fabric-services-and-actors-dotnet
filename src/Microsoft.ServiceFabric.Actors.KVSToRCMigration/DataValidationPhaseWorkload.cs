@@ -32,12 +32,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         protected override Task<long> GetStartSequenceNumberAsync(CancellationToken cancellationToken)
         {
+            var startSN = 0L;
             ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.TraceId,
-                        $"DataValidationPhaseWorkload.GetStartSequenceNumberAsync: [{0L}]");
+                        $"DataValidationPhaseWorkload.GetStartSequenceNumberAsync: [{startSN}]");
 
-            return Task.FromResult(0L);
+            return Task.FromResult(startSN);
         }
 
         protected override async Task<long> GetEndSequenceNumberAsync(CancellationToken cancellationToken)

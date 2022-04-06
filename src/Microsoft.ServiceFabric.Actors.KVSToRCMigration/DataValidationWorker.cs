@@ -63,7 +63,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     var endSN = this.Input.EndSeqNum;
                     var allKeysToValidateCount = endSN - startSN + 1;
 
-                    ActorTrace.Source.WriteNoiseWithId(
+                    ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.TraceId,
                         $"#{this.Input.WorkerId}: StartSeqNum: {startSN} EndSeqNum: {endSN}");
@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         {
                             chunksCount = MigrationUtility.ParseLong(migrationKeysMigratedChunksCount.Value, this.TraceId);
 
-                            ActorTrace.Source.WriteNoiseWithId(
+                            ActorTrace.Source.WriteInfoWithId(
                                 TraceType,
                                 this.TraceId,
                                 $"#{this.Input.WorkerId}: chunksCount: {chunksCount}");
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 }
                             }
 
-                            ActorTrace.Source.WriteNoiseWithId(
+                            ActorTrace.Source.WriteInfoWithId(
                                 TraceType,
                                 this.TraceId,
                                 $"#{this.Input.WorkerId}: migratedKeys: {string.Join(",", migratedKeys)}");
@@ -106,7 +106,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     double noOfKeysToValidate;
                     if (this.migrationSettings.PercentageOfMigratedDataToValidate < 100)
                     {
-                        noOfKeysToValidate = Math.Round(migratedKeys.Count * (this.migrationSettings.PercentageOfMigratedDataToValidate / 100), 0);
+                        noOfKeysToValidate = Math.Ceiling(migratedKeys.Count * (this.migrationSettings.PercentageOfMigratedDataToValidate / 100));
                         var rand = new Random();
                         do
                         {
@@ -126,7 +126,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                     keysIndicesToValidate.Remove(migratedKeys.Count);
 
-                    ActorTrace.Source.WriteNoiseWithId(
+                    ActorTrace.Source.WriteInfoWithId(
                                 TraceType,
                                 this.TraceId,
                                 $"#{this.Input.WorkerId}: noOfKeysToValidate: {noOfKeysToValidate} keysIndicesToValidate: {string.Join(",", keysIndicesToValidate)}");
@@ -229,7 +229,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken.ThrowIfCancellationRequested();
                 var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
                 {
-                    ActorTrace.Source.WriteNoiseWithId(
+                    ActorTrace.Source.WriteInfoWithId(
                        TraceType,
                        this.TraceId,
                        $"#{this.Input.WorkerId}: migratedKeysChunk = {string.Join(DefaultDelimiter.ToString(), migratedKeysChunk)}");
@@ -264,7 +264,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             if (kvsData.Count > 0)
                             {
-                                ActorTrace.Source.WriteNoiseWithId(
+                                ActorTrace.Source.WriteInfoWithId(
                                    TraceType,
                                    this.TraceId,
                                    $"#{this.Input.WorkerId}: kvsData: {string.Join(",", kvsData)} ");
@@ -310,7 +310,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private async Task AbortWorkerAsync(ITransaction tx, CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteNoiseWithId(
+            ActorTrace.Source.WriteInfoWithId(
                                 TraceType,
                                 this.TraceId,
                                 $"#{this.Input.WorkerId}: Aborting Data Validation Worker");

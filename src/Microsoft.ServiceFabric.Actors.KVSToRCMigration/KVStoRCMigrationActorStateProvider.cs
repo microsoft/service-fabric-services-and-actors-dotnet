@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Health;
-    using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Threading;
@@ -430,6 +429,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.TraceType,
                         this.traceId,
                         message);
+
+                    // Commit with the same transaction to avoid race condition during failover.
+                    await tx.CommitAsync();
+
+                    throw new MigrationDataValidationException(message);
                 }
 
                 var rcKey = this.TransformKVSKeyToRCFormat(key);
@@ -519,7 +523,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 healthInfo.RemoveWhenExpired = false;
                 this.servicePartition.ReportPartitionHealth(new HealthInformation(this.TraceType, message, HealthState.Error));
 
-                throw new ActorStateMigratedDataValidationFailedException(message);
+                throw new MigrationDataValidationException(message);
             }
 
             return result;

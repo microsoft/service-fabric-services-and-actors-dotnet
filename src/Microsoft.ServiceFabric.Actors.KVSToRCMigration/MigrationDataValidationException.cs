@@ -10,24 +10,24 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Runtime.Serialization;
 
     [Serializable]
-    internal sealed class ActorStateMigratedDataValidationFailedException : FabricException
+    internal sealed class MigrationDataValidationException : FabricException
     {
-        public ActorStateMigratedDataValidationFailedException()
+        public MigrationDataValidationException()
             : base()
         {
         }
 
-        public ActorStateMigratedDataValidationFailedException(string message)
+        public MigrationDataValidationException(string message)
             : base(message)
         {
         }
 
-        public ActorStateMigratedDataValidationFailedException(string message, Exception inner)
+        public MigrationDataValidationException(string message, Exception inner)
             : base(message, inner)
         {
         }
 
-        private ActorStateMigratedDataValidationFailedException(SerializationInfo info, StreamingContext context)
+        private MigrationDataValidationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
