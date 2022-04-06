@@ -246,106 +246,107 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             var startSN = await this.GetStartSequenceNumberAsync(cancellationToken);
             var endSN = await this.GetEndSequenceNumberAsync(cancellationToken);
-            using (var tx = this.Transaction)
-            {
-                var status = await ParseMigrationStateAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
+            var status = await ParseMigrationStateAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
                     MigrationCurrentStatus,
                     DefaultRCTimeout,
                     cancellationToken),
-                    this.TraceId);
-                if (status == MigrationState.None)
+                this.TraceId);
+            if (status == MigrationState.None)
+            {
+                return new MigrationResult
                 {
-                    await tx.CommitAsync();
-                    return new MigrationResult
-                    {
-                        CurrentPhase = MigrationPhase.None,
-                        Status = MigrationState.None,
-                        StartSeqNum = startSN,
-                        EndSeqNum = endSN,
-                    };
-                }
-
-                var result = new MigrationResult
-                {
-                    Status = status,
+                    CurrentPhase = MigrationPhase.None,
+                    Status = MigrationState.None,
+                    StartSeqNum = startSN,
                     EndSeqNum = endSN,
                 };
+            }
 
-                result.CurrentPhase = await ParseMigrationPhaseAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
+            var result = new MigrationResult
+            {
+                Status = status,
+                EndSeqNum = endSN,
+            };
+
+            result.CurrentPhase = await ParseMigrationPhaseAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
                     MigrationCurrentPhase,
                     DefaultRCTimeout,
                     cancellationToken),
-                    this.TraceId);
+                this.TraceId);
 
-                result.StartDateTimeUTC = (await ParseDateTimeAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
+            result.StartDateTimeUTC = (await ParseDateTimeAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
                     MigrationStartDateTimeUTC,
                     DefaultRCTimeout,
                     cancellationToken),
-                    this.TraceId));
+                this.TraceId));
 
-                result.EndDateTimeUTC = await ParseDateTimeAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
+            result.EndDateTimeUTC = await ParseDateTimeAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
                     MigrationEndDateTimeUTC,
                     DefaultRCTimeout,
                     cancellationToken),
-                    this.TraceId);
+                this.TraceId);
 
-                result.StartSeqNum = (await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
+            result.StartSeqNum = (await ParseLongAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
                     MigrationStartSeqNum,
                     DefaultRCTimeout,
                     cancellationToken),
-                    this.TraceId));
+                this.TraceId));
 
-                result.LastAppliedSeqNum = await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
+            result.LastAppliedSeqNum = await ParseLongAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
                     MigrationLastAppliedSeqNum,
                     DefaultRCTimeout,
                     cancellationToken),
-                    this.TraceId);
+                this.TraceId);
 
-                result.NoOfKeysMigrated = await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
+            result.NoOfKeysMigrated = await ParseLongAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
                     MigrationNoOfKeysMigrated,
                     DefaultRCTimeout,
                     cancellationToken),
-                    this.TraceId);
+                this.TraceId);
 
-                var currentPhase = MigrationPhase.Copy;
-                var phaseResults = new List<PhaseResult>();
-                while (currentPhase <= result.CurrentPhase)
+            var currentPhase = MigrationPhase.Copy;
+            var phaseResults = new List<PhaseResult>();
+            while (currentPhase <= result.CurrentPhase)
+            {
+                var currentIteration = await ParseIntAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
+                    Key(PhaseIterationCount, currentPhase),
+                    DefaultRCTimeout,
+                    cancellationToken),
+                0,
+                this.TraceId);
+                for (int i = 1; i <= currentIteration; i++)
                 {
-                    var currentIteration = await ParseIntAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        tx,
-                        Key(PhaseIterationCount, currentPhase),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    0,
-                    this.TraceId);
-                    for (int i = 1; i <= currentIteration; i++)
-                    {
-                        phaseResults.Add(await MigrationPhaseWorkloadBase.GetResultAsync(this.MetaDataDictionary, tx, currentPhase, i, this.TraceId, cancellationToken));
-                    }
-
-                    currentPhase++;
+                    phaseResults.Add(await MigrationPhaseWorkloadBase.GetResultAsync(
+                        this.MetaDataDictionary,
+                        () => this.Transaction,
+                        currentPhase,
+                        i,
+                        this.TraceId,
+                        cancellationToken));
                 }
 
-                await tx.CommitAsync();
-                result.PhaseResults = phaseResults.ToArray();
-
-                return result;
+                currentPhase++;
             }
+
+            result.PhaseResults = phaseResults.ToArray();
+
+            return result;
         }
 
         protected override Uri GetForwardServiceUri()
