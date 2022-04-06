@@ -128,7 +128,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 return;
             }
 
-            this.migrationWorkflowTask = Task.Run(() => this.StartOrResumeMigrationAsync(childToken), CancellationToken.None);
+            this.migrationWorkflowTask = Task.Run(
+            () =>
+            {
+                return this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.StartOrResumeMigrationAsync(token), "StartOrResumeMigrationAsync", childToken);
+            }, CancellationToken.None);
 
             return;
         }
@@ -174,7 +178,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
-            await this.AbortMigrationAsync(true, cancellationToken);
+            await this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.AbortMigrationAsync(true, token), "AbortMigrationAsync", cancellationToken);
 
             // If user triggered abort, then we need to cancel the migration workflow.
             if (this.childCancellationTokenSource != null)
@@ -415,35 +419,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     $"Migration {currentPhase} Phase failed with error: {e}");
                 MigrationTelemetry.MigrationFailureEvent(this.StatefulServiceContext, currentPhase.ToString(), e.Message);
 
-                try
-                {
-                    await this.AbortMigrationAsync(false, cancellationToken);
-                }
-                catch (Exception e1)
-                {
-                    ActorTrace.Source.WriteErrorWithId(
-                        TraceType,
-                        this.TraceId,
-                        $"Aborting migration failed with error : {e1}");
-                    var healthInfo1 = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
-                    {
-                        TimeToLive = TimeSpan.MaxValue,
-                        RemoveWhenExpired = false,
-                        Description = e1.Message,
-                    };
-
-                    this.migrationActorStateProvider.StatefulServicePartition.ReportPartitionHealth(healthInfo1, new HealthReportSendOptions { Immediate = true });
-                }
-
-                var healthInfo = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
-                {
-                    TimeToLive = TimeSpan.MaxValue,
-                    RemoveWhenExpired = false,
-                    Description = e.Message,
-                };
-
-                this.migrationActorStateProvider.StatefulServicePartition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
-
+                await this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.AbortMigrationAsync(false, token), "AbortMigrationAsync", cancellationToken);
 
                 throw e;
             }
@@ -841,6 +817,29 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.InvokeResumeWritesAsync(cancellationToken);
 
             await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
+        }
+
+        private async Task ExecuteTaskWithPartitionErrorReportingAsync(Func<CancellationToken, Task> migrationFunc, string funcTag, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await migrationFunc.Invoke(cancellationToken);
+            }
+            catch (Exception e)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    $"{funcTag} failed with error : {e}");
+                var healthInfo1 = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
+                {
+                    TimeToLive = TimeSpan.MaxValue,
+                    RemoveWhenExpired = false,
+                    Description = e.Message,
+                };
+
+                this.migrationActorStateProvider.StatefulServicePartition.ReportPartitionHealth(healthInfo1, new HealthReportSendOptions { Immediate = true });
+            }
         }
     }
 }

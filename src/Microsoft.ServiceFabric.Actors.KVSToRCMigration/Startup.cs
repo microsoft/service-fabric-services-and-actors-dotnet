@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.AspNetCore.Mvc.Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware;
 
     internal class Startup
     {
@@ -35,6 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             app.UseStatusCodePages();
+            app.UseMiddleware<DefaultMigrationExceptionMiddleware>();
             app.UseMvc();
         }
     }
