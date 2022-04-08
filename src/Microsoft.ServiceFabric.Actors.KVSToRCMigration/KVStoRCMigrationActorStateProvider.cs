@@ -284,16 +284,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             dictionary = this.rcStateProvider.GetActorPresenceDictionary();
                             presenceKeyCount++;
                         }
-
-                        // It is not right to assume the ActorId wouldn't have underscores.
-                        // TODO: Handle this in ambiguous ActorId PR
                         else if (data.Key.StartsWith(ActorStorageKeyPrefix))
                         {
                             rcValue = data.Value;
-                            var startIndex = this.GetNthIndex(data.Key, '_', 2);
-                            var endIndex = this.GetNthIndex(data.Key, '_', 3);
-                            var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                            dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
+                            dictionary = this.rcStateProvider.GetActorStateDictionary(this.GetActorIdFromStorageKey(data.Key));
                             actorStateCount++;
                         }
                         else if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
@@ -307,10 +301,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         {
                             ActorReminderData actorReminderData = this.DeserializeReminder(data.Key, data.Value);
                             rcValue = this.SerializeReminder(data.Key, actorReminderData);
-                            var startIndex = this.GetNthIndex(data.Key, '_', 2);
-                            var endIndex = this.GetNthIndex(data.Key, '_', 3);
-                            var actorId = new ActorId(data.Key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                            dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
+                            dictionary = this.rcStateProvider.GetReminderDictionary(this.GetActorIdFromStorageKey(data.Key));
                             reminderCount++;
                         }
                         else if (data.Key.Equals(LogicalTimestampKey)
@@ -400,15 +391,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     dictionary = this.rcStateProvider.GetActorPresenceDictionary();
                 }
-
-                // It is not right to assume the ActorId wouldn't have underscores.
-                // TODO: Handle this in ambiguous ActorId PR
                 else if (key.StartsWith(ActorStorageKeyPrefix))
                 {
-                    var startIndex = this.GetNthIndex(key, '_', 2);
-                    var endIndex = this.GetNthIndex(key, '_', 3);
-                    var actorId = new ActorId(key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                    dictionary = this.rcStateProvider.GetActorStateDictionary(actorId);
+                    dictionary = this.rcStateProvider.GetActorStateDictionary(this.GetActorIdFromStorageKey(key));
                 }
                 else if (key.StartsWith(ReminderCompletedeStorageKeyPrefix))
                 {
@@ -416,10 +401,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }
                 else if (key.StartsWith(ReminderStorageKeyPrefix))
                 {
-                    var startIndex = this.GetNthIndex(key, '_', 2);
-                    var endIndex = this.GetNthIndex(key, '_', 3);
-                    var actorId = new ActorId(key.Substring(startIndex + 1, endIndex - startIndex - 1));
-                    dictionary = this.rcStateProvider.GetReminderDictionary(actorId);
+                    dictionary = this.rcStateProvider.GetReminderDictionary(this.GetActorIdFromStorageKey(key));
                 }
                 else
                 {
@@ -565,6 +547,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal IReliableStateManagerReplica2 GetStateManager()
         {
             return this.rcStateProvider.GetStateManager();
+        }
+
+        private ActorId GetActorIdFromStorageKey(string key)
+        {
+            // It is not right to assume the ActorId wouldn't have underscores.
+            // TODO: Handle this in ambiguous ActorId PR
+            var startIndex = this.GetNthIndex(key, '_', 2);
+            var endIndex = this.GetNthIndex(key, '_', 3);
+            var actorId = new ActorId(key.Substring(startIndex + 1, endIndex - startIndex - 1));
+
+            ActorTrace.Source.WriteNoiseWithId(
+                        this.TraceType,
+                        this.traceId,
+                        $"GetActorIdFromStorageKey - ActorId: {actorId}, Key : {key}");
+
+            return actorId;
         }
 
         private int GetNthIndex(string s, char t, int n)

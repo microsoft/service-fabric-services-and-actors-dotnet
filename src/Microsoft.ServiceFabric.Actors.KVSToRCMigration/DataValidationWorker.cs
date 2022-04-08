@@ -211,11 +211,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             this.TraceId,
                             $"#{this.Input.WorkerId}: Data validation worker failed with error: {ex} \n Input: /*Dump input*/");
 
-                using (var tx = this.Transaction)
-                {
-                    await tx.CommitAsync();
-                }
-
                 throw ex;
             }
         }
