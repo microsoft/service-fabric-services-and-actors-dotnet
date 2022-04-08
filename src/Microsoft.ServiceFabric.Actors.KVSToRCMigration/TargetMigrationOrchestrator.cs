@@ -327,13 +327,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             while (currentPhase <= result.CurrentPhase)
             {
                 var currentIteration = await ParseIntAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    Key(PhaseIterationCount, currentPhase),
-                    DefaultRCTimeout,
-                    cancellationToken),
-                0,
-                this.TraceId);
+                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                        () => this.Transaction,
+                        Key(PhaseIterationCount, currentPhase),
+                        DefaultRCTimeout,
+                        cancellationToken),
+                    0,
+                    this.TraceId);
                 for (int i = 1; i <= currentIteration; i++)
                 {
                     phaseResults.Add(await MigrationPhaseWorkloadBase.GetResultAsync(
@@ -438,10 +438,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 var status = await ParseMigrationStateAsync(
                     () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
-                    MigrationCurrentStatus,
-                    DefaultRCTimeout,
-                    cancellationToken),
+                        tx,
+                        MigrationCurrentStatus,
+                        DefaultRCTimeout,
+                        cancellationToken),
                     this.TraceId);
 
                 await tx.CommitAsync();
@@ -598,20 +598,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 else if (currentPhase == MigrationPhase.Catchup)
                 {
                     var currentIteration = await ParseIntAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseIterationCount, MigrationPhase.Catchup),
-                        "1",
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
+                        () => this.MetaDataDictionary.GetOrAddAsync(
+                            tx,
+                            Key(PhaseIterationCount, MigrationPhase.Catchup),
+                            "1",
+                            DefaultRCTimeout,
+                            cancellationToken),
+                        this.TraceId);
 
                     var status = await ParseMigrationStateAsync(
                         () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        tx,
-                        Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration),
-                        DefaultRCTimeout,
-                        cancellationToken),
+                            tx,
+                            Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration),
+                            DefaultRCTimeout,
+                            cancellationToken),
                         this.TraceId);
                     if (status == MigrationState.Completed)
                     {
@@ -630,6 +630,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 else if (currentPhase == MigrationPhase.Downtime)
                 {
                     migrationWorkload = new DowntimeWorkload(
+                        this.StateProvider,
+                        this.ServicePartitionClient,
+                        this.StatefulServiceContext,
+                        this.MigrationSettings,
+                        this.ActorTypeInformation,
+                        this.TraceId);
+                }
+                else if (currentPhase == MigrationPhase.DataValidation)
+                {
+                    migrationWorkload = new DataValidationPhaseWorkload(
                         this.StateProvider,
                         this.ServicePartitionClient,
                         this.StatefulServiceContext,

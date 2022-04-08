@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             using (var tx = txFactory.Invoke())
             {
-               return await GetValueOrDefaultAsync(dict, tx, key, timeout, cancellationToken);
+                return await GetValueOrDefaultAsync(dict, tx, key, timeout, cancellationToken);
             }
         }
     }

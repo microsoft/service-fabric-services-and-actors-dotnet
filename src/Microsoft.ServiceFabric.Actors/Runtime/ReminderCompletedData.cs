@@ -37,5 +37,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             return 2 * sizeof(long); // LogicalTime + UtcTime
         }
+
+        public override string ToString()
+        {
+            return $"LogicalTime: {this.LogicalTime} UtcTime: {this.UtcTime}";
+        }
     }
 }

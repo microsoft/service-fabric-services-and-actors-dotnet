@@ -18,5 +18,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         [DataMember]
         public TimeSpan Timestamp { get; private set; }
+
+        public override string ToString()
+        {
+            return $"Timestamp: {this.Timestamp}";
+        }
     }
 }

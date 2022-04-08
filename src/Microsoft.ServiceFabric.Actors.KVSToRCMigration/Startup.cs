@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.AspNetCore.Mvc.Infrastructure;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware;
 
     internal class Startup
@@ -25,7 +26,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_0);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_0)
+                .ConfigureApplicationPartManager(manager =>
+                    {
+                        // load internal migration controllers
+                        manager.FeatureProviders.Add(new MigrationControllerFeatureProvider());
+                    });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime, IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
