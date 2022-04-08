@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
-    internal class StatefulServiceReplicaAdapter : IStatefulServiceReplica
+    internal class StatefulServiceReplicaAdapter : IStatefulServiceReplica, IInternalStatefulServiceReplica
     {
         private const string TraceType = "StatefulServiceReplicaAdapter";
         private const int PrimaryStatusCheckRetryIntervalInMillis = 512;
@@ -75,6 +75,12 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         internal IList<CommunicationListenerInfo> Test_CommunicationListeners
         {
             get { return this.communicationListenersInfo; }
+        }
+
+        object IInternalStatefulServiceReplica.GetStatus()
+        {
+            var internalReplica = this.stateProviderReplica as IInternalStatefulServiceReplica;
+            return internalReplica?.GetStatus();
         }
 
         #region Implementation of IStatefulServiceReplica
