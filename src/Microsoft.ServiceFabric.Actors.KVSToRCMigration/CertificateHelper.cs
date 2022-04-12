@@ -32,26 +32,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return FindMatchingCertificates(storeName, storeLocation, findType, findValue, includeExpiredCerts);
         }
 
-        internal static List<X509Certificate2> GetClientCertificates(MigrationSecuritySettings securitySettings)
-        {
-            var storeName = securitySettings.CertificateStoreName;
-            var storeLocation = securitySettings.CertificateStoreLocation;
-            bool includeExpiredCerts = false;
-            var clientCertList = new List<X509Certificate2>();
-
-            foreach (var val in securitySettings.CertificateRemoteThumbprints.Split(','))
-            {
-                clientCertList.AddRange(FindMatchingCertificates(storeName, storeLocation, X509FindType.FindByThumbprint, val, includeExpiredCerts));
-            }
-
-            foreach (var val in securitySettings.CertificateRemoteCommonNames.Split(','))
-            {
-                clientCertList.AddRange(FindMatchingCertificates(storeName, storeLocation, X509FindType.FindBySubjectName, val, includeExpiredCerts));
-            }
-
-            return clientCertList;
-        }
-
         internal static List<X509Certificate2> FindMatchingCertificates(
             string storeName,
             StoreLocation storeLocation,
@@ -260,14 +240,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var validThumbprints = securitySettings.CertificateRemoteThumbprints?.Split(',').ToList();
             var validCommonNames = securitySettings.CertificateRemoteCommonNames?.Split(',').ToList();
 
-            if (securitySettings.CertificateFindType == X509FindType.FindByThumbprint)
+            // adding CertificateFindValue as valid remote cert as well for the case where user is using same cert for client as well as server
+            switch (securitySettings.CertificateFindType)
             {
-                validThumbprints.Add(securitySettings.CertificateFindValue);
-            }
-
-            if (securitySettings.CertificateFindType == X509FindType.FindBySubjectName)
-            {
-                validCommonNames.Add(securitySettings.CertificateFindValue);
+                case X509FindType.FindByThumbprint:
+                    validThumbprints.Add(securitySettings.CertificateFindValue);
+                    break;
+                case X509FindType.FindBySubjectName:
+                    validCommonNames.Add(securitySettings.CertificateFindValue);
+                    break;
             }
 
             var certSig = $"({certificate.Subject}, TP:{certificate.Thumbprint})";
