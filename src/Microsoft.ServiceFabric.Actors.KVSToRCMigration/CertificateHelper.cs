@@ -237,8 +237,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         internal static bool IsValidRemoteCert(X509Certificate2 certificate, X509Chain chain, MigrationSecuritySettings securitySettings)
         {
-            var validThumbprints = securitySettings.CertificateRemoteThumbprints?.Split(',').ToList();
-            var validCommonNames = securitySettings.CertificateRemoteCommonNames?.Split(',').ToList();
+            var validThumbprints = securitySettings.CertificateRemoteThumbprints?.Split(',').Select(x => x.Trim()).ToList();
+            var validCommonNames = securitySettings.CertificateRemoteCommonNames?.Split(',').Select(x => x.Trim()).ToList();
+
+            if (validThumbprints == null)
+            {
+                validThumbprints = new List<string>();
+            }
+
+            if (validCommonNames == null)
+            {
+                validCommonNames = new List<string>();
+            }
 
             // adding CertificateFindValue as valid remote cert as well for the case where user is using same cert for client as well as server
             switch (securitySettings.CertificateFindType)

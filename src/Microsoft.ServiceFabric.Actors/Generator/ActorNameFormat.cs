@@ -281,15 +281,28 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         }
 
         /// <summary>
-        /// Gets the migration security configuration section name for KVS to RC migration which is specified in configuration package for the actor service.
+        /// Gets the migration listener security configuration section name for KVS to RC migration which is specified in configuration package for the actor service.
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
-        /// <returns>Migration Security configuration section name.</returns>
-        public static string GetMigrationSecurityConfigSectionName(Type actorImplementationType)
+        /// <returns>Migration Listener Security configuration section name.</returns>
+        public static string GetMigrationListenerSecurityConfigSectionName(Type actorImplementationType)
         {
             return string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}MigrationSecurityConfig",
+                "{0}MigrationListenerSecurityConfig",
+                GetActorServiceName(actorImplementationType));
+        }
+
+        /// <summary>
+        /// Gets the migration client security configuration section name for KVS to RC migration which is specified in configuration package for the actor service.
+        /// </summary>
+        /// <param name="actorImplementationType">Type of class implementing the actor.</param>
+        /// <returns>Migration Client Security configuration section name.</returns>
+        public static string GetMigrationClientSecurityConfigSectionName(Type actorImplementationType)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}MigrationClientSecurityConfig",
                 GetActorServiceName(actorImplementationType));
         }
 

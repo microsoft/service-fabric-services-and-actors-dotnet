@@ -58,9 +58,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                      ActorNameFormat.GetMigrationConfigSectionName(this.actorTypeInformation.ImplementationType));
 
                 // Load Migration Security Settings
-                this.migrationSettings.SecuritySettings.LoadFrom(
+                this.migrationSettings.ListenerSecuritySettings.LoadFrom(
                     this.StatefulServiceContext.CodePackageActivationContext,
-                    ActorNameFormat.GetMigrationSecurityConfigSectionName(this.actorTypeInformation.ImplementationType));
+                    ActorNameFormat.GetMigrationListenerSecurityConfigSectionName(this.actorTypeInformation.ImplementationType));
+                this.migrationSettings.ClientSecuritySettings.LoadFrom(
+                    this.StatefulServiceContext.CodePackageActivationContext,
+                    ActorNameFormat.GetMigrationClientSecurityConfigSectionName(this.actorTypeInformation.ImplementationType));
             }
         }
 
@@ -98,7 +101,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                     WebHostBuilder webHostBuilder = new WebHostBuilder();
 
-                    if (string.IsNullOrEmpty(this.MigrationSettings.SecuritySettings.SecurityCredentialsType))
+                    if (string.IsNullOrEmpty(this.MigrationSettings.ListenerSecuritySettings.SecurityCredentialsType))
                     {
                         webHostBuilder.UseKestrel();
                     }
@@ -108,7 +111,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         {
                             serverOptions.ListenAnyIP(endpoint.Port, listenOptions =>
                             {
-                                listenOptions.UseHttps(CertificateHelper.GetCertificates(this.MigrationSettings.SecuritySettings).First(), httpsOptions =>
+                                listenOptions.UseHttps(CertificateHelper.GetCertificates(this.MigrationSettings.ListenerSecuritySettings).First(), httpsOptions =>
                                 {
                                     httpsOptions.ClientCertificateMode = AspNetCore.Server.Kestrel.Https.ClientCertificateMode.RequireCertificate;
                                     httpsOptions.ClientCertificateValidation = (certificate, chain, sslPolicyErrors) =>
@@ -116,9 +119,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                         ActorTrace.Source.WriteInfoWithId(
                                            TraceType,
                                            this.TraceId,
-                                           $"Validating client cert: {certificate.SubjectName} {certificate.Thumbprint} {certificate.NotBefore} {certificate.NotAfter}");
+                                           $"Validating client cert: {certificate.Subject} {certificate.Thumbprint} {certificate.NotBefore} {certificate.NotAfter}");
 
-                                        return CertificateHelper.IsValidRemoteCert(certificate, chain, this.MigrationSettings.SecuritySettings);
+                                        return CertificateHelper.IsValidRemoteCert(certificate, chain, this.MigrationSettings.ListenerSecuritySettings);
                                     };
                                 });
                             });
