@@ -305,7 +305,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             reminderCount++;
                         }
                         else if (data.Key.Equals(LogicalTimestampKey)
-                            || data.Key.StartsWith(MigrationConstants.RejectWritesKey))
+                            || data.Key.Equals(MigrationConstants.RejectWritesKey))
                         {
                             ActorTrace.Source.WriteInfoWithId(
                                 this.TraceType,
@@ -337,8 +337,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         lastAppliedSN = data.Version;
                     }
 
-                    await this.AddOrUpdateMigratedKeysAsync(tx, keysMigrated, cancellationToken);
                     await tx.CommitAsync();
+                    await this.AddOrUpdateMigratedKeysAsync(keysMigrated, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -511,26 +511,31 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return result;
         }
 
-        internal async Task AddOrUpdateMigratedKeysAsync(ITransaction tx, List<string> keysMigrated, CancellationToken cancellationToken)
+        internal async Task AddOrUpdateMigratedKeysAsync(List<string> keysMigrated, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var keysMigratedCsv = string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated);
             ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, "New keys migrated [{0}]", keysMigratedCsv);
 
-            var migrationKeysMigratedChunksCount = await this.metadataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount);
-            long chunksCount = 0L;
-            if (migrationKeysMigratedChunksCount.HasValue)
+            using (var tx = this.GetStateManager().CreateTransaction())
             {
-                chunksCount = MigrationUtility.ParseLong(migrationKeysMigratedChunksCount.Value, this.traceId);
+                var migrationKeysMigratedChunksCount = await this.metadataDictionary.TryGetValueAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount);
+                long chunksCount = 0L;
+                if (migrationKeysMigratedChunksCount.HasValue)
+                {
+                    chunksCount = MigrationUtility.ParseLong(migrationKeysMigratedChunksCount.Value, this.traceId);
+                }
+
+                chunksCount++;
+
+                await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.Key(MigrationConstants.MigrationKeysMigrated, chunksCount), keysMigratedCsv, (k, v) => keysMigratedCsv);
+                await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount, chunksCount.ToString(), (k, v) => chunksCount.ToString());
+
+                ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, $"MigrationKeysMigrated added: {MigrationConstants.Key(MigrationConstants.MigrationKeysMigrated, chunksCount)}");
+
+                await tx.CommitAsync();
             }
-
-            chunksCount++;
-
-            await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.Key(MigrationConstants.MigrationKeysMigrated, chunksCount), keysMigratedCsv, (k, v) => keysMigratedCsv);
-            await this.metadataDictionary.AddOrUpdateAsync(tx, MigrationConstants.MigrationKeysMigratedChunksCount, chunksCount.ToString(), (k, v) => chunksCount.ToString());
-
-            ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, $"MigrationKeysMigrated added: {MigrationConstants.Key(MigrationConstants.MigrationKeysMigrated, chunksCount)}");
         }
 
         internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()
