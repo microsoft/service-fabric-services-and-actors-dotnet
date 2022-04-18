@@ -34,12 +34,27 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private HttpClient GetHttpClient(Uri endpointUri, MigrationSecuritySettings securitySettings)
         {
-            var certs = CertificateHelper.GetCertificates(securitySettings);
-            var handler = this.CreateRequestHandler(certs?.ToArray(), securitySettings);
+#if DotNetCoreClr
+            HttpClientHandler handler;
+#else
+            WinHttpHandler handler;
+#endif
+
+            if (string.IsNullOrEmpty(securitySettings.SecurityCredentialsType))
+            {
+                handler = this.CreateRequestHandler(null, securitySettings);
+            }
+            else
+            {
+                var certs = CertificateHelper.GetCertificates(securitySettings);
+                handler = this.CreateRequestHandler(certs?.ToArray(), securitySettings);
+            }
 
             // CommunicationClientBase needs the BaseAddress to be set
-            var httpClient = new HttpClient(handler);
-            httpClient.BaseAddress = endpointUri;
+            var httpClient = new HttpClient(handler)
+                {
+                    BaseAddress = endpointUri,
+                };
 
             return httpClient;
         }
