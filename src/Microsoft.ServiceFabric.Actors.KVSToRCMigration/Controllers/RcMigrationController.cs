@@ -16,19 +16,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     /// Represents the controller class for KVS migration REST API.
     /// </summary>
     [Route("[controller]")]
-#pragma warning disable CS3009 // Base type is not CLS-compliant
-    public class RcMigrationController : ControllerBase
-#pragma warning restore CS3009 // Base type is not CLS-compliant
+    internal class RcMigrationController : MigrationControllerBase
     {
-        private IMigrationOrchestrator migrationOrchestrator;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RcMigrationController"/> class.
         /// </summary>
         /// <param name="migrationOrchestrator">Target Migration orchestrator</param>
         public RcMigrationController(IMigrationOrchestrator migrationOrchestrator)
+            : base(migrationOrchestrator)
         {
-            this.migrationOrchestrator = migrationOrchestrator;
         }
 
         /// <summary>
@@ -39,7 +35,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetMigrationStatus")]
         public async Task<MigrationResult> GetMigrationStatusAsync(CancellationToken cancellationToken)
         {
-            return await ((TargetMigrationOrchestrator)this.migrationOrchestrator).GetResultAsync(cancellationToken);
+            return await ((TargetMigrationOrchestrator)this.MigrationOrchestrator).GetResultAsync(cancellationToken);
         }
 
         /// <summary>
@@ -50,39 +46,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         public string VerifyMigrationAsync()
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Starts the Downtime phase on the current partition. In the downtime phase all the actor calls are actively rejected with MigrationException.
-        /// </summary>
-        /// <param name="cancellationToken">Token to signal cancellation on the asynchronous operation</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        [HttpPut("StartDowntime")]
-        public async Task StartDowntimeAsync(CancellationToken cancellationToken)
-        {
-            await this.migrationOrchestrator.StartDowntimeAsync(cancellationToken);
-        }
-
-        /// <summary>
-        /// Aborts the Actor state migration on the current partition.
-        /// </summary>
-        /// <param name="cancellationToken">Token to signal cancellation on the asynchronous operation</param>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [HttpPut("AbortMigration")]
-        public async Task AbortMigrationAsync(CancellationToken cancellationToken)
-        {
-            await this.migrationOrchestrator.AbortMigrationAsync(cancellationToken);
-        }
-
-        /// <summary>
-        /// Starts the Actor state migration on the current partition.
-        /// </summary>
-        /// <param name="cancellationToken">Token to signal cancellation on the asynchronous operation</param>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        [HttpPut("StartMigration")]
-        public async Task StartMigrationAsync(CancellationToken cancellationToken)
-        {
-            await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
         }
     }
 }

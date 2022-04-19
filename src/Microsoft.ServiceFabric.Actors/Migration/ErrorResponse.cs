@@ -3,49 +3,42 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
+namespace Microsoft.ServiceFabric.Actors.Migration
 {
+    using System.Fabric;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
     using System.Text;
 
     /// <summary>
-    /// KeyValuePair
+    /// Migration custom http error reponse.
     /// </summary>
     [DataContract]
-    public class KeyValuePair
+    [KnownType(typeof(FabricErrorCode))]
+    public class ErrorResponse
     {
-        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(KeyValuePair), new DataContractJsonSerializerSettings
+        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ErrorResponse), new DataContractJsonSerializerSettings
         {
             UseSimpleDictionaryFormat = true,
         });
 
         /// <summary>
-        /// Gets or Sets Version
+        /// Gets or sets the migration error message.
         /// </summary>
         [DataMember]
-        public long Version { get; set; }
+        public string Message { get; set; }
 
         /// <summary>
-        /// Gets or Sets Key
+        /// Gets or sets the migration error code.
         /// </summary>
         [DataMember]
-        public string Key { get; set; }
+        public FabricErrorCode ErrorCode { get; set; }
 
         /// <summary>
-        /// Gets or Sets Value
+        /// Gets the json string representation.
         /// </summary>
-        [DataMember]
-        public byte[] Value { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether IsDeleted
-        /// </summary>
-        [DataMember]
-        public bool IsDeleted { get; set; }
-
-        /// <inheritdoc/>
+        /// <returns>Json string representation.</returns>
         public override string ToString()
         {
             using (var stream = new MemoryStream())

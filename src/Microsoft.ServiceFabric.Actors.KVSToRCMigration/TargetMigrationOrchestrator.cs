@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Description;
+    using System.Fabric.Health;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
@@ -127,7 +128,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 return;
             }
 
-            this.migrationWorkflowTask = Task.Run(() => this.StartOrResumeMigrationAsync(childToken), CancellationToken.None);
+            this.migrationWorkflowTask = Task.Run(
+            () =>
+            {
+                return this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.StartOrResumeMigrationAsync(token), "StartOrResumeMigrationAsync", childToken);
+            }, CancellationToken.None);
 
             return;
         }
@@ -173,7 +178,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
-            await this.AbortMigrationAsync(true, cancellationToken);
+            await this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.AbortMigrationAsync(true, token), "AbortMigrationAsync", cancellationToken);
 
             // If user triggered abort, then we need to cancel the migration workflow.
             if (this.childCancellationTokenSource != null)
@@ -322,13 +327,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             while (currentPhase <= result.CurrentPhase)
             {
                 var currentIteration = await ParseIntAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    Key(PhaseIterationCount, currentPhase),
-                    DefaultRCTimeout,
-                    cancellationToken),
-                0,
-                this.TraceId);
+                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                        () => this.Transaction,
+                        Key(PhaseIterationCount, currentPhase),
+                        DefaultRCTimeout,
+                        cancellationToken),
+                    0,
+                    this.TraceId);
                 for (int i = 1; i <= currentIteration; i++)
                 {
                     phaseResults.Add(await MigrationPhaseWorkloadBase.GetResultAsync(
@@ -414,8 +419,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     $"Migration {currentPhase} Phase failed with error: {e}");
                 MigrationTelemetry.MigrationFailureEvent(this.StatefulServiceContext, currentPhase.ToString(), e.Message);
 
-                //// TODO: set partition health with permanent health message
-                await this.AbortMigrationAsync(false, cancellationToken);
+                await this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.AbortMigrationAsync(false, token), "AbortMigrationAsync", cancellationToken);
 
                 throw e;
             }
@@ -434,10 +438,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 var status = await ParseMigrationStateAsync(
                     () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    tx,
-                    MigrationCurrentStatus,
-                    DefaultRCTimeout,
-                    cancellationToken),
+                        tx,
+                        MigrationCurrentStatus,
+                        DefaultRCTimeout,
+                        cancellationToken),
                     this.TraceId);
 
                 await tx.CommitAsync();
@@ -594,20 +598,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 else if (currentPhase == MigrationPhase.Catchup)
                 {
                     var currentIteration = await ParseIntAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseIterationCount, MigrationPhase.Catchup),
-                        "1",
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
+                        () => this.MetaDataDictionary.GetOrAddAsync(
+                            tx,
+                            Key(PhaseIterationCount, MigrationPhase.Catchup),
+                            "1",
+                            DefaultRCTimeout,
+                            cancellationToken),
+                        this.TraceId);
 
                     var status = await ParseMigrationStateAsync(
                         () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        tx,
-                        Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration),
-                        DefaultRCTimeout,
-                        cancellationToken),
+                            tx,
+                            Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration),
+                            DefaultRCTimeout,
+                            cancellationToken),
                         this.TraceId);
                     if (status == MigrationState.Completed)
                     {
@@ -626,6 +630,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 else if (currentPhase == MigrationPhase.Downtime)
                 {
                     migrationWorkload = new DowntimeWorkload(
+                        this.StateProvider,
+                        this.ServicePartitionClient,
+                        this.StatefulServiceContext,
+                        this.MigrationSettings,
+                        this.ActorTypeInformation,
+                        this.TraceId);
+                }
+                else if (currentPhase == MigrationPhase.DataValidation)
+                {
+                    migrationWorkload = new DataValidationPhaseWorkload(
                         this.StateProvider,
                         this.ServicePartitionClient,
                         this.StatefulServiceContext,
@@ -813,6 +827,29 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await this.InvokeResumeWritesAsync(cancellationToken);
 
             await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
+        }
+
+        private async Task ExecuteTaskWithPartitionErrorReportingAsync(Func<CancellationToken, Task> migrationFunc, string funcTag, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await migrationFunc.Invoke(cancellationToken);
+            }
+            catch (Exception e)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.TraceId,
+                    $"{funcTag} failed with error : {e}");
+                var healthInfo1 = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
+                {
+                    TimeToLive = TimeSpan.MaxValue,
+                    RemoveWhenExpired = false,
+                    Description = e.Message,
+                };
+
+                this.migrationActorStateProvider.StatefulServicePartition.ReportPartitionHealth(healthInfo1, new HealthReportSendOptions { Immediate = true });
+            }
         }
     }
 }

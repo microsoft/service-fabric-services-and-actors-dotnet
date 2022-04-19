@@ -7,23 +7,24 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Migration;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
+    using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
 
     /// <summary>
-    /// Interface definition for migration workload by phase.
+    /// Interface definition for workers.
     /// </summary>
-    internal interface IMigrationPhaseWorkload
+    internal interface IWorker
     {
         /// <summary>
-        /// Gets the current migration phase.
+        /// Gets the worker input information.
         /// </summary>
-        MigrationPhase Phase { get; }
+        public WorkerInput Input { get; }
 
         /// <summary>
-        /// Starts a new phase or resumes the current migration phase after failover.
+        /// Starts a new worker.
         /// </summary>
         /// <param name="cancellationToken">Token to cancel the task.</param>
-        /// <returns>Returns the migration result.</returns>
-        Task<PhaseResult> StartOrResumeMigrationAsync(CancellationToken cancellationToken);
+        /// <returns>Returns the worker result.</returns>
+        Task<WorkerResult> StartWorkAsync(CancellationToken cancellationToken);
     }
 }
