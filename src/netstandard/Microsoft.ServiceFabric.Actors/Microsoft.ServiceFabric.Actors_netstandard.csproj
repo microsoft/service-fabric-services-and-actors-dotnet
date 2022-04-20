@@ -29,6 +29,7 @@
     <Compile Include="$(SourceCodeDir)Remoting\Runtime\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <!-- Only include V2 stack -->
     <Compile Include="$(SourceCodeDir)Remoting\V2\**\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
+    <Compile Remove="$(SourceCodeDir)Runtime\KvsActorStateProvider_v2.cs" />
   </ItemGroup>
   
   <ItemGroup>

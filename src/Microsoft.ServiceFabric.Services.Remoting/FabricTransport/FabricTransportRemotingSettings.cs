@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
+    using Constants = Microsoft.ServiceFabric.Services.Remoting.V2.Constants;
 
     /// <summary>
     /// Represents a settings that configures the  FabricTransport communication.

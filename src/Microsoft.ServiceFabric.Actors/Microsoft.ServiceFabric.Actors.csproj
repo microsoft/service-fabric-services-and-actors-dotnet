@@ -37,4 +37,7 @@
       <LastGenOutput>SR.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Runtime\KvsActorStateProvider_v2.cs" />
+  </ItemGroup>
 </Project>

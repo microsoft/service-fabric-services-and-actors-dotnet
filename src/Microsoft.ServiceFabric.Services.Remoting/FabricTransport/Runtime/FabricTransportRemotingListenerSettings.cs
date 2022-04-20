@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
+    using Constants = Microsoft.ServiceFabric.Services.Remoting.V2.Constants;
 
     /// <summary>
     /// Settings that configures the  FabricTransport Listener.
