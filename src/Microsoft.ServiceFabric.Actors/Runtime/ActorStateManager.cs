@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Collections.Generic;
     using System.Fabric;
@@ -14,6 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Common;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     internal sealed class ActorStateManager : IActorStateManager

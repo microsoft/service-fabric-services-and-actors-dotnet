@@ -44,4 +44,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
   </ItemGroup>
+  <Target Name="AddCustomAliases" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Microsoft.ServiceFabric.Internal' AND '%(ReferencePath.NuGetPackageId)' == 'Microsoft.ServiceFabric'">
+        <Aliases>Microsoft_ServiceFabric_Internal</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 </Project>

@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Fabric;
     using System.Threading;
@@ -14,6 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
+    using AppTrace = Microsoft_ServiceFabric_Internal::System.Fabric.Common.AppTrace;
 
     /// <summary>
     ///     An <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> that uses

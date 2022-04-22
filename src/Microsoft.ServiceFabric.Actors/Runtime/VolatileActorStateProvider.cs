@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
@@ -28,6 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         VolatileActorStateProvider.ActorStateType,
         string,
         VolatileActorStateProvider.ActorStateData>;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>

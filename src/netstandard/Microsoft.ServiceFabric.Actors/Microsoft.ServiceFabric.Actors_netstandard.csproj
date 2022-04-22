@@ -29,7 +29,6 @@
     <Compile Include="$(SourceCodeDir)Remoting\Runtime\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
     <!-- Only include V2 stack -->
     <Compile Include="$(SourceCodeDir)Remoting\V2\**\*.cs" Link="$([System.String]::Copy('%(Identity)').Replace('$(SourceCodeDir)',''))" />
-    <Compile Remove="$(SourceCodeDir)Runtime\KvsActorStateProvider_v2.cs" />
   </ItemGroup>
   
   <ItemGroup>
@@ -53,4 +52,11 @@
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
   </ItemGroup>
+  <Target Name="AddCustomAliases" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'Microsoft.ServiceFabric.Internal' AND '%(ReferencePath.NuGetPackageId)' == 'Microsoft.ServiceFabric'">
+        <Aliases>Microsoft_ServiceFabric_Internal</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 </Project>

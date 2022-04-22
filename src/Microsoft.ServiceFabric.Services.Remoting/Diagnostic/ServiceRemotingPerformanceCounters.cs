@@ -5,9 +5,16 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Collections.Generic;
     using System.Fabric.Common;
+    using FabricPerformanceCounterCategoryType = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterCategoryType;
+    using FabricPerformanceCounterDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterDefinition;
+    using FabricPerformanceCounterSetDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetDefinition;
+    using FabricPerformanceCounterType = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterType;
+    using IFabricPerformanceCountersDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.IFabricPerformanceCountersDefinition;
 
     internal class ServiceRemotingPerformanceCounters : IFabricPerformanceCountersDefinition
     {

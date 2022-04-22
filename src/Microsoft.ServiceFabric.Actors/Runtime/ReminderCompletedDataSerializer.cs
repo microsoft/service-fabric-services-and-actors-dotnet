@@ -5,9 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System.Fabric.Common;
     using System.IO;
     using System.Text;
+    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
 
     internal sealed class ReminderCompletedDataSerializer
     {
