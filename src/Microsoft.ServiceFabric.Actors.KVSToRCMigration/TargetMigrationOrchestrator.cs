@@ -237,11 +237,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override Task StartDowntimeAsync(CancellationToken cancellationToken)
+        public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
             this.downtimeAllowed = true;
 
-            return Task.CompletedTask;
+            // Add metadata dict value
+            using (var tx = this.Transaction)
+            {
+                await this.metadataDict.TryAddAsync(
+                    tx,
+                    IsDowntimeAllowed,
+                    true.ToString(),
+                    DefaultRCTimeout,
+                    cancellationToken);
+
+                await tx.CommitAsync();
+            }
         }
 
         public override bool IsActorCallToBeForwarded()
@@ -588,18 +599,43 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             var endSN = await this.GetEndSequenceNumberAsync(cancellationToken);
             var delta = endSN - currentResult.EndSeqNum;
+
             if (currentResult.Phase == MigrationPhase.Catchup)
             {
-                if (delta < this.MigrationSettings.DowntimeThreshold
-                    && this.downtimeAllowed == true)
+                if (!this.IsAutoStartMigration())
+                {
+                    var tx = this.migrationActorStateProvider.GetStateManager().CreateTransaction();
+                    var isDowntimeInvoked = (await ParseBoolAsync(
+                        () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                            tx,
+                            Key(IsDowntimeAllowed),
+                            DefaultRCTimeout,
+                            cancellationToken),
+                        this.TraceId));
+
+                    if (isDowntimeInvoked)
+                    {
+                        await this.InvokeRejectWritesAsync(cancellationToken);
+                        return await this.NextWorkloadRunnerAsync(currentResult.Phase + 1, cancellationToken);
+                    }
+                    else
+                    {
+                        return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
+                    }
+                }
+                else if (delta < this.MigrationSettings.DowntimeThreshold)
                 {
                     await this.InvokeRejectWritesAsync(cancellationToken);
                 }
                 else
                 {
-                    // Manual downtime. Invoke Catchup iteration.
                     return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
                 }
+            }
+            else if (currentResult.Phase == MigrationPhase.Downtime)
+            {
+                await this.InvokeRejectWritesAsync(cancellationToken);
+                return await this.NextWorkloadRunnerAsync(currentResult.Phase, cancellationToken);
             }
 
             return await this.NextWorkloadRunnerAsync(currentResult.Phase + 1, cancellationToken);

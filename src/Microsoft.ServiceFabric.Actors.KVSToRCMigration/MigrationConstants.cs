@@ -22,6 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string GetKVSValueByKeys = "GetValueByKeys";
 
         internal static readonly string RejectWritesKey = "_RejectWrites_";
+        internal static readonly string IsDowntimeAllowed = "_IsDowntimeAllowed_";
 
         #region Global Migration constants
         internal static readonly string MigrationStartDateTimeUTC = "_MigrationStartDateTimeUTC_";
