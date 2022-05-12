@@ -604,10 +604,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 if (!this.IsAutoStartMigration())
                 {
-                    var tx = this.migrationActorStateProvider.GetStateManager().CreateTransaction();
                     var isDowntimeInvoked = (await ParseBoolAsync(
                         () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                            tx,
+                            this.Transaction,
                             Key(IsDowntimeAllowed),
                             DefaultRCTimeout,
                             cancellationToken),
