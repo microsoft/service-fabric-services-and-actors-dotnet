@@ -241,7 +241,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 await this.metadataDict.TryAddAsync(
                     tx,
-                    IsDowntimeAllowed,
+                    IsDowntimeInvoked,
                     true.ToString(),
                     DefaultRCTimeout,
                     cancellationToken);
@@ -419,7 +419,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             try
             {
-                workloadRunner = await this.NextWorkloadRunnerAsync(MigrationPhase.None, cancellationToken);
+                var migrationCurrentPhase = await ParseMigrationPhaseAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
+                    MigrationCurrentPhase,
+                    DefaultRCTimeout,
+                    cancellationToken),
+                this.TraceId);
+                workloadRunner = await this.NextWorkloadRunnerAsync(migrationCurrentPhase, cancellationToken);
 
                 PhaseResult currentResult = null;
                 while (workloadRunner != null)
@@ -603,7 +610,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     isDowntimeInvoked = (await ParseBoolAsync(
                     () => this.MetaDataDictionary.GetValueOrDefaultAsync(
                         this.Transaction,
-                        Key(IsDowntimeAllowed),
+                        Key(IsDowntimeInvoked),
                         DefaultRCTimeout,
                         cancellationToken),
                     this.TraceId));
@@ -612,15 +619,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     isDowntimeInvoked = true;
                 }
+
+                if (isDowntimeInvoked)
+                {
+                    await this.InvokeRejectWritesAsync(cancellationToken);
+                    return await this.NextWorkloadRunnerAsync(MigrationPhase.Downtime, cancellationToken);
+                }
+                else
+                {
+                    return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
+                }
             }
 
-            if (isDowntimeInvoked || currentResult.Phase == MigrationPhase.Downtime)
-            {
-                await this.InvokeRejectWritesAsync(cancellationToken);
-                return await this.NextWorkloadRunnerAsync(MigrationPhase.Downtime, cancellationToken);
-            }
-
-            return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
+            return await this.NextWorkloadRunnerAsync(currentResult.Phase + 1, cancellationToken);
         }
 
         private async Task<IMigrationPhaseWorkload> NextWorkloadRunnerAsync(MigrationPhase currentPhase, CancellationToken cancellationToken)
