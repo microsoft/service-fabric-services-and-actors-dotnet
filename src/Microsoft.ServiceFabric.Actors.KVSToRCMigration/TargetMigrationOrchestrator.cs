@@ -37,7 +37,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private volatile MigrationState currentMigrationState;
         private CancellationTokenSource childCancellationTokenSource;
         private Task migrationWorkflowTask;
-        private volatile bool downtimeAllowed;
         private ActorStateProviderHelper stateProviderHelper;
 
         /// <summary>
@@ -64,7 +63,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.currentPhase = MigrationPhase.None;
             this.currentMigrationState = MigrationState.None;
             this.migrationActorStateProvider = new KVStoRCMigrationActorStateProvider(stateProvider as ReliableCollectionsActorStateProvider);
-            this.downtimeAllowed = this.MigrationSettings.MigrationMode == Runtime.Migration.MigrationMode.Auto;
             this.stateProviderHelper = new ActorStateProviderHelper(this.migrationActorStateProvider);
         }
 
@@ -237,11 +235,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override Task StartDowntimeAsync(CancellationToken cancellationToken)
+        public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
-            this.downtimeAllowed = true;
+            using (var tx = this.Transaction)
+            {
+                await this.metadataDict.TryAddAsync(
+                    tx,
+                    IsDowntimeInvoked,
+                    true.ToString(),
+                    DefaultRCTimeout,
+                    cancellationToken);
 
-            return Task.CompletedTask;
+                await tx.CommitAsync();
+            }
         }
 
         public override bool IsActorCallToBeForwarded()
@@ -413,7 +419,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             try
             {
-                workloadRunner = await this.NextWorkloadRunnerAsync(MigrationPhase.None, cancellationToken);
+                var migrationCurrentPhase = await ParseMigrationPhaseAsync(
+                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    () => this.Transaction,
+                    MigrationCurrentPhase,
+                    DefaultRCTimeout,
+                    cancellationToken),
+                this.TraceId);
+                workloadRunner = await this.NextWorkloadRunnerAsync(migrationCurrentPhase, cancellationToken);
 
                 PhaseResult currentResult = null;
                 while (workloadRunner != null)
@@ -588,16 +601,32 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             var endSN = await this.GetEndSequenceNumberAsync(cancellationToken);
             var delta = endSN - currentResult.EndSeqNum;
+            var isDowntimeInvoked = false;
+
             if (currentResult.Phase == MigrationPhase.Catchup)
             {
-                if (delta < this.MigrationSettings.DowntimeThreshold
-                    && this.downtimeAllowed == true)
+                if (!this.IsAutoStartMigration())
+                {
+                    isDowntimeInvoked = (await ParseBoolAsync(
+                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                        this.Transaction,
+                        Key(IsDowntimeInvoked),
+                        DefaultRCTimeout,
+                        cancellationToken),
+                    this.TraceId));
+                }
+                else if (delta < this.MigrationSettings.DowntimeThreshold)
+                {
+                    isDowntimeInvoked = true;
+                }
+
+                if (isDowntimeInvoked)
                 {
                     await this.InvokeRejectWritesAsync(cancellationToken);
+                    return await this.NextWorkloadRunnerAsync(MigrationPhase.Downtime, cancellationToken);
                 }
                 else
                 {
-                    // Manual downtime. Invoke Catchup iteration.
                     return await this.NextWorkloadRunnerAsync(MigrationPhase.Catchup, cancellationToken);
                 }
             }

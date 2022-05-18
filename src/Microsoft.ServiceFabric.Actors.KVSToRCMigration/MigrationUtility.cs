@@ -114,6 +114,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return value;
         }
 
+        public static async Task<bool> ParseBoolAsync(Func<Task<string>> func, string traceId)
+        {
+            string valueString = await func();
+            if (string.IsNullOrEmpty(valueString))
+            {
+                return false;
+            }
+
+            if (!bool.TryParse(valueString, out var value))
+            {
+                TraceAndThrowException(valueString, traceId);
+            }
+
+            return value;
+        }
+
         private static void TraceAndThrowException<TData>(TData data, string traceId)
         {
             ActorTrace.Source.WriteErrorWithId(
