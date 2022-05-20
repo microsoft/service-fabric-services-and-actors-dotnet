@@ -35,7 +35,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetMigrationStatus")]
         public async Task<MigrationResult> GetMigrationStatusAsync(CancellationToken cancellationToken)
         {
-            return await ((TargetMigrationOrchestrator)this.MigrationOrchestrator).GetResultAsync(cancellationToken);
+            return await MigrationUtility.ExecuteWithRetriesAsync(
+                () => ((TargetMigrationOrchestrator)this.MigrationOrchestrator).GetResultAsync(cancellationToken),
+                "RcMigrationController.GetMigrationStatusAsync",
+                ((TargetMigrationOrchestrator)this.MigrationOrchestrator).TraceId);
         }
 
         /// <summary>
