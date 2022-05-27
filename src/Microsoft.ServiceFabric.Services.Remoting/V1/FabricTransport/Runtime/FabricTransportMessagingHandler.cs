@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     extern alias Microsoft_ServiceFabric_Internal;
 
     using System;
-    using System.Fabric.Common;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;

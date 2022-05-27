@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
     using System;
     using System.Collections.Generic;
-    using System.Fabric.Common;
     using System.Linq;
     using System.Text;
     using FabricAverageCount64PerformanceCounterWriter = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricAverageCount64PerformanceCounterWriter;

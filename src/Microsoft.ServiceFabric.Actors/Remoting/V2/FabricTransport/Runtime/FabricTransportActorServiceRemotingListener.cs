@@ -10,7 +10,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;

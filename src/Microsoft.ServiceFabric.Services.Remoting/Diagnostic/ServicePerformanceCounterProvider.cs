@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 
     using System;
     using System.Collections.Generic;
-    using System.Fabric.Common;
     using System.Linq;
     using System.Reflection;
     using System.Text;

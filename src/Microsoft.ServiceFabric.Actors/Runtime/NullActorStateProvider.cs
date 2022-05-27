@@ -11,11 +11,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common;
-    using System.Fabric.Query;
     using System.Globalization;
     using System.Linq;
-    using System.Security.Cryptography;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Query;

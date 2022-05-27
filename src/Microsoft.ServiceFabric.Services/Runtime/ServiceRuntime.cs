@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
     using System;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Threading;
     using System.Threading.Tasks;
     using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
@@ -64,8 +63,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            serviceFactory.ThrowIfNull("serviceFactory");
-            serviceTypeName.ThrowIfNullOrWhiteSpace("serviceTypeName");
+            Requires.ThrowIfNull(serviceFactory, "serviceFactory");
+            Requires.ThrowIfNullOrWhiteSpace(serviceTypeName, "serviceTypeName");
 
             var runtimeContext = await RuntimeContext.GetOrCreateAsync(timeout, cancellationToken);
             await runtimeContext.Runtime.RegisterStatefulServiceFactoryAsync(

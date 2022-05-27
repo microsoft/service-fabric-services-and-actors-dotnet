@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     using System;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;

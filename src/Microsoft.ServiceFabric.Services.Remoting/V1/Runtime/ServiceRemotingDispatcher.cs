@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Globalization;
     using System.Runtime.ExceptionServices;
     using System.Threading;

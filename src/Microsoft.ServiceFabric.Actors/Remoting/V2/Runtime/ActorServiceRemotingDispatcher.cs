@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
 
     using System;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;

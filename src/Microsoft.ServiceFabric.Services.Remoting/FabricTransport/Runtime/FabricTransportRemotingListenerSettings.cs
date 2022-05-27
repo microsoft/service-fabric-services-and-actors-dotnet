@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
     using System;
     using System.Fabric;
-    using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;

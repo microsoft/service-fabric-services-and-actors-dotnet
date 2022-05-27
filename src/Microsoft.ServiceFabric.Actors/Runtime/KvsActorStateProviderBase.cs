@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Fabric.Health;
     using System.Globalization;
     using System.IO;
@@ -19,7 +18,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Web;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;

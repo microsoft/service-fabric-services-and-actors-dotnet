@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
@@ -167,7 +166,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     var listenUri = await this.fabricTransportlistener.OpenAsync(cancellationToken);
                     var publishUri = listenUri.Replace(this.listenAddress, this.publishAddress);
 
-                    System.Fabric.Common.AppTrace.TraceSource.WriteInfo(
+                    AppTrace.TraceSource.WriteInfo(
                         "FabricTransportServiceRemotingListenerV2.OpenAsync",
                         "ListenURI = {0} PublishURI = {1}",
                         listenUri,

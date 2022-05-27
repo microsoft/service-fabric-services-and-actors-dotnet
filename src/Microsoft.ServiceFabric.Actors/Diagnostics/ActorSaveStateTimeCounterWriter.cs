@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     extern alias Microsoft_ServiceFabric_Internal;
 
-    using System.Fabric.Common;
     using FabricPerformanceCounterSetInstance = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetInstance;
     using FabricPerformanceCounterWriter = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterWriter;
 

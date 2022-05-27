@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 
     using System;
     using System.Collections.Generic;
-    using System.Fabric.Common;
     using FabricPerformanceCounterCategoryType = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterCategoryType;
     using FabricPerformanceCounterDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterDefinition;
     using FabricPerformanceCounterSetDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetDefinition;

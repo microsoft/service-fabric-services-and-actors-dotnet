@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
     using System;
     using System.Collections.Generic;
-    using System.Fabric.Common;
     using System.Reflection;
     using System.Text;
     using Microsoft.ServiceFabric.Actors.Runtime;

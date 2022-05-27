@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
     extern alias Microsoft_ServiceFabric_Internal;
 
     using System;
-    using System.Fabric.Common;
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;

@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
     extern alias Microsoft_ServiceFabric_Internal;
 
     using System.Fabric;
-    using System.Fabric.Common;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime;

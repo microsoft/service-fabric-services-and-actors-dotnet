@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
     extern alias Microsoft_ServiceFabric_Internal;
 
     using System;
-    using System.Fabric.Common;
     using SynchronizedPool = Microsoft_ServiceFabric_Internal::System.Fabric.Common.SynchronizedPool<PooledBuffer>;
 
     /// <summary>
