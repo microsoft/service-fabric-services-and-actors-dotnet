@@ -5,15 +5,22 @@
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Collections.Generic;
-    using System.Fabric.Common;
     using System.Reflection;
     using System.Text;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
     using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
+    using FabricAverageCount64PerformanceCounterWriter = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricAverageCount64PerformanceCounterWriter;
+    using FabricNumberOfItems64PerformanceCounterWriter = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricNumberOfItems64PerformanceCounterWriter;
+    using FabricPerformanceCounterDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterDefinition;
+    using FabricPerformanceCounterSet = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSet;
+    using FabricPerformanceCounterSetDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetDefinition;
+    using FabricPerformanceCounterSetInstance = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetInstance;
 
     internal class PerformanceCounterProvider : IDisposable
     {

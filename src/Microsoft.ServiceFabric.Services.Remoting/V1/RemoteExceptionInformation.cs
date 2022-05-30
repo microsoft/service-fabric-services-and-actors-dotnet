@@ -5,19 +5,21 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
-    using System.Fabric.Common;
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Text;
     using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Communication;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
 
     /// <summary>
     /// Represents the fault type used by Service Remoting to transfer the exception details from the Service Replica to the client.
     /// </summary>
-    [DataContract(Name = "RemoteExceptionInformation", Namespace = Constants.ServiceCommunicationNamespace)]
+    [DataContract(Name = "RemoteExceptionInformation", Namespace = Microsoft.ServiceFabric.Services.Constants.ServiceCommunicationNamespace)]
     public class RemoteExceptionInformation
     {
         private static readonly DataContractSerializer Serializer =

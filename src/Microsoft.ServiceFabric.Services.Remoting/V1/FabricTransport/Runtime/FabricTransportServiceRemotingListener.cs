@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Fabric;
     using System.Threading;
@@ -14,6 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
+    using AppTrace = Microsoft_ServiceFabric_Internal::System.Fabric.Common.AppTrace;
 
     /// <summary>
     ///     An <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> that uses
@@ -198,7 +201,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
                 var listenUri = await this.nativeListener.OpenAsync(cancellationToken);
                 var publishUri = listenUri.Replace(this.listenAddress, this.publishAddress);
 
-                System.Fabric.Common.AppTrace.TraceSource.WriteInfo("FabricTransportServiceRemotingListener.OpenAsync", "ListenURI = {0} PublishURI = {1}", listenUri, publishUri);
+                AppTrace.TraceSource.WriteInfo("FabricTransportServiceRemotingListener.OpenAsync", "ListenURI = {0} PublishURI = {1}", listenUri, publishUri);
 
                 return publishUri;
             }, cancellationToken);

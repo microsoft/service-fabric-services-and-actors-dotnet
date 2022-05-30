@@ -5,11 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Globalization;
     using System.Linq;
     using System.Text;
@@ -20,6 +21,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services;
+    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>

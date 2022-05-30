@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Threading;
     using System.Threading.Tasks;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
 
     /// <summary>
     /// The static class that provides methods to register reliable services with Service Fabric runtime.
@@ -33,8 +35,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            serviceFactory.ThrowIfNull("serviceFactory");
-            serviceTypeName.ThrowIfNullOrWhiteSpace("serviceTypeName");
+            Requires.ThrowIfNull(serviceFactory, "serviceFactory");
+            Requires.ThrowIfNull(serviceTypeName, "serviceTypeName");
 
             var runtimeContext = await RuntimeContext.GetOrCreateAsync(timeout, cancellationToken);
             await runtimeContext.Runtime.RegisterStatelessServiceFactoryAsync(
@@ -61,8 +63,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             TimeSpan timeout = default(TimeSpan),
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            serviceFactory.ThrowIfNull("serviceFactory");
-            serviceTypeName.ThrowIfNullOrWhiteSpace("serviceTypeName");
+            Requires.ThrowIfNull(serviceFactory, "serviceFactory");
+            Requires.ThrowIfNullOrWhiteSpace(serviceTypeName, "serviceTypeName");
 
             var runtimeContext = await RuntimeContext.GetOrCreateAsync(timeout, cancellationToken);
             await runtimeContext.Runtime.RegisterStatefulServiceFactoryAsync(

@@ -5,12 +5,15 @@
 
 namespace Microsoft.ServiceFabric.Actors
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
-    using System.Fabric.Common;
     using System.Globalization;
     using System.Runtime.Serialization;
     using System.Text;
     using Microsoft.ServiceFabric.Services;
+    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
 
     /// <summary>
     /// The ActorId represents the identity of an actor within an actor service. This is used to identify the partition of the actor service inside which the actor will run, see <see cref="GetPartitionKey"/>

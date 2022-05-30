@@ -5,11 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Fabric.Health;
     using System.Globalization;
     using System.IO;
@@ -17,7 +18,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Web;
     using System.Xml;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Query;
@@ -26,7 +26,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
+    using FabricDirectory = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricDirectory;
     using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
@@ -35,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// uses <see cref="KeyValueStoreReplica"/> to store and persist the actor state.
     /// </summary>
     public abstract class KvsActorStateProviderBase
-        : IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
+        : IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal, IInternalStatefulServiceReplica
     {
         private const string ActorStorageKeyPrefix = "Actor";
         private const string ReminderStorageKeyPrefix = "Reminder";
@@ -833,6 +835,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 // Ignore exception.
             }
+        }
+
+        /// <summary>
+        /// Gets the replica status.
+        /// </summary>
+        /// <returns>Replica status</returns>
+        object IInternalStatefulServiceReplica.GetStatus()
+        {
+            var internalReplica = this.storeReplica as IInternalStatefulServiceReplica;
+            return internalReplica?.GetStatus();
         }
 
         internal abstract KeyValueStoreReplica OnCreateAndInitializeReplica(

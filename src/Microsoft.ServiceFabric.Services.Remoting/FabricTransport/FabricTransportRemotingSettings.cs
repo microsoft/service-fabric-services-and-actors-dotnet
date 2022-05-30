@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Fabric;
-    using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
+    using AppTrace = Microsoft_ServiceFabric_Internal::System.Fabric.Common.AppTrace;
+    using Constants = Microsoft.ServiceFabric.Services.Remoting.V2.Constants;
 
     /// <summary>
     /// Represents a settings that configures the  FabricTransport communication.

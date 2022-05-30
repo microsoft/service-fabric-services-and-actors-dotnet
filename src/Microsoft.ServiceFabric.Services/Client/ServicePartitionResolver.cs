@@ -5,14 +5,16 @@
 
 namespace Microsoft.ServiceFabric.Services.Client
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Collections.Concurrent;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Fabric.Description;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+    using TimeoutHelper = Microsoft_ServiceFabric_Internal::System.Fabric.Common.TimeoutHelper;
 
     /// <summary>
     /// Represents a delegate to create a FabricClient object.

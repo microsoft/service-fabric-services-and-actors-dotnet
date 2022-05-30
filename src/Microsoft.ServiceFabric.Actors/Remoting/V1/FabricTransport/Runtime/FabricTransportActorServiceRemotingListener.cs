@@ -5,8 +5,9 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System.Fabric;
-    using System.Fabric.Common;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime;
@@ -15,6 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
 
     /// <summary>
     ///     An <see cref="IServiceRemotingListener"/>

@@ -5,13 +5,16 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System.Collections.Generic;
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
-
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
+    using KeyValueStoreReplica_V2 = Microsoft_ServiceFabric_Internal::System.Fabric.KeyValueStoreReplica_V2;
+    using KeyValueStoreReplicaSettings_V2 = Microsoft_ServiceFabric_Internal::System.Fabric.KeyValueStoreReplicaSettings_V2;
     using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
 

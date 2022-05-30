@@ -5,6 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Fabric;
     using System.Globalization;
@@ -15,6 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using AppTrace = Microsoft_ServiceFabric_Internal::System.Fabric.Common.AppTrace;
 
     /// <summary>
     /// A Windows Communication Foundation based listener for Service Fabric based stateless or stateful service.
@@ -263,7 +266,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
                   var listenUri = this.endpoint.Behaviors.Find<ListenUriEndpointBehavior>().ListenUri.ToString();
                   var publishUri = string.IsNullOrWhiteSpace(this.listenAddress) && string.IsNullOrWhiteSpace(this.publishAddress) ? listenUri : listenUri.Replace(this.listenAddress, this.publishAddress);
 
-                  System.Fabric.Common.AppTrace.TraceSource.WriteInfo("WcfCommunicationListener.OpenAsync", "ListenURI = {0} PublishURI = {1}", listenUri, publishUri);
+                  AppTrace.TraceSource.WriteInfo("WcfCommunicationListener.OpenAsync", "ListenURI = {0} PublishURI = {1}", listenUri, publishUri);
 
                   return publishUri;
               });

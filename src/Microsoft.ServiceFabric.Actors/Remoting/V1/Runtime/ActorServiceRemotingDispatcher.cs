@@ -5,9 +5,10 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 {
+    extern alias Microsoft_ServiceFabric_Internal;
+
     using System;
     using System.Fabric;
-    using System.Fabric.Common;
     using System.Globalization;
     using System.Runtime.Serialization;
     using System.Threading;
@@ -18,6 +19,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
+    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
+    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
 
     /// <summary>
     /// Provides an implementation of <see cref="IServiceRemotingMessageHandler"/> that can dispatch
