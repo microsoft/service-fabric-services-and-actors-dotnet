@@ -6,6 +6,8 @@
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Migration;
 
@@ -128,6 +130,76 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             return value;
+        }
+
+        public static async Task<T> ExecuteWithRetriesAsync<T>(Func<Task<T>> asyncFunc, string traceId, string funcTag, int retryCount = 0, IEnumerable<Type> retryableExceptions = null)
+        {
+            try
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    traceId,
+                    $"Invoking migration func - {funcTag}");
+                return await asyncFunc.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    traceId,
+                    $"Migration func - {funcTag} failed with exception - {ex}");
+
+                throw ex;
+            }
+            finally
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                   TraceType,
+                   traceId,
+                   $"Migration func - {funcTag} completed");
+            }
+        }
+
+        public static T ExecuteWithRetriesAsync<T>(Func<T> func, string traceId, string funcTag, int retryCount = 0, IEnumerable<Type> retryableExceptions = null)
+        {
+            try
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    traceId,
+                    $"Invoking migration func - {funcTag}");
+                return func.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    traceId,
+                    $"Migration func - {funcTag} failed with exception - {ex}");
+
+                throw ex;
+            }
+            finally
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                   TraceType,
+                   traceId,
+                   $"Migration func - {funcTag} completed");
+            }
+        }
+
+        public static async Task ExecuteWithRetriesAsync(Func<Task> asyncFunc, string traceId, string funcTag, int retryCount = 0, IEnumerable<Type> retryableExceptions = null)
+        {
+            await ExecuteWithRetriesAsync(
+                async () =>
+                {
+                    await asyncFunc.Invoke();
+                    return (object)null;
+                },
+                traceId,
+                funcTag,
+                retryCount,
+                retryableExceptions);
         }
 
         private static void TraceAndThrowException<TData>(TData data, string traceId)

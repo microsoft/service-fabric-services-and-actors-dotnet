@@ -38,9 +38,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetFirstSequenceNumber")]
         public async Task<long> GetFirstSequenceNumber()
         {
-            var sequenceNumber = await this.kvsActorStateProvider.GetFirstSequenceNumberAsync(CancellationToken.None);
-
-            return sequenceNumber;
+            return await MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.kvsActorStateProvider.GetFirstSequenceNumberAsync(CancellationToken.None),
+                ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.GetFirstSequenceNumberAsync");
         }
 
         /// <summary>
@@ -50,7 +51,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetLastSequenceNumber")]
         public long GetLastSequenceNumber()
         {
-            return this.kvsActorStateProvider.GetLastSequenceNumber();
+            return MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.kvsActorStateProvider.GetLastSequenceNumber(),
+                ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.GetLastSequenceNumber");
         }
 
         /// <summary>
@@ -59,9 +63,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         /// <param name="request">EnumerationRequest</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("EnumerateBySequenceNumber")]
-        public Task EnumerateBySequenceNumber([FromBody] EnumerationRequest request)
+        public async Task EnumerateBySequenceNumber([FromBody] EnumerationRequest request)
         {
-            return this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None);
+            await MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None),
+                ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.EnumerateAsync");
         }
 
         /// <summary>
@@ -71,7 +78,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetDisableTombstoneCleanupSetting")]
         public bool GetDisableTombstoneCleanupSetting()
         {
-            return this.kvsActorStateProvider.GetDisableTombstoneCleanupSetting();
+            return MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.kvsActorStateProvider.GetDisableTombstoneCleanupSetting(),
+                ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.GetDisableTombstoneCleanupSetting");
         }
 
         /// <summary>
@@ -82,7 +92,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetValueByKeys")]
         public Task GetValueByKeys([FromBody] List<string> keys)
         {
-            return this.kvsActorStateProvider.GetValueByKeysAsync(keys, this.Response, CancellationToken.None);
+            return MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.kvsActorStateProvider.GetValueByKeysAsync(keys, this.Response, CancellationToken.None),
+                ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.GetValueByKeysAsync");
         }
     }
 }

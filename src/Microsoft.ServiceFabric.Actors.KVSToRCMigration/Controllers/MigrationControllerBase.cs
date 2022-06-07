@@ -32,7 +32,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("StartDowntime")]
         public async Task StartDowntimeAsync(CancellationToken cancellationToken)
         {
-            await this.migrationOrchestrator.StartDowntimeAsync(CancellationToken.None);
+            await MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.migrationOrchestrator.StartDowntimeAsync(cancellationToken),
+                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.StartDowntimeAsync");
         }
 
         /// <summary>
@@ -43,7 +46,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("AbortMigration")]
         public async Task AbortMigrationAsync(CancellationToken cancellationToken)
         {
-            await this.migrationOrchestrator.AbortMigrationAsync(cancellationToken);
+            await MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.migrationOrchestrator.AbortMigrationAsync(cancellationToken),
+                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.AbortMigrationAsync");
         }
 
         /// <summary>
@@ -54,7 +60,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpPut("StartMigration")]
         public async Task StartMigrationAsync(CancellationToken cancellationToken)
         {
-            await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
+            await MigrationUtility.ExecuteWithRetriesAsync(
+                 () => this.migrationOrchestrator.StartMigrationAsync(cancellationToken),
+                 ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                 $"{this.GetType().Name}.StartMigrationAsync");
         }
     }
 }
