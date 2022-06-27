@@ -83,19 +83,5 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
                 ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
                 $"{this.GetType().Name}.GetDisableTombstoneCleanupSetting");
         }
-
-        /// <summary>
-        /// Gets Value for given Keys
-        /// </summary>
-        /// <param name="keys">Value of Key to fetch</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [HttpGet("GetValueByKeys")]
-        public Task GetValueByKeys([FromBody] List<string> keys)
-        {
-            return MigrationUtility.ExecuteWithRetriesAsync(
-                () => this.kvsActorStateProvider.GetValueByKeysAsync(keys, this.Response, CancellationToken.None),
-                ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
-                $"{this.GetType().Name}.GetValueByKeysAsync");
-        }
     }
 }

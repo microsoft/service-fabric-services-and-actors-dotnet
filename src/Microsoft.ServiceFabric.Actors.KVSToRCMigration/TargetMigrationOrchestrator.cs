@@ -691,16 +691,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.ActorTypeInformation,
                         this.TraceId);
                 }
-                else if (currentPhase == MigrationPhase.DataValidation)
-                {
-                    migrationWorkload = new DataValidationPhaseWorkload(
-                        this.StateProvider,
-                        this.ServicePartitionClient,
-                        this.StatefulServiceContext,
-                        this.MigrationSettings,
-                        this.ActorTypeInformation,
-                        this.TraceId);
-                }
 
                 await tx.CommitAsync();
 

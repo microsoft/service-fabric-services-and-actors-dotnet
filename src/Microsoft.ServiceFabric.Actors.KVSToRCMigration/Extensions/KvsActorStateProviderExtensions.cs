@@ -195,35 +195,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
         }
 
-        internal static Task GetValueByKeysAsync(this KvsActorStateProvider stateProvider, List<string> keys, HttpResponse response, CancellationToken cancellationToken)
-        {
-            var pairs = new List<KeyValuePair>();
-            return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
-                        async () =>
-                        {
-                            if (keys.Any())
-                            {
-                                foreach (var key in keys)
-                                {
-                                    using var tx = stateProvider.GetStoreReplica().CreateTransaction();
-                                    var result = stateProvider.GetStoreReplica().TryGet(tx, key);
-                                    await tx.CommitAsync();
-
-                                    if (result == null)
-                                    {
-                                        throw new MigrationDataValidationException($"Could not find key: {key} in KVS");
-                                    }
-
-                                    pairs.Add(new KeyValuePair() { Key = key, Value = result.Value });
-                                }
-                            }
-
-                            await WriteKeyValuePairsToResponse(pairs, response);
-                        },
-                        "GetValueByKeyAsync",
-                        cancellationToken);
-        }
-
         private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, HttpResponse response)
         {
             using var memoryStream = new MemoryStream();
