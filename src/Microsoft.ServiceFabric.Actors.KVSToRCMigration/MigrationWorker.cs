@@ -27,6 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class MigrationWorker : WorkerBase
     {
         private static readonly string TraceType = typeof(MigrationWorker).Name;
+        private static DataContractSerializer keyvaluepairserializer = new DataContractSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
         private StatefulServiceInitializationParameters initParams;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
         private MigrationSettings migrationSettings;
@@ -125,7 +126,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 TraceType,
                 this.TraceId,
                 $"Enumerating from KVS - StartSN: {startSN}, SNCount: {snCount}");
-            var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
             long keysMigrated = 0L;
             long laSN = -1;
 
@@ -148,7 +148,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            List<KeyValuePair> kvsData = new List<KeyValuePair>();
+                            EnumerationResponse enumerationResponse;
                             using (Stream memoryStream = new MemoryStream())
                             {
                                 byte[] data = Encoding.UTF8.GetBytes(responseLine);
@@ -157,14 +157,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                                 using (var reader = XmlDictionaryReader.CreateTextReader(memoryStream, XmlDictionaryReaderQuotas.Max))
                                 {
-                                    kvsData = (List<KeyValuePair>)keyvaluepairserializer.ReadObject(reader);
+                                    enumerationResponse = (EnumerationResponse)keyvaluepairserializer.ReadObject(reader);
                                 }
                             }
 
-                            if (kvsData.Count > 0)
+                            if (enumerationResponse != null
+                                && enumerationResponse.KeyValuePairs != null
+                                && enumerationResponse.KeyValuePairs.Count > 0)
                             {
-                                laSN = kvsData[kvsData.Count - 1].Version;
-                                keysMigrated += await this.StateProvider.SaveStateAsync(kvsData, cancellationToken);
+                                laSN = enumerationResponse.KeyValuePairs[enumerationResponse.KeyValuePairs.Count - 1].Version;
+                                keysMigrated += await this.StateProvider.SaveStateAsync(enumerationResponse.KeyValuePairs, cancellationToken);
+
+                                // Data validation
+                                await this.PostHydrationValidationAsync(enumerationResponse);
+
                                 using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
                                 {
                                     await this.MetadataDict.AddOrUpdateAsync(
@@ -198,7 +204,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 ActorTrace.Source.WriteInfoWithId(
                                     TraceType,
                                     this.TraceId,
-                                    $"Total Keys migrated - StartSN: {startSN}, SNCount: {snCount}, KeysFetched: {kvsData.Count}, KeysMigrated: {keysMigrated}");
+                                    $"Total Keys migrated - StartSN: {startSN}, SNCount: {snCount}, KeysFetched: {enumerationResponse.KeyValuePairs.Count}, KeysMigrated: {keysMigrated}");
                             }
 
                             responseLine = streamReader.ReadLine();
@@ -250,7 +256,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             req.ChunkSize = this.migrationSettings.ItemsPerChunk;
             req.NoOfItems = enumerationSize;
             req.IncludeDeletes = this.Input.Phase != MigrationPhase.Copy;
-
+            req.ComputeHash = this.migrationSettings.EnableDataIntegrityChecks;
             return req;
         }
 
@@ -270,6 +276,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 RequestUri = new Uri(baseUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.EnumeratebySNEndpoint}"),
                 Content = new StringContent(content, Encoding.UTF8, "application/json"),
             };
+        }
+
+        private async Task PostHydrationValidationAsync(EnumerationResponse enumerationResponse)
+        {
+            if (this.migrationSettings.EnableDataIntegrityChecks)
+            {
+                await this.StateProvider.ValidateDataPostMigrationAsync(enumerationResponse.KeyValuePairs, enumerationResponse.KeyHash, enumerationResponse.ValueHash);
+            }
         }
     }
 }

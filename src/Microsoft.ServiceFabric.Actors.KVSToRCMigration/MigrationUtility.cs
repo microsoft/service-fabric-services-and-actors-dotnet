@@ -8,8 +8,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Runtime.Serialization;
     using System.Threading.Tasks;
+    using System.Xml;
     using Microsoft.ServiceFabric.Actors.Migration;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal static class MigrationUtility
     {
@@ -140,16 +145,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     TraceType,
                     traceId,
                     $"Invoking migration func - {funcTag}");
-                return await asyncFunc.Invoke();
-            }
-            catch (Exception ex)
-            {
-                ActorTrace.Source.WriteErrorWithId(
-                    TraceType,
-                    traceId,
-                    $"Migration func - {funcTag} failed with exception - {ex}");
-
-                throw ex;
+                return await ExecuteWithRetriesInternalAsync(asyncFunc, traceId, funcTag, retryCount);
             }
             finally
             {
@@ -160,7 +156,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        public static T ExecuteWithRetriesAsync<T>(Func<T> func, string traceId, string funcTag, int retryCount = 0, IEnumerable<Type> retryableExceptions = null)
+        public static T ExecuteWithRetries<T>(Func<T> func, string traceId, string funcTag, int retryCount = 0, IEnumerable<Type> retryableExceptions = null)
         {
             try
             {
@@ -168,16 +164,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     TraceType,
                     traceId,
                     $"Invoking migration func - {funcTag}");
-                return func.Invoke();
-            }
-            catch (Exception ex)
-            {
-                ActorTrace.Source.WriteErrorWithId(
-                    TraceType,
-                    traceId,
-                    $"Migration func - {funcTag} failed with exception - {ex}");
-
-                throw ex;
+                return ExecuteWithRetriesInternal(func, traceId, funcTag, retryCount);
             }
             finally
             {
@@ -202,6 +189,72 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 retryableExceptions);
         }
 
+        public static bool IgnoreKey(string key)
+        {
+            return key == MigrationConstants.RejectWritesKey
+                || key == MigrationConstants.LogicalTimestampKey;
+        }
+
+        private static async Task<T> ExecuteWithRetriesInternalAsync<T>(Func<Task<T>> func, string traceId, string funcTag, int retriesLeft = 0, IEnumerable<Type> retryableExceptions = null)
+        {
+            Exception exToThrow = null;
+            try
+            {
+                return await func.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    traceId,
+                    $"Migration func - {funcTag} failed with exception - {ex}, retries left - {retriesLeft}");
+
+                exToThrow = ex;
+            }
+
+            if (exToThrow != null)
+            {
+                var exMatch = retryableExceptions.FirstOrDefault(type => type.IsAssignableFrom(exToThrow.GetType()));
+                if (exMatch == default(Type) || retriesLeft <= 0)
+                {
+                    throw exToThrow;
+                }
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            return await ExecuteWithRetriesInternalAsync(func, traceId, funcTag, retriesLeft - 1);
+        }
+
+        private static T ExecuteWithRetriesInternal<T>(Func<T> func, string traceId, string funcTag, int retriesLeft = 0, IEnumerable<Type> retryableExceptions = null)
+        {
+            Exception exToThrow = null;
+            try
+            {
+                return func.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    traceId,
+                    $"Migration func - {funcTag} failed with exception - {ex}, retries left - {retriesLeft}");
+
+                exToThrow = ex;
+            }
+
+            if (exToThrow != null)
+            {
+                var exMatch = retryableExceptions.FirstOrDefault(type => type.IsAssignableFrom(exToThrow.GetType()));
+                if (exMatch == default(Type) || retriesLeft <= 0)
+                {
+                    throw exToThrow;
+                }
+            }
+
+            return ExecuteWithRetriesInternal(func, traceId, funcTag, retriesLeft - 1);
+        }
+
         private static void TraceAndThrowException<TData>(TData data, string traceId)
         {
             ActorTrace.Source.WriteErrorWithId(
@@ -210,6 +263,227 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     $"Failed to parse {data}");
 
             throw new Exception($"Failed to parse {data}"); // TODO: SFException.
+        }
+
+        internal static class RC
+        {
+            private static readonly string TraceType = "MigrationUtility.RC";
+
+            internal static byte[] SerializeReminderCompletedData(string key, ReminderCompletedData data, string traceId)
+            {
+                try
+                {
+                    var res = ReminderCompletedDataSerializer.Serialize(data);
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully serialized Reminder Completed Data - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to serialize Reminder Completed Data - Key : {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+
+            internal static ReminderCompletedData DeserializeReminderCompletedData(string key, byte[] data, string traceId)
+            {
+                try
+                {
+                    var res = ReminderCompletedDataSerializer.Deserialize(data);
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully deserialized Reminder Completed Data - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to deserialize Reminder Completed Data - Key : {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+
+            internal static byte[] SerializeReminder(string key, ActorReminderData data, string traceId)
+            {
+                try
+                {
+                    var res = ActorReminderDataSerializer.Serialize(data);
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully serialized Reminder - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to serialize Reminder - Key : {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+
+            internal static ActorReminderData DeserializeReminder(string key, byte[] data, string traceId)
+            {
+                try
+                {
+                    var res = ActorReminderDataSerializer.Deserialize(data);
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully deserialized Reminder - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to deserialize Reminder - Key : {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+        }
+
+        internal static class KVS
+        {
+            private static readonly string TraceType = "MigrationUtility.KVS";
+
+            private static DataContractSerializer reminderSerializer = new DataContractSerializer(typeof(ActorReminderData));
+            private static DataContractSerializer reminderCompletedDataSerializer = new DataContractSerializer(typeof(ReminderCompletedData));
+
+            internal static byte[] SerializeReminder(string key, ActorReminderData reminder, string traceId)
+            {
+                try
+                {
+                    var res = Serialize(reminderSerializer, reminder);
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully serialized Reminder - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to deserialize Reminder - Key : {key}, ActorId : {reminder.ActorId}, DueTime : {reminder.DueTime}, IsReadOnly : {reminder.IsReadOnly}, LogicalCreationTime : {reminder.LogicalCreationTime}, Name : {reminder.Name}, Period : {reminder.Period}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+
+            internal static byte[] SerializeReminderCompletedData(string key, ReminderCompletedData reminderCompletedData, string traceId)
+            {
+                try
+                {
+                    var res = Serialize(reminderCompletedDataSerializer, reminderCompletedData);
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully serialized Reminder Completed data - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to deserialize Reminder Completed data - Key : {key}, {reminderCompletedData}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+
+            internal static ActorReminderData DeserializeReminder(string key, byte[] reminder, string traceId)
+            {
+                try
+                {
+                    var res = Deserialize(reminderSerializer, reminder) as ActorReminderData;
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully deserialized Reminder - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to deserialize Reminder ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+
+            internal static ReminderCompletedData DeserializeReminderCompletedData(string key, byte[] reminder, string traceId)
+            {
+                try
+                {
+                    var res = Deserialize(reminderSerializer, reminder) as ReminderCompletedData;
+                    ActorTrace.Source.WriteNoiseWithId(
+                        TraceType,
+                        traceId,
+                        $"Successfully deserialized Reminder Completed data - Key : {key}");
+
+                    return res;
+                }
+                catch (Exception ex)
+                {
+                    ActorTrace.Source.WriteErrorWithId(
+                        TraceType,
+                        traceId,
+                        $"Failed to deserialize Reminder Completed Data - {key}, ErrorMessage : {ex.Message}");
+
+                    throw ex;
+                }
+            }
+
+            private static byte[] Serialize<T>(DataContractSerializer serializer, T data)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    var binaryWriter = XmlDictionaryWriter.CreateBinaryWriter(memoryStream);
+                    serializer.WriteObject(binaryWriter, data);
+                    binaryWriter.Flush();
+
+                    return memoryStream.ToArray();
+                }
+            }
+
+            private static object Deserialize(DataContractSerializer serializer, byte[] data)
+            {
+                using (var memoryStream = new MemoryStream(data))
+                {
+                    var binaryReader = XmlDictionaryReader.CreateBinaryReader(
+                        memoryStream,
+                        XmlDictionaryReaderQuotas.Max);
+
+                    return serializer.ReadObject(binaryReader);
+                }
+            }
         }
     }
 }

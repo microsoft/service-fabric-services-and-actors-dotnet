@@ -87,7 +87,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 "Starting Downtime");
 
-            await this.migrationActorStateProvider.RejectWritesAsync();
+            await MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.migrationActorStateProvider.RejectWritesAsync(),
+                this.TraceId,
+                $"{this.GetType().Name}.RejectWritesAsync",
+                4,
+                new[] { typeof(FabricTransientException) });
             this.actorCallsAllowed = false;
             this.forwardRequest = true;
 

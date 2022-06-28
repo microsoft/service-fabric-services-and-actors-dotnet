@@ -36,10 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public long ItemsPerChunk { get; set; }
 
         [DataMember]
-        public int MigratedDataValidationPhaseParallelism { get; set; }
-
-        [DataMember]
-        public float PercentageOfMigratedDataToValidate { get; set; }
+        public bool EnableDataIntegrityChecks { get; set; }
 
         public override string ToString()
         {
@@ -59,8 +56,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             this.CopyPhaseParallelism = Environment.ProcessorCount;
             this.DowntimeThreshold = 1024;
-            this.MigratedDataValidationPhaseParallelism = Environment.ProcessorCount;
-            this.PercentageOfMigratedDataToValidate = 10.00f;
+            this.EnableDataIntegrityChecks = true;
 
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
@@ -89,21 +85,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.ItemsPerChunk = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
                     }
 
-                    if (migrationSettings.Parameters.Contains("MigratedDataValidationPhaseParallelism"))
+                    if (migrationSettings.Parameters.Contains("EnableDataIntegrityChecks"))
                     {
-                        this.MigratedDataValidationPhaseParallelism = int.Parse(migrationSettings.Parameters["MigratedDataValidationPhaseParallelism"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("PercentageOfMigratedDataToValidate"))
-                    {
-                        this.PercentageOfMigratedDataToValidate = float.Parse(migrationSettings.Parameters["PercentageOfMigratedDataToValidate"].Value);
+                        this.EnableDataIntegrityChecks = bool.Parse(migrationSettings.Parameters["EnableDataIntegrityChecks"].Value);
                     }
                 }
             }
             catch (Exception e)
             {
                 ActorTrace.Source.WriteError(TraceType, $"Failed to load Migration settings from config package : {e.Message}");
-                throw e; // TODO: conside throwing SF Exception.
+                throw e; // TODO: consider throwing SF Exception.
             }
         }
 

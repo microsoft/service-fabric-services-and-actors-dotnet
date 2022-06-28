@@ -24,6 +24,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string RejectWritesKey = "_RejectWrites_";
         internal static readonly string IsDowntimeInvoked = "_IsDowntimeInvoked_";
 
+        #region Actor Key constants
+        internal static readonly string ActorPresenceKeyPrefix = "@@";
+        internal static readonly string ActorStorageKeyPrefix = "Actor";
+        internal static readonly string ReminderStorageKeyPrefix = "Reminder";
+        internal static readonly string ReminderCompletedeStorageKeyPrefix = "RC@@";
+        internal static readonly string LogicalTimestampKey = "Timestamp_VLTM";
+        #endregion
+
         #region Global Migration constants
         internal static readonly string MigrationStartDateTimeUTC = "_MigrationStartDateTimeUTC_";
         internal static readonly string MigrationEndDateTimeUTC = "_MigrationEndDateTimeUTC_";

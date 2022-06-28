@@ -9,8 +9,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Collections.Generic;
     using System.Fabric;
     using System.IO;
-    using System.Linq;
     using System.Runtime.Serialization;
+    using System.Security.Cryptography;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal static class KvsActorStateProviderExtensions
     {
-        private static DataContractSerializer keyValuePairSerializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+        private static DataContractSerializer keyValuePairSerializer = new DataContractSerializer(typeof(EnumerationResponse), new[] { typeof(KeyValuePair) });
 
         internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, CancellationToken cancellationToken)
         {
@@ -91,6 +91,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 var sequenceNumberFullyDrained = true;
                                 long? firstSNInChunk = null;
                                 long? endSNInChunk = null;
+                                var keyHash = new SHA512Managed();
+                                var valueHash = new SHA512Managed();
 
                                 while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
                                 {
@@ -100,6 +102,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                     }
 
                                     var keyValuePair = MakeKeyValuePair(enumerator.Current);
+                                    if (request.ComputeHash
+                                        && !keyValuePair.IsDeleted
+                                        && !MigrationUtility.IgnoreKey(keyValuePair.Key))
+                                    {
+                                        // var keyBuffer = Encoding.UTF8.GetBytes(keyValuePair.Key);
+                                        // keyHash.TransformBlock(keyBuffer, 0, keyBuffer.Length, null, 0);
+                                        valueHash.TransformBlock(keyValuePair.Value, 0, keyValuePair.Value.Length, null, 0);
+                                    }
+
                                     var currentSequenceNumber = keyValuePair.Version;
 
                                     pairs.Add(keyValuePair);
@@ -117,7 +128,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                     endSNInChunk = currentSequenceNumber;
                                 }
 
-                                await WriteKeyValuePairsToResponse(pairs, response);
+                                keyHash.TransformFinalBlock(new byte[0], 0, 0);
+                                valueHash.TransformFinalBlock(new byte[0], 0, 0);
+
+                                var enumerationResponse = new EnumerationResponse()
+                                {
+                                    KeyValuePairs = pairs,
+                                    KeyHash = keyHash.Hash,
+                                    ValueHash = valueHash.Hash,
+                                };
+
+                                await ConstructHttpResponse(enumerationResponse, response);
                             }
                             while (hasData && enumerationKeyCount < request.NoOfItems);
                         }
@@ -142,6 +163,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         internal static async Task RejectWritesAsync(this KvsActorStateProvider stateProvider)
         {
+            if (!stateProvider.TryAbortExistingTransactionsAndRejectWrites())
+            {
+                throw new FabricTransientException("Unable to abort exiting transactions.");
+            }
+
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
                 if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
@@ -178,7 +204,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
-                // TODO: Consider caching this value.
                 var result = stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey);
 
                 if (result != null)
@@ -195,15 +220,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
         }
 
-        private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, HttpResponse response)
+        private static async Task ConstructHttpResponse(EnumerationResponse enumerationResponse, HttpResponse response)
         {
             using var memoryStream = new MemoryStream();
             var binaryWriter = XmlDictionaryWriter.CreateTextWriter(memoryStream);
-            keyValuePairSerializer.WriteObject(binaryWriter, pairs);
+            keyValuePairSerializer.WriteObject(binaryWriter, enumerationResponse);
             binaryWriter.Flush();
 
             var byteArray = memoryStream.ToArray();
-            var newLine = Encoding.ASCII.GetBytes("\n");
+            var newLine = Encoding.UTF8.GetBytes("\n");
 
             ActorTrace.Source.WriteNoise("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
 

@@ -34,5 +34,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
         /// Gets or sets a value indicating whether includeDeletes
         /// </summary>
         public bool IncludeDeletes { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether data intergrity checks are enabled.
+        /// </summary>
+        public bool ComputeHash { get; set; }
     }
 }

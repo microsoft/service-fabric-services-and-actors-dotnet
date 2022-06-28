@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetLastSequenceNumber")]
         public long GetLastSequenceNumber()
         {
-            return MigrationUtility.ExecuteWithRetriesAsync(
+            return MigrationUtility.ExecuteWithRetries(
                 () => this.kvsActorStateProvider.GetLastSequenceNumber(),
                 ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
                 $"{this.GetType().Name}.GetLastSequenceNumber");
@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         [HttpGet("GetDisableTombstoneCleanupSetting")]
         public bool GetDisableTombstoneCleanupSetting()
         {
-            return MigrationUtility.ExecuteWithRetriesAsync(
+            return MigrationUtility.ExecuteWithRetries(
                 () => this.kvsActorStateProvider.GetDisableTombstoneCleanupSetting(),
                 ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
                 $"{this.GetType().Name}.GetDisableTombstoneCleanupSetting");
