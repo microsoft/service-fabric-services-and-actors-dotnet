@@ -221,7 +221,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(MigrationConstants.ConstantBackoffInterval);
 
             return await ExecuteWithRetriesInternalAsync(func, traceId, funcTag, retriesLeft - 1);
         }

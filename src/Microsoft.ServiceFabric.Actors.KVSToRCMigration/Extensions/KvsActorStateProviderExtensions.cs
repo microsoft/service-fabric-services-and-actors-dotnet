@@ -16,6 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading.Tasks;
     using System.Xml;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
@@ -163,10 +164,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         internal static async Task RejectWritesAsync(this KvsActorStateProvider stateProvider)
         {
-            if (!stateProvider.TryAbortExistingTransactionsAndRejectWrites())
-            {
-                throw new FabricTransientException("Unable to abort exiting transactions.");
-            }
+            await MigrationUtility.ExecuteWithRetriesAsync(
+                () => Task.Run(() =>
+                {
+                    if (!stateProvider.TryAbortExistingTransactionsAndRejectWrites())
+                    {
+                        throw new FabricTransientException("Unable to abort exiting transactions.");
+                    }
+                }),
+                "KvsActorStateProviderExtensionHelper",
+                "TryAbortExistingTransactionsAndRejectWrites",
+                MigrationConstants.DefaultRetryCount,
+                new[] { typeof(FabricTransientException) });
 
             using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
             {
