@@ -417,7 +417,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             valueHashAlgo.TransformFinalBlock(new byte[0], 0, 0);
             var rcValueHash = valueHashAlgo.Hash;
-            if (valueHash.SequenceEqual(rcValueHash))
+            if (!valueHash.SequenceEqual(rcValueHash))
             {
                 ActorTrace.Source.WriteErrorWithId(
                         this.TraceType,
