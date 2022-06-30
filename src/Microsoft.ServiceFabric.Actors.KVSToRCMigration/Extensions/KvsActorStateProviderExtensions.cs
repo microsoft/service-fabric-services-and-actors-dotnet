@@ -226,13 +226,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, HttpResponse response)
         {
-            using var memoryStream = new MemoryStream();
-            var binaryWriter = XmlDictionaryWriter.CreateTextWriter(memoryStream);
-            keyValuePairSerializer.WriteObject(binaryWriter, pairs);
-            binaryWriter.Flush();
-
-            var byteArray = memoryStream.ToArray();
-            var newLine = Encoding.ASCII.GetBytes("\n");
+            var byteArray = SerializationUtility.Serialize(keyValuePairSerializer, pairs);
+            var newLine = Encoding.UTF8.GetBytes("\n");
 
             ActorTrace.Source.WriteNoise("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
 

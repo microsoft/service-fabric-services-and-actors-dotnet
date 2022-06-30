@@ -16,11 +16,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     [DataContract]
     public class KeyValuePair
     {
-        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(KeyValuePair), new DataContractJsonSerializerSettings
-        {
-            UseSimpleDictionaryFormat = true,
-        });
-
         /// <summary>
         /// Gets or Sets Version
         /// </summary>
@@ -44,18 +39,5 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
         /// </summary>
         [DataMember]
         public bool IsDeleted { get; set; }
-
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            using (var stream = new MemoryStream())
-            {
-                serializer.WriteObject(stream, this);
-
-                var returnVal = Encoding.ASCII.GetString(stream.GetBuffer());
-
-                return returnVal;
-            }
-        }
     }
 }

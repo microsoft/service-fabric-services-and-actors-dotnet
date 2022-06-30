@@ -18,11 +18,6 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     [KnownType(typeof(FabricErrorCode))]
     public class ErrorResponse
     {
-        private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ErrorResponse), new DataContractJsonSerializerSettings
-        {
-            UseSimpleDictionaryFormat = true,
-        });
-
         /// <summary>
         /// Gets or sets the migration error message.
         /// </summary>
@@ -36,19 +31,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         public FabricErrorCode ErrorCode { get; set; }
 
         /// <summary>
-        /// Gets the json string representation.
+        /// Gets or sets the exception type
         /// </summary>
-        /// <returns>Json string representation.</returns>
-        public override string ToString()
-        {
-            using (var stream = new MemoryStream())
-            {
-                serializer.WriteObject(stream, this);
+        public string ExceptionType { get; set; }
 
-                var returnVal = Encoding.ASCII.GetString(stream.GetBuffer());
-
-                return returnVal;
-            }
-        }
+        /// <summary>
+        /// Gets or set the value indicating whether the error is Fabric related.
+        /// </summary>
+        public bool IsFabricError { get; set; }
     }
 }

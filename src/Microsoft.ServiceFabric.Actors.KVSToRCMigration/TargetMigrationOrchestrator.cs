@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -539,15 +540,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 TraceType,
                 this.TraceId,
                 $"Getting End Seq num.");
-
-            return (await ParseLongAsync(
-                () => this.ServicePartitionClient.InvokeWithRetryAsync<string>(
+            var response = await this.ServicePartitionClient.InvokeWebRequestWithRetryAsync(
                 async client =>
                 {
-                    return await client.HttpClient.GetStringAsync($"{KVSMigrationControllerName}/{GetEndSNEndpoint}");
+                    return await client.HttpClient.GetAsync($"{KVSMigrationControllerName}/{GetEndSNEndpoint}");
                 },
-                cancellationToken),
-                this.TraceId)).Value;
+                "GetEndSequenceNumberAsync",
+                cancellationToken);
+            return (await ParseLongAsync(async () => await response.Content.ReadAsStringAsync(), this.TraceId)).Value;
         }
 
         private async Task<long> GetStartSequenceNumberAsync(CancellationToken cancellationToken)
@@ -557,14 +557,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 $"Gettting start seq num.");
 
-            return (await ParseLongAsync(
-                () => this.ServicePartitionClient.InvokeWithRetryAsync<string>(
+            var response = await this.ServicePartitionClient.InvokeWebRequestWithRetryAsync(
                 async client =>
                 {
-                    return await client.HttpClient.GetStringAsync($"{KVSMigrationControllerName}/{GetStartSNEndpoint}");
+                    return await client.HttpClient.GetAsync($"{KVSMigrationControllerName}/{GetStartSNEndpoint}");
                 },
-                cancellationToken),
-                this.TraceId)).Value;
+                "GetStartSequenceNumberAsync",
+                cancellationToken);
+            return (await ParseLongAsync(async () => await response.Content.ReadAsStringAsync(), this.TraceId)).Value;
         }
 
         private async Task InvokeRejectWritesAsync(CancellationToken cancellationToken)
@@ -574,11 +574,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 $"Invoking reject writes in source migration service.");
 
-            await this.ServicePartitionClient.InvokeWithRetryAsync(
+            var response = await this.ServicePartitionClient.InvokeWebRequestWithRetryAsync(
                 async client =>
                 {
                     return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{StartDowntimeEndpoint}", null);
                 },
+                "InvokeRejectWritesAsync",
                 cancellationToken);
         }
 
@@ -589,11 +590,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 $"Invoking resume writes in source migration service.");
 
-            await this.ServicePartitionClient.InvokeWithRetryAsync(
+            var response = await this.ServicePartitionClient.InvokeWebRequestWithRetryAsync(
                async client =>
                {
                    return await client.HttpClient.PutAsync($"{KVSMigrationControllerName}/{AbortMigrationEndpoint}", null);
                },
+               "InvokeResumeWritesAsync",
                cancellationToken);
         }
 
@@ -838,14 +840,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 $"Getting tombstone cleanup setting");
 
-            var kvsDisableTCSString = await this.ServicePartitionClient.InvokeWithRetryAsync<string>(
+            var response = await this.ServicePartitionClient.InvokeWebRequestWithRetryAsync(
                 async client =>
                 {
-                    return await client.HttpClient.GetStringAsync($"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.GetDisableTCSEndpoint}");
+                    return await client.HttpClient.GetAsync($"{KVSMigrationControllerName}/{GetDisableTCSEndpoint}");
                 },
+                "GetDisableTCSEndpoint",
                 cancellationToken);
-
-            return bool.Parse(kvsDisableTCSString);
+            return (await ParseBoolAsync(async () => await response.Content.ReadAsStringAsync(), this.TraceId));
         }
 
         private async Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken)

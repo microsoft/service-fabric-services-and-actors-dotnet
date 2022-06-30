@@ -8,12 +8,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware
     using System;
     using System.Fabric;
     using System.Net;
+    using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
     using Microsoft.ServiceFabric.Actors.Migration;
 
     internal class DefaultMigrationExceptionMiddleware
     {
+        private static readonly DataContractSerializer Serializer = new DataContractSerializer(typeof(ErrorResponse));
         private readonly RequestDelegate next;
 
         public DefaultMigrationExceptionMiddleware(RequestDelegate next)
@@ -36,24 +38,26 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware
         private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var response = context.Response;
-            var statusCode = (int)HttpStatusCode.InternalServerError;
-            var message = exception.Message;
-            var errorCode = FabricErrorCode.Unknown;
+            var error = new ErrorResponse
+            {
+                Message = exception.Message,
+                ErrorCode = 0,
+                ExceptionType = exception.GetType().FullName,
+                IsFabricError = false,
+            };
 
             if (exception is FabricException)
             {
                 var fabEx = exception as FabricException;
-                message = fabEx.Message;
-                errorCode = fabEx.ErrorCode;
+                error.IsFabricError = true;
+                error.ErrorCode = fabEx.ErrorCode;
             }
 
-            response.ContentType = "application/json";
-            response.StatusCode = statusCode;
-            await response.WriteAsync(new ErrorResponse()
-            {
-                Message = message,
-                ErrorCode = errorCode,
-            }.ToString());
+            response.ContentType = "application/xml; charset=utf-8";
+            response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            var buffer = SerializationUtility.Serialize(Serializer, error);
+            await response.Body.WriteAsync(buffer, 0, buffer.Length);
+            await response.Body.FlushAsync();
         }
     }
 }

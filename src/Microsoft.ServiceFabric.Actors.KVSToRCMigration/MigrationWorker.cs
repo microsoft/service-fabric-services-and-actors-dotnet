@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -27,6 +28,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class MigrationWorker : WorkerBase
     {
         private static readonly string TraceType = typeof(MigrationWorker).Name;
+        private static readonly DataContractSerializer Keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+
         private StatefulServiceInitializationParameters initParams;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
         private MigrationSettings migrationSettings;
@@ -125,19 +128,25 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 TraceType,
                 this.TraceId,
                 $"Enumerating from KVS - StartSN: {startSN}, SNCount: {snCount}");
-            var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
             long keysMigrated = 0L;
             long laSN = -1;
 
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
-                {
-                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(client.EndpointUri, startSN, snCount), HttpCompletionOption.ResponseHeadersRead);
-                });
+                var response = await this.servicePartitionClient.InvokeWebRequestWithRetryAsync(
+                    async client =>
+                    {
+                        var response = await client.HttpClient.SendAsync(
+                            this.CreateKvsApiRequestMessage(client.EndpointUri, startSN, snCount),
+                            HttpCompletionOption.ResponseHeadersRead,
+                            cancellationToken);
 
-                response.EnsureSuccessStatusCode();
+                        return response;
+                    },
+                    "FetchAndSaveAsync",
+                    cancellationToken);
+
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 {
                     using (var streamReader = new StreamReader(stream))
@@ -147,20 +156,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         while (responseLine != null)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-
-                            List<KeyValuePair> kvsData = new List<KeyValuePair>();
-                            using (Stream memoryStream = new MemoryStream())
-                            {
-                                byte[] data = Encoding.UTF8.GetBytes(responseLine);
-                                memoryStream.Write(data, 0, data.Length);
-                                memoryStream.Position = 0;
-
-                                using (var reader = XmlDictionaryReader.CreateTextReader(memoryStream, XmlDictionaryReaderQuotas.Max))
-                                {
-                                    kvsData = (List<KeyValuePair>)keyvaluepairserializer.ReadObject(reader);
-                                }
-                            }
-
+                            var kvsData = SerializationUtility.Deserialize<List<KeyValuePair>>(Keyvaluepairserializer, Encoding.UTF8.GetBytes(responseLine));
                             if (kvsData.Count > 0)
                             {
                                 laSN = kvsData[kvsData.Count - 1].Version;

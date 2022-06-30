@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
@@ -253,14 +254,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         protected virtual async Task<long> GetEndSequenceNumberAsync(CancellationToken cancellationToken)
         {
-            return (await ParseLongAsync(
-                () => this.servicePartitionClient.InvokeWithRetryAsync<string>(
+            var response = await this.servicePartitionClient.InvokeWebRequestWithRetryAsync(
                 async client =>
                 {
-                    return await client.HttpClient.GetStringAsync($"{KVSMigrationControllerName}/{GetEndSNEndpoint}");
+                    return await client.HttpClient.GetAsync($"{KVSMigrationControllerName}/{GetEndSNEndpoint}");
                 },
-                cancellationToken),
-                this.TraceId)).Value;
+                "GetEndSequenceNumberAsync",
+                cancellationToken);
+            return (await ParseLongAsync(async () => await response.Content.ReadAsStringAsync(), this.TraceId)).Value;
         }
 
         protected virtual async Task<long> GetStartSequenceNumberAsync(CancellationToken cancellationToken)
