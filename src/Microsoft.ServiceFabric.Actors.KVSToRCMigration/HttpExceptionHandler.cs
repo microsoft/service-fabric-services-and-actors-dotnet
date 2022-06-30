@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
-    internal class HttpExceptionHandler : IExceptionHandler
+    internal class HttpExceptionHandler : Services.Communication.Client.IExceptionHandler
     {
         public bool TryHandleException(ExceptionInformation exceptionInformation, OperationRetrySettings retrySettings, out ExceptionHandlingResult result)
         {
