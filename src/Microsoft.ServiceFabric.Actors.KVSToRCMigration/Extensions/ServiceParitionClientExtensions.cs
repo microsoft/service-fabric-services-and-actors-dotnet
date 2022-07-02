@@ -24,6 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions
             string funcTag,
             CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             return await partitionClient.InvokeWithRetryAsync(async client =>
             {
                 var response = await asyncFunc.Invoke(client);
@@ -33,20 +34,24 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions
             });
         }
 
-        public static async Task ThrowIfErrorResponseAsync(HttpResponseMessage response)
+        private static async Task ThrowIfErrorResponseAsync(HttpResponseMessage response)
         {
             if (!response.IsSuccessStatusCode)
             {
                 var buffer = await response.Content.ReadAsByteArrayAsync();
                 var error = SerializationUtility.Deserialize<ErrorResponse>(ErrorSerializer, buffer);
+                Exception ex = null;
                 if (error.IsFabricError)
                 {
-                    throw new FabricException(error.Message, error.ErrorCode);
+                    ex = new FabricException(error.Message, error.ErrorCode);
                 }
                 else
                 {
-                    throw new Exception(error.Message);
+                    ex = new Exception(error.Message);
                 }
+
+                ex.Data.Add("ActualExceptionType", error.ExceptionType);
+                throw ex;
             }
         }
     }

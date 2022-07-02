@@ -34,6 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private ActorTypeInformation actorTypeInformation;
         private int currentIteration;
         private int workerCount;
+        private RCTxExecutor txExecutor;
 
         public MigrationPhaseWorkloadBase(
             MigrationPhase migrationPhase,
@@ -56,6 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.workerCount = workerCount;
             this.traceId = traceId;
             this.metadataDict = this.stateProvider.GetMetadataDictionaryAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            this.txExecutor = new RCTxExecutor(() => this.Transaction, this.TraceId);
         }
 
         public IReliableDictionary2<string, string> MetaDataDictionary { get => this.metadataDict; }
@@ -77,8 +79,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public MigrationPhase Phase { get => this.migrationPhase; }
 
         public static async Task<PhaseResult> GetResultAsync(
+            RCTxExecutor executor,
             IReliableDictionary2<string, string> metadataDict,
-            Func<Data.ITransaction> txFactory,
             MigrationPhase migrationPhase,
             int currentIteration,
             string traceId,
@@ -87,11 +89,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             cancellationToken.ThrowIfCancellationRequested();
 
             var status = await ParseMigrationStateAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseCurrentStatus, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(executor, metadataDict, Key(PhaseCurrentStatus, migrationPhase, currentIteration), cancellationToken),
                 traceId);
 
             if (status == MigrationState.None)
@@ -110,59 +108,31 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             result.Status = status;
 
             result.StartDateTimeUTC = (await ParseDateTimeAsync(
-                () => metadataDict.GetAsync(
-                txFactory,
-                Key(PhaseStartDateTimeUTC, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueAsync(executor, metadataDict, Key(PhaseStartDateTimeUTC, migrationPhase, currentIteration), cancellationToken),
                 traceId)).Value;
 
             result.EndDateTimeUTC = await ParseDateTimeAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseEndDateTimeUTC, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(executor, metadataDict, Key(PhaseEndDateTimeUTC, migrationPhase, currentIteration), cancellationToken),
                 traceId);
 
             result.StartSeqNum = (await ParseLongAsync(
-                () => metadataDict.GetAsync(
-                txFactory,
-                Key(PhaseStartSeqNum, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueAsync(executor, metadataDict, Key(PhaseStartSeqNum, migrationPhase, currentIteration), cancellationToken),
                 traceId)).Value;
 
             result.EndSeqNum = (await ParseLongAsync(
-                () => metadataDict.GetAsync(
-                txFactory,
-                Key(PhaseEndSeqNum, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueAsync(executor, metadataDict, Key(PhaseEndSeqNum, migrationPhase, currentIteration), cancellationToken),
                 traceId)).Value;
 
             result.LastAppliedSeqNum = await ParseLongAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseLastAppliedSeqNum, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(executor, metadataDict, Key(PhaseLastAppliedSeqNum, migrationPhase, currentIteration), cancellationToken),
                 traceId);
 
             result.NoOfKeysMigrated = await ParseLongAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseNoOfKeysMigrated, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(executor, metadataDict, Key(PhaseNoOfKeysMigrated, migrationPhase, currentIteration), cancellationToken),
                 traceId);
 
             result.WorkerCount = await ParseIntAsync(
-                () => metadataDict.GetAsync(
-                txFactory,
-                Key(PhaseWorkerCount, migrationPhase, currentIteration),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueAsync(executor, metadataDict, Key(PhaseWorkerCount, migrationPhase, currentIteration), cancellationToken),
                 traceId);
 
             var workerResults = new List<WorkerResult>();
@@ -170,7 +140,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             for (int i = 1; i <= result.WorkerCount; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var workerResult = await MigrationWorker.GetResultAsync(metadataDict, txFactory, migrationPhase, currentIteration, i, traceId, cancellationToken);
+                var workerResult = await MigrationWorker.GetResultAsync(executor, metadataDict, migrationPhase, currentIteration, i, traceId, cancellationToken);
                 if (workerResult.Status != MigrationState.None)
                 {
                     workerResults.Add(workerResult);
@@ -197,8 +167,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         $"Phase already completed \n Input: {input.ToString()}");
 
                     return await GetResultAsync(
+                        this.txExecutor,
                         this.MetaDataDictionary,
-                        () => this.Transaction,
                         this.migrationPhase,
                         this.currentIteration,
                         this.TraceId,
@@ -225,8 +195,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 var results = await Task.WhenAll(tasks);
                 await this.AddOrUpdateResultAsync(input, results, cancellationToken);
                 PhaseResult phaseResult = await GetResultAsync(
+                    this.txExecutor,
                     this.MetaDataDictionary,
-                    () => this.Transaction,
                     this.migrationPhase,
                     this.currentIteration,
                     this.TraceId,
@@ -266,21 +236,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         protected virtual async Task<long> GetStartSequenceNumberAsync(CancellationToken cancellationToken)
         {
-            long startSequenceNumber;
-            using (var tx = this.Transaction)
-            {
-                startSequenceNumber = (await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetAsync(
-                        tx,
-                        MigrationLastAppliedSeqNum,
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId)).Value;
-
-                await tx.CommitAsync();
-            }
-
-            return ++startSequenceNumber;
+            return (await ParseLongAsync(
+                () => GetValueAsync(this.txExecutor, this.MetaDataDictionary, MigrationLastAppliedSeqNum, cancellationToken),
+                this.TraceId)).Value;
         }
 
         protected virtual async Task<PhaseInput> GetOrAddInputAsync(CancellationToken cancellationToken)
@@ -288,179 +246,182 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             cancellationToken.ThrowIfCancellationRequested();
 
             var input = new PhaseInput();
-            using (var tx = this.Transaction)
-            {
-                input.Phase = this.migrationPhase;
-
-                await this.MetaDataDictionary.AddOrUpdateAsync(
-                        tx,
-                        MigrationCurrentPhase,
-                        this.migrationPhase.ToString(),
-                        (_, __) => this.migrationPhase.ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken);
-
-                input.StartDateTimeUTC = (await ParseDateTimeAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseStartDateTimeUTC, this.migrationPhase, this.currentIteration),
-                        DateTime.UtcNow.ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId)).Value;
-
-                input.EndDateTimeUTC = await ParseDateTimeAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        tx,
-                        Key(PhaseStartDateTimeUTC, this.migrationPhase, this.currentIteration),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
-
-                input.Status = await ParseMigrationStateAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseCurrentStatus, this.migrationPhase, this.currentIteration),
-                        MigrationState.InProgress.ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
-
-                input.StartSeqNum = (await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseStartSeqNum, this.migrationPhase, this.currentIteration),
-                        this.GetStartSequenceNumberAsync(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult().ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId)).Value;
-
-                // Update Migration seq num if it not present(first time)
-                await this.MetaDataDictionary.GetOrAddAsync(
-                    tx,
-                    MigrationStartSeqNum,
-                    input.StartSeqNum.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
-
-                input.EndSeqNum = (await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseEndSeqNum, this.migrationPhase, this.currentIteration),
-                        this.GetEndSequenceNumberAsync(cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult().ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId)).Value;
-
-                input.LastAppliedSeqNum = await ParseLongAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        tx,
-                        Key(PhaseLastAppliedSeqNum, this.migrationPhase, this.currentIteration),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
-
-                input.IterationCount = await ParseIntAsync(
-                    () => this.MetaDataDictionary.AddOrUpdateAsync(
-                        tx,
-                        Key(PhaseIterationCount, this.migrationPhase),
-                        this.currentIteration.ToString(),
-                        (_, __) => this.currentIteration.ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
-
-                input.WorkerCount = await ParseIntAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseWorkerCount, this.migrationPhase, this.currentIteration),
-                        this.workerCount.ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
-
-                long perWorker = (input.EndSeqNum - input.StartSeqNum) / this.workerCount;
-                var perWorkerStartSN = input.StartSeqNum;
-                var perWorkerEndSN = input.StartSeqNum + perWorker;
-                var workerInputs = new List<WorkerInput>();
-                for (int i = 1; i <= this.workerCount; i++)
+            await this.txExecutor.ExecuteWithRetriesAsync(
+                async (tx, token) =>
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    input.Phase = this.migrationPhase;
 
-                    var workerInput = new WorkerInput
-                    {
-                        WorkerId = i,
-                        Phase = this.migrationPhase,
-                        Iteration = this.currentIteration,
-                    };
-
-                    workerInput.StartDateTimeUTC = (await ParseDateTimeAsync(
-                    () => this.MetaDataDictionary.GetOrAddAsync(
-                        tx,
-                        Key(PhaseWorkerStartDateTimeUTC, this.migrationPhase, this.currentIteration, i),
-                        DateTime.UtcNow.ToString(),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId)).Value;
-
-                    workerInput.EndDateTimeUTC = await ParseDateTimeAsync(
-                        () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                    await this.MetaDataDictionary.AddOrUpdateAsync(
                             tx,
-                            Key(PhaseWorkerEndDateTimeUTC, this.migrationPhase, this.currentIteration, i),
+                            MigrationCurrentPhase,
+                            this.migrationPhase.ToString(),
+                            (_, __) => this.migrationPhase.ToString(),
                             DefaultRCTimeout,
-                            cancellationToken),
-                        this.TraceId);
+                            token);
 
-                    workerInput.Status = await ParseMigrationStateAsync(
+                    input.StartDateTimeUTC = (await ParseDateTimeAsync(
                         () => this.MetaDataDictionary.GetOrAddAsync(
                             tx,
-                            Key(PhaseWorkerCurrentStatus, this.migrationPhase, this.currentIteration, i),
+                            Key(PhaseStartDateTimeUTC, this.migrationPhase, this.currentIteration),
+                            DateTime.UtcNow.ToString(),
+                            DefaultRCTimeout,
+                            token),
+                        this.TraceId)).Value;
+
+                    input.EndDateTimeUTC = await ParseDateTimeAsync(
+                        () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                            tx,
+                            Key(PhaseStartDateTimeUTC, this.migrationPhase, this.currentIteration),
+                            DefaultRCTimeout,
+                            token),
+                        this.TraceId);
+
+                    input.Status = await ParseMigrationStateAsync(
+                        () => this.MetaDataDictionary.GetOrAddAsync(
+                            tx,
+                            Key(PhaseCurrentStatus, this.migrationPhase, this.currentIteration),
                             MigrationState.InProgress.ToString(),
                             DefaultRCTimeout,
-                            cancellationToken),
+                            token),
                         this.TraceId);
 
-                    workerInput.StartSeqNum = (await ParseLongAsync(
+                    input.StartSeqNum = (await ParseLongAsync(
                         () => this.MetaDataDictionary.GetOrAddAsync(
                             tx,
-                            Key(PhaseWorkerStartSeqNum, this.migrationPhase, this.currentIteration, i),
-                            perWorkerStartSN.ToString(),
+                            Key(PhaseStartSeqNum, this.migrationPhase, this.currentIteration),
+                            this.GetStartSequenceNumberAsync(token).ConfigureAwait(false).GetAwaiter().GetResult().ToString(),
                             DefaultRCTimeout,
-                            cancellationToken),
+                            token),
                         this.TraceId)).Value;
 
-                    workerInput.EndSeqNum = (await ParseLongAsync(
+                    // Update Migration seq num if it not present(first time)
+                    await this.MetaDataDictionary.GetOrAddAsync(
+                        tx,
+                        MigrationStartSeqNum,
+                        input.StartSeqNum.ToString(),
+                        DefaultRCTimeout,
+                        token);
+
+                    input.EndSeqNum = (await ParseLongAsync(
                         () => this.MetaDataDictionary.GetOrAddAsync(
                             tx,
-                            Key(PhaseWorkerEndSeqNum, this.migrationPhase, this.currentIteration, i),
-                            perWorkerEndSN.ToString(),
+                            Key(PhaseEndSeqNum, this.migrationPhase, this.currentIteration),
+                            this.GetEndSequenceNumberAsync(token).ConfigureAwait(false).GetAwaiter().GetResult().ToString(),
                             DefaultRCTimeout,
-                            cancellationToken),
+                            token),
                         this.TraceId)).Value;
 
-                    workerInput.LastAppliedSeqNum = await ParseLongAsync(
+                    input.LastAppliedSeqNum = await ParseLongAsync(
                         () => this.MetaDataDictionary.GetValueOrDefaultAsync(
                             tx,
-                            Key(PhaseWorkerLastAppliedSeqNum, this.migrationPhase, this.currentIteration, i),
+                            Key(PhaseLastAppliedSeqNum, this.migrationPhase, this.currentIteration),
                             DefaultRCTimeout,
-                            cancellationToken),
+                            token),
                         this.TraceId);
 
-                    workerInputs.Add(workerInput);
+                    input.IterationCount = await ParseIntAsync(
+                        () => this.MetaDataDictionary.AddOrUpdateAsync(
+                            tx,
+                            Key(PhaseIterationCount, this.migrationPhase),
+                            this.currentIteration.ToString(),
+                            (_, __) => this.currentIteration.ToString(),
+                            DefaultRCTimeout,
+                            token),
+                        this.TraceId);
 
-                    if (perWorkerEndSN == input.EndSeqNum)
+                    input.WorkerCount = await ParseIntAsync(
+                        () => this.MetaDataDictionary.GetOrAddAsync(
+                            tx,
+                            Key(PhaseWorkerCount, this.migrationPhase, this.currentIteration),
+                            this.workerCount.ToString(),
+                            DefaultRCTimeout,
+                            token),
+                        this.TraceId);
+
+                    long perWorker = (input.EndSeqNum - input.StartSeqNum) / this.workerCount;
+                    var perWorkerStartSN = input.StartSeqNum;
+                    var perWorkerEndSN = input.StartSeqNum + perWorker;
+                    var workerInputs = new List<WorkerInput>();
+                    for (int i = 1; i <= this.workerCount; i++)
                     {
-                        break;
+                        token.ThrowIfCancellationRequested();
+
+                        var workerInput = new WorkerInput
+                        {
+                            WorkerId = i,
+                            Phase = this.migrationPhase,
+                            Iteration = this.currentIteration,
+                        };
+
+                        workerInput.StartDateTimeUTC = (await ParseDateTimeAsync(
+                        () => this.MetaDataDictionary.GetOrAddAsync(
+                            tx,
+                            Key(PhaseWorkerStartDateTimeUTC, this.migrationPhase, this.currentIteration, i),
+                            DateTime.UtcNow.ToString(),
+                            DefaultRCTimeout,
+                            cancellationToken),
+                        this.TraceId)).Value;
+
+                        workerInput.EndDateTimeUTC = await ParseDateTimeAsync(
+                            () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                                tx,
+                                Key(PhaseWorkerEndDateTimeUTC, this.migrationPhase, this.currentIteration, i),
+                                DefaultRCTimeout,
+                                token),
+                            this.TraceId);
+
+                        workerInput.Status = await ParseMigrationStateAsync(
+                            () => this.MetaDataDictionary.GetOrAddAsync(
+                                tx,
+                                Key(PhaseWorkerCurrentStatus, this.migrationPhase, this.currentIteration, i),
+                                MigrationState.InProgress.ToString(),
+                                DefaultRCTimeout,
+                                token),
+                            this.TraceId);
+
+                        workerInput.StartSeqNum = (await ParseLongAsync(
+                            () => this.MetaDataDictionary.GetOrAddAsync(
+                                tx,
+                                Key(PhaseWorkerStartSeqNum, this.migrationPhase, this.currentIteration, i),
+                                perWorkerStartSN.ToString(),
+                                DefaultRCTimeout,
+                                token),
+                            this.TraceId)).Value;
+
+                        workerInput.EndSeqNum = (await ParseLongAsync(
+                            () => this.MetaDataDictionary.GetOrAddAsync(
+                                tx,
+                                Key(PhaseWorkerEndSeqNum, this.migrationPhase, this.currentIteration, i),
+                                perWorkerEndSN.ToString(),
+                                DefaultRCTimeout,
+                                token),
+                            this.TraceId)).Value;
+
+                        workerInput.LastAppliedSeqNum = await ParseLongAsync(
+                            () => this.MetaDataDictionary.GetValueOrDefaultAsync(
+                                tx,
+                                Key(PhaseWorkerLastAppliedSeqNum, this.migrationPhase, this.currentIteration, i),
+                                DefaultRCTimeout,
+                                token),
+                            this.TraceId);
+
+                        workerInputs.Add(workerInput);
+
+                        if (perWorkerEndSN == input.EndSeqNum)
+                        {
+                            break;
+                        }
+
+                        perWorkerStartSN = perWorkerEndSN + 1;
+                        perWorkerEndSN = (perWorkerStartSN + perWorker) < input.EndSeqNum ? (perWorkerStartSN + perWorker) : input.EndSeqNum;
                     }
 
-                    perWorkerStartSN = perWorkerEndSN + 1;
-                    perWorkerEndSN = (perWorkerStartSN + perWorker) < input.EndSeqNum ? (perWorkerStartSN + perWorker) : input.EndSeqNum;
-                }
+                    input.WorkerInputs = workerInputs.ToArray();
 
-                input.WorkerInputs = workerInputs.ToArray();
-
-                await tx.CommitAsync();
-            }
+                    await tx.CommitAsync();
+                },
+                "MigrationPhaseWorkloadBase.GetOrAddInputAsync",
+                cancellationToken);
 
             return input;
         }
@@ -510,74 +471,77 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 keysMigratedByWorkers += workerResult.NoOfKeysMigrated.HasValue ? workerResult.NoOfKeysMigrated.Value : 0L;
             }
 
-            using (var tx = this.Transaction)
-            {
-                endTime = await ParseDateTimeAsync(
+            await this.txExecutor.ExecuteWithRetriesAsync(
+                async (tx, token) =>
+                {
+                    endTime = await ParseDateTimeAsync(
                     () => this.MetaDataDictionary.AddOrUpdateAsync(
-                    tx,
-                    Key(PhaseEndDateTimeUTC, this.migrationPhase, this.currentIteration),
-                    endTime.ToString(),
-                    (_, __) => endTime.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken),
+                        tx,
+                        Key(PhaseEndDateTimeUTC, this.migrationPhase, this.currentIteration),
+                        endTime.ToString(),
+                        (_, __) => endTime.ToString(),
+                        DefaultRCTimeout,
+                        token),
                     this.TraceId);
 
-                await this.MetaDataDictionary.AddOrUpdateAsync(
-                    tx,
-                    Key(PhaseLastAppliedSeqNum, this.migrationPhase, this.currentIteration),
-                    phaseInput.EndSeqNum.ToString(),
-                    (_, __) => phaseInput.EndSeqNum.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.MetaDataDictionary.AddOrUpdateAsync(
+                        tx,
+                        Key(PhaseLastAppliedSeqNum, this.migrationPhase, this.currentIteration),
+                        phaseInput.EndSeqNum.ToString(),
+                        (_, __) => phaseInput.EndSeqNum.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                keysMigratedByPhase = await ParseLongAsync(
-                    () => this.MetaDataDictionary.AddOrUpdateAsync(
-                    tx,
-                    Key(PhaseNoOfKeysMigrated, this.migrationPhase, this.currentIteration),
-                    keysMigratedByWorkers.ToString(),
-                    (k, v) =>
-                    {
-                        long currVal = ParseLong(v, this.TraceId);
-                        long newVal = currVal + keysMigratedByWorkers;
+                    keysMigratedByPhase = await ParseLongAsync(
+                        () => this.MetaDataDictionary.AddOrUpdateAsync(
+                        tx,
+                        Key(PhaseNoOfKeysMigrated, this.migrationPhase, this.currentIteration),
+                        keysMigratedByWorkers.ToString(),
+                        (k, v) =>
+                        {
+                            long currVal = ParseLong(v, this.TraceId);
+                            long newVal = currVal + keysMigratedByWorkers;
 
-                        return newVal.ToString();
-                    },
-                    DefaultRCTimeout,
-                    cancellationToken),
-                    this.TraceId);
+                            return newVal.ToString();
+                        },
+                        DefaultRCTimeout,
+                        token),
+                        this.TraceId);
 
-                await this.MetaDataDictionary.AddOrUpdateAsync(
-                    tx,
-                    Key(PhaseCurrentStatus, this.migrationPhase, this.currentIteration),
-                    MigrationState.Completed.ToString(),
-                    (_, __) => MigrationState.Completed.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.MetaDataDictionary.AddOrUpdateAsync(
+                        tx,
+                        Key(PhaseCurrentStatus, this.migrationPhase, this.currentIteration),
+                        MigrationState.Completed.ToString(),
+                        (_, __) => MigrationState.Completed.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await this.MetaDataDictionary.AddOrUpdateAsync(
-                    tx,
-                    MigrationLastAppliedSeqNum,
-                    phaseInput.EndSeqNum.ToString(),
-                    (_, __) => phaseInput.EndSeqNum.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.MetaDataDictionary.AddOrUpdateAsync(
+                        tx,
+                        MigrationLastAppliedSeqNum,
+                        phaseInput.EndSeqNum.ToString(),
+                        (_, __) => phaseInput.EndSeqNum.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await this.MetaDataDictionary.AddOrUpdateAsync(
-                    tx,
-                    MigrationNoOfKeysMigrated,
-                    keysMigratedByWorkers.ToString(),
-                    (k, v) =>
-                    {
-                        var currentVal = ParseLong(v, this.TraceId);
-                        var newVal = currentVal + keysMigratedByPhase;
+                    await this.MetaDataDictionary.AddOrUpdateAsync(
+                        tx,
+                        MigrationNoOfKeysMigrated,
+                        keysMigratedByWorkers.ToString(),
+                        (k, v) =>
+                        {
+                            var currentVal = ParseLong(v, this.TraceId);
+                            var newVal = currentVal + keysMigratedByPhase;
 
-                        return newVal.ToString();
-                    },
-                    DefaultRCTimeout,
-                    cancellationToken);
+                            return newVal.ToString();
+                        },
+                        DefaultRCTimeout,
+                        token);
 
-                await tx.CommitAsync();
-            }
+                    await tx.CommitAsync();
+                },
+                "MigrationPhaseWorkloadBase.AddOrUpdateResultAsync",
+                cancellationToken);
          }
     }
 }

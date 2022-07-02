@@ -6,10 +6,12 @@
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Migration;
+    using Microsoft.ServiceFabric.Data.Collections;
+    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
     internal static class MigrationUtility
     {
@@ -43,6 +45,43 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             lastSeenExceptionId = currentExceptionId;
             currentRetryCount = 1;
             return true;
+        }
+
+        public static async Task<string> GetValueOrDefaultAsync(RCTxExecutor executor, IReliableDictionary2<string, string> metadataDict, string key, CancellationToken cancellationToken)
+        {
+            return await executor.ExecuteWithRetriesAsync<string>(
+                    async (tx, token) =>
+                    {
+                        var res = await metadataDict.TryGetValueAsync(
+                            tx,
+                            key,
+                            DefaultRCTimeout,
+                            token);
+                        return res.HasValue ? res.Value : null;
+                    },
+                    $"MigrationPhaseWorkloadBase.TryGetValueAsync.{key}",
+                    cancellationToken);
+        }
+
+        public static async Task<string> GetValueAsync(RCTxExecutor executor, IReliableDictionary2<string, string> metadataDict, string key, CancellationToken cancellationToken)
+        {
+            return await executor.ExecuteWithRetriesAsync<string>(
+                    async (tx, token) =>
+                    {
+                        var res = await metadataDict.TryGetValueAsync(
+                            tx,
+                            key,
+                            DefaultRCTimeout,
+                            token);
+                        if (res.HasValue)
+                        {
+                            return res.Value;
+                        }
+
+                        throw new KeyNotFoundException(key);
+                    },
+                    $"MigrationPhaseWorkloadBase.TryGetValueAsync.{key}",
+                    cancellationToken);
         }
 
         public static async Task<DateTime?> ParseDateTimeAsync(Func<Task<string>> func, string traceId)

@@ -31,6 +31,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private StatefulServiceInitializationParameters initParams;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
         private MigrationSettings migrationSettings;
+        private RCTxExecutor txExecutor;
 
         public DataValidationWorker(
             KVStoRCMigrationActorStateProvider stateProvider,
@@ -44,6 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.initParams = this.StateProvider.GetInitParams();
             this.servicePartitionClient = servicePartitionClient;
             this.migrationSettings = migrationSettings;
+            this.txExecutor = new RCTxExecutor(() => this.StateProvider.GetStateManager().CreateTransaction(), traceId);
         }
 
         public ITransaction Transaction { get => this.StateProvider.GetStateManager().CreateTransaction(); }
@@ -160,8 +162,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 }
 
                                 return await GetResultAsync(
+                                    this.txExecutor,
                                     this.MetadataDict,
-                                    () => this.StateProvider.GetStateManager().CreateTransaction(),
                                     this.Input.Phase,
                                     this.Input.Iteration,
                                     this.Input.WorkerId,
@@ -190,8 +192,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }
 
                 var result = await GetResultAsync(
+                    this.txExecutor,
                     this.MetadataDict,
-                    () => this.StateProvider.GetStateManager().CreateTransaction(),
                     this.Input.Phase,
                     this.Input.Iteration,
                     this.Input.WorkerId,

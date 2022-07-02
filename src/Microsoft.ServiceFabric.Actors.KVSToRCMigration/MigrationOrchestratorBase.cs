@@ -154,16 +154,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public abstract Task StartDowntimeAsync(CancellationToken cancellationToken);
+        public abstract Task StartDowntimeAsync(bool userTriggered, CancellationToken cancellationToken);
 
         /// <inheritdoc/>
-        public abstract Task StartMigrationAsync(CancellationToken cancellationToken);
+        public abstract Task StartMigrationAsync(bool userTriggered, CancellationToken cancellationToken);
 
         /// <inheritdoc/>
-        public abstract Task<bool> TryResumeMigrationAsync(CancellationToken cancellationToken);
-
-        /// <inheritdoc/>
-        public abstract Task AbortMigrationAsync(CancellationToken cancellationToken);
+        public abstract Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken);
 
         public abstract bool IsActorCallToBeForwarded();
 

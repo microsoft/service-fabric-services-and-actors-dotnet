@@ -41,6 +41,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         [DataMember]
         public float PercentageOfMigratedDataToValidate { get; set; }
 
+        // A comma separated list of exception full name(including namespace) for which abort should not be called.
+        // A partition error will still be reported
+        [DataMember]
+        public string ExceptionExclusionListForAbort { get; set; }
+
         public override string ToString()
         {
             using (var stream = new MemoryStream())

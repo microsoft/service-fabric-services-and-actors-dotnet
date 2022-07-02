@@ -9,7 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Description;
-    using System.Fabric.Health;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
@@ -31,14 +30,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;
         private static volatile int isMigrationWorkflowRunning = 0;
+        private static volatile int isReadyForMigrationStart = 0;
         private MigrationPhase currentPhase;
         private KVStoRCMigrationActorStateProvider migrationActorStateProvider;
         private IReliableDictionary2<string, string> metadataDict;
         private ServicePartitionClient<HttpCommunicationClient> partitionClient;
         private volatile MigrationState currentMigrationState;
         private CancellationTokenSource childCancellationTokenSource;
-        private Task migrationWorkflowTask;
-        private ActorStateProviderHelper stateProviderHelper;
+        private RCTxExecutor txExecutor;
+        private PartitionHealthExceptionFilter exceptionFilter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetMigrationOrchestrator"/> class.
@@ -64,7 +64,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.currentPhase = MigrationPhase.None;
             this.currentMigrationState = MigrationState.None;
             this.migrationActorStateProvider = new KVStoRCMigrationActorStateProvider(stateProvider as ReliableCollectionsActorStateProvider);
-            this.stateProviderHelper = new ActorStateProviderHelper(this.migrationActorStateProvider);
+            this.txExecutor = new RCTxExecutor(() => this.Transaction, this.TraceId);
+            this.exceptionFilter = new PartitionHealthExceptionFilter(this.MigrationSettings);
         }
 
         internal Data.ITransaction Transaction { get => this.migrationActorStateProvider.GetStateManager().CreateTransaction(); }
@@ -76,14 +77,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             get
             {
                 if (this.partitionClient == null)
-                {
+                { //// TODO: Operation retry settings
                     var partitionInformation = this.GetInt64RangePartitionInformation();
                     this.partitionClient = new ServicePartitionClient<HttpCommunicationClient>(
                             new HttpCommunicationClientFactory(null, new List<Services.Communication.Client.IExceptionHandler>() { new HttpExceptionHandler() }),
                             this.MigrationSettings.SourceServiceUri,
                             new ServicePartitionKey(partitionInformation.LowKey),
                             TargetReplicaSelector.PrimaryReplica,
-                            Runtime.Migration.Constants.MigrationListenerName);
+                            Constants.MigrationListenerName);
                 }
 
                 return this.partitionClient;
@@ -92,135 +93,151 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         internal KVStoRCMigrationActorStateProvider StateProvider { get => this.migrationActorStateProvider; }
 
-        /// <inheritdoc/>
-        public async override Task StartMigrationAsync(CancellationToken cancellationToken)
+        public async override Task StartMigrationAsync(bool isUserTriggered, CancellationToken cancellationToken)
         {
-            if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 1, 0) != 0)
-            {
-                ActorTrace.Source.WriteWarningWithId(
-                    TraceType,
-                    this.TraceId,
-                    "Migration workflow already running. Ignoring the request.");
-
-                return;
-            }
-
-            this.childCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            var childToken = this.childCancellationTokenSource.Token;
-
-            var phase = await this.ExecuteTaskWithPartitionErrorReportingAsync(
-                async childToken =>
-                {
-                    await this.ThrowIfInvalidConfigForMigrationAsync(childToken);
-                    this.metadataDict = await this.migrationActorStateProvider.GetMetadataDictionaryAsync();
-                    await this.InitializeIfRequiredAsync(childToken);
-                    this.currentMigrationState = await this.GetCurrentMigrationStateAsync(childToken);
-                    if (this.currentMigrationState == MigrationState.Completed || this.currentMigrationState == MigrationState.Aborted)
-                    {
-                        ActorTrace.Source.WriteInfoWithId(
-                            TraceType,
-                            this.TraceId,
-                            "Migration workflow already completed or aborted.");
-                        this.currentPhase = MigrationPhase.Completed;
-
-                        if (this.currentMigrationState == MigrationState.Aborted)
-                        {
-                            // If Invoke resume writes failed before replica failed over, then we need to try resuming writes again.
-                            await this.InvokeResumeWritesAsync(childToken);
-                        }
-                    }
-
-                    return this.currentPhase;
-                },
-                "StartMigrationAsync",
-                cancellationToken);
-
-            if (phase == MigrationPhase.Completed)
-            {
-                return;
-            }
-
-            this.migrationWorkflowTask = Task.Run(
-            () =>
-            {
-                return this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.StartOrResumeMigrationAsync(token), "StartOrResumeMigrationAsync", childToken);
-            }, CancellationToken.None);
-
-            return;
-        }
-
-        public override async Task<bool> TryResumeMigrationAsync(CancellationToken cancellationToken)
-        {
-            var state = await this.ExecuteTaskWithPartitionErrorReportingAsync(
-                async token =>
-                {
-                    this.metadataDict = await this.migrationActorStateProvider.GetMetadataDictionaryAsync();
-                    var currentState = await this.GetCurrentMigrationStateAsync(cancellationToken);
-                    if (currentState == MigrationState.InProgress)
-                    {
-                        ActorTrace.Source.WriteInfoWithId(
-                            TraceType,
-                            this.TraceId,
-                            "Resuming migration.");
-
-                        this.currentMigrationState = currentState;
-                    }
-
-                    return this.currentMigrationState;
-                },
-                "TryResumeMigrationAsync",
-                cancellationToken);
-
-            if (state == MigrationState.InProgress)
-            {
-                if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1) != 0)
-                {
-                    ActorTrace.Source.WriteWarningWithId(
-                        TraceType,
-                        this.TraceId,
-                        "Migration workflow already running. Ignoring the request.");
-
-                    return false;
-                }
-
-                this.childCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                var childToken = this.childCancellationTokenSource.Token;
-
-                this.migrationWorkflowTask = Task.Run(() => this.StartOrResumeMigrationAsync(childToken), CancellationToken.None);
-
-                return true;
-            }
-
             ActorTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.TraceId,
-                "Migration workflow has not previously started, hence ignoring Resume migration call.");
-
-            return false;
-        }
-
-        /// <inheritdoc/>
-        public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
-        {
-            await this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.AbortMigrationAsync(true, token), "AbortMigrationAsync", cancellationToken);
-
-            // If user triggered abort, then we need to cancel the migration workflow.
-            if (this.childCancellationTokenSource != null)
-            {
-                this.childCancellationTokenSource.Cancel();
-            }
+                  TraceType,
+                  this.TraceId,
+                  $"StartMigrationAsync isUserTriggered : {isUserTriggered}, MigrationMode : {this.MigrationSettings.MigrationMode}");
 
             try
             {
-                await this.migrationWorkflowTask;
+                if (!isUserTriggered)
+                {
+                    this.childCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    this.metadataDict = await this.migrationActorStateProvider.GetMetadataDictionaryAsync();
+                    this.currentMigrationState = await this.GetCurrentMigrationStateAsync(this.childCancellationTokenSource.Token);
+                    Interlocked.CompareExchange(ref isReadyForMigrationStart, 1, 0);
+                    this.childCancellationTokenSource.Token.Register(() =>
+                    {
+                        Interlocked.CompareExchange(ref isReadyForMigrationStart, 0, 1);
+                        Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1);
+                    });
+                }
+                else
+                {
+                    if (this.MigrationSettings.MigrationMode == MigrationMode.Auto)
+                    {
+                        throw new FabricException("MigrationMode is set to Auto. Manual migration starts are not allowed.");
+                    }
+                    else if (isReadyForMigrationStart != 1)
+                    {
+                        throw new FabricException("MigrationFramework not initialized. Retry the request");
+                    }
+                }
+
+                var childToken = this.childCancellationTokenSource.Token;
+                if (this.currentMigrationState == MigrationState.Aborted)
+                {
+                    await this.InvokeResumeWritesAsync(childToken);
+                    return;
+                }
+
+                if (this.MigrationSettings.MigrationMode == MigrationMode.Auto)
+                {
+                    if (this.currentMigrationState == MigrationState.None)
+                    {
+                        await this.ValidateConfigForMigrationAsync(childToken);
+                        await this.InitializeAsync(childToken);
+                    }
+
+                    await this.StartOrResumeMigrationAsync(childToken);
+                }
+                else
+                {
+                    if (isUserTriggered)
+                    {
+                        if (this.currentMigrationState == MigrationState.None)
+                        {
+                            await this.ValidateConfigForMigrationAsync(childToken);
+                            await this.InitializeAsync(childToken);
+                            await this.StartOrResumeMigrationAsync(childToken);
+                        }
+                        else
+                        {
+                            throw new FabricException("Migration is either in progress or already completed");
+                        }
+                    }
+                    else
+                    {
+                        if (this.currentMigrationState == MigrationState.InProgress)
+                        {
+                            await this.StartOrResumeMigrationAsync(childToken);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                ActorTrace.Source.WriteWarningWithId(
+                ActorTrace.Source.WriteErrorWithId(
                     TraceType,
                     this.TraceId,
-                    $"Migration workflow Cancellation encountered exception. {ex}");
+                    $"Migration {this.currentPhase} Phase failed with error: {ex}");
+                MigrationTelemetry.MigrationFailureEvent(this.StatefulServiceContext, this.currentPhase.ToString(), ex.Message);
+                //// TODO: Emit exception type in telemetry
+
+                this.exceptionFilter.ReportPartitionHealthIfNeeded(ex, this.StateProvider.StatefulServicePartition, out var abortMigration);
+                if (abortMigration)
+                {
+                    await this.AbortMigrationAsync(userTriggered: false, this.GetToken());
+                }
             }
+            finally
+            {
+                ActorTrace.Source.WriteInfoWithId(
+                  TraceType,
+                  this.TraceId,
+                  $"StartMigrationAsync Completed - isUserTriggered : {isUserTriggered}, MigrationMode : {this.MigrationSettings.MigrationMode}");
+
+                await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), this.GetToken());
+            }
+        }
+
+        public async override Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
+        {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.TraceId,
+                $"Aborting Migration. UserTriggered : {userTriggered}");
+            MigrationTelemetry.MigrationAbortEvent(this.StatefulServiceContext, userTriggered);
+
+            if (userTriggered)
+            {
+                if (this.childCancellationTokenSource != null)
+                {
+                    this.childCancellationTokenSource.Cancel();
+                }
+            }
+
+            await this.txExecutor.ExecuteWithRetriesAsync(
+                async (tx, token) =>
+                {
+                    await this.metadataDict.TryAddAsync(
+                        tx,
+                        MigrationEndDateTimeUTC,
+                        DateTime.UtcNow.ToString(),
+                        DefaultRCTimeout,
+                        token);
+
+                    await this.metadataDict.AddOrUpdateAsync(
+                        tx,
+                        MigrationCurrentStatus,
+                        MigrationState.Aborted.ToString(),
+                        (_, __) => MigrationState.Aborted.ToString(),
+                        DefaultRCTimeout,
+                        token);
+
+                    await tx.CommitAsync();
+                },
+                "TargetMigrationOrchestrator.AbortMigrationAsync",
+                cancellationToken);
+            this.currentMigrationState = MigrationState.Aborted;
+
+            await this.InvokeResumeWritesAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -236,19 +253,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
+        public override async Task StartDowntimeAsync(bool userTriggered, CancellationToken cancellationToken)
         {
-            using (var tx = this.Transaction)
-            {
-                await this.metadataDict.TryAddAsync(
+            await this.txExecutor.ExecuteWithRetriesAsync(
+                async (tx, token) =>
+                {
+                    await this.metadataDict.TryAddAsync(
                     tx,
                     IsDowntimeInvoked,
                     true.ToString(),
                     DefaultRCTimeout,
-                    cancellationToken);
+                    token);
 
-                await tx.CommitAsync();
-            }
+                    await tx.CommitAsync();
+                },
+                "TargetMigrationOrchestrator.StartDowntimeAsync",
+                cancellationToken);
         }
 
         public override bool IsActorCallToBeForwarded()
@@ -275,20 +295,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         internal async Task<MigrationResult> GetResultAsync(CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteInfoWithId(
+            ActorTrace.Source.WriteNoiseWithId(
                 TraceType,
                 this.TraceId,
                 $"Getting migration result.");
 
             var startSN = await this.GetStartSequenceNumberAsync(cancellationToken);
             var endSN = await this.GetEndSequenceNumberAsync(cancellationToken);
-            var status = await ParseMigrationStateAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationCurrentStatus,
-                    DefaultRCTimeout,
-                    cancellationToken),
-                this.TraceId);
+            var status = await this.GetCurrentMigrationStateAsync(cancellationToken);
             if (status == MigrationState.None)
             {
                 return new MigrationResult
@@ -306,52 +320,26 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 EndSeqNum = endSN,
             };
 
-            result.CurrentPhase = await ParseMigrationPhaseAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationCurrentPhase,
-                    DefaultRCTimeout,
-                    cancellationToken),
-                this.TraceId);
+            result.CurrentPhase = await this.GetCurrentMigrationPhaseAsync(cancellationToken);
 
-            result.StartDateTimeUTC = (await ParseDateTimeAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationStartDateTimeUTC,
-                    DefaultRCTimeout,
-                    cancellationToken),
-                this.TraceId));
+            result.StartDateTimeUTC = await ParseDateTimeAsync(
+                () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, MigrationStartDateTimeUTC, cancellationToken),
+                this.TraceId);
 
             result.EndDateTimeUTC = await ParseDateTimeAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationEndDateTimeUTC,
-                    DefaultRCTimeout,
-                    cancellationToken),
+                () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, MigrationEndDateTimeUTC, cancellationToken),
                 this.TraceId);
 
-            result.StartSeqNum = (await ParseLongAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationStartSeqNum,
-                    DefaultRCTimeout,
-                    cancellationToken),
-                this.TraceId));
+            result.StartSeqNum = await ParseLongAsync(
+                () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, MigrationStartSeqNum, cancellationToken),
+                this.TraceId);
 
             result.LastAppliedSeqNum = await ParseLongAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationLastAppliedSeqNum,
-                    DefaultRCTimeout,
-                    cancellationToken),
+                () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, MigrationLastAppliedSeqNum, cancellationToken),
                 this.TraceId);
 
             result.NoOfKeysMigrated = await ParseLongAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationNoOfKeysMigrated,
-                    DefaultRCTimeout,
-                    cancellationToken),
+                () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, MigrationNoOfKeysMigrated, cancellationToken),
                 this.TraceId);
 
             var currentPhase = MigrationPhase.Copy;
@@ -359,18 +347,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             while (currentPhase <= result.CurrentPhase)
             {
                 var currentIteration = await ParseIntAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        () => this.Transaction,
-                        Key(PhaseIterationCount, currentPhase),
-                        DefaultRCTimeout,
-                        cancellationToken),
+                    () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, Key(PhaseIterationCount, currentPhase), cancellationToken),
                     0,
                     this.TraceId);
                 for (int i = 1; i <= currentIteration; i++)
                 {
                     phaseResults.Add(await MigrationPhaseWorkloadBase.GetResultAsync(
+                        this.txExecutor,
                         this.MetaDataDictionary,
-                        () => this.Transaction,
                         currentPhase,
                         i,
                         this.TraceId,
@@ -408,135 +392,124 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return ActorNameFormat.GetMigrationTargetEndpointName(this.ActorTypeInformation.ImplementationType);
         }
 
+        private CancellationToken GetToken()
+        {
+            var token = CancellationToken.None;
+            if (this.childCancellationTokenSource != null && !this.childCancellationTokenSource.IsCancellationRequested)
+            {
+                var token1 = this.childCancellationTokenSource.Token;
+                if (!token1.IsCancellationRequested)
+                {
+                    return token1;
+                }
+            }
+
+            return token;
+        }
+
         private async Task StartOrResumeMigrationAsync(CancellationToken cancellationToken)
         {
+            if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 1, 0) != 0)
+            {
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.TraceId,
+                    "Migration workflow already running. Ignoring the request.");
+
+                return;
+            }
+
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
                 "Starting or resuming migration Migration.");
             MigrationTelemetry.MigrationStartEvent(this.StatefulServiceContext, this.MigrationSettings.ToString());
 
-            IMigrationPhaseWorkload workloadRunner = null;
+            var migrationCurrentPhase = await this.GetCurrentMigrationPhaseAsync(cancellationToken);
+            var workloadRunner = await this.NextWorkloadRunnerAsync(migrationCurrentPhase, cancellationToken);
 
-            try
+            PhaseResult currentResult = null;
+            while (workloadRunner != null)
             {
-                var migrationCurrentPhase = await ParseMigrationPhaseAsync(
-                () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                    () => this.Transaction,
-                    MigrationCurrentPhase,
-                    DefaultRCTimeout,
-                    cancellationToken),
-                this.TraceId);
-                workloadRunner = await this.NextWorkloadRunnerAsync(migrationCurrentPhase, cancellationToken);
-
-                PhaseResult currentResult = null;
-                while (workloadRunner != null)
-                {
-                    this.currentPhase = workloadRunner.Phase;
-                    currentResult = await workloadRunner.StartOrResumeMigrationAsync(cancellationToken);
-                    workloadRunner = await this.NextWorkloadRunnerAsync(currentResult, cancellationToken);
-                }
-
-                if (currentResult != null)
-                {
-                    await this.CompleteMigrationAsync(currentResult, cancellationToken);
-                    this.currentPhase = MigrationPhase.Completed;
-
-                    ActorTrace.Source.WriteInfoWithId(
-                        TraceType,
-                        this.TraceId,
-                        $"Migration successfully completed - {currentResult.ToString()}");
-                    MigrationTelemetry.MigrationEndEvent(this.StatefulServiceContext, currentResult.ToString());
-                }
+                this.currentPhase = workloadRunner.Phase;
+                currentResult = await workloadRunner.StartOrResumeMigrationAsync(cancellationToken);
+                workloadRunner = await this.NextWorkloadRunnerAsync(currentResult, cancellationToken);
             }
-            catch (Exception e)
+
+            if (currentResult != null)
             {
-                var currentPhase = workloadRunner != null ? workloadRunner.Phase : MigrationPhase.None;
-                ActorTrace.Source.WriteErrorWithId(
+                await this.CompleteMigrationAsync(currentResult, cancellationToken);
+                this.currentPhase = MigrationPhase.Completed;
+
+                ActorTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.TraceId,
-                    $"Migration {currentPhase} Phase failed with error: {e}");
-                MigrationTelemetry.MigrationFailureEvent(this.StatefulServiceContext, currentPhase.ToString(), e.Message);
-
-                await this.ExecuteTaskWithPartitionErrorReportingAsync(token => this.AbortMigrationAsync(false, token), "AbortMigrationAsync", cancellationToken);
-
-                throw e;
+                    $"Migration successfully completed - {currentResult.ToString()}");
+                MigrationTelemetry.MigrationEndEvent(this.StatefulServiceContext, currentResult.ToString());
             }
+        }
 
-            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
+        private async Task<MigrationPhase> GetCurrentMigrationPhaseAsync(CancellationToken cancellationToken)
+        {
+            return await ParseMigrationPhaseAsync(
+                () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, MigrationCurrentPhase, cancellationToken),
+                this.TraceId);
         }
 
         private async Task<MigrationState> GetCurrentMigrationStateAsync(CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.TraceId,
-                $"Getting current migration state.");
-
-            using (var tx = this.Transaction)
-            {
-                var status = await ParseMigrationStateAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        tx,
-                        MigrationCurrentStatus,
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId);
-
-                await tx.CommitAsync();
-
-                return status;
-            }
+            return await ParseMigrationStateAsync(
+                () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, MigrationCurrentStatus, cancellationToken),
+                this.TraceId);
         }
 
         private async Task CompleteMigrationAsync(PhaseResult result, CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.TraceId,
-                $"Completing Migration.");
+            await this.txExecutor.ExecuteWithRetriesAsync(
+                async (tx, token) =>
+                {
+                    await this.metadataDict.TryAddAsync(
+                        tx,
+                        MigrationEndDateTimeUTC,
+                        DateTime.UtcNow.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-            using (var tx = this.Transaction)
-            {
-                await this.metadataDict.TryAddAsync(
-                    tx,
-                    MigrationEndDateTimeUTC,
-                    DateTime.UtcNow.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.metadataDict.TryAddAsync(
+                        tx,
+                        MigrationEndSeqNum,
+                        result.EndSeqNum.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await this.metadataDict.TryAddAsync(
-                    tx,
-                    MigrationEndSeqNum,
-                    result.EndSeqNum.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.metadataDict.AddOrUpdateAsync(
+                        tx,
+                        MigrationCurrentStatus,
+                        MigrationState.Completed.ToString(),
+                        (_, __) => MigrationState.Completed.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await this.metadataDict.AddOrUpdateAsync(
-                    tx,
-                    MigrationCurrentStatus,
-                    MigrationState.Completed.ToString(),
-                    (_, __) => MigrationState.Completed.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.metadataDict.AddOrUpdateAsync(
+                        tx,
+                        MigrationCurrentPhase,
+                        MigrationPhase.Completed.ToString(),
+                        (_, __) => MigrationPhase.Completed.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await this.metadataDict.AddOrUpdateAsync(
-                    tx,
-                    MigrationCurrentPhase,
-                    MigrationPhase.Completed.ToString(),
-                    (_, __) => MigrationPhase.Completed.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await tx.CommitAsync();
+                },
+                "TargetMigrationOrchestrator.CompleteMigrationAsync",
+                cancellationToken);
 
-                await tx.CommitAsync();
-
-                this.currentMigrationState = MigrationState.Completed;
-            }
+            this.currentMigrationState = MigrationState.Completed;
+            Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1);
         }
 
         private async Task<long> GetEndSequenceNumberAsync(CancellationToken cancellationToken)
         {
-            ActorTrace.Source.WriteInfoWithId(
+            ActorTrace.Source.WriteNoiseWithId(
                 TraceType,
                 this.TraceId,
                 $"Getting End Seq num.");
@@ -609,13 +582,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 if (!this.IsAutoStartMigration())
                 {
-                    isDowntimeInvoked = (await ParseBoolAsync(
-                    () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                        this.Transaction,
-                        Key(IsDowntimeInvoked),
-                        DefaultRCTimeout,
-                        cancellationToken),
-                    this.TraceId));
+                    isDowntimeInvoked = await ParseBoolAsync(
+                        () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, IsDowntimeInvoked, cancellationToken),
+                        this.TraceId);
                 }
                 else if (delta < this.MigrationSettings.DowntimeThreshold)
                 {
@@ -639,112 +608,117 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private async Task<IMigrationPhaseWorkload> NextWorkloadRunnerAsync(MigrationPhase currentPhase, CancellationToken cancellationToken)
         {
             IMigrationPhaseWorkload migrationWorkload = null;
-            using (var tx = this.Transaction)
+            if (currentPhase == MigrationPhase.None || currentPhase == MigrationPhase.Copy)
             {
-                if (currentPhase == MigrationPhase.None || currentPhase == MigrationPhase.Copy)
-                {
-                    migrationWorkload = new CopyPhaseWorkload(
-                        this.StateProvider,
-                        this.ServicePartitionClient,
-                        this.StatefulServiceContext,
-                        this.MigrationSettings,
-                        this.ActorTypeInformation,
-                        this.TraceId);
-                }
-                else if (currentPhase == MigrationPhase.Catchup)
-                {
-                    var currentIteration = await ParseIntAsync(
-                        () => this.MetaDataDictionary.GetOrAddAsync(
-                            tx,
-                            Key(PhaseIterationCount, MigrationPhase.Catchup),
-                            "1",
-                            DefaultRCTimeout,
-                            cancellationToken),
-                        this.TraceId);
-
-                    var status = await ParseMigrationStateAsync(
-                        () => this.MetaDataDictionary.GetValueOrDefaultAsync(
-                            tx,
-                            Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration),
-                            DefaultRCTimeout,
-                            cancellationToken),
-                        this.TraceId);
-                    if (status == MigrationState.Completed)
-                    {
-                        currentIteration++;
-                    }
-
-                    migrationWorkload = new CatchupPhaseWorkload(
-                        currentIteration,
-                        this.StateProvider,
-                        this.ServicePartitionClient,
-                        this.StatefulServiceContext,
-                        this.MigrationSettings,
-                        this.ActorTypeInformation,
-                        this.TraceId);
-                }
-                else if (currentPhase == MigrationPhase.Downtime)
-                {
-                    migrationWorkload = new DowntimeWorkload(
-                        this.StateProvider,
-                        this.ServicePartitionClient,
-                        this.StatefulServiceContext,
-                        this.MigrationSettings,
-                        this.ActorTypeInformation,
-                        this.TraceId);
-                }
-                else if (currentPhase == MigrationPhase.DataValidation)
-                {
-                    migrationWorkload = new DataValidationPhaseWorkload(
-                        this.StateProvider,
-                        this.ServicePartitionClient,
-                        this.StatefulServiceContext,
-                        this.MigrationSettings,
-                        this.ActorTypeInformation,
-                        this.TraceId);
-                }
-
-                await tx.CommitAsync();
-
-                return migrationWorkload;
+                migrationWorkload = new CopyPhaseWorkload(
+                    this.StateProvider,
+                    this.ServicePartitionClient,
+                    this.StatefulServiceContext,
+                    this.MigrationSettings,
+                    this.ActorTypeInformation,
+                    this.TraceId);
             }
+            else if (currentPhase == MigrationPhase.Catchup)
+            {
+                var currentIteration = await ParseIntAsync(
+                    () => this.txExecutor.ExecuteWithRetriesAsync<string>(
+                        async (tx, token) =>
+                        {
+                            var res = await this.MetaDataDictionary.GetOrAddAsync(
+                                tx,
+                                Key(PhaseIterationCount, MigrationPhase.Catchup),
+                                "1",
+                                DefaultRCTimeout,
+                                token);
+                            await tx.CommitAsync();
+
+                            return res;
+                        },
+                        $"TargetMigrationOrchestrator.NextWorkloadRunnerAsync.{Key(PhaseIterationCount, MigrationPhase.Catchup)}",
+                        cancellationToken),
+                    this.TraceId);
+
+                var status = await ParseMigrationStateAsync(
+                    () => GetValueOrDefaultAsync(this.txExecutor, this.MetaDataDictionary, Key(PhaseCurrentStatus, MigrationPhase.Catchup, currentIteration), cancellationToken),
+                    this.TraceId);
+                if (status == MigrationState.Completed)
+                {
+                    currentIteration++;
+                }
+
+                migrationWorkload = new CatchupPhaseWorkload(
+                    currentIteration,
+                    this.StateProvider,
+                    this.ServicePartitionClient,
+                    this.StatefulServiceContext,
+                    this.MigrationSettings,
+                    this.ActorTypeInformation,
+                    this.TraceId);
+            }
+            else if (currentPhase == MigrationPhase.Downtime)
+            {
+                migrationWorkload = new DowntimeWorkload(
+                    this.StateProvider,
+                    this.ServicePartitionClient,
+                    this.StatefulServiceContext,
+                    this.MigrationSettings,
+                    this.ActorTypeInformation,
+                    this.TraceId);
+            }
+            else if (currentPhase == MigrationPhase.DataValidation)
+            {
+                migrationWorkload = new DataValidationPhaseWorkload(
+                    this.StateProvider,
+                    this.ServicePartitionClient,
+                    this.StatefulServiceContext,
+                    this.MigrationSettings,
+                    this.ActorTypeInformation,
+                    this.TraceId);
+            }
+
+            return migrationWorkload;
         }
 
-        private async Task InitializeIfRequiredAsync(CancellationToken cancellationToken)
+        private async Task InitializeAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
                 $"Initializing Migration.");
 
-            using (var tx = this.Transaction)
-            {
-                await this.MetaDataDictionary.TryAddAsync(
-                    tx,
-                    MigrationStartDateTimeUTC,
-                    DateTime.UtcNow.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+            await this.txExecutor.ExecuteWithRetriesAsync(
+                async (tx, token) =>
+                {
+                    await this.MetaDataDictionary.TryAddAsync(
+                        tx,
+                        MigrationStartDateTimeUTC,
+                        DateTime.UtcNow.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await this.MetaDataDictionary.TryAddAsync(
-                    tx,
-                    MigrationCurrentStatus,
-                    MigrationState.InProgress.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.MetaDataDictionary.TryAddAsync(
+                        tx,
+                        MigrationCurrentStatus,
+                        MigrationState.InProgress.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await this.MetaDataDictionary.TryAddAsync(
-                    tx,
-                    MigrationCurrentPhase,
-                    MigrationPhase.None.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
+                    await this.MetaDataDictionary.TryAddAsync(
+                        tx,
+                        MigrationCurrentPhase,
+                        MigrationPhase.None.ToString(),
+                        DefaultRCTimeout,
+                        token);
 
-                await tx.CommitAsync();
-            }
+                    await tx.CommitAsync();
+                },
+                "TargetMigrationOrchestrator.InitializeAsync",
+                cancellationToken);
+
+            this.currentMigrationState = MigrationState.InProgress;
         }
 
-        private async Task ThrowIfInvalidConfigForMigrationAsync(CancellationToken cancellationToken)
+        private async Task ValidateConfigForMigrationAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -848,82 +822,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 "GetDisableTCSEndpoint",
                 cancellationToken);
             return (await ParseBoolAsync(async () => await response.Content.ReadAsStringAsync(), this.TraceId));
-        }
-
-        private async Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
-        {
-            ActorTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.TraceId,
-                $"Aborting Migration. UserTriggered : {userTriggered}");
-            MigrationTelemetry.MigrationAbortEvent(this.StatefulServiceContext, userTriggered);
-
-            using (var tx = this.Transaction)
-            {
-                await this.metadataDict.TryAddAsync(
-                    tx,
-                    MigrationEndDateTimeUTC,
-                    DateTime.UtcNow.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
-
-                await this.metadataDict.AddOrUpdateAsync(
-                    tx,
-                    MigrationCurrentStatus,
-                    MigrationState.Aborted.ToString(),
-                    (_, __) => MigrationState.Aborted.ToString(),
-                    DefaultRCTimeout,
-                    cancellationToken);
-
-                await tx.CommitAsync();
-
-                this.currentMigrationState = MigrationState.Aborted;
-            }
-
-            await this.InvokeResumeWritesAsync(cancellationToken);
-
-            await this.InvokeCompletionCallback(this.AreActorCallsAllowed(), cancellationToken);
-        }
-
-        private async Task<T> ExecuteTaskWithPartitionErrorReportingAsync<T>(Func<CancellationToken, Task<T>> migrationFunc, string funcTag, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return await migrationFunc.Invoke(cancellationToken);
-            }
-            catch (Exception e)
-            {
-                ActorTrace.Source.WriteErrorWithId(
-                    TraceType,
-                    this.TraceId,
-                    $"{funcTag} failed with error : {e}");
-
-                if (!RetryableExceptionFilter.Contains(e))
-                {
-                    var healthInfo1 = new HealthInformation("ActorService", "ActorStateMigration", HealthState.Error)
-                    {
-                        TimeToLive = TimeSpan.MaxValue,
-                        RemoveWhenExpired = false,
-                        Description = e.Message,
-                    };
-
-                    this.migrationActorStateProvider.StatefulServicePartition.ReportPartitionHealth(healthInfo1, new HealthReportSendOptions { Immediate = true });
-                }
-            }
-
-            return default(T);
-        }
-
-        private async Task ExecuteTaskWithPartitionErrorReportingAsync(Func<CancellationToken, Task> migrationFunc, string funcTag, CancellationToken cancellationToken)
-        {
-            await this.ExecuteTaskWithPartitionErrorReportingAsync<object>(
-                async token =>
-                {
-                    await migrationFunc.Invoke(token);
-                    return null;
-                },
-                funcTag,
-                cancellationToken);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
+        public override async Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
+        public override async Task StartDowntimeAsync(bool userTriggered, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override async Task StartMigrationAsync(CancellationToken cancellationToken)
+        public override async Task StartMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -103,19 +103,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 "Starting Migration");
 
             await this.StartOrResumeMigrationAsync(cancellationToken);
-        }
-
-        public override async Task<bool> TryResumeMigrationAsync(CancellationToken cancellationToken)
-        {
-            ActorTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.TraceId,
-                "Resuming Migration");
-
-            // For source there is no need of delayed start.
-            await this.StartOrResumeMigrationAsync(cancellationToken);
-
-            return true;
         }
 
         public override bool IsActorCallToBeForwarded()
@@ -177,45 +164,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 "Starting or resuming Migration");
 
-            try
+            this.actorCallsAllowed = await this.AreActorCallsAllowedInternalAsync();
+            this.forwardRequest = !this.actorCallsAllowed;
+            if (!this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
             {
-                this.actorCallsAllowed = await this.AreActorCallsAllowedInternalAsync();
-                this.forwardRequest = !this.actorCallsAllowed;
-                await Task.Run(() =>
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.TraceId,
+                    "Tombstone cleanup is not enabled.");
+
+                var healthInfo = new HealthInformation("KvsActorStateProvider", TombstoneCleanupIsNotDisabledForMigrationHealthProperty, HealthState.Warning)
                 {
-                    if (!this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
-                    {
-                        ActorTrace.Source.WriteWarningWithId(
-                            TraceType,
-                            this.TraceId,
-                            "Tombstone cleanup is not enabled.");
+                    TimeToLive = TimeSpan.MaxValue,
+                    RemoveWhenExpired = false,
+                    Description = "Tombstone cleanup(KeyValueStoreReplicaSettings.DisableTombstoneCleanup) must be disabled during the migration so that deletes can be tracked and copied from KVS to Reliable Collections.",
+                };
 
-                        var healthInfo = new HealthInformation("KvsActorStateProvider", TombstoneCleanupIsNotDisabledForMigrationHealthProperty, HealthState.Warning)
-                        {
-                            TimeToLive = TimeSpan.MaxValue,
-                            RemoveWhenExpired = false,
-                            Description = "Tombstone cleanup(KeyValueStoreReplicaSettings.DisableTombstoneCleanup) must be disabled during the migration so that deletes can be tracked and copied from KVS to Reliable Collections.",
-                        };
-
-                        this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                if (!RetryableExceptionFilter.Contains(ex))
-                {
-                    var healthInfo = new HealthInformation("SourceMigrationOrchestrator", "ActorStateMigration", HealthState.Error)
-                    {
-                        TimeToLive = TimeSpan.MaxValue,
-                        RemoveWhenExpired = false,
-                        Description = ex.Message,
-                    };
-
-                    this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
-
-                    throw ex;
-                }
+                this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
             }
 
             await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);

@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         public string ExceptionType { get; set; }
 
         /// <summary>
-        /// Gets or set the value indicating whether the error is Fabric related.
+        /// Gets or sets a value indicating whether the error is Fabric related.
         /// </summary>
         public bool IsFabricError { get; set; }
     }

@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Data;
 
@@ -14,71 +15,76 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     {
         private static readonly string TraceType = typeof(RCTxExecutor).Name;
         private IEnumerable<IExceptionHandler> exceptionHandlers;
+        private Func<ITransaction> txFactory;
         private string traceId;
 
-        public RCTxExecutor(string traceId)
+        public RCTxExecutor(Func<ITransaction> txFactory, string traceId)
             : this (
                 new List<IExceptionHandler>
                 {
                     new RCTxExceptionHandler(),
-                }, traceId)
+                },
+                txFactory,
+                traceId)
         {
         }
 
-        public RCTxExecutor(IEnumerable<IExceptionHandler> exceptionHandlers, string traceId)
+        public RCTxExecutor(IEnumerable<IExceptionHandler> exceptionHandlers, Func<ITransaction> txFactory, string traceId)
         {
             this.exceptionHandlers = exceptionHandlers;
             this.traceId = traceId;
+            this.txFactory = txFactory;
         }
 
         public async Task ExecuteWithRetriesAsync(
-            Func<ITransaction, Task> asyncFunc,
-            Func<ITransaction> txFactory,
-            string funcTag)
+            Func<ITransaction, CancellationToken, Task> asyncFunc,
+            string funcTag,
+            CancellationToken cancellationToken)
         {
-            Func<ITransaction, Task<object>> asyncFunc2 =
-                tx =>
+            Func<ITransaction, CancellationToken, Task<object>> asyncFunc2 =
+                (tx, token) =>
                 {
-                    asyncFunc.Invoke(tx);
+                    asyncFunc.Invoke(tx, token);
                     return null;
                 };
 
-            await this.ExecuteWithRetriesAsync(asyncFunc2, txFactory, funcTag, MigrationConstants.MaxBackoffForTransientErrors, MigrationConstants.MaxRetryCountForTransientErrors);
+            await this.ExecuteWithRetriesAsync(asyncFunc2, funcTag, MigrationConstants.MaxBackoffForTransientErrors, MigrationConstants.MaxRetryCountForTransientErrors, cancellationToken);
         }
 
         public async Task<T> ExecuteWithRetriesAsync<T>(
-            Func<ITransaction, Task<T>> asyncFunc,
-            Func<ITransaction> txFactory,
-            string funcTag)
+            Func<ITransaction, CancellationToken, Task<T>> asyncFunc,
+            string funcTag,
+            CancellationToken cancellationToken)
         {
-            return await this.ExecuteWithRetriesAsync(asyncFunc, txFactory, funcTag, MigrationConstants.MaxBackoffForTransientErrors, MigrationConstants.MaxRetryCountForTransientErrors);
+            return await this.ExecuteWithRetriesAsync(asyncFunc, funcTag, MigrationConstants.MaxBackoffForTransientErrors, MigrationConstants.MaxRetryCountForTransientErrors, cancellationToken);
         }
 
         public async Task ExecuteWithRetriesAsync(
-           Func<ITransaction, Task> asyncFunc,
-           Func<ITransaction> txFactory,
+           Func<ITransaction, CancellationToken, Task> asyncFunc,
            string funcTag,
            TimeSpan backoffInterval,
-           int retries)
+           int retries,
+           CancellationToken cancellationToken)
         {
-            Func<ITransaction, Task<object>> asyncFunc2 =
-                tx =>
+            Func<ITransaction, CancellationToken, Task<object>> asyncFunc2 =
+                (tx, token) =>
                 {
-                    asyncFunc.Invoke(tx);
+                    asyncFunc.Invoke(tx, token);
                     return null;
                 };
 
-            await this.ExecuteWithRetriesAsync(asyncFunc2, txFactory, funcTag, backoffInterval, retries);
+            await this.ExecuteWithRetriesAsync(asyncFunc2, funcTag, backoffInterval, retries, cancellationToken);
         }
 
         public async Task<T> ExecuteWithRetriesAsync<T>(
-            Func<ITransaction, Task<T>> asyncFunc,
-            Func<ITransaction> txFactory,
+            Func<ITransaction, CancellationToken, Task<T>> asyncFunc,
             string funcTag,
             TimeSpan backoffInterval,
-            int retries)
+            int retries,
+            CancellationToken cancellationToken)
         {
-            using (var tx = txFactory.Invoke())
+            cancellationToken.ThrowIfCancellationRequested();
+            using (var tx = this.txFactory.Invoke())
             {
                 try
                 {
@@ -86,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         TraceType,
                         this.traceId,
                         $"Invoking migration func - {funcTag}");
-                    return await asyncFunc.Invoke(tx);
+                    return await asyncFunc.Invoke(tx, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -97,6 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         {
                             foreach (var handler in this.exceptionHandlers)
                             {
+                                cancellationToken.ThrowIfCancellationRequested();
                                 if (retries > 0 && handler.TryHandleException(ex, out var isTransient))
                                 {
                                     if (isTransient)
@@ -107,7 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                             $"Transient exception occured while invoking migration func - {funcTag}, retriesLeft : {retries}, ex.Type : {ex.GetType().Name}, ex.Message : {ex.Message}");
 
                                         await Task.Delay(backoffInterval);
-                                        return await this.ExecuteWithRetriesAsync(asyncFunc, txFactory, funcTag, backoffInterval, --retries);
+                                        return await this.ExecuteWithRetriesAsync(asyncFunc, funcTag, backoffInterval, --retries, cancellationToken);
                                     }
                                 }
                             }
@@ -134,7 +141,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                            $"Transient exception occured while invoking migration func - {funcTag}, retriesLeft : {retries}, ex.Type : {ex.GetType().Name}, ex.Message : {ex.Message}");
 
                                     await Task.Delay(backoffInterval);
-                                    return await this.ExecuteWithRetriesAsync(asyncFunc, txFactory, funcTag, backoffInterval, --retries);
+                                    return await this.ExecuteWithRetriesAsync(asyncFunc, funcTag, backoffInterval, --retries, cancellationToken);
                                 }
                             }
                         }
