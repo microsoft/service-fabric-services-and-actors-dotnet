@@ -46,13 +46,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private Task stateProviderInitTask;
         private StatefulServiceInitializationParameters initParams;
         private CancellationTokenSource stateProviderInitCts;
+        private AmbiguousActorIdHandler ambiguousActorIdHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KVStoRCMigrationActorStateProvider"/> class.
         /// </summary>
         public KVStoRCMigrationActorStateProvider()
+            : this(new ReliableCollectionsActorStateProvider())
         {
-            this.rcStateProvider = new ReliableCollectionsActorStateProvider();
         }
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public KVStoRCMigrationActorStateProvider(ReliableCollectionsActorStateProvider reliableCollectionsActorStateProvider)
         {
             this.rcStateProvider = reliableCollectionsActorStateProvider;
+            this.ambiguousActorIdHandler = new AmbiguousActorIdHandler(this.rcStateProvider, this.TraceId);
         }
 
         /// <inheritdoc/>
@@ -276,6 +278,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     foreach (var data in kvsData)
                     {
+                        var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
                         byte[] rcValue = { };
                         IReliableDictionary2<string, byte[]> dictionary = null;
                         if (data.Key.StartsWith(ActorPresenceKeyPrefix))
@@ -287,21 +290,21 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         else if (data.Key.StartsWith(ActorStorageKeyPrefix))
                         {
                             rcValue = data.Value;
-                            dictionary = this.rcStateProvider.GetActorStateDictionary(this.GetActorIdFromStorageKey(data.Key));
+                            dictionary = this.rcStateProvider.GetActorStateDictionary(await this.ambiguousActorIdHandler.GetGetActorIdAsync(rcKey, cancellationToken));
                             actorStateCount++;
                         }
                         else if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
                         {
-                            ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(data.Key, data.Value);
-                            rcValue = this.SerializeReminderCompletedData(data.Key, reminderCompletedData);
+                            ReminderCompletedData reminderCompletedData = this.DeserializeReminderCompletedData(rcKey, data.Value);
+                            rcValue = this.SerializeReminderCompletedData(rcKey, reminderCompletedData);
                             dictionary = this.rcStateProvider.GetReminderCompletedDictionary();
                             reminderCompletedKeyCount++;
                         }
                         else if (data.Key.StartsWith(ReminderStorageKeyPrefix))
                         {
-                            ActorReminderData actorReminderData = this.DeserializeReminder(data.Key, data.Value);
-                            rcValue = this.SerializeReminder(data.Key, actorReminderData);
-                            dictionary = this.rcStateProvider.GetReminderDictionary(this.GetActorIdFromStorageKey(data.Key));
+                            ActorReminderData actorReminderData = this.DeserializeReminder(rcKey, data.Value);
+                            rcValue = this.SerializeReminder(rcKey, actorReminderData);
+                            dictionary = this.rcStateProvider.GetReminderDictionary(actorReminderData.ActorId);
                             reminderCount++;
                         }
                         else if (data.Key.Equals(LogicalTimestampKey)
@@ -326,7 +329,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             continue;
                         }
 
-                        var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
                         if (rcValue.Length > 0)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
