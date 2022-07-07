@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Linq;
     using System.Net.Http;
     using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -219,7 +220,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private async Task<bool> GetDataFromKvsAndValidateWithRcAsync(List<string> migratedKeysChunk, int workerIdentifier, CancellationToken cancellationToken)
         {
-            var keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+            var keyvaluepairserializer = new DataContractJsonSerializer(typeof(List<KeyValuePair>));
 
             try
             {
@@ -247,18 +248,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             cancellationToken.ThrowIfCancellationRequested();
 
                             List<KeyValuePair> kvsData = new List<KeyValuePair>();
-                            using (Stream memoryStream = new MemoryStream())
-                            {
-                                byte[] data = Encoding.UTF8.GetBytes(responseLine);
-                                memoryStream.Write(data, 0, data.Length);
-                                memoryStream.Position = 0;
-
-                                using (var reader = XmlDictionaryReader.CreateTextReader(memoryStream, XmlDictionaryReaderQuotas.Max))
-                                {
-                                    kvsData = (List<KeyValuePair>)keyvaluepairserializer.ReadObject(reader);
-                                }
-                            }
-
+                            kvsData = SerializationUtility.Deserialize<List<KeyValuePair>>(keyvaluepairserializer, Encoding.UTF8.GetBytes(responseLine));
                             if (kvsData.Count > 0)
                             {
                                 ActorTrace.Source.WriteInfoWithId(

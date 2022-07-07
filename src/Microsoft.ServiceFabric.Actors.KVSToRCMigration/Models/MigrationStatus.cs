@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     /// KeyValuePair
     /// </summary>
     [DataContract]
+    [KnownType(typeof(List<WorkerStatus>))]
     public class MigrationStatus
     {
         /// <summary>

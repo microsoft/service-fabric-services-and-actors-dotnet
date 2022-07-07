@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions
     using System.Fabric;
     using System.Net.Http;
     using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Migration;
@@ -16,7 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions
 
     internal static class ServiceParitionClientExtensions
     {
-        private static readonly DataContractSerializer ErrorSerializer = new DataContractSerializer(typeof(ErrorResponse));
+        private static readonly DataContractJsonSerializer ErrorSerializer = new DataContractJsonSerializer(typeof(ErrorResponse));
 
         public static async Task<HttpResponseMessage> InvokeWebRequestWithRetryAsync(
             this ServicePartitionClient<HttpCommunicationClient> partitionClient,
@@ -51,6 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions
                 }
 
                 ex.Data.Add("ActualExceptionType", error.ExceptionType);
+                ex.Data.Add("IsErrorAtSource", true);
                 throw ex;
             }
         }

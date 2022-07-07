@@ -21,6 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     {
         private KvsActorStateProvider kvsActorStateProvider;
         private IMigrationOrchestrator migrationOrchestrator;
+        private string traceId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KvsMigrationController"/> class.
@@ -28,33 +29,36 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         /// <param name="migrationOrchestrator">Source migraiton orchestrator</param>
         public KvsMigrationController(IMigrationOrchestrator migrationOrchestrator)
         {
-            this.kvsActorStateProvider = (KvsActorStateProvider)this.migrationOrchestrator.GetMigrationActorStateProvider();
             this.migrationOrchestrator = migrationOrchestrator;
+            this.kvsActorStateProvider = (KvsActorStateProvider)this.migrationOrchestrator.GetMigrationActorStateProvider();
+            this.traceId = ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId;
         }
 
         /// <summary>
         /// Gets the First Sequence number of KVS
         /// </summary>
+        /// <param name="cancellationToken">Token to signal cancellation on the asynchronous operation</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetFirstSequenceNumber")]
-        public async Task<long> GetFirstSequenceNumber()
+        public async Task<long> GetFirstSequenceNumberAsync(CancellationToken cancellationToken)
         {
             return await MigrationUtility.ExecuteWithRetriesAsync(
-                () => this.kvsActorStateProvider.GetFirstSequenceNumberAsync(CancellationToken.None),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                () => this.kvsActorStateProvider.GetFirstSequenceNumberAsync(this.traceId, cancellationToken),
+                this.traceId,
                 $"{this.GetType().Name}.GetFirstSequenceNumberAsync");
         }
 
         /// <summary>
         /// Gets the Last Sequence number of KVS
         /// </summary>
+        /// <param name="cancellationToken">Token to signal cancellation on the asynchronous operation</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("GetLastSequenceNumber")]
-        public long GetLastSequenceNumber()
+        public Task<long> GetLastSequenceNumberAsync(CancellationToken cancellationToken)
         {
             return MigrationUtility.ExecuteWithRetriesAsync(
-                () => this.kvsActorStateProvider.GetLastSequenceNumber(),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                () => this.kvsActorStateProvider.GetLastSequenceNumberAsync(this.traceId, cancellationToken),
+                this.traceId,
                 $"{this.GetType().Name}.GetLastSequenceNumber");
         }
 
@@ -62,13 +66,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         /// Enumerates Key value store data by Sequence Number
         /// </summary>
         /// <param name="request">EnumerationRequest</param>
+        /// <param name="cancellationToken">Token to signal cancellation on the asynchronous operation</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         [HttpGet("EnumerateBySequenceNumber")]
-        public async Task EnumerateBySequenceNumber([FromBody] EnumerationRequest request)
+        public async Task EnumerateBySequenceNumberAsync([FromBody] EnumerationRequest request, CancellationToken cancellationToken)
         {
             await MigrationUtility.ExecuteWithRetriesAsync(
-                () => this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                () => this.kvsActorStateProvider.EnumerateAsync(request, this.Response, this.traceId, cancellationToken),
+                this.traceId,
                 $"{this.GetType().Name}.EnumerateAsync");
         }
 
@@ -76,13 +81,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         /// Gets DisableTombstoneCleanup Setting value if KVSReplica
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [HttpGet("GetDisableTombstoneCleanupSetting")]
-        public bool GetDisableTombstoneCleanupSetting()
+        [HttpGet("IsTombstoneCleanupDisabled")]
+        public bool IsTombstoneCleanupDisabled()
         {
-            return MigrationUtility.ExecuteWithRetriesAsync(
-                () => this.kvsActorStateProvider.GetDisableTombstoneCleanupSetting(),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
-                $"{this.GetType().Name}.GetDisableTombstoneCleanupSetting");
+            return this.kvsActorStateProvider.IsTombstoneCleanupDisabled();
         }
 
         /// <summary>
@@ -95,7 +97,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             return MigrationUtility.ExecuteWithRetriesAsync(
                 () => this.kvsActorStateProvider.GetValueByKeysAsync(keys, this.Response, CancellationToken.None),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                this.traceId,
                 $"{this.GetType().Name}.GetValueByKeysAsync");
         }
 
@@ -109,7 +111,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             await MigrationUtility.ExecuteWithRetriesAsync(
                 () => this.migrationOrchestrator.StartDowntimeAsync(false, cancellationToken),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                this.traceId,
                 $"{this.GetType().Name}.StartDowntimeAsync");
         }
 
@@ -123,7 +125,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             await MigrationUtility.ExecuteWithRetriesAsync(
                 () => this.migrationOrchestrator.AbortMigrationAsync(false, cancellationToken),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                this.traceId,
                 $"{this.GetType().Name}.AbortMigrationAsync");
         }
 
@@ -137,7 +139,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             await MigrationUtility.ExecuteWithRetriesAsync(
                  () => this.migrationOrchestrator.StartMigrationAsync(false, cancellationToken),
-                 ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                 this.traceId,
                  $"{this.GetType().Name}.StartMigrationAsync");
         }
     }

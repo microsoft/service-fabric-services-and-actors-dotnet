@@ -229,7 +229,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        public static T ExecuteWithRetriesAsync<T>(Func<T> func, string traceId, string funcTag, int retryCount = 0, IEnumerable<Type> retryableExceptions = null)
+        public static T ExecuteWithRetries<T>(Func<T> func, string traceId, string funcTag, int retryCount = 0, IEnumerable<Type> retryableExceptions = null)
         {
             try
             {

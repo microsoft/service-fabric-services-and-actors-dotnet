@@ -8,14 +8,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware
     using System;
     using System.Fabric;
     using System.Net;
-    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
     using Microsoft.ServiceFabric.Actors.Migration;
 
     internal class DefaultMigrationExceptionMiddleware
     {
-        private static readonly DataContractSerializer Serializer = new DataContractSerializer(typeof(ErrorResponse));
+        private static readonly DataContractJsonSerializer Serializer = new DataContractJsonSerializer(typeof(ErrorResponse));
         private readonly RequestDelegate next;
 
         public DefaultMigrationExceptionMiddleware(RequestDelegate next)
@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware
                 error.ErrorCode = fabEx.ErrorCode;
             }
 
-            response.ContentType = "application/xml; charset=utf-8";
+            response.ContentType = "application/json; charset=utf-8";
             response.StatusCode = (int)HttpStatusCode.InternalServerError;
             var buffer = SerializationUtility.Serialize(Serializer, error);
             await response.Body.WriteAsync(buffer, 0, buffer.Length);

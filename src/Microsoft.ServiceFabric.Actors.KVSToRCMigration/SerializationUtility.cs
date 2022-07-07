@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System.IO;
     using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Xml;
 
     internal static class SerializationUtility
@@ -36,6 +37,24 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     return (T)serializer.ReadObject(reader);
                 }
+            }
+        }
+
+        public static byte[] Serialize<T>(DataContractJsonSerializer serializer, T obj)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.WriteObject(memoryStream, obj);
+
+                return memoryStream.ToArray();
+            }
+        }
+
+        public static T Deserialize<T>(DataContractJsonSerializer serializer, byte[] buffer)
+        {
+            using (var memoryStream = new MemoryStream(buffer))
+            {
+                return (T)serializer.ReadObject(memoryStream);
             }
         }
     }

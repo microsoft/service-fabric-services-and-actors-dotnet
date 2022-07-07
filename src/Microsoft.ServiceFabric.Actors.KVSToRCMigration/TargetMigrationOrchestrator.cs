@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;
         private static volatile int isMigrationWorkflowRunning = 0;
-        private static volatile int isReadyForMigrationStart = 0;
+        private static volatile int isReadyForMigrationOperations = 0;
         private MigrationPhase currentPhase;
         private KVStoRCMigrationActorStateProvider migrationActorStateProvider;
         private IReliableDictionary2<string, string> metadataDict;
@@ -104,13 +104,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 if (!isUserTriggered)
                 {
-                    this.childCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                     this.metadataDict = await this.migrationActorStateProvider.GetMetadataDictionaryAsync();
+                    this.childCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                     this.currentMigrationState = await this.GetCurrentMigrationStateAsync(this.childCancellationTokenSource.Token);
-                    Interlocked.CompareExchange(ref isReadyForMigrationStart, 1, 0);
+                    Interlocked.CompareExchange(ref isReadyForMigrationOperations, 1, 0);
                     this.childCancellationTokenSource.Token.Register(() =>
                     {
-                        Interlocked.CompareExchange(ref isReadyForMigrationStart, 0, 1);
+                        Interlocked.CompareExchange(ref isReadyForMigrationOperations, 0, 1);
                         Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1);
                     });
                 }
@@ -120,9 +120,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     {
                         throw new FabricException("MigrationMode is set to Auto. Manual migration starts are not allowed.");
                     }
-                    else if (isReadyForMigrationStart != 1)
+                    else
                     {
-                        throw new FabricException("MigrationFramework not initialized. Retry the request");
+                        this.ThrowIfNotReady();
                     }
                 }
 
@@ -180,10 +180,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 MigrationTelemetry.MigrationFailureEvent(this.StatefulServiceContext, this.currentPhase.ToString(), ex.Message);
                 //// TODO: Emit exception type in telemetry
 
-                this.exceptionFilter.ReportPartitionHealthIfNeeded(ex, this.StateProvider.StatefulServicePartition, out var abortMigration);
+                this.exceptionFilter.ReportPartitionHealthIfNeeded(ex, this.StateProvider.StatefulServicePartition, out var abortMigration, out var rethrow);
                 if (abortMigration)
                 {
                     await this.AbortMigrationAsync(userTriggered: false, this.GetToken());
+                }
+
+                if (rethrow)
+                {
+                    throw ex;
                 }
             }
             finally
@@ -199,6 +204,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public async override Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
         {
+            this.ThrowIfNotReady();
+
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
@@ -243,6 +250,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override bool AreActorCallsAllowed()
         {
+            this.ThrowIfNotReady();
             return this.currentMigrationState == MigrationState.Completed;
         }
 
@@ -255,6 +263,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override async Task StartDowntimeAsync(bool userTriggered, CancellationToken cancellationToken)
         {
+            this.ThrowIfNotReady();
             await this.txExecutor.ExecuteWithRetriesAsync(
                 async (tx, token) =>
                 {
@@ -273,6 +282,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public override bool IsActorCallToBeForwarded()
         {
+            this.ThrowIfNotReady();
+
             // No reason to forward the call in downtime phase as the KVS service also cannot service the request.
             return (this.currentPhase < MigrationPhase.Downtime || this.currentMigrationState == MigrationState.Aborted) && this.MigrationSettings.SourceServiceUri != null;
         }
@@ -295,6 +306,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         internal async Task<MigrationResult> GetResultAsync(CancellationToken cancellationToken)
         {
+            this.ThrowIfNotReady();
+
             ActorTrace.Source.WriteNoiseWithId(
                 TraceType,
                 this.TraceId,
@@ -822,6 +835,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 "GetDisableTCSEndpoint",
                 cancellationToken);
             return (await ParseBoolAsync(async () => await response.Content.ReadAsStringAsync(), this.TraceId));
+        }
+
+        private void ThrowIfNotReady()
+        {
+            if (isReadyForMigrationOperations != 1)
+            {
+                throw new FabricException("MigrationFramework not initialized. Retry the request");
+            }
         }
     }
 }

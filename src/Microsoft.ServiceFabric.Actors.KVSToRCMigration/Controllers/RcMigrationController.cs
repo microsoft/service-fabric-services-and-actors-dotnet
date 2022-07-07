@@ -19,6 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     internal class RcMigrationController : ControllerBase
     {
         private IMigrationOrchestrator migrationOrchestrator;
+        private string traceId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RcMigrationController"/> class.
@@ -27,6 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         public RcMigrationController(IMigrationOrchestrator migrationOrchestrator)
         {
             this.migrationOrchestrator = migrationOrchestrator;
+            this.traceId = ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId;
         }
 
         /// <summary>
@@ -39,8 +41,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             return await MigrationUtility.ExecuteWithRetriesAsync(
                 () => ((TargetMigrationOrchestrator)this.migrationOrchestrator).GetResultAsync(cancellationToken),
-                "RcMigrationController.GetMigrationStatusAsync",
-                ((TargetMigrationOrchestrator)this.migrationOrchestrator).TraceId);
+                this.traceId,
+                "RcMigrationController.GetMigrationStatusAsync");
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             await MigrationUtility.ExecuteWithRetriesAsync(
                 () => this.migrationOrchestrator.StartDowntimeAsync(true, cancellationToken),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                this.traceId,
                 $"{this.GetType().Name}.StartDowntimeAsync");
         }
 
@@ -67,7 +69,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             await MigrationUtility.ExecuteWithRetriesAsync(
                 () => this.migrationOrchestrator.AbortMigrationAsync(true, cancellationToken),
-                ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                this.traceId,
                 $"{this.GetType().Name}.AbortMigrationAsync");
         }
 
@@ -81,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         {
             await MigrationUtility.ExecuteWithRetriesAsync(
                  () => this.migrationOrchestrator.StartMigrationAsync(true, cancellationToken),
-                 ((MigrationOrchestratorBase)this.migrationOrchestrator).TraceId,
+                 this.traceId,
                  $"{this.GetType().Name}.StartMigrationAsync");
         }
     }

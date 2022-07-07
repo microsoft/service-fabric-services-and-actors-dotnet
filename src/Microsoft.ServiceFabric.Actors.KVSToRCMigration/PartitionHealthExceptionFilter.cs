@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal class PartitionHealthExceptionFilter
     {
+        private const int MaxHealthDescriptionLength = (4 * 1024) - 1;
         private Dictionary<string, ExceptionInfo> exceptions;
         private MigrationSettings migrationSettings;
 
@@ -32,9 +33,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 // Error
                 //// Add error list
             };
+
+            this.PopulateExceptionListFromMigrationSettings();
         }
 
-        public void ReportPartitionHealthIfNeeded(Exception exception, IStatefulServicePartition partition, out bool abortMigration)
+        public void ReportPartitionHealthIfNeeded(Exception exception, IStatefulServicePartition partition, out bool abortMigration, out bool rethrow)
         {
             var actual = exception;
             if (exception is AggregateException)
@@ -42,30 +45,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 actual = ((AggregateException)exception).InnerException;
             }
 
-            ExceptionInfo exceptionInfo = null;
-            if (!this.exceptions.TryGetValue(actual.GetType().FullName, out exceptionInfo))
-            {
-                if (actual.Data.Contains("ActualExceptionType"))
-                {
-                    this.exceptions.TryGetValue((string)actual.Data["ActualExceptionType"], out exceptionInfo);
-                }
-            }
-
-            if (exceptionInfo == null)
-            {
-                exceptionInfo = new ExceptionInfo(actual.GetType().FullName, HealthState.Warning, true, true);
-            }
-
+            var exceptionInfo = this.GetExceptionInfo(actual, out var rethrowT);
             var healthInfo = new HealthInformation("ActorStateMigration", "MigrationUnhandledException", exceptionInfo.HealthState)
             {
                 TimeToLive = exceptionInfo.IsPermanentError ? TimeSpan.MaxValue : TimeSpan.FromMinutes(2),
-                RemoveWhenExpired = false,
-                Description = actual.Message,
+                RemoveWhenExpired = true,
+                Description = this.GetPartitionHealthMesssage(actual, exceptionInfo.AbortMigration),
             };
 
             partition.ReportPartitionHealth(healthInfo);
-
             abortMigration = exceptionInfo.AbortMigration;
+            rethrow = rethrowT;
         }
 
         private void PopulateExceptionListFromMigrationSettings()
@@ -81,8 +71,62 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
+        private string GetPartitionHealthMesssage(Exception exception, bool abortMigration)
+        {
+            string healthDesc = string.Empty;
+            if (abortMigration)
+            {
+                healthDesc = "Aborting migration.";
+            }
+
+            healthDesc += $"Exception message : {exception.Message}";
+
+            return healthDesc.Length <= MaxHealthDescriptionLength ? healthDesc : healthDesc.Substring(0, MaxHealthDescriptionLength);
+        }
+
+        private ExceptionInfo GetExceptionInfo(Exception exception, out bool rethrow)
+        {
+            ExceptionInfo exceptionInfo = null;
+            rethrow = true;
+            if (!this.exceptions.TryGetValue(exception.GetType().FullName, out exceptionInfo))
+            {
+                if (exception.Data.Contains("ActualExceptionType"))
+                {
+                    if (!this.exceptions.TryGetValue((string)exception.Data["ActualExceptionType"], out exceptionInfo))
+                    {
+                        exceptionInfo = new ExceptionInfo
+                        {
+                            ExceptionType = (string)exception.Data["ActualExceptionType"],
+                            AbortMigration = true,
+                            HealthState = HealthState.Warning,
+                            IsPermanentError = true,
+                        };
+                    }
+
+                    // Exception at source. Need not rethrow
+                    rethrow = false;
+                }
+                else
+                {
+                    exceptionInfo = new ExceptionInfo
+                    {
+                        ExceptionType = exception.GetType().FullName,
+                        AbortMigration = true,
+                        HealthState = HealthState.Warning,
+                        IsPermanentError = true,
+                    };
+                }
+            }
+
+            return exceptionInfo;
+        }
+
         public class ExceptionInfo
         {
+            public ExceptionInfo()
+            {
+            }
+
             public ExceptionInfo(string exceptionType, HealthState healthState, bool abortMigration, bool isPermanentError)
             {
                 this.ExceptionType = exceptionType;

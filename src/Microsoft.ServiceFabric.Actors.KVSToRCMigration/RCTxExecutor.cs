@@ -42,9 +42,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             CancellationToken cancellationToken)
         {
             Func<ITransaction, CancellationToken, Task<object>> asyncFunc2 =
-                (tx, token) =>
+                async (tx, token) =>
                 {
-                    asyncFunc.Invoke(tx, token);
+                    await asyncFunc.Invoke(tx, token);
                     return null;
                 };
 
@@ -67,9 +67,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
            CancellationToken cancellationToken)
         {
             Func<ITransaction, CancellationToken, Task<object>> asyncFunc2 =
-                (tx, token) =>
+                async (tx, token) =>
                 {
-                    asyncFunc.Invoke(tx, token);
+                    await asyncFunc.Invoke(tx, token);
                     return null;
                 };
 

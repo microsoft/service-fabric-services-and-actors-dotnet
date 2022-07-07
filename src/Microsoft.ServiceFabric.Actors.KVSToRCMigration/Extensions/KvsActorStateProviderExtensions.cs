@@ -8,13 +8,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.IO;
     using System.Linq;
-    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Xml;
     using Microsoft.AspNetCore.Http;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
@@ -23,9 +21,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal static class KvsActorStateProviderExtensions
     {
-        private static DataContractSerializer keyValuePairSerializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+        public static readonly string TombstoneCleanupMessage = "KeyValueStoreReplicaSettings.DisableTombstoneCleanup is either not enabled or set to false";
+        private static readonly string TraceType = typeof(KvsActorStateProviderExtensions).Name;
+        private static DataContractJsonSerializer responseSerializer = new DataContractJsonSerializer(typeof(List<KeyValuePair>));
 
-        internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, CancellationToken cancellationToken)
+        internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
             stateProvider.ThrowIfTombCleanupIsNotEnabled();
             var storeReplica = stateProvider.GetStoreReplica();
@@ -40,6 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                         while (hasData)
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
                             if (enumerator.Current.Metadata.ValueSizeInBytes > 0)
                             {
                                 return Task.FromResult(enumerator.Current.Metadata.SequenceNumber);
@@ -55,13 +56,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
         }
 
-        internal static long GetLastSequenceNumber(this KvsActorStateProvider stateProvider)
+        internal static async Task<long> GetLastSequenceNumberAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
             stateProvider.ThrowIfTombCleanupIsNotEnabled();
-            return stateProvider.GetStoreReplica().GetLastCommittedSequenceNumber();
+            cancellationToken.ThrowIfCancellationRequested();
+            return await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync<long>(
+                async () =>
+                {
+                    return await Task.Run(() =>
+                    {
+                        return stateProvider.GetStoreReplica().GetLastCommittedSequenceNumber();
+                    });
+                },
+                "GetLastSequenceNumber",
+                cancellationToken);
         }
 
-        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, CancellationToken cancellationToken)
+        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, string traceId, CancellationToken cancellationToken)
         {
             stateProvider.ThrowIfTombCleanupIsNotEnabled();
             var storeReplica = stateProvider.GetStoreReplica();
@@ -91,6 +102,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             do
                             {
+                                cancellationToken.ThrowIfCancellationRequested();
                                 var pairs = new List<KeyValuePair>();
                                 var sequenceNumberFullyDrained = true;
                                 long? firstSNInChunk = null;
@@ -98,6 +110,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                                 while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
                                 {
+                                    cancellationToken.ThrowIfCancellationRequested();
                                     if (firstSNInChunk == null)
                                     {
                                         firstSNInChunk = enumerator.Current.Metadata.SequenceNumber;
@@ -128,10 +141,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                     catch (Exception e)
                     {
-                        ActorTrace.Source.WriteError("KvsActorStateProviderExtensionHelper", $"{e.Message} {e.StackTrace}");
+                        ActorTrace.Source.WriteErrorWithId(TraceType, traceId,  $"{e.Message} {e.StackTrace}");
                         if (e.InnerException != null)
                         {
-                            ActorTrace.Source.WriteError("KvsActorStateProviderExtensionHelper", $"{e.InnerException.Message} {e.InnerException.StackTrace}/n");
+                            ActorTrace.Source.WriteErrorWithId(TraceType, traceId, $"{e.InnerException.Message} {e.InnerException.StackTrace}/n");
                         }
                     }
                 },
@@ -139,66 +152,98 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
         }
 
-        internal static bool TryAbortExistingTransactionsAndRejectWrites(this KvsActorStateProvider stateProvider)
+        internal static async Task<bool> TryAbortExistingTransactionsAndRejectWritesAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
             stateProvider.ThrowIfTombCleanupIsNotEnabled();
-            return stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites();
+            cancellationToken.ThrowIfCancellationRequested();
+            return await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync<bool>(
+                async () =>
+                {
+                    return await Task.Run(() =>
+                    {
+                        return stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites();
+                    });
+                },
+                "TryAbortExistingTransactionsAndRejectWrites",
+                cancellationToken);
         }
 
-        internal static async Task RejectWritesAsync(this KvsActorStateProvider stateProvider)
+        internal static async Task RejectWritesAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
             stateProvider.ThrowIfTombCleanupIsNotEnabled();
-            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
-            {
-                if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
+            cancellationToken.ThrowIfCancellationRequested();
+            await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+                async () =>
                 {
-                    stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(true));
-                }
-                else
-                {
-                    stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(true));
-                }
+                    using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+                    {
+                        if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
+                        {
+                            stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(true));
+                        }
+                        else
+                        {
+                            stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(true));
+                        }
 
-                await tx.CommitAsync();
-            }
+                        await tx.CommitAsync();
+                    }
+                },
+                "RejectWritesAsync",
+                cancellationToken);
         }
 
-        internal static async Task ResumeWritesAsync(this KvsActorStateProvider stateProvider)
+        internal static async Task ResumeWritesAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
             stateProvider.ThrowIfTombCleanupIsNotEnabled();
-            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
-            {
-                if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
-                {
-                    stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(false));
-                }
-                else
-                {
-                    stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(false));
-                }
+            cancellationToken.ThrowIfCancellationRequested();
+            await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+               async () =>
+               {
+                   using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+                   {
+                       if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
+                       {
+                           stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(false));
+                       }
+                       else
+                       {
+                           stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(false));
+                       }
 
-                await tx.CommitAsync();
-            }
+                       await tx.CommitAsync();
+                   }
+               },
+               "ResumeWritesAsync",
+               cancellationToken);
         }
 
-        internal static bool GetRejectWriteState(this KvsActorStateProvider stateProvider)
+        internal static async Task<bool> GetRejectWriteStateAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
-            stateProvider.ThrowIfTombCleanupIsNotEnabled();
-            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
-            {
-                // TODO: Consider caching this value.
-                var result = stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey);
+            cancellationToken.ThrowIfCancellationRequested();
+            return await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync<bool>(
+               async () =>
+               {
+                   return await Task.Run(() =>
+                   {
+                       using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+                       {
+                           var result = stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey);
 
-                if (result != null)
-                {
-                    return BitConverter.ToBoolean(result.Value, 0);
-                }
-            }
+                           if (result != null)
+                           {
+                               return BitConverter.ToBoolean(result.Value, 0);
+                           }
+                       }
 
-            return false;
+                       return false;
+                   });
+               },
+               "GetRejectWriteStateAsync",
+               cancellationToken);
         }
 
-        internal static bool GetDisableTombstoneCleanupSetting(this KvsActorStateProvider stateProvider)
+        internal static bool IsTombstoneCleanupDisabled(this KvsActorStateProvider stateProvider)
         {
             return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
         }
@@ -234,15 +279,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, HttpResponse response)
         {
-            var byteArray = SerializationUtility.Serialize(keyValuePairSerializer, pairs);
+            var byteArray = SerializationUtility.Serialize(responseSerializer, pairs);
             var newLine = Encoding.UTF8.GetBytes("\n");
 
-            ActorTrace.Source.WriteNoise("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length}");
+            ActorTrace.Source.WriteNoise(TraceType, $"ByteArray: {byteArray} ArrayLength: {byteArray.Length}");
 
             if (string.IsNullOrEmpty(response.ContentType))
             {
                 // Set the content type
-                response.ContentType = "application/xml; charset=utf-8";
+                response.ContentType = "application/json; charset=utf-8";
             }
 
             await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
@@ -265,9 +310,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private static void ThrowIfTombCleanupIsNotEnabled(this KvsActorStateProvider stateProvider)
         {
-            if (stateProvider.GetDisableTombstoneCleanupSetting())
+            if (!stateProvider.IsTombstoneCleanupDisabled())
             {
-                throw new InvalidMigrationConfigException($"KeyValueStoreReplicaSettings.DisableTombstoneCleanup is either not false");
+                throw new InvalidMigrationConfigException(TombstoneCleanupMessage);
             }
         }
     }

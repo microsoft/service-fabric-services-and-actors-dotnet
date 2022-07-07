@@ -6,10 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
     using System.Fabric;
-    using System.IO;
     using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Json;
-    using System.Text;
 
     /// <summary>
     /// Migration custom http error reponse.
@@ -33,11 +30,13 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// <summary>
         /// Gets or sets the exception type
         /// </summary>
+        [DataMember]
         public string ExceptionType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the error is Fabric related.
         /// </summary>
+        [DataMember]
         public bool IsFabricError { get; set; }
     }
 }

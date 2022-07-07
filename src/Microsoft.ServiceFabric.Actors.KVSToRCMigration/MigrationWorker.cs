@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -28,8 +29,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class MigrationWorker : WorkerBase
     {
         private static readonly string TraceType = typeof(MigrationWorker).Name;
-        private static readonly DataContractSerializer Keyvaluepairserializer = new DataContractSerializer(typeof(List<KeyValuePair>));
-        private static readonly DataContractSerializer Requestserializer = new DataContractSerializer(typeof(EnumerationRequest));
+        private static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(List<KeyValuePair>));
+        private static readonly DataContractJsonSerializer Requestserializer = new DataContractJsonSerializer(typeof(EnumerationRequest));
 
         private StatefulServiceInitializationParameters initParams;
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
@@ -162,7 +163,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         while (responseLine != null)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            var kvsData = SerializationUtility.Deserialize<List<KeyValuePair>>(Keyvaluepairserializer, Encoding.UTF8.GetBytes(responseLine));
+                            var kvsData = SerializationUtility.Deserialize<List<KeyValuePair>>(ResponseSerializer, Encoding.UTF8.GetBytes(responseLine));
                             if (kvsData.Count > 0)
                             {
                                 laSN = kvsData[kvsData.Count - 1].Version;
@@ -267,7 +268,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN, enumerationSize);
 
             var requestBuffer = new ByteArrayContent(SerializationUtility.Serialize(Requestserializer, enumerationRequestContent));
-            requestBuffer.Headers.ContentType = new MediaTypeHeaderValue("application/xml")
+            requestBuffer.Headers.ContentType = new MediaTypeHeaderValue("application/json")
             {
                 CharSet = Encoding.UTF8.WebName,
             };
