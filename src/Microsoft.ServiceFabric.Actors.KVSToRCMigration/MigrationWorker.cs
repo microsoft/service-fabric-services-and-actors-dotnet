@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class MigrationWorker : WorkerBase
     {
         private static readonly string TraceType = typeof(MigrationWorker).Name;
-        private static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(List<KeyValuePair>));
+        private static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
         private static readonly DataContractJsonSerializer Requestserializer = new DataContractJsonSerializer(typeof(EnumerationRequest));
 
         private StatefulServiceInitializationParameters initParams;
@@ -87,20 +87,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 }
 
-                var endSN = startSN + this.migrationSettings.ItemsPerEnumeration - 1;
                 long keysMigrated = 0L;
-
                 while (startSN <= this.Input.EndSeqNum)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (endSN > this.Input.EndSeqNum)
-                    {
-                        endSN = this.Input.EndSeqNum;
-                    }
-
-                    keysMigrated += await this.FetchAndSaveAsync(startSN, this.migrationSettings.ItemsPerEnumeration, endSN, cancellationToken);
-                    startSN = endSN + 1;
-                    endSN += this.migrationSettings.ItemsPerEnumeration;
+                    var fetchAndSaveResponse = await this.FetchAndSaveAsync(startSN, cancellationToken);
+                    startSN = fetchAndSaveResponse.LastAppliedSequenceNumber + 1;
+                    keysMigrated += fetchAndSaveResponse.NumberOfKeysApplied;
                 }
 
                 var result = await GetResultAsync(
@@ -129,14 +122,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        private async Task<long> FetchAndSaveAsync(long startSN, long snCount, long endSN, CancellationToken cancellationToken)
+        private async Task<FetchAndSaveResponse> FetchAndSaveAsync(long startSN, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
-                $"Enumerating from KVS - StartSN: {startSN}, SNCount: {snCount}");
+                $"Enumerating from KVS - StartSN: {startSN}");
             long keysMigrated = 0L;
             long laSN = -1;
+            EnumerationResponse enumerationResponse = null;
 
             try
             {
@@ -145,7 +139,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     async client =>
                     {
                         var response = await client.HttpClient.SendAsync(
-                            this.CreateKvsApiRequestMessage(client.EndpointUri, startSN, snCount),
+                            this.CreateKvsApiRequestMessage(client.EndpointUri, startSN),
                             HttpCompletionOption.ResponseHeadersRead,
                             cancellationToken);
 
@@ -163,7 +157,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         while (responseLine != null)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            var kvsData = SerializationUtility.Deserialize<List<KeyValuePair>>(ResponseSerializer, Encoding.UTF8.GetBytes(responseLine));
+                            enumerationResponse = SerializationUtility.Deserialize<EnumerationResponse>(ResponseSerializer, Encoding.UTF8.GetBytes(responseLine));
+                            var kvsData = enumerationResponse.KeyValuePairs;
                             if (kvsData.Count > 0)
                             {
                                 laSN = kvsData[kvsData.Count - 1].Version;
@@ -204,7 +199,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 ActorTrace.Source.WriteInfoWithId(
                                     TraceType,
                                     this.TraceId,
-                                    $"Total Keys migrated - StartSN: {startSN}, SNCount: {snCount}, KeysFetched: {kvsData.Count}, KeysMigrated: {keysMigrated}");
+                                    $"Total Keys migrated - StartSN: {startSN}, KeysFetched: {kvsData.Count}, KeysMigrated: {keysMigrated}");
                             }
 
                             responseLine = streamReader.ReadLine();
@@ -212,60 +207,61 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 }
 
-                if (endSN == this.Input.EndSeqNum && laSN != endSN)
+                if (enumerationResponse != null && enumerationResponse.EndSequenceNumberReached)
                 {
-                    // This could happen, if SN merge caused the endSN to disappear
                     await this.txExecutor.ExecuteWithRetriesAsync(
                         async (tx, token) =>
                         {
                             await this.MetadataDict.AddOrUpdateAsync(
                                 tx,
                                 Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
-                                endSN.ToString(),
-                                (_, __) => endSN.ToString(),
+                                this.Input.EndSeqNum.ToString(),
+                                (_, __) => this.Input.EndSeqNum.ToString(),
                                 DefaultRCTimeout,
                                 token);
 
-                            if (endSN == this.Input.EndSeqNum)
-                            {
-                                await this.CompleteWorkerAsync(tx, token);
-                            }
-
+                            await this.CompleteWorkerAsync(tx, token);
                             await tx.CommitAsync();
                         },
                         "MigrationWorker.FetchAndSaveAsync",
                         cancellationToken);
                 }
 
-                return keysMigrated;
+                return new FetchAndSaveResponse
+                {
+                    LastAppliedSequenceNumber = enumerationResponse == null || enumerationResponse.EndSequenceNumberReached ? this.Input.EndSeqNum : laSN,
+                    NumberOfKeysApplied = keysMigrated,
+                };
             }
             catch (Exception ex)
             {
                 ActorTrace.Source.WriteErrorWithId(
                     TraceType,
                     this.TraceId,
-                    "Error occured while enumerating and saving data - StartSN: {0}, SNCount: {1}, Exception: {2}",
+                    "Error occured while enumerating and saving data - StartSN: {0}, Exception: {1}",
                     startSN,
-                    snCount,
                     ex);
                 throw ex;
             }
         }
 
-        private EnumerationRequest CreateEnumerationRequestObject(long startSN, long enumerationSize)
+        private EnumerationRequest CreateEnumerationRequestObject(long startSN)
         {
-            var req = new EnumerationRequest();
-            req.StartSN = startSN;
-            req.ChunkSize = this.migrationSettings.ItemsPerChunk;
-            req.NoOfItems = enumerationSize;
-            req.IncludeDeletes = this.Input.Phase != MigrationPhase.Copy;
+            var req = new EnumerationRequest
+            {
+                StartSequenceNumber = startSN,
+                EndSequenceNumber = this.Input.EndSeqNum,
+                ChunkSize = this.migrationSettings.KeyValuePairsPerChunk,
+                NumberOfChunksPerEnumeration = this.migrationSettings.ChunksPerEnumeration,
+                IncludeDeletes = this.Input.Phase != MigrationPhase.Copy,
+            };
 
             return req;
         }
 
-        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseUri, long startSN, long enumerationSize)
+        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseUri, long startSN)
         {
-            var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN, enumerationSize);
+            var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN);
 
             var requestBuffer = new ByteArrayContent(SerializationUtility.Serialize(Requestserializer, enumerationRequestContent));
             requestBuffer.Headers.ContentType = new MediaTypeHeaderValue("application/json")
@@ -279,6 +275,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 RequestUri = new Uri(baseUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.EnumeratebySNEndpoint}"),
                 Content = requestBuffer,
             };
+        }
+
+        internal class FetchAndSaveResponse
+        {
+            public long LastAppliedSequenceNumber { get; set; }
+
+            public long NumberOfKeysApplied { get; set; }
         }
     }
 }

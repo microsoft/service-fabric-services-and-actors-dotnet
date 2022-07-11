@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.CodeAnalysis;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -23,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     {
         public static readonly string TombstoneCleanupMessage = "KeyValueStoreReplicaSettings.DisableTombstoneCleanup is either not enabled or set to false";
         private static readonly string TraceType = typeof(KvsActorStateProviderExtensions).Name;
-        private static DataContractJsonSerializer responseSerializer = new DataContractJsonSerializer(typeof(List<KeyValuePair>));
+        private static DataContractJsonSerializer responseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
 
         internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
@@ -83,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     try
                     {
                         bool hasData;
-                        long enumerationKeyCount = 0;
+                        bool endSequenceNumberReached = false;
 
                         using (var txn = storeReplica.CreateTransaction())
                         {
@@ -91,16 +92,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             if (request.IncludeDeletes)
                             {
-                                enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
+                                enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSequenceNumber);
                             }
                             else
                             {
-                                enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
+                                enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSequenceNumber);
                             }
 
                             hasData = enumerator.MoveNext();
-
-                            do
+                            int chunk = 1;
+                            while (chunk <= request.NumberOfChunksPerEnumeration && !endSequenceNumberReached)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
                                 var pairs = new List<KeyValuePair>();
@@ -108,7 +109,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 long? firstSNInChunk = null;
                                 long? endSNInChunk = null;
 
-                                while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
+                                while (hasData
+                                    && !endSequenceNumberReached
+                                    && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
                                     if (firstSNInChunk == null)
@@ -118,25 +121,24 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                                     var keyValuePair = MakeKeyValuePair(enumerator.Current);
                                     var currentSequenceNumber = keyValuePair.Version;
-
                                     pairs.Add(keyValuePair);
-                                    enumerationKeyCount++;
-
                                     hasData = enumerator.MoveNext();
 
                                     if (hasData)
                                     {
                                         var nextKeyValuePair = enumerator.Current;
                                         var nextKeySequenceNumber = nextKeyValuePair.Metadata.SequenceNumber;
+                                        endSequenceNumberReached = nextKeySequenceNumber > request.EndSequenceNumber;
                                         sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
+                                        //// TODO : sequenceNumberFullyDrained??
                                     }
 
                                     endSNInChunk = currentSequenceNumber;
                                 }
 
-                                await WriteKeyValuePairsToResponse(pairs, response);
+                                await WriteKeyValuePairsToResponse(pairs, endSequenceNumberReached, response);
+                                ++chunk;
                             }
-                            while (hasData && enumerationKeyCount < request.NoOfItems);
                         }
                     }
                     catch (Exception e)
@@ -271,15 +273,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 }
                             }
 
-                            await WriteKeyValuePairsToResponse(pairs, response);
+                            await WriteKeyValuePairsToResponse(pairs, true, response); // TODO: Remove this when merging data validation PR
                         },
                         "GetValueByKeyAsync",
                         cancellationToken);
         }
 
-        private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, HttpResponse response)
+        private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, bool endSequenceNumberReached, HttpResponse response)
         {
-            var byteArray = SerializationUtility.Serialize(responseSerializer, pairs);
+            var byteArray = SerializationUtility.Serialize(responseSerializer, new EnumerationResponse
+            {
+                KeyValuePairs = pairs,
+                EndSequenceNumberReached = endSequenceNumberReached,
+            });
             var newLine = Encoding.UTF8.GetBytes("\n");
 
             ActorTrace.Source.WriteNoise(TraceType, $"ByteArray: {byteArray} ArrayLength: {byteArray.Length}");

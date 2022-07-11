@@ -30,10 +30,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public long DowntimeThreshold { get; set; }
 
         [DataMember]
-        public long ItemsPerEnumeration { get; set; }
+        public int ChunksPerEnumeration { get; set; } = 1;
 
         [DataMember]
-        public long ItemsPerChunk { get; set; }
+        public long KeyValuePairsPerChunk { get; set; }
 
         [DataMember]
         public int MigratedDataValidationPhaseParallelism { get; set; }
@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.CopyPhaseParallelism = Environment.ProcessorCount;
             this.DowntimeThreshold = 1024;
             this.MigratedDataValidationPhaseParallelism = Environment.ProcessorCount;
-            this.PercentageOfMigratedDataToValidate = 10.00f;
+            this.PercentageOfMigratedDataToValidate = 0f;
 
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
@@ -84,14 +84,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.DowntimeThreshold = int.Parse(migrationSettings.Parameters["DowntimeThreshold"].Value);
                     }
 
-                    if (migrationSettings.Parameters.Contains("ItemsPerEnumeration"))
+                    if (migrationSettings.Parameters.Contains("ChunksPerEnumeration"))
                     {
-                        this.ItemsPerEnumeration = int.Parse(migrationSettings.Parameters["ItemsPerEnumeration"].Value);
+                        this.ChunksPerEnumeration = int.Parse(migrationSettings.Parameters["ChunksPerEnumeration"].Value);
                     }
 
-                    if (migrationSettings.Parameters.Contains("ItemsPerChunk"))
+                    if (migrationSettings.Parameters.Contains("KeyValuePairsPerChunk"))
                     {
-                        this.ItemsPerChunk = int.Parse(migrationSettings.Parameters["ItemsPerChunk"].Value);
+                        this.KeyValuePairsPerChunk = long.Parse(migrationSettings.Parameters["KeyValuePairsPerChunk"].Value);
                     }
 
                     if (migrationSettings.Parameters.Contains("MigratedDataValidationPhaseParallelism"))
@@ -101,7 +101,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                     if (migrationSettings.Parameters.Contains("PercentageOfMigratedDataToValidate"))
                     {
-                        this.PercentageOfMigratedDataToValidate = float.Parse(migrationSettings.Parameters["PercentageOfMigratedDataToValidate"].Value);
+                        // TODO: Fix this in data validation PR.
+                        // this.PercentageOfMigratedDataToValidate = float.Parse(migrationSettings.Parameters["PercentageOfMigratedDataToValidate"].Value);
                     }
                 }
             }

@@ -15,18 +15,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     public class EnumerationRequest
     {
         /// <summary>
-        /// Gets or Sets StartSN
+        /// Gets or Sets start sequence number per enumeration.
         /// </summary>
         [DataMember]
         [Required]
-        public long StartSN { get; set; }
+        public long StartSequenceNumber { get; set; }
 
         /// <summary>
-        /// Gets or Sets NoOfItems
+        /// Gets or Sets end sequence number per enumeration.
         /// </summary>
         [DataMember]
         [Required]
-        public long NoOfItems { get; set; }
+        public long EndSequenceNumber { get; set; }
 
         /// <summary>
         /// Gets or Sets ChunkSize
@@ -34,6 +34,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
         [DataMember]
         [Required]
         public long ChunkSize { get; set; }
+
+        /// <summary>
+        /// Gets or Sets number of chunks per enumeration.
+        /// </summary>
+        [DataMember]
+        [Required]
+        public int NumberOfChunksPerEnumeration { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether includeDeletes

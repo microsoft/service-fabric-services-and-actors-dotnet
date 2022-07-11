@@ -144,7 +144,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         }
 
                         // Start validation on reaching ItemsPerEnumeration or reaching end of keysIndicesToValidate
-                        if (migratedKeysChunk.Count == this.migrationSettings.ItemsPerEnumeration
+                        if (migratedKeysChunk.Count == this.migrationSettings.ChunksPerEnumeration
                             || keysIndicesToValidate.Last() == keyIndex)
                         {
                             if (await this.GetDataFromKvsAndValidateWithRcAsync(migratedKeysChunk, this.Input.WorkerId, cancellationToken))
