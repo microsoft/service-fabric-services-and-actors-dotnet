@@ -72,6 +72,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         }
 
         /// <summary>
+        /// Enumerate ActorIds of kind string
+        /// </summary>
+        /// <param name="request">Enumeration request.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        [HttpGet("EnumerateActorIdsOfKindStringBySequenceNumber")]
+        public async Task EnumerateActorIdsOfKindStringBySequenceNumber([FromBody] EnumerationRequest request)
+        {
+            await MigrationUtility.ExecuteWithRetriesAsync(
+                () => this.kvsActorStateProvider.EnumerateAsync(request, this.Response, CancellationToken.None),
+                ((MigrationOrchestratorBase)this.MigrationOrchestrator).TraceId,
+                $"{this.GetType().Name}.EnumerateActorIdsOfKindStringBySequenceNumber");
+        }
+
+        /// <summary>
         /// Gets DisableTombstoneCleanup Setting value if KVSReplica
         /// </summary>
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>

@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        public async Task<ActorId> GetGetActorIdAsync(string key, CancellationToken cancellationToken)
+        public async Task<ActorId> GetGetActorIdAsync(string key, Transaction tx, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var presenceDict = this.stateProvider.GetActorPresenceDictionary();
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 while (UnderscoreCount(currentSearch) > 1)
                 {
                     // TODO: use retry logic
-                    if (await presenceDict.ContainsKeyAsync(this.stateProvider.GetStateManager().CreateTransaction(), currentSearch, MigrationConstants.DefaultRCTimeout, cancellationToken))
+                    if (await presenceDict.ContainsKeyAsync(this.stateProvider.GetStateManager().CreateTransaction(), $"{currentSearch}_", MigrationConstants.DefaultRCTimeout, cancellationToken))
                     {
                         match = currentSearch;
                         if (++count > 1)
