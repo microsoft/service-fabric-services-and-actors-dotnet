@@ -85,8 +85,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             using (var stream = new MemoryStream())
             {
                 serializer.WriteObject(stream, this);
-
-                var returnVal = Encoding.ASCII.GetString(stream.GetBuffer());
+                var returnVal = Encoding.UTF8.GetString(stream.ToArray());
 
                 return returnVal;
             }

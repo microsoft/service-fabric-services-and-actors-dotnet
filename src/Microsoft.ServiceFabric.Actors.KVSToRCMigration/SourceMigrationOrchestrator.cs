@@ -20,7 +20,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class SourceMigrationOrchestrator : MigrationOrchestratorBase
     {
         private static readonly string TraceType = typeof(SourceMigrationOrchestrator).Name;
-        private static readonly string TombstoneCleanupIsNotDisabledForMigrationHealthProperty = "TombstoneCleanupIsNotDisabledForMigration";
         private KvsActorStateProvider migrationActorStateProvider;
         private bool actorCallsAllowed;
         private bool forwardRequest;
@@ -54,14 +53,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override async Task AbortMigrationAsync(CancellationToken cancellationToken)
+        public override async Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
                 "Aborting Migration");
 
-            await this.migrationActorStateProvider.ResumeWritesAsync();
+            await this.migrationActorStateProvider.ResumeWritesAsync(this.TraceId, cancellationToken);
             this.actorCallsAllowed = true;
             this.forwardRequest = false;
             await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);
@@ -80,14 +79,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override async Task StartDowntimeAsync(CancellationToken cancellationToken)
+        public override async Task StartDowntimeAsync(bool userTriggered, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
                 "Starting Downtime");
 
-            await this.migrationActorStateProvider.RejectWritesAsync();
+            await this.migrationActorStateProvider.RejectWritesAsync(this.TraceId, cancellationToken);
             this.actorCallsAllowed = false;
             this.forwardRequest = true;
 
@@ -95,7 +94,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         }
 
         /// <inheritdoc/>
-        public override async Task StartMigrationAsync(CancellationToken cancellationToken)
+        public override async Task StartMigrationAsync(bool userTriggered, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -103,19 +102,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 "Starting Migration");
 
             await this.StartOrResumeMigrationAsync(cancellationToken);
-        }
-
-        public override async Task<bool> TryResumeMigrationAsync(CancellationToken cancellationToken)
-        {
-            ActorTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.TraceId,
-                "Resuming Migration");
-
-            // For source there is no need of delayed start.
-            await this.StartOrResumeMigrationAsync(cancellationToken);
-
-            return true;
         }
 
         public override bool IsActorCallToBeForwarded()
@@ -162,10 +148,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return ActorNameFormat.GetMigrationSourceEndpointName(this.ActorTypeInformation.ImplementationType);
         }
 
-        private async Task<bool> AreActorCallsAllowedInternalAsync()
+        private async Task<bool> AreActorCallsAllowedInternalAsync(CancellationToken cancellationToken)
         {
             return await this.stateProviderHelper.ExecuteWithRetriesAsync(
-                () => Task.Run(() => !this.migrationActorStateProvider.GetRejectWriteState()),
+                async () => !(await this.migrationActorStateProvider.GetRejectWriteStateAsync(this.TraceId, cancellationToken)),
                 "KVSActorStateProvider.GetRejectWriteState",
                 CancellationToken.None);
         }
@@ -177,45 +163,23 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 this.TraceId,
                 "Starting or resuming Migration");
 
-            try
+            this.actorCallsAllowed = await this.AreActorCallsAllowedInternalAsync(cancellationToken);
+            this.forwardRequest = !this.actorCallsAllowed;
+            if (!this.migrationActorStateProvider.IsTombstoneCleanupDisabled())
             {
-                this.actorCallsAllowed = await this.AreActorCallsAllowedInternalAsync();
-                this.forwardRequest = !this.actorCallsAllowed;
-                await Task.Run(() =>
+                ActorTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.TraceId,
+                    "Tombstone cleanup is not enabled.");
+
+                var healthInfo = new HealthInformation("ActorStateMigration", "ActorStateMigrationChecks", HealthState.Warning)
                 {
-                    if (!this.migrationActorStateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup)
-                    {
-                        ActorTrace.Source.WriteWarningWithId(
-                            TraceType,
-                            this.TraceId,
-                            "Tombstone cleanup is not enabled.");
+                    TimeToLive = TimeSpan.MaxValue,
+                    RemoveWhenExpired = false,
+                    Description = KvsActorStateProviderExtensions.TombstoneCleanupMessage,
+                };
 
-                        var healthInfo = new HealthInformation("KvsActorStateProvider", TombstoneCleanupIsNotDisabledForMigrationHealthProperty, HealthState.Warning)
-                        {
-                            TimeToLive = TimeSpan.MaxValue,
-                            RemoveWhenExpired = false,
-                            Description = "Tombstone cleanup(KeyValueStoreReplicaSettings.DisableTombstoneCleanup) must be disabled during the migration so that deletes can be tracked and copied from KVS to Reliable Collections.",
-                        };
-
-                        this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                if (!RetryableExceptionFilter.Contains(ex))
-                {
-                    var healthInfo = new HealthInformation("SourceMigrationOrchestrator", "ActorStateMigration", HealthState.Error)
-                    {
-                        TimeToLive = TimeSpan.MaxValue,
-                        RemoveWhenExpired = false,
-                        Description = ex.Message,
-                    };
-
-                    this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
-
-                    throw ex;
-                }
+                this.migrationActorStateProvider.ReportPartitionHealth(healthInfo);
             }
 
             await this.InvokeCompletionCallback(this.actorCallsAllowed, cancellationToken);

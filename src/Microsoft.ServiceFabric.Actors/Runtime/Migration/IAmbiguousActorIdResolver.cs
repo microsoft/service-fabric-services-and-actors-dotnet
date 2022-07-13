@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     /// Interface to resolve actorId from storage key incase there is any ambiguity.
     /// The implementation should have a default constructor.
     /// </summary>
-    public interface IActorIdResolver
+    public interface IAmbiguousActorIdResolver
     {
         /// <summary>
         /// Resolves actor id from storage key.

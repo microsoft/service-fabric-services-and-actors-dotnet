@@ -8,24 +8,27 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.IO;
     using System.Linq;
-    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Xml;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.CodeAnalysis;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
+    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
     internal static class KvsActorStateProviderExtensions
     {
-        private static DataContractSerializer keyValuePairSerializer = new DataContractSerializer(typeof(List<KeyValuePair>));
+        public static readonly string TombstoneCleanupMessage = "KeyValueStoreReplicaSettings.DisableTombstoneCleanup is either not enabled or set to false";
+        private static readonly string TraceType = typeof(KvsActorStateProviderExtensions).Name;
+        private static DataContractJsonSerializer responseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
 
-        internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, CancellationToken cancellationToken)
+        internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
+            stateProvider.ThrowIfTombCleanupIsNotEnabled();
             var storeReplica = stateProvider.GetStoreReplica();
             var lsn = storeReplica.GetLastCommittedSequenceNumber();
             return await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync<long>(
@@ -38,6 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                         while (hasData)
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
                             if (enumerator.Current.Metadata.ValueSizeInBytes > 0)
                             {
                                 return Task.FromResult(enumerator.Current.Metadata.SequenceNumber);
@@ -53,13 +57,25 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
         }
 
-        internal static long GetLastSequenceNumber(this KvsActorStateProvider stateProvider)
+        internal static async Task<long> GetLastSequenceNumberAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
-            return stateProvider.GetStoreReplica().GetLastCommittedSequenceNumber();
+            stateProvider.ThrowIfTombCleanupIsNotEnabled();
+            cancellationToken.ThrowIfCancellationRequested();
+            return await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync<long>(
+                async () =>
+                {
+                    return await Task.Run(() =>
+                    {
+                        return stateProvider.GetStoreReplica().GetLastCommittedSequenceNumber();
+                    });
+                },
+                "GetLastSequenceNumber",
+                cancellationToken);
         }
 
-        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, CancellationToken cancellationToken)
+        internal static Task EnumerateAsync(this KvsActorStateProvider stateProvider, EnumerationRequest request, HttpResponse response, string traceId, CancellationToken cancellationToken)
         {
+            stateProvider.ThrowIfTombCleanupIsNotEnabled();
             var storeReplica = stateProvider.GetStoreReplica();
             var lsn = storeReplica.GetLastCommittedSequenceNumber();
             return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
@@ -68,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     try
                     {
                         bool hasData;
-                        long enumerationKeyCount = 0;
+                        bool endSequenceNumberReached = false;
 
                         using (var txn = storeReplica.CreateTransaction())
                         {
@@ -76,58 +92,68 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             if (request.IncludeDeletes)
                             {
-                                enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSN);
+                                enumerator = storeReplica.EnumerateKeysAndTombstonesBySequenceNumber(txn, request.StartSequenceNumber);
                             }
                             else
                             {
-                                enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSN);
+                                enumerator = storeReplica.EnumerateBySequenceNumber(txn, request.StartSequenceNumber);
                             }
 
                             hasData = enumerator.MoveNext();
-
-                            do
+                            int chunk = 1;
+                            while (chunk <= request.NumberOfChunksPerEnumeration && !endSequenceNumberReached)
                             {
+                                cancellationToken.ThrowIfCancellationRequested();
                                 var pairs = new List<KeyValuePair>();
                                 var sequenceNumberFullyDrained = true;
                                 long? firstSNInChunk = null;
                                 long? endSNInChunk = null;
 
-                                while (hasData && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
+                                while (hasData
+                                    && !endSequenceNumberReached
+                                    && (pairs.Count < request.ChunkSize || !sequenceNumberFullyDrained))
                                 {
+                                    cancellationToken.ThrowIfCancellationRequested();
                                     if (firstSNInChunk == null)
                                     {
                                         firstSNInChunk = enumerator.Current.Metadata.SequenceNumber;
                                     }
 
-                                    var keyValuePair = MakeKeyValuePair(enumerator.Current);
+                                    var keyValuePair = await MakeKeyValuePairAsync(stateProvider, enumerator.Current, request, cancellationToken);
                                     var currentSequenceNumber = keyValuePair.Version;
-
                                     pairs.Add(keyValuePair);
-                                    enumerationKeyCount++;
-
                                     hasData = enumerator.MoveNext();
 
                                     if (hasData)
                                     {
                                         var nextKeyValuePair = enumerator.Current;
                                         var nextKeySequenceNumber = nextKeyValuePair.Metadata.SequenceNumber;
+                                        endSequenceNumberReached = nextKeySequenceNumber > request.EndSequenceNumber;
                                         sequenceNumberFullyDrained = !(nextKeySequenceNumber == currentSequenceNumber);
+                                        //// TODO : sequenceNumberFullyDrained??
                                     }
 
                                     endSNInChunk = currentSequenceNumber;
                                 }
 
-                                await WriteKeyValuePairsToResponse(pairs, response);
+                                await WriteKeyValuePairsToResponseAsync(
+                                    new EnumerationResponse
+                                    {
+                                        KeyValuePairs = pairs,
+                                        EndSequenceNumberReached = endSequenceNumberReached,
+                                        ResolveActorIdsForStateKVPairs = request.ResolveActorIdsForStateKVPairs,
+                                    },
+                                    response);
+                                ++chunk;
                             }
-                            while (hasData && enumerationKeyCount < request.NoOfItems);
                         }
                     }
                     catch (Exception e)
                     {
-                        ActorTrace.Source.WriteError("KvsActorStateProviderExtensionHelper", $"{e.Message} {e.StackTrace}");
+                        ActorTrace.Source.WriteErrorWithId(TraceType, traceId,  $"{e.Message} {e.StackTrace}");
                         if (e.InnerException != null)
                         {
-                            ActorTrace.Source.WriteError("KvsActorStateProviderExtensionHelper", $"{e.InnerException.Message} {e.InnerException.StackTrace}/n");
+                            ActorTrace.Source.WriteErrorWithId(TraceType, traceId, $"{e.InnerException.Message} {e.InnerException.StackTrace}/n");
                         }
                     }
                 },
@@ -135,62 +161,98 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
         }
 
-        internal static bool TryAbortExistingTransactionsAndRejectWrites(this KvsActorStateProvider stateProvider)
+        internal static async Task<bool> TryAbortExistingTransactionsAndRejectWritesAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
-            return stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites();
+            stateProvider.ThrowIfTombCleanupIsNotEnabled();
+            cancellationToken.ThrowIfCancellationRequested();
+            return await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync<bool>(
+                async () =>
+                {
+                    return await Task.Run(() =>
+                    {
+                        return stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites();
+                    });
+                },
+                "TryAbortExistingTransactionsAndRejectWrites",
+                cancellationToken);
         }
 
-        internal static async Task RejectWritesAsync(this KvsActorStateProvider stateProvider)
+        internal static async Task RejectWritesAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
-            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
-            {
-                if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
+            stateProvider.ThrowIfTombCleanupIsNotEnabled();
+            cancellationToken.ThrowIfCancellationRequested();
+            await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+                async () =>
                 {
-                    stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(true));
-                }
-                else
-                {
-                    stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(true));
-                }
+                    using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+                    {
+                        if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
+                        {
+                            stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(true));
+                        }
+                        else
+                        {
+                            stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(true));
+                        }
 
-                await tx.CommitAsync();
-            }
+                        await tx.CommitAsync();
+                    }
+                },
+                "RejectWritesAsync",
+                cancellationToken);
         }
 
-        internal static async Task ResumeWritesAsync(this KvsActorStateProvider stateProvider)
+        internal static async Task ResumeWritesAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
-            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
-            {
-                if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
-                {
-                    stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(false));
-                }
-                else
-                {
-                    stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(false));
-                }
+            stateProvider.ThrowIfTombCleanupIsNotEnabled();
+            cancellationToken.ThrowIfCancellationRequested();
+            await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+               async () =>
+               {
+                   using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+                   {
+                       if (stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey) != null)
+                       {
+                           stateProvider.GetStoreReplica().TryUpdate(tx, RejectWritesKey, BitConverter.GetBytes(false));
+                       }
+                       else
+                       {
+                           stateProvider.GetStoreReplica().TryAdd(tx, RejectWritesKey, BitConverter.GetBytes(false));
+                       }
 
-                await tx.CommitAsync();
-            }
+                       await tx.CommitAsync();
+                   }
+               },
+               "ResumeWritesAsync",
+               cancellationToken);
         }
 
-        internal static bool GetRejectWriteState(this KvsActorStateProvider stateProvider)
+        internal static async Task<bool> GetRejectWriteStateAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
-            using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
-            {
-                // TODO: Consider caching this value.
-                var result = stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey);
+            cancellationToken.ThrowIfCancellationRequested();
+            return await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync<bool>(
+               async () =>
+               {
+                   return await Task.Run(() =>
+                   {
+                       using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
+                       {
+                           var result = stateProvider.GetStoreReplica().TryGet(tx, RejectWritesKey);
 
-                if (result != null)
-                {
-                    return BitConverter.ToBoolean(result.Value, 0);
-                }
-            }
+                           if (result != null)
+                           {
+                               return BitConverter.ToBoolean(result.Value, 0);
+                           }
+                       }
 
-            return false;
+                       return false;
+                   });
+               },
+               "GetRejectWriteStateAsync",
+               cancellationToken);
         }
 
-        internal static bool GetDisableTombstoneCleanupSetting(this KvsActorStateProvider stateProvider)
+        internal static bool IsTombstoneCleanupDisabled(this KvsActorStateProvider stateProvider)
         {
             return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
         }
@@ -218,46 +280,63 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 }
                             }
 
-                            await WriteKeyValuePairsToResponse(pairs, response);
+                            await WriteKeyValuePairsToResponseAsync(
+                                new EnumerationResponse
+                                {
+                                    KeyValuePairs = pairs,
+                                    EndSequenceNumberReached = true,
+                                },
+                                response); // TODO: Remove this when merging data validation PR
                         },
                         "GetValueByKeyAsync",
                         cancellationToken);
         }
 
-        private static async Task WriteKeyValuePairsToResponse(List<KeyValuePair> pairs, HttpResponse response)
+        private static async Task WriteKeyValuePairsToResponseAsync(EnumerationResponse enumerationResponse, HttpResponse httpResponse)
         {
-            using var memoryStream = new MemoryStream();
-            var binaryWriter = XmlDictionaryWriter.CreateTextWriter(memoryStream);
-            keyValuePairSerializer.WriteObject(binaryWriter, pairs);
-            binaryWriter.Flush();
+            var byteArray = SerializationUtility.Serialize(responseSerializer, enumerationResponse);
+            var newLine = Encoding.UTF8.GetBytes("\n");
 
-            var byteArray = memoryStream.ToArray();
-            var newLine = Encoding.ASCII.GetBytes("\n");
+            ActorTrace.Source.WriteNoise(TraceType, $"ByteArray: {byteArray} ArrayLength: {byteArray.Length}");
 
-            ActorTrace.Source.WriteNoise("KvsActorStateProviderExtensionHelper", $"ByteArray: {byteArray} ArrayLength: {byteArray.Length} StreamLength: {memoryStream.Length}");
-
-            if (string.IsNullOrEmpty(response.ContentType))
+            if (string.IsNullOrEmpty(httpResponse.ContentType))
             {
                 // Set the content type
-                response.ContentType = "application/xml; charset=utf-8";
+                httpResponse.ContentType = "application/json; charset=utf-8";
             }
 
-            await response.Body.WriteAsync(byteArray, 0, byteArray.Length);
-            await response.Body.WriteAsync(newLine, 0, newLine.Length);
-            await response.Body.FlushAsync();
+            await httpResponse.Body.WriteAsync(byteArray, 0, byteArray.Length);
+            await httpResponse.Body.WriteAsync(newLine, 0, newLine.Length);
+            await httpResponse.Body.FlushAsync();
         }
 
-        private static KeyValuePair MakeKeyValuePair(KeyValueStoreItem item)
+        private static async Task<KeyValuePair> MakeKeyValuePairAsync(this KvsActorStateProvider stateProvider, KeyValueStoreItem item, EnumerationRequest request, CancellationToken cancellationToken)
         {
             bool isDeleted = item.Metadata.ValueSizeInBytes < 0;
-
-            return new KeyValuePair
+            var result = new KeyValuePair
             {
                 IsDeleted = isDeleted,
                 Version = item.Metadata.SequenceNumber,
                 Key = item.Metadata.Key,
                 Value = isDeleted ? new byte[0] : item.Value,
             };
+
+            var ambiguousActoIdHandler = new KVSAmbiguousActorIdHandler(stateProvider);
+            if (request.ResolveActorIdsForStateKVPairs && item.Metadata.Key.StartsWith("Actor_"))
+            {
+                var cv = await ambiguousActoIdHandler.TryResolveActorIdAsync(item.Metadata.Key, cancellationToken);
+                result.ActorId = cv.HasValue ? cv.Value : null;
+            }
+
+            return result;
+        }
+
+        private static void ThrowIfTombCleanupIsNotEnabled(this KvsActorStateProvider stateProvider)
+        {
+            if (!stateProvider.IsTombstoneCleanupDisabled())
+            {
+                throw new InvalidMigrationConfigException(TombstoneCleanupMessage);
+            }
         }
     }
 }

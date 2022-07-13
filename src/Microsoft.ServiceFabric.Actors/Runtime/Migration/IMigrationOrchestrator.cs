@@ -41,32 +41,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
         /// <summary>
         /// Starts the migration operation.
         /// </summary>
+        /// <param name="userTriggered">Is user triggered operation.</param>
         /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
         /// <returns>A task that represents the asynchronous migration operation.</returns>
-        public Task StartMigrationAsync(CancellationToken cancellationToken);
+        public Task StartMigrationAsync(bool userTriggered, CancellationToken cancellationToken);
 
         /// <summary>
         /// Starts the downtime phase.
         /// For source service, downtime phase indicates unavailability for any actor operations.
         /// For target service, downtime phase indicates catching up final sequence numbers from source service
         /// </summary>
+        /// <param name="userTriggered">Is user triggered operation.</param>
         /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
         /// <returns>A task that represents the asynchronous migration operation.</returns>
-        public Task StartDowntimeAsync(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Attempts to resume migration in the event of failover.
-        /// </summary>
-        /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
-        /// <returns>True indicates migration resumed post failover, false incase the migration workflow has not previously started.</returns>
-        public Task<bool> TryResumeMigrationAsync(CancellationToken cancellationToken);
+        public Task StartDowntimeAsync(bool userTriggered, CancellationToken cancellationToken);
 
         /// <summary>
         /// Aborts the migration workflow.
         /// </summary>
+        /// <param name="userTriggered">Is user triggered operation.</param>
         /// <param name="cancellationToken">Token to signal cancellation on long running taks.</param>
         /// <returns>A task that represents the asynchronous migration operation.</returns>
-        public Task AbortMigrationAsync(CancellationToken cancellationToken);
+        public Task AbortMigrationAsync(bool userTriggered, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the actor service state.

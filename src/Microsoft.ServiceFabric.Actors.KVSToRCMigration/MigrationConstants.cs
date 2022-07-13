@@ -9,6 +9,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal static class MigrationConstants
     {
+        internal static readonly TimeSpan MaxBackoffForTransientErrors = TimeSpan.FromSeconds(1);
+        internal static readonly int MaxRetryCountForTransientErrors = 4;
+        internal static readonly TimeSpan DefaultOperationTimeout = TimeSpan.FromMinutes(5);
+
         internal static readonly TimeSpan DefaultRCTimeout = TimeSpan.FromMinutes(5);
         internal static readonly char DefaultDelimiter = ',';
         internal static readonly string KVSMigrationControllerName = "KvsMigration";
@@ -18,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string GetStartSNEndpoint = "GetFirstSequenceNumber";
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
-        internal static readonly string GetDisableTCSEndpoint = "GetDisableTombstoneCleanupSetting";
+        internal static readonly string GetDisableTCSEndpoint = "IsTombstoneCleanupDisabled";
         internal static readonly string GetKVSValueByKeys = "GetValueByKeys";
 
         internal static readonly string RejectWritesKey = "_RejectWrites_";

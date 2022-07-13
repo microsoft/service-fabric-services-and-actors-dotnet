@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     {
         public HttpCommunicationClientFactory(
             IServicePartitionResolver servicePartitionResolver = null,
-            IEnumerable<IExceptionHandler> exceptionHandlers = null,
+            IEnumerable<Services.Communication.Client.IExceptionHandler> exceptionHandlers = null,
             string traceId = null)
             : base(servicePartitionResolver, exceptionHandlers, traceId)
         {

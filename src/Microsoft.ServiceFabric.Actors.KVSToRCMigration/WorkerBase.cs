@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Migration;
+    using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
@@ -44,8 +45,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public string TraceId { get => this.traceId; }
 
         public static async Task<WorkerResult> GetResultAsync(
+           ActorStateProviderHelper stateProviderHelper,
+           Func<Data.ITransaction> txFactory,
            IReliableDictionary2<string, string> metadataDict,
-           Func<ITransaction> txFactory,
            MigrationPhase migrationPhase,
            int currentIteration,
            int workerId,
@@ -55,11 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             cancellationToken.ThrowIfCancellationRequested();
 
             var status = await ParseMigrationStateAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseWorkerCurrentStatus, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(stateProviderHelper, txFactory, metadataDict, Key(PhaseWorkerCurrentStatus, migrationPhase, currentIteration, workerId), cancellationToken),
                 traceId);
 
             if (status == MigrationState.None)
@@ -82,51 +80,27 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             };
 
             workerResult.StartDateTimeUTC = (await ParseDateTimeAsync(
-                () => metadataDict.GetAsync(
-                txFactory,
-                Key(PhaseWorkerStartDateTimeUTC, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueAsync(stateProviderHelper, txFactory, metadataDict, Key(PhaseWorkerStartDateTimeUTC, migrationPhase, currentIteration, workerId), cancellationToken),
                 traceId)).Value;
 
             workerResult.EndDateTimeUTC = await ParseDateTimeAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseWorkerEndDateTimeUTC, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(stateProviderHelper, txFactory, metadataDict, Key(PhaseWorkerEndDateTimeUTC, migrationPhase, currentIteration, workerId), cancellationToken),
                 traceId);
 
             workerResult.StartSeqNum = (await ParseLongAsync(
-                () => metadataDict.GetAsync(
-                txFactory,
-                Key(PhaseWorkerStartSeqNum, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueAsync(stateProviderHelper, txFactory, metadataDict, Key(PhaseWorkerStartSeqNum, migrationPhase, currentIteration, workerId), cancellationToken),
                 traceId)).Value;
 
             workerResult.EndSeqNum = (await ParseLongAsync(
-                () => metadataDict.GetAsync(
-                txFactory,
-                Key(PhaseWorkerEndSeqNum, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueAsync(stateProviderHelper, txFactory, metadataDict, Key(PhaseWorkerEndSeqNum, migrationPhase, currentIteration, workerId), cancellationToken),
                 traceId)).Value;
 
             workerResult.LastAppliedSeqNum = await ParseLongAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseWorkerLastAppliedSeqNum, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(stateProviderHelper, txFactory, metadataDict, Key(PhaseWorkerLastAppliedSeqNum, migrationPhase, currentIteration, workerId), cancellationToken),
                 traceId);
 
             workerResult.NoOfKeysMigrated = await ParseLongAsync(
-                () => metadataDict.GetValueOrDefaultAsync(
-                txFactory,
-                Key(PhaseWorkerNoOfKeysMigrated, migrationPhase, currentIteration, workerId),
-                DefaultRCTimeout,
-                cancellationToken),
+                () => GetValueOrDefaultAsync(stateProviderHelper, txFactory, metadataDict, Key(PhaseWorkerNoOfKeysMigrated, migrationPhase, currentIteration, workerId), cancellationToken),
                 traceId);
 
             return workerResult;
