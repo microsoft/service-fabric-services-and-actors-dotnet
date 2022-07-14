@@ -28,6 +28,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj" />

@@ -52,50 +52,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <returns>Task for the execution by next middleware in pipeline.</returns>
         public async Task Invoke(HttpContext context)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
-
-            if (this.urlSuffix.Length == 0)
-            {
-                // when urlSuffix is empty string, just call the next middleware in pipeline.
-                await this.next(context);
-            }
-            else
-            {
-                // If this middleware is enabled by specifying UseServiceFabricIntegration(), CommunicationListnerBehavior is:
-                //   With ServiceFabricIntegrationOptions.UseUniqueServiceUrl (urlSuffix is /PartitionId/ReplicaOrInstanceId)
-                //      - Url given to WebServer is http://+:port
-                //      - Url given to Service Fabric Runtime is http://ip:port/PartitionId/ReplicaOrInstanceId
-
-                // Since when registering with IWebHost, only http://+:port is provided:
-                //    - HttpRequest.Path contains everything in url after http://+:port, and it must start with urlSuffix
-
-                // So short circuit and return StatusCode 410 if (message isn't intended for this replica,):
-                //    - HttpRequest.Path doesn't start with urlSuffix
-                if (!context.Request.Path.StartsWithSegments(this.urlSuffix, out var matchedPath, out var remainingPath))
-                {
-                    context.Response.StatusCode = StatusCodes.Status410Gone;
-                    return;
-                }
-
-                // All good, change Path, PathBase and call next middleware in the pipeline
-                var originalPath = context.Request.Path;
-                var originalPathBase = context.Request.PathBase;
-                context.Request.Path = remainingPath;
-                context.Request.PathBase = originalPathBase.Add(matchedPath);
-
-                try
-                {
-                    await this.next(context);
-                }
-                finally
-                {
-                    context.Request.Path = originalPath;
-                    context.Request.PathBase = originalPathBase;
-                }
-            }
+            // TODO: According to public documentation
+            // 1. SF HttpSysCommunicationListener does not support port sharing
+            //      "Multiple HTTP.sys instances can share a port by using the underlying HTTP.sys port sharing feature.
+            //      But it's not supported by HttpSysCommunicationListener due to the complications it introduces for client requests."
+            // 2. Since the unique url with partitionid + replicaid + random guid is given as prefix to http.sys host, the request lands on this replica only if the unique base path match.
+            //      This middleware is probably no longer needed.
+            await this.next(context);
         }
     }
 }

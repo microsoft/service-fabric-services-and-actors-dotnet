@@ -9,18 +9,20 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Hosting.Server;
     using Microsoft.AspNetCore.Hosting.Server.Features;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
-    internal class WebHostCommunicationListener : ICommunicationListener
+    internal class GenericHostCommunicationListener : ICommunicationListener
     {
-        private readonly Func<string, AspNetCoreCommunicationListener, IWebHost> build;
+        private readonly Func<string, AspNetCoreCommunicationListener, IHost> build;
         private readonly ServiceContext serviceContext;
         private readonly AspNetCoreCommunicationListener listener;
-        private IWebHost host;
+        private IHost host;
 
-        public WebHostCommunicationListener(Func<string, AspNetCoreCommunicationListener, IWebHost> build, AspNetCoreCommunicationListener listener)
+        public GenericHostCommunicationListener(Func<string, AspNetCoreCommunicationListener, IHost> build, AspNetCoreCommunicationListener listener)
         {
             this.serviceContext = listener.ServiceContext;
             this.build = build;
@@ -49,13 +51,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.host = this.build(this.listener.GetListenerUrl(), this.listener);
             if (this.host == null)
             {
-                throw new InvalidOperationException("IWebHost returned from build delegate is null.");
+                throw new InvalidOperationException("IHost returned from build delegate is null.");
             }
 
             await this.host.StartAsync(cancellationToken);
 
-            var url = this.host.ServerFeatures.Get<IServerAddressesFeature>().Addresses.FirstOrDefault();
+            var server = this.host.Services.GetService<IServer>();
+            if (server == null)
+            {
+                throw new InvalidOperationException("No web server found over IHost");
+            }
 
+            var url = server.Features.Get<IServerAddressesFeature>().Addresses.FirstOrDefault();
             if (url == null)
             {
                 throw new InvalidOperationException("No Url returned from AspNetCore IServerAddressesFeature.");

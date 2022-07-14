@@ -85,6 +85,9 @@
       </Dependency>
       <Dependency Include="Microsoft.AspNetCore.HttpsPolicy">
         <Version>2.2.0</Version>
-      </Dependency>      
+      </Dependency>
+      <Dependency Include="Microsoft.AspNetCore.Server.HttpSys">
+        <Version>2.2.0</Version>
+      </Dependency>
     </ItemGroup>
   </Project>

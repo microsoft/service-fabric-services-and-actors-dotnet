@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class TargetMigrationOrchestrator : MigrationOrchestratorBase
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;
-        private static volatile int isMigrationWorkflowRunning = 0;
+        private volatile int isMigrationWorkflowRunning = 0;
         private MigrationPhase currentPhase;
         private KVStoRCMigrationActorStateProvider migrationActorStateProvider;
         private IReliableDictionary2<string, string> metadataDict;
@@ -94,7 +94,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public async override Task StartMigrationAsync(CancellationToken cancellationToken)
         {
-            if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 1, 0) != 0)
+            if (Interlocked.CompareExchange(ref this.isMigrationWorkflowRunning, 1, 0) != 0)
             {
                 ActorTrace.Source.WriteWarningWithId(
                     TraceType,
@@ -172,7 +172,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             if (state == MigrationState.InProgress)
             {
-                if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1) != 0)
+                if (Interlocked.CompareExchange(ref this.isMigrationWorkflowRunning, 0, 1) != 0)
                 {
                     ActorTrace.Source.WriteWarningWithId(
                         TraceType,
