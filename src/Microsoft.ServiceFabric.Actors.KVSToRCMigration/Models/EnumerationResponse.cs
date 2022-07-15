@@ -5,30 +5,32 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
 {
+    using System.Collections.Generic;
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// KeyValuePair
+    /// Migration state response.
     /// </summary>
     [DataContract]
-    public class WorkerStatus
+    [KnownType(typeof(List<KeyValuePair>))]
+    public class EnumerationResponse
     {
         /// <summary>
-        /// Gets or Sets WorkerId
+        /// Gets or sets the key value pairs.
         /// </summary>
         [DataMember]
-        public string WorkerId { get; set; }
+        public List<KeyValuePair> KeyValuePairs { get; set; }
 
         /// <summary>
-        /// Gets or Sets FirstAppliedSeqNum
+        /// Gets or sets a value indicating whether the end of response is reached or not.
         /// </summary>
         [DataMember]
-        public long FirstAppliedSeqNum { get; set; }
+        public bool EndSequenceNumberReached { get; set; } = false;
 
         /// <summary>
-        /// Gets or Sets LastAppliedSeqNum
+        /// Gets or sets a value indicating whether the actorids are resolved from state storage key.
         /// </summary>
         [DataMember]
-        public long LastAppliedSeqNum { get; set; }
+        public bool ResolveActorIdsForStateKVPairs { get; set; }
     }
 }

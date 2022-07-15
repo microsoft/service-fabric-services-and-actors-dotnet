@@ -641,6 +641,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.stateManager.RestoreAsync(backupFolderPath, restorePolicy, cancellationToken);
         }
 
+        internal ActorStateProviderHelper GetActorStateProviderHelper()
+        {
+            return this.stateProviderHelper;
+        }
+
         internal IReliableStateManagerReplica2 GetStateManager()
         {
             return this.stateManager;
