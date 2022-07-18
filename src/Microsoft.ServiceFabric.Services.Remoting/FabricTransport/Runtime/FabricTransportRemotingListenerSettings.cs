@@ -143,7 +143,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// MaxConcurrentCalls is  the upper limit of active messages in the service.
         /// </value>
         /// <remarks>
-        ///    Defaults  value for the MaxConcurrentCalls is to the Number of processors.
+        /// Default value for the MaxConcurrentCalls is 0 which indicates that the setting is not enabled. This implies that all the messages are active and are processed simultaneously.
         /// </remarks>
         public long MaxConcurrentCalls
         {
