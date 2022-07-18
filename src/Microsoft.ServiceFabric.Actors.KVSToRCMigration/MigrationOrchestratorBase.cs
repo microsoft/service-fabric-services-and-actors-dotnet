@@ -100,7 +100,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 services => services
                                     .AddSingleton<IMigrationOrchestrator>(this))
                             .UseStartup<Startup>()
-                            .UseUrls(listener.GetListenerUrl())
                             .Build();
 
                     return webHostBuilder;

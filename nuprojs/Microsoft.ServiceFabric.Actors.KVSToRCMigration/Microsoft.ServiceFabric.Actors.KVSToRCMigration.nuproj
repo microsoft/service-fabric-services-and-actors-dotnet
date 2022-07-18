@@ -77,9 +77,6 @@
       <Dependency Include="Microsoft.AspNetCore.Hosting">
         <Version>2.2.7</Version>
       </Dependency>
-      <Dependency Include="Microsoft.AspNetCore.Server.Kestrel">
-        <Version>2.2.0</Version>
-      </Dependency>
       <Dependency Include="Microsoft.AspNetCore.Diagnostics">
         <Version>2.2.0</Version>
       </Dependency>
