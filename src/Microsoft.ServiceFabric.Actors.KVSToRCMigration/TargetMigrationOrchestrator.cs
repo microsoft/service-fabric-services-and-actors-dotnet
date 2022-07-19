@@ -29,8 +29,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class TargetMigrationOrchestrator : MigrationOrchestratorBase
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;
-        private static volatile int isMigrationWorkflowRunning = 0;
         private static volatile int isReadyForMigrationOperations = 0;
+        private volatile int isMigrationWorkflowRunning = 0;
         private MigrationPhase currentPhase;
         private KVStoRCMigrationActorStateProvider migrationActorStateProvider;
         private IReliableDictionary2<string, string> metadataDict;
@@ -111,7 +111,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.childCancellationTokenSource.Token.Register(() =>
                     {
                         Interlocked.CompareExchange(ref isReadyForMigrationOperations, 0, 1);
-                        Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1);
+                        Interlocked.CompareExchange(ref this.isMigrationWorkflowRunning, 0, 1);
                     });
                 }
                 else
@@ -429,7 +429,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private async Task StartOrResumeMigrationAsync(CancellationToken cancellationToken)
         {
-            if (Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 1, 0) != 0)
+            if (Interlocked.CompareExchange(ref this.isMigrationWorkflowRunning, 1, 0) != 0)
             {
                 ActorTrace.Source.WriteWarningWithId(
                     TraceType,
@@ -527,7 +527,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
 
             this.currentMigrationState = MigrationState.Completed;
-            Interlocked.CompareExchange(ref isMigrationWorkflowRunning, 0, 1);
+            Interlocked.CompareExchange(ref this.isMigrationWorkflowRunning, 0, 1);
         }
 
         private async Task<long> GetEndSequenceNumberAsync(CancellationToken cancellationToken)

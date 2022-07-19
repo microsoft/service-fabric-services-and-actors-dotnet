@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             var endpointName = this.GetMigrationEndpointName();
 
-            return new KestrelCommunicationListener(this.serviceContext, endpointName, (url, listener) =>
+            return new HttpSysCommunicationListener(this.serviceContext, endpointName, (url, listener) =>
             {
                 try
                 {
@@ -91,13 +91,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                     var webHostBuilder =
                         new WebHostBuilder()
-                            .UseKestrel()
+                            .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
+                            .UseHttpSys(options =>
+                            {
+                                options.UrlPrefixes.Add(listener.GetListenerUrl());
+                            })
                             .ConfigureServices(
                                 services => services
                                     .AddSingleton<IMigrationOrchestrator>(this))
-                            .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl)
                             .UseStartup<Startup>()
-                            .UseUrls(url)
                             .Build();
 
                     return webHostBuilder;
