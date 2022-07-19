@@ -294,7 +294,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 await this.StateProvider.ValidateDataPostMigrationAsync(
                     enumerationResponse.KeyValuePairs,
-                    enumerationResponse.KeyHash,
                     enumerationResponse.ValueHash,
                     this.Input.Phase == MigrationPhase.Copy,
                     cancellationToken);

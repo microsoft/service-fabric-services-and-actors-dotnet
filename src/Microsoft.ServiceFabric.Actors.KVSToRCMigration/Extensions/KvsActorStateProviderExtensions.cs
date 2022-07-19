@@ -8,8 +8,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Globalization;
     using System.Runtime.Serialization.Json;
-    using System.Security.Cryptography;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
     internal static class KvsActorStateProviderExtensions
@@ -100,15 +101,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             hasData = enumerator.MoveNext();
                             int chunk = 1;
-                            while (chunk <= request.NumberOfChunksPerEnumeration && !endSequenceNumberReached)
+                            while (hasData
+                                && chunk <= request.NumberOfChunksPerEnumeration
+                                && !endSequenceNumberReached)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
                                 var pairs = new List<KeyValuePair>();
+                                var valuePairs = new List<byte[]>();
                                 var sequenceNumberFullyDrained = true;
                                 long? firstSNInChunk = null;
                                 long? endSNInChunk = null;
-                                var keyHash = new SHA512Managed();
-                                var valueHash = new SHA512Managed();
 
                                 while (hasData
                                     && !endSequenceNumberReached
@@ -125,9 +127,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                         && !keyValuePair.IsDeleted
                                         && !MigrationUtility.IgnoreKey(keyValuePair.Key))
                                     {
-                                        // var keyBuffer = Encoding.UTF8.GetBytes(keyValuePair.Key);
-                                        // keyHash.TransformBlock(keyBuffer, 0, keyBuffer.Length, null, 0);
-                                        valueHash.TransformBlock(keyValuePair.Value, 0, keyValuePair.Value.Length, null, 0);
+                                        valuePairs.Add(keyValuePair.Value);
                                     }
 
                                     var currentSequenceNumber = keyValuePair.Version;
@@ -146,15 +146,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                     endSNInChunk = currentSequenceNumber;
                                 }
 
-                                keyHash.TransformFinalBlock(new byte[0], 0, 0);
-                                valueHash.TransformFinalBlock(new byte[0], 0, 0);
-
-                                var enumerationResponse = new EnumerationResponse()
+                                var computedHash = string.Empty;
+                                if (request.ComputeHash)
                                 {
-                                    KeyValuePairs = pairs,
-                                    KeyHash = keyHash.Hash,
-                                    ValueHash = valueHash.Hash,
-                                };
+                                    computedHash = CRC64.ToCRC64(valuePairs.ToArray()).ToString("X", CultureInfo.InvariantCulture);
+                                }
 
                                 await WriteKeyValuePairsToResponseAsync(
                                     new EnumerationResponse
@@ -162,8 +158,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                         KeyValuePairs = pairs,
                                         EndSequenceNumberReached = endSequenceNumberReached,
                                         ResolveActorIdsForStateKVPairs = request.ResolveActorIdsForStateKVPairs,
-                                        KeyHash = keyHash.Hash,
-                                        ValueHash = valueHash.Hash,
+                                        ValueHash = computedHash,
                                     },
                                     response);
                                 ++chunk;

@@ -32,16 +32,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
         [DataMember]
         public bool ResolveActorIdsForStateKVPairs { get; set; }
 
-                /// <summary>
-        /// Gets the hash for the keys in the reponse.
-        /// </summary>
-        [DataMember]
-        public byte[] KeyHash { get; internal set; }
-
         /// <summary>
         /// Gets the hash for the values in the response.
         /// </summary>
         [DataMember]
-        public byte[] ValueHash { get; internal set; }
+        public string ValueHash { get; internal set; }
     }
 }

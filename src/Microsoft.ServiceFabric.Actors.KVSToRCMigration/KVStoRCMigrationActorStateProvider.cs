@@ -8,8 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Linq;
-    using System.Security.Cryptography;
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors;
@@ -19,6 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+    using Microsoft.ServiceFabric.Services;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
     /// <summary>
@@ -322,6 +322,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 keysMigrated.Add(data.Key);
                                 lastAppliedSN = data.Version;
                             }
+
+                            await tx.CommitAsync();
                         }
                         catch (Exception ex)
                         {
@@ -377,11 +379,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return this.rcStateProvider.GetStateManager();
         }
 
-        internal async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, byte[] keyHash, byte[] valueHash, bool skipPresenceDictResolve, CancellationToken cancellationToken)
+        internal async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, string hashToCompare, bool skipPresenceDictResolve, CancellationToken cancellationToken)
         {
-            var keyHashAlgo = new SHA512Managed();
-            var valueHashAlgo = new SHA512Managed();
-
+            var values = new List<byte[]>();
             foreach (var data in kvsData)
             {
                 if (MigrationUtility.IgnoreKey(data.Key))
@@ -422,15 +422,26 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 rcValue = MigrationUtility.KVS.SerializeReminderCompletedData(data.Key, MigrationUtility.RC.DeserializeReminderCompletedData(rcKey, rcValue, this.TraceId), this.TraceId);
                             }
 
-                            valueHashAlgo.TransformBlock(rcValue, 0, rcValue.Length, null, 0);
+                            values.Add(rcValue);
+                        }
+                    }
+                    else
+                    {
+                        if (!data.IsDeleted)
+                        {
+                            ActorTrace.Source.WriteErrorWithId(
+                                this.TraceType,
+                                this.traceId,
+                                $"{data.Key} is not found.");
+
+                            throw new MigrationDataValidationException("Post migration validation checks failed.");
                         }
                     }
                 }
             }
 
-            valueHashAlgo.TransformFinalBlock(new byte[0], 0, 0);
-            var rcValueHash = valueHashAlgo.Hash;
-            if (!valueHash.SequenceEqual(rcValueHash))
+            var computedHash = CRC64.ToCRC64(values.ToArray()).ToString("X", CultureInfo.InvariantCulture);
+            if (!computedHash.Equals(hashToCompare, StringComparison.InvariantCulture))
             {
                 ActorTrace.Source.WriteErrorWithId(
                         this.TraceType,

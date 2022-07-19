@@ -52,12 +52,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
         /// <summary>
         /// Gets or sets a value indicating whether data intergrity checks are enabled.
         /// </summary>
+        [DataMember]
+        [Required]
         public bool ComputeHash { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to include actorids for actor state KV pairs.
         /// </summary>
         [DataMember]
+        [Required]
         public bool ResolveActorIdsForStateKVPairs { get; set; }
     }
 }
