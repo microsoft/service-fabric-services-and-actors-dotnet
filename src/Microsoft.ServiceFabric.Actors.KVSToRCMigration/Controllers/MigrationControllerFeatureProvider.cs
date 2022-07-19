@@ -16,7 +16,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     {
         protected override bool IsController(TypeInfo typeInfo)
         {
-            var isMigrationController = !typeInfo.IsAbstract && typeof(MigrationControllerBase).IsAssignableFrom(typeInfo);
+            var isMigrationController = !typeInfo.IsAbstract
+                && (typeof(RcMigrationController).IsAssignableFrom(typeInfo)
+                    || typeof(KvsMigrationController).IsAssignableFrom(typeInfo));
             return isMigrationController || base.IsController(typeInfo);
         }
     }

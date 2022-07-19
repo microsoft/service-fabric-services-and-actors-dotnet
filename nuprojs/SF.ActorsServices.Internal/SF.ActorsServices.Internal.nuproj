@@ -20,6 +20,5 @@
       <File Include="$(DropFolderNetStandard)*.*">
         <TargetPath>lib\netstandard</TargetPath>
       </File>
-      
-    </ItemGroup>    
+    </ItemGroup>
   </Project>

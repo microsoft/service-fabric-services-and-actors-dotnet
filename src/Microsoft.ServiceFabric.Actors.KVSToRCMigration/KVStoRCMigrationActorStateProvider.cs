@@ -36,13 +36,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private Task stateProviderInitTask;
         private StatefulServiceInitializationParameters initParams;
         private CancellationTokenSource stateProviderInitCts;
+        private RCAmbiguousActorIdHandler ambiguousActorIdHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KVStoRCMigrationActorStateProvider"/> class.
         /// </summary>
         public KVStoRCMigrationActorStateProvider()
+            : this(new ReliableCollectionsActorStateProvider())
         {
-            this.rcStateProvider = new ReliableCollectionsActorStateProvider();
         }
 
         /// <summary>
@@ -54,6 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public KVStoRCMigrationActorStateProvider(ReliableCollectionsActorStateProvider reliableCollectionsActorStateProvider)
         {
             this.rcStateProvider = reliableCollectionsActorStateProvider;
+            this.ambiguousActorIdHandler = new RCAmbiguousActorIdHandler(this.rcStateProvider);
         }
 
         /// <inheritdoc/>
@@ -253,102 +255,110 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <param name="cancellationToken">
         /// Cancellation token
         /// </param>
+        /// <param name="skipPresenceDictResolve">If true, attempts to resolve the actorid(ambiguous) from user resolver implementation.
+        /// If false, then local presence dictionary is used before user resolvers.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken)
+        public async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken, bool skipPresenceDictResolve = false)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
             long lastAppliedSN = -1;
-            using (var tx = this.GetStateManager().CreateTransaction())
-            {
-                try
+            return await this.rcStateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+                async () =>
                 {
-                    foreach (var data in kvsData)
+                    using (var tx = this.GetStateManager().CreateTransaction())
                     {
-                        byte[] rcValue = { };
-                        if (this.GetDictionaryFromKVSKey(data.Key, out var dictionary))
+                        try
                         {
-                            var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
-                            if (!data.IsDeleted)
+                            foreach (var data in kvsData)
                             {
-                                rcValue = data.Value;
-                                if (data.Key.StartsWith(ActorPresenceKeyPrefix))
+                                byte[] rcValue = { };
+                                var dictionary = await this.GetDictionaryFromKVSKeyAsync(data, tx, skipPresenceDictResolve, cancellationToken);
+                                if (dictionary == null)
                                 {
-                                    presenceKeyCount++;
-                                }
-                                else if (data.Key.StartsWith(ActorStorageKeyPrefix))
-                                {
-                                    actorStateCount++;
-                                }
-                                else if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
-                                {
-                                    ReminderCompletedData reminderCompletedData = MigrationUtility.KVS.DeserializeReminderCompletedData(data.Key, data.Value, this.TraceId);
-                                    rcValue = MigrationUtility.RC.SerializeReminderCompletedData(data.Key, reminderCompletedData, this.TraceId);
-                                    reminderCompletedKeyCount++;
-                                }
-                                else if (data.Key.StartsWith(ReminderStorageKeyPrefix))
-                                {
-                                    ActorReminderData reminderCompletedData = MigrationUtility.KVS.DeserializeReminder(data.Key, data.Value, this.TraceId);
-                                    rcValue = MigrationUtility.RC.SerializeReminder(data.Key, reminderCompletedData, this.TraceId);
-                                    reminderCount++;
+                                    continue;
                                 }
 
-                                cancellationToken.ThrowIfCancellationRequested();
-                                await dictionary.AddOrUpdateAsync(tx, rcKey, rcValue, (k, v) => rcValue);
-                            }
-                            else
-                            {
-                                if (!(await dictionary.TryRemoveAsync(tx, rcKey)).HasValue)
+                                var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
+                                if (!data.IsDeleted)
                                 {
-                                    // It should be fine, if we are unable to delete the entry, since the data validation would catch any abnormallity.
-                                    ActorTrace.Source.WriteInfoWithId(
-                                        this.TraceType,
-                                        this.traceId,
-                                        $"Failed to apply tombstone. Common cause for this behavior could be a failover.");
-                                }
-                            }
+                                    rcValue = data.Value;
+                                    if (data.Key.StartsWith(ActorPresenceKeyPrefix))
+                                    {
+                                        presenceKeyCount++;
+                                    }
+                                    else if (data.Key.StartsWith(ActorStorageKeyPrefix))
+                                    {
+                                        actorStateCount++;
+                                    }
+                                    else if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
+                                    {
+                                        ReminderCompletedData reminderCompletedData = MigrationUtility.KVS.DeserializeReminderCompletedData(data.Key, data.Value, this.TraceId);
+                                        rcValue = MigrationUtility.RC.SerializeReminderCompletedData(data.Key, reminderCompletedData, this.TraceId);
+                                        reminderCompletedKeyCount++;
+                                    }
+                                    else if (data.Key.StartsWith(ReminderStorageKeyPrefix))
+                                    {
+                                        ActorReminderData reminderCompletedData = MigrationUtility.KVS.DeserializeReminder(data.Key, data.Value, this.TraceId);
+                                        rcValue = MigrationUtility.RC.SerializeReminder(data.Key, reminderCompletedData, this.TraceId);
+                                        reminderCount++;
+                                    }
 
-                            keysMigrated.Add(data.Key);
-                            lastAppliedSN = data.Version;
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    await dictionary.AddOrUpdateAsync(tx, rcKey, rcValue, (k, v) => rcValue);
+                                }
+                                else
+                                {
+                                    if (!(await dictionary.TryRemoveAsync(tx, rcKey)).HasValue)
+                                    {
+                                        // It should be fine, if we are unable to delete the entry, since the data validation would catch any abnormallity.
+                                        ActorTrace.Source.WriteInfoWithId(
+                                            this.TraceType,
+                                            this.traceId,
+                                            $"Failed to apply tombstone. Common cause for this behavior could be a failover.");
+                                    }
+                                }
+
+                                keysMigrated.Add(data.Key);
+                                lastAppliedSN = data.Version;
+                            }
                         }
+                        catch (Exception ex)
+                        {
+                            await this.metadataDictionary.TryAddAsync(
+                               tx,
+                               MigrationConstants.MigrationEndDateTimeUTC,
+                               DateTime.UtcNow.ToString(),
+                               MigrationConstants.DefaultRCTimeout,
+                               cancellationToken);
+
+                            await this.metadataDictionary.AddOrUpdateAsync(
+                                tx,
+                                MigrationConstants.MigrationCurrentStatus,
+                                MigrationState.Aborted.ToString(),
+                                (_, __) => MigrationState.Aborted.ToString(),
+                                MigrationConstants.DefaultRCTimeout,
+                                cancellationToken);
+
+                            // Commit with the same transaction to avoid race condition during failover.
+                            await tx.CommitAsync();
+
+                            throw ex;
+                        }
+
+                        ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated));
+
+                        string infoLevelMessage = "Migrated " + presenceKeyCount + " presence keys, "
+                            + reminderCompletedKeyCount + " reminder completed keys, "
+                            + logicalTimeCount + " logical timestamps, "
+                            + actorStateCount + " actor states and "
+                            + reminderCount + " reminders.";
+                        ActorTrace.Source.WriteInfoWithId(this.TraceType, this.traceId, infoLevelMessage);
+                        return keysMigrated.Count;
                     }
-
-                    await tx.CommitAsync();
-                }
-                catch (Exception ex)
-                {
-                    await this.metadataDictionary.TryAddAsync(
-                       tx,
-                       MigrationConstants.MigrationEndDateTimeUTC,
-                       DateTime.UtcNow.ToString(),
-                       MigrationConstants.DefaultRCTimeout,
-                       cancellationToken);
-
-                    await this.metadataDictionary.AddOrUpdateAsync(
-                        tx,
-                        MigrationConstants.MigrationCurrentStatus,
-                        MigrationState.Aborted.ToString(),
-                        (_, __) => MigrationState.Aborted.ToString(),
-                        MigrationConstants.DefaultRCTimeout,
-                        cancellationToken);
-
-                    // Commit with the same transaction to avoid race condition during failover.
-                    await tx.CommitAsync();
-
-                    throw ex;
-                }
-
-                ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated));
-
-                string infoLevelMessage = "Migrated " + presenceKeyCount + " presence keys, "
-                    + reminderCompletedKeyCount + " reminder completed keys, "
-                    + logicalTimeCount + " logical timestamps, "
-                    + actorStateCount + " actor states and "
-                    + reminderCount + " reminders.";
-                ActorTrace.Source.WriteInfoWithId(this.TraceType, this.traceId, infoLevelMessage);
-            }
-
-            return keysMigrated.Count;
+                },
+                "KVSToRCMigrationActorStateProvide.SaveStateAsync",
+                cancellationToken);
         }
 
         internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()
@@ -367,7 +377,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return this.rcStateProvider.GetStateManager();
         }
 
-        internal async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, byte[] keyHash, byte[] valueHash)
+        internal async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, byte[] keyHash, byte[] valueHash, bool skipPresenceDictResolve, CancellationToken cancellationToken)
         {
             var keyHashAlgo = new SHA512Managed();
             var valueHashAlgo = new SHA512Managed();
@@ -379,37 +389,40 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     continue;
                 }
 
-                var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
-                if (this.GetDictionaryFromKVSKey(data.Key, out var dictionary))
+                using (var tx = this.GetStateManager().CreateTransaction())
                 {
-                    using (var tx = this.GetStateManager().CreateTransaction())
+                    var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
+                    var dictionary = await this.GetDictionaryFromKVSKeyAsync(data, tx, skipPresenceDictResolve, cancellationToken);
+                    if (dictionary == null)
                     {
-                        var condValue = await dictionary.TryGetValueAsync(tx, rcKey);
-                        if (condValue.HasValue)
+                        continue;
+                    }
+
+                    var condValue = await dictionary.TryGetValueAsync(tx, rcKey);
+                    if (condValue.HasValue)
+                    {
+                        if (data.IsDeleted)
                         {
-                            if (data.IsDeleted)
-                            {
-                                ActorTrace.Source.WriteErrorWithId(
-                                    this.TraceType,
-                                    this.traceId,
-                                    $"{data.Key} exists while it is expected to be deleted");
+                            ActorTrace.Source.WriteErrorWithId(
+                                this.TraceType,
+                                this.traceId,
+                                $"{data.Key} exists while it is expected to be deleted");
 
-                                throw new MigrationDataValidationException("Post migration validation checks failed.");
-                            }
-                            else
+                            throw new MigrationDataValidationException("Post migration validation checks failed.");
+                        }
+                        else
+                        {
+                            var rcValue = condValue.Value;
+                            if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
                             {
-                                var rcValue = condValue.Value;
-                                if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
-                                {
-                                    rcValue = MigrationUtility.KVS.SerializeReminder(data.Key, MigrationUtility.RC.DeserializeReminder(rcKey, rcValue, this.TraceId), this.TraceId);
-                                }
-                                else if (data.Key.StartsWith(ReminderStorageKeyPrefix))
-                                {
-                                    rcValue = MigrationUtility.KVS.SerializeReminderCompletedData(data.Key, MigrationUtility.RC.DeserializeReminderCompletedData(rcKey, rcValue, this.TraceId), this.TraceId);
-                                }
-
-                                valueHashAlgo.TransformBlock(rcValue, 0, rcValue.Length, null, 0);
+                                rcValue = MigrationUtility.KVS.SerializeReminder(data.Key, MigrationUtility.RC.DeserializeReminder(rcKey, rcValue, this.TraceId), this.TraceId);
                             }
+                            else if (data.Key.StartsWith(ReminderStorageKeyPrefix))
+                            {
+                                rcValue = MigrationUtility.KVS.SerializeReminderCompletedData(data.Key, MigrationUtility.RC.DeserializeReminderCompletedData(rcKey, rcValue, this.TraceId), this.TraceId);
+                            }
+
+                            valueHashAlgo.TransformBlock(rcValue, 0, rcValue.Length, null, 0);
                         }
                     }
                 }
@@ -428,9 +441,25 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        private bool GetDictionaryFromKVSKey(string key, out IReliableDictionary2<string, byte[]> dictionary)
+        internal ReliableCollectionsActorStateProvider GetInternalStateProvider()
         {
-            dictionary = null;
+            return this.rcStateProvider;
+        }
+
+        internal string TransformKVSKeyToRCFormat(string key)
+        {
+            int firstUnderscorePosition = key.IndexOf("_");
+            if (key.StartsWith("@@"))
+            {
+                return key.Substring(firstUnderscorePosition + 1) + "_";
+            }
+
+            return key.Substring(firstUnderscorePosition + 1);
+        }
+
+        private async Task<IReliableDictionary2<string, byte[]>> GetDictionaryFromKVSKeyAsync(KeyValuePair data, Data.ITransaction tx, bool skipPresenceDictResolve, CancellationToken cancellationToken)
+        {
+            var key = data.Key;
             IReliableDictionary2<string, byte[]> temp = null;
             if (key.StartsWith(ActorPresenceKeyPrefix))
             {
@@ -438,7 +467,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
             else if (key.StartsWith(ActorStorageKeyPrefix))
             {
-                temp = this.rcStateProvider.GetActorStateDictionary(this.GetActorIdFromStorageKey(key));
+                ActorId actorId;
+                if (string.IsNullOrEmpty(data.ActorId))
+                {
+                    var rcKey = this.TransformKVSKeyToRCFormat(data.Key);
+                    actorId = await this.ambiguousActorIdHandler.ResolveActorIdAsync(rcKey, tx, cancellationToken, skipPresenceDictResolve);
+                }
+                else
+                {
+                    actorId = new ActorId(data.ActorId);
+                }
+
+                temp = this.rcStateProvider.GetActorStateDictionary(actorId);
             }
             else if (key.StartsWith(ReminderCompletedeStorageKeyPrefix))
             {
@@ -456,8 +496,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.traceId,
                     $"Ignoring KVS key - {key}",
                     key);
-
-                return false;
             }
             else
             {
@@ -467,13 +505,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.TraceType,
                     this.traceId,
                     message);
-
-                return false;
             }
 
-            dictionary = temp;
-
-            return true;
+            return temp;
         }
 
         private ActorId GetActorIdFromStorageKey(string key)
@@ -508,17 +542,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
 
             return -1;
-        }
-
-        private string TransformKVSKeyToRCFormat(string key)
-        {
-            int firstUnderscorePosition = key.IndexOf("_");
-            if (key.StartsWith("@@"))
-            {
-                return key.Substring(firstUnderscorePosition + 1) + "_";
-            }
-
-            return key.Substring(firstUnderscorePosition + 1);
         }
 
         private async Task InitializeMetadataDictAsync(CancellationToken cancellationToken)

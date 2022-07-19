@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Client;
@@ -47,14 +48,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }
                 else
                 {
-                    return (await ParseLongAsync(
-                       () => this.ServicePartitionClient.InvokeWithRetryAsync<string>(
-                       async client =>
-                       {
-                           return await client.HttpClient.GetStringAsync($"{KVSMigrationControllerName}/{GetStartSNEndpoint}");
-                       },
-                       cancellationToken),
-                       this.TraceId)).Value;
+                    var response = await this.ServicePartitionClient.InvokeWebRequestWithRetryAsync(
+                        async client =>
+                        {
+                            return await client.HttpClient.GetAsync($"{KVSMigrationControllerName}/{GetStartSNEndpoint}");
+                        },
+                        "GetStartSequenceNumberAsync",
+                        cancellationToken);
+                    return (await ParseLongAsync(async () => await response.Content.ReadAsStringAsync(), this.TraceId)).Value;
                 }
             }
 

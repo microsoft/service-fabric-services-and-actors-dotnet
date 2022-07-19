@@ -277,6 +277,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal async Task StartRemindersIfNeededAsync(bool actorCallsAllowed, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (actorCallsAllowed)
             {
                 ActorTrace.Source.WriteInfoWithId(
@@ -417,12 +418,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             if (this.migrationOrchestrator != null)
             {
-                bool isResumed = await this.migrationOrchestrator.TryResumeMigrationAsync(cancellationToken);
-                if (!isResumed && this.migrationOrchestrator.IsAutoStartMigration())
-                {
-                    await this.migrationOrchestrator.StartMigrationAsync(cancellationToken);
-                    return;
-                }
+                await this.migrationOrchestrator.StartMigrationAsync(false, cancellationToken);
             }
             else
             {

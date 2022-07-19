@@ -6,38 +6,58 @@
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
 {
     using System.ComponentModel.DataAnnotations;
+    using System.Runtime.Serialization;
 
     /// <summary>
     /// EnumerationRequest
     /// </summary>
+    [DataContract]
     public class EnumerationRequest
     {
         /// <summary>
-        /// Gets or Sets StartSN
+        /// Gets or Sets start sequence number per enumeration.
         /// </summary>
+        [DataMember]
         [Required]
-        public long StartSN { get; set; }
+        public long StartSequenceNumber { get; set; }
 
         /// <summary>
-        /// Gets or Sets NoOfItems
+        /// Gets or Sets end sequence number per enumeration.
         /// </summary>
+        [DataMember]
         [Required]
-        public long NoOfItems { get; set; }
+        public long EndSequenceNumber { get; set; }
 
         /// <summary>
         /// Gets or Sets ChunkSize
         /// </summary>
+        [DataMember]
         [Required]
         public long ChunkSize { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether includeDeletes
+        /// Gets or Sets number of chunks per enumeration.
         /// </summary>
+        [DataMember]
+        [Required]
+        public int NumberOfChunksPerEnumeration { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to include tombstones in the response.
+        /// </summary>
+        [DataMember]
+        [Required]
         public bool IncludeDeletes { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether data intergrity checks are enabled.
         /// </summary>
         public bool ComputeHash { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to include actorids for actor state KV pairs.
+        /// </summary>
+        [DataMember]
+        public bool ResolveActorIdsForStateKVPairs { get; set; }
     }
 }

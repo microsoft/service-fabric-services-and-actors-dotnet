@@ -10,11 +10,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Fabric;
     using System.IO;
     using System.Net.Http;
-    using System.Runtime.Serialization;
+    using System.Net.Http.Headers;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Xml;
+    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -27,10 +28,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class MigrationWorker : WorkerBase
     {
         private static readonly string TraceType = typeof(MigrationWorker).Name;
-        private static DataContractSerializer keyvaluepairserializer = new DataContractSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
-        private StatefulServiceInitializationParameters initParams;
+        private static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
+        private static readonly DataContractJsonSerializer Requestserializer = new DataContractJsonSerializer(typeof(EnumerationRequest));
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
         private MigrationSettings migrationSettings;
+        private ActorStateProviderHelper stateProviderHelper;
 
         public MigrationWorker(
             KVStoRCMigrationActorStateProvider stateProvider,
@@ -41,17 +43,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             string traceId)
             : base(stateProvider, workerInput, traceId)
         {
-            this.initParams = this.StateProvider.GetInitParams();
             this.servicePartitionClient = servicePartitionClient;
             this.migrationSettings = migrationSettings;
+            this.stateProviderHelper = this.StateProvider.GetInternalStateProvider().GetActorStateProviderHelper();
         }
 
         public override async Task<WorkerResult> StartWorkAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
-                        TraceType,
-                        this.TraceId,
-                        $"Starting or resuming migration worker\n Input: {this.Input.ToString()}");
+                TraceType,
+                this.TraceId,
+                $"Starting or resuming migration worker\n Input: {this.Input.ToString()}");
 
             try
             {
@@ -61,15 +63,22 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     startSN = this.Input.LastAppliedSeqNum.Value + 1;
                     if (startSN > this.Input.EndSeqNum)
                     {
-                        using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
-                        {
-                            await this.CompleteWorkerAsync(tx, cancellationToken);
-                            await tx.CommitAsync();
-                        }
+                        await this.stateProviderHelper.ExecuteWithRetriesAsync(
+                            async () =>
+                            {
+                                using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                                {
+                                    await this.CompleteWorkerAsync(tx, cancellationToken);
+                                    await tx.CommitAsync();
+                                }
+                            },
+                            "MigrationWorker.StartWorkAsync",
+                            cancellationToken);
 
                         return await GetResultAsync(
-                                this.MetadataDict,
+                                this.stateProviderHelper,
                                 () => this.StateProvider.GetStateManager().CreateTransaction(),
+                                this.MetadataDict,
                                 this.Input.Phase,
                                 this.Input.Iteration,
                                 this.Input.WorkerId,
@@ -78,133 +87,125 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 }
 
-                var endSN = startSN + this.migrationSettings.ItemsPerEnumeration - 1;
                 long keysMigrated = 0L;
-
                 while (startSN <= this.Input.EndSeqNum)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (endSN > this.Input.EndSeqNum)
-                    {
-                        endSN = this.Input.EndSeqNum;
-                    }
-
-                    keysMigrated += await this.FetchAndSaveAsync(startSN, this.migrationSettings.ItemsPerEnumeration, endSN, cancellationToken);
-                    startSN = endSN + 1;
-                    endSN += this.migrationSettings.ItemsPerEnumeration;
+                    var fetchAndSaveResponse = await this.FetchAndSaveAsync(startSN, cancellationToken);
+                    startSN = fetchAndSaveResponse.LastAppliedSequenceNumber + 1;
+                    keysMigrated += fetchAndSaveResponse.NumberOfKeysApplied;
                 }
 
                 var result = await GetResultAsync(
-                    this.MetadataDict,
+                    this.stateProviderHelper,
                     () => this.StateProvider.GetStateManager().CreateTransaction(),
+                    this.MetadataDict,
                     this.Input.Phase,
                     this.Input.Iteration,
                     this.Input.WorkerId,
                     this.TraceId,
                     cancellationToken);
                 ActorTrace.Source.WriteInfoWithId(
-                           TraceType,
-                           this.TraceId,
-                           $"Completed migration worker\n Result: {result.ToString()} ");
+                    TraceType,
+                    this.TraceId,
+                    $"Completed migration worker\n Result: {result.ToString()} ");
 
                 return result;
             }
             catch (Exception ex)
             {
                 ActorTrace.Source.WriteErrorWithId(
-                            TraceType,
-                            this.TraceId,
-                            $"Migration worker failed with error: {ex} \n Input: /*Dump input*/");
+                    TraceType,
+                    this.TraceId,
+                    $"Migration worker failed with error: {ex} \n Input: /*Dump input*/");
 
                 throw ex;
             }
         }
 
-        private async Task<long> FetchAndSaveAsync(long startSN, long snCount, long endSN, CancellationToken cancellationToken)
+        private async Task<FetchAndSaveResponse> FetchAndSaveAsync(long startSN, CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.TraceId,
-                $"Enumerating from KVS - StartSN: {startSN}, SNCount: {snCount}");
+                $"Enumerating from KVS - StartSN: {startSN}");
+
             long keysMigrated = 0L;
             long laSN = -1;
+            EnumerationResponse enumerationResponse = null;
 
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var response = await this.servicePartitionClient.InvokeWithRetryAsync<HttpResponseMessage>(async client =>
-                {
-                    return await client.HttpClient.SendAsync(this.CreateKvsApiRequestMessage(client.EndpointUri, startSN, snCount), HttpCompletionOption.ResponseHeadersRead);
-                });
+                var response = await this.servicePartitionClient.InvokeWebRequestWithRetryAsync(
+                    async client =>
+                    {
+                        var response = await client.HttpClient.SendAsync(
+                            this.CreateKvsApiRequestMessage(client.EndpointUri, startSN),
+                            HttpCompletionOption.ResponseHeadersRead,
+                            cancellationToken);
 
-                response.EnsureSuccessStatusCode();
+                        return response;
+                    },
+                    "FetchAndSaveAsync",
+                    cancellationToken);
+
                 using (var stream = await response.Content.ReadAsStreamAsync())
                 {
                     using (var streamReader = new StreamReader(stream))
                     {
-                        string responseLine = streamReader.ReadLine();
+                        string responseLine = await streamReader.ReadLineAsync();
                         cancellationToken.ThrowIfCancellationRequested();
                         while (responseLine != null)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-
-                            EnumerationResponse enumerationResponse;
-                            using (Stream memoryStream = new MemoryStream())
+                            enumerationResponse = SerializationUtility.Deserialize<EnumerationResponse>(ResponseSerializer, Encoding.UTF8.GetBytes(responseLine));
+                            var kvsData = enumerationResponse.KeyValuePairs;
+                            if (kvsData.Count > 0)
                             {
-                                byte[] data = Encoding.UTF8.GetBytes(responseLine);
-                                memoryStream.Write(data, 0, data.Length);
-                                memoryStream.Position = 0;
-
-                                using (var reader = XmlDictionaryReader.CreateTextReader(memoryStream, XmlDictionaryReaderQuotas.Max))
-                                {
-                                    enumerationResponse = (EnumerationResponse)keyvaluepairserializer.ReadObject(reader);
-                                }
-                            }
-
-                            if (enumerationResponse != null
-                                && enumerationResponse.KeyValuePairs != null
-                                && enumerationResponse.KeyValuePairs.Count > 0)
-                            {
-                                laSN = enumerationResponse.KeyValuePairs[enumerationResponse.KeyValuePairs.Count - 1].Version;
-                                keysMigrated += await this.StateProvider.SaveStateAsync(enumerationResponse.KeyValuePairs, cancellationToken);
-
-                                // Data validation
-                                await this.PostHydrationValidationAsync(enumerationResponse);
-
-                                using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
-                                {
-                                    await this.MetadataDict.AddOrUpdateAsync(
-                                        tx,
-                                        Key(PhaseWorkerNoOfKeysMigrated, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
-                                        keysMigrated.ToString(),
-                                        (k, v) =>
-                                        {
-                                            long currVal = ParseLong(v, this.TraceId);
-                                            return (currVal + keysMigrated).ToString();
-                                        },
-                                        DefaultRCTimeout,
-                                        cancellationToken);
-
-                                    await this.MetadataDict.AddOrUpdateAsync(
-                                        tx,
-                                        Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
-                                        laSN.ToString(),
-                                        (_, __) => laSN.ToString(),
-                                        DefaultRCTimeout,
-                                        cancellationToken);
-
-                                    if (laSN == this.Input.EndSeqNum)
+                                laSN = kvsData[kvsData.Count - 1].Version;
+                                keysMigrated += await this.StateProvider.SaveStateAsync(kvsData, cancellationToken, this.Input.Phase == MigrationPhase.Copy);
+                                await this.PostHydrationValidationAsync(enumerationResponse, cancellationToken);
+                                await this.stateProviderHelper.ExecuteWithRetriesAsync(
+                                    async () =>
                                     {
-                                        await this.CompleteWorkerAsync(tx, cancellationToken);
-                                    }
+                                        using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                                        {
+                                            await this.MetadataDict.AddOrUpdateAsync(
+                                                tx,
+                                                Key(PhaseWorkerNoOfKeysMigrated, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
+                                                keysMigrated.ToString(),
+                                                (k, v) =>
+                                                {
+                                                    long currVal = ParseLong(v, this.TraceId);
+                                                    return (currVal + keysMigrated).ToString();
+                                                },
+                                                DefaultRCTimeout,
+                                                cancellationToken);
 
-                                    await tx.CommitAsync();
-                                }
+                                            await this.MetadataDict.AddOrUpdateAsync(
+                                                tx,
+                                                Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
+                                                laSN.ToString(),
+                                                (_, __) => laSN.ToString(),
+                                                DefaultRCTimeout,
+                                                cancellationToken);
+
+                                            if (laSN == this.Input.EndSeqNum)
+                                            {
+                                                await this.CompleteWorkerAsync(tx, cancellationToken);
+                                            }
+
+                                            await tx.CommitAsync();
+                                        }
+                                    },
+                                    "MigrationWorker.FetchAndSaveAsync",
+                                    cancellationToken);
 
                                 ActorTrace.Source.WriteInfoWithId(
                                     TraceType,
                                     this.TraceId,
-                                    $"Total Keys migrated - StartSN: {startSN}, SNCount: {snCount}, KeysFetched: {enumerationResponse.KeyValuePairs.Count}, KeysMigrated: {keysMigrated}");
+                                    $"Total Keys migrated - StartSN: {startSN}, KeysFetched: {kvsData.Count}, KeysMigrated: {keysMigrated}");
                             }
 
                             responseLine = streamReader.ReadLine();
@@ -212,78 +213,99 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 }
 
-                if (endSN == this.Input.EndSeqNum && laSN != endSN)
+                if (enumerationResponse != null && enumerationResponse.EndSequenceNumberReached)
                 {
-                    // This could happen, if SN merge caused the endSN to disappear
-                    using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
-                    {
-                        await this.MetadataDict.AddOrUpdateAsync(
-                            tx,
-                            Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
-                            endSN.ToString(),
-                            (_, __) => endSN.ToString(),
-                            DefaultRCTimeout,
-                            cancellationToken);
-
-                        if (endSN == this.Input.EndSeqNum)
+                    await this.stateProviderHelper.ExecuteWithRetriesAsync(
+                        async () =>
                         {
-                            await this.CompleteWorkerAsync(tx, cancellationToken);
-                        }
+                            using (var tx = this.StateProvider.GetStateManager().CreateTransaction())
+                            {
+                                await this.MetadataDict.AddOrUpdateAsync(
+                                    tx,
+                                    Key(PhaseWorkerLastAppliedSeqNum, this.Input.Phase, this.Input.Iteration, this.Input.WorkerId),
+                                    this.Input.EndSeqNum.ToString(),
+                                    (_, __) => this.Input.EndSeqNum.ToString(),
+                                    DefaultRCTimeout,
+                                    cancellationToken);
 
-                        await tx.CommitAsync();
-                    }
+                                await this.CompleteWorkerAsync(tx, cancellationToken);
+                                await tx.CommitAsync();
+                            }
+                        },
+                        "MigrationWorker.FetchAndSaveAsync",
+                        cancellationToken);
                 }
 
-                return keysMigrated;
+                return new FetchAndSaveResponse
+                {
+                    LastAppliedSequenceNumber = enumerationResponse == null || enumerationResponse.EndSequenceNumberReached ? this.Input.EndSeqNum : laSN,
+                    NumberOfKeysApplied = keysMigrated,
+                };
             }
             catch (Exception ex)
             {
                 ActorTrace.Source.WriteErrorWithId(
                     TraceType,
                     this.TraceId,
-                    "Error occured while enumerating and saving data - StartSN: {0}, SNCount: {1}, Exception: {2}",
+                    "Error occured while enumerating and saving data - StartSN: {0}, Exception: {1}",
                     startSN,
-                    snCount,
                     ex);
                 throw ex;
             }
         }
 
-        private EnumerationRequest CreateEnumerationRequestObject(long startSN, long enumerationSize)
+        private EnumerationRequest CreateEnumerationRequestObject(long startSN)
         {
-            var req = new EnumerationRequest();
-            req.StartSN = startSN;
-            req.ChunkSize = this.migrationSettings.ItemsPerChunk;
-            req.NoOfItems = enumerationSize;
-            req.IncludeDeletes = this.Input.Phase != MigrationPhase.Copy;
-            req.ComputeHash = this.migrationSettings.EnableDataIntegrityChecks;
+            var req = new EnumerationRequest
+            {
+                StartSequenceNumber = startSN,
+                EndSequenceNumber = this.Input.EndSeqNum,
+                ChunkSize = this.migrationSettings.KeyValuePairsPerChunk,
+                NumberOfChunksPerEnumeration = this.migrationSettings.ChunksPerEnumeration,
+                IncludeDeletes = this.Input.Phase != MigrationPhase.Copy,
+                ResolveActorIdsForStateKVPairs = this.Input.Phase == MigrationPhase.Copy,
+                ComputeHash = this.migrationSettings.EnableDataIntegrityChecks,
+            };
+
             return req;
         }
 
-        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseUri, long startSN, long enumerationSize)
+        private HttpRequestMessage CreateKvsApiRequestMessage(Uri baseUri, long startSN)
         {
-            var requestserializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(EnumerationRequest));
-            var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN, enumerationSize);
+            var enumerationRequestContent = this.CreateEnumerationRequestObject(startSN);
 
-            var stream = new MemoryStream();
-            requestserializer.WriteObject(stream, enumerationRequestContent);
-
-            var content = Encoding.UTF8.GetString(stream.ToArray());
+            var requestBuffer = new ByteArrayContent(SerializationUtility.Serialize(Requestserializer, enumerationRequestContent));
+            requestBuffer.Headers.ContentType = new MediaTypeHeaderValue("application/json")
+            {
+                CharSet = Encoding.UTF8.WebName,
+            };
 
             return new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(baseUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.EnumeratebySNEndpoint}"),
-                Content = new StringContent(content, Encoding.UTF8, "application/json"),
+                Content = requestBuffer,
             };
         }
 
-        private async Task PostHydrationValidationAsync(EnumerationResponse enumerationResponse)
+        private async Task PostHydrationValidationAsync(EnumerationResponse enumerationResponse, CancellationToken cancellationToken)
         {
             if (this.migrationSettings.EnableDataIntegrityChecks)
             {
-                await this.StateProvider.ValidateDataPostMigrationAsync(enumerationResponse.KeyValuePairs, enumerationResponse.KeyHash, enumerationResponse.ValueHash);
+                await this.StateProvider.ValidateDataPostMigrationAsync(
+                    enumerationResponse.KeyValuePairs,
+                    enumerationResponse.KeyHash,
+                    enumerationResponse.ValueHash,
+                    this.Input.Phase == MigrationPhase.Copy,
+                    cancellationToken);
             }
+        }
+
+        internal class FetchAndSaveResponse
+        {
+            public long LastAppliedSequenceNumber { get; set; }
+
+            public long NumberOfKeysApplied { get; set; }
         }
     }
 }
