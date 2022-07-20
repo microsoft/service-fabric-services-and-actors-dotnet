@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class TargetMigrationOrchestrator : MigrationOrchestratorBase
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;
-        private static volatile int isReadyForMigrationOperations = 0;
+        private volatile int isReadyForMigrationOperations = 0;
         private volatile int isMigrationWorkflowRunning = 0;
         private MigrationPhase currentPhase;
         private KVStoRCMigrationActorStateProvider migrationActorStateProvider;
@@ -107,10 +107,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.metadataDict = await this.migrationActorStateProvider.GetMetadataDictionaryAsync();
                     this.childCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                     this.currentMigrationState = await this.GetCurrentMigrationStateAsync(this.childCancellationTokenSource.Token);
-                    Interlocked.CompareExchange(ref isReadyForMigrationOperations, 1, 0);
+                    Interlocked.CompareExchange(ref this.isReadyForMigrationOperations, 1, 0);
                     this.childCancellationTokenSource.Token.Register(() =>
                     {
-                        Interlocked.CompareExchange(ref isReadyForMigrationOperations, 0, 1);
+                        Interlocked.CompareExchange(ref this.isReadyForMigrationOperations, 0, 1);
                         Interlocked.CompareExchange(ref this.isMigrationWorkflowRunning, 0, 1);
                     });
                 }
@@ -845,7 +845,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private void ThrowIfNotReady()
         {
-            if (isReadyForMigrationOperations != 1)
+            if (this.isReadyForMigrationOperations != 1)
             {
                 throw new FabricException("MigrationFramework not initialized. Retry the request");
             }
