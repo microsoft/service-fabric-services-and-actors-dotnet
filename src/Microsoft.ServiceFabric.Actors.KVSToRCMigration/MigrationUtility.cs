@@ -289,7 +289,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             if (exToThrow != null)
             {
-                var exMatch = retryableExceptions.FirstOrDefault(type => type.IsAssignableFrom(exToThrow.GetType()));
+                var exMatch = retryableExceptions != null ? retryableExceptions.FirstOrDefault(type => type.IsAssignableFrom(exToThrow.GetType())) : default(Type);
                 if (exMatch == default(Type) || retriesLeft <= 0)
                 {
                     throw exToThrow;
@@ -320,7 +320,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             if (exToThrow != null)
             {
-                var exMatch = retryableExceptions.FirstOrDefault(type => type.IsAssignableFrom(exToThrow.GetType()));
+                var exMatch = retryableExceptions != null ? retryableExceptions.FirstOrDefault(type => type.IsAssignableFrom(exToThrow.GetType())) : default(Type);
                 if (exMatch == default(Type) || retriesLeft <= 0)
                 {
                     throw exToThrow;

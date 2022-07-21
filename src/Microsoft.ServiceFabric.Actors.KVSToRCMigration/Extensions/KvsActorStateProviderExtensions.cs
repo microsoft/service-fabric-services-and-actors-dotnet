@@ -199,19 +199,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             stateProvider.ThrowIfTombCleanupIsNotEnabled();
             cancellationToken.ThrowIfCancellationRequested();
             await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
-                () =>
-                {
-                    if (!stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites())
-                    {
-                        throw new FabricTransientException("Unable to abort exiting transactions.");
-                    }
-
-                    return Task.CompletedTask;
-                },
-                "TryAbortExistingTransactionsAndRejectWrites",
-                cancellationToken);
-
-            await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
                 async () =>
                 {
                     using (var tx = stateProvider.GetStoreReplica().CreateTransaction())
@@ -229,6 +216,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     }
                 },
                 "RejectWritesAsync",
+                cancellationToken);
+
+            await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+                () =>
+                {
+                    if (!stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites())
+                    {
+                        throw new FabricTransientException("Unable to abort exiting transactions.");
+                    }
+
+                    return Task.CompletedTask;
+                },
+                "TryAbortExistingTransactionsAndRejectWrites",
                 cancellationToken);
         }
 

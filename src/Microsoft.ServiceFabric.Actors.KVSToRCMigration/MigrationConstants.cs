@@ -25,7 +25,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
         internal static readonly string GetDisableTCSEndpoint = "IsTombstoneCleanupDisabled";
-        internal static readonly string GetKVSValueByKeys = "GetValueByKeys";
 
         internal static readonly string RejectWritesKey = "_RejectWrites_";
         internal static readonly string IsDowntimeInvoked = "_IsDowntimeInvoked_";
@@ -49,6 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string MigrationStartSeqNum = "_MigrationStartSeqNum_";
         internal static readonly string MigrationEndSeqNum = "_MigrationEndSeqNum_";
         internal static readonly string MigrationLastAppliedSeqNum = "_MigrationLastAppliedSeqNum_";
+        internal static readonly string AbortMigrationInvokedOnSource = "_AbortMigrationInvokedOnSource_";
         #endregion Global Migration constants
 
         #region Phase constants

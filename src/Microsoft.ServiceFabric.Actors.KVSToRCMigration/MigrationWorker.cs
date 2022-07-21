@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using System.Collections.Generic;
-    using System.Fabric;
     using System.IO;
     using System.Net.Http;
     using System.Net.Http.Headers;
