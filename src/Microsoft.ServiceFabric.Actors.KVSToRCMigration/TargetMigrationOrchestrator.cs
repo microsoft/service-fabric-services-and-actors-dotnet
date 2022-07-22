@@ -756,7 +756,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             var migrationConfigSectionName = this.MigrationSettings.MigrationConfigSectionName;
 
-            this.MigrationSettings.Validate();
+            this.MigrationSettings.Validate(isSource: false);
             var fabricClient = new FabricClient();
             var kvsServiceDescription = await fabricClient.ServiceManager.GetServiceDescriptionAsync(this.MigrationSettings.SourceServiceUri);
             if (kvsServiceDescription == null)
