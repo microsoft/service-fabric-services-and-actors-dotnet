@@ -318,6 +318,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 catch (FabricTransientException ex)
                 {
+                    if (ex.ErrorCode == FabricErrorCode.DatabaseMigrationInProgress && this.owner is KvsActorStateProvider)
+                    {
+                        // Do not retry if KVS is not accepting writes.
+                        throw ex;
+                    }
+
                     useLinearBackoff = (ex.ErrorCode == FabricErrorCode.ReplicationQueueFull);
                     lastExceptionTag = ex.ErrorCode.ToString();
 

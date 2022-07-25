@@ -31,13 +31,8 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         Downtime = 3,
 
         /// <summary>
-        /// Data Validation phase of migration.
-        /// </summary>
-        DataValidation = 4,
-
-        /// <summary>
         /// Migration completed.
         /// </summary>
-        Completed = 5,
+        Completed = 4,
     }
 }

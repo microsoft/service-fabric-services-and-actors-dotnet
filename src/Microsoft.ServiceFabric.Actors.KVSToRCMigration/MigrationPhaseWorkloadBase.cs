@@ -440,26 +440,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (input.Phase == MigrationPhase.DataValidation)
-                {
-                    workers.Add(new DataValidationWorker(
-                        this.StateProvider,
-                        this.ActorTypeInformation,
-                        this.ServicePartitionClient,
-                        this.MigrationSettings,
-                        workerInput,
-                        this.TraceId));
-                }
-                else
-                {
-                    workers.Add(new MigrationWorker(
-                        this.StateProvider,
-                        this.ActorTypeInformation,
-                        this.ServicePartitionClient,
-                        this.MigrationSettings,
-                        workerInput,
-                        this.TraceId));
-                }
+                workers.Add(new MigrationWorker(
+                    this.StateProvider,
+                    this.ActorTypeInformation,
+                    this.ServicePartitionClient,
+                    this.MigrationSettings,
+                    workerInput,
+                    this.TraceId));
             }
 
             return workers;

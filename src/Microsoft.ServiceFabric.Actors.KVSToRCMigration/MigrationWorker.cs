@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System;
     using System.Collections.Generic;
-    using System.Fabric;
     using System.IO;
     using System.Net.Http;
     using System.Net.Http.Headers;
@@ -129,6 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 TraceType,
                 this.TraceId,
                 $"Enumerating from KVS - StartSN: {startSN}");
+
             long keysMigrated = 0L;
             long laSN = -1;
             EnumerationResponse enumerationResponse = null;
@@ -164,6 +164,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             {
                                 laSN = kvsData[kvsData.Count - 1].Version;
                                 keysMigrated += await this.StateProvider.SaveStateAsync(kvsData, cancellationToken, this.Input.Phase == MigrationPhase.Copy);
+                                await this.PostHydrationValidationAsync(enumerationResponse, cancellationToken);
                                 await this.stateProviderHelper.ExecuteWithRetriesAsync(
                                     async () =>
                                     {
@@ -262,6 +263,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 NumberOfChunksPerEnumeration = this.migrationSettings.ChunksPerEnumeration,
                 IncludeDeletes = this.Input.Phase != MigrationPhase.Copy,
                 ResolveActorIdsForStateKVPairs = this.Input.Phase == MigrationPhase.Copy,
+                ComputeHash = this.migrationSettings.EnableDataIntegrityChecks,
             };
 
             return req;
@@ -283,6 +285,18 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 RequestUri = new Uri(baseUri, $"{MigrationConstants.KVSMigrationControllerName}/{MigrationConstants.EnumeratebySNEndpoint}"),
                 Content = requestBuffer,
             };
+        }
+
+        private async Task PostHydrationValidationAsync(EnumerationResponse enumerationResponse, CancellationToken cancellationToken)
+        {
+            if (this.migrationSettings.EnableDataIntegrityChecks)
+            {
+                await this.StateProvider.ValidateDataPostMigrationAsync(
+                    enumerationResponse.KeyValuePairs,
+                    enumerationResponse.ValueHash,
+                    this.Input.Phase == MigrationPhase.Copy,
+                    cancellationToken);
+            }
         }
 
         internal class FetchAndSaveResponse

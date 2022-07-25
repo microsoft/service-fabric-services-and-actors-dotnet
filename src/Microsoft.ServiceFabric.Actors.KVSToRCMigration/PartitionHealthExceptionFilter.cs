@@ -37,6 +37,24 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.PopulateExceptionListFromMigrationSettings();
         }
 
+        public void ReportPartitionHealth(Exception exception, IStatefulServicePartition partition, string healthMessage)
+        {
+            var actual = exception;
+            if (exception is AggregateException)
+            {
+                actual = ((AggregateException)exception).InnerException;
+            }
+
+            var healthInfo = new HealthInformation("ActorStateMigration", "MigrationUnhandledException", HealthState.Warning)
+            {
+                TimeToLive = TimeSpan.MaxValue,
+                RemoveWhenExpired = true,
+                Description = this.GetPartitionHealthMesssage(actual, false, healthMessage),
+            };
+
+            partition.ReportPartitionHealth(healthInfo);
+        }
+
         public void ReportPartitionHealthIfNeeded(Exception exception, IStatefulServicePartition partition, out bool abortMigration, out bool rethrow)
         {
             var actual = exception;
@@ -50,7 +68,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 TimeToLive = exceptionInfo.IsPermanentError ? TimeSpan.MaxValue : TimeSpan.FromMinutes(2),
                 RemoveWhenExpired = true,
-                Description = this.GetPartitionHealthMesssage(actual, exceptionInfo.AbortMigration),
+                Description = this.GetPartitionHealthMesssage(actual, exceptionInfo.AbortMigration, null),
             };
 
             partition.ReportPartitionHealth(healthInfo);
@@ -71,12 +89,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        private string GetPartitionHealthMesssage(Exception exception, bool abortMigration)
+        private string GetPartitionHealthMesssage(Exception exception, bool abortMigration, string healthMessage)
         {
             string healthDesc = string.Empty;
             if (abortMigration)
             {
-                healthDesc = "Aborting migration.";
+                healthDesc = "Aborting migration. ";
+            }
+
+            if (!string.IsNullOrEmpty(healthMessage))
+            {
+                healthDesc += $" {healthMessage}.";
             }
 
             healthDesc += $"Exception message : {exception.Message}";
