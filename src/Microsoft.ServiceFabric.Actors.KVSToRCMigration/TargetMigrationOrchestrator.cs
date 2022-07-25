@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.currentPhase = MigrationPhase.None;
             this.currentMigrationState = MigrationState.None;
             this.migrationActorStateProvider = new KVStoRCMigrationActorStateProvider(stateProvider as ReliableCollectionsActorStateProvider);
-            this.stateProviderHelper = (stateProvider as ReliableCollectionsActorStateProvider).GetActorStateProviderHelper();
+            this.stateProviderHelper = (stateProvider as IReliableCollectionsActorStateProviderInternal).GetActorStateProviderHelper();
             this.exceptionFilter = new PartitionHealthExceptionFilter(this.MigrationSettings);
         }
 

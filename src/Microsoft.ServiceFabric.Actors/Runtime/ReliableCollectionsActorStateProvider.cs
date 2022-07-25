@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// uses <see cref="IReliableStateManager"/> to store and persist the actor state.
     /// </summary>
     public sealed class ReliableCollectionsActorStateProvider :
-        IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
+        IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal, IReliableCollectionsActorStateProviderInternal
     {
         private const int StateProviderInitRetryDelayMilliseconds = 500;
         private const int DefaultActorStateDictionaryCount = 32;
@@ -266,7 +266,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     using (var tx = this.stateManager.CreateTransaction())
                     {
-                        var result = await this.GetActorStateDictionary(actorId).TryGetValueAsync(tx, key);
+                        var result = await ((IReliableCollectionsActorStateProviderInternal)this).GetActorStateDictionary(actorId).TryGetValueAsync(tx, key);
 
                         if (result.HasValue)
                         {
@@ -321,7 +321,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     using (var tx = this.stateManager.CreateTransaction())
                     {
-                        return this.GetActorStateDictionary(actorId).ContainsKeyAsync(tx, key);
+                        return ((IReliableCollectionsActorStateProviderInternal)this).GetActorStateDictionary(actorId).ContainsKeyAsync(tx, key);
                     }
                 },
                 string.Format("ContainsStateAsync[{0}]", actorId),
@@ -450,7 +450,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     using (var tx = this.stateManager.CreateTransaction())
                     {
-                        await this.GetReminderDictionary(actorId).AddOrUpdateAsync(tx, key, data, (rowKey, rowValue) => data);
+                        await ((IReliableCollectionsActorStateProviderInternal)this).GetReminderDictionary(actorId).AddOrUpdateAsync(tx, key, data, (rowKey, rowValue) => data);
                         await this.reminderCompletedDictionary.TryRemoveAsync(tx, key);
 
                         await tx.CommitAsync();
@@ -641,39 +641,46 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             return this.stateManager.RestoreAsync(backupFolderPath, restorePolicy, cancellationToken);
         }
 
-        internal ActorStateProviderHelper GetActorStateProviderHelper()
+        /// <inheritdoc/>
+        ActorStateProviderHelper IReliableCollectionsActorStateProviderInternal.GetActorStateProviderHelper()
         {
             return this.stateProviderHelper;
         }
 
-        internal IReliableStateManagerReplica2 GetStateManager()
+        /// <inheritdoc/>
+        IReliableStateManagerReplica2 IReliableCollectionsActorStateProviderInternal.GetStateManager()
         {
             return this.stateManager;
         }
 
-        internal IReliableDictionary2<string, byte[]> GetLogicalTimeDictionary()
+        /// <inheritdoc/>
+        IReliableDictionary2<string, byte[]> IReliableCollectionsActorStateProviderInternal.GetLogicalTimeDictionary()
         {
             return this.logicalTimeDictionary;
         }
 
-        internal IReliableDictionary2<string, byte[]> GetActorPresenceDictionary()
+        /// <inheritdoc/>
+        IReliableDictionary2<string, byte[]> IReliableCollectionsActorStateProviderInternal.GetActorPresenceDictionary()
         {
             return this.actorPresenceDictionary;
         }
 
-        internal IReliableDictionary2<string, byte[]> GetReminderCompletedDictionary()
+        /// <inheritdoc/>
+        IReliableDictionary2<string, byte[]> IReliableCollectionsActorStateProviderInternal.GetReminderCompletedDictionary()
         {
             return this.reminderCompletedDictionary;
         }
 
-        internal IReliableDictionary2<string, byte[]> GetActorStateDictionary(ActorId actorId)
+        /// <inheritdoc/>
+        IReliableDictionary2<string, byte[]> IReliableCollectionsActorStateProviderInternal.GetActorStateDictionary(ActorId actorId)
         {
             var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
             var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.actorStateDictionaries.Length;
             return this.actorStateDictionaries[storageIdx];
         }
 
-        internal IReliableDictionary2<string, byte[]> GetReminderDictionary(ActorId actorId)
+        /// <inheritdoc/>
+        IReliableDictionary2<string, byte[]> IReliableCollectionsActorStateProviderInternal.GetReminderDictionary(ActorId actorId)
         {
             var bytes = Encoding.UTF8.GetBytes(actorId.GetStorageKey());
             var storageIdx = CRC64.ToCRC64(bytes) % (ulong)this.reminderDictionaries.Length;
@@ -781,7 +788,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                             foreach (var reminderKey in reminderKeysPerActor.Value)
                             {
-                                await this.GetReminderDictionary(actorId).TryRemoveAsync(tx, reminderKey);
+                                await ((IReliableCollectionsActorStateProviderInternal)this).GetReminderDictionary(actorId).TryRemoveAsync(tx, reminderKey);
                                 await this.reminderCompletedDictionary.TryRemoveAsync(tx, reminderKey);
                             }
                         }
@@ -1146,7 +1153,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IEnumerable<SerializedStateChange> serializedStateChanges,
             CancellationToken cancellationToken)
         {
-            var actorStateDict = this.GetActorStateDictionary(actorId);
+            var actorStateDict = ((IReliableCollectionsActorStateProviderInternal)this).GetActorStateDictionary(actorId);
 
             // Check for cancellation before creating the transaction.
             cancellationToken.ThrowIfCancellationRequested();
@@ -1306,11 +1313,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 var keyPrefix = CreateStorageKeyPrefix(actorId);
 
                 // Remove actor states
-                var actorStateDict = this.GetActorStateDictionary(actorId);
+                var actorStateDict = ((IReliableCollectionsActorStateProviderInternal)this).GetActorStateDictionary(actorId);
                 await RemoveKeysWithPrefixAsync(tx, actorStateDict, keyPrefix, cancellationToken);
 
                 // Remove reminders
-                var reminderDict = this.GetReminderDictionary(actorId);
+                var reminderDict = ((IReliableCollectionsActorStateProviderInternal)this).GetReminderDictionary(actorId);
                 await RemoveKeysWithPrefixAsync(tx, reminderDict, keyPrefix, cancellationToken);
 
                 // Remove reminder completed data
@@ -1330,7 +1337,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private async Task<IEnumerable<string>> GetStateNamesAsync(ActorId actorId)
         {
             var keyPrefix = CreateStorageKeyPrefix(actorId, string.Empty);
-            var actorStateDict = this.GetActorStateDictionary(actorId);
+            var actorStateDict = ((IReliableCollectionsActorStateProviderInternal)this).GetActorStateDictionary(actorId);
 
             using (var tx = this.stateManager.CreateTransaction())
             {

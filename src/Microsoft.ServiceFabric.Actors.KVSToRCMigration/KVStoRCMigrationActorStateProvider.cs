@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private static readonly DataContractSerializer ReminderDataContractSerializer = new DataContractSerializer(typeof(ActorReminderData));
 
         private string traceId;
-        private ReliableCollectionsActorStateProvider rcStateProvider;
+        private IReliableCollectionsActorStateProviderInternal rcStateProvider;
         private IStatefulServicePartition servicePartition;
         private IReliableDictionary2<string, string> metadataDictionary;
         private bool isMetadataDictInitialized = false;
@@ -568,7 +568,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return this.rcStateProvider.GetStateManager();
         }
 
-        internal ReliableCollectionsActorStateProvider GetInternalStateProvider()
+        internal IReliableCollectionsActorStateProviderInternal GetInternalStateProvider()
         {
             return this.rcStateProvider;
         }

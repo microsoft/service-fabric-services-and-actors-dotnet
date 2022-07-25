@@ -59,7 +59,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             return new IAmbiguousActorIdHandler.ConditionalValue
             {
-                HasValue = match == string.Empty,
+                HasValue = match != string.Empty,
                 Value = match,
             };
         }
