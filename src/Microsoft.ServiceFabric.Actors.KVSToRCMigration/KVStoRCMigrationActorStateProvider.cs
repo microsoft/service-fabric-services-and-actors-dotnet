@@ -258,7 +258,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <param name="skipPresenceDictResolve">If true, attempts to resolve the actorid(ambiguous) from user resolver implementation.
         /// If false, then local presence dictionary is used before user resolvers.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken, bool skipPresenceDictResolve = false)
+        public virtual async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken, bool skipPresenceDictResolve = false)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
@@ -363,7 +363,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
         }
 
-        internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()
+        internal virtual async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()
         {
             await this.stateProviderInitTask;
             return this.metadataDictionary;
@@ -379,7 +379,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return this.rcStateProvider.GetStateManager();
         }
 
-        internal async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, string hashToCompare, bool skipPresenceDictResolve, CancellationToken cancellationToken)
+        internal virtual async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, string hashToCompare, bool skipPresenceDictResolve, CancellationToken cancellationToken)
         {
             var values = new List<byte[]>();
             foreach (var data in kvsData)
