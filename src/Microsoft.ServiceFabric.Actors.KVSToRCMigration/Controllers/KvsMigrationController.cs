@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
 {
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
@@ -87,20 +86,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
         public bool IsTombstoneCleanupDisabled()
         {
             return this.kvsActorStateProvider.IsTombstoneCleanupDisabled();
-        }
-
-        /// <summary>
-        /// Gets Value for given Keys
-        /// </summary>
-        /// <param name="keys">Value of Key to fetch</param>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-        [HttpGet("GetValueByKeys")]
-        public Task GetValueByKeys([FromBody] List<string> keys)
-        {
-            return MigrationUtility.ExecuteWithRetriesAsync(
-                () => this.kvsActorStateProvider.GetValueByKeysAsync(keys, this.Response, CancellationToken.None),
-                this.traceId,
-                $"{this.GetType().Name}.GetValueByKeysAsync");
         }
 
         /// <summary>

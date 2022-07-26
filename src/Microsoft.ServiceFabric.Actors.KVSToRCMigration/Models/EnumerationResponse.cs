@@ -12,14 +12,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     /// Migration state response.
     /// </summary>
     [DataContract]
-    [KnownType(typeof(List<KeyValuePair>))]
     public class EnumerationResponse
     {
         /// <summary>
-        /// Gets or sets the key value pairs.
+        /// Gets the key value pairs.
         /// </summary>
         [DataMember]
-        public List<KeyValuePair> KeyValuePairs { get; set; }
+        public List<KeyValuePair> KeyValuePairs { get; internal set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the end of response is reached or not.
@@ -32,5 +31,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
         /// </summary>
         [DataMember]
         public bool ResolveActorIdsForStateKVPairs { get; set; }
+
+        /// <summary>
+        /// Gets the hash for the values in the response.
+        /// </summary>
+        [DataMember]
+        public string ValueHash { get; internal set; }
     }
 }

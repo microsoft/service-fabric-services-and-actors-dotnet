@@ -14,6 +14,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly TimeSpan DefaultOperationTimeout = TimeSpan.FromMinutes(5);
 
         internal static readonly TimeSpan DefaultRCTimeout = TimeSpan.FromMinutes(5);
+        internal static readonly int DefaultRetryCount = 4;
+        internal static readonly TimeSpan ConstantBackoffInterval = TimeSpan.FromSeconds(1);
         internal static readonly char DefaultDelimiter = ',';
         internal static readonly string KVSMigrationControllerName = "KvsMigration";
         internal static readonly string MetadataDictionaryName = "store://kvsrcmigration//metadata";
@@ -23,10 +25,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string GetEndSNEndpoint = "GetLastSequenceNumber";
         internal static readonly string EnumeratebySNEndpoint = "EnumerateBySequenceNumber";
         internal static readonly string GetDisableTCSEndpoint = "IsTombstoneCleanupDisabled";
-        internal static readonly string GetKVSValueByKeys = "GetValueByKeys";
 
         internal static readonly string RejectWritesKey = "_RejectWrites_";
         internal static readonly string IsDowntimeInvoked = "_IsDowntimeInvoked_";
+
+        #region Actor Key constants
+        internal static readonly string ActorPresenceKeyPrefix = "@@";
+        internal static readonly string ActorStorageKeyPrefix = "Actor";
+        internal static readonly string ReminderStorageKeyPrefix = "Reminder";
+        internal static readonly string ReminderCompletedeStorageKeyPrefix = "RC@@";
+        internal static readonly string LogicalTimestampKey = "Timestamp_VLTM";
+        #endregion
 
         #region Global Migration constants
         internal static readonly string MigrationStartDateTimeUTC = "_MigrationStartDateTimeUTC_";
@@ -39,6 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static readonly string MigrationStartSeqNum = "_MigrationStartSeqNum_";
         internal static readonly string MigrationEndSeqNum = "_MigrationEndSeqNum_";
         internal static readonly string MigrationLastAppliedSeqNum = "_MigrationLastAppliedSeqNum_";
+        internal static readonly string AbortMigrationInvokedOnSource = "_AbortMigrationInvokedOnSource_";
         #endregion Global Migration constants
 
         #region Phase constants

@@ -8,16 +8,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Collections.Generic;
     using System.Fabric;
-    using System.Linq;
+    using System.Globalization;
     using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.CodeAnalysis;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models;
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
     internal static class KvsActorStateProviderExtensions
@@ -101,10 +101,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             hasData = enumerator.MoveNext();
                             int chunk = 1;
-                            while (chunk <= request.NumberOfChunksPerEnumeration && !endSequenceNumberReached)
+                            while (hasData
+                                && chunk <= request.NumberOfChunksPerEnumeration
+                                && !endSequenceNumberReached)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
                                 var pairs = new List<KeyValuePair>();
+                                var valuePairs = new List<byte[]>();
                                 var sequenceNumberFullyDrained = true;
                                 long? firstSNInChunk = null;
                                 long? endSNInChunk = null;
@@ -120,6 +123,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                     }
 
                                     var keyValuePair = await MakeKeyValuePairAsync(stateProvider, enumerator.Current, request, cancellationToken);
+                                    if (request.ComputeHash
+                                        && !keyValuePair.IsDeleted
+                                        && !MigrationUtility.IgnoreKey(keyValuePair.Key))
+                                    {
+                                        valuePairs.Add(keyValuePair.Value);
+                                    }
+
                                     var currentSequenceNumber = keyValuePair.Version;
                                     pairs.Add(keyValuePair);
                                     hasData = enumerator.MoveNext();
@@ -136,12 +146,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                     endSNInChunk = currentSequenceNumber;
                                 }
 
+                                var computedHash = string.Empty;
+                                if (request.ComputeHash)
+                                {
+                                    computedHash = CRC64.ToCRC64(valuePairs.ToArray()).ToString("X", CultureInfo.InvariantCulture);
+                                }
+
                                 await WriteKeyValuePairsToResponseAsync(
                                     new EnumerationResponse
                                     {
                                         KeyValuePairs = pairs,
                                         EndSequenceNumberReached = endSequenceNumberReached,
                                         ResolveActorIdsForStateKVPairs = request.ResolveActorIdsForStateKVPairs,
+                                        ValueHash = computedHash,
                                     },
                                     response);
                                 ++chunk;
@@ -200,6 +217,19 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 },
                 "RejectWritesAsync",
                 cancellationToken);
+
+            await stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
+                () =>
+                {
+                    if (!stateProvider.GetStoreReplica().TryAbortExistingTransactionsAndRejectWrites())
+                    {
+                        throw new FabricTransientException("Unable to abort exiting transactions.");
+                    }
+
+                    return Task.CompletedTask;
+                },
+                "TryAbortExistingTransactionsAndRejectWrites",
+                cancellationToken);
         }
 
         internal static async Task ResumeWritesAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
@@ -255,41 +285,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         internal static bool IsTombstoneCleanupDisabled(this KvsActorStateProvider stateProvider)
         {
             return stateProvider.GetStoreReplica().KeyValueStoreReplicaSettings.DisableTombstoneCleanup;
-        }
-
-        internal static Task GetValueByKeysAsync(this KvsActorStateProvider stateProvider, List<string> keys, HttpResponse response, CancellationToken cancellationToken)
-        {
-            var pairs = new List<KeyValuePair>();
-            return stateProvider.GetActorStateProviderHelper().ExecuteWithRetriesAsync(
-                        async () =>
-                        {
-                            if (keys.Any())
-                            {
-                                foreach (var key in keys)
-                                {
-                                    using var tx = stateProvider.GetStoreReplica().CreateTransaction();
-                                    var result = stateProvider.GetStoreReplica().TryGet(tx, key);
-                                    await tx.CommitAsync();
-
-                                    if (result == null)
-                                    {
-                                        throw new MigrationDataValidationException($"Could not find key: {key} in KVS");
-                                    }
-
-                                    pairs.Add(new KeyValuePair() { Key = key, Value = result.Value });
-                                }
-                            }
-
-                            await WriteKeyValuePairsToResponseAsync(
-                                new EnumerationResponse
-                                {
-                                    KeyValuePairs = pairs,
-                                    EndSequenceNumberReached = true,
-                                },
-                                response); // TODO: Remove this when merging data validation PR
-                        },
-                        "GetValueByKeyAsync",
-                        cancellationToken);
         }
 
         private static async Task WriteKeyValuePairsToResponseAsync(EnumerationResponse enumerationResponse, HttpResponse httpResponse)

@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
     using System.Text;
+    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
 
     /// <summary>
     /// Migration result.
@@ -21,6 +22,12 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         {
             UseSimpleDictionaryFormat = true,
         });
+
+        /// <summary>
+        /// Gets or sets the migration mode.
+        /// </summary>
+        [DataMember]
+        public MigrationMode MigrationMode { get; set; }
 
         /// <summary>
         /// Gets or sets the migration start time.

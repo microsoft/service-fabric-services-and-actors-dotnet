@@ -36,10 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public long KeyValuePairsPerChunk { get; set; }
 
         [DataMember]
-        public int MigratedDataValidationPhaseParallelism { get; set; }
-
-        [DataMember]
-        public float PercentageOfMigratedDataToValidate { get; set; }
+        public bool EnableDataIntegrityChecks { get; set; }
 
         // A comma separated list of exception full name(including namespace) for which abort should not be called.
         // A partition error will still be reported
@@ -64,9 +61,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             this.CopyPhaseParallelism = Environment.ProcessorCount;
             this.DowntimeThreshold = 1024;
-            this.MigratedDataValidationPhaseParallelism = Environment.ProcessorCount;
-            this.PercentageOfMigratedDataToValidate = 0f;
-
+            this.EnableDataIntegrityChecks = true;
             var configPackageName = ActorNameFormat.GetConfigPackageName();
             try
             {
@@ -94,22 +89,16 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.KeyValuePairsPerChunk = long.Parse(migrationSettings.Parameters["KeyValuePairsPerChunk"].Value);
                     }
 
-                    if (migrationSettings.Parameters.Contains("MigratedDataValidationPhaseParallelism"))
+                    if (migrationSettings.Parameters.Contains("EnableDataIntegrityChecks"))
                     {
-                        this.MigratedDataValidationPhaseParallelism = int.Parse(migrationSettings.Parameters["MigratedDataValidationPhaseParallelism"].Value);
-                    }
-
-                    if (migrationSettings.Parameters.Contains("PercentageOfMigratedDataToValidate"))
-                    {
-                        // TODO: Fix this in data validation PR.
-                        // this.PercentageOfMigratedDataToValidate = float.Parse(migrationSettings.Parameters["PercentageOfMigratedDataToValidate"].Value);
+                        this.EnableDataIntegrityChecks = bool.Parse(migrationSettings.Parameters["EnableDataIntegrityChecks"].Value);
                     }
                 }
             }
             catch (Exception e)
             {
                 ActorTrace.Source.WriteError(TraceType, $"Failed to load Migration settings from config package : {e.Message}");
-                throw e; // TODO: conside throwing SF Exception.
+                throw e; // TODO: consider throwing SF Exception.
             }
         }
 
