@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.PopulateExceptionListFromMigrationSettings();
         }
 
-        public void ReportPartitionHealth(Exception exception, IStatefulServicePartition partition, string healthMessage)
+        public virtual void ReportPartitionHealth(Exception exception, IStatefulServicePartition partition, string healthMessage)
         {
             var actual = exception;
             if (exception is AggregateException)
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             partition.ReportPartitionHealth(healthInfo);
         }
 
-        public void ReportPartitionHealthIfNeeded(Exception exception, IStatefulServicePartition partition, out bool abortMigration, out bool rethrow)
+        public virtual void ReportPartitionHealthIfNeeded(Exception exception, IStatefulServicePartition partition, out bool abortMigration, out bool rethrow)
         {
             var actual = exception;
             if (exception is AggregateException)

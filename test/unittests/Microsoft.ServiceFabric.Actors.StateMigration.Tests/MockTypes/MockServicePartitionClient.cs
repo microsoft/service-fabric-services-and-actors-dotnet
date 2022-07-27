@@ -82,6 +82,29 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes
                         Content = new ByteArrayContent(SerializationUtility.Serialize(KvsActorStateProviderExtensions.ResponseSerializer, response)),
                     });
                 }
+                else if (requestUri.EndsWith(MigrationConstants.GetStartSNEndpoint))
+                {
+                    return Task.FromResult(new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(1.ToString()),
+                    });
+                }
+                else if (requestUri.EndsWith(MigrationConstants.GetEndSNEndpoint))
+                {
+                    return Task.FromResult(new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(100.ToString()),
+                    });
+                }
+                else if (requestUri.EndsWith(MigrationConstants.StartDowntimeEndpoint))
+                {
+                    return Task.FromResult(new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                    });
+                }
 
                 return Task.FromResult(new HttpResponseMessage()
                 {
