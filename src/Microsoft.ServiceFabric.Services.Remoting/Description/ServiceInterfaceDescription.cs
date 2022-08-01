@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Description
                     throw new ArgumentException(
                        string.Format(
                            CultureInfo.CurrentCulture,
-                           SR.ErrorNotAServiceInterface_DerivationCheck1,
+                           SR.ErrorNotAServiceInterface_DerivationCheck2,
                            serviceInterfaceType.FullName,
                            nonActorParentInterface.FullName,
                            typeof(IService).FullName),
