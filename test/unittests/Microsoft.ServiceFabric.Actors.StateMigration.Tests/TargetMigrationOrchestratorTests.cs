@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration;
     using Microsoft.ServiceFabric.Actors.Migration;
+    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes;
@@ -41,6 +42,94 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
         }
 
         /// <summary>
+        /// Auto Migration failover case
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task AutoMigrationFailoverCase()
+        {
+            // Failover in Copy phase
+            var orchestrator = GetOrchestrator(MigrationMode.Auto);
+            var metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Copy.ToString(), (_, __) => MigrationPhase.Copy.ToString());
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
+            await orchestrator.StartMigrationAsync(false, CancellationToken.None);
+            var result = await orchestrator.GetResultAsync(CancellationToken.None);
+            Assert.Equal(MigrationPhase.Completed, result.CurrentPhase);
+            Assert.Equal(MigrationState.Completed, result.Status);
+
+            // Failover in catchup phase
+            orchestrator = GetOrchestrator(MigrationMode.Auto);
+            metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Catchup.ToString(), (_, __) => MigrationPhase.Catchup.ToString());
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
+            await orchestrator.StartMigrationAsync(false, CancellationToken.None);
+            result = await orchestrator.GetResultAsync(CancellationToken.None);
+            Assert.Equal(MigrationPhase.Completed, result.CurrentPhase);
+            Assert.Equal(MigrationState.Completed, result.Status);
+
+            // Failover in downtime phase
+            orchestrator = GetOrchestrator(MigrationMode.Auto);
+            metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Downtime.ToString(), (_, __) => MigrationPhase.Downtime.ToString());
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
+            await orchestrator.StartMigrationAsync(false, CancellationToken.None);
+            result = await orchestrator.GetResultAsync(CancellationToken.None);
+            Assert.Equal(MigrationPhase.Completed, result.CurrentPhase);
+            Assert.Equal(MigrationState.Completed, result.Status);
+        }
+
+        /// <summary>
+        /// Auto Migration abort case
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task AutoMigrationAbortCase()
+        {
+            var tcs = new CancellationTokenSource();
+            var orchestrator = GetOrchestrator(MigrationMode.Auto, MigrationPhase.Copy);
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.None || result1.Status == MigrationState.None)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                Assert.True(result1.CurrentPhase <= MigrationPhase.Catchup);
+                Assert.True(result1.Status == MigrationState.InProgress);
+                await orchestrator.AbortMigrationAsync(true, CancellationToken.None);
+                break;
+            }
+
+            try
+            {
+                await migrationTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Do nothing
+            }
+
+            var result = await orchestrator.GetResultAsync(CancellationToken.None);
+
+            Assert.Equal(MigrationState.Aborted, result.Status);
+        }
+
+        /// <summary>
         /// Manual Migration base case
         /// </summary>
         /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
@@ -52,28 +141,400 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             // ActorService calling Start Migration when the service is up
             await orchestrator.StartMigrationAsync(false, CancellationToken.None);
 
-            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, CancellationToken.None).ConfigureAwait(false));
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
             while (true)
             {
-                var result = await orchestrator.GetResultAsync(CancellationToken.None);
-                Assert.True(result.CurrentPhase <= MigrationPhase.Catchup);
-                Assert.True(result.Status == MigrationState.InProgress);
-                if (result.CurrentPhase == MigrationPhase.Catchup)
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (InvalidMigrationOperationException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.None || result1.Status == MigrationState.None)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                Assert.True(result1.CurrentPhase <= MigrationPhase.Catchup);
+                Assert.True(result1.Status == MigrationState.InProgress);
+                if (result1.CurrentPhase == MigrationPhase.Catchup)
                 {
                     await orchestrator.StartDowntimeAsync(true, CancellationToken.None);
                     break;
                 }
 
-                Thread.Sleep(TimeSpan.FromSeconds(5));
+                Thread.Sleep(TimeSpan.FromSeconds(1));
             }
 
             await migrationTask;
-            var result1 = await orchestrator.GetResultAsync(CancellationToken.None);
-            Assert.Equal(MigrationPhase.Completed, result1.CurrentPhase);
-            Assert.Equal(MigrationState.Completed, result1.Status);
+            var result = await orchestrator.GetResultAsync(CancellationToken.None);
+            Assert.Equal(MigrationPhase.Completed, result.CurrentPhase);
+            Assert.Equal(MigrationState.Completed, result.Status);
         }
 
-        private static TargetMigrationOrchestrator GetOrchestrator(MigrationMode mode, MigrationPhase blockingPhase = MigrationPhase.None)
+        /// <summary>
+        /// Manual Migration failover case
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task ManualMigrationFailoverCase()
+        {
+            // Failover in Copy phase
+            var orchestrator = GetOrchestrator(MigrationMode.Manual);
+            var metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Copy.ToString(), (_, __) => MigrationPhase.Copy.ToString());
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                Assert.True(result1.CurrentPhase <= MigrationPhase.Catchup);
+                Assert.True(result1.Status == MigrationState.InProgress);
+                if (result1.CurrentPhase == MigrationPhase.Catchup)
+                {
+                    await orchestrator.StartDowntimeAsync(true, CancellationToken.None);
+                    break;
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+
+            await migrationTask;
+            var result = await orchestrator.GetResultAsync(CancellationToken.None);
+            Assert.Equal(MigrationPhase.Completed, result.CurrentPhase);
+            Assert.Equal(MigrationState.Completed, result.Status);
+
+            // Failover in catchup phase
+            orchestrator = GetOrchestrator(MigrationMode.Manual);
+            metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Catchup.ToString(), (_, __) => MigrationPhase.Catchup.ToString());
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
+            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                Assert.True(result1.CurrentPhase <= MigrationPhase.Catchup);
+                Assert.True(result1.Status == MigrationState.InProgress);
+                if (result1.CurrentPhase == MigrationPhase.Catchup)
+                {
+                    await orchestrator.StartDowntimeAsync(true, CancellationToken.None);
+                    break;
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+            }
+
+            await migrationTask;
+            result = await orchestrator.GetResultAsync(CancellationToken.None);
+            Assert.Equal(MigrationPhase.Completed, result.CurrentPhase);
+            Assert.Equal(MigrationState.Completed, result.Status);
+
+            // Failover in downtime phase
+            orchestrator = GetOrchestrator(MigrationMode.Manual);
+            metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Downtime.ToString(), (_, __) => MigrationPhase.Downtime.ToString());
+            await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
+            await orchestrator.StartMigrationAsync(false, CancellationToken.None);
+            result = await orchestrator.GetResultAsync(CancellationToken.None);
+            Assert.Equal(MigrationPhase.Completed, result.CurrentPhase);
+            Assert.Equal(MigrationState.Completed, result.Status);
+        }
+
+        /// <summary>
+        /// Manual Migration abort case
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task ManualMigrationAbortCase()
+        {
+            var tcs = new CancellationTokenSource();
+            var orchestrator = GetOrchestrator(MigrationMode.Manual);
+            await orchestrator.StartMigrationAsync(false, tcs.Token);
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.None || result1.Status == MigrationState.None)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                Assert.True(result1.CurrentPhase <= MigrationPhase.Catchup);
+                Assert.True(result1.Status == MigrationState.InProgress);
+                await orchestrator.AbortMigrationAsync(true, CancellationToken.None);
+                break;
+            }
+
+            try
+            {
+                await migrationTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Do nothing
+            }
+
+            var result = await orchestrator.GetResultAsync(CancellationToken.None);
+
+            Assert.Equal(MigrationState.Aborted, result.Status);
+        }
+
+        /// <summary>
+        /// Check if actor calls allowed.
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task AreActorCallsAllowedTest()
+        {
+            var orchestrator = GetOrchestrator(MigrationMode.Auto);
+            Assert.False(orchestrator.AreActorCallsAllowed());
+            bool callbackInvoked = false;
+            orchestrator.RegisterCompletionCallback(
+                (_, __) =>
+                {
+                    callbackInvoked = true;
+                    return Task.CompletedTask;
+                });
+
+            await orchestrator.StartMigrationAsync(false, CancellationToken.None);
+            Assert.True(orchestrator.AreActorCallsAllowed());
+            Assert.True(callbackInvoked);
+
+            // Abort case
+            var tcs = new CancellationTokenSource();
+            orchestrator = GetOrchestrator(MigrationMode.Manual);
+            Assert.False(orchestrator.AreActorCallsAllowed());
+            callbackInvoked = false;
+            orchestrator.RegisterCompletionCallback(
+                (_, __) =>
+                {
+                    callbackInvoked = true;
+                    return Task.CompletedTask;
+                });
+
+            await orchestrator.StartMigrationAsync(false, tcs.Token);
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.None || result1.Status == MigrationState.None)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                Assert.True(result1.CurrentPhase <= MigrationPhase.Catchup);
+                Assert.True(result1.Status == MigrationState.InProgress);
+                await orchestrator.AbortMigrationAsync(true, CancellationToken.None);
+                break;
+            }
+
+            try
+            {
+                await migrationTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Do nothing
+            }
+
+            Assert.False(orchestrator.AreActorCallsAllowed());
+            Assert.True(callbackInvoked);
+        }
+
+        /// <summary>
+        /// Actor call forwarding test.
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task IsActorCallToBeForwardedTest()
+        {
+            var orchestrator = GetOrchestrator(MigrationMode.Manual);
+
+            // Migration not initialized. Hence except exception.
+            Assert.Throws<MigrationFrameworkNotInitializedException>(() => orchestrator.IsActorCallToBeForwarded());
+
+            await orchestrator.StartMigrationAsync(false, CancellationToken.None);
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.None || result1.Status == MigrationState.None)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                // Migration in progress. Call to be forwarded.
+                Assert.True(orchestrator.IsActorCallToBeForwarded());
+                await orchestrator.StartDowntimeAsync(true, CancellationToken.None);
+                break;
+            }
+
+            // Migration complete. Do not forward request.
+            await migrationTask;
+            Assert.False(orchestrator.IsActorCallToBeForwarded());
+
+            var tcs = new CancellationTokenSource();
+            orchestrator = GetOrchestrator(MigrationMode.Manual);
+            await orchestrator.StartMigrationAsync(false, tcs.Token);
+            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.None || result1.Status == MigrationState.None)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                // Migration in progress. Call to be forwarded.
+                Assert.True(orchestrator.IsActorCallToBeForwarded());
+                await orchestrator.AbortMigrationAsync(true, CancellationToken.None);
+                break;
+            }
+
+            try
+            {
+                await migrationTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Do nothing
+            }
+
+            // Migration aborted call to be forwarded.
+            Assert.True(orchestrator.IsActorCallToBeForwarded());
+
+            orchestrator = GetOrchestrator(MigrationMode.Auto, MigrationPhase.Downtime);
+            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            while (true)
+            {
+                MigrationResult result1 = null;
+                try
+                {
+                    result1 = await orchestrator.GetResultAsync(CancellationToken.None);
+                }
+                catch (MigrationFrameworkNotInitializedException e)
+                {
+                    Console.WriteLine(e);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.None || result1.Status == MigrationState.None)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    continue;
+                }
+
+                if (result1.CurrentPhase == MigrationPhase.Downtime)
+                {
+                    // Downtime phase. Call should not be forwarded
+                    Assert.False(orchestrator.IsActorCallToBeForwarded());
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Invalid operations test.
+        /// </summary>
+        /// <returns><see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public async Task InvalidOperationsTest()
+        {
+            var orchestrator = GetOrchestrator(MigrationMode.Auto);
+            await Assert.ThrowsAsync<MigrationFrameworkNotInitializedException>(() => orchestrator.AbortMigrationAsync(true, CancellationToken.None));
+            await Assert.ThrowsAsync<MigrationFrameworkNotInitializedException>(() => orchestrator.StartDowntimeAsync(true, CancellationToken.None));
+            await Assert.ThrowsAsync<MigrationFrameworkNotInitializedException>(() => orchestrator.GetResultAsync(CancellationToken.None));
+            await orchestrator.StartMigrationAsync(false, CancellationToken.None);
+            await Assert.ThrowsAsync<InvalidMigrationOperationException>(() => orchestrator.AbortMigrationAsync(true, CancellationToken.None));
+            await Assert.ThrowsAsync<InvalidMigrationOperationException>(() => orchestrator.StartDowntimeAsync(true, CancellationToken.None));
+            await Assert.ThrowsAsync<InvalidMigrationOperationException>(() => orchestrator.StartMigrationAsync(true, CancellationToken.None));
+
+            orchestrator = GetOrchestrator(MigrationMode.Auto, invalidConfig: true);
+            await Assert.ThrowsAsync<InvalidMigrationConfigException>(() => orchestrator.StartMigrationAsync(false, CancellationToken.None));
+
+            orchestrator = GetOrchestrator(MigrationMode.Auto);
+            await Assert.ThrowsAsync<InvalidMigrationOperationException>(() => orchestrator.StartMigrationAsync(true, CancellationToken.None));
+        }
+
+        private static TargetMigrationOrchestrator GetOrchestrator(MigrationMode mode, MigrationPhase blockingPhase = MigrationPhase.None, bool invalidConfig = false)
         {
             var setting = new KVSToRCMigration.MigrationSettings
             {
@@ -101,10 +562,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
                     GetMockExFilter(setting),
                     new MockServicePartitionClient(null, new Uri("fabric:/Blah/BlahBlah")),
                     "TestTraceId");
-            mockFactory.Setup(o => o.StartMigrationAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-                .CallBase();
-            mockFactory.Setup(o => o.StartDowntimeAsync(It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-                .CallBase();
+            mockFactory.CallBase = true;
             mockFactory.Setup(o => o.GetMigrationPhaseWorkload(It.IsAny<MigrationPhase>(), It.IsAny<int>()))
                 .Returns<MigrationPhase, int>((phase, __) =>
                 {
@@ -118,7 +576,16 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
 
                     return null;
                 });
-            mockFactory.Setup(o => o.ValidateConfigForMigrationAsync(It.IsAny<CancellationToken>()));
+            mockFactory.Setup(o => o.ValidateConfigForMigrationAsync(It.IsAny<CancellationToken>()))
+                .Returns<CancellationToken>(_ =>
+                {
+                    if (invalidConfig)
+                    {
+                        throw new InvalidMigrationConfigException();
+                    }
+
+                    return Task.CompletedTask;
+                });
 
             return mockFactory.Object;
         }
@@ -139,6 +606,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             phaseFactory.Setup(pw => pw.StartOrResumeMigrationAsync(It.IsAny<CancellationToken>()))
                 .Returns<CancellationToken>(token =>
                 {
+                    token.ThrowIfCancellationRequested();
                     if (blockingCall)
                     {
                         while (true)
@@ -164,6 +632,8 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
 
                     return Task.FromResult(result);
                 });
+
+            phaseFactory.SetupGet(pw => pw.Phase).Returns(currentPhase);
 
             return phaseFactory.Object;
         }

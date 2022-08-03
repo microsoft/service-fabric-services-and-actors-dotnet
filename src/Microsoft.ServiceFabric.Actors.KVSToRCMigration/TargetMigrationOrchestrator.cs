@@ -39,6 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         private CancellationTokenSource childCancellationTokenSource;
         private PartitionHealthExceptionFilter exceptionFilter;
         private ActorStateProviderHelper stateProviderHelper;
+        private volatile int validationComplete = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetMigrationOrchestrator"/> class.
@@ -119,6 +120,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                   this.TraceId,
                   $"StartMigrationAsync isUserTriggered : {isUserTriggered}, MigrationMode : {this.MigrationSettings.MigrationMode}");
 
+            if (Interlocked.CompareExchange(ref this.validationComplete, 1, 0) == 0)
+            {
+                await this.ValidateConfigForMigrationAsync(cancellationToken);
+            }
+
             try
             {
                 if (!isUserTriggered)
@@ -129,7 +135,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     Interlocked.CompareExchange(ref this.isReadyForMigrationOperations, 1, 0);
                     this.childCancellationTokenSource.Token.Register(() =>
                     {
-                        Interlocked.CompareExchange(ref this.isReadyForMigrationOperations, 0, 1);
+                        // Interlocked.CompareExchange(ref this.isReadyForMigrationOperations, 0, 1);
                         Interlocked.CompareExchange(ref this.isMigrationWorkflowRunning, 0, 1);
                     });
                 }
@@ -137,7 +143,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     if (this.MigrationSettings.MigrationMode == MigrationMode.Auto)
                     {
-                        throw new FabricException("MigrationMode is set to Auto. Manual migration starts are not allowed.");
+                        throw new InvalidMigrationOperationException("MigrationMode is set to Auto. Manual migration starts are not allowed.");
                     }
                     else
                     {
@@ -164,7 +170,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 {
                     if (this.currentMigrationState == MigrationState.None)
                     {
-                        await this.ValidateConfigForMigrationAsync(childToken);
                         await this.InitializeAsync(childToken);
                     }
 
@@ -176,7 +181,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     {
                         if (this.currentMigrationState == MigrationState.None)
                         {
-                            await this.ValidateConfigForMigrationAsync(childToken);
                             await this.InitializeAsync(childToken);
                             await this.StartOrResumeMigrationAsync(childToken);
                         }
@@ -234,7 +238,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             this.ThrowIfNotReady();
             if (userTriggered)
             {
-                this.ThrowIdInvalidOperation();
+                this.ThrowIfInvalidOperation();
                 if (this.childCancellationTokenSource != null)
                 {
                     this.childCancellationTokenSource.Cancel();
@@ -289,7 +293,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <inheritdoc/>
         public override bool AreActorCallsAllowed()
         {
-            this.ThrowIfNotReady();
             return this.currentMigrationState == MigrationState.Completed;
         }
 
@@ -303,7 +306,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public override async Task StartDowntimeAsync(bool userTriggered, CancellationToken cancellationToken)
         {
             this.ThrowIfNotReady();
-            this.ThrowIdInvalidOperation();
+            this.ThrowIfInvalidOperation();
             await this.stateProviderHelper.ExecuteWithRetriesAsync(
                 async () =>
                 {
@@ -979,11 +982,11 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         {
             if (this.isReadyForMigrationOperations != 1)
             {
-                throw new InvalidMigrationOperationException("MigrationFramework not initialized. Retry the request");
+                throw new MigrationFrameworkNotInitializedException("MigrationFramework not initialized. Retry the request");
             }
         }
 
-        private void ThrowIdInvalidOperation()
+        private void ThrowIfInvalidOperation()
         {
             if (this.currentMigrationState == MigrationState.Completed || this.currentMigrationState == MigrationState.Aborted)
             {

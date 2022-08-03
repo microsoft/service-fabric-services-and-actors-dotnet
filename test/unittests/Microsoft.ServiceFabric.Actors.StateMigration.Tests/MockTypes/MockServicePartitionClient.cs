@@ -105,6 +105,13 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes
                         StatusCode = HttpStatusCode.OK,
                     });
                 }
+                else if (requestUri.EndsWith(MigrationConstants.AbortMigrationEndpoint))
+                {
+                    return Task.FromResult(new HttpResponseMessage()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                    });
+                }
 
                 return Task.FromResult(new HttpResponseMessage()
                 {
