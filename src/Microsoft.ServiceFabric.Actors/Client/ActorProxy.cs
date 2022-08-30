@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Remoting.V2;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
@@ -167,6 +168,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
+            var requestId = Guid.NewGuid();
+            LogContext.Set(new LogContext
+            {
+                RequestId = requestId,
+            });
+
             var headers = new ActorRemotingMessageHeaders
             {
                 ActorId = this.servicePartitionClientV2.ActorId,
@@ -174,7 +181,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 MethodId = methodId,
                 CallContext = Actors.Helper.GetCallContext(),
                 MethodName = methodName,
+                RequestId = requestId,
             };
+
+            ServiceTrace.Source.WriteInfo(
+                "ActorProxy",
+                $"Invoking actor proxy - RequestId : {requestId.ToString()}, ActorId : {headers.ActorId}, MethodName : {headers.MethodName}, CallContext : {headers.CallContext}");
 
             return this.servicePartitionClientV2.InvokeAsync(
                 new ServiceRemotingRequestMessage(

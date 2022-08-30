@@ -168,7 +168,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 InterfaceId = interfaceId,
                 MethodId = methodId,
                 MethodName = methodName,
+                RequestId = Guid.NewGuid(),
             };
+
+            ServiceTrace.Source.WriteInfo(
+                "ServiceProxy",
+                $"Invoking service proxy - RequestId : {headers.RequestId.ToString()}, MethodName : {headers.MethodName}");
+
             return this.partitionClientV2.InvokeAsync(
                 new ServiceRemotingRequestMessage(headers, requestMsgBodyValue),
                 methodName,

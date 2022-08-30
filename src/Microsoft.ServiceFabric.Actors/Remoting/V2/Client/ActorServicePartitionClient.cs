@@ -52,6 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 InterfaceId = ActorEventSubscription.InterfaceId,
                 MethodId = ActorEventSubscription.SubscribeMethodId,
                 MethodName = ActorEventSubscription.SubscribeMethodName,
+                RequestId = Guid.NewGuid(),
             };
 
             var msgBody = new ServiceRemotingRequestMessageBody(1);
@@ -75,6 +76,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
                 InterfaceId = ActorEventSubscription.InterfaceId,
                 MethodId = ActorEventSubscription.UnSubscribeMethodId,
                 MethodName = ActorEventSubscription.UnSubscribeMethodName,
+                RequestId = Guid.NewGuid(),
             };
 
             var msgBody = new ServiceRemotingRequestMessageBody(1);

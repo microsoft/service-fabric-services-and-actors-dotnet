@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Builder;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
@@ -26,6 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
     /// </summary>
     public class ActorServiceRemotingDispatcher : ServiceRemotingMessageDispatcher
     {
+        private static readonly string TraceType = typeof(ActorServiceRemotingDispatcher).Name;
         private readonly ActorService actorService;
         private readonly ServiceRemotingCancellationHelper cancellationHelper;
 
@@ -138,8 +140,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         private async Task<IServiceRemotingResponseMessage> HandleActorMethodDispatchAsync(
             IActorRemotingMessageHeaders messageHeaders, IServiceRemotingRequestMessageBody msgBody)
         {
+            var isCancellationRequested = this.IsCancellationRequest(messageHeaders);
+            ServiceTrace.Source.WriteInfo(
+                TraceType,
+                "[{0}] Dispatching actor event subscription request - ActorId : {1}, MethodName : {2}, CancellationRequested : {3}",
+                messageHeaders.RequestId,
+                messageHeaders.ActorId,
+                messageHeaders.MethodName,
+                isCancellationRequested);
             var startTime = DateTime.UtcNow;
-            if (this.IsCancellationRequest(messageHeaders))
+            if (isCancellationRequested)
             {
                 await this.cancellationHelper.CancelRequestAsync(
                     messageHeaders.InterfaceId,
@@ -250,6 +260,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                         0,
                         "Value",
                         typeof(EventSubscriptionRequestBody));
+                ServiceTrace.Source.WriteInfo(
+                    TraceType,
+                    "[{0}] Dispatching actor event subscription request - ActorId : {1}",
+                    actorHeaders.RequestId,
+                    actorHeaders.ActorId);
 
                 await this.actorService.ActorManager
                     .SubscribeAsync(
@@ -270,6 +285,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                         "Value",
                         typeof(Actors.Remoting.EventSubscriptionRequestBody));
 
+                ServiceTrace.Source.WriteInfo(
+                    TraceType,
+                    "[{0}] Dispatching actor event unsubscription request - ActorId : {1}",
+                    actorHeaders.RequestId,
+                    actorHeaders.ActorId);
+
                 await this.actorService.ActorManager
                     .UnsubscribeAsync(
                         actorHeaders.ActorId,
@@ -281,7 +302,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
 
             throw new MissingMethodException(string.Format(
                 CultureInfo.CurrentCulture,
-                SR.ErrorInvalidMethodId,
+                Actors.SR.ErrorInvalidMethodId,
                 messageHeaders.MethodId));
         }
     }

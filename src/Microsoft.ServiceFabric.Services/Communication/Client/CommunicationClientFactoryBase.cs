@@ -453,7 +453,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     ServiceTrace.Source.WriteInfoWithId(
                         TraceType,
                         requestId,
-                        "{0} Exception While CreatingClient {1}",
+                        "[{0}] Exception While CreatingClient {1}",
                         this.traceId,
                         e);
 

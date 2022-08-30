@@ -56,7 +56,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                 // the higher layer hasn't already set one.
                 if (remotingRequestMessage.GetHeader().InvocationId == null)
                 {
-                    remotingRequestMessage.GetHeader().InvocationId = Guid.NewGuid().ToString();
+                    remotingRequestMessage.GetHeader().InvocationId = remotingRequestMessage.GetHeader().RequestId == default(Guid)
+                        ? Guid.NewGuid().ToString()
+                        : remotingRequestMessage.GetHeader().RequestId.ToString();
                 }
 
                 // Create a TaskCompletionSource that completes with false on cancellation.
@@ -80,7 +82,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                             var headers = remotingRequestMessage.GetHeader();
                             ServiceTrace.Source.WriteInfo(
                                 TraceType,
-                                "Cancellation requested for CallContext : {0}, MethodId : {1}, InterfaceId : {2}",
+                                "[{0}] Cancellation requested for CallContext : {1}, MethodId : {2}, InterfaceId : {3}",
+                                headers.RequestId.ToString(),
                                 headers.InvocationId,
                                 headers.MethodId,
                                 headers.InterfaceId);
@@ -112,7 +115,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                             {
                                 ServiceTrace.Source.WriteInfo(
                                     TraceType,
-                                    "Cancellation delivered for CallContext : {0}, MethodId : {1}, InterfaceId : {2}",
+                                    "[{0}] Cancellation delivered for CallContext : {1}, MethodId : {2}, InterfaceId : {3}",
+                                    headers.RequestId,
                                     headers.InvocationId,
                                     headers.MethodId,
                                     headers.InterfaceId);
