@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_0)
                 .ConfigureApplicationPartManager(manager =>
@@ -43,6 +44,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
             app.UseStatusCodePages();
             app.UseMiddleware<DefaultMigrationExceptionMiddleware>();
+            app.UseCors(
+                options => options.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseMvc();
         }
     }
