@@ -102,9 +102,9 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        internal override void Validate()
+        internal override void Validate(bool isSource)
         {
-            base.Validate();
+            base.Validate(isSource);
         }
     }
 }

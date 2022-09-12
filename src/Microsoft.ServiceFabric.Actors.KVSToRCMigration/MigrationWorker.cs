@@ -163,7 +163,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             if (kvsData.Count > 0)
                             {
                                 laSN = kvsData[kvsData.Count - 1].Version;
-                                keysMigrated += await this.StateProvider.SaveStateAsync(kvsData, cancellationToken, this.Input.Phase == MigrationPhase.Copy);
+                                var keysMigratedInChunk = await this.StateProvider.SaveStateAsync(kvsData, cancellationToken, this.Input.Phase == MigrationPhase.Copy);
+                                keysMigrated += keysMigratedInChunk;
                                 await this.PostHydrationValidationAsync(enumerationResponse, cancellationToken);
                                 await this.stateProviderHelper.ExecuteWithRetriesAsync(
                                     async () =>
@@ -177,7 +178,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                                 (k, v) =>
                                                 {
                                                     long currVal = ParseLong(v, this.TraceId);
-                                                    return (currVal + keysMigrated).ToString();
+                                                    return (currVal + keysMigratedInChunk).ToString();
                                                 },
                                                 DefaultRCTimeout,
                                                 cancellationToken);
@@ -204,7 +205,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 ActorTrace.Source.WriteInfoWithId(
                                     TraceType,
                                     this.TraceId,
-                                    $"Total Keys migrated - StartSN: {startSN}, KeysFetched: {kvsData.Count}, KeysMigrated: {keysMigrated}");
+                                    $"KeysFetched in chunk : {kvsData.Count}, KeysMigrated in chunk: {keysMigrated}");
                             }
 
                             responseLine = streamReader.ReadLine();

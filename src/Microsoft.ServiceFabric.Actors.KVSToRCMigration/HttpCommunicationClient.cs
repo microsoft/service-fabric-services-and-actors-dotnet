@@ -33,6 +33,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 #endif
         }
 
+        public HttpCommunicationClient(HttpClient httpClient)
+        {
+            this.endpointUri = httpClient.BaseAddress;
+            this.httpClient = httpClient;
+        }
+
         public Uri EndpointUri { get => this.endpointUri; }
 
         public HttpClient HttpClient { get => this.httpClient; }

@@ -23,8 +23,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal static class KvsActorStateProviderExtensions
     {
         public static readonly string TombstoneCleanupMessage = "KeyValueStoreReplicaSettings.DisableTombstoneCleanup is either not enabled or set to false";
+        public static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
         private static readonly string TraceType = typeof(KvsActorStateProviderExtensions).Name;
-        private static DataContractJsonSerializer responseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
 
         internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
         {
@@ -289,7 +289,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         private static async Task WriteKeyValuePairsToResponseAsync(EnumerationResponse enumerationResponse, HttpResponse httpResponse)
         {
-            var byteArray = SerializationUtility.Serialize(responseSerializer, enumerationResponse);
+            var byteArray = SerializationUtility.Serialize(ResponseSerializer, enumerationResponse);
             var newLine = Encoding.UTF8.GetBytes("\n");
 
             ActorTrace.Source.WriteNoise(TraceType, $"ByteArray: {byteArray} ArrayLength: {byteArray.Length}");

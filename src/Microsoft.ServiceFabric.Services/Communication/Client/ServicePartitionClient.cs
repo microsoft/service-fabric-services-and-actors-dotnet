@@ -132,7 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
         /// </returns>
-        public Task<TResult> InvokeWithRetryAsync<TResult>(
+        public virtual Task<TResult> InvokeWithRetryAsync<TResult>(
             Func<TCommunicationClient, Task<TResult>> func,
             params Type[] doNotRetryExceptionTypes)
         {
@@ -156,7 +156,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// the result from the function given in the argument.
         /// </returns>
         /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
-        public async Task<TResult> InvokeWithRetryAsync<TResult>(
+        public virtual async Task<TResult> InvokeWithRetryAsync<TResult>(
             Func<TCommunicationClient, Task<TResult>> func,
             CancellationToken cancellationToken,
             params Type[] doNotRetryExceptionTypes)
