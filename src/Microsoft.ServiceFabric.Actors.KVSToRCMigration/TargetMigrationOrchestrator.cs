@@ -182,6 +182,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         if (this.currentMigrationState == MigrationState.None)
                         {
                             await this.InitializeAsync(childToken);
+
                             // TODO: Bug fix: 15538471 - StartOrResumeMigrationAsync should not be awaited for Manual Mode Migration
                             await this.StartOrResumeMigrationAsync(childToken);
                         }
