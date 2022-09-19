@@ -163,12 +163,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
+            var requestId = Guid.NewGuid();
+            LogContext.Set(new LogContext
+            {
+                RequestId = requestId,
+            });
+
             var headers = new ServiceRemotingRequestMessageHeader()
             {
                 InterfaceId = interfaceId,
                 MethodId = methodId,
                 MethodName = methodName,
-                RequestId = Guid.NewGuid(),
+                RequestId = requestId,
             };
 
             ServiceTrace.Source.WriteInfo(

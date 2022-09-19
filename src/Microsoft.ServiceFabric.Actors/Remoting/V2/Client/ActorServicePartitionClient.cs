@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
@@ -46,13 +47,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
 
         internal Task SubscribeAsync(int eventInterfaceId, Guid subscriberId)
         {
+            var requestId = Guid.NewGuid();
+            LogContext.Set(new LogContext
+            {
+                RequestId = requestId,
+            });
+
             var actorRemotingMessageHeaders = new ActorRemotingMessageHeaders
             {
                 ActorId = this.ActorId,
                 InterfaceId = ActorEventSubscription.InterfaceId,
                 MethodId = ActorEventSubscription.SubscribeMethodId,
                 MethodName = ActorEventSubscription.SubscribeMethodName,
-                RequestId = Guid.NewGuid(),
+                RequestId = requestId,
             };
 
             var msgBody = new ServiceRemotingRequestMessageBody(1);
@@ -70,13 +77,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
 
         internal Task UnsubscribeAsync(int eventInterfaceId, Guid subscriberId)
         {
+            var requestId = Guid.NewGuid();
+            LogContext.Set(new LogContext
+            {
+                RequestId = requestId,
+            });
+
             var headers = new ActorRemotingMessageHeaders
             {
                 ActorId = this.ActorId,
                 InterfaceId = ActorEventSubscription.InterfaceId,
                 MethodId = ActorEventSubscription.UnSubscribeMethodId,
                 MethodName = ActorEventSubscription.UnSubscribeMethodName,
-                RequestId = Guid.NewGuid(),
+                RequestId = requestId,
             };
 
             var msgBody = new ServiceRemotingRequestMessageBody(1);
