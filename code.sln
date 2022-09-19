@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.32112.339
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32602.291
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services", "src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj", "{F416C4C3-250D-48F3-822C-1C589E8F851C}"
 EndProject
@@ -47,6 +47,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.KVSToRCMigration", "src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration.csproj", "{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard", "src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard.csproj", "{E5B52C61-66BE-4D71-88D2-E50F78011C72}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.StateMigration.Tests", "test\unittests\Microsoft.ServiceFabric.Actors.StateMigration.Tests\Microsoft.ServiceFabric.Actors.StateMigration.Tests.csproj", "{1BDC4681-FDBA-4E55-A247-5F779627A4D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +116,10 @@ Global
 		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Debug|x64.Build.0 = Debug|x64
 		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Release|x64.ActiveCfg = Release|x64
 		{E5B52C61-66BE-4D71-88D2-E50F78011C72}.Release|x64.Build.0 = Release|x64
+		{1BDC4681-FDBA-4E55-A247-5F779627A4D7}.Debug|x64.ActiveCfg = Debug|x64
+		{1BDC4681-FDBA-4E55-A247-5F779627A4D7}.Debug|x64.Build.0 = Debug|x64
+		{1BDC4681-FDBA-4E55-A247-5F779627A4D7}.Release|x64.ActiveCfg = Release|x64
+		{1BDC4681-FDBA-4E55-A247-5F779627A4D7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +143,7 @@ Global
 		{ECB3825D-B309-4C76-A20D-76544459F611} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
 		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
 		{E5B52C61-66BE-4D71-88D2-E50F78011C72} = {8B80B63B-5107-4845-9F19-647CFA7911A3}
+		{1BDC4681-FDBA-4E55-A247-5F779627A4D7} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8CC7D7F7-CBD9-428B-A190-7A4D56C920FE}

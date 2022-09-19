@@ -12,7 +12,8 @@
     
     <Projects_Test_netframework Include="$(RepoRoot)test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
                                    $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
-                                   $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj"  />
+                                   $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj;
+                                   $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Actors.StateMigration.Tests\Microsoft.ServiceFabric.Actors.StateMigration.Tests.csproj" />
     
   </ItemGroup>
 

@@ -15,10 +15,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal class RCAmbiguousActorIdHandler : AmbiguousActorIdHandlerBase
     {
-        private ReliableCollectionsActorStateProvider stateProvider;
+        private IReliableCollectionsActorStateProviderInternal stateProvider;
         private List<IAmbiguousActorIdResolver> resolvers;
 
-        public RCAmbiguousActorIdHandler(ReliableCollectionsActorStateProvider stateProvider)
+        public RCAmbiguousActorIdHandler(IReliableCollectionsActorStateProviderInternal stateProvider)
             : base(stateProvider.GetActorStateProviderHelper())
         {
             this.stateProvider = stateProvider;

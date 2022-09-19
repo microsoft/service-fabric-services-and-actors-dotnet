@@ -100,7 +100,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public static DateTime ReadDateTime(this BinaryReader reader)
         {
-            return new DateTime(reader.ReadInt64());
+            return new DateTime(reader.ReadInt64(), DateTimeKind.Utc);
         }
 
         public static void Write(this BinaryWriter writer, string str, Encoding encoding)

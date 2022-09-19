@@ -39,11 +39,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <param name="actorTypeInformation">The type information of the Actor.</param>
         /// <param name="serviceContext">Service context the actor service is operating under.</param>
         /// <param name="migrationSettings">Migration settings.</param>
-        public MigrationOrchestratorBase(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, Actors.Runtime.Migration.MigrationSettings migrationSettings)
+        /// <param name="traceId">Trace Id.</param>
+        public MigrationOrchestratorBase(StatefulServiceContext serviceContext, ActorTypeInformation actorTypeInformation, Actors.Runtime.Migration.MigrationSettings migrationSettings, string traceId = null)
         {
             this.actorTypeInformation = actorTypeInformation;
             this.serviceContext = serviceContext;
-            this.traceId = this.serviceContext.TraceId;
+            this.traceId = string.IsNullOrEmpty(traceId) ? this.serviceContext.TraceId : traceId;
             if (migrationSettings != null && migrationSettings is MigrationSettings)
             {
                 this.migrationSettings = (MigrationSettings)migrationSettings;

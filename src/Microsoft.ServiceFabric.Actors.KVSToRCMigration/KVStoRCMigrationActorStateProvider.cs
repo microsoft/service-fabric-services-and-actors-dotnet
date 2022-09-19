@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {
         private string traceId;
-        private ReliableCollectionsActorStateProvider rcStateProvider;
+        private IReliableCollectionsActorStateProviderInternal rcStateProvider;
         private IStatefulServicePartition servicePartition;
         private IReliableDictionary2<string, string> metadataDictionary;
         private bool isMetadataDictInitialized = false;
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <param name="reliableCollectionsActorStateProvider">
         /// The <see cref="ReliableCollectionsActorStateProvider"/> that carries out regular operations of state provider.
         /// </param>
-        public KVStoRCMigrationActorStateProvider(ReliableCollectionsActorStateProvider reliableCollectionsActorStateProvider)
+        public KVStoRCMigrationActorStateProvider(IReliableCollectionsActorStateProviderInternal reliableCollectionsActorStateProvider)
         {
             this.rcStateProvider = reliableCollectionsActorStateProvider;
             this.ambiguousActorIdHandler = new RCAmbiguousActorIdHandler(this.rcStateProvider);
@@ -258,7 +258,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <param name="skipPresenceDictResolve">If true, attempts to resolve the actorid(ambiguous) from user resolver implementation.
         /// If false, then local presence dictionary is used before user resolvers.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken, bool skipPresenceDictResolve = false)
+        public virtual async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken, bool skipPresenceDictResolve = false)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
@@ -363,7 +363,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 cancellationToken);
         }
 
-        internal async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()
+        internal virtual async Task<IReliableDictionary2<string, string>> GetMetadataDictionaryAsync()
         {
             await this.stateProviderInitTask;
             return this.metadataDictionary;
@@ -379,7 +379,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return this.rcStateProvider.GetStateManager();
         }
 
-        internal async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, string hashToCompare, bool skipPresenceDictResolve, CancellationToken cancellationToken)
+        internal virtual async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, string hashToCompare, bool skipPresenceDictResolve, CancellationToken cancellationToken)
         {
             var values = new List<byte[]>();
             foreach (var data in kvsData)
@@ -413,13 +413,17 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         else
                         {
                             var rcValue = condValue.Value;
-                            if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
+                            if (data.Key.StartsWith(ReminderStorageKeyPrefix))
                             {
-                                rcValue = MigrationUtility.KVS.SerializeReminder(data.Key, MigrationUtility.RC.DeserializeReminder(rcKey, rcValue, this.TraceId), this.TraceId);
+                                var reminderdata = MigrationUtility.RC.DeserializeReminder(rcKey, rcValue, this.TraceId);
+                                rcValue = MigrationUtility.KVS.SerializeReminder(data.Key, reminderdata, this.TraceId);
                             }
-                            else if (data.Key.StartsWith(ReminderStorageKeyPrefix))
+                            else if (data.Key.StartsWith(ReminderCompletedeStorageKeyPrefix))
                             {
-                                rcValue = MigrationUtility.KVS.SerializeReminderCompletedData(data.Key, MigrationUtility.RC.DeserializeReminderCompletedData(rcKey, rcValue, this.TraceId), this.TraceId);
+                                var remCompletedData = MigrationUtility.RC.DeserializeReminderCompletedData(rcKey, rcValue, this.TraceId);
+                                rcValue = MigrationUtility.KVS.SerializeReminderCompletedData(data.Key, remCompletedData, this.TraceId);
+                                var temp = MigrationUtility.KVS.DeserializeReminderCompletedData(data.Key, rcValue, this.TraceId);
+                                var rcValue1 = MigrationUtility.KVS.SerializeReminderCompletedData(data.Key, remCompletedData, this.TraceId);
                             }
 
                             values.Add(rcValue);
@@ -452,7 +456,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             }
         }
 
-        internal ReliableCollectionsActorStateProvider GetInternalStateProvider()
+        internal IReliableCollectionsActorStateProviderInternal GetInternalStateProvider()
         {
             return this.rcStateProvider;
         }

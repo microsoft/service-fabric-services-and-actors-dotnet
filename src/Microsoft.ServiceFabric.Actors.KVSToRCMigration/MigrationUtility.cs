@@ -517,7 +517,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 try
                 {
-                    var res = Deserialize(reminderSerializer, reminder) as ReminderCompletedData;
+                    var res = Deserialize(reminderCompletedDataSerializer, reminder) as ReminderCompletedData;
                     ActorTrace.Source.WriteNoiseWithId(
                         TraceType,
                         traceId,

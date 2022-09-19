@@ -26,13 +26,15 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions
             CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            return await partitionClient.InvokeWithRetryAsync(async client =>
-            {
-                var response = await asyncFunc.Invoke(client);
-                await ThrowIfErrorResponseAsync(response);
+            return await partitionClient.InvokeWithRetryAsync(
+                async client =>
+                {
+                    var response = await asyncFunc.Invoke(client);
+                    await ThrowIfErrorResponseAsync(response);
 
-                return response;
-            });
+                    return response;
+                },
+                cancellationToken);
         }
 
         private static async Task ThrowIfErrorResponseAsync(HttpResponseMessage response)

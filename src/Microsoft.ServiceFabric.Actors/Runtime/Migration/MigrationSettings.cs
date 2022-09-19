@@ -81,11 +81,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
             }
         }
 
-        internal virtual void Validate()
+        internal virtual void Validate(bool isSource)
         {
-            if (string.IsNullOrWhiteSpace(this.SourceServiceUri.ToString()))
+            if (!isSource && (this.SourceServiceUri == null || !this.SourceServiceUri.AbsoluteUri.StartsWith("fabric:/", StringComparison.InvariantCultureIgnoreCase)))
             {
-                var errorMsg = $"SourceServiceUri is not present in {this.MigrationConfigSectionName} section of settings file.";
+                var errorMsg = $"SourceServiceUri is either null or valid. Add SourceServiceUri section in {this.MigrationConfigSectionName} section of settings file.";
+                ActorTrace.Source.WriteError(TraceType, errorMsg);
+
+                throw new InvalidMigrationConfigException(errorMsg);
+            }
+
+            if (isSource && this.TargetServiceUri != null && !this.TargetServiceUri.AbsoluteUri.StartsWith("fabric:/", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var errorMsg = $"TargetServiceUri is valid.";
                 ActorTrace.Source.WriteError(TraceType, errorMsg);
 
                 throw new InvalidMigrationConfigException(errorMsg);

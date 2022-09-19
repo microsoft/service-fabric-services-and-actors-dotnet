@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     /// <summary>
     /// ActorId Handler.
     /// </summary>
-    internal interface IAmbiguousActorIdHandler
+    public interface IAmbiguousActorIdHandler
     {
         /// <summary>
         /// Resolves actor id for a give storage key.
@@ -26,8 +26,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// </summary>
         public class ConditionalValue
         {
+            /// <summary>
+            /// Gets or sets the Value.
+            /// </summary>
             public string Value { get; set; }
 
+            /// <summary>
+            /// Gets or sets a value indicating whether the ConditionalValue.Value exists.
+            /// </summary>
             public bool HasValue { get; set; }
         }
     }
