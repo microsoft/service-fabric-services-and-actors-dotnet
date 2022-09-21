@@ -71,7 +71,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // Restore the current ExecutionContext
                 if (restoreFlow)
                 {
-                    ExecutionContext.RestoreFlow();
                     asyncFlowControl.Undo();
                 }
             }
