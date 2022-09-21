@@ -39,12 +39,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.snapshotInterval = snapshotInterval;
 
             // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
+            AsyncFlowControl asyncFlowControl;
             bool restoreFlow = false;
             try
             {
                 if (!ExecutionContext.IsFlowSuppressed())
                 {
-                    ExecutionContext.SuppressFlow();
+                    asyncFlowControl = ExecutionContext.SuppressFlow();
                     restoreFlow = true;
                 }
 
@@ -56,6 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 if (restoreFlow)
                 {
                     ExecutionContext.RestoreFlow();
+                    asyncFlowControl.Undo();
                 }
             }
 
