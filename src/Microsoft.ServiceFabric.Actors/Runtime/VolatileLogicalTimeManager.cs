@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.handler = handler;
             this.snapshotInterval = snapshotInterval;
 
-            // Don't capture the current ExecutionContext and its AsyncLocals onto the timer 
+            // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
             bool restoreFlow = false;
             AsyncFlowControl asyncFlowControl = default(AsyncFlowControl);
             try
