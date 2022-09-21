@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
             bool restoreFlow = false;
-            AsyncFlowControl asyncFlowControl;
+            AsyncFlowControl asyncFlowControl = default(AsyncFlowControl);
             try
             {
                 if (!ExecutionContext.IsFlowSuppressed())
