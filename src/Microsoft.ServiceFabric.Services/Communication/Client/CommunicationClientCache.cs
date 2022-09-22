@@ -62,7 +62,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 // Restore the current ExecutionContext
                 if (restoreFlow)
                 {
-                    ExecutionContext.RestoreFlow();
                     asyncFlowControl.Undo();
                 }
             }
