@@ -37,7 +37,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             this.handler = handler;
             this.snapshotInterval = snapshotInterval;
-            this.timer = new Timer(o => this.TimerCallback());
+
+            // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
+            bool restoreFlow = false;
+            AsyncFlowControl asyncFlowControl = default(AsyncFlowControl);
+            try
+            {
+                if (!ExecutionContext.IsFlowSuppressed())
+                {
+                    asyncFlowControl = ExecutionContext.SuppressFlow();
+                    restoreFlow = true;
+                }
+
+                this.timer = new Timer(o => this.TimerCallback());
+            }
+            finally
+            {
+                // Restore the current ExecutionContext
+                if (restoreFlow)
+                {
+                    asyncFlowControl.Undo();
+                }
+            }
 
             this.stopwatch.Start();
         }

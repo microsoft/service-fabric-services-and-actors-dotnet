@@ -53,7 +53,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.period = reminderPeriod;
             this.state = reminderState;
 
-            this.timer = new Timer(this.OnReminderCallback);
+            // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
+            bool restoreFlow = false;
+            AsyncFlowControl asyncFlowControl = default(AsyncFlowControl);
+            try
+            {
+                if (!ExecutionContext.IsFlowSuppressed())
+                {
+                    asyncFlowControl = ExecutionContext.SuppressFlow();
+                    restoreFlow = true;
+                }
+
+                this.timer = new Timer(this.OnReminderCallback);
+            }
+            finally
+            {
+                // Restore the current ExecutionContext
+                if (restoreFlow)
+                {
+                    asyncFlowControl.Undo();
+                }
+            }
         }
 
         ~ActorReminder()

@@ -34,7 +34,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.callbackState = state;
             this.period = period;
             this.dueTime = dueTime;
-            this.timer = new Timer(this.OnTimerCallback);
+
+            // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
+            bool restoreFlow = false;
+            AsyncFlowControl asyncFlowControl = default(AsyncFlowControl);
+            try
+            {
+                if (!ExecutionContext.IsFlowSuppressed())
+                {
+                    asyncFlowControl = ExecutionContext.SuppressFlow();
+                    restoreFlow = true;
+                }
+
+                this.timer = new Timer(this.OnTimerCallback);
+            }
+            finally
+            {
+                // Restore the current ExecutionContext
+                if (restoreFlow)
+                {
+                    asyncFlowControl.Undo();
+                }
+            }
 
             this.ArmTimer(dueTime);
         }
