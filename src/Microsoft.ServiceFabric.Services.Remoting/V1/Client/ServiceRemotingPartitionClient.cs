@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
             // the higher layer hasn't already set one.
             if (headers.InvocationId == null)
             {
-                headers.InvocationId = Guid.NewGuid().ToString();
+                headers.InvocationId = Guid.NewGuid().ToString("N");
             }
 
             // Create a TaskCompletionSource that completes with false on cancellation.

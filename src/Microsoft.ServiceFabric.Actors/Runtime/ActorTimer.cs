@@ -97,7 +97,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     this.callbackMethodContext,
                     false,
                     this.DispatchTimerCallback,
-                    Guid.NewGuid().ToString(),
+                    Guid.NewGuid().ToString("N"),
                     true,
                     CancellationToken.None);
             }
