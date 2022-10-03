@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
+    using System;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
@@ -53,6 +54,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         /// <value>Method Name</value>
         [DataMember(Name = "MethodName", IsRequired = false, Order = 4)]
         public string MethodName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the request id.
+        /// </summary>
+        [DataMember(Name = "RequestId", IsRequired = false, Order = 5)]
+        public Guid RequestId { get; set; } = default(Guid);
 
         public void AddHeader(string headerName, byte[] headerValue)
         {

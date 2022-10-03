@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Client
 
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.Fabric;
     using System.Fabric.Description;
     using System.Threading;
@@ -41,6 +42,8 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// invoked without explicitly specifying the maxRetryBackoffInterval argument. The default value is 5 seconds.
         /// </summary>
         public static readonly TimeSpan DefaultMaxRetryBackoffInterval = TimeSpan.FromSeconds(5);
+
+        private static readonly string TraceType = typeof(ServicePartitionResolver).Name;
 
         private static readonly object StaticLock = new object();
         private static ServicePartitionResolver defaultResolver;
@@ -547,6 +550,8 @@ namespace Microsoft.ServiceFabric.Services.Client
             CancellationToken cancellationToken,
             Uri serviceUri)
         {
+            var requestId = LogContext.GetRequestIdOrDefault();
+
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -567,9 +572,17 @@ namespace Microsoft.ServiceFabric.Services.Client
                         totaltime.GetRemainingTime(),
                         CancellationToken.None);
                 }
-                catch (AggregateException ae)
+                catch (Exception ex)
                 {
-                    ae.Handle(
+                    ServiceTrace.Source.WriteInfo(
+                        TraceType,
+                        "[{0}] Endpoint resolution failed with error : {1}",
+                        requestId,
+                        ex);
+
+                    if (ex is AggregateException ae)
+                    {
+                        ae.Handle(
                         x =>
                         {
                             if ((x is FabricTransientException) ||
@@ -581,20 +594,20 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                             return false;
                         });
-                }
-                catch (FabricTransientException)
-                {
-                }
-                catch (TimeoutException)
-                {
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (FabricObjectClosedException)
-                {
-                    // retry on the different client
-                    this.ReportFaulted(client);
+                    }
+                    else if (ex is FabricObjectClosedException)
+                    {
+                        // retry on the different client
+                        this.ReportFaulted(client);
+                    }
+                    else if (ex is FabricTransientException || ex is TimeoutException || ex is OperationCanceledException)
+                    {
+                        // Do nothing
+                    }
+                    else
+                    {
+                        throw ex;
+                    }
                 }
 
                 // check if the rsp is valid
@@ -619,8 +632,14 @@ namespace Microsoft.ServiceFabric.Services.Client
                                 }
                             }
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            ServiceTrace.Source.WriteInfo(
+                                TraceType,
+                                "[{0}] Registering for endpoint change notification failed with error : {1}",
+                                requestId,
+                                ex);
+
                             // Remove the Entry so that in next call we can again try registeration
                             bool res;
                             this.registrationCache.TryRemove(serviceUri, out res);
@@ -629,8 +648,14 @@ namespace Microsoft.ServiceFabric.Services.Client
                         return rsp;
                     }
                 }
-                catch (FabricException)
+                catch (FabricException ex)
                 {
+                    ServiceTrace.Source.WriteInfo(
+                        TraceType,
+                        "[{0}] RSP fetch failed with error : {1}",
+                        requestId,
+                        ex);
+
                     // retry if no suitable endpoints found from the RSP
                 }
 

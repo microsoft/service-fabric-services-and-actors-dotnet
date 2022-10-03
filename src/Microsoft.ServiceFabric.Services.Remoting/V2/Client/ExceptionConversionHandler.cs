@@ -186,6 +186,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                 }
             }
 
+            var requestId = LogContext.GetRequestIdOrDefault();
+            ServiceTrace.Source.WriteInfo(
+                TraceEventType,
+                "[{0}] Remoting call failed with exception : {1}",
+                requestId,
+                exceptionToThrow);
+
             throw exceptionToThrow;
         }
     }

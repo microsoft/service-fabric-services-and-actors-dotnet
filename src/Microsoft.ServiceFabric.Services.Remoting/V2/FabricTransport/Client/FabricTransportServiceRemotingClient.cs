@@ -124,7 +124,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 new FabricTransportMessage(
                     new FabricTransportRequestHeader(serializedHeader.GetSendBuffer(), serializedHeader.Dispose),
                     fabricTransportRequestBody),
-                this.fabricTransportClient.Settings.OperationTimeout))
+                this.fabricTransportClient.Settings.OperationTimeout,
+                remotingRequestRequestMessage.GetHeader().RequestId))
             {
                 var incomingHeader = (retval != null && retval.GetHeader() != null)
                     ? new IncomingMessageHeader(retval.GetHeader().GetRecievedStream())

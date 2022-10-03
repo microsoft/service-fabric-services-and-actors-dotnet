@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
+    using System;
     using System.Runtime.Serialization;
 
     /// <summary>
@@ -12,6 +13,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     /// </summary>
     public interface IServiceRemotingRequestMessageHeader
     {
+        /// <summary>
+        /// Gets or sets the request id.
+        /// </summary>
+        Guid RequestId { get; set; }
+
         /// <summary>
         /// Gets or sets the methodId of the remote method.
         /// </summary>

@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
@@ -98,19 +99,19 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                 }
             }
 
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Forwarding actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"[{LogContext.GetRequestIdOrDefault()}] Forwarding actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
 
             try
             {
                 requestMessage.GetHeader().AddHeader(Runtime.Migration.Constants.ForwardRequestHeaderName, new byte[0]);
                 var retVal = await this.remotingClient.InvokeAsync(requestMessage, requestMessage.GetHeader().MethodName, CancellationToken.None);
-                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Successfully received response for the forwarded actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"[{LogContext.GetRequestIdOrDefault()}] Successfully received response for the forwarded actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}");
 
                 return retVal;
             }
             catch (Exception e)
             {
-                ActorTrace.Source.WriteErrorWithId(TraceType, this.traceId, $"Error encountered while forwarding actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}, Exception : {e}");
+                ActorTrace.Source.WriteErrorWithId(TraceType, this.traceId, $"[{LogContext.GetRequestIdOrDefault()}] Error encountered while forwarding actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}, Exception : {e}");
                 throw e;
             }
         }

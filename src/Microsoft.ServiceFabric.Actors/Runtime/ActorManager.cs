@@ -525,7 +525,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.traceId,
-                "DeleteActorAsync: Delete call received for actor {0}",
+                "[{0}] DeleteActorAsync: Delete call received for actor {1}",
+                callContext,
                 actorId);
 
             // Use ActorConcurrencyLock to synchronize with other actor calls.
@@ -550,7 +551,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 ActorTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,
-                    "DeleteActorAsync: Acquired ReentrancyGuard for actor {0}.",
+                    "[{0}] DeleteActorAsync: Acquired ReentrancyGuard for actor {1}.",
+                    callContext,
                     actorId);
 
                 // If Actor is already marked for deletion by other delete call, do not try to delete it again.
@@ -559,7 +561,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,
                         this.traceId,
-                        "DeleteActorAsync: Actor {0} is already marked for deletion, returning without processing this delete call.",
+                        "[{0}] DeleteActorAsync: Actor {1} is already marked for deletion, returning without processing this delete call.",
+                        callContext,
                         actorId);
                 }
                 else
@@ -575,7 +578,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ActorTrace.Source.WriteInfoWithId(
                             TraceType,
                             this.traceId,
-                            "DeleteActorAsync: Removing actor state and reminders for Actor {0}.",
+                            "[{0}] DeleteActorAsync: Removing actor state and reminders for Actor {1}.",
+                            callContext,
                             actor.Id);
 
                         await this.StateProvider.RemoveActorAsync(actorId, cancellationToken);
@@ -583,7 +587,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ActorTrace.Source.WriteInfoWithId(
                             TraceType,
                             this.traceId,
-                            "DeleteActorAsync: Unregistering all reminders for Actor {0}.",
+                            "[{0}] DeleteActorAsync: Unregistering all reminders for Actor {1}.",
+                            callContext,
                             actor.Id);
 
                         if (this.remindersByActorId.TryGetValue(actorId, out var actorReminders))
@@ -599,7 +604,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ActorTrace.Source.WriteInfoWithId(
                             TraceType,
                             this.traceId,
-                            "DeleteActorAsync: Clearing event subscriptions for actor {0}.",
+                            "[{0}] DeleteActorAsync: Clearing event subscriptions for actor {1}.",
+                            callContext,
                             actorId);
 
                         await this.eventManager.ClearAllSubscriptions(actorId);
@@ -609,7 +615,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ActorTrace.Source.WriteInfoWithId(
                             TraceType,
                             this.traceId,
-                            "DeleteActorAsync: Removing state for actor {0} caused exception {1}, {2}.",
+                            "[{0}] DeleteActorAsync: Removing state for actor {1} caused exception {2}, {3}.",
+                            callContext,
                             actorId,
                             e.Message,
                             e.StackTrace);
@@ -626,7 +633,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             ActorTrace.Source.WriteInfoWithId(
                                 TraceType,
                                 this.traceId,
-                                "DeleteActorAsync: Deactivating actor {0}",
+                                "[{0}] DeleteActorAsync: Deactivating actor {1}",
+                                callContext,
                                 actorId);
 
                             await this.DeactivateActorAsync(removedActor);
@@ -634,7 +642,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             ActorTrace.Source.WriteInfoWithId(
                                 TraceType,
                                 this.traceId,
-                                "DeleteActorAsync: Completed Deactivation of actor {0}",
+                                "[{0}] DeleteActorAsync: Completed Deactivation of actor {1}",
+                                callContext,
                                 actorId);
                         }
                     }
@@ -644,7 +653,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ActorTrace.Source.WriteInfoWithId(
                             TraceType,
                             this.traceId,
-                            "DeleteActorAsync: Deactivating actor {0} caused exception {1}, {2}.",
+                            "[{0}] DeleteActorAsync: Deactivating actor {1} caused exception {2}, {3}.",
+                            callContext,
                             actorId,
                             e.Message,
                             e.StackTrace);
