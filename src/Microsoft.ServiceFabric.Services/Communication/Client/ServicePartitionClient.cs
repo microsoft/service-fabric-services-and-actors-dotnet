@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
     using System;
     using System.Fabric;
+    using System.Fabric.Management.ServiceModel;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -150,7 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
         /// <param name="func">Function being invoked</param>
         /// <param name="cancellationToken">Cancellation token</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
         /// <returns>
         /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
@@ -161,10 +162,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             CancellationToken cancellationToken,
             params Type[] doNotRetryExceptionTypes)
         {
+            var requestId = LogContext.GetRequestIdOrDefault();
+
             var totalretryCount = 0;
             string currentExceptionId = null;
             CancellationTokenSource cancellationTokenSource = null;
-            var traceId = Guid.NewGuid().ToString();
+            var traceId = requestId == default(Guid) ? Guid.NewGuid().ToString() : requestId.ToString();
             ClientRequestTracker.Set(traceId);
             try
             {
@@ -190,10 +193,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     }
                     catch (AggregateException ae)
                     {
-                        ServiceTrace.Source.WriteNoiseWithId(
+                        ServiceTrace.Source.WriteWarning(
                             TraceType,
+                            "[{0}] AggregateException While Invoking API {1}",
                             traceId,
-                            "AggregateException While Invoking API {0}",
                             ae);
 
                         ae.Handle(x => !doNotRetryExceptionTypes.Contains(x.GetType()));
@@ -201,10 +204,10 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     }
                     catch (Exception e)
                     {
-                        ServiceTrace.Source.WriteNoiseWithId(
+                        ServiceTrace.Source.WriteWarning(
                             TraceType,
+                            "[{0}] Exception While Invoking API {1}",
                             traceId,
-                            "Exception While Invoking API {0}",
                             e);
 
                         if (doNotRetryExceptionTypes.Contains(e.GetType()))

@@ -24,6 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
     /// </summary>
     public class ServiceRemotingMessageDispatcher : IServiceRemotingMessageHandler, IDisposable
     {
+        private static readonly string TraceType = typeof(ServiceRemotingMessageDispatcher).Name;
         private ServiceRemotingCancellationHelper cancellationHelper;
         private Dictionary<int, MethodDispatcherBase> methodDispatcherMap;
         private object serviceImplementation;
@@ -103,18 +104,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             IServiceRemotingRequestContext requestContext,
             IServiceRemotingRequestMessage requestMessage)
         {
-            if (this.IsCancellationRequest(requestMessage.GetHeader()))
+            var messageHeaders = requestMessage.GetHeader();
+            var isCancellationRequest = this.IsCancellationRequest(messageHeaders);
+
+            ServiceTrace.Source.WriteInfo(
+                TraceType,
+                "[{0}] Dispatching request - MethodName : {1}, CancellationRequest : {2}",
+                messageHeaders.RequestId,
+                messageHeaders.MethodName,
+                isCancellationRequest);
+            if (isCancellationRequest)
             {
                 await
                     this.cancellationHelper.CancelRequestAsync(
-                        requestMessage.GetHeader().InterfaceId,
-                        requestMessage.GetHeader().MethodId,
-                        requestMessage.GetHeader().InvocationId);
+                        messageHeaders.InterfaceId,
+                        messageHeaders.MethodId,
+                        messageHeaders.InvocationId);
                 return null;
             }
             else
             {
-                var messageHeaders = requestMessage.GetHeader();
                 var retval = await this.cancellationHelper.DispatchRequest<IServiceRemotingResponseMessage>(
                         messageHeaders.InterfaceId,
                         messageHeaders.MethodId,

@@ -163,12 +163,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken)
         {
+            var requestId = Guid.NewGuid();
+            LogContext.Set(new LogContext
+            {
+                RequestId = requestId,
+            });
+
             var headers = new ServiceRemotingRequestMessageHeader()
             {
                 InterfaceId = interfaceId,
                 MethodId = methodId,
                 MethodName = methodName,
+                RequestId = requestId,
             };
+
+            ServiceTrace.Source.WriteInfo(
+                "ServiceProxy",
+                $"Invoking service proxy - RequestId : {headers.RequestId.ToString()}, MethodName : {headers.MethodName}");
+
             return this.partitionClientV2.InvokeAsync(
                 new ServiceRemotingRequestMessage(headers, requestMsgBodyValue),
                 methodName,

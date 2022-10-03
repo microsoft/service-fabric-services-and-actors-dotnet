@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
     internal class FabricTransportMessageHandler : IFabricTransportMessageHandler
     {
+        private static readonly string TraceType = typeof(FabricTransportMessageHandler).Name;
         private readonly IServiceRemotingMessageHandler remotingMessageHandler;
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
         private readonly Guid partitionId;
@@ -56,9 +57,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var requestStopWatch = Stopwatch.StartNew();
             var requestResponseSerializationStopwatch = Stopwatch.StartNew();
 
+            IServiceRemotingRequestMessage remotingRequestMessage = null;
             try
             {
-                var remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch);
+                remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch);
+
+                LogContext.Set(new LogContext
+                {
+                    RequestId = remotingRequestMessage.GetHeader().RequestId,
+                });
 
                 var retval = await
                     this.remotingMessageHandler.HandleRequestResponseAsync(
@@ -68,7 +75,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             }
             catch (Exception ex)
             {
-                ServiceTrace.Source.WriteInfo("FabricTransportMessageHandler", "Remote Exception occured {0}", ex);
+                if (remotingRequestMessage != null)
+                {
+                    ServiceTrace.Source.WriteWarning(TraceType, "[{0}] Remote Exception occured {1}", remotingRequestMessage.GetHeader().RequestId, ex);
+                }
+                else
+                {
+                    ServiceTrace.Source.WriteWarning(TraceType, "Remote Exception occured {0}", ex);
+                }
+
                 return this.CreateFabricTransportExceptionMessage(ex);
             }
             finally

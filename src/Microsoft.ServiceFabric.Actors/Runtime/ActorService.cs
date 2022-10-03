@@ -16,6 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
 
@@ -239,8 +240,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         Task IActorService.DeleteActorAsync(ActorId actorId, CancellationToken cancellationToken)
         {
+            var requestId = LogContext.GetRequestIdOrDefault();
             return this.ActorManager.DeleteActorAsync(
-                Guid.NewGuid().ToString(),
+                requestId == default(Guid) ? Guid.NewGuid().ToString() : requestId.ToString(),
                 actorId,
                 cancellationToken);
         }
