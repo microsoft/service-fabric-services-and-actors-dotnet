@@ -90,18 +90,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 #endif
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
-                if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
+                var listeners = provider.CreateServiceRemotingListeners();
+                foreach (var kvp in listeners)
                 {
-                    var listeners = provider.CreateServiceRemotingListeners();
-                    foreach (var kvp in listeners)
+                    serviceReplicaListeners.Add(new ServiceReplicaListener(
+                        t =>
                     {
-                        serviceReplicaListeners.Add(new ServiceReplicaListener(
-                            t =>
-                        {
-                            return kvp.Value(serviceImplementation.Context, impl);
-                        },
-                            kvp.Key));
-                    }
+                        return kvp.Value(serviceImplementation.Context, impl);
+                    },
+                        kvp.Key));
                 }
             }
 
