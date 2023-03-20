@@ -570,7 +570,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                         client,
                         previousRsp,
                         totaltime.GetRemainingTime(),
-                        CancellationToken.None);
+                        cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -625,10 +625,10 @@ namespace Microsoft.ServiceFabric.Services.Client
                                 if (added)
                                 {
                                     ServiceNotificationFilterDescription filter = new ServiceNotificationFilterDescription(
-                                       name: serviceUri,
-                                       matchNamePrefix: true,
-                                       matchPrimaryChangeOnly: false);
-                                    await client.ServiceManager.RegisterServiceNotificationFilterAsync(filter, totaltime.GetRemainingTime(), CancellationToken.None);
+                                        name: serviceUri,
+                                        matchNamePrefix: true,
+                                        matchPrimaryChangeOnly: false);
+                                    await client.ServiceManager.RegisterServiceNotificationFilterAsync(filter, totaltime.GetRemainingTime(), cancellationToken);
                                 }
                             }
                         }
