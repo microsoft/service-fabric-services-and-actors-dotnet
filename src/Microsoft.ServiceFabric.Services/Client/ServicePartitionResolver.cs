@@ -570,7 +570,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                         client,
                         previousRsp,
                         totaltime.GetRemainingTime(),
-                        CancellationToken.None);
+                        cancellationToken);
                 }
                 catch (Exception ex)
                 {
