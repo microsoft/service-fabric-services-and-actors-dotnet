@@ -621,15 +621,13 @@ namespace Microsoft.ServiceFabric.Services.Client
                             // Registering for Notification only for the first request for a service uri.
                             if (this.UseNotification && !this.registrationCache.ContainsKey(serviceUri))
                             {
-                                var added = this.registrationCache.TryAdd(serviceUri, true);
-                                if (added)
-                                {
-                                    ServiceNotificationFilterDescription filter = new ServiceNotificationFilterDescription(
-                                       name: serviceUri,
-                                       matchNamePrefix: true,
-                                       matchPrimaryChangeOnly: false);
-                                    await client.ServiceManager.RegisterServiceNotificationFilterAsync(filter, totaltime.GetRemainingTime(), CancellationToken.None);
-                                }
+                                ServiceNotificationFilterDescription filter = new ServiceNotificationFilterDescription(
+                                    name: serviceUri,
+                                    matchNamePrefix: true,
+                                    matchPrimaryChangeOnly: false);
+                                await client.ServiceManager.RegisterServiceNotificationFilterAsync(filter, totaltime.GetRemainingTime(), cancellationToken);
+
+                                this.registrationCache.TryAdd(serviceUri, true);
                             }
                         }
                         catch (Exception ex)
