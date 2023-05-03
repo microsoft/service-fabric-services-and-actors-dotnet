@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
 
     /// <summary>
@@ -93,9 +94,12 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return partitionClientCache.TryGetClientCacheEntry(endpoint, listenerName, out cacheEntry);
         }
 
-        public void ClearClientCacheEntries(Guid partitionId)
+        public void ClearClientCacheEntries(Guid partitionId, ICollection<ResolvedServiceEndpoint> validEndpoints)
         {
-            // Currently no op. To implement when we register for service change notifications.
+            if (this.clientCache.TryGetValue(partitionId, out PartitionClientCache clientCache))
+            {
+                clientCache.TryRemoveClientCacheEntry(validEndpoints);
+            }
         }
 
         public void Dispose()
@@ -238,6 +242,20 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 return this.cache.TryGetValue(
                     new PartitionClientCacheKey(endpoint, listenerName),
                     out cacheEntry);
+            }
+
+            public bool TryRemoveClientCacheEntry(ICollection<ResolvedServiceEndpoint> validEndpoints)
+            {
+                bool removed = false;
+                foreach (var key in this.cache.Keys)
+                {
+                    if (!validEndpoints.Contains(key.Endpoint))
+                    {
+                        removed |= this.cache.TryRemove(key, out _);
+                    }
+                }
+
+                return removed;
             }
 
             // Cleaning up of cache entries needs to synchronize with the code that uses the cache entry and sets the

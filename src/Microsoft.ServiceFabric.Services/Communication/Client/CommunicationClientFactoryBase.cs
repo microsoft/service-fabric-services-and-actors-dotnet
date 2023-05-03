@@ -41,15 +41,18 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="servicePartitionResolver">Optional ServicePartitionResolver</param>
         /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel</param>
         /// <param name="traceId">Identifier to use in diagnostics traces from this component </param>
+        /// <param name="clearCachedClientsWithNotifications">Indicates that this factory should invalidated cached partition clients through notifications</param>
         protected CommunicationClientFactoryBase(
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            string traceId = null)
+            string traceId = null,
+            bool clearCachedClientsWithNotifications = false)
         : this(
             false,
             servicePartitionResolver,
             exceptionHandlers,
-            traceId)
+            traceId,
+            clearCachedClientsWithNotifications)
         {
         }
 
@@ -60,16 +63,23 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="servicePartitionResolver">Optional ServicePartitionResolver</param>
         /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel</param>
         /// <param name="traceId">Identifier to use in diagnostics traces from this component </param>
+        /// <param name="clearCachedClientsWithNotifications">Indicates that this factory should invalidated cached partition clients through notifications</param>
         protected CommunicationClientFactoryBase(
             bool fireConnectEvents,
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            string traceId = null)
+            string traceId = null,
+            bool clearCachedClientsWithNotifications = false)
         {
             this.fireConnectEvents = fireConnectEvents;
             this.randomLock = new object();
             this.traceId = traceId ?? Guid.NewGuid().ToString();
             this.servicePartitionResolver = servicePartitionResolver ?? ServicePartitionResolver.GetDefault();
+            if (clearCachedClientsWithNotifications)
+            {
+                this.servicePartitionResolver.ServiceNotificationEvent += this.ClearCache;
+            }
+
             this.random = null;
             this.exceptionHandlers = new List<IExceptionHandler>();
             if (exceptionHandlers != null)
@@ -800,6 +810,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             }
 
             return false;
+        }
+
+        private void ClearCache(object sender, FabricClient.ServiceManagementClient.ServiceNotificationEventArgs eventArgs)
+        {
+            this.cache.ClearClientCacheEntries(eventArgs.Notification.PartitionId, eventArgs.Notification.Endpoints);
         }
 
         private int GenerateSeed()

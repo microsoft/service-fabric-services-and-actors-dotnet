@@ -141,6 +141,11 @@ namespace Microsoft.ServiceFabric.Services.Client
         {
         }
 
+        /// <summary>
+        /// some documentation for stalling
+        /// </summary>
+        public event EventHandler<FabricClient.ServiceManagementClient.ServiceNotificationEventArgs> ServiceNotificationEvent;
+
         internal bool UseNotification { get; set; }
 
         /// <summary>
@@ -675,9 +680,21 @@ namespace Microsoft.ServiceFabric.Services.Client
                 if (this.fabricClient == null)
                 {
                     this.fabricClient = this.createFabricClient.Invoke();
+                    if (this.UseNotification)
+                    {
+                        this.fabricClient.ServiceManager.ServiceNotificationFilterMatched += this.OnServiceNotificationFilterMatched;
+                    }
                 }
 
                 return this.fabricClient;
+            }
+        }
+
+        private void OnServiceNotificationFilterMatched(object sender, EventArgs e)
+        {
+            if (e is FabricClient.ServiceManagementClient.ServiceNotificationEventArgs notificationargs)
+            {
+                this.ServiceNotificationEvent?.Invoke(sender, notificationargs);
             }
         }
 

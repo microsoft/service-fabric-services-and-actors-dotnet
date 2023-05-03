@@ -20,6 +20,11 @@ namespace Microsoft.ServiceFabric.Services.Client
     public interface IServicePartitionResolver
     {
         /// <summary>
+        /// Event handler that is fired when the service resolver receives a ServiceNotificationFilterMatched Event.
+        /// </summary>
+        event EventHandler<FabricClient.ServiceManagementClient.ServiceNotificationEventArgs> ServiceNotificationEvent;
+
+        /// <summary>
         /// Resolves a partition of the specified service with specified back-off/retry settings on retry-able errors.
         /// </summary>
         /// <param name="serviceUri">Name of the service instance to resolve.</param>
