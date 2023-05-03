@@ -94,6 +94,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return partitionClientCache.TryGetClientCacheEntry(endpoint, listenerName, out cacheEntry);
         }
 
+        /// <summary>
+        /// Clear the cache entries for a given replica that are not contains in validEndpoints
+        /// </summary>
+        /// <param name="partitionId">Partition id of the replica set</param>
+        /// <param name="validEndpoints">Collection of endpoints that are valid for the replica set</param>
         public void ClearClientCacheEntries(Guid partitionId, ICollection<ResolvedServiceEndpoint> validEndpoints)
         {
             if (this.clientCache.TryGetValue(partitionId, out PartitionClientCache clientCache))
@@ -244,11 +249,17 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     out cacheEntry);
             }
 
+            /// <summary>
+            /// Try to remove any cache items if the endpoint is not in the collection of valid endpoints
+            /// </summary>
+            /// <param name="validEndpoints">Collection of valid endpoints</param>
+            /// <returns>A boolean indicating if anything was removed from the cache</returns>
             public bool TryRemoveClientCacheEntry(ICollection<ResolvedServiceEndpoint> validEndpoints)
             {
                 bool removed = false;
                 foreach (var key in this.cache.Keys)
                 {
+                    // if the cache for the replica set contains an endpoint that is not valid remove it
                     if (!validEndpoints.Contains(key.Endpoint))
                     {
                         removed |= this.cache.TryRemove(key, out _);

@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="servicePartitionResolver">Optional ServicePartitionResolver</param>
         /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel</param>
         /// <param name="traceId">Identifier to use in diagnostics traces from this component </param>
-        /// <param name="clearCachedClientsWithNotifications">Indicates that this factory should invalidated cached partition clients through notifications</param>
+        /// <param name="clearCachedClientsWithNotifications">Indicates that this factory should invalidate cached partition clients through notifications</param>
         protected CommunicationClientFactoryBase(
             IServicePartitionResolver servicePartitionResolver = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
@@ -63,7 +63,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="servicePartitionResolver">Optional ServicePartitionResolver</param>
         /// <param name="exceptionHandlers">Optional Custom exception handlers for the exceptions on the Client to Service communication channel</param>
         /// <param name="traceId">Identifier to use in diagnostics traces from this component </param>
-        /// <param name="clearCachedClientsWithNotifications">Indicates that this factory should invalidated cached partition clients through notifications</param>
+        /// <param name="clearCachedClientsWithNotifications">Indicates that this factory should invalidate cached partition clients through notifications</param>
         protected CommunicationClientFactoryBase(
             bool fireConnectEvents,
             IServicePartitionResolver servicePartitionResolver = null,
