@@ -142,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         }
 
         /// <summary>
-        /// some documentation for stalling
+        /// Event handler that is fired when the service resolver receives a ServiceNotificationFilterMatched Event.
         /// </summary>
         public event EventHandler<FabricClient.ServiceManagementClient.ServiceNotificationEventArgs> ServiceNotificationEvent;
 
