@@ -6,7 +6,7 @@ param
 (
     # Configuration to build.
     [ValidateSet('Debug', 'Release')]
-    [string]$Configuration = "Release",
+    [string]$Configuration = "Debug",
 
     # target to build. 
     #Options are:
