@@ -11,7 +11,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
-
+    using System.Fabric;
+    
     /// <summary>
     /// This class adds extensions methods to create <see cref="IServiceRemotingListener"/>
     /// for remoting methods of the service interfaces that are derived from
