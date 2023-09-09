@@ -2,17 +2,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-
 namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Fabric;
+    using System.Linq;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Runtime;
-    using System.Fabric;
-    
+
     /// <summary>
     /// This class adds extensions methods to create <see cref="IServiceRemotingListener"/>
     /// for remoting methods of the service interfaces that are derived from
@@ -76,7 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             where TStatefulService : StatefulServiceBase, IService
         {
             return CreateServiceRemotingReplicaListeners(
-                serviceImplementation, Array.Empty<V2.Runtime.IExceptionConvertor>());
+                serviceImplementation, Enumerable.Empty<V2.Runtime.IExceptionConvertor>().ToArray());
         }
 
         /// <summary>
