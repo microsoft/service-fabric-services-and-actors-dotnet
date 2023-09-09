@@ -2,6 +2,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 {
     using System;
@@ -119,6 +122,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         new FabricTransportRemotingListenerSettings
                         {
                             ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
+                            UseWrappedMessage = true,
                         },
                         exceptionConvertors: exceptionConvertors);
 
@@ -190,6 +194,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         {
                             ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings
                                 .ExceptionSerialization.Default,
+                            UseWrappedMessage = true,
                         },
                         exceptionConvertors: exceptionConvertors);
 
