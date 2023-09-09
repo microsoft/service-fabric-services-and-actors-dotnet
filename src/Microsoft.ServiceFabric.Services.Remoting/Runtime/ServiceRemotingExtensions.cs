@@ -145,7 +145,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             where TStatelessService : StatelessService, IService
         {
             return CreateServiceRemotingInstanceListeners(
-                serviceImplementation, Array.Empty<V2.Runtime.IExceptionConvertor>());
+                serviceImplementation, Enumerable.Empty<V2.Runtime.IExceptionConvertor>().ToArray());
         }
 
         /// <summary>
