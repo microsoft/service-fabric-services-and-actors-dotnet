@@ -213,7 +213,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
                 throw new NotSupportedException(
-                    "This extension method doesnt support V2Listener or CompatListener. Use CreateServiceRemotingReplicaListeners for using V2Stack ");
+                    "This extension method doesn't support V2Listener or CompatListener. Use CreateServiceRemotingReplicaListeners for using V2Stack ");
             }
 
             return provider.CreateServiceRemotingListener(serviceContext, (IService)serviceImplementation);
