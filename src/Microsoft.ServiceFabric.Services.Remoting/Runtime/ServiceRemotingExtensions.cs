@@ -3,8 +3,6 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-
 namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 {
     using System;
@@ -72,18 +70,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
         /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateful service implementation.</param>
+        /// <param name="serializationTechnique">The exception serialization technique to use. Defaults to BinaryFormatter.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         public static IEnumerable<ServiceReplicaListener> CreateServiceRemotingReplicaListeners<TStatefulService>(
-            this TStatefulService serviceImplementation)
+            this TStatefulService serviceImplementation, FabricTransportRemotingListenerSettings.ExceptionSerialization serializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter)
             where TStatefulService : StatefulServiceBase, IService
         {
             return CreateServiceRemotingReplicaListeners(
-                serviceImplementation, Enumerable.Empty<V2.Runtime.IExceptionConvertor>().ToArray());
+                serviceImplementation, Enumerable.Empty<V2.Runtime.IExceptionConvertor>().ToArray(), serializationTechnique);
         }
 
         /// <summary>
-        ///  An extension method that creates an <see cref="IServiceRemotingListener"/>
+        /// An extension method that creates an <see cref="IServiceRemotingListener"/>
         /// for a stateful service implementation.
         /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
@@ -95,6 +94,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         public static IEnumerable<ServiceReplicaListener> CreateServiceRemotingReplicaListeners<TStatefulService>(
             this TStatefulService serviceImplementation, V2.Runtime.IExceptionConvertor[] exceptionConvertors)
+            where TStatefulService : StatefulServiceBase, IService
+        {
+            return CreateServiceRemotingReplicaListeners(
+                serviceImplementation, exceptionConvertors, FabricTransportRemotingListenerSettings.ExceptionSerialization.Default);
+        }
+
+        /// <summary>
+        ///  An extension method that creates an <see cref="IServiceRemotingListener"/>
+        /// for a stateful service implementation.
+        /// </summary>
+        /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
+        /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
+        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// <param name="serviceImplementation">A stateful service implementation.</param>
+        /// <param name="exceptionConvertors">An array of <see cref="V2.Runtime.IExceptionConvertor"/> to use in serializing and deserializing exceptions.</param>
+        /// <param name="serializationTechnique">The exception serialization technique to use.</param>
+        /// <returns>A <see cref="IServiceRemotingListener"/> communication
+        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        internal static IEnumerable<ServiceReplicaListener> CreateServiceRemotingReplicaListeners<TStatefulService>(
+            this TStatefulService serviceImplementation, V2.Runtime.IExceptionConvertor[] exceptionConvertors, FabricTransportRemotingListenerSettings.ExceptionSerialization serializationTechnique)
             where TStatefulService : StatefulServiceBase, IService
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
@@ -121,7 +140,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         impl,
                         new FabricTransportRemotingListenerSettings
                         {
-                            ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
+                            ExceptionSerializationTechnique = serializationTechnique,
                             UseWrappedMessage = true,
                         },
                         exceptionConvertors: exceptionConvertors);
@@ -142,14 +161,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// derive from <see cref="System.Fabric.Query.StatelessService"/> and implement one or more
         /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateless service implementation.</param>
+        /// <param name="serializationTechnique">The exception serialization technique. Defaults to BinaryFormatter.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+#pragma warning disable SA1202
         public static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
-            this TStatelessService serviceImplementation)
+            this TStatelessService serviceImplementation,
+            FabricTransportRemotingListenerSettings.ExceptionSerialization serializationTechnique =
+                FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter)
             where TStatelessService : StatelessService, IService
         {
             return CreateServiceRemotingInstanceListeners(
-                serviceImplementation, Enumerable.Empty<V2.Runtime.IExceptionConvertor>().ToArray());
+                serviceImplementation, Enumerable.Empty<V2.Runtime.IExceptionConvertor>().ToArray(), serializationTechnique);
         }
 
         /// <summary>
@@ -165,6 +188,27 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         public static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
             this TStatelessService serviceImplementation, V2.Runtime.IExceptionConvertor[] exceptionConvertors)
+            where TStatelessService : StatelessService, IService
+        {
+            return CreateServiceRemotingInstanceListeners(
+                serviceImplementation, exceptionConvertors, FabricTransportRemotingListenerSettings.ExceptionSerialization.Default);
+        }
+#pragma warning restore SA1202
+
+        /// <summary>
+        /// An extension method that creates an <see cref="IServiceRemotingListener"/>
+        /// for a stateless service implementation.
+        /// </summary>
+        /// <typeparam name="TStatelessService">Type constraint on the service implementation. The service implementation must
+        /// derive from <see cref="System.Fabric.Query.StatelessService"/> and implement one or more
+        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// <param name="serviceImplementation">A stateless service implementation.</param>
+        /// <param name="exceptionConvertors">An array of <see cref="V2.Runtime.IExceptionConvertor"/> to use in serializing and deserializing exceptions.</param>
+        /// <param name="exceptionSerialization">The exception serialization technique to use.</param>
+        /// <returns>A <see cref="IServiceRemotingListener"/> communication
+        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        internal static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
+            this TStatelessService serviceImplementation, V2.Runtime.IExceptionConvertor[] exceptionConvertors, FabricTransportRemotingListenerSettings.ExceptionSerialization exceptionSerialization)
             where TStatelessService : StatelessService, IService
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
@@ -192,8 +236,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
                         impl,
                         new FabricTransportRemotingListenerSettings
                         {
-                            ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings
-                                .ExceptionSerialization.Default,
+                            ExceptionSerializationTechnique = exceptionSerialization,
                             UseWrappedMessage = true,
                         },
                         exceptionConvertors: exceptionConvertors);
