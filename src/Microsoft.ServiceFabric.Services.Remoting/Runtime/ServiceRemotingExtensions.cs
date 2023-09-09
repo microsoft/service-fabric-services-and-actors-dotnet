@@ -132,17 +132,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 #endif
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
+                var listenerSettings = FabricTransportRemotingListenerSettings.GetDefault();
+                listenerSettings.ExceptionSerializationTechnique = serializationTechnique;
+                listenerSettings.UseWrappedMessage = true;
+
                 var listeners = provider.CreateServiceRemotingListeners();
                 foreach (var kvp in listeners)
                 {
                     var listener = new FabricTransportServiceRemotingListener(
                         serviceImplementation.Context,
                         impl,
-                        new FabricTransportRemotingListenerSettings
-                        {
-                            ExceptionSerializationTechnique = serializationTechnique,
-                            UseWrappedMessage = true,
-                        },
+                        listenerSettings,
                         exceptionConvertors: exceptionConvertors);
 
                     serviceReplicaListeners.Add(new ServiceReplicaListener(
@@ -204,11 +204,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateless service implementation.</param>
         /// <param name="exceptionConvertors">An array of <see cref="V2.Runtime.IExceptionConvertor"/> to use in serializing and deserializing exceptions.</param>
-        /// <param name="exceptionSerialization">The exception serialization technique to use.</param>
+        /// <param name="serializationTechnique">The exception serialization technique to use.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
         internal static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
-            this TStatelessService serviceImplementation, V2.Runtime.IExceptionConvertor[] exceptionConvertors, FabricTransportRemotingListenerSettings.ExceptionSerialization exceptionSerialization)
+            this TStatelessService serviceImplementation, V2.Runtime.IExceptionConvertor[] exceptionConvertors, FabricTransportRemotingListenerSettings.ExceptionSerialization serializationTechnique)
             where TStatelessService : StatelessService, IService
         {
             var serviceTypeInformation = ServiceTypeInformation.Get(serviceImplementation.GetType());
@@ -228,17 +228,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 #endif
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
+                var listenerSettings = FabricTransportRemotingListenerSettings.GetDefault();
+                listenerSettings.ExceptionSerializationTechnique = serializationTechnique;
+                listenerSettings.UseWrappedMessage = true;
+
                 var listeners = provider.CreateServiceRemotingListeners();
                 foreach (var kvp in listeners)
                 {
                     var listener = new FabricTransportServiceRemotingListener(
                         serviceImplementation.Context,
                         impl,
-                        new FabricTransportRemotingListenerSettings
-                        {
-                            ExceptionSerializationTechnique = exceptionSerialization,
-                            UseWrappedMessage = true,
-                        },
+                        listenerSettings,
                         exceptionConvertors: exceptionConvertors);
 
                     serviceInstanceListeners.Add(new ServiceInstanceListener(
