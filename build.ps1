@@ -38,24 +38,30 @@ if($MSBuildFullPath -eq "")
 {
     if (Test-Path "env:\ProgramFiles(x86)")
     {
-        $progFilesPath =  ${env:ProgramFiles(x86)}
+        $progFilesPath =  ${env:ProgramFiles}
     }
     elseif (Test-Path "env:\ProgramFiles")
     {
         $progFilesPath =  ${env:ProgramFiles}
     }
 
-    $VS2019InstallPath = join-path $progFilesPath "Microsoft Visual Studio\2019"
+    $years = '2019', '2022'
+    $VSInstallPath = join-path $progFilesPath "Microsoft Visual Studio"
     $versions = 'Community', 'Professional', 'Enterprise'
 
-    foreach ($version in $versions)
+    foreach ($year in $years)
     {
-        $VS2019VersionPath = join-path $VS2019InstallPath $version
-        $MSBuildFullPath = join-path $VS2019VersionPath "MSBuild\Current\Bin\MSBuild.exe"
-
-        if (Test-Path $MSBuildFullPath)
+        foreach ($version in $versions)
         {
-            break
+            $VSYearPath = join-path $VSInstallPath $year
+            $VSYearVersionPath = join-path $VSYearPath $version
+            $MSBuildFullPath = join-path $VSYearVersionPath "MSBuild\Current\Bin\MSBuild.exe"
+
+            Write-Host $MSBuildFullPath
+            if (Test-Path $MSBuildFullPath)
+            {
+                break
+            }
         }
     }
 }
