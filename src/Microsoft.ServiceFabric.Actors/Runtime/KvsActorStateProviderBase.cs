@@ -27,6 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
     using FabricDirectory = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricDirectory;
+    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
     using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
@@ -47,6 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string BackupRootFolderPrefix = "kvsasp_";
         private const string KvsHealthSourceId = "KvsActorStateProvider";
         private const string BackupCallbackSlowCancellationHealthProperty = "BackupCallbackSlowCancellation";
+        private const int StateProviderInitRetryDelayMilliseconds = 500;
         private static readonly byte[] ActorPresenceValue = { byte.MinValue };
 
         private readonly DataContractSerializer reminderSerializer;
@@ -61,7 +63,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Used to synchronize between backup callback invocation and replica close/abort
         /// </summary>
         private readonly SemaphoreSlim backupCallbackLock;
-
         private ReplicaRole replicaRole;
         private IStatefulServicePartition partition;
         private string traceId;
@@ -83,6 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private CancellationTokenSource backupCallbackCts;
         private Task<bool> backupCallbackTask;
         private bool isClosingOrAborting;
+        private bool isLogicalTimeManagerInitialized;
 
         internal KvsActorStateProviderBase(ReplicatorSettings replicatorSettings)
         {
@@ -105,6 +107,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.backupCallbackCts = null;
             this.backupCallbackTask = null;
             this.isClosingOrAborting = false;
+            this.isLogicalTimeManagerInitialized = false;
         }
 
         /// <inheritdoc/>
@@ -611,9 +614,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// parameter is a collection of all actor reminders contained in the actor state provider.
         /// </returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
+        async Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
         {
-            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
+            return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                 () => this.EnumerateReminderAsync(cancellationToken),
                 "LoadRemindersAsync",
                 cancellationToken);
@@ -682,18 +687,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             await this.storeReplica.ChangeRoleAsync(newRole, cancellationToken);
 
+            // Set replica role for other components to use (logical time manager initialization, client call etc.).
+            this.replicaRole = newRole;
+
             switch (newRole)
             {
                 case ReplicaRole.Primary:
-                    this.logicalTimeManager.Start();
+                    this.InitializeAndStartLogicalTimeManager();
                     break;
 
                 default:
-                    this.logicalTimeManager.Stop();
+                    this.StopLogicalTimeManager();
                     break;
             }
-
-            this.replicaRole = newRole;
         }
 
         /// <summary>
@@ -713,6 +719,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // with actual ESE backup finishing with error. However, if ESE backup has finished successfully and
             // backup callback is in-flight, it does not wait for the backup callback to finish, .
             await this.CancelAndAwaitBackupCallbackIfAnyAsync();
+            this.StopLogicalTimeManager();
         }
 
         /// <summary>
@@ -728,6 +735,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.CancelAndAwaitBackupCallbackIfAnyAsync().ContinueWith(
                 t => t.Exception,
                 TaskContinuationOptions.OnlyOnFaulted);
+            this.StopLogicalTimeManager();
         }
 
         /// <summary>
@@ -969,6 +977,61 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     XmlDictionaryReaderQuotas.Max);
 
                 return serializer.ReadObject(binaryReader);
+            }
+        }
+
+        private void InitializeAndStartLogicalTimeManager()
+        {
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager...");
+
+            if (this.isLogicalTimeManagerInitialized == true)
+            {
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical time manager already initialized...");
+                return;
+            }
+
+            using (var tx = this.storeReplica.CreateTransaction())
+            {
+                var enumerator = this.storeReplica.Enumerate(tx, LogicalTimestampKey);
+
+                while (enumerator.MoveNext())
+                {
+                    var item = enumerator.Current;
+                    this.TryDeserializeAndApplyLogicalTimestamp(item.Metadata.Key, item.Value);
+                }
+            }
+
+            this.logicalTimeManager.Start();
+            Volatile.Write(ref this.isLogicalTimeManagerInitialized, true);
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager SUCCEEDED.");
+        }
+
+        private void StopLogicalTimeManager()
+        {
+            // Stop logical timer if it is running
+            if (this.isLogicalTimeManagerInitialized == true)
+            {
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Stopping logical time manager...");
+
+                this.logicalTimeManager.Stop();
+                this.isLogicalTimeManagerInitialized = false;
+            }
+        }
+
+        private async Task EnsureLogicalTimeManagerInitializedAsync(CancellationToken cancellationToken)
+        {
+            var retryCount = 0;
+
+            while (this.replicaRole == ReplicaRole.Primary && !this.isLogicalTimeManagerInitialized)
+            {
+                retryCount++;
+                await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
+            }
+
+            if (this.replicaRole != ReplicaRole.Primary)
+            {
+                throw new FabricNotPrimaryException(FabricErrorCode.NotPrimary);
             }
         }
 
