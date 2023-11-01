@@ -40,6 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private const string LogicalTimestampKey = "LogicalTimestamp";
         private const string TraceType = "VolatileActorStateProvider";
+        private const int LogicalTimeManagerInitDelayMilliseconds = 500;
         private static readonly ActorStateData ActorPresenceValue = new ActorStateData(new[] { byte.MinValue });
 
         private readonly ActorStateTable stateTable;
@@ -49,7 +50,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly object replicationLock;
         private readonly ActorStateProviderHelper actorStateProviderHelper;
         private readonly ReplicatorSettings userDefinedReplicatorSettings;
-
         private SecondaryPump secondaryPump;
         private ActorTypeInformation actorTypeInformation;
         private FabricReplicator fabricReplicator;
@@ -61,6 +61,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private VolatileActorStateProviderSettings stateProviderSettings;
         private long roleChangeTracker;
+        private bool isLogicalTimeManagerInitialized;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VolatileActorStateProvider"/> class.
@@ -89,6 +90,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.replicaRole = ReplicaRole.Unknown;
             this.roleChangeTracker = DateTime.UtcNow.Ticks;
             this.actorStateProviderHelper = new ActorStateProviderHelper(this);
+            this.isLogicalTimeManagerInitialized = false;
         }
 
         internal enum ActorStateType
@@ -647,8 +649,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// parameter is a collection of all actor reminders contained in the actor state provider.
         /// </returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
+        async Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             var reminderCollection = new ActorReminderCollection();
             var stateDictionary = this.stateTable.GetActorStateDictionary(ActorStateType.Reminder);
 
@@ -675,7 +679,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     new ActorReminderState(reminderData, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
             }
 
-            return Task.FromResult((IActorReminderCollection)reminderCollection);
+            return (IActorReminderCollection)reminderCollection;
         }
 
         /// <summary>
@@ -739,12 +743,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             switch (newRole)
             {
                 case ReplicaRole.IdleSecondary:
-                    this.logicalTimeManager.Stop();
+                    this.StopLogicalTimeManager();
                     this.secondaryPump.StartCopyAndReplicationPump();
                     break;
 
                 case ReplicaRole.ActiveSecondary:
-                    this.logicalTimeManager.Stop();
+                    this.StopLogicalTimeManager();
 
                     ActorStateData data;
                     if (this.stateTable.TryGetValue(ActorStateType.LogicalTimestamp, LogicalTimestampKey, out data)
@@ -762,7 +766,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     break;
 
                 case ReplicaRole.Primary:
-                    this.logicalTimeManager.Start();
+                    this.InitializeAndStartLogicalTimeManager();
 
                     // Wait for secondary pump to make sure there is no
                     // outstanding task in-flight after processing NULL
@@ -785,6 +789,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>Task that represents the asynchronous close operation.</returns>
         Task IStateProviderReplica.CloseAsync(CancellationToken cancellationToken)
         {
+            this.StopLogicalTimeManager();
+
             // Wait for secondary pump to make sure there is no
             // outstanding task in-flight after processing NULL
             // operation from the replication queue.
@@ -800,7 +806,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         void IStateProviderReplica.Abort()
         {
-            // no-op
+            this.StopLogicalTimeManager();
         }
 
         /// <summary>
@@ -1120,6 +1126,59 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return storageKey.Substring(storageKeyPrefix.Length + 1);
+        }
+
+        private void InitializeAndStartLogicalTimeManager()
+        {
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager...");
+
+            if (this.isLogicalTimeManagerInitialized == true)
+            {
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical time manager already initialized...");
+                return;
+            }
+
+            ActorStateData data;
+            if (this.stateTable.TryGetValue(ActorStateType.LogicalTimestamp, LogicalTimestampKey, out data)
+                && data.LogicalTimestamp.HasValue)
+            {
+                this.logicalTimeManager.CurrentLogicalTime = data.LogicalTimestamp.Value;
+            }
+
+            this.logicalTimeManager.Start();
+            Volatile.Write(ref this.isLogicalTimeManagerInitialized, true);
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager SUCCEEDED.");
+        }
+
+        private void StopLogicalTimeManager()
+        {
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Stopping logical time manager...");
+
+            // Stop logical timer if it is running
+            if (this.isLogicalTimeManagerInitialized == true)
+            {
+                this.logicalTimeManager.Stop();
+                this.isLogicalTimeManagerInitialized = false;
+            }
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Stopped logical time manager...");
+        }
+
+        private async Task EnsureLogicalTimeManagerInitializedAsync(CancellationToken cancellationToken)
+        {
+            var retryCount = 0;
+
+            while (this.replicaRole == ReplicaRole.Primary && !this.isLogicalTimeManagerInitialized)
+            {
+                retryCount++;
+                await Task.Delay(retryCount * LogicalTimeManagerInitDelayMilliseconds, cancellationToken);
+            }
+
+            if (this.replicaRole != ReplicaRole.Primary)
+            {
+                throw new FabricNotPrimaryException(FabricErrorCode.NotPrimary);
+            }
         }
 
         private void LoadActorStateProviderSettings()

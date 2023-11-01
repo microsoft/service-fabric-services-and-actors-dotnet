@@ -686,9 +686,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             await this.storeReplica.ChangeRoleAsync(newRole, cancellationToken);
 
-            // Set replica role for other components to use (logical time manager initialization, client call etc.).
-            this.replicaRole = newRole;
-
             switch (newRole)
             {
                 case ReplicaRole.Primary:
@@ -699,6 +696,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     this.StopLogicalTimeManager();
                     break;
             }
+
+            this.replicaRole = newRole;
         }
 
         /// <summary>
