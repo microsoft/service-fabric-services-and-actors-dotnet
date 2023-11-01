@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string BackupRootFolderPrefix = "kvsasp_";
         private const string KvsHealthSourceId = "KvsActorStateProvider";
         private const string BackupCallbackSlowCancellationHealthProperty = "BackupCallbackSlowCancellation";
-        private const int StateProviderInitRetryDelayMilliseconds = 500;
+        private const int LogicalTimeManagerInitDelayMilliseconds = 500;
         private static readonly byte[] ActorPresenceValue = { byte.MinValue };
 
         private readonly DataContractSerializer reminderSerializer;
@@ -1025,7 +1025,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             while (this.replicaRole == ReplicaRole.Primary && !this.isLogicalTimeManagerInitialized)
             {
                 retryCount++;
-                await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
+                await Task.Delay(retryCount * LogicalTimeManagerInitDelayMilliseconds, cancellationToken);
             }
 
             if (this.replicaRole != ReplicaRole.Primary)
