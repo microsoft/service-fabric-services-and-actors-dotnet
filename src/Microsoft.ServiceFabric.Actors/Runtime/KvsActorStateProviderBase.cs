@@ -27,7 +27,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
     using FabricDirectory = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricDirectory;
-    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
     using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
