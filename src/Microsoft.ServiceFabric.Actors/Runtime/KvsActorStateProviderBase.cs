@@ -27,6 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
     using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
     using FabricDirectory = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricDirectory;
+    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
     using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
     using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
@@ -47,7 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string BackupRootFolderPrefix = "kvsasp_";
         private const string KvsHealthSourceId = "KvsActorStateProvider";
         private const string BackupCallbackSlowCancellationHealthProperty = "BackupCallbackSlowCancellation";
-        private const int LogicalTimeManagerInitDelayMilliseconds = 500;
+        private const int StateProviderInitRetryDelayMilliseconds = 500;
         private static readonly byte[] ActorPresenceValue = { byte.MinValue };
 
         private readonly DataContractSerializer reminderSerializer;
@@ -84,6 +85,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private Task<bool> backupCallbackTask;
         private bool isClosingOrAborting;
         private bool isLogicalTimeManagerInitialized;
+        private CancellationTokenSource stateProviderInitCts;
+        private Task stateProviderInitTask;
 
         internal KvsActorStateProviderBase(ReplicatorSettings replicatorSettings)
         {
@@ -107,6 +110,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.backupCallbackTask = null;
             this.isClosingOrAborting = false;
             this.isLogicalTimeManagerInitialized = false;
+            this.stateProviderInitCts = null;
+            this.stateProviderInitTask = null;
         }
 
         /// <inheritdoc/>
@@ -248,13 +253,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>
         /// A task that represents the asynchronous reminder callback completed notification processing.
         /// </returns>
-        Task IActorStateProvider.ReminderCallbackCompletedAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
+        async Task IActorStateProvider.ReminderCallbackCompletedAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             var key = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminder.Name);
             var data = new ReminderCompletedData(this.logicalTimeManager.CurrentLogicalTime, DateTime.UtcNow);
             var buffer = this.SerializeReminderCompletedData(data);
 
-            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+            await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                 () =>
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -447,6 +454,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <inheritdoc/>
         async Task<ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>> IActorStateProvider.GetRemindersAsync(int numItemsToReturn, ActorId actorId, ContinuationToken continuationToken, CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                async () =>
                {
@@ -550,15 +559,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        Task IActorStateProvider.SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
+        async Task IActorStateProvider.SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             var reminderKey = CreateReminderStorageKey(actorId, reminder.Name);
             var data = new ActorReminderData(actorId, reminder, this.logicalTimeManager.CurrentLogicalTime);
             var buffer = this.SerializeReminder(data);
 
             var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminder.Name);
 
-            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+            await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                 () =>
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -689,11 +700,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             switch (newRole)
             {
                 case ReplicaRole.Primary:
-                    this.InitializeAndStartLogicalTimeManager();
+                    this.stateProviderInitCts = new CancellationTokenSource();
+                    this.stateProviderInitTask = this.StartStateProviderInitializationAsync(this.stateProviderInitCts.Token);
                     break;
 
                 default:
-                    this.StopLogicalTimeManager();
+                    await this.CancelStateProviderInitializationAsync();
                     break;
             }
 
@@ -717,7 +729,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // with actual ESE backup finishing with error. However, if ESE backup has finished successfully and
             // backup callback is in-flight, it does not wait for the backup callback to finish, .
             await this.CancelAndAwaitBackupCallbackIfAnyAsync();
-            this.StopLogicalTimeManager();
+            await this.CancelStateProviderInitializationAsync();
         }
 
         /// <summary>
@@ -733,7 +745,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.CancelAndAwaitBackupCallbackIfAnyAsync().ContinueWith(
                 t => t.Exception,
                 TaskContinuationOptions.OnlyOnFaulted);
-            this.StopLogicalTimeManager();
+            this.CancelStateProviderInitializationAsync().ContinueWith(
+                t => t.Exception,
+                TaskContinuationOptions.OnlyOnFaulted);
         }
 
         /// <summary>
@@ -978,7 +992,89 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        private void InitializeAndStartLogicalTimeManager()
+        private async Task StartStateProviderInitializationAsync(CancellationToken cancellationToken)
+        {
+            Exception unexpectedException = null;
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+                    async () =>
+                    {
+                        await this.InitializeAndStartLogicalTimeManagerAsync(cancellationToken);
+                    },
+                    "StartStateProviderInitializationAsync",
+                    cancellationToken);
+            }
+            catch (OperationCanceledException opEx)
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    unexpectedException = opEx;
+                }
+            }
+            catch (FabricObjectClosedException)
+            {
+                // This can happen when replica is closing. CancellationToken should get signaled.
+                // Fall through and let the task check for CancellationToken.
+            }
+            catch (FabricNotPrimaryException)
+            {
+                // This replica is no more primary. CancellationToken should get signaled.
+                // Fall through and let the task check for CancellationToken.
+            }
+            catch (Exception ex)
+            {
+                unexpectedException = ex;
+            }
+
+            if (unexpectedException != null)
+            {
+                var mssgFormat = "StartStateProviderInitializationAsync() failed due to " +
+                                 "an unexpected Exception causing replica to fault: {0}";
+
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.traceId,
+                    string.Format(mssgFormat, unexpectedException.ToString()));
+
+                this.partition.ReportFault(FaultType.Transient);
+            }
+        }
+
+        private async Task CancelStateProviderInitializationAsync()
+        {
+            if (this.stateProviderInitCts != null &&
+                this.stateProviderInitCts.IsCancellationRequested == false)
+            {
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Canceling state provider initialization...");
+
+                this.stateProviderInitCts.Cancel();
+
+                try
+                {
+                    await this.stateProviderInitTask;
+                }
+                catch (Exception ex)
+                {
+                    // Code should never come here.
+                    ReleaseAssert.Failfast(
+                        "CancelStateProviderInitializationAsync() unexpected exception: {0}.",
+                        ex.ToString());
+                }
+                finally
+                {
+                    this.stateProviderInitCts = null;
+                    this.stateProviderInitTask = null;
+                }
+            }
+
+            this.StopLogicalTimeManager();
+        }
+
+        private async Task InitializeAndStartLogicalTimeManagerAsync(CancellationToken cancellationToken)
         {
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager...");
 
@@ -987,6 +1083,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical time manager already initialized...");
                 return;
             }
+
+            // wait for read status
+            await this.WaitForReadStatusAsync(cancellationToken);
 
             using (var tx = this.storeReplica.CreateTransaction())
             {
@@ -1017,6 +1116,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        private async Task WaitForReadStatusAsync(CancellationToken cancellationToken)
+        {
+            var retryCount = 0;
+
+            while (!cancellationToken.IsCancellationRequested &&
+                   this.partition.ReadStatus != PartitionAccessStatus.Granted)
+            {
+                retryCount++;
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Waiting for Read Status to be Granted");
+                await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
+            }
+        }
+
         private async Task EnsureLogicalTimeManagerInitializedAsync(CancellationToken cancellationToken)
         {
             var retryCount = 0;
@@ -1024,7 +1136,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             while (this.replicaRole == ReplicaRole.Primary && !this.isLogicalTimeManagerInitialized)
             {
                 retryCount++;
-                await Task.Delay(retryCount * LogicalTimeManagerInitDelayMilliseconds, cancellationToken);
+                await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
             }
 
             if (this.replicaRole != ReplicaRole.Primary)
