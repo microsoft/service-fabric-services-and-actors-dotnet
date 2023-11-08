@@ -1284,8 +1284,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             while (this.replicaRole == ReplicaRole.Primary && !this.isLogicalTimeManagerInitialized)
             {
                 retryCount++;
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Waiting for logical Time manager to be initialized");
                 await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
             }
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical Time Manager is initialized");
 
             if (this.replicaRole != ReplicaRole.Primary)
             {
