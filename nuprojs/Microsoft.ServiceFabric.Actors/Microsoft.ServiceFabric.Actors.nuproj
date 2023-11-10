@@ -15,36 +15,6 @@
 
     <ItemGroup>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
-        <TargetPath>lib\net45</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.xml">
-        <TargetPath>lib\net45</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
-        <TargetPath>lib\net451</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.xml">
-        <TargetPath>lib\net451</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
-        <TargetPath>lib\net452</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.xml">
-        <TargetPath>lib\net452</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
-        <TargetPath>lib\net46</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.xml">
-        <TargetPath>lib\net46</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.xml">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>lib\net462</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.xml">
@@ -75,9 +45,6 @@
         <TargetPath>lib\netstandard2.0</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
-        <TargetPath>runtimes\win\lib\net461</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
         <TargetPath>runtimes\win\lib\net462</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.dll">
@@ -90,10 +57,10 @@
         <TargetPath>runtimes\win\lib\net472</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)\FabActUtil.exe">
-        <TargetPath>build\net45</TargetPath>
+        <TargetPath>build\net462</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Actors.targets">
-        <TargetPath>build\net45</TargetPath>
+        <TargetPath>build\net462</TargetPath>
       </File>
 
       <!-- For supporting netcore project templates in VS, copy all dependencies of FabActUtil and targets file.-->
