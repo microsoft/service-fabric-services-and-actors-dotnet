@@ -15,10 +15,10 @@
 
     <ItemGroup>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Wcf.dll">
-        <TargetPath>lib\net45</TargetPath>
+        <TargetPath>lib\net462</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.Wcf.xml">
-        <TargetPath>lib\net45</TargetPath>
+        <TargetPath>lib\net462</TargetPath>
       </File>
     </ItemGroup>
     

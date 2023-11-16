@@ -15,36 +15,6 @@
 
     <ItemGroup>
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>lib\net45</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
-        <TargetPath>lib\net45</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>lib\net451</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
-        <TargetPath>lib\net451</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>lib\net452</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
-        <TargetPath>lib\net452</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>lib\net46</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
-        <TargetPath>lib\net46</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>lib\net462</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)\Microsoft.ServiceFabric.Services.Remoting.xml">
@@ -73,9 +43,6 @@
       </File>
       <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Services.Remoting.xml">
         <TargetPath>lib\netstandard2.0</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.Remoting.dll">
-        <TargetPath>runtimes\win\lib\net461</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.Remoting.dll">
         <TargetPath>runtimes\win\lib\net462</TargetPath>
