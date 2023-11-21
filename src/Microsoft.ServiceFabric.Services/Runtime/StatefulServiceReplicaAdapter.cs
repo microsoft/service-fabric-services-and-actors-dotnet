@@ -452,6 +452,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Waiting for Write Status to be Granted");
 
                 PartitionAccessStatus result;
                 try
