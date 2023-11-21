@@ -8,18 +8,13 @@
       <Description>This package contains the Actor Framework KVS to RC Migration APIs.</Description>
       <Summary>This package contains the Actor Framework KVS to RC Migration APIs.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric Actors</Tags>
+      <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     </PropertyGroup>
 
     <Import Project="$(NuProjPath)\NuProj.props" />
     <Import Project="$(NuProjPath)\NuProj.targets" />
 
     <ItemGroup>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>lib\net462</TargetPath>
       </File>
@@ -49,9 +44,6 @@
       </File>
       <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Actors.KVSToRCMigration.xml">
         <TargetPath>lib\netstandard2.0</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
-        <TargetPath>runtimes\win\lib\net461</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Actors.KVSToRCMigration.dll">
         <TargetPath>runtimes\win\lib\net462</TargetPath>

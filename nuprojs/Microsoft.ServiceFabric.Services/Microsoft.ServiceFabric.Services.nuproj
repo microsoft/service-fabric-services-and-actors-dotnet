@@ -8,42 +8,13 @@
       <Description>This package contains the common Service Framework APIs for building and connecting to reliable services on Microsoft Service Fabric.</Description>
       <Summary>This package contains the common Service Framework APIs for building and connecting to reliable services on Microsoft Service Fabric.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric</Tags>
+      <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     </PropertyGroup>
 
     <Import Project="$(NuProjPath)\NuProj.props" />
     <Import Project="$(NuProjPath)\NuProj.targets" />
 
     <ItemGroup>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
-        <TargetPath>lib\net45</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.xml">
-        <TargetPath>lib\net45</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
-        <TargetPath>lib\net451</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.xml">
-        <TargetPath>lib\net451</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
-        <TargetPath>lib\net452</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.xml">
-        <TargetPath>lib\net452</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
-        <TargetPath>lib\net46</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.xml">
-        <TargetPath>lib\net46</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.xml">
-        <TargetPath>lib\net461</TargetPath>
-      </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>lib\net462</TargetPath>
       </File>
@@ -73,9 +44,6 @@
       </File>
       <File Include="$(DropFolderNetStandard)Microsoft.ServiceFabric.Services.xml">
         <TargetPath>lib\netstandard2.0</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
-        <TargetPath>runtimes\win\lib\net461</TargetPath>
       </File>
       <File Include="$(DropFolderNetFramework)Microsoft.ServiceFabric.Services.dll">
         <TargetPath>runtimes\win\lib\net462</TargetPath>
