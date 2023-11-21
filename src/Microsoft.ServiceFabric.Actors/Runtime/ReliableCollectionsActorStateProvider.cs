@@ -945,6 +945,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                    this.servicePartition.WriteStatus != PartitionAccessStatus.Granted)
             {
                 retryCount++;
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Waiting for Write Status to be Granted");
                 await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
             }
         }

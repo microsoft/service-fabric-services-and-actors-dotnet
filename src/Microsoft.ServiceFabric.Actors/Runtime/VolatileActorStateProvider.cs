@@ -29,6 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         VolatileActorStateProvider.ActorStateType,
         string,
         VolatileActorStateProvider.ActorStateData>;
+    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
     using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
@@ -40,6 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private const string LogicalTimestampKey = "LogicalTimestamp";
         private const string TraceType = "VolatileActorStateProvider";
+        private const int StateProviderInitRetryDelayMilliseconds = 500;
         private static readonly ActorStateData ActorPresenceValue = new ActorStateData(new[] { byte.MinValue });
 
         private readonly ActorStateTable stateTable;
@@ -49,7 +51,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly object replicationLock;
         private readonly ActorStateProviderHelper actorStateProviderHelper;
         private readonly ReplicatorSettings userDefinedReplicatorSettings;
-
         private SecondaryPump secondaryPump;
         private ActorTypeInformation actorTypeInformation;
         private FabricReplicator fabricReplicator;
@@ -61,6 +62,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private VolatileActorStateProviderSettings stateProviderSettings;
         private long roleChangeTracker;
+        private bool isLogicalTimeManagerInitialized;
+        private CancellationTokenSource stateProviderInitCts;
+        private Task stateProviderInitTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VolatileActorStateProvider"/> class.
@@ -89,6 +93,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.replicaRole = ReplicaRole.Unknown;
             this.roleChangeTracker = DateTime.UtcNow.Ticks;
             this.actorStateProviderHelper = new ActorStateProviderHelper(this);
+            this.isLogicalTimeManagerInitialized = false;
+            this.stateProviderInitCts = null;
+            this.stateProviderInitTask = null;
         }
 
         internal enum ActorStateType
@@ -203,13 +210,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <returns>
         /// A task that represents the asynchronous reminder callback completed notification processing.
         /// </returns>
-        Task IActorStateProvider.ReminderCallbackCompletedAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
+        async Task IActorStateProvider.ReminderCallbackCompletedAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminder.Name);
             var reminderCompletedData = new ReminderCompletedData(this.logicalTimeManager.CurrentLogicalTime, DateTime.UtcNow);
             var actorStateData = new ActorStateData(reminderCompletedData);
 
-            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+            await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                 () =>
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -461,6 +470,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ContinuationToken continuationToken,
             CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             return await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                 async () =>
                 {
@@ -555,8 +566,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        Task IActorStateProvider.SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
+        async Task IActorStateProvider.SaveReminderAsync(ActorId actorId, IActorReminder reminder, CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             var actorStateDataWrapperList = new List<ActorStateDataWrapper>
             {
                 ActorStateDataWrapper.CreateForUpdate(
@@ -569,7 +582,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminder.Name)),
             };
 
-            return this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+            await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
                 () =>
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -647,8 +660,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// parameter is a collection of all actor reminders contained in the actor state provider.
         /// </returns>
         /// <exception cref="OperationCanceledException">The operation was canceled.</exception>
-        Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
+        async Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
         {
+            await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
             var reminderCollection = new ActorReminderCollection();
             var stateDictionary = this.stateTable.GetActorStateDictionary(ActorStateType.Reminder);
 
@@ -675,7 +690,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     new ActorReminderState(reminderData, this.logicalTimeManager.CurrentLogicalTime, reminderCompletedData));
             }
 
-            return Task.FromResult((IActorReminderCollection)reminderCollection);
+            return (IActorReminderCollection)reminderCollection;
         }
 
         /// <summary>
@@ -739,12 +754,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             switch (newRole)
             {
                 case ReplicaRole.IdleSecondary:
-                    this.logicalTimeManager.Stop();
+                    await this.CancelStateProviderInitializationAsync();
                     this.secondaryPump.StartCopyAndReplicationPump();
                     break;
 
                 case ReplicaRole.ActiveSecondary:
-                    this.logicalTimeManager.Stop();
+                    await this.CancelStateProviderInitializationAsync();
 
                     ActorStateData data;
                     if (this.stateTable.TryGetValue(ActorStateType.LogicalTimestamp, LogicalTimestampKey, out data)
@@ -762,7 +777,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     break;
 
                 case ReplicaRole.Primary:
-                    this.logicalTimeManager.Start();
+                    this.stateProviderInitCts = new CancellationTokenSource();
+                    this.stateProviderInitTask = this.StartStateProviderInitializationAsync(this.stateProviderInitCts.Token);
 
                     // Wait for secondary pump to make sure there is no
                     // outstanding task in-flight after processing NULL
@@ -783,12 +799,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>Task that represents the asynchronous close operation.</returns>
-        Task IStateProviderReplica.CloseAsync(CancellationToken cancellationToken)
+        async Task IStateProviderReplica.CloseAsync(CancellationToken cancellationToken)
         {
+            await this.CancelStateProviderInitializationAsync();
+
             // Wait for secondary pump to make sure there is no
             // outstanding task in-flight after processing NULL
             // operation from the replication queue.
-            return this.secondaryPump.WaitForPumpCompletionAsync();
+            await this.secondaryPump.WaitForPumpCompletionAsync();
         }
 
         /// <summary>
@@ -800,7 +818,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         void IStateProviderReplica.Abort()
         {
-            // no-op
+            this.CancelStateProviderInitializationAsync().ContinueWith(
+                t => t.Exception,
+                TaskContinuationOptions.OnlyOnFaulted);
         }
 
         /// <summary>
@@ -1120,6 +1140,160 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             return storageKey.Substring(storageKeyPrefix.Length + 1);
+        }
+
+        private async Task StartStateProviderInitializationAsync(CancellationToken cancellationToken)
+        {
+            Exception unexpectedException = null;
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                await this.actorStateProviderHelper.ExecuteWithRetriesAsync(
+                    async () =>
+                    {
+                        await this.InitializeAndStartLogicalTimeManagerAsync(cancellationToken);
+                    },
+                    "StartStateProviderInitializationAsync",
+                    cancellationToken);
+            }
+            catch (OperationCanceledException opEx)
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    unexpectedException = opEx;
+                }
+            }
+            catch (FabricObjectClosedException)
+            {
+                // This can happen when replica is closing. CancellationToken should get signaled.
+                // Fall through and let the task check for CancellationToken.
+            }
+            catch (FabricNotPrimaryException)
+            {
+                // This replica is no more primary. CancellationToken should get signaled.
+                // Fall through and let the task check for CancellationToken.
+            }
+            catch (Exception ex)
+            {
+                unexpectedException = ex;
+            }
+
+            if (unexpectedException != null)
+            {
+                var mssgFormat = "StartStateProviderInitializationAsync() failed due to " +
+                                 "an unexpected Exception causing replica to fault: {0}";
+
+                ActorTrace.Source.WriteErrorWithId(
+                    TraceType,
+                    this.traceId,
+                    string.Format(mssgFormat, unexpectedException.ToString()));
+
+                this.partition.ReportFault(FaultType.Transient);
+            }
+        }
+
+        private async Task CancelStateProviderInitializationAsync()
+        {
+            if (this.stateProviderInitCts != null &&
+                this.stateProviderInitCts.IsCancellationRequested == false)
+            {
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Canceling state provider initialization...");
+
+                this.stateProviderInitCts.Cancel();
+
+                try
+                {
+                    await this.stateProviderInitTask;
+                }
+                catch (Exception ex)
+                {
+                    // Code should never come here.
+                    ReleaseAssert.Failfast(
+                        "CancelStateProviderInitializationAsync() unexpected exception: {0}.",
+                        ex.ToString());
+                }
+                finally
+                {
+                    this.stateProviderInitCts = null;
+                    this.stateProviderInitTask = null;
+                }
+            }
+
+            this.StopLogicalTimeManager();
+        }
+
+        private async Task InitializeAndStartLogicalTimeManagerAsync(CancellationToken cancellationToken)
+        {
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager...");
+
+            if (this.isLogicalTimeManagerInitialized == true)
+            {
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical time manager already initialized...");
+                return;
+            }
+
+            // wait for read status
+            await this.WaitForReadStatusAsync(cancellationToken);
+
+            ActorStateData data;
+            if (this.stateTable.TryGetValue(ActorStateType.LogicalTimestamp, LogicalTimestampKey, out data)
+                && data.LogicalTimestamp.HasValue)
+            {
+                this.logicalTimeManager.CurrentLogicalTime = data.LogicalTimestamp.Value;
+            }
+
+            this.logicalTimeManager.Start();
+            Volatile.Write(ref this.isLogicalTimeManagerInitialized, true);
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Initializing logical time manager SUCCEEDED.");
+        }
+
+        private void StopLogicalTimeManager()
+        {
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Stopping logical time manager...");
+
+            // Stop logical timer if it is running
+            if (this.isLogicalTimeManagerInitialized == true)
+            {
+                this.logicalTimeManager.Stop();
+                this.isLogicalTimeManagerInitialized = false;
+            }
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Stopped logical time manager...");
+        }
+
+        private async Task WaitForReadStatusAsync(CancellationToken cancellationToken)
+        {
+            var retryCount = 0;
+
+            while (!cancellationToken.IsCancellationRequested &&
+                   this.partition.ReadStatus != PartitionAccessStatus.Granted)
+            {
+                retryCount++;
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Waiting for Read Status to be Granted");
+                await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
+            }
+        }
+
+        private async Task EnsureLogicalTimeManagerInitializedAsync(CancellationToken cancellationToken)
+        {
+            var retryCount = 0;
+
+            while (this.replicaRole == ReplicaRole.Primary && !this.isLogicalTimeManagerInitialized)
+            {
+                retryCount++;
+                ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Waiting for logical Time manager to be initialized");
+                await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
+            }
+
+            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical Time Manager is initialized");
+
+            if (this.replicaRole != ReplicaRole.Primary)
+            {
+                throw new FabricNotPrimaryException(FabricErrorCode.NotPrimary);
+            }
         }
 
         private void LoadActorStateProviderSettings()
