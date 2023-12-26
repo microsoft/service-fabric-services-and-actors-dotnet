@@ -436,6 +436,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             try
             {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Firing reminder ({0}) for actor ({1})",
+                    reminder.Name,
+                    reminder.OwnerActorId.GetStorageKey());
+
                 using (var actorScope = this.GetActor(reminder.OwnerActorId, true, false))
                 {
                     var actorBase = actorScope.Actor;
@@ -1233,12 +1240,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task LoadRemindersAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    $"Loading reminders.");
+
             var reminders = await this.StateProvider.LoadRemindersAsync(cancellationToken);
 
             ActorTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,
-                    $"Loading {reminders.Count} reminders.");
+                    $"Found {reminders.Count} reminders.");
 
             if (reminders.Count > 0 && !this.actorService.ActorTypeInformation.IsRemindable)
             {
@@ -1306,7 +1318,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 TraceType,
                 this.traceId,
                 "Registering reminder for actor: ({0}), reminderName: ({1}), remainingDueTime: ({2}),  saveState {3}",
-                actorReminder.OwnerActorId,
+                actorReminder.OwnerActorId.GetStorageKey(),
                 actorReminder.Name,
                 remainingDueTime,
                 saveState);

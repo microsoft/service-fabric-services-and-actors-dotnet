@@ -570,12 +570,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
 
+            var reminderData = new ActorStateData(new ActorReminderData(actorId, reminder, this.logicalTimeManager.CurrentLogicalTime));
+
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Saving Reminder - {0}",
+                reminderData);
+
             var actorStateDataWrapperList = new List<ActorStateDataWrapper>
             {
                 ActorStateDataWrapper.CreateForUpdate(
                     ActorStateType.Reminder,
                     CreateReminderStorageKey(actorId, reminder.Name),
-                    new ActorStateData(new ActorReminderData(actorId, reminder, this.logicalTimeManager.CurrentLogicalTime))),
+                    reminderData),
 
                 ActorStateDataWrapper.CreateForDelete(
                     ActorStateType.Actor,
@@ -663,6 +671,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         async Task<IActorReminderCollection> IActorStateProvider.LoadRemindersAsync(CancellationToken cancellationToken)
         {
             await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
+
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Enumerating all reminders. Current Logical Time - {0}",
+                this.logicalTimeManager.CurrentLogicalTime);
 
             var reminderCollection = new ActorReminderCollection();
             var stateDictionary = this.stateTable.GetActorStateDictionary(ActorStateType.Reminder);
@@ -1287,8 +1301,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Waiting for logical Time manager to be initialized");
                 await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
             }
-
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical Time Manager is initialized");
 
             if (this.replicaRole != ReplicaRole.Primary)
             {

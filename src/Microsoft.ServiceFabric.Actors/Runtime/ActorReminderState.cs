@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System;
+    using System.Diagnostics;
     using System.Runtime.Serialization;
     using System.Threading;
 
@@ -15,6 +16,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     [DataContract(Name = "ActorReminderState")]
     public class ActorReminderState : IActorReminderState
     {
+        private const string TraceType = "ActorReminderState";
+
         [DataMember(Name = "Reminder", Order = 0, IsRequired = true)]
         private readonly ActorReminderData reminder;
 
@@ -34,10 +37,26 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (reminderCompletedData != null)
             {
                 this.nextDueTime = ComputeRemainingTime(currentLogicalTime, reminderCompletedData.LogicalTime, reminder.Period);
+                ActorTrace.Source.WriteInfo(
+                    TraceType,
+                    "Next Due Time for Reminder: ({0}), Actor: ({1}), Reminder Completed Time: ({2}), Period: ({3}) is ({4})",
+                    reminder.Name,
+                    reminder.ActorId.GetStorageKey(),
+                    reminderCompletedData.LogicalTime,
+                    reminder.Period,
+                    this.nextDueTime);
             }
             else
             {
                 this.nextDueTime = ComputeRemainingTime(currentLogicalTime, reminder.LogicalCreationTime, reminder.DueTime);
+                ActorTrace.Source.WriteInfo(
+                    TraceType,
+                    "Next Due Time for Reminder: ({0}), Actor: ({1}), Reminder Creation Time: ({2}), Due Time: ({3}) is ({4})",
+                    reminder.Name,
+                    reminder.ActorId.GetStorageKey(),
+                    reminder.LogicalCreationTime,
+                    reminder.DueTime,
+                    this.nextDueTime);
             }
         }
 
