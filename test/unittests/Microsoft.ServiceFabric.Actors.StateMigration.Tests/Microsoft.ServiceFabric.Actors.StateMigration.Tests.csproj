@@ -6,7 +6,7 @@
     <ProjectGuid>{1BDC4681-FDBA-4E55-A247-5F779627A4D7}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Actors.StateMigration.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
