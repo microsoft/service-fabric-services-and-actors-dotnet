@@ -8,6 +8,7 @@
       <Description>This package contains the common Actor Framework APIs for building and connecting to reliable services on Microsoft Service Fabric.</Description>
       <Summary>This package contains the common Actor Framework APIs for building and connecting to reliable services on Microsoft Service Fabric.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric Actors</Tags>
+      <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     </PropertyGroup>
 
     <Import Project="$(NuProjPath)\NuProj.props" />

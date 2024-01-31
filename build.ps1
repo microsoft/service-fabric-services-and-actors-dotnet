@@ -33,36 +33,31 @@ if($MSBuildFullPath -ne "")
     }
 }
 
-# msbuild path not provided, find msbuild for VS2019
+# msbuild path not provided, find msbuild for VS2022
 if($MSBuildFullPath -eq "")
 {
-    if (Test-Path "env:\ProgramFiles(x86)")
+    $progFilesPaths = ${env:\ProgramFiles(x86)}, ${env:\ProgramFiles}
+    foreach ($progFilesPath in $progFilesPaths)
     {
-        $progFilesPath =  ${env:ProgramFiles(x86)}
-    }
-    elseif (Test-Path "env:\ProgramFiles")
-    {
-        $progFilesPath =  ${env:ProgramFiles}
-    }
+        $VS2022InstallPath = join-path $progFilesPath "Microsoft Visual Studio\2022"
+        $versions = 'Preview', 'Community', 'Professional', 'Enterprise'
 
-    $VS2019InstallPath = join-path $progFilesPath "Microsoft Visual Studio\2019"
-    $versions = 'Community', 'Professional', 'Enterprise'
-
-    foreach ($version in $versions)
-    {
-        $VS2019VersionPath = join-path $VS2019InstallPath $version
-        $MSBuildFullPath = join-path $VS2019VersionPath "MSBuild\Current\Bin\MSBuild.exe"
-
-        if (Test-Path $MSBuildFullPath)
+        foreach ($version in $versions)
         {
-            break
+            $VS2022VersionPath = join-path $VS2022InstallPath $version
+            $testPath = join-path $VS2022VersionPath "MSBuild\Current\Bin\MSBuild.exe"
+
+            if (Test-Path $testPath)
+            {
+                $MSBuildFullPath = $testPath
+            }
         }
     }
 }
 
 if (!(Test-Path $MSBuildFullPath))
 {
-    throw "Unable to find MSBuild installed on this machine. Please install Visual Studio 2019 or if its installed at non-default location, provide the full ppath to msbuild using -MSBuildFullPath parameter."
+    throw "Unable to find MSBuild installed on this machine. Please install Visual Studio 2022 or if its installed at non-default location, provide the full ppath to msbuild using -MSBuildFullPath parameter."
 }
 
 

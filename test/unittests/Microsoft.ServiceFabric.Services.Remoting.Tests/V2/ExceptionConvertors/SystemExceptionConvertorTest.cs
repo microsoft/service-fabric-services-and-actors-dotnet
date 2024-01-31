@@ -16,6 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
+    using Castle.Core.Internal;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Xunit;
@@ -175,7 +176,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 }
                 else if (exception is ReflectionTypeLoadException typeLoad)
                 {
-                    if (typeLoad.Types != null)
+                    if (!typeLoad.Types.IsNullOrEmpty())
                     {
                         Assert.True(((ReflectionTypeLoadException)resultEx).Types.SequenceEqual(typeLoad.Types));
                     }
@@ -228,7 +229,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Assert.True(((AggregateException)((AggregateException)resultEx).InnerExceptions[0]).InnerExceptions.Count == 3);
             Assert.True(((AggregateException)((AggregateException)((AggregateException)resultEx).InnerExceptions[0]).InnerExceptions[0]).InnerExceptions.Count == 0);
             Assert.True(((ReflectionTypeLoadException)((AggregateException)resultEx).InnerExceptions[1]).LoaderExceptions.Length == 3);
-            Assert.True(((ReflectionTypeLoadException)((ReflectionTypeLoadException)((AggregateException)resultEx).InnerExceptions[1]).LoaderExceptions[0]).LoaderExceptions == null);
+            Assert.True(((ReflectionTypeLoadException)((ReflectionTypeLoadException)((AggregateException)resultEx).InnerExceptions[1]).LoaderExceptions[0]).LoaderExceptions.IsNullOrEmpty());
         }
 
         private static AggregateException NestedAggregateEx(int depth, int breadth)

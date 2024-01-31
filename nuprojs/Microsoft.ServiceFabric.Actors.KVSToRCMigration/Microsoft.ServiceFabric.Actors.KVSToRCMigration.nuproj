@@ -8,6 +8,7 @@
       <Description>This package contains the Actor Framework KVS to RC Migration APIs.</Description>
       <Summary>This package contains the Actor Framework KVS to RC Migration APIs.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric Actors</Tags>
+      <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     </PropertyGroup>
 
     <Import Project="$(NuProjPath)\NuProj.props" />
