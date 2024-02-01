@@ -31,7 +31,7 @@
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
     <MajorVersion>6</MajorVersion>
     <MinorVersion>1</MinorVersion>
-    <BuildVersion>8</BuildVersion>
+    <BuildVersion>9</BuildVersion>
     <Revision>0</Revision>
 
   </PropertyGroup>
