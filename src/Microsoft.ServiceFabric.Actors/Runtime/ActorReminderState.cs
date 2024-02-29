@@ -39,9 +39,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.nextDueTime = ComputeRemainingTime(currentLogicalTime, reminderCompletedData.LogicalTime, reminder.Period);
                 ActorTrace.Source.WriteInfo(
                     TraceType,
-                    "Next Due Time for Reminder: ({0}), Actor: ({1}), Reminder Completed Time: ({2}), Period: ({3}) is ({4})",
+                    "ComputeRemainingTime - Reminder: ({0}), Actor: ({1}), Current Logical Time: ({2}), Reminder Completed Time: ({3}), Period ({4}), Next Due Time: ({5})",
                     reminder.Name,
                     reminder.ActorId.GetStorageKey(),
+                    currentLogicalTime,
                     reminderCompletedData.LogicalTime,
                     reminder.Period,
                     this.nextDueTime);
@@ -51,9 +52,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.nextDueTime = ComputeRemainingTime(currentLogicalTime, reminder.LogicalCreationTime, reminder.DueTime);
                 ActorTrace.Source.WriteInfo(
                     TraceType,
-                    "Next Due Time for Reminder: ({0}), Actor: ({1}), Reminder Creation Time: ({2}), Due Time: ({3}) is ({4})",
+                    "ComputeRemainingTime - Reminder: ({0}), Actor: ({1}), Current Logical Time: ({2}), Reminder Creation Time: ({3}), Due Time: ({4}), Next Due Time: ({5})",
                     reminder.Name,
                     reminder.ActorId.GetStorageKey(),
+                    currentLogicalTime,
                     reminder.LogicalCreationTime,
                     reminder.DueTime,
                     this.nextDueTime);

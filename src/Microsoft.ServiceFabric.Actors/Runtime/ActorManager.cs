@@ -214,6 +214,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 // Emit diagnostic info - before acquiring actor lock
                 var lockAcquireStartTime = this.DiagnosticsEventManager.AcquireActorLockStart(actor);
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Acquiring lock for actor: {0}, actor method: {1}",
+                    actorId,
+                    actorMethodContext.MethodName);
+
                 DateTime? lockAcquireFinishTime = null;
                 try
                 {
@@ -227,6 +234,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     // Emit diagnostic info - failed to acquire actor lock
                     this.DiagnosticsEventManager.AcquireActorLockFailed(actor);
+                    ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        "Acquiring lock for actor: {0}, actor method: {1} failed",
+                        actorId,
+                        actorMethodContext.MethodName);
                     throw;
                 }
 
@@ -238,6 +251,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     lockAcquireFinishTime = this.DiagnosticsEventManager.AcquireActorLockFinish(
                         actor,
                         lockAcquireStartTime);
+
+                    ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        "Acquired lock for actor: {0}, actor method: {1}",
+                        actorId,
+                        actorMethodContext.MethodName);
 
                     retval =
                         await
@@ -1296,6 +1316,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ex.ToString());
                 }
             }
+
+            ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    $"Load reminders complete.");
         }
 
         private Task RegisterOrUpdateReminderAsync(
