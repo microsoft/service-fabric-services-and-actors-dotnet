@@ -445,6 +445,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var reminderData = new ActorReminderData(actorId, reminder, this.logicalTimeManager.CurrentLogicalTime);
             var data = ActorReminderDataSerializer.Serialize(reminderData);
 
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Saving Reminder - {0}",
+                reminderData);
+
             await this.stateProviderHelper.ExecuteWithRetriesAsync(
                 async () =>
                 {
@@ -1131,6 +1137,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task<IActorReminderCollection> EnumerateRemindersAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Enumerating all reminders. Current Logical Time - {0}",
+                this.logicalTimeManager.CurrentLogicalTime);
+
             var reminderCollection = new ActorReminderCollection();
             var reminderCompletedDataDict = await this.GetReminderCompletedDataMapAsync(null, cancellationToken);
 
