@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public override string ToString()
         {
-            return $"ActorId: {this.ActorId} Name: {this.Name} DueTime: {this.DueTime} Period: {this.Period} State: {this.State} LogicalCreationTime: {this.LogicalCreationTime}";
+            return $"ActorId: ({this.ActorId.GetStorageKey()}), Name: ({this.Name}), DueTime: ({this.DueTime}), Period: ({this.Period}), State: ({this.State}), LogicalCreationTime: ({this.LogicalCreationTime})";
         }
     }
 }
