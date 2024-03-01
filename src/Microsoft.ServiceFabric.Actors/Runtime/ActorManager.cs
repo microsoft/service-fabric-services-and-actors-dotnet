@@ -230,16 +230,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             async innerActor => await this.HandleDirtyStateAsync(innerActor),
                             cancellationToken);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Emit diagnostic info - failed to acquire actor lock
                     this.DiagnosticsEventManager.AcquireActorLockFailed(actor);
-                    ActorTrace.Source.WriteInfoWithId(
+                    ActorTrace.Source.WriteWarningWithId(
                         TraceType,
                         this.traceId,
-                        "Acquiring lock for actor: {0}, actor method: {1} failed",
+                        "Failed to acquire lock for actor: {0}, actor method: {1}, exception - {2}",
                         actorId,
-                        actorMethodContext.MethodName);
+                        actorMethodContext.MethodName,
+                        ex.ToString());
                     throw;
                 }
 
