@@ -124,6 +124,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 try
                 {
+                    this.actorManager.TraceSource.WriteInfoWithId(
+                        TraceType,
+                        this.actorManager.GetActorTraceId(this.OwnerActorId),
+                        "Arming timer for reminder ({0}), actor: ({1}), newDueTime: ({2})",
+                        this.Name,
+                        this.OwnerActorId.GetStorageKey(),
+                        newDueTime);
+
                     snap.Change(newDueTime, Timeout.InfiniteTimeSpan);
                 }
                 catch (Exception e)

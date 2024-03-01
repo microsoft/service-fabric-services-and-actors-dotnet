@@ -564,8 +564,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             await this.EnsureLogicalTimeManagerInitializedAsync(cancellationToken);
 
             var reminderKey = CreateReminderStorageKey(actorId, reminder.Name);
-            var data = new ActorReminderData(actorId, reminder, this.logicalTimeManager.CurrentLogicalTime);
-            var buffer = this.SerializeReminder(data);
+            var reminderData = new ActorReminderData(actorId, reminder, this.logicalTimeManager.CurrentLogicalTime);
+            var buffer = this.SerializeReminder(reminderData);
+
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Saving Reminder - {0}",
+                reminderData);
 
             var reminderCompletedKey = ActorStateProviderHelper.CreateReminderCompletedStorageKey(actorId, reminder.Name);
 
@@ -1140,8 +1146,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 await Task.Delay(retryCount * StateProviderInitRetryDelayMilliseconds, cancellationToken);
             }
 
-            ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Logical Time Manager is initialized");
-
             if (this.replicaRole != ReplicaRole.Primary)
             {
                 throw new FabricNotPrimaryException(FabricErrorCode.NotPrimary);
@@ -1532,6 +1536,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task<IActorReminderCollection> EnumerateReminderAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Enumerating all reminders. Current Logical Time - {0}",
+                this.logicalTimeManager.CurrentLogicalTime);
+
             var reminderCollection = new ActorReminderCollection();
 
             using (var tx = this.storeReplica.CreateTransaction())

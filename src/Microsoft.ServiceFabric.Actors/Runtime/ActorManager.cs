@@ -214,6 +214,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 // Emit diagnostic info - before acquiring actor lock
                 var lockAcquireStartTime = this.DiagnosticsEventManager.AcquireActorLockStart(actor);
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Acquiring lock for actor: {0}, actor method: {1}",
+                    actorId,
+                    actorMethodContext.MethodName);
+
                 DateTime? lockAcquireFinishTime = null;
                 try
                 {
@@ -223,10 +230,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             async innerActor => await this.HandleDirtyStateAsync(innerActor),
                             cancellationToken);
                 }
-                catch
+                catch (Exception ex)
                 {
                     // Emit diagnostic info - failed to acquire actor lock
                     this.DiagnosticsEventManager.AcquireActorLockFailed(actor);
+                    ActorTrace.Source.WriteWarningWithId(
+                        TraceType,
+                        this.traceId,
+                        "Failed to acquire lock for actor: {0}, actor method: {1}, exception - {2}",
+                        actorId,
+                        actorMethodContext.MethodName,
+                        ex.ToString());
                     throw;
                 }
 
@@ -238,6 +252,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     lockAcquireFinishTime = this.DiagnosticsEventManager.AcquireActorLockFinish(
                         actor,
                         lockAcquireStartTime);
+
+                    ActorTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        "Acquired lock for actor: {0}, actor method: {1}",
+                        actorId,
+                        actorMethodContext.MethodName);
 
                     retval =
                         await
@@ -436,6 +457,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             try
             {
+                ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Firing reminder ({0}) for actor ({1})",
+                    reminder.Name,
+                    reminder.OwnerActorId.GetStorageKey());
+
                 using (var actorScope = this.GetActor(reminder.OwnerActorId, true, false))
                 {
                     var actorBase = actorScope.Actor;
@@ -1233,12 +1261,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task LoadRemindersAsync(CancellationToken cancellationToken)
         {
+            ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    $"Loading reminders.");
+
             var reminders = await this.StateProvider.LoadRemindersAsync(cancellationToken);
 
             ActorTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,
-                    $"Loading {reminders.Count} reminders.");
+                    $"Found {reminders.Count} reminders.");
 
             if (reminders.Count > 0 && !this.actorService.ActorTypeInformation.IsRemindable)
             {
@@ -1284,6 +1317,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         ex.ToString());
                 }
             }
+
+            ActorTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    $"Load reminders complete.");
         }
 
         private Task RegisterOrUpdateReminderAsync(
@@ -1306,7 +1344,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 TraceType,
                 this.traceId,
                 "Registering reminder for actor: ({0}), reminderName: ({1}), remainingDueTime: ({2}),  saveState {3}",
-                actorReminder.OwnerActorId,
+                actorReminder.OwnerActorId.GetStorageKey(),
                 actorReminder.Name,
                 remainingDueTime,
                 saveState);
