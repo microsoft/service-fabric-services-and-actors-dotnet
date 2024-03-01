@@ -260,6 +260,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var key = CreateReminderStorageKey(actorId, state.Name);
             var reminderData = new ActorReminderData(actorId, state, TimeSpan.Zero);
 
+            ActorTrace.Source.WriteInfoWithId(
+                TraceType,
+                this.traceId,
+                "Saving Reminder - {0}",
+                reminderData);
+
             this.stateDictionary.AddOrUpdate(key, reminderData, (s, o) => reminderData);
 
             return Task.FromResult(true);
