@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
 
     /// <summary>
@@ -93,9 +94,17 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             return partitionClientCache.TryGetClientCacheEntry(endpoint, listenerName, out cacheEntry);
         }
 
-        public void ClearClientCacheEntries(Guid partitionId)
+        /// <summary>
+        /// Clear the cache entries for a given replica that are not contains in validEndpoints
+        /// </summary>
+        /// <param name="partitionId">Partition id of the replica set</param>
+        /// <param name="validEndpoints">Collection of endpoints that are valid for the replica set</param>
+        public void ClearClientCacheEntries(Guid partitionId, ICollection<ResolvedServiceEndpoint> validEndpoints)
         {
-            // Currently no op. To implement when we register for service change notifications.
+            if (this.clientCache.TryGetValue(partitionId, out PartitionClientCache clientCache))
+            {
+                clientCache.TryRemoveClientCacheEntry(validEndpoints);
+            }
         }
 
         public void Dispose()
@@ -238,6 +247,26 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 return this.cache.TryGetValue(
                     new PartitionClientCacheKey(endpoint, listenerName),
                     out cacheEntry);
+            }
+
+            /// <summary>
+            /// Try to remove any cache items if the endpoint is not in the collection of valid endpoints
+            /// </summary>
+            /// <param name="validEndpoints">Collection of valid endpoints</param>
+            /// <returns>A boolean indicating if anything was removed from the cache</returns>
+            public bool TryRemoveClientCacheEntry(ICollection<ResolvedServiceEndpoint> validEndpoints)
+            {
+                bool removed = false;
+                foreach (var key in this.cache.Keys)
+                {
+                    // if the cache for the replica set contains an endpoint that is not valid remove it
+                    if (!validEndpoints.Contains(key.Endpoint))
+                    {
+                        removed |= this.cache.TryRemove(key, out _);
+                    }
+                }
+
+                return removed;
             }
 
             // Cleaning up of cache entries needs to synchronize with the code that uses the cache entry and sets the
