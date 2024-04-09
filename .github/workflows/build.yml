@@ -4,14 +4,12 @@ on:
   push:
     branches:
       - develop
-      - release_4*
-    tags:
-      - v*
+      - 'release_*'
     
   pull_request:
     branches: 
     - develop
-    - release_4*
+    - 'release_*'
 
 jobs:
   build:
