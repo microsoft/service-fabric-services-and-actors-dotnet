@@ -1,4 +1,6 @@
-# Azure/service-fabric-services-and-actors-dotnet
+# Service Fabric .NET packages
+
+[![Build Status](https://dev.azure.com/msazure/One/_apis/build/status/OneBranch/WindowsFabric/service-fabric-services-and-actors-dotnet?branchName=develop)](https://dev.azure.com/msazure/One/_build/latest?definitionId=369005&branchName=develop)
 
 Reliable Services and Reliable Actors are Service Fabric application frameworks for building highly-scalable distributed cloud applications.
 
