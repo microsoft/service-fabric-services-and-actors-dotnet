@@ -1,0 +1,86 @@
+trigger:
+  branches:
+    include:
+    - develop
+    - releases_*
+
+pr: none # PR validation is out of scope for now
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+variables: # Expected by OneBranch template
+  WindowsContainerImage: 'onebranch.azurecr.io/windows/ltsc2022/vse2022:latest'
+
+extends:
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  parameters:
+    featureFlags:
+      WindowsHostVersion: 1ESWindows2022
+    globalSdl:
+      asyncSdl: # Fails to retrieve TsaOptions.json from GitHub
+        enabled: false
+    stages:
+    - stage: main
+      jobs:
+      - job: job
+        pool:
+          type: windows
+        variables:
+          ob_outputDirectory: '$(Build.SourcesDirectory)\drop'
+        steps:
+        - pwsh: ./build.ps1 -Target BuildCode
+          displayName: Build
+        - pwsh: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory $(ob_outputDirectory) --logger trx
+          displayName: Test
+        - task: onebranch.pipeline.signing@1
+          displayName: Sign assemblies
+          inputs:
+            command: sign
+            signing_profile: external_distribution
+            files_to_sign: '**/*.dll'
+            search_root: $(ob_outputDirectory)
+        - pwsh: ./build.ps1 -Target GeneratePackages
+          displayName: Package
+        - task: onebranch.pipeline.signing@1
+          displayName: Sign packages
+          inputs:
+            command: sign
+            signing_profile: external_distribution
+            files_to_sign: '**/*.nupkg'
+            search_root: $(ob_outputDirectory)
+        - task: NuGetCommand@2
+          displayName: 'Publish to Internal Feed' # For builds on Windows
+          inputs:
+            command: 'push'
+            packagesToPush: '$(ob_outputDirectory)\Release\packages\SF.ActorsServices.Internal.*.nupkg'
+            nuGetFeedType: 'internal'
+            publishVstsFeed: 'one/service-fabric-services-and-actors-dotnet'
+          continueOnError: true
+        - task: PowerShell@2
+          displayName: 'Update Az Module' # For AzureFileCopy@6
+          inputs:
+            targetType: 'inline'
+            script: |
+              get-module Azure* -ListAvailable -All | 
+                Select-Object -expandproperty ModuleBase | 
+                foreach-object {remove-Item -filter * -recurse -path $_ -erroraction ignore}
+
+              Get-PackageProvider -Name NuGet -ForceBootstrap
+              install-module Az.Accounts -MinimumVersion 2.2.0 -verbose -force -AllowClobber
+              Install-Module Az.Resources -verbose -force -AllowClobber
+              Install-Module Az.Storage -verbose -force -AllowClobber
+              get-module Azure* -ListAvailable -All
+        - task: AzureFileCopy@6
+          displayName: 'Publish to Blob Storage' # For builds on Linux
+          inputs:
+            SourcePath: '$(ob_outputDirectory)\Release\packages\SF.ActorsServices.Internal.*.nupkg'
+            azureSubscription: 'SF-EngSystemsSubscription'
+            Destination: AzureBlob
+            storage: sfprebuiltinternal212418
+            ContainerName: binaries
+          continueOnError: true
