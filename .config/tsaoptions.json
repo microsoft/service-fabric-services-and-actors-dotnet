@@ -1,0 +1,7 @@
+{
+    "instanceUrl": "https://msazure.visualstudio.com",
+    "projectName": "One",
+    "areaPath": "One\\Service Fabric\\Programming Model",
+    "notificationAliases": [ "sfprogmodel@microsoft.com" ],
+    "codebaseName": "service-fabric-services-and-actors-dotnet"
+}
