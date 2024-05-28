@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
-  <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <ProjectGuid>{1BDC4681-FDBA-4E55-A247-5F779627A4D7}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Actors.StateMigration.Tests</AssemblyName>

@@ -8,7 +8,6 @@
 /src/**/bin/**/*
 /src/**/gen/**/*
 /src/**/*.nuspec
-/src/**/StyleCop.Cache
 
 # MSBuild's log file
 msbuild.log
