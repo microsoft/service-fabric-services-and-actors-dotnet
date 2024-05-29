@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
-  <Import Project="..\..\..\properties\service_fabric_managed_stylecop.props" />
   <PropertyGroup>
     <Description>Microsoft.ServiceFabric.Services.Remoting Library</Description>
     <AssemblyName>Microsoft.ServiceFabric.Services.Remoting</AssemblyName>
