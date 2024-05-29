@@ -20,7 +20,7 @@ charset = utf-8
 indent_size = 2
 
 # Xml files
-[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct,xml,stylecop}]
+[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct,xml}]
 indent_size = 2
 
 # Xml project files
