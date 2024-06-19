@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
     using System.Collections.Generic;
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -40,18 +39,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         ///     The settings to use for the listener.
         /// </param>
         /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
-        /// <param name="requestForwarderFactory">Request forwarder incase migration is ongoing and current service cannot service the request.</param>
         public FabricTransportActorServiceRemotingListener(
             ActorService actorService,
             FabricTransportRemotingListenerSettings listenerSettings = null,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory = null)
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
             : this(
                 actorService,
                 CreateActorRemotingDispatcher(actorService, listenerSettings),
                 SetEndPointResourceName(listenerSettings, actorService),
-                exceptionConvertors: exceptionConvertors,
-                requestForwarderFactory: requestForwarderFactory)
+                exceptionConvertors: exceptionConvertors)
         {
         }
 
@@ -69,27 +65,24 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         ///     The settings to use for the listener.
         /// </param>
         /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
-        /// <param name="requestForwarderFactory">Request forwarder incase migration is ongoing and current service cannot service the request.</param>
         public FabricTransportActorServiceRemotingListener(
             ActorService actorService,
             IServiceRemotingMessageSerializationProvider serializationProvider,
             FabricTransportRemotingListenerSettings listenerSettings = null,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory = null)
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
             : this(
                 actorService,
                 new ActorServiceRemotingDispatcher(actorService, serializationProvider.CreateMessageBodyFactory()),
                 SetEndPointResourceName(listenerSettings, actorService),
                 serializationProvider,
-                exceptionConvertors,
-                requestForwarderFactory)
+                exceptionConvertors)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
         /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
-        /// This constructor is deprecated, use <see cref="FabricTransportActorServiceRemotingListener(ActorService, IServiceRemotingMessageHandler, FabricTransportRemotingListenerSettings, IServiceRemotingMessageSerializationProvider, IEnumerable{IExceptionConvertor}, Func{RequestForwarderContext, IRequestForwarder})"/>
+        /// This constructor is deprecated, use <see cref="FabricTransportActorServiceRemotingListener(ActorService, IServiceRemotingMessageHandler, FabricTransportRemotingListenerSettings, IServiceRemotingMessageSerializationProvider, IEnumerable{IExceptionConvertor})"/>
         /// </summary>
         /// <param name="serviceContext">
         ///     The context of the service for which the remoting listener is being constructed.
@@ -130,33 +123,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         /// <param name="listenerSettings">Listener Settings.</param>
         /// <param name="serializationProvider">Serialization provider for remoting.</param>
         /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
-        /// <param name="requestForwarderFactory">Request forwarder incase migration is ongoing and current service cannot service the request.</param>
         public FabricTransportActorServiceRemotingListener(
             ActorService actorService,
             IServiceRemotingMessageHandler messageHandler,
             FabricTransportRemotingListenerSettings listenerSettings = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory = null)
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
             : base(
                 GetContext(actorService),
-                OverrideMessageHandlerIfRequired(actorService, messageHandler, requestForwarderFactory),
+                messageHandler,
                 InitializeSerializerManager(
                    SetEndPointResourceName(listenerSettings, actorService),
                    serializationProvider),
                 SetEndPointResourceName(listenerSettings, actorService),
                 GetExceptionConvertors(exceptionConvertors))
         {
-        }
-
-        private static IServiceRemotingMessageHandler OverrideMessageHandlerIfRequired(ActorService actorService, IServiceRemotingMessageHandler messageHandler, Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory)
-        {
-            if (actorService.IsConfiguredForMigration())
-            {
-                return actorService.MigrationOrchestrator.GetMessageHandler(actorService, messageHandler, requestForwarderFactory);
-            }
-
-            return messageHandler;
         }
 
         private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(IEnumerable<IExceptionConvertor> exceptionConvertors)

@@ -7,9 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
 {
     using System;
     using System.Collections.Generic;
-    using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -150,19 +148,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
                     =>
                 {
                     var listenerSettings = this.InitializeListenerSettings(actorService);
-                    if (actorService.IsConfiguredForMigration())
-                    {
-                        return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
-                        actorService,
-                        listenerSettings,
-                        requestForwarderFactory: requestForwarderContext => new DefaultActorRequestForwarder(
-                            actorService,
-                            requestForwarderContext,
-                            ServiceRemotingProviderAttribute.DefaultV2listenerName,
-                            callbackMessageHandler => this.CreateServiceRemotingClientFactory(callbackMessageHandler),
-                            null));
-                    }
-
                     return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
                         actorService,
                         listenerSettings);
@@ -176,19 +161,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
                 {
                     var listenerSettings = this.InitializeListenerSettings(actorService);
                     listenerSettings.UseWrappedMessage = true;
-                    if (actorService.IsConfiguredForMigration())
-                    {
-                        return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
-                        actorService,
-                        listenerSettings,
-                        requestForwarderFactory: requestForwarderContext => new DefaultActorRequestForwarder(
-                            actorService,
-                            requestForwarderContext,
-                            ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName,
-                            callbackMessageHandler => this.CreateServiceRemotingClientFactory(callbackMessageHandler),
-                            null));
-                    }
-
                     return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
                         actorService,
                         listenerSettings);
