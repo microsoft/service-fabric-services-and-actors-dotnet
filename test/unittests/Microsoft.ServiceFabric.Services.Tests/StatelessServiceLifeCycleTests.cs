@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests RunAsync blocking call.
         /// </summary>
         [Fact]
-        public void RunAsyncBlockingCall()
+        public async Task RunAsyncBlockingCall()
         {
             Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: RunAsyncBlockingCall()");
 
@@ -42,20 +42,20 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
-                Task.Delay(100, source.Token).GetAwaiter().GetResult();
+                await Task.Delay(100, source.Token);
             }
 
             Assert.True(openTask.IsCompleted && !openTask.IsCanceled && !openTask.IsFaulted);
             ((StatelessServiceInstanceAdapter)testServiceReplica).Test_IsRunAsyncTaskRunning().Should().BeTrue();
 
-            testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.CloseAsync(CancellationToken.None);
         }
 
         /// <summary>
         /// Tests RunAsync cancellation.
         /// </summary>
         [Fact]
-        public void RunAsyncCancellation()
+        public async Task RunAsyncCancellation()
         {
             Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: RunAsyncCancellation()");
 
@@ -65,17 +65,17 @@ namespace Microsoft.ServiceFabric.Services.Tests
             IStatelessServiceInstance testServiceReplica = new StatelessServiceInstanceAdapter(serviceContext, testService);
 
             var partition = new Mock<IStatelessServicePartition>();
-            testServiceReplica.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(partition.Object, CancellationToken.None);
 
             var source = new CancellationTokenSource(10000);
             while (!testService.StartedWaiting)
             {
-                Task.Delay(100, source.Token).GetAwaiter().GetResult();
+                await Task.Delay(100, source.Token);
             }
 
             // This will throw if cancellation propagates out, as canceling of RunAsync is
             // awaited during close of stateless serice instance.
-            testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.CloseAsync(CancellationToken.None);
 
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests slow cancellation of RunAsync.
         /// </summary>
         [Fact]
-        public void RunAsyncSlowCancellation()
+        public async Task RunAsyncSlowCancellation()
         {
             Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: RunAsyncSlowCancellation()");
 
@@ -96,15 +96,15 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatelessServicePartition>();
             partition.Setup(p => p.ReportPartitionHealth(It.IsAny<HealthInformation>()));
 
-            testServiceReplica.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(partition.Object, CancellationToken.None);
 
             var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
-                Task.Delay(100, source.Token).GetAwaiter().GetResult();
+                await Task.Delay(100, source.Token);
             }
 
-            testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.CloseAsync(CancellationToken.None);
 
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncSlowCancellationHealthInformation(hinfo))), Times.AtLeastOnce);
@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests exceptions from RunAsync.
         /// </summary>
         [Fact]
-        public void RunAsyncFail()
+        public async Task RunAsyncFail()
         {
             Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: RunAsyncFail()");
 
@@ -132,19 +132,19 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             partition.Setup(p => p.ReportPartitionHealth(It.IsAny<HealthInformation>()));
 
-            testServiceReplica.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(partition.Object, CancellationToken.None);
 
-            Task.Run(
-                () =>
+            var dontWait = Task.Run(
+                async () =>
                 {
-                    Task.Delay(10000).GetAwaiter().GetResult();
+                    await Task.Delay(10000);
                     tcs.SetCanceled();
                 });
 
-            tcs.Task.GetAwaiter().GetResult().Should().BeTrue();
+            (await tcs.Task).Should().BeTrue();
 
             // This will throw if RunAsync exception propagates out
-            testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.CloseAsync(CancellationToken.None);
 
             partition.Verify(p => p.ReportFault(It.IsNotIn(FaultType.Transient)), Times.Never());
             partition.Verify(p => p.ReportFault(FaultType.Transient), Times.Once());
@@ -155,7 +155,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests exception from Listener on Abort.
         /// </summary>
         [Fact]
-        public void ListenerExceptionOnAbort()
+        public async Task ListenerExceptionOnAbort()
         {
             Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: ListenerExceptionOnAbort()");
 
@@ -166,7 +166,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             var partition = new Mock<IStatelessServicePartition>();
 
-            testServiceInstance.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceInstance.OpenAsync(partition.Object, CancellationToken.None);
 
             // This will throw if listener exception propagates out
             testServiceInstance.Abort();
@@ -176,7 +176,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests when null service instance listeners is returned.
         /// </summary>
         [Fact]
-        public void NullListener()
+        public async Task NullListener()
         {
             Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: NullListener()");
 
@@ -188,14 +188,14 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatelessServicePartition>();
 
             // No exception should be thrown
-            testServiceInstance.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceInstance.OpenAsync(partition.Object, CancellationToken.None);
         }
 
         /// <summary>
         /// Tests when null communication listener is returned.
         /// </summary>
         [Fact]
-        public void NullCommunicationListener()
+        public async Task NullCommunicationListener()
         {
             Console.WriteLine("StatelessServiceLifeCycleTests - Test Method: NullCommunicationListener()");
 
@@ -207,7 +207,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatelessServicePartition>();
 
             // No exception should be thrown
-            testServiceInstance.OpenAsync(partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceInstance.OpenAsync(partition.Object, CancellationToken.None);
         }
 
         private class RunAsyncBlockingCallTestService : StatelessService

@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         /// Verify mockability for ACtors.
         /// </summary>
         [Fact]
-        public void VerifyActorMockability()
+        public async Task VerifyActorMockability()
         {
             var mockActorId = ActorId.CreateRandom();
 
@@ -70,10 +70,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             mockActor.ServiceUri.Should().Be(mockActorService.Context.ServiceName, "ServiceUri from Actor should be same as what is coming form ServiceContext");
 
             ConsoleLogHelper.LogInfo("Verifying Actor State Mockability...");
-            mockActor.VerifyActorStateMockabilityAsync().GetAwaiter().GetResult();
+            await mockActor.VerifyActorStateMockabilityAsync();
 
             ConsoleLogHelper.LogInfo("Verifying Remider Mockability...");
-            mockActor.VerifyRemiderMockabilityAsync().GetAwaiter().GetResult();
+            await mockActor.VerifyRemiderMockabilityAsync();
 
             ConsoleLogHelper.LogInfo("Verifying Timer Mockability...");
             mockActor.VerifyTimerMockability();

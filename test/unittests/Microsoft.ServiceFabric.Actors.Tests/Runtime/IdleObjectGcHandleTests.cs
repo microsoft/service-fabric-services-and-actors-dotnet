@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [InlineData(5)]
         [InlineData(10)]
 
-        public void VerifyUseUnuseCollect(int n)
+        public async Task VerifyUseUnuseCollect(int n)
         {
             // 1. Set MaxIdleCount for IdleObjectGcHandle to N.
             // 2. Call TryUse Once.
@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
 
             for (var i = 0; i < n; i++)
@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
 
             gchandle.Unuse(false);
@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             gchandle.TryCollect().Should().BeTrue();
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [InlineData(2)]
         [InlineData(5)]
         [InlineData(10)]
-        public void VerifyUseUnuseCollectWithTimerCalls(int n)
+        public async Task VerifyUseUnuseCollectWithTimerCalls(int n)
         {
             // 1. Set MaxIdleCount for IdleObjectGcHandle to N.
             // 2. Call TryUse Once.
@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
 
             for (var i = 0; i < n; i++)
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
 
             gchandle.Unuse(false);
@@ -140,7 +140,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
             gchandle.TryUse(true).Should().BeTrue();
 
@@ -149,12 +149,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
             gchandle.Unuse(true);
             gchandle.TryCollect().Should().BeFalse();
 
-            Task.WaitAll(tasks.ToArray());
+            await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
 
             gchandle.TryCollect().Should().BeTrue();
