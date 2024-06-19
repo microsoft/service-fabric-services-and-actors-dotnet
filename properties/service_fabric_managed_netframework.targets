@@ -7,13 +7,11 @@
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
-                                   $(RepoRoot)src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;
-                                   $(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration.csproj" />
+                                   $(RepoRoot)src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;" />
     
     <Projects_Test_netframework Include="$(RepoRoot)test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
                                    $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
-                                   $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj;
-                                   $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Actors.StateMigration.Tests\Microsoft.ServiceFabric.Actors.StateMigration.Tests.csproj" />
+                                   $(RepoRoot)test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj;" />
     
   </ItemGroup>
 
@@ -59,7 +57,6 @@
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)Microsoft.ServiceFabric.Services.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)Microsoft.ServiceFabric.Services.Remoting.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>
-      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
     </ItemGroup>
     <Copy SourceFiles="@(BinairesNetFramework)" DestinationFiles="@(BinairesNetFramework->'$(DropFolderNetFramework)\%(Destination)\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
