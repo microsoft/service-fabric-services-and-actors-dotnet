@@ -176,7 +176,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 }
                 else if (exception is ReflectionTypeLoadException typeLoad)
                 {
-                    if (!typeLoad.Types.IsNullOrEmpty())
+                    if (typeLoad.Types?.Any() == true)
                     {
                         Assert.True(((ReflectionTypeLoadException)resultEx).Types.SequenceEqual(typeLoad.Types));
                     }
@@ -229,7 +229,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Assert.True(((AggregateException)((AggregateException)resultEx).InnerExceptions[0]).InnerExceptions.Count == 3);
             Assert.True(((AggregateException)((AggregateException)((AggregateException)resultEx).InnerExceptions[0]).InnerExceptions[0]).InnerExceptions.Count == 0);
             Assert.True(((ReflectionTypeLoadException)((AggregateException)resultEx).InnerExceptions[1]).LoaderExceptions.Length == 3);
-            Assert.True(((ReflectionTypeLoadException)((ReflectionTypeLoadException)((AggregateException)resultEx).InnerExceptions[1]).LoaderExceptions[0]).LoaderExceptions.IsNullOrEmpty());
+            Assert.False(((ReflectionTypeLoadException)((ReflectionTypeLoadException)((AggregateException)resultEx).InnerExceptions[1]).LoaderExceptions[0]).LoaderExceptions?.Any());
         }
 
         private static AggregateException NestedAggregateEx(int depth, int breadth)

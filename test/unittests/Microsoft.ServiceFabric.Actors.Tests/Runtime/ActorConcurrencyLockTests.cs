@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         /// Verifies usage of ReentrancyGuard.
         /// </summary>
         [Fact]
-        public void VerifyReentrants()
+        public async Task VerifyReentrants()
         {
             var a = new DummyActor();
             var guard = this.CreateAndInitializeReentrancyGuard(a, ActorReentrancyMode.LogicalCallContext);
@@ -55,14 +55,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
                 });
             }
 
-            Task.WaitAll(tasks);
+            await Task.WhenAll(tasks);
         }
 
         /// <summary>
         /// VerifyDirtyCallbacks test.
         /// </summary>
         [Fact]
-        public void VerifyDirtyCallbacks()
+        public async Task VerifyDirtyCallbacks()
         {
             var actor = new DummyActor();
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.LogicalCallContext);
@@ -71,12 +71,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             var result = guard.Acquire(callContext, @base => ReplacementHandler(actor), CancellationToken.None);
             try
             {
-                result.Wait();
+                await result;
                 actor.IsDirty.Should().BeFalse("ReentrancyGuard IsDirty should be set to false");
             }
             finally
             {
-                guard.ReleaseContext(callContext).Wait();
+                await guard.ReleaseContext(callContext);
             }
 
             RunTest(guard);
@@ -86,19 +86,19 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         /// Tests Releasing context with a different call context.
         /// </summary>
         [Fact]
-        public void VerifyInvalidContextRelease()
+        public async Task VerifyInvalidContextRelease()
         {
             var actor = new DummyActor();
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.LogicalCallContext);
             var context = Guid.NewGuid().ToString();
-            guard.Acquire(context, null, CancellationToken.None).Wait();
+            await guard.Acquire(context, null, CancellationToken.None);
             guard.Test_CurrentContext.Should().Be(context);
             guard.Test_CurrentCount.Should().Be(1);
 
             Action action = () => guard.ReleaseContext(Guid.NewGuid().ToString()).Wait();
             action.Should().Throw<AggregateException>();
 
-            guard.ReleaseContext(context).Wait();
+            await guard.ReleaseContext(context);
             guard.Test_CurrentContext.Should().NotBe(context);
             guard.Test_CurrentCount.Should().Be(0);
         }
@@ -107,19 +107,19 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         /// Tests ActorReentrancyMode.Disallowed
         /// </summary>
         [Fact]
-        public void ReentrancyDisallowedTest()
+        public async Task ReentrancyDisallowedTest()
         {
             var actor = new DummyActor();
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.Disallowed);
             var context = Guid.NewGuid().ToString();
-            guard.Acquire(context, null, CancellationToken.None).Wait();
+            await guard.Acquire(context, null, CancellationToken.None);
             guard.Test_CurrentContext.Should().Be(context);
             guard.Test_CurrentCount.Should().Be(1);
 
             Action action = () => guard.Acquire(context, null, CancellationToken.None).Wait();
             action.Should().Throw<AggregateException>();
 
-            guard.ReleaseContext(context).Wait();
+            await guard.ReleaseContext(context);
             guard.Test_CurrentContext.Should().NotBe(context);
             guard.Test_CurrentCount.Should().Be(0);
         }

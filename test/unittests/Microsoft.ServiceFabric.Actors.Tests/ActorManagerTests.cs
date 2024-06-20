@@ -51,12 +51,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         /// Verifies ActorManager close.
         /// </summary>
         [Fact]
-        public void VerifyClose()
+        public async Task VerifyClose()
         {
             this.ResetActorManager();
             this.RegisterReminders();
             this.VerifyReminderPresence();
-            this.actorManager.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await this.actorManager.CloseAsync(CancellationToken.None);
             this.VerifyNoReminders();
         }
 
@@ -77,10 +77,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         /// Verify FireReminder after close.
         /// </summary>
         [Fact]
-        public void VerifyFireReminderNoThrow()
+        public async Task VerifyFireReminderNoThrow()
         {
             this.ResetActorManager();
-            this.actorManager.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await this.actorManager.CloseAsync(CancellationToken.None);
 
             var reminder = new ActorReminder(
                 ActorId.CreateRandom(),
@@ -90,7 +90,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 TimeSpan.FromMinutes(30),
                 TimeSpan.FromMinutes(30));
 
-            this.actorManager.FireReminderAsync(reminder).GetAwaiter().GetResult();
+            await this.actorManager.FireReminderAsync(reminder);
         }
 
         /// <summary>

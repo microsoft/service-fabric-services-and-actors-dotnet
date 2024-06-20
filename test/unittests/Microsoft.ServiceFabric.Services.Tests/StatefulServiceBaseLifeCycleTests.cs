@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Verify ChangeRole for IStateProviderReplica
         /// </summary>
         [Fact]
-        public void StateProviderRoleChange()
+        public async Task StateProviderRoleChange()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: StateProviderRoleChange()");
 
@@ -47,19 +47,19 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatefulServicePartition>();
             partition.SetupGet(p => p.WriteStatus).Returns(PartitionAccessStatus.Granted);
 
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
 
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
         }
 
         /// <summary>
         /// Tests RunAsync blocking call.
         /// </summary>
         [Fact]
-        public void RunAsyncBlockingCall()
+        public async Task RunAsyncBlockingCall()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: RunAsyncBlockingCall()");
 
@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatefulServicePartition>();
             partition.SetupGet(p => p.WriteStatus).Returns(PartitionAccessStatus.Granted);
 
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
             var changeRoleTask = testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
@@ -79,20 +79,20 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
-                Task.Delay(100, source.Token).GetAwaiter().GetResult();
+                await Task.Delay(100, source.Token);
             }
 
             Assert.True(changeRoleTask.IsCompleted && !changeRoleTask.IsCanceled && !changeRoleTask.IsFaulted);
             ((StatefulServiceReplicaAdapter)testServiceReplica).Test_IsRunAsyncTaskRunning().Should().BeTrue();
 
-            testServiceReplica.CloseAsync(CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.CloseAsync(CancellationToken.None);
         }
 
         /// <summary>
         /// Tests CancellationDuringWriteStatus.
         /// </summary>
         [Fact]
-        public void CancellationDuringWriteStatus()
+        public async Task CancellationDuringWriteStatus()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: CancellationDuringWriteStatus()");
 
@@ -106,15 +106,15 @@ namespace Microsoft.ServiceFabric.Services.Tests
             // This will make WaitForWriteStatusAsync to keep retrying in loop.
             partition.SetupGet(p => p.WriteStatus).Returns(PartitionAccessStatus.ReconfigurationPending);
 
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
 
             // This will throw if canceling during write status propagates out, as canceling of executeRunAsyncTask
             // (which includes waiting for write status) is  awaited during change role away from primary.
             Console.WriteLine(@"// P -> S");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
 
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
@@ -123,7 +123,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests RunAsync cancellation.
         /// </summary>
         [Fact]
-        public void RunAsyncCancellation()
+        public async Task RunAsyncCancellation()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: RunAsyncCancellation()");
 
@@ -134,21 +134,21 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             var partition = new Mock<IStatefulServicePartition>();
             partition.SetupGet(p => p.WriteStatus).Returns(PartitionAccessStatus.Granted);
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
 
             var source = new CancellationTokenSource(10000);
             while (!testService.StartedWaiting)
             {
-                Task.Delay(100, source.Token).GetAwaiter().GetResult();
+                await Task.Delay(100, source.Token);
             }
 
             // This will throw if cancellation propagates out, as canceling of RunAsync is awaited during
             // change role away from primary.
             Console.WriteLine(@"// P -> S");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
 
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
@@ -157,7 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests Slow Cancellation in RunAsync
         /// </summary>
         [Fact]
-        public void RunAsyncSlowCancellation()
+        public async Task RunAsyncSlowCancellation()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: RunAsyncSlowCancellation()");
 
@@ -170,19 +170,19 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.SetupGet(p => p.WriteStatus).Returns(PartitionAccessStatus.Granted);
             partition.Setup(p => p.ReportPartitionHealth(It.IsAny<HealthInformation>()));
 
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
 
             var source = new CancellationTokenSource(10000);
             while (!testService.RunAsyncInvoked)
             {
-                Task.Delay(100, source.Token).GetAwaiter().GetResult();
+                await Task.Delay(100, source.Token);
             }
 
             Console.WriteLine(@"// P -> S");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
 
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncSlowCancellationHealthInformation(hinfo))), Times.AtLeastOnce);
@@ -192,7 +192,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests failures from RunAsync.
         /// </summary>
         [Fact]
-        public void RunAsyncFail()
+        public async Task RunAsyncFail()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: RunAsyncFail()");
 
@@ -211,23 +211,23 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             partition.Setup(p => p.ReportPartitionHealth(It.IsAny<HealthInformation>()));
 
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
 
-            Task.Run(
-                () =>
+            var dontWait = Task.Run(
+                async () =>
                 {
-                    Task.Delay(10000).GetAwaiter().GetResult();
+                    await Task.Delay(10000);
                     tcs.SetCanceled();
                 });
 
-            tcs.Task.GetAwaiter().GetResult().Should().BeTrue();
+            await tcs.Task;
 
             // This will throw if RunAsync exception propagates out
             Console.WriteLine(@"// P -> S");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
 
             partition.Verify(p => p.ReportFault(It.IsNotIn(FaultType.Transient)), Times.Never());
             partition.Verify(p => p.ReportFault(FaultType.Transient), Times.Once());
@@ -238,7 +238,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests Change role sequence with listen on secondary not enabled.
         /// </summary>
         [Fact]
-        public void CommunicationListenerLifeCycle_P_S_P_N_NoListenOnSecondary()
+        public async Task CommunicationListenerLifeCycle_P_S_P_N_NoListenOnSecondary()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: CommunicationListenerLifeCycle_P_S_P_N_NoListenOnSecondary");
 
@@ -252,10 +252,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             IStatefulServiceReplica testServiceReplica = new StatefulServiceReplicaAdapter(serviceContext, testService);
 
             var partition = new Mock<IStatefulServicePartition>();
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
             {
                 const int expectedCount = 1;
                 var actualCount = testService.Listeners.Count;
@@ -269,7 +269,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Console.WriteLine(@"// P -> S");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
             {
                 const int expectedCount = 1;
                 var actualCount = testService.Listeners.Count;
@@ -283,7 +283,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Console.WriteLine(@"// S -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
             {
                 const int expectedCount = 2;
                 var actualCount = testService.Listeners.Count;
@@ -302,7 +302,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Console.WriteLine(@"// P -> N");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.None, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.None, CancellationToken.None);
             {
                 const int expectedCount = 2;
                 var actualCount = testService.Listeners.Count;
@@ -328,7 +328,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests Change role sequence with listen on secondary enabled.
         /// </summary>
         [Fact]
-        public void CommunicationListenerLifeCycle_P_S_P_N_ListenOnSecondary()
+        public async Task CommunicationListenerLifeCycle_P_S_P_N_ListenOnSecondary()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: CommunicationListenerLifeCycle_P_S_P_N_ListenOnSecondary");
 
@@ -342,10 +342,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             IStatefulServiceReplica testServiceReplica = new StatefulServiceReplicaAdapter(serviceContext, testService);
 
             var partition = new Mock<IStatefulServicePartition>();
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
             Console.WriteLine(@"// U -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
             {
                 const int expectedCount = 1;
                 var actualCount = testService.Listeners.Count;
@@ -359,7 +359,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Console.WriteLine(@"// P -> S");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
             {
                 const int expectedCount = 2;
                 var actualCount = testService.Listeners.Count;
@@ -378,7 +378,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Console.WriteLine(@"// S -> P");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
             {
                 const int expectedCount = 3;
                 var actualCount = testService.Listeners.Count;
@@ -402,7 +402,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Console.WriteLine(@"// P -> N");
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.None, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.None, CancellationToken.None);
             {
                 const int expectedCount = 3;
                 var actualCount = testService.Listeners.Count;
@@ -432,7 +432,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests ListenerExceptionOnAbort.
         /// </summary>
         [Fact]
-        public void ListenerExceptionOnAbort()
+        public async Task ListenerExceptionOnAbort()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: ListenerExceptionOnAbort");
 
@@ -446,9 +446,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             IStatefulServiceReplica testServiceReplica = new StatefulServiceReplicaAdapter(serviceContext, testService);
 
             var partition = new Mock<IStatefulServicePartition>();
-            testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
 
-            testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None).GetAwaiter().GetResult();
+            await testServiceReplica.ChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
 
             testServiceReplica.Abort();
         }
@@ -457,7 +457,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         /// Tests when null service instance listeners is returned.
         /// </summary>
         [Fact]
-        public void NullListener()
+        public async Task NullListener()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: NullListener()");
 
@@ -469,14 +469,14 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatefulServicePartition>();
 
             // No exception should be thrown
-            testReplicaInstance.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testReplicaInstance.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
         }
 
         /// <summary>
         /// Tests when null communication listener is returned.
         /// </summary>
         [Fact]
-        public void NullCommunicationListener()
+        public async Task NullCommunicationListener()
         {
             Console.WriteLine("StatefulServiceLifeCycleTests - Test Method: NullCommunicationListener()");
 
@@ -488,7 +488,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var partition = new Mock<IStatefulServicePartition>();
 
             // No exception should be thrown
-            testReplicaInstance.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None).GetAwaiter().GetResult();
+            await testReplicaInstance.OpenAsync(ReplicaOpenMode.New, partition.Object, CancellationToken.None);
         }
 
         private class StateProviderReplicaRoleWrapper
