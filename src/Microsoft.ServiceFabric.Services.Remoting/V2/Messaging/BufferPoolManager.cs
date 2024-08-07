@@ -5,10 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
-    using SynchronizedPool = Microsoft_ServiceFabric_Internal::System.Fabric.Common.SynchronizedPool<PooledBuffer>;
+    using System.Fabric.Common;
 
     /// <summary>
     /// You can use the BufferManager class to manage a buffer pool.
@@ -23,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         private const int DefaultBufferLimit = 100;
 
         // Not using SynchonizedBufferPool as it has shrink buffer logic , which we don't need yet
-        private readonly SynchronizedPool bufferPool;
+        private readonly SynchronizedPool<PooledBuffer> bufferPool;
 
         private readonly Allocator allocator;
 
@@ -37,7 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
         public BufferPoolManager(int segmentSize = DefaultSegmentSize, int bufferLimit = DefaultBufferLimit)
         {
             this.limit = bufferLimit;
-            this.bufferPool = new SynchronizedPool(this.limit);
+            this.bufferPool = new SynchronizedPool<PooledBuffer>(this.limit);
             this.allocator = new Allocator(segmentSize);
             ServiceTrace.Source.WriteInfo(
                 "BufferPoolManager",

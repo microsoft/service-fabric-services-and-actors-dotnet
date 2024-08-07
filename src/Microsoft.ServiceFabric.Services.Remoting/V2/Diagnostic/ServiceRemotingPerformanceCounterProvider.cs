@@ -5,18 +5,11 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
     using System.Collections.Generic;
+    using System.Fabric.Common;
     using System.Linq;
     using System.Text;
-    using FabricAverageCount64PerformanceCounterWriter = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricAverageCount64PerformanceCounterWriter;
-    using FabricNumberOfItems64PerformanceCounterWriter = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricNumberOfItems64PerformanceCounterWriter;
-    using FabricPerformanceCounterDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterDefinition;
-    using FabricPerformanceCounterSet = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSet;
-    using FabricPerformanceCounterSetDefinition = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetDefinition;
-    using FabricPerformanceCounterSetInstance = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetInstance;
 
     internal class ServiceRemotingPerformanceCounterProvider : IDisposable
     {

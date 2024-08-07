@@ -5,10 +5,9 @@
 
 namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
     using System.Fabric;
+    using System.Fabric.Common;
     using System.Globalization;
     using System.ServiceModel;
     using System.ServiceModel.Channels;
@@ -17,7 +16,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using AppTrace = Microsoft_ServiceFabric_Internal::System.Fabric.Common.AppTrace;
 
     /// <summary>
     /// A Windows Communication Foundation based listener for Service Fabric based stateless or stateful service.

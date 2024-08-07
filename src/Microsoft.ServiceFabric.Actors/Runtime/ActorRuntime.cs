@@ -5,17 +5,15 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
     using System.Fabric;
+    using System.Fabric.Common;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Services.Runtime;
-    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
 
     /// <summary>
     /// Contains methods to register actor and actor service types with Service Fabric runtime. Registering the types allows the runtime to create instances of the actor and the actor service. See https://docs.microsoft.com/azure/service-fabric/service-fabric-reliable-actors-lifecycle for more information on the lifecycle of an actor.
