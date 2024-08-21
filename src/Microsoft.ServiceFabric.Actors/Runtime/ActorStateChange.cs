@@ -5,10 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
-    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
+    using System.Fabric.Common;
 
     /// <summary>
     /// Represents a change to an actor state with a given state name.

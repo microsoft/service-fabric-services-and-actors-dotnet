@@ -102,12 +102,6 @@
       <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.ReliableCollection.Interop.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>
-      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Internal.dll">
-        <TargetPath>build\netcoreapp2.0</TargetPath>
-      </File>
-      <File Include="$(DropFolderNetStandard_Win)Microsoft.ServiceFabric.Internal.Strings.dll">
-        <TargetPath>build\netcoreapp2.0</TargetPath>
-      </File>
       <File Include="$(DropFolderNetStandard_Win)System.Fabric.dll">
         <TargetPath>build\netcoreapp2.0</TargetPath>
       </File>

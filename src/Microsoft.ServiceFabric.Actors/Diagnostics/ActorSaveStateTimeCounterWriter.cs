@@ -5,10 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
-    using FabricPerformanceCounterSetInstance = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterSetInstance;
-    using FabricPerformanceCounterWriter = Microsoft_ServiceFabric_Internal::System.Fabric.Common.FabricPerformanceCounterWriter;
+    using System.Fabric.Common;
 
     // This class modifies the value of the performance counter that represents the
     // time taken to save actor state.

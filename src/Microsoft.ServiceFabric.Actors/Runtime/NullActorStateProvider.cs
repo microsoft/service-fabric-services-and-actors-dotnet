@@ -5,19 +5,17 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Common;
     using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Data;
-    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     internal class NullActorStateProvider : IActorStateProvider, IStateProvider, IActorStateProviderInternal
