@@ -5,15 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
+    using System.Fabric.Common;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
-    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
 
     internal class FabricTransportMessagingHandler : IFabricTransportMessageHandler
     {

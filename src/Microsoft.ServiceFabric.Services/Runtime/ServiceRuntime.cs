@@ -5,13 +5,11 @@
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
     using System.Fabric;
+    using System.Fabric.Common;
     using System.Threading;
     using System.Threading.Tasks;
-    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
 
     /// <summary>
     /// The static class that provides methods to register reliable services with Service Fabric runtime.

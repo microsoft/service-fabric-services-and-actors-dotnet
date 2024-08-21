@@ -5,12 +5,11 @@
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    extern alias Microsoft_ServiceFabric_Internal;
-
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Fabric.Common;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -29,8 +28,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         VolatileActorStateProvider.ActorStateType,
         string,
         VolatileActorStateProvider.ActorStateData>;
-    using ReleaseAssert = Microsoft_ServiceFabric_Internal::System.Fabric.Common.ReleaseAssert;
-    using Requires = Microsoft_ServiceFabric_Internal::System.Fabric.Common.Requires;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>
