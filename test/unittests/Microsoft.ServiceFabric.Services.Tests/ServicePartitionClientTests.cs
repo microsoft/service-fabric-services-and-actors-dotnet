@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Castle.Core.Logging;
     using FluentAssertions;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Moq;
@@ -105,9 +106,13 @@ namespace Microsoft.ServiceFabric.Services.Tests
         [Fact]
         public async Task CancelOnTimerWithLargeRetryDelay()
         {
+            var logger = new ConsoleLogger("[gor]");
+
             var clientRetryTimeout = TimeSpan.FromSeconds(1);
             var retryCount = (int)(2 * (clientRetryTimeout.Ticks / DefaultRetryDelay.Ticks));
             var retryDelay = TimeSpan.FromTicks(clientRetryTimeout.Ticks * 2);
+
+            long millisecondsStart = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
             var sw = new Stopwatch();
             sw.Start();
@@ -116,8 +121,14 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 retryCount,
                 retryDelay);
 
+            long millisecondsEnd = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+            logger.Info("sw.ElapsedMilliseconds = " + sw.ElapsedMilliseconds);
+            logger.Info("wall elapsed milliseconds " + (millisecondsEnd - millisecondsStart));
+
             sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds, "Should be longer than the ClientRetryTimeout.");
             sw.ElapsedMilliseconds.Should().BeLessThan((long)retryDelay.TotalMilliseconds, "Should return before the retry delay.");
+            sw.ElapsedMilliseconds.Should().BeLessThan(0, "tst");
             result.ExceptionFromInvoke.Should().BeAssignableTo(typeof(OperationCanceledException), "Should indicate a canceled operation.");
             result.CallCount.Should().BeLessThan(retryCount, "Should cancel before token is signaled.");
             result.CancellationTokenSource.Token.IsCancellationRequested.Should().Be(false, "Cancellation should have occured due to the timer.");
