@@ -116,7 +116,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             var sw = new Stopwatch();
             sw.Start();
-            var result = await this.SetupCancelTestAsync(
+            var result = await this.SetupCancelTestAsyncTmp(
                 clientRetryTimeout,
                 retryCount,
                 retryDelay);
@@ -139,7 +139,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             result.CancellationTokenSource.Token.IsCancellationRequested.Should().Be(false, "Cancellation should have occured due to the timer.");
         }
 
-        private async Task<SetupCancelTestResult> SetupCancelTestAsync(
+        private async Task<SetupCancelTestResult> SetupCancelTestAsyncTmp(
             TimeSpan clientRetryTimeout,
             int retryCount,
             TimeSpan retryDelay)
@@ -187,6 +187,71 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 if (callCount == retryCount)
                 {
                     Console.WriteLine("[gor] cancelling due to retry count " + retryCount);
+                    cts.Cancel();
+                }
+
+                throw clientException;
+            };
+
+            Exception e = null;
+            try
+            {
+                await servicePartitonClient.InvokeWithRetryAsync(clientCall, cts.Token);
+            }
+            catch (Exception ex)
+            {
+                e = ex;
+            }
+
+            return new SetupCancelTestResult { CallCount = callCount, CancellationTokenSource = cts, ExceptionFromInvoke = e };
+        }
+
+        private async Task<SetupCancelTestResult> SetupCancelTestAsync(
+            TimeSpan clientRetryTimeout,
+            int retryCount,
+            TimeSpan retryDelay)
+        {
+            // retryCount = 23; // Just for diagnostics.
+            var mockClient = Repository.Create<ICommunicationClient>();
+            mockClient.SetupAllProperties();
+
+            var mockFactory = Repository.Create<ICommunicationClientFactory<ICommunicationClient>>();
+            var mockRetryPolicy = Repository.Create<IRetryPolicy>();
+            mockRetryPolicy.Setup(m => m.ClientRetryTimeout).Returns(clientRetryTimeout);
+
+            var operationRetrySettings = new OperationRetrySettings(mockRetryPolicy.Object);
+            mockFactory.Setup(f => f.GetClientAsync(
+                It.Is<Uri>(u => u == ExampleUri),
+                It.Is<Client.ServicePartitionKey>(s => s == ExampleServicePartitionKey),
+                It.Is<TargetReplicaSelector>(trs => trs == ExampleTargetReplicaSelector),
+                It.Is<string>(l => l == ExampleListenerName),
+                It.Is<OperationRetrySettings>(o => o == operationRetrySettings),
+                It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(mockClient.Object));
+
+            var clientException = new InvalidOperationException();
+            mockFactory.Setup(f => f.ReportOperationExceptionAsync(
+                It.Is<ICommunicationClient>(c => c == mockClient.Object),
+                It.Is<ExceptionInformation>(ei => ei.Exception == clientException),
+                It.IsAny<OperationRetrySettings>(),
+                It.IsAny<CancellationToken>()))
+                .Returns(() => Task.FromResult(new OperationRetryControl() { IsTransient = true, ShouldRetry = true, MaxRetryCount = retryCount * 2, GetRetryDelay = c => retryDelay }));
+
+            var servicePartitonClient = new ServicePartitionClient<ICommunicationClient>(
+                mockFactory.Object,
+                ExampleUri,
+                ExampleServicePartitionKey,
+                ExampleTargetReplicaSelector,
+                ExampleListenerName,
+                operationRetrySettings);
+
+            var cts = new CancellationTokenSource();
+            var callCount = 0;
+            Func<ICommunicationClient, Task> clientCall = (client) =>
+            {
+                callCount++;
+                if (callCount == retryCount)
+                {
                     cts.Cancel();
                 }
 
