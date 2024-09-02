@@ -184,7 +184,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
                 while (true)
                 {
-                    Console.WriteLine("[gor] iterating main loop");
                     Exception exception;
                     var client = await this.GetCommunicationClientAsync(cancellationToken);
 
@@ -197,7 +196,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     }
                     catch (AggregateException ae)
                     {
-                        Console.WriteLine("[gor] Caught AggregateException");
                         ServiceTrace.Source.WriteWarning(
                             TraceType,
                             "[{0}] AggregateException While Invoking API {1}",
@@ -224,8 +222,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         exception = e;
                     }
 
-                    Console.WriteLine("[gor] Finished try/catch");
-
                     // The exception that is being processed by the factory could be because of the cancellation
                     // requested to the remote call, so not passing the same cancellation token to the api below
                     // to not let the regular exception processing be interrupted.
@@ -242,7 +238,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             ref currentExceptionId,
                             ref totalretryCount))
                     {
-                        Console.WriteLine("[gor] Throwing exception");
                         throw exceptionReportResult.Exception ?? exception;
                     }
 
