@@ -176,9 +176,8 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 {
                     Console.WriteLine("[gor] client retry timeout is " + this.retrySettings.ClientRetryTimeout);
 
-                    cancellationTokenSource = new CancellationTokenSource();
-
-                    // cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    // cancellationTokenSource = new CancellationTokenSource();
+                    cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                     cancellationTokenSource.CancelAfter(this.retrySettings.ClientRetryTimeout);
                     cancellationToken = cancellationTokenSource.Token;
                 }

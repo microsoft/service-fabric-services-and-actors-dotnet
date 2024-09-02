@@ -142,6 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             int retryCount,
             TimeSpan retryDelay)
         {
+            retryCount = 23; // Just for diagnostics.
             var mockClient = Repository.Create<ICommunicationClient>();
             mockClient.SetupAllProperties();
 
@@ -183,7 +184,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 Console.WriteLine("[gor] callCount: " + callCount);
                 if (callCount == retryCount)
                 {
-                    Console.WriteLine("[gor] cancelling due to retry count");
+                    Console.WriteLine("[gor] cancelling due to retry count " + retryCount);
                     cts.Cancel();
                 }
 
