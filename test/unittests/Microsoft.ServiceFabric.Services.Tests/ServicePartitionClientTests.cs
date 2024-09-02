@@ -114,6 +114,12 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             long millisecondsStart = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
+            #pragma warning disable CA1416
+            Process proc = Process.GetCurrentProcess();
+            long affinityMask = 0x0001;
+            proc.ProcessorAffinity = (IntPtr)affinityMask;
+            #pragma warning restore CA1416
+
             var sw = new Stopwatch();
             sw.Start();
             var result = await this.SetupCancelTestAsyncTmp(
