@@ -122,12 +122,15 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 retryDelay);
 
             long millisecondsEnd = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-
             logger.Info("sw.ElapsedMilliseconds = " + sw.ElapsedMilliseconds);
             logger.Info("wall elapsed milliseconds " + (millisecondsEnd - millisecondsStart));
 
             sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds, "Should be longer than the ClientRetryTimeout.");
             sw.ElapsedMilliseconds.Should().BeLessThan((long)retryDelay.TotalMilliseconds, "Should return before the retry delay.");
+
+            Console.WriteLine("[gor] CancellationTokenSource cancellation requested: " + result.CancellationTokenSource.Token.IsCancellationRequested);
+            Console.WriteLine("[gor] exception from invoke " + result.ExceptionFromInvoke.GetType());
+
             sw.ElapsedMilliseconds.Should().BeLessThan(0, "tst");
             result.ExceptionFromInvoke.Should().BeAssignableTo(typeof(OperationCanceledException), "Should indicate a canceled operation.");
             result.CallCount.Should().BeLessThan(retryCount, "Should cancel before token is signaled.");
