@@ -33,6 +33,6 @@
     <MinorVersion>0</MinorVersion>
     <BuildVersion>8</BuildVersion>
     <Revision>0</Revision>
-
+    <PreReleaseVersionLabel>private1</PreReleaseVersionLabel>
   </PropertyGroup>
 </Project>

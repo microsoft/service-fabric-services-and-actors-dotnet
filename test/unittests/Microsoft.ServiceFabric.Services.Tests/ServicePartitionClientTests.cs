@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var logger = new ConsoleLogger("[gor]");
 
             var clientRetryTimeout = TimeSpan.FromSeconds(1);
-            var retryCount = (int)(2 * (clientRetryTimeout.Ticks / DefaultRetryDelay.Ticks));
+            var retryCount = (int)(2 * (clientRetryTimeout.Ticks / DefaultRetryDelay.Ticks)) * 100; // * 100 for diagnostics.
             var retryDelay = TimeSpan.FromTicks(clientRetryTimeout.Ticks * 2);
 
             long millisecondsStart = DateTimeOffset.Now.ToUnixTimeMilliseconds();
@@ -142,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             int retryCount,
             TimeSpan retryDelay)
         {
-            retryCount = 23; // Just for diagnostics.
+            // retryCount = 23; // Just for diagnostics.
             var mockClient = Repository.Create<ICommunicationClient>();
             mockClient.SetupAllProperties();
 
