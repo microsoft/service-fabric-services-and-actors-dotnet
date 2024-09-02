@@ -180,8 +180,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             Func<ICommunicationClient, Task> clientCall = (client) =>
             {
                 callCount++;
+                Console.WriteLine("[gor] callCount: " + callCount);
                 if (callCount == retryCount)
                 {
+                    Console.WriteLine("[gor] cancelling due to retry count");
                     cts.Cancel();
                 }
 
