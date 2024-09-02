@@ -109,12 +109,20 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var retryCount = (int)(2 * (clientRetryTimeout.Ticks / DefaultRetryDelay.Ticks));
             var retryDelay = TimeSpan.FromTicks(clientRetryTimeout.Ticks * 2);
 
+            // Set processor affinity to avoid bug in time measurement by Stopwatch class.
+            #pragma warning disable CA1416
+            Process proc = Process.GetCurrentProcess();
+            long affinityMask = 0x0001;
+            proc.ProcessorAffinity = (IntPtr)affinityMask;
+            #pragma warning restore CA1416
+
             var sw = new Stopwatch();
             sw.Start();
             var result = await this.SetupCancelTestAsync(
                 clientRetryTimeout,
                 retryCount,
                 retryDelay);
+            sw.Stop();
 
             sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds, "Should be longer than the ClientRetryTimeout.");
             sw.ElapsedMilliseconds.Should().BeLessThan((long)retryDelay.TotalMilliseconds, "Should return before the retry delay.");
