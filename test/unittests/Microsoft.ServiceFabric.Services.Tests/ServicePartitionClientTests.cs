@@ -29,6 +29,11 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
         private static readonly TimeSpan DefaultRetryDelay = TimeSpan.FromMilliseconds(50);
 
+        // Due to bugs in BIOS or Hardware Abstraction Layer, Stopwatch sometimes reports slightly smaller value, as
+        // documented here: https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0
+        // We need to account for that possibility.
+        private static readonly long StopwatchPrecisionMs = 10;
+
         /// <summary>
         /// Tests handling of cancellation by the passed cancellation token.
         /// </summary>
@@ -67,6 +72,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 clientRetryTimeout,
                 retryCount,
                 retryDelay);
+            sw.Stop();
 
             sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds, "Should be longer than the ClientRetryTimeout.");
             result.ExceptionFromInvoke.Should().BeAssignableTo(typeof(OperationCanceledException), $"Should indicate a canceled operation. {result.ExceptionFromInvoke}");
@@ -92,8 +98,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 retryCount,
                 retryDelay);
             result.CancellationTokenSource.Cancel();
+            sw.Stop();
 
-            sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds - 10, "Should be longer than the ClientRetryTimeout.");
+            sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds - StopwatchPrecisionMs, "Should be longer than the ClientRetryTimeout.");
             result.ExceptionFromInvoke.Should().BeAssignableTo(typeof(OperationCanceledException), $"Should indicate a canceled operation. {result.ExceptionFromInvoke}");
             result.CallCount.Should().BeLessThan(retryCount, "Should cancel before token is signaled.");
         }
@@ -109,13 +116,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var retryCount = (int)(2 * (clientRetryTimeout.Ticks / DefaultRetryDelay.Ticks));
             var retryDelay = TimeSpan.FromTicks(clientRetryTimeout.Ticks * 2);
 
-            // Set processor affinity to avoid bug in time measurement by Stopwatch class.
-            #pragma warning disable CA1416
-            Process proc = Process.GetCurrentProcess();
-            long affinityMask = 0x0001;
-            proc.ProcessorAffinity = (IntPtr)affinityMask;
-            #pragma warning restore CA1416
-
             var sw = new Stopwatch();
             sw.Start();
             var result = await this.SetupCancelTestAsync(
@@ -124,7 +124,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 retryDelay);
             sw.Stop();
 
-            sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds, "Should be longer than the ClientRetryTimeout.");
+            sw.ElapsedMilliseconds.Should().BeGreaterThan((long)clientRetryTimeout.TotalMilliseconds - StopwatchPrecisionMs, "Should be longer than the ClientRetryTimeout.");
             sw.ElapsedMilliseconds.Should().BeLessThan((long)retryDelay.TotalMilliseconds, "Should return before the retry delay.");
             result.ExceptionFromInvoke.Should().BeAssignableTo(typeof(OperationCanceledException), "Should indicate a canceled operation.");
             result.CallCount.Should().BeLessThan(retryCount, "Should cancel before token is signaled.");
