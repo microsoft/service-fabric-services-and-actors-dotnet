@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
         // Due to bugs in BIOS or Hardware Abstraction Layer, Stopwatch sometimes reports slightly smaller value, as
         // documented here: https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch?view=net-8.0
         // We need to account for that possibility.
-        private static readonly long StopwatchPrecisionMs = 10;
+        private static readonly long StopwatchPrecisionMs = 25;
 
         /// <summary>
         /// Tests handling of cancellation by the passed cancellation token.
