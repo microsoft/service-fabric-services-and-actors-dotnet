@@ -42,9 +42,14 @@ namespace Microsoft.ServiceFabric.Services.Client
 
         private static readonly string TraceType = typeof(ServicePartitionResolver).Name;
 
-        private static readonly object StaticLock = new object();
-        private static ServicePartitionResolver defaultResolver;
-        private static RandomGenerator randomGenerator = new RandomGenerator();
+        private static ServicePartitionResolver DefaultResolver = new ServicePartitionResolver(
+                        () => new FabricClient(
+                            new FabricClientSettings()
+                            {
+                                PartitionLocationCacheBucketCount = 4096,
+                                PartitionLocationCacheLimit = 4096,
+                            }));
+        private static readonly RandomGenerator RandomGenerator = new RandomGenerator();
         private readonly object thisLock = new object();
         private readonly CreateFabricClientDelegate createFabricClient;
         private readonly CreateFabricClientDelegate recreateFabricClient;
@@ -146,10 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <param name="defaultServiceResolver">The new default value</param>
         public static void SetDefault(ServicePartitionResolver defaultServiceResolver)
         {
-            lock (StaticLock)
-            {
-                defaultResolver = defaultServiceResolver;
-            }
+            DefaultResolver = defaultServiceResolver;
         }
 
         /// <summary>
@@ -165,21 +167,7 @@ namespace Microsoft.ServiceFabric.Services.Client
         /// <returns>Default <see cref="ServicePartitionResolver"/></returns>
         public static ServicePartitionResolver GetDefault()
         {
-            lock (StaticLock)
-            {
-                if (defaultResolver == null)
-                {
-                    defaultResolver = new ServicePartitionResolver(
-                        () => new FabricClient(
-                            new FabricClientSettings()
-                            {
-                                PartitionLocationCacheBucketCount = 4096,
-                                PartitionLocationCacheLimit = 4096,
-                            }));
-                }
-
-                return defaultResolver;
-            }
+            return DefaultResolver;
         }
 
         /// <summary>
@@ -660,7 +648,7 @@ namespace Microsoft.ServiceFabric.Services.Client
 
                 // wait before retry
                 await Task.Delay(
-                       new TimeSpan((long)(randomGenerator.NextDouble() * maxRetryInterval.Ticks)),
+                       new TimeSpan((long)(RandomGenerator.NextDouble() * maxRetryInterval.Ticks)),
                        cancellationToken);
             }
         }
