@@ -46,8 +46,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
         {
             var actorHeaders = (IActorRemotingMessageHeaders)requestMessage.GetHeader();
 
-            if ((this.eventIdToDispatchersMap == null) ||
-                (!this.eventIdToDispatchersMap.TryGetValue(actorHeaders.InterfaceId, out var eventDispatcher)))
+            if (!this.eventIdToDispatchersMap.TryGetValue(actorHeaders.InterfaceId, out var eventDispatcher))
             {
                 return;
             }
@@ -101,13 +100,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Client
 
         private int GetAndEnsureEventId(Type eventInterfaceType)
         {
-            if (this.eventIdToDispatchersMap != null)
+            var eventId = IdUtil.ComputeIdWithCRC(eventInterfaceType);
+            if (this.eventIdToDispatchersMap.ContainsKey(eventId))
             {
-                var eventId = IdUtil.ComputeIdWithCRC(eventInterfaceType);
-                if (this.eventIdToDispatchersMap.ContainsKey(eventId))
-                {
-                    return eventId;
-                }
+                return eventId;
             }
 
             throw new ArgumentException();
