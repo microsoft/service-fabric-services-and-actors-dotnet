@@ -4,7 +4,7 @@
 
   <!-- Set Versions. These are used for generating Nuget packages. -->
   <PropertyGroup>
-    <NuGetPackageVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion)</NuGetPackageVersion>
+    <NuGetPackageVersion Condition="'$(NuGetPackageVersion)' == ''">$(MajorVersion).$(MinorVersion).$(BuildVersion)</NuGetPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
