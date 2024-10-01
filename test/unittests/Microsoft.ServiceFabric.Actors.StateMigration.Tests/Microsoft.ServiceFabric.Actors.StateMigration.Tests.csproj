@@ -23,4 +23,8 @@
     <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard.csproj" />
     <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Overriding versions of transitive dependencies -->
+    <PackageReference Include="System.Drawing.Common" Version="4.7.2" />
+  </ItemGroup>
 </Project>
