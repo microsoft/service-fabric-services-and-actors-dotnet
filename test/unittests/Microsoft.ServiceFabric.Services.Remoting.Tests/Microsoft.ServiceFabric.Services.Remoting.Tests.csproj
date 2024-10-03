@@ -22,7 +22,8 @@
     <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <!-- BinarryFormatter compatibility package -->
+    <!-- BinaryFormatter compatibility package -->
+    <!-- The need for this package is documented in https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-migration-guide/compatibility-package-->
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="9.0.0-*" />
   </ItemGroup>
 </Project>
