@@ -14,12 +14,12 @@
     <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
-  <Target Name="BuildAll" DependsOnTargets="RestorePackagesProd;BuildProd;CopyProdBinaries;GenerateNugetPackages">
+  <Target Name="BuildAll" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;BuildProd;BuildTest;CopyProdBinaries;GenerateNugetPackages">
     <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
   <!-- Builds code, this target doesn't generates nuget packages. -->
-  <Target Name="BuildCode" DependsOnTargets="RestorePackagesProd;CleanAll;BuildProd;CopyProdBinaries">
+  <Target Name="BuildCode" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;CleanAll;BuildProd;BuildTest;CopyProdBinaries">
     <Message Text="SUCCESS!  Generated binaries are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
@@ -77,7 +77,7 @@
     <RemoveDir Directories="$(CurrentDir)\drop"/>
     
     <Message Text="Cleaning all projects ..."/>
-    <CallTarget Targets="CleanProd" />
+    <CallTarget Targets="CleanProd;CleanTest" />
   </Target>
   
   <Target Name="CleanProd">
