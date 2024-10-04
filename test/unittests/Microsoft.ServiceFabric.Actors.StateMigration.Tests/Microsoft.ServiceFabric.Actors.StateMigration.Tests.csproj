@@ -25,6 +25,10 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Overriding versions of transitive dependencies -->
+    <!-- 
+      Some versions of transitive dependencies have to be overwritten, since the default versions
+      defined by the direct dependencies are marked as vulnerable packages on nuget.org.
+    -->
     <PackageReference Include="System.Drawing.Common" Version="9.0.0-rc.1.24451.1" />
   </ItemGroup>
 </Project>

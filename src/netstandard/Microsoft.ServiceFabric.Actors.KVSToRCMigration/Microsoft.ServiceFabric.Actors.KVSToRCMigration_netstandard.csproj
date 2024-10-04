@@ -35,6 +35,10 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Overriding versions of transitive dependencies -->
+    <!-- 
+      Some versions of transitive dependencies have to be overwritten, since the default versions
+      defined by the direct dependencies are marked as vulnerable packages on nuget.org.
+    -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0-rc.1.24431.7" />
     <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0-rc.1.24431.7" />
