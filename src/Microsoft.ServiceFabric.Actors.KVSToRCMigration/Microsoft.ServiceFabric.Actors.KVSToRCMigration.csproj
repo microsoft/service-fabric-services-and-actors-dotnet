@@ -34,8 +34,9 @@
       defined by the direct dependencies are marked as vulnerable packages on nuget.org.
     -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.0-rc.1.24431.7" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0-rc.1.24431.7" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.1" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="8.0.0" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.0.1" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
