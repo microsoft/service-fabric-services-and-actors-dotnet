@@ -21,9 +21,13 @@ jobs:
       TEST_RESULT_DIR: drop\testresults
     steps:
       - uses: actions/checkout@v1
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
       - name: Build Everything
         shell: powershell
-        run: ./build.ps1
+        run: dotnet build buildAll.proj
       - name: Run Tests
         run: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
       - name: upload artifacts
