@@ -4,12 +4,12 @@
       <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     </PropertyGroup>
 
-    <!-- TODO Sort packages by name to reduce merge conflicts -->
+    <!-- Sort packages by name to reduce merge conflicts -->
 
     <!-- Versions of some transitive dependencies have been overwritten due the the fact that 
     they have been marked as vulnerable.  -->
 
-    <!-- TODO Each time direct dependecies are updated, the transitive
+    <!-- Each time direct dependecies are updated, the transitive
     dependencies should be revised to see if overwriting their version is still necessary.-->
 
     <ItemGroup>
