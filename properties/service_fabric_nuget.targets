@@ -2,8 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <!-- List of .nuproj to build to generate nuget packages -->
-    <NuprojsToBuild Include="$(RepoRoot)nuprojs\SF.ActorsServices.Internal\SF.ActorsServices.Internal.nuproj;
-                     $(RepoRoot)nuprojs\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration.nuproj;"/>
+    <NuprojsToBuild Include="$(RepoRoot)nuprojs\SF.ActorsServices.Internal\SF.ActorsServices.Internal.nuproj"/>
     
     <!-- List of packages.config to restore nuget packages -->
         <PackagesConfigs Include="nuprojs\packages.config"/>
@@ -19,7 +18,6 @@
     <Message Text="Copying NuGet packages to drop folder ..." Importance="High"/>
     <ItemGroup>
       <Nupkgs Include="nuprojs\SF.ActorsServices.Internal\$(OutputPath)\SF.ActorsServices.Internal.*.nupkg"/>
-      <Nupkgs Include="nuprojs\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*.nupkg"/>
     </ItemGroup>
     <Copy SourceFiles="@(Nupkgs)" DestinationFiles="@(Nupkgs->'$(NugetPackageDropFolder)\%(Destination)\%(Filename)%(Extension)')" />
   </Target>
