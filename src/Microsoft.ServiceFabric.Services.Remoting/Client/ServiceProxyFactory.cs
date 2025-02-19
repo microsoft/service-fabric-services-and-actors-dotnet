@@ -18,6 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private readonly object thisLock;
         private readonly OperationRetrySettings retrySettings;
 #if !DotNetCoreClr
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private Remoting.V1.Client.ServiceProxyFactory proxyFactoryV1;
 #endif
         private Remoting.V2.Client.ServiceProxyFactory proxyFactoryV2;
@@ -33,7 +34,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             this.retrySettings = retrySettings;
             this.thisLock = new object();
 #if !DotNetCoreClr
+#pragma warning disable 618
             this.proxyFactoryV1 = null;
+#pragma warning restore 618
 #endif
             this.proxyFactoryV2 = null;
         }
@@ -49,6 +52,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// </param>
         /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
         /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
+        [Obsolete("This constructor is part of the deprecated V1 service remoting stack. Use V2 constructor instead.")]
         public ServiceProxyFactory(
             Func<V1.IServiceRemotingCallbackClient, V1.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null,
@@ -103,11 +107,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
 #if !DotNetCoreClr
             // Use provider to find the stack
+#pragma warning disable 618
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
+#pragma warning restore 618
             {
                 lock (this.thisLock)
                 {
+#pragma warning disable 618
                     if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
+#pragma warning restore 618
                     {
                         var provider = this.GetProviderAttribute(serviceInterfaceType);
                         if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
@@ -122,15 +130,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                         }
                         else
                         {
+#pragma warning disable 618
                             this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
+#pragma warning restore 618
                         }
                     }
                 }
             }
 
+#pragma warning disable 618
             if (this.proxyFactoryV1 != null)
             {
                 return this.proxyFactoryV1.CreateServiceProxy<TServiceInterface>(
+#pragma warning restore 618
                     serviceUri,
                     partitionKey,
                     targetReplicaSelector,
@@ -218,10 +230,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         public void Dispose()
         {
 #if !DotNetCoreClr
+#pragma warning disable 618
             if (this.proxyFactoryV1 != null)
             {
                 this.proxyFactoryV1.Dispose();
             }
+#pragma warning restore 618
 #endif
             if (this.proxyFactoryV2 != null)
             {

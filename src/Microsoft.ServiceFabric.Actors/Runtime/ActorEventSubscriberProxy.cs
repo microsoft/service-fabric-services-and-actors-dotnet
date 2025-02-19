@@ -13,14 +13,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     internal class ActorEventSubscriberProxy : IActorEventSubscriberProxy
     {
 #if !DotNetCoreClr
+#pragma warning disable 618
         private readonly ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback;
+#pragma warning restore 618
 #endif
         private readonly ServiceFabric.Services.Remoting.V2.Runtime.IServiceRemotingCallbackClient callbackV2;
         private readonly Guid id;
         private readonly RemotingListenerVersion remotingListener;
 
 #if !DotNetCoreClr
+#pragma warning disable 618
         public ActorEventSubscriberProxy(Guid id, ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback)
+#pragma warning restore 618
         {
             this.id = id;
             this.callback = callback;
@@ -49,7 +53,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         void IActorEventSubscriberProxy.RaiseEvent(int eventInterfaceId, int eventMethodId, byte[] eventMsgBody)
         {
             this.callback.OneWayMessage(
+#pragma warning disable 618
                 new Remoting.V1.ActorMessageHeaders()
+#pragma warning restore 618
                 {
                     ActorId = new ActorId(this.id),
                     InterfaceId = eventInterfaceId,

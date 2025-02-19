@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1
 {
+    using System;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Xml;
@@ -13,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
     /// <summary>
     /// Represents the header for the actor messages.
     /// </summary>
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     [DataContract(Name = "addr", Namespace = Actors.Remoting.Constants.Namespace)]
     internal class ActorMessageHeaders
     {

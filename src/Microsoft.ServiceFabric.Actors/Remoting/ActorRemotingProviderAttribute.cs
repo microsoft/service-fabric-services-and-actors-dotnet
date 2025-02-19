@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         ///     An <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
-        ///
+        [Obsolete("This method is deprecated because it supports the deprecated V1 remoting stack only. Use CreateServiceRemotingListeners() instead.")]
         public abstract IServiceRemotingListener CreateServiceRemotingListener(
             ActorService actorService);
 
@@ -108,6 +108,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         ///     that can be used with <see cref="Microsoft.ServiceFabric.Actors.Client.ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
+        [Obsolete("This method is deprecated because it supports the deprecated V1 remoting stack only. Use V2 implementation instead.")]
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient);
 #endif

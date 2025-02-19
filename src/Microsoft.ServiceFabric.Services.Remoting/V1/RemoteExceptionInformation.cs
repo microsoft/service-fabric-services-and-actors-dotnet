@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
     /// <summary>
     /// Represents the fault type used by Service Remoting to transfer the exception details from the Service Replica to the client.
     /// </summary>
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     [DataContract(Name = "RemoteExceptionInformation", Namespace = Microsoft.ServiceFabric.Services.Constants.ServiceCommunicationNamespace)]
     public class RemoteExceptionInformation
     {

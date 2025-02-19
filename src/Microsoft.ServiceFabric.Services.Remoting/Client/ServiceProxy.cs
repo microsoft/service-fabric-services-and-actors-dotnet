@@ -29,7 +29,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private static readonly ServiceProxyFactory DefaultProxyFactory = new ServiceProxyFactory();
 
 #if !DotNetCoreClr
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private ServiceProxyGeneratorWith proxyGeneratorV1;
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private ServiceRemotingPartitionClient partitionClient;
 #endif
         private V2.Client.ServiceRemotingPartitionClient partitionClientV2;
@@ -46,6 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Gets the V1 Service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
+        [Obsolete("This property is part of the deprecated V1 service remoting stack. Use ServicePartitionClient2() instead.")]
         public IServiceRemotingPartitionClient ServicePartitionClient
         {
             get { return this.partitionClient; }
@@ -90,6 +93,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
 #if !DotNetCoreClr
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
         internal void Initialize(ServiceProxyGeneratorWith generatorWith, ServiceRemotingPartitionClient client)
         {
             this.proxyGeneratorV1 = generatorWith;
@@ -97,11 +101,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             this.partitionClient = client;
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorV1.GetRequestMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorV1.GetResponseMessageBodySerializer(interfaceId);
@@ -109,17 +115,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
 
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
+#pragma warning disable 618
             return ((ServiceRemotingMessageBody)responseMessageBody).Value;
+#pragma warning restore 618
         }
 
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
+#pragma warning disable 618
             return new ServiceRemotingMessageBody()
+#pragma warning restore 618
             {
                 Value = requestMessageBodyValue,
             };
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
         internal override Task<byte[]> InvokeAsync(
             int interfaceId,
             int methodId,
@@ -138,6 +149,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 cancellationToken);
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
         internal override void Invoke(int interfaceId, int methodId, byte[] requestMsgBodyBytes)
         {
             // no - op as events/one way messages are not supported for services

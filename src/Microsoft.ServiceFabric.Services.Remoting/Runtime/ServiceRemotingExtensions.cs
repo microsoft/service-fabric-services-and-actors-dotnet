@@ -14,22 +14,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
     /// <summary>
     /// This class adds extensions methods to create <see cref="IServiceRemotingListener"/>
     /// for remoting methods of the service interfaces that are derived from
-    /// <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.
+    /// <see cref="IService"/> interface.
     /// </summary>
     public static class ServiceRemotingExtensions
     {
 #if !DotNetCoreClr
         /// <summary>
         /// An extension method that creates an <see cref="IServiceRemotingListener"/>
-        /// for a stateful service implementation. This is deprecated implementation. Use this Api CreateServiceRemotingReplicaListeners instead
+        /// for a stateful service implementation.
         /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
-        /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// derive from <see cref="StatefulServiceBase"/> and implement one or more
+        /// interfaces that derive from <see cref="IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateful service implementation.</param>
         /// <param name="serviceContext">The context under which the service is operating.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatefulService>(
             this TStatefulService serviceImplementation,
             StatefulServiceContext serviceContext)
@@ -40,15 +41,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
         /// <summary>
         /// An extension method that creates an <see cref="IServiceRemotingListener"/>
-        /// for a stateless service implementation. This is deprecated implementation. Use CreateServiceRemotingInstanceListeners Api instead.
+        /// for a stateless service implementation.
         /// </summary>
         /// <typeparam name="TStatelessService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="System.Fabric.Query.StatelessService"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// interfaces that derive from <see cref="IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateless service implementation.</param>
         /// <param name="serviceContext">The context under which the service is operating.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
-        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        /// listener that remotes the interfaces deriving from <see cref="IService"/> interface.</returns>
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatelessService>(
             this TStatelessService serviceImplementation,
             StatelessServiceContext serviceContext)
@@ -64,11 +66,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// for a stateful service implementation.
         /// </summary>
         /// <typeparam name="TStatefulService">Type constraint on the service implementation. The service implementation must
-        /// derive from <see cref="Microsoft.ServiceFabric.Services.Runtime.StatefulServiceBase"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// derive from <see cref="StatefulServiceBase"/> and implement one or more
+        /// interfaces that derive from <see cref="IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateful service implementation.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
-        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        /// listener that remotes the interfaces deriving from <see cref="IService"/> interface.</returns>
         public static IEnumerable<ServiceReplicaListener> CreateServiceRemotingReplicaListeners<TStatefulService>(
             this TStatefulService serviceImplementation)
             where TStatefulService : StatefulServiceBase, IService
@@ -82,10 +84,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
             if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
+#pragma warning disable 618
                 serviceReplicaListeners.Add(new ServiceReplicaListener((t) =>
                 {
                     return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
                 }));
+#pragma warning restore 618
             }
 #endif
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
@@ -114,10 +118,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// </summary>
         /// <typeparam name="TStatelessService">Type constraint on the service implementation. The service implementation must
         /// derive from <see cref="System.Fabric.Query.StatelessService"/> and implement one or more
-        /// interfaces that derive from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</typeparam>
+        /// interfaces that derive from <see cref="IService"/> interface.</typeparam>
         /// <param name="serviceImplementation">A stateless service implementation.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
-        /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
+        /// listener that remotes the interfaces deriving from <see cref="IService"/> interface.</returns>
         public static IEnumerable<ServiceInstanceListener> CreateServiceRemotingInstanceListeners<TStatelessService>(
             this TStatelessService serviceImplementation)
             where TStatelessService : StatelessService, IService
@@ -132,10 +136,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
 
             if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
+#pragma warning disable 618
                 serviceInstanceListeners.Add(new ServiceInstanceListener((t) =>
                 {
                     return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
                 }));
+#pragma warning restore 618
             }
 #endif
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
@@ -156,6 +162,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
 #if !DotNetCoreClr
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
         private static IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
             object serviceImplementation)

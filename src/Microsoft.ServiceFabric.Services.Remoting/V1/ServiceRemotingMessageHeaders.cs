@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1
 {
+    using System;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
@@ -15,6 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
     /// <summary>
     /// Specifies the headers that are sent along with a ServiceRemoting message.
     /// </summary>
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     [DataContract(Name = "ServiceMessageHeaders", Namespace = Constants.ServiceCommunicationNamespace)]
     public class ServiceRemotingMessageHeaders
     {

@@ -42,10 +42,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     ///     The order in which this attribute is looked up is as follows:
     ///     <list type="number">
     ///         <item>
-    ///             In the entry <see cref="System.Reflection.Assembly"/> obtained by calling method <see cref="System.Reflection.Assembly.GetEntryAssembly"/>
+    ///             In the entry <see cref="Assembly"/> obtained by calling method <see cref="Assembly.GetEntryAssembly"/>
     ///         </item>
     ///         <item>
-    ///             In the <see cref="System.Reflection.Assembly"/> that defines the remote interface for which listener or proxy is being created.
+    ///             In the <see cref="Assembly"/> that defines the remote interface for which listener or proxy is being created.
     ///         </item>
     ///     </list>
     ///     </para>
@@ -95,6 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceImplementation">The service implementation object.</param>
         /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
         public abstract IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation);
@@ -105,6 +106,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// </summary>
         /// <param name="callbackClient">Client implementation where the callbacks should be dispatched.</param>
         /// <returns>An <see cref="IServiceRemotingClientFactory"/>.</returns>
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Remoting.V1.IServiceRemotingCallbackClient callbackClient);
 
@@ -150,6 +152,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
+            new InvalidOperationException();
             return new FabricTransportServiceRemotingProviderAttribute();
         }
     }

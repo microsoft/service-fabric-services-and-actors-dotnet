@@ -5,10 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1
 {
+    using System;
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
     using Microsoft.ServiceFabric.Services.Common;
 
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     internal static class ActorEventSubscription
     {
         public static readonly DataContractSerializer Serializer;

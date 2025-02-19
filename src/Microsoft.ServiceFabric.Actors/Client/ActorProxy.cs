@@ -27,8 +27,10 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private RemotingClientVersion remotingClient;
 
 #if !DotNetCoreClr
+#pragma warning disable 618
         private Remoting.V1.Builder.ActorProxyGeneratorWith proxyGeneratorWith;
         private Remoting.V1.Client.ActorServicePartitionClient servicePartitionClient;
+#pragma warning restore 618
 #endif
 
         /// <summary>
@@ -61,6 +63,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Gets the <see cref="Remoting.V1.Client.IActorServicePartitionClient"/> interface that this proxy is using to communicate with the actor.
         /// </summary>
         /// <value><see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use ActorServicePartitionClientV2() instead.")]
         public Remoting.V1.Client.IActorServicePartitionClient ActorServicePartitionClient
         {
             get { return this.servicePartitionClient; }
@@ -246,11 +249,13 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
 #if !DotNetCoreClr
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetRequestMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetResponseMessageBodySerializer(interfaceId);
@@ -258,14 +263,19 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
+#pragma warning disable 618
             return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
+#pragma warning restore 618
         }
 
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
+#pragma warning disable 618
             return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
+#pragma warning restore 618
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
         internal override Task<byte[]> InvokeAsync(
             int interfaceId,
             int methodId,
@@ -283,6 +293,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             return this.servicePartitionClient.InvokeAsync(actorMsgHeaders, requestMsgBodyBytes, cancellationToken);
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
         internal override void Invoke(
             int interfaceId,
             int methodId,
@@ -294,8 +305,10 @@ namespace Microsoft.ServiceFabric.Actors.Client
         }
 
         internal void Initialize(
+#pragma warning disable 618
             Remoting.V1.Builder.ActorProxyGeneratorWith actorProxyGeneratorWith,
             Remoting.V1.Client.ActorServicePartitionClient actorServicePartitionClient)
+#pragma warning restore 618
         {
             this.proxyGeneratorWith = actorProxyGeneratorWith;
             this.servicePartitionClient = actorServicePartitionClient;
@@ -315,7 +328,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
+#pragma warning disable 618
             var info = Remoting.V1.Client.ActorEventSubscriberManager.Instance.RegisterSubscriber(
+#pragma warning restore 618
             actorId,
             eventType,
             subscriber);
@@ -357,7 +372,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 #if !DotNetCoreClr
             var actorId = this.servicePartitionClient.ActorId;
+#pragma warning disable 618
             if (Remoting.V1.Client.ActorEventSubscriberManager.Instance.TryUnregisterSubscriber(
+#pragma warning restore 618
                 actorId,
                 eventType,
                 subscriber,

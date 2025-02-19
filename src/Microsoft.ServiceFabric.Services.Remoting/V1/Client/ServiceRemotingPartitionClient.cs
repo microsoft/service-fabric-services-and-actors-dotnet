@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
     /// <summary>
     /// Specifies the Service partition client for Remoting communication.
     /// </summary>
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     internal class ServiceRemotingPartitionClient : ServicePartitionClient<IServiceRemotingClient>, IServiceRemotingPartitionClient
     {
         private const string TraceType = "ServiceRemotingPartitionClient";

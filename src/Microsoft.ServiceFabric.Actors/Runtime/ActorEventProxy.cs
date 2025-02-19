@@ -21,7 +21,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV2;
 #if !DotNetCoreClr
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV1;
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith proxyGeneratorWith;
 #endif
 
@@ -31,7 +33,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         protected ActorEventProxy()
         {
 #if !DotNetCoreClr
+#pragma warning disable 618
             this.subscriberProxiesV1 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
+#pragma warning restore 618
 #endif
             this.subscriberProxiesV2 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
         }
@@ -50,7 +54,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             else
             {
 #if !DotNetCoreClr
+#pragma warning disable 618
                 this.subscriberProxiesV1.AddOrUpdate(subscriber.Id, subscriber, (id, existing) => subscriber);
+#pragma warning restore 618
 #endif
             }
         }
@@ -58,7 +64,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal void RemoveSubscriber(Guid subscriberId)
         {
 #if !DotNetCoreClr
+#pragma warning disable 618
             this.subscriberProxiesV1.TryRemove(subscriberId, out var removedV1);
+#pragma warning restore 618 
 #endif
             this.subscriberProxiesV2.TryRemove(subscriberId, out var removedV2);
         }
@@ -84,16 +92,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #if !DotNetCoreClr
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal void Initialize(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
         {
             this.proxyGeneratorWith = actorEventProxyGeneratorWith;
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetRequestMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetResponseMessageBodySerializer(interfaceId);
@@ -101,14 +112,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
+#pragma warning disable 618
             return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
         }
+#pragma warning restore 618
 
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
+#pragma warning disable 618
             return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
+#pragma warning restore 618
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
         internal override Task<byte[]> InvokeAsync(
             int interfaceId,
             int methodId,
@@ -119,6 +135,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             throw new NotImplementedException();
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
         internal override void Invoke(
             int interfaceId,
             int methodId,
@@ -165,6 +182,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, eventMsgBytes);
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
         private void SendToSubscribers(int eventInterfaceId, int eventMethodId, byte[] eventMsgBytes)
         {
             IList<Guid> subscribersToRemove = null;

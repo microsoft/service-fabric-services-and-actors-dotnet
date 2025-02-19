@@ -19,7 +19,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     {
 #if !DotNetCoreClr
         private readonly MethodInfo invokeMethodInfoV1;
+#pragma warning disable 618
         private readonly V1.Builder.ActorEventProxyGeneratorBuilder proxyGeneratorBuilderV1;
+#pragma warning restore 618
 #endif
 
         public ActorEventProxyGeneratorBuilder(ICodeBuilder codeBuilder)
@@ -34,7 +36,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 CallingConventions.Any,
                 new[] { typeof(int), typeof(int), typeof(object) },
                 null);
+#pragma warning disable 618
             this.proxyGeneratorBuilderV1 = new V1.Builder.ActorEventProxyGeneratorBuilder(codeBuilder);
+#pragma warning restore 618
 #endif
         }
 
@@ -59,13 +63,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 item => item.Key.V1Id,
                 item => item.Value.GetResponseBodyTypes());
 
+#pragma warning disable 618
             var v1ProxyGenerator = new Remoting.V1.Builder.ActorEventProxyGeneratorWith(
+#pragma warning restore 618
                 proxyInterfaceType,
                 null,
                 requestBodyTypes,
                 responseBodyTypes);
 
+#pragma warning disable 618
             ((ActorEventProxyGenerator)result.ProxyGenerator).InitializeV1ProxyGenerator(v1ProxyGenerator);
+#pragma warning restore 618
 #endif
             return result;
         }

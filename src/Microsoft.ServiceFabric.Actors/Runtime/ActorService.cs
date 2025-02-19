@@ -38,7 +38,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ActorManagerAdapter actorManagerAdapter;
         private readonly Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory;
 #if !DotNetCoreClr
+#pragma warning disable 618
         private Remoting.V1.Runtime.ActorMethodDispatcherMap methodDispatcherMapV1;
+#pragma warning restore 618
 #endif
         private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
         private ReplicaRole replicaRole;
@@ -172,6 +174,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
 #if !DotNetCoreClr
 
+        [Obsolete("This property is part of the deprecated V1 remoting stack. Use MethodDispatcherMapV2 instead.")]
         internal Remoting.V1.Runtime.ActorMethodDispatcherMap MethodDispatcherMapV1
         {
             get { return this.methodDispatcherMapV1; }
@@ -325,8 +328,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             this.methodFriendlyNameBuilder = methodNameBuilder;
 #if !DotNetCoreClr
+#pragma warning disable 618
             this.MethodDispatcherMapV1 =
                 new Actors.Remoting.V1.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
+#pragma warning restore 618
 #endif
             this.MethodDispatcherMapV2 =
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
@@ -364,8 +369,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #if !DotNetCoreClr
             if (Services.Remoting.Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
+                #pragma warning disable 618
                serviceReplicaListeners.Add(
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }));
+                    #pragma warning restore 618
             }
 #endif
             if (Services.Remoting.Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))

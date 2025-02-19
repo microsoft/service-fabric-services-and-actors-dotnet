@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     /// The class is used by actor remoting code generator to generate a type that dispatches requests to actor
     /// object by invoking right method on it.
     /// </summary>
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     public abstract class ActorMethodDispatcherBase : MethodDispatcherBaseWithSerializer
     {
         internal override DataContractSerializer CreateRequestMessageBodySerializer(

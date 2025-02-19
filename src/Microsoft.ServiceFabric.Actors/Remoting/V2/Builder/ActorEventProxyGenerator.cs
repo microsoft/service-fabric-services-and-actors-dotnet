@@ -14,7 +14,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         private readonly IProxyActivator proxyActivator;
 
 #if !DotNetCoreClr
+#pragma warning disable 618
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith actorV1EventProxyGeneratorW;
+#pragma warning restore 618
 #endif
 
         public ActorEventProxyGenerator(
@@ -29,12 +31,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         {
             var actorEventProxy = (ActorEventProxy)this.proxyActivator.CreateInstance();
 #if !DotNetCoreClr
+#pragma warning disable 618
             actorEventProxy.Initialize(this.actorV1EventProxyGeneratorW);
+#pragma warning restore 618
 #endif
             return actorEventProxy;
         }
 
 #if !DotNetCoreClr
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
         {
             this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;

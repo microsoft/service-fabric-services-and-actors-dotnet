@@ -91,6 +91,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     as <see cref="IServiceRemotingListener"/>
         ///     for the specified service implementation.
         /// </returns>
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
         public override IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation)
@@ -114,6 +115,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         ///     that can be used with <see cref="Remoting.Client.ServiceProxyFactory"/> to
         ///     generate service proxy to talk to a stateless or stateful service over remoted actor interface.
         /// </returns>
+
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingClientFactoryV2() instead.")]
         public override V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient)
         {

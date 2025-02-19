@@ -20,7 +20,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private readonly OperationRetrySettings retrySettings;
 
 #if !DotNetCoreClr
+#pragma warning disable 618
         private Remoting.V1.Client.ActorProxyFactory proxyFactoryV1;
+#pragma warning restore 618
 #endif
         private Remoting.V2.Client.ActorProxyFactory proxyFactoryV2;
         private bool overrideListenerName = false;
@@ -42,6 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
         /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
+        [Obsolete("This constructor is part of the deprecated V1 remoting stack. Use V2 constructor instead.")]
         public ActorProxyFactory(
             Func<Services.Remoting.V1.IServiceRemotingCallbackClient,
                     Services.Remoting.V1.Client.IServiceRemotingClientFactory>
@@ -259,10 +262,11 @@ namespace Microsoft.ServiceFabric.Actors.Client
                                     new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
                                 return this.proxyFactoryV2;
                             }
-
-                            this.proxyFactoryV1 =
+#pragma warning disable 618
+                        this.proxyFactoryV1 =
                                 new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
-                            return this.proxyFactoryV1;
+#pragma warning restore 618
+                        return this.proxyFactoryV1;
                         }
                 }
             }

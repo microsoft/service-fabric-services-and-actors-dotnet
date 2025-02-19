@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     internal class ActorProxyGeneratorWith : ProxyGeneratorWithSerializer
     {
         private readonly IProxyActivator proxyActivator;

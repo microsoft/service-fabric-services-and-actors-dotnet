@@ -5,10 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
 {
+    using System;
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.Client;
 
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     internal class FabricTransportRemotingCallbackMessageHandler : IFabricTransportCallbackMessageHandler
     {
         private IServiceRemotingCallbackClient remotingCallbackClient;

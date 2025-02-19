@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
 {
+    using System;
     using System.ServiceModel;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
@@ -14,6 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
     ///  Defines the interface that must be implemented for providing callback mechanism
     ///  from the wcf remoting listener to the client.
     /// </summary>
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     [ServiceContract(Namespace = WcfConstants.Namespace)]
     public interface IServiceRemotingCallbackContract
     {

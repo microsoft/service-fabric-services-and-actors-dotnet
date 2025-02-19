@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
 {
+    using System;
     using System.ServiceModel;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
@@ -13,6 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
     /// <summary>
     ///    Interface that defines the contract for WCF service remoting.
     /// </summary>
+    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
     [ServiceContract(
         Namespace = WcfConstants.Namespace,
         CallbackContract = typeof(IServiceRemotingCallbackContract))]

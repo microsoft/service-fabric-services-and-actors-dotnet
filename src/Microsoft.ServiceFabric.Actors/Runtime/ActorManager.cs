@@ -147,6 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #if !DotNetCoreClr
+        [Obsolete("This method is part of the deprecated V1 remoting stack. Use the V2 implementation instead.")]
         public Task<byte[]> InvokeAsync(
             ActorId actorId,
             int interfaceId,
@@ -835,6 +836,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
 #if !DotNetCoreClr
 
+        [Obsolete("This method is part of the V1 remoting stack. Use the V2 remoting stack instead.")]
         private Task<byte[]> ActorMethodDispatch(
             Remoting.V1.Builder.ActorMethodDispatcherBase methodDispatcher,
             ActorBase actor,

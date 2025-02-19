@@ -21,7 +21,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Gets <see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.
         /// </summary>
         /// <value><see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
+#pragma warning disable 618
         Remoting.V1.Client.IActorServicePartitionClient ActorServicePartitionClient { get; }
+#pragma warning restore 618
 #endif
 
         /// <summary>
