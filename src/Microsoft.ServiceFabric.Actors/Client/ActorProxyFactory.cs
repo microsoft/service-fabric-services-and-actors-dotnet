@@ -20,9 +20,8 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private readonly OperationRetrySettings retrySettings;
 
 #if !DotNetCoreClr
-#pragma warning disable 618
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private Remoting.V1.Client.ActorProxyFactory proxyFactoryV1;
-#pragma warning restore 618
 #endif
         private Remoting.V2.Client.ActorProxyFactory proxyFactoryV2;
         private bool overrideListenerName = false;
@@ -201,10 +200,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
         public void Dispose()
         {
 #if !DotNetCoreClr
+#pragma warning disable 618
             if (this.proxyFactoryV1 != null)
             {
                 this.proxyFactoryV1.Dispose();
             }
+#pragma warning restore 618
 #endif
             if (this.proxyFactoryV2 != null)
             {
@@ -220,6 +221,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
             this.GetOrSetProxyFactory(actorInterfaceType);
 #if !DotNetCoreClr
+#pragma warning disable 618
             if (this.proxyFactoryV1 != null)
             {
                 return this.proxyFactoryV1.CreateActorProxy(
@@ -228,6 +230,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                     actorId,
                     this.OverrideListenerNameIfConditionMet(listenerName));
             }
+#pragma warning restore 618
 #endif
 
             return this.proxyFactoryV2.CreateActorProxy(
@@ -247,13 +250,14 @@ namespace Microsoft.ServiceFabric.Actors.Client
 #if !DotNetCoreClr
 
             // Use provider to find the stack
+#pragma warning disable 618
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 lock (this.thisLock)
                 {
-                        if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
-                        {
-                            var provider = this.GetProviderAttribute(actorInterfaceType);
+                    if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
+                    {
+                        var provider = this.GetProviderAttribute(actorInterfaceType);
                             if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
                             {
                                 // We are overriding listenerName since using provider service can have multiple listener configured for upgrade cases
@@ -262,12 +266,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
                                     new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
                                 return this.proxyFactoryV2;
                             }
-#pragma warning disable 618
                         this.proxyFactoryV1 =
                                 new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
-#pragma warning restore 618
+
                         return this.proxyFactoryV1;
-                        }
+#pragma warning restore 618
+                    }
                 }
             }
 
@@ -275,8 +279,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 return this.proxyFactoryV2;
             }
-
+#pragma warning disable 618
             return this.proxyFactoryV1;
+#pragma warning restore 618
 
 #else
             if (this.proxyFactoryV2 == null)

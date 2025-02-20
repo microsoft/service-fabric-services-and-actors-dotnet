@@ -18,17 +18,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     internal class ActorEventProxyGeneratorBuilder : Microsoft.ServiceFabric.Services.Remoting.V2.Builder.ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
     {
 #if !DotNetCoreClr
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private readonly MethodInfo invokeMethodInfoV1;
-#pragma warning disable 618
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private readonly V1.Builder.ActorEventProxyGeneratorBuilder proxyGeneratorBuilderV1;
-#pragma warning restore 618
 #endif
 
         public ActorEventProxyGeneratorBuilder(ICodeBuilder codeBuilder)
             : base(codeBuilder)
         {
 #if !DotNetCoreClr
-
+#pragma warning disable 618
             this.invokeMethodInfoV1 = this.ProxyBaseType.GetMethod(
                 "Invoke",
                 BindingFlags.Instance | BindingFlags.NonPublic,
@@ -36,7 +36,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 CallingConventions.Any,
                 new[] { typeof(int), typeof(int), typeof(object) },
                 null);
-#pragma warning disable 618
             this.proxyGeneratorBuilderV1 = new V1.Builder.ActorEventProxyGeneratorBuilder(codeBuilder);
 #pragma warning restore 618
 #endif
@@ -112,12 +111,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                             wrappedRequestBody,
                             interfaceDescription.InterfaceType.FullName);
 #if !DotNetCoreClr
-
+#pragma warning disable 618
                         this.AddVoidMethodImplementationV1(
                             ilGen,
                             interfaceDescription.V1Id,
                             methodDescription,
                             wrappedRequestBody);
+#pragma warning restore 618
 #endif
                         ilGen.Emit(OpCodes.Ret);
                     }
@@ -133,6 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         }
 
 #if !DotNetCoreClr
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private void AddVoidMethodImplementationV1(
             ILGenerator ilGen,
             int interfaceIdV1,

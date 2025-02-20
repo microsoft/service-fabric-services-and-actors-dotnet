@@ -27,10 +27,10 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private RemotingClientVersion remotingClient;
 
 #if !DotNetCoreClr
-#pragma warning disable 618
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private Remoting.V1.Builder.ActorProxyGeneratorWith proxyGeneratorWith;
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private Remoting.V1.Client.ActorServicePartitionClient servicePartitionClient;
-#pragma warning restore 618
 #endif
 
         /// <summary>
@@ -51,7 +51,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
 #if !DotNetCoreClr
                 if (!(Helper.IsEitherRemotingV2(this.remotingClient)))
                 {
+#pragma warning disable 618
                     return this.servicePartitionClient.ActorId;
+#pragma warning restore 618
                 }
 #endif
                 return this.servicePartitionClientV2.ActorId;
@@ -302,11 +304,10 @@ namespace Microsoft.ServiceFabric.Actors.Client
             throw new NotImplementedException();
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
         internal void Initialize(
-#pragma warning disable 618
             Remoting.V1.Builder.ActorProxyGeneratorWith actorProxyGeneratorWith,
             Remoting.V1.Client.ActorServicePartitionClient actorServicePartitionClient)
-#pragma warning restore 618
         {
             this.proxyGeneratorWith = actorProxyGeneratorWith;
             this.servicePartitionClient = actorServicePartitionClient;
@@ -325,10 +326,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 
 #if !DotNetCoreClr
-            var actorId = this.servicePartitionClient.ActorId;
 #pragma warning disable 618
+            var actorId = this.servicePartitionClient.ActorId;
             var info = Remoting.V1.Client.ActorEventSubscriberManager.Instance.RegisterSubscriber(
-#pragma warning restore 618
             actorId,
             eventType,
             subscriber);
@@ -358,6 +358,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 
             this.ResubscribeAsync(info, resubscriptionInterval);
+#pragma warning restore 618
 #endif
         }
 
@@ -369,17 +370,18 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 return;
             }
 #if !DotNetCoreClr
-            var actorId = this.servicePartitionClient.ActorId;
 #pragma warning disable 618
+            var actorId = this.servicePartitionClient.ActorId;
             if (Remoting.V1.Client.ActorEventSubscriberManager.Instance.TryUnregisterSubscriber(
-#pragma warning restore 618
                 actorId,
                 eventType,
                 subscriber,
                 out var info))
             {
                 await this.servicePartitionClient.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
+
             }
+#pragma warning restore 618
 #endif
         }
 
@@ -387,6 +389,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private void ResubscribeAsync(SubscriptionInfo info, TimeSpan resubscriptionInterval)
         {
 #pragma warning disable 4014
+#pragma warning disable 618
             // ReSharper disable once UnusedVariable
             var ignore = Task.Run(
                 async () =>
@@ -414,6 +417,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                     }
                 });
         }
+#pragma warning restore 618
 #endif
 
         private void ResubscribeAsyncV2(SubscriptionInfo info, TimeSpan resubscriptionInterval)

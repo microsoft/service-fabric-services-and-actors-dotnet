@@ -14,9 +14,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         private readonly IProxyActivator proxyActivator;
 
 #if !DotNetCoreClr
-#pragma warning disable 618
+        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith actorV1EventProxyGeneratorW;
-#pragma warning restore 618
 #endif
 
         public ActorEventProxyGenerator(

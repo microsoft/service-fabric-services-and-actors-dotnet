@@ -38,9 +38,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ActorManagerAdapter actorManagerAdapter;
         private readonly Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory;
 #if !DotNetCoreClr
-#pragma warning disable 618
+        [Obsolete("This field is part of the deprecated V1 remoting stack. Use MethodDispatcherMapV2 instead.")]
         private Remoting.V1.Runtime.ActorMethodDispatcherMap methodDispatcherMapV1;
-#pragma warning restore 618
 #endif
         private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
         private ReplicaRole replicaRole;
