@@ -261,18 +261,16 @@ namespace Microsoft.ServiceFabric.Actors.Client
             return this.proxyGeneratorWith.GetResponseMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
-#pragma warning disable 618
             return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
-#pragma warning restore 618
         }
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
-#pragma warning disable 618
             return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
-#pragma warning restore 618
         }
 
         [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]

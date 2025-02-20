@@ -46,8 +46,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal abstract DataContractSerializer GetResponseMessageBodySerializer(int interfaceId);
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal abstract object GetResponseMessageBodyValue(object responseMessageBody);
 
+        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
         internal abstract object CreateRequestMessageBody(object requestMessageBodyValue);
 
         [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
