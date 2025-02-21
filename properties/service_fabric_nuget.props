@@ -11,7 +11,7 @@
     <Authors>Microsoft</Authors>
     <Owners>Microsoft,ServiceFabric</Owners>
     <ProjectUrl>http://aka.ms/servicefabric</ProjectUrl>
-    <LicenseUrl>http://www.microsoft.com/web/webpi/eula/net_library_eula_ENU.htm</LicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <RequireLicenseAcceptance>True</RequireLicenseAcceptance>
     <NoNuspecTags>true</NoNuspecTags>
