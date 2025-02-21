@@ -53,6 +53,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     [AttributeUsage(AttributeTargets.Assembly)]
     public abstract class ServiceRemotingProviderAttribute : Attribute
     {
+        private static Assembly entryAssembly = Assembly.GetEntryAssembly();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingProviderAttribute"/> class.
         /// </summary>
@@ -142,18 +144,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
-            var assembly = Assembly.GetEntryAssembly();
-            if (assembly != null)
+            if (entryAssembly != null)
             {
-                var attribute = assembly.GetCustomAttribute<ServiceRemotingProviderAttribute>();
+                var attribute = entryAssembly.GetCustomAttribute<ServiceRemotingProviderAttribute>();
                 if (attribute != null)
                 {
                     return attribute;
                 }
             }
 
-            new InvalidOperationException();
-            return new FabricTransportServiceRemotingProviderAttribute();
+            throw new InvalidOperationException();
         }
     }
 }

@@ -56,6 +56,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     [AttributeUsage(AttributeTargets.Assembly)]
     public abstract class ActorRemotingProviderAttribute : Attribute
     {
+        private static Assembly entryAssembly = Assembly.GetEntryAssembly();
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActorRemotingProviderAttribute"/> class.
         /// </summary>
@@ -144,17 +146,16 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
                 }
             }
 
-            var assembly = Assembly.GetEntryAssembly();
-            if (assembly != null)
+            if (entryAssembly != null)
             {
-                var attribute = assembly.GetCustomAttribute<ActorRemotingProviderAttribute>();
+                var attribute = entryAssembly.GetCustomAttribute<ActorRemotingProviderAttribute>();
                 if (attribute != null)
                 {
                     return attribute;
                 }
             }
 
-            return new FabricTransportActorRemotingProviderAttribute();
+            throw new InvalidOperationException();
         }
     }
 }
