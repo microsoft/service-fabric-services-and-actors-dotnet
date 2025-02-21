@@ -46,12 +46,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting
 #if !DotNetCoreClr
         public static bool IsRemotingV1(RemotingListenerVersion remotingListener)
         {
+#pragma warning disable 618
             return remotingListener.HasFlag(RemotingListenerVersion.V1);
+#pragma warning restore 618
         }
 
         public static bool IsRemotingV1(RemotingClientVersion remotingListener)
         {
+#pragma warning disable 618
             return remotingListener.HasFlag(RemotingClientVersion.V1);
+#pragma warning restore 618
         }
 #endif
 

@@ -63,13 +63,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// </summary>
         protected ActorRemotingProviderAttribute()
         {
-#if !DotNetCoreClr
-            this.RemotingListenerVersion = RemotingListenerVersion.V1;
-            this.RemotingClientVersion = RemotingClientVersion.V1;
-#else
             this.RemotingListenerVersion = RemotingListenerVersion.V2_1;
             this.RemotingClientVersion = RemotingClientVersion.V2_1;
-#endif
         }
 
         /// <summary>

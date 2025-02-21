@@ -178,8 +178,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var types = new List<Type> { actorType };
             types.AddRange(actorInterfaces);
+            types.AddRange(actorInterfaces);
 #if !DotNetCoreClr
+#pragma warning disable 618
             var remotingserver = Services.Remoting.RemotingListenerVersion.V1;
+#pragma warning restore 618
 #else
             var remotingserver = Services.Remoting.RemotingListenerVersion.V2;
 #endif

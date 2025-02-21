@@ -30,13 +30,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         /// </summary>
         public FabricTransportActorRemotingProviderAttribute()
         {
-#if !DotNetCoreClr
-            this.RemotingClientVersion = RemotingClientVersion.V1;
-            this.RemotingListenerVersion = RemotingListenerVersion.V1;
-#else
             this.RemotingClientVersion = RemotingClientVersion.V2;
             this.RemotingListenerVersion = RemotingListenerVersion.V2;
-#endif
         }
 
         /// <summary>
