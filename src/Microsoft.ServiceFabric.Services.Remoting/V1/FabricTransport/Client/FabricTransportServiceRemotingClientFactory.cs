@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
     /// and stateful services over interfaces that are remoted via
     /// <see cref="FabricTransportServiceRemotingListener"/>.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public class FabricTransportServiceRemotingClientFactory : IServiceRemotingClientFactory
     {
         private readonly FabricTransportServiceRemotingClientFactoryImpl impl;

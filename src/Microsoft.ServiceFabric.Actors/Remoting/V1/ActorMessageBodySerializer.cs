@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
 
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     internal static class ActorMessageBodySerializer
     {
         private static readonly IEnumerable<Type> DefaultKnownTypes = new[]

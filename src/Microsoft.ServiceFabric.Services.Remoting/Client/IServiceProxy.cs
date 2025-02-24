@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// Gets the service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. User ServicePartitionClient2 instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingPartitionClient ServicePartitionClient { get; }
 #endif
 

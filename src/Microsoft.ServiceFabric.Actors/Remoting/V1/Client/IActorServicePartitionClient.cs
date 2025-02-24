@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
     /// <summary>
     /// Defines the interface for the client that communicate with an actor within a service partition.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public interface IActorServicePartitionClient : IServiceRemotingPartitionClient
     {
         /// <summary>

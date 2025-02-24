@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
     /// <summary>
     /// Specifies the factory that creates proxies for remote communication to the specified service.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class ServiceProxyFactory : IServiceProxyFactory
     {
         private readonly object thisLock;

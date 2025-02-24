@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         private readonly object thisLock;
         private readonly OperationRetrySettings retrySettings;
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         private Remoting.V1.Client.ServiceProxyFactory proxyFactoryV1;
 #endif
         private Remoting.V2.Client.ServiceProxyFactory proxyFactoryV2;
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// </param>
         /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
         /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
-        [Obsolete("This constructor is part of the deprecated V1 service remoting stack. Use V2 constructor instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public ServiceProxyFactory(
             Func<V1.IServiceRemotingCallbackClient, V1.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null,

@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1
     /// <summary>
     ///  Represents the body of the actor messages.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     [DataContract(Name = "msgBody", Namespace = Constants.Namespace)]
     internal class ActorMessageBody
     {

@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.Client;
 
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class FabricTransportServiceRemotingCallback : IServiceRemotingCallbackClient, IDisposable
     {
         private readonly TimeSpan defaultTimeout = TimeSpan.FromMinutes(2);

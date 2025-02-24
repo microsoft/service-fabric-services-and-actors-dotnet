@@ -21,9 +21,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV2;
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV1;
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith proxyGeneratorWith;
 #endif
 
@@ -92,37 +92,37 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #if !DotNetCoreClr
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal void Initialize(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
         {
             this.proxyGeneratorWith = actorEventProxyGeneratorWith;
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetRequestMessageBodySerializer(interfaceId);
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetResponseMessageBodySerializer(interfaceId);
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
             return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
             return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override Task<byte[]> InvokeAsync(
             int interfaceId,
             int methodId,
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             throw new NotImplementedException();
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override void Invoke(
             int interfaceId,
             int methodId,
@@ -180,7 +180,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, eventMsgBytes);
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private void SendToSubscribers(int eventInterfaceId, int eventMethodId, byte[] eventMsgBytes)
         {
             IList<Guid> subscribersToRemove = null;

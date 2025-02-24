@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
     using Microsoft.ServiceFabric.Actors.Remoting.V1.Builder;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     internal class ActorMethodDispatcherMap
     {
         private readonly IDictionary<int, ActorMethodDispatcherBase> map;

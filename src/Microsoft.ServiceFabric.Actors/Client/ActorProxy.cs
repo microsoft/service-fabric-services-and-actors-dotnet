@@ -27,9 +27,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private RemotingClientVersion remotingClient;
 
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Builder.ActorProxyGeneratorWith proxyGeneratorWith;
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Client.ActorServicePartitionClient servicePartitionClient;
 #endif
 
@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Gets the <see cref="Remoting.V1.Client.IActorServicePartitionClient"/> interface that this proxy is using to communicate with the actor.
         /// </summary>
         /// <value><see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use ActorServicePartitionClientV2() instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public Remoting.V1.Client.IActorServicePartitionClient ActorServicePartitionClient
         {
             get { return this.servicePartitionClient; }
@@ -251,31 +251,31 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
 #if !DotNetCoreClr
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetRequestMessageBodySerializer(interfaceId);
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetResponseMessageBodySerializer(interfaceId);
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
             return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
             return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override Task<byte[]> InvokeAsync(
             int interfaceId,
             int methodId,
@@ -293,7 +293,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             return this.servicePartitionClient.InvokeAsync(actorMsgHeaders, requestMsgBodyBytes, cancellationToken);
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override void Invoke(
             int interfaceId,
             int methodId,
@@ -304,7 +304,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             throw new NotImplementedException();
         }
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal void Initialize(
             Remoting.V1.Builder.ActorProxyGeneratorWith actorProxyGeneratorWith,
             Remoting.V1.Client.ActorServicePartitionClient actorServicePartitionClient)

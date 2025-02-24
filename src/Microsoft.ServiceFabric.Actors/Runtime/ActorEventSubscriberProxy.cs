@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     internal class ActorEventSubscriberProxy : IActorEventSubscriberProxy
     {
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback;
 #endif
         private readonly ServiceFabric.Services.Remoting.V2.Runtime.IServiceRemotingCallbackClient callbackV2;
@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly RemotingListenerVersion remotingListener;
 
 #if !DotNetCoreClr
-        [Obsolete("This constructor is part of the deprecated V1 service remoting stack. Use V2 constructor instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public ActorEventSubscriberProxy(Guid id, ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback)
         {
             this.id = id;
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #if !DotNetCoreClr
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         void IActorEventSubscriberProxy.RaiseEvent(int eventInterfaceId, int eventMethodId, byte[] eventMsgBody)
         {
             this.callback.OneWayMessage(

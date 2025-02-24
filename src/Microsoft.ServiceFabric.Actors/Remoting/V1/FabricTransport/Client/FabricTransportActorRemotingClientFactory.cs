@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
     /// actors over interfaces that are remoted via
     /// <see cref="FabricTransportServiceRemotingListener"/>.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public class FabricTransportActorRemotingClientFactory : FabricTransportServiceRemotingClientFactory
     {
         /// <summary>

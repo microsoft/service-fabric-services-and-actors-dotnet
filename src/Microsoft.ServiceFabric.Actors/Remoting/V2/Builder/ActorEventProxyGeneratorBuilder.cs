@@ -18,9 +18,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     internal class ActorEventProxyGeneratorBuilder : Microsoft.ServiceFabric.Services.Remoting.V2.Builder.ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
     {
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly MethodInfo invokeMethodInfoV1;
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly V1.Builder.ActorEventProxyGeneratorBuilder proxyGeneratorBuilderV1;
 #endif
 
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         }
 
 #if !DotNetCoreClr
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private void AddVoidMethodImplementationV1(
             ILGenerator ilGen,
             int interfaceIdV1,

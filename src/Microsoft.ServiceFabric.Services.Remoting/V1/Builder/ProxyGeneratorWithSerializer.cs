@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
 
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal abstract class ProxyGeneratorWithSerializer : ProxyGenerator
     {
         private readonly IDictionary<int, DataContractSerializer> requestMessageBodySerializers;

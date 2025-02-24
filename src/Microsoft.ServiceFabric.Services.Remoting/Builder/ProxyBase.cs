@@ -40,22 +40,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         }
 
 #if !DotNetCoreClr
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract DataContractSerializer GetRequestMessageBodySerializer(int interfaceId);
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract DataContractSerializer GetResponseMessageBodySerializer(int interfaceId);
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract object GetResponseMessageBodyValue(object responseMessageBody);
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract object CreateRequestMessageBody(object requestMessageBodyValue);
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract Task<byte[]> InvokeAsync(int interfaceId, int methodId, byte[] requestMsgBodyBytes, CancellationToken cancellationToken);
 
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract void Invoke(int interfaceId, int methodId, byte[] requestMsgBodyBytes);
 #endif
 
@@ -85,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <param name="interfaceId">Id of the remote interface.</param>
         /// <param name="methodId">Id of the remote method to be invokved.</param>
         /// <param name="requestMsgBodyValue">Message body to be sent to remote object.</param>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use V2 implementation instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         protected void Invoke(
             int interfaceId,
             int methodId,
@@ -112,7 +112,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <param name="requestMsgBodyValue">Request body.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>A task that represents the asynchronous operation async call to remote object.</returns>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use InvokeAsyncImplV2() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         protected async Task<object> InvokeAsync(
             int interfaceId,
             int methodId,

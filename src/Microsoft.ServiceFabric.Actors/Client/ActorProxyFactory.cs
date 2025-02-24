@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private readonly OperationRetrySettings retrySettings;
 
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Client.ActorProxyFactory proxyFactoryV1;
 #endif
         private Remoting.V2.Client.ActorProxyFactory proxyFactoryV2;
@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
         /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
-        [Obsolete("This constructor is part of the deprecated V1 remoting stack. Use V2 constructor instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public ActorProxyFactory(
             Func<Services.Remoting.V1.IServiceRemotingCallbackClient,
                     Services.Remoting.V1.Client.IServiceRemotingClientFactory>

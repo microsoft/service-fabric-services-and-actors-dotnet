@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ActorManagerAdapter actorManagerAdapter;
         private readonly Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory;
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 remoting stack. Use MethodDispatcherMapV2 instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Runtime.ActorMethodDispatcherMap methodDispatcherMapV1;
 #endif
         private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
@@ -173,7 +173,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
 #if !DotNetCoreClr
 
-        [Obsolete("This property is part of the deprecated V1 remoting stack. Use MethodDispatcherMapV2 instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal Remoting.V1.Runtime.ActorMethodDispatcherMap MethodDispatcherMapV1
         {
             get { return this.methodDispatcherMapV1; }

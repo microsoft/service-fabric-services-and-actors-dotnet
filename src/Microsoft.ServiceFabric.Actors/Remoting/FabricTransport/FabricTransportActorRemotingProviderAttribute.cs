@@ -91,7 +91,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         ///     as <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
-        [Obsolete("This method is deprecated because it supports the deprecated V1 remoting stack only. Use CreateServiceRemotingListeners() instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public override IServiceRemotingListener CreateServiceRemotingListener(ActorService actorService)
         {
             var listenerSettings = GetActorListenerSettings(actorService);
@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         ///     that can be used with <see cref="ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
-        [Obsolete("This method is deprecated because it supports the deprecated V1 remoting stack only. Use V2 implementation instead.")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public override Services.Remoting.V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Services.Remoting.V1.IServiceRemotingCallbackClient callbackClient)
         {

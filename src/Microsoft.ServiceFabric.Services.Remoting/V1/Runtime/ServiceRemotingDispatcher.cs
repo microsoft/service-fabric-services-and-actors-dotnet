@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
     /// Provides an implementation of <see cref="IServiceRemotingMessageHandler"/> that can dispatch
     /// messages to the service implementing <see cref="IService"/> interface.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public class ServiceRemotingDispatcher : IServiceRemotingMessageHandler, IDisposable
     {
         private readonly IService service;

@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     ///     An <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> that uses
     ///     fabric TCP transport to provide interface remoting for stateless and stateful services.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public class FabricTransportServiceRemotingListener : IServiceRemotingListener
     {
         private FabricTransportListener nativeListener;

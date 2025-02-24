@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Runtime
     /// Defines the interface that must be implemented by the ServiceRemotingListener to receive messages from the
     /// remoting transport.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public interface IServiceRemotingMessageHandler
     {
         /// <summary>

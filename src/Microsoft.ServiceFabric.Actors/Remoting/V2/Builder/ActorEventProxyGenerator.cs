@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         private readonly IProxyActivator proxyActivator;
 
 #if !DotNetCoreClr
-        [Obsolete("This field is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith actorV1EventProxyGeneratorW;
 #endif
 
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         }
 
 #if !DotNetCoreClr
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
         {
             this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;

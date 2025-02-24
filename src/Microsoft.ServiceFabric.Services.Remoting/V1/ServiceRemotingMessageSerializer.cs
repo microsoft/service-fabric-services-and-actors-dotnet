@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal static class ServiceRemotingMessageSerializer
     {
         public static DataContractSerializer GetMessageBodySerializer(IEnumerable<Type> knownTypes)

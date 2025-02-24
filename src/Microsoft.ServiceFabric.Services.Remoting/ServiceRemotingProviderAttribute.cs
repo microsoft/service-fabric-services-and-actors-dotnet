@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceImplementation">The service implementation object.</param>
         /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public abstract IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation);
@@ -103,7 +103,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// </summary>
         /// <param name="callbackClient">Client implementation where the callbacks should be dispatched.</param>
         /// <returns>An <see cref="IServiceRemotingClientFactory"/>.</returns>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Remoting.V1.IServiceRemotingCallbackClient callbackClient);
 
