@@ -14,8 +14,6 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
-[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
-
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
     
@@ -33,28 +31,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
         public class GetProvider : ServiceRemotingProviderAttributeTest, IDisposable
         {
-
-            public class MockAssemblyWithoutRemotingProviderAttribute : Assembly
-            {
-                public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-                {
-                    return new Attribute[] {  };
-                }
-            }
-
-            public class MockAssemblyWithRemotingProviderAttribute : Assembly
-            {
-                public override object[] GetCustomAttributes(Type attributeType, bool inherit)
-                {
-                    return new Attribute[] { new FabricTransportServiceRemotingProviderAttribute() };
-                }
-            }
-
-            public void Dispose()
-            {
-                typeof(ServiceRemotingProviderAttribute).Field<Assembly>().Set(Assembly.GetEntryAssembly());
-            }
-
             public class WithNullArgument : GetProvider 
             {
                 [Fact]
@@ -62,14 +38,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 {
                     typeof(ServiceRemotingProviderAttribute).Field<Assembly>().Set(null);
 
-                    Assert.Throws<InvalidOperationException>(() => { ServiceRemotingProviderAttribute.GetProvider(); });
+                    var exception = Assert.Throws<InvalidOperationException>(() => 
+                    { 
+                        ServiceRemotingProviderAttribute.GetProvider(); 
+                    });
+
+                    Assert.Equal(ServiceRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
                 }
 
                 [Fact]
                 public void ThrowsExcpetionWhenEntryAssemblyDoesNotHaveProviderAttribute()
                 {
                     typeof(ServiceRemotingProviderAttribute).Field<Assembly>().Set(new MockAssemblyWithoutRemotingProviderAttribute());
-                    Assert.Throws<InvalidOperationException>(() => { ServiceRemotingProviderAttribute.GetProvider(); });
+                    
+                    var exception = Assert.Throws<InvalidOperationException>(() => 
+                    { 
+                        ServiceRemotingProviderAttribute.GetProvider(); 
+                    });
+
+                    Assert.Equal(ServiceRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
                 }
 
                 [Fact]
@@ -85,24 +72,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
             public class WithTypeArrayArgument : GetProvider 
             {
-                
-                public class MockTypeWithAssemblyProviderAttribute : MockBaseType
-                {
-                    public override Assembly Assembly { get => new MockAssemblyWithRemotingProviderAttribute(); }
-                }
-
-                public class MockTypeWithoutAssemblyProviderAttribute : MockBaseType
-                {
-                    public override Assembly Assembly { get => new MockAssemblyWithoutRemotingProviderAttribute(); }
-                }
-
                 [Fact]
                 public void ThrowsExceptionWhenTypeHasNoAssemblyProviderAttribute()
                 {
                     var types = new Type[] { new MockTypeWithoutAssemblyProviderAttribute() };
                     typeof(ServiceRemotingProviderAttribute).Field<Assembly>().Set(null);
 
-                    Assert.Throws<InvalidOperationException>(() => { ServiceRemotingProviderAttribute.GetProvider(types); });
+                    var exception = Assert.Throws<InvalidOperationException>(() => 
+                    { 
+                        ServiceRemotingProviderAttribute.GetProvider(types);
+                    });
+
+                    Assert.Equal(ServiceRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
                 }
 
                 [Fact]
@@ -114,10 +95,39 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
                     Assert.Null(exception);
                 }
+
+                public class MockTypeWithAssemblyProviderAttribute : MockBaseType
+                {
+                    public override Assembly Assembly { get => new MockAssemblyWithRemotingProviderAttribute(); }
+                }
+
+                public class MockTypeWithoutAssemblyProviderAttribute : MockBaseType
+                {
+                    public override Assembly Assembly { get => new MockAssemblyWithoutRemotingProviderAttribute(); }
+                }
             }
 
-        }
+            public class MockAssemblyWithoutRemotingProviderAttribute : Assembly
+            {
+                public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+                {
+                    return new Attribute[] { };
+                }
+            }
 
+            public class MockAssemblyWithRemotingProviderAttribute : Assembly
+            {
+                public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+                {
+                    return new Attribute[] { new FabricTransportServiceRemotingProviderAttribute() };
+                }
+            }
+
+            public void Dispose()
+            {
+                typeof(ServiceRemotingProviderAttribute).Field<Assembly>().Set(Assembly.GetEntryAssembly());
+            }
+        }
     }
 }
 

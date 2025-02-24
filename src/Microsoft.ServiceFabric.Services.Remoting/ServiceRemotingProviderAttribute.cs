@@ -84,6 +84,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             get { return "V2_1Listener"; }
         }
 
+        internal static string DefaultRemotingProviderExceptionMessage
+        {
+            get { return "To use Service Remoting, the version of the remoting stack must be specified explicitely."; }
+        }
 #if !DotNetCoreClr
 
         /// <summary>
@@ -148,7 +152,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
-            throw new InvalidOperationException();
+            throw new InvalidOperationException(DefaultRemotingProviderExceptionMessage);
         }
     }
 }

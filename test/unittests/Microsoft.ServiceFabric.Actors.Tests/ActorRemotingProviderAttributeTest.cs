@@ -5,8 +5,6 @@ using Xunit;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
 
-[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
-
 namespace Microsoft.ServiceFabric.Actors.Tests
 {
     public class ActorRemotingProviderAttributeTest
@@ -22,7 +20,82 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         }
 
         public class GetProvider : ActorRemotingProviderAttributeTest, IDisposable
-        {
+        { 
+            public class WithNullArgument : GetProvider
+            {
+                [Fact]
+                public void ThrowsExceptionWhenEntryAssselbyIsNull()
+                {
+                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
+
+                    var exception = Assert.Throws<InvalidOperationException>(() => 
+                    { 
+                        ActorRemotingProviderAttribute.GetProvider(); 
+                    });
+
+                    Assert.Equal(ActorRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                }
+
+                [Fact]
+                public void ThrowsExcpetionWhenEntryAssemblyDoesNotHaveProviderAttribute()
+                {
+                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(new MockAssemblyWithoutRemotingProviderAttribute());
+
+                    var exception = Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        ActorRemotingProviderAttribute.GetProvider();
+                    });
+
+                    Assert.Equal(ActorRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                }
+
+                [Fact]
+                public void DoesNotThrowExcpetionWhenEntryAssemblyHasProviderAttribute()
+                {
+                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(new MockAssemblyWithRemotingProviderAttribute());
+
+                    Exception exception = Record.Exception(() => { ActorRemotingProviderAttribute.GetProvider(); });
+
+                    Assert.Null(exception);
+                }
+            }
+
+            public class WithTypeArrayArgument : GetProvider
+            {
+                [Fact]
+                public void ThrowsExceptionWhenTypeHasNoAssemblyProviderAttribute()
+                {
+                    var types = new Type[] { new MockTypeWithoutAssemblyProviderAttribute() };
+                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
+
+                    var exception = Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        ActorRemotingProviderAttribute.GetProvider();
+                    });
+
+                    Assert.Equal(ActorRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                }
+
+                [Fact]
+                public void DoesNotThrowExceptionWhenTypeHasAssemblyProviderAttribute()
+                {
+                    var types = new Type[] { new MockTypeWithAssemblyProviderAttribute() };
+
+                    Exception exception = Record.Exception(() => { ActorRemotingProviderAttribute.GetProvider(types); });
+
+                    Assert.Null(exception);
+                }
+
+                public class MockTypeWithAssemblyProviderAttribute : MockBaseType
+                {
+                    public override Assembly Assembly { get => new MockAssemblyWithRemotingProviderAttribute(); }
+                }
+
+                public class MockTypeWithoutAssemblyProviderAttribute : MockBaseType
+                {
+                    public override Assembly Assembly { get => new MockAssemblyWithoutRemotingProviderAttribute(); }
+                }
+            }
 
             public class MockAssemblyWithoutRemotingProviderAttribute : Assembly
             {
@@ -44,68 +117,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             {
                 typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(Assembly.GetEntryAssembly());
             }
-
-            public class WithNullArgument : GetProvider
-            {
-                [Fact]
-                public void ThrowsExceptionWhenEntryAssselbyIsNull()
-                {
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
-
-                    Assert.Throws<InvalidOperationException>(() => { ActorRemotingProviderAttribute.GetProvider(); });
-                }
-
-                [Fact]
-                public void ThrowsExcpetionWhenEntryAssemblyDoesNotHaveProviderAttribute()
-                {
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(new MockAssemblyWithoutRemotingProviderAttribute());
-                    Assert.Throws<InvalidOperationException>(() => { ActorRemotingProviderAttribute.GetProvider(); });
-                }
-
-                [Fact]
-                public void DoesNotThrowExcpetionWhenEntryAssemblyHasProviderAttribute()
-                {
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(new MockAssemblyWithRemotingProviderAttribute());
-
-                    Exception exception = Record.Exception(() => { ActorRemotingProviderAttribute.GetProvider(); });
-
-                    Assert.Null(exception);
-                }
-            }
-
-            public class WithTypeArrayArgument : GetProvider
-            {
-
-                public class MockTypeWithAssemblyProviderAttribute : MockBaseType
-                {
-                    public override Assembly Assembly { get => new MockAssemblyWithRemotingProviderAttribute(); }
-                }
-
-                public class MockTypeWithoutAssemblyProviderAttribute : MockBaseType
-                {
-                    public override Assembly Assembly { get => new MockAssemblyWithoutRemotingProviderAttribute(); }
-                }
-
-                [Fact]
-                public void ThrowsExceptionWhenTypeHasNoAssemblyProviderAttribute()
-                {
-                    var types = new Type[] { new MockTypeWithoutAssemblyProviderAttribute() };
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
-
-                    Assert.Throws<InvalidOperationException>(() => { ActorRemotingProviderAttribute.GetProvider(types); });
-                }
-
-                [Fact]
-                public void DoesNotThrowExceptionWhenTypeHasAssemblyProviderAttribute()
-                {
-                    var types = new Type[] { new MockTypeWithAssemblyProviderAttribute() };
-
-                    Exception exception = Record.Exception(() => { ActorRemotingProviderAttribute.GetProvider(types); });
-
-                    Assert.Null(exception);
-                }
-            }
-
         }
 
     }
