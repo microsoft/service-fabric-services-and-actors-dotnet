@@ -54,9 +54,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 {
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(new MockAssemblyWithRemotingProviderAttribute());
 
-                    Exception exception = Record.Exception(() => { ActorRemotingProviderAttribute.GetProvider(); });
+                    ActorRemotingProviderAttribute provider = ActorRemotingProviderAttribute.GetProvider();
 
-                    Assert.Null(exception);
+                    Assert.IsType<FabricTransportActorRemotingProviderAttribute>(provider);
                 }
             }
 
@@ -81,9 +81,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 {
                     var types = new Type[] { new MockTypeWithAssemblyProviderAttribute() };
 
-                    Exception exception = Record.Exception(() => { ActorRemotingProviderAttribute.GetProvider(types); });
+                    ActorRemotingProviderAttribute provider = ActorRemotingProviderAttribute.GetProvider(types);
 
-                    Assert.Null(exception);
+                    Assert.IsType<FabricTransportActorRemotingProviderAttribute>(provider);
                 }
 
                 public class MockTypeWithAssemblyProviderAttribute : MockBaseType
