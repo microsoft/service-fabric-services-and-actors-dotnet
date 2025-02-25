@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
 
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal sealed class WcfServiceRemotingCommunicationCallback : IServiceRemotingCallbackClient
     {
         private readonly IServiceRemotingCallbackContract callbackChannel;

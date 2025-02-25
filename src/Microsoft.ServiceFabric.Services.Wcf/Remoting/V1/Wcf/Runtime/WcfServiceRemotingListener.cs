@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
     /// An <see cref="IServiceRemotingListener"/> that uses
     /// Windows Communication Foundation to provide interface remoting for stateless and stateful services.
     /// </summary>
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public class WcfServiceRemotingListener : IServiceRemotingListener
     {
         private readonly IServiceRemotingMessageHandler messageHandler;

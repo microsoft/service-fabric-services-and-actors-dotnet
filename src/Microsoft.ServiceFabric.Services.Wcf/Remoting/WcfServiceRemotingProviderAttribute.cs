@@ -76,7 +76,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         /// <returns>
         ///     A <see cref=" V1.Wcf.Runtime.WcfServiceRemotingListener"/> for the specified service.
         /// </returns>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public override IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation)
@@ -101,7 +101,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Wcf
         /// <returns>
         ///     A <see cref="Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client.WcfServiceRemotingClientFactory"/>.
         /// </returns>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingClientFactoryV2() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public override V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             V1.IServiceRemotingCallbackClient callbackClient)
         {

@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <param name="serviceContext">The context under which the service is operating.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="Microsoft.ServiceFabric.Services.Remoting.IService"/> interface.</returns>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatefulService>(
             this TStatefulService serviceImplementation,
             StatefulServiceContext serviceContext)
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         /// <param name="serviceContext">The context under which the service is operating.</param>
         /// <returns>A <see cref="IServiceRemotingListener"/> communication
         /// listener that remotes the interfaces deriving from <see cref="IService"/> interface.</returns>
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public static IServiceRemotingListener CreateServiceRemotingListener<TStatelessService>(
             this TStatelessService serviceImplementation,
             StatelessServiceContext serviceContext)
@@ -162,7 +162,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
         }
 
 #if !DotNetCoreClr
-        [Obsolete("This method is part of the deprecated V1 service remoting stack. Use CreateServiceRemotingReplicaListeners() instead.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         private static IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
             object serviceImplementation)

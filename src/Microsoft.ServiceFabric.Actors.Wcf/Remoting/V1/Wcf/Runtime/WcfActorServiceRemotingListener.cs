@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Runtime
     /// An <see cref="IServiceRemotingListener"/> that uses
     /// Windows Communication Foundation to provide interface remoting for actor services.
     /// </summary>
-    [Obsolete("This class is part of the V1 service remoting stack and has been deprecated. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public class WcfActorServiceRemotingListener : WcfServiceRemotingListener
     {
         /// <summary>

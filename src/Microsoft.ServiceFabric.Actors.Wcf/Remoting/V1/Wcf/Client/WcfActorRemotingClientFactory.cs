@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Client
     ///     to communicate with an actor service and actors hosted by it, using actor and service interfaces that are remoted via
     ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.V1.Wcf.Runtime.WcfActorServiceRemotingListener"/>.
     /// </summary>
-    [Obsolete("This class is part of the V1 service remoting stack and has been deprecated. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public class WcfActorRemotingClientFactory : WcfServiceRemotingClientFactory
     {
         /// <summary>

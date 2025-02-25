@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 
-    [Obsolete("This class is part of the deprecated V1 service remoting stack. To switch to V2 remoting stack, refer to:")]
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class WcfServiceRemotingClient : IServiceRemotingClient
     {
         private readonly WcfCommunicationClient<IServiceRemotingContract> wcfClient;
