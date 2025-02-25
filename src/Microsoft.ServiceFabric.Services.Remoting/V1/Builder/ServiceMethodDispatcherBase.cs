@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     /// <summary>
     /// Service method dispatcher class. Internal use only.
     /// </summary>
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public abstract class
         ServiceMethodDispatcherBase : MethodDispatcherBaseWithSerializer
     {

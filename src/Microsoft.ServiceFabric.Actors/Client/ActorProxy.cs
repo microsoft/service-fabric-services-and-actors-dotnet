@@ -27,7 +27,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private RemotingClientVersion remotingClient;
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Builder.ActorProxyGeneratorWith proxyGeneratorWith;
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Client.ActorServicePartitionClient servicePartitionClient;
 #endif
 
@@ -49,7 +51,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
 #if !DotNetCoreClr
                 if (!(Helper.IsEitherRemotingV2(this.remotingClient)))
                 {
+#pragma warning disable 618
                     return this.servicePartitionClient.ActorId;
+#pragma warning restore 618
                 }
 #endif
                 return this.servicePartitionClientV2.ActorId;
@@ -61,6 +65,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Gets the <see cref="Remoting.V1.Client.IActorServicePartitionClient"/> interface that this proxy is using to communicate with the actor.
         /// </summary>
         /// <value><see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public Remoting.V1.Client.IActorServicePartitionClient ActorServicePartitionClient
         {
             get { return this.servicePartitionClient; }
@@ -246,26 +251,31 @@ namespace Microsoft.ServiceFabric.Actors.Client
 
 #if !DotNetCoreClr
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetRequestMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetResponseMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
             return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
             return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override Task<byte[]> InvokeAsync(
             int interfaceId,
             int methodId,
@@ -283,6 +293,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             return this.servicePartitionClient.InvokeAsync(actorMsgHeaders, requestMsgBodyBytes, cancellationToken);
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override void Invoke(
             int interfaceId,
             int methodId,
@@ -293,6 +304,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             throw new NotImplementedException();
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal void Initialize(
             Remoting.V1.Builder.ActorProxyGeneratorWith actorProxyGeneratorWith,
             Remoting.V1.Client.ActorServicePartitionClient actorServicePartitionClient)
@@ -314,6 +326,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 
 #if !DotNetCoreClr
+#pragma warning disable 618
             var actorId = this.servicePartitionClient.ActorId;
             var info = Remoting.V1.Client.ActorEventSubscriberManager.Instance.RegisterSubscriber(
             actorId,
@@ -345,6 +358,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             }
 
             this.ResubscribeAsync(info, resubscriptionInterval);
+#pragma warning restore 618
 #endif
         }
 
@@ -356,6 +370,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 return;
             }
 #if !DotNetCoreClr
+#pragma warning disable 618
             var actorId = this.servicePartitionClient.ActorId;
             if (Remoting.V1.Client.ActorEventSubscriberManager.Instance.TryUnregisterSubscriber(
                 actorId,
@@ -365,6 +380,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 await this.servicePartitionClient.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
             }
+#pragma warning restore 618
 #endif
         }
 
@@ -372,6 +388,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private void ResubscribeAsync(SubscriptionInfo info, TimeSpan resubscriptionInterval)
         {
 #pragma warning disable 4014
+#pragma warning disable 618
             // ReSharper disable once UnusedVariable
             var ignore = Task.Run(
                 async () =>
@@ -399,6 +416,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                     }
                 });
         }
+#pragma warning restore 618
 #endif
 
         private void ResubscribeAsyncV2(SubscriptionInfo info, TimeSpan resubscriptionInterval)

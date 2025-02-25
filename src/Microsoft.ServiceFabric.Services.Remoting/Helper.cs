@@ -44,11 +44,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         }
 
 #if !DotNetCoreClr
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public static bool IsRemotingV1(RemotingListenerVersion remotingListener)
         {
             return remotingListener.HasFlag(RemotingListenerVersion.V1);
         }
 
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public static bool IsRemotingV1(RemotingClientVersion remotingListener)
         {
             return remotingListener.HasFlag(RemotingClientVersion.V1);

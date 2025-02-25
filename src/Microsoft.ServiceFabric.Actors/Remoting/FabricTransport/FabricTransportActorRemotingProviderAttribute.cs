@@ -30,13 +30,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         /// </summary>
         public FabricTransportActorRemotingProviderAttribute()
         {
-#if !DotNetCoreClr
-            this.RemotingClientVersion = RemotingClientVersion.V1;
-            this.RemotingListenerVersion = RemotingListenerVersion.V1;
-#else
             this.RemotingClientVersion = RemotingClientVersion.V2;
             this.RemotingListenerVersion = RemotingListenerVersion.V2;
-#endif
         }
 
         /// <summary>
@@ -96,6 +91,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         ///     as <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public override IServiceRemotingListener CreateServiceRemotingListener(ActorService actorService)
         {
             var listenerSettings = GetActorListenerSettings(actorService);
@@ -117,6 +113,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
         ///     that can be used with <see cref="ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public override Services.Remoting.V1.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Services.Remoting.V1.IServiceRemotingCallbackClient callbackClient)
         {

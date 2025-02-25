@@ -147,6 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public Task<byte[]> InvokeAsync(
             ActorId actorId,
             int interfaceId,
@@ -835,6 +836,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
 #if !DotNetCoreClr
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Task<byte[]> ActorMethodDispatch(
             Remoting.V1.Builder.ActorMethodDispatcherBase methodDispatcher,
             ActorBase actor,

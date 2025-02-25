@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
+    using System;
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
@@ -39,16 +40,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         }
 
 #if !DotNetCoreClr
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract DataContractSerializer GetRequestMessageBodySerializer(int interfaceId);
 
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract DataContractSerializer GetResponseMessageBodySerializer(int interfaceId);
 
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract object GetResponseMessageBodyValue(object responseMessageBody);
 
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract object CreateRequestMessageBody(object requestMessageBodyValue);
 
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract Task<byte[]> InvokeAsync(int interfaceId, int methodId, byte[] requestMsgBodyBytes, CancellationToken cancellationToken);
 
+        [Obsolete(DeprecationMessage.RemotingV1)]
         internal abstract void Invoke(int interfaceId, int methodId, byte[] requestMsgBodyBytes);
 #endif
 
@@ -78,6 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <param name="interfaceId">Id of the remote interface.</param>
         /// <param name="methodId">Id of the remote method to be invokved.</param>
         /// <param name="requestMsgBodyValue">Message body to be sent to remote object.</param>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         protected void Invoke(
             int interfaceId,
             int methodId,
@@ -104,6 +112,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         /// <param name="requestMsgBodyValue">Request body.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>A task that represents the asynchronous operation async call to remote object.</returns>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         protected async Task<object> InvokeAsync(
             int interfaceId,
             int methodId,

@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
 
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     internal class ActorEventProxyGeneratorWith : ProxyGeneratorWithSerializer
     {
         private readonly IProxyActivator proxyActivator;

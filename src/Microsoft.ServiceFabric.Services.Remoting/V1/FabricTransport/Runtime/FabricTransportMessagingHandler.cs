@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class FabricTransportMessagingHandler : IFabricTransportMessageHandler
     {
         private readonly IServiceRemotingMessageHandler messageHandler;

@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
     using Microsoft.ServiceFabric.FabricTransport.Client;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class FabricTransportServiceRemotingConnectionHandler : IFabricTransportConnectionHandler
     {
         private ConcurrentDictionary<string, FabricTransportCallbackClient> clientCallbackConnection;

@@ -5,8 +5,10 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1
 {
+    using System;
     using System.Runtime.Serialization;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     [DataContract(Name = "msgBody", Namespace = Constants.ServiceCommunicationNamespace)]
     internal class ServiceRemotingMessageBody
     {

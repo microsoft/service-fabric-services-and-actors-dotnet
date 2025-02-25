@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal abstract class ProxyGeneratorWithSerializer : ProxyGenerator
     {
         private readonly IDictionary<int, DataContractSerializer> requestMessageBodySerializers;

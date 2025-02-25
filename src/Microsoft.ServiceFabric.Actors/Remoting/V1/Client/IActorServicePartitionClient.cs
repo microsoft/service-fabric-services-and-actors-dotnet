@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
 {
+    using System;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 
     /// <summary>
     /// Defines the interface for the client that communicate with an actor within a service partition.
     /// </summary>
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public interface IActorServicePartitionClient : IServiceRemotingPartitionClient
     {
         /// <summary>

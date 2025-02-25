@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class ServiceProxyGeneratorWith : ProxyGeneratorWithSerializer
     {
         private readonly IProxyActivator proxyActivator;

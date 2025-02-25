@@ -21,7 +21,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV2;
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly ConcurrentDictionary<Guid, IActorEventSubscriberProxy> subscriberProxiesV1;
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith proxyGeneratorWith;
 #endif
 
@@ -31,7 +33,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         protected ActorEventProxy()
         {
 #if !DotNetCoreClr
+#pragma warning disable 618
             this.subscriberProxiesV1 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
+#pragma warning restore 618
 #endif
             this.subscriberProxiesV2 = new ConcurrentDictionary<Guid, IActorEventSubscriberProxy>();
         }
@@ -50,7 +54,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             else
             {
 #if !DotNetCoreClr
+#pragma warning disable 618
                 this.subscriberProxiesV1.AddOrUpdate(subscriber.Id, subscriber, (id, existing) => subscriber);
+#pragma warning restore 618
 #endif
             }
         }
@@ -58,7 +64,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal void RemoveSubscriber(Guid subscriberId)
         {
 #if !DotNetCoreClr
+#pragma warning disable 618
             this.subscriberProxiesV1.TryRemove(subscriberId, out var removedV1);
+#pragma warning restore 618 
 #endif
             this.subscriberProxiesV2.TryRemove(subscriberId, out var removedV2);
         }
@@ -84,31 +92,37 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal void Initialize(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
         {
             this.proxyGeneratorWith = actorEventProxyGeneratorWith;
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetRequestMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
         {
             return this.proxyGeneratorWith.GetResponseMessageBodySerializer(interfaceId);
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object GetResponseMessageBodyValue(object responseMessageBody)
         {
             return ((Remoting.V1.ActorMessageBody)responseMessageBody).Value;
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override object CreateRequestMessageBody(object requestMessageBodyValue)
         {
             return new Remoting.V1.ActorMessageBody() { Value = requestMessageBodyValue };
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override Task<byte[]> InvokeAsync(
             int interfaceId,
             int methodId,
@@ -119,6 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             throw new NotImplementedException();
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal override void Invoke(
             int interfaceId,
             int methodId,
@@ -165,6 +180,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             subscriberProxy.RaiseEvent(eventInterfaceId, eventMethodId, eventMsgBytes);
         }
 
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private void SendToSubscribers(int eventInterfaceId, int eventMethodId, byte[] eventMsgBytes)
         {
             IList<Guid> subscribersToRemove = null;

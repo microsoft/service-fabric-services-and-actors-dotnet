@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal sealed class ServiceProxyGeneratorBuilder : ProxyGeneratorBuilder<ServiceProxyGeneratorWith, ServiceProxy>
     {
         public ServiceProxyGeneratorBuilder(ICodeBuilder codeBuilder)

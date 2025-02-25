@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         private readonly IProxyActivator proxyActivator;
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Builder.ActorEventProxyGeneratorWith actorV1EventProxyGeneratorW;
 #endif
 
@@ -29,12 +30,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         {
             var actorEventProxy = (ActorEventProxy)this.proxyActivator.CreateInstance();
 #if !DotNetCoreClr
+#pragma warning disable 618
             actorEventProxy.Initialize(this.actorV1EventProxyGeneratorW);
+#pragma warning restore 618
 #endif
             return actorEventProxy;
         }
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
         {
             this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;

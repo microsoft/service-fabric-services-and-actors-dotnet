@@ -42,10 +42,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     ///     The order in which this attribute is looked up is as follows:
     ///     <list type="number">
     ///         <item>
-    ///             In the entry <see cref="System.Reflection.Assembly"/> obtained by calling method <see cref="System.Reflection.Assembly.GetEntryAssembly"/>
+    ///             In the entry <see cref="Assembly"/> obtained by calling method <see cref="Assembly.GetEntryAssembly"/>
     ///         </item>
     ///         <item>
-    ///             In the <see cref="System.Reflection.Assembly"/> that defines the remote interface for which listener or proxy is being created.
+    ///             In the <see cref="Assembly"/> that defines the remote interface for which listener or proxy is being created.
     ///         </item>
     ///     </list>
     ///     </para>
@@ -53,18 +53,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     [AttributeUsage(AttributeTargets.Assembly)]
     public abstract class ServiceRemotingProviderAttribute : Attribute
     {
+        private static Assembly entryAssembly = Assembly.GetEntryAssembly();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRemotingProviderAttribute"/> class.
         /// </summary>
         public ServiceRemotingProviderAttribute()
         {
-#if !DotNetCoreClr
-            this.RemotingListenerVersion = RemotingListenerVersion.V1;
-            this.RemotingClientVersion = RemotingClientVersion.V1;
-#else
             this.RemotingListenerVersion = RemotingListenerVersion.V2_1;
             this.RemotingClientVersion = RemotingClientVersion.V2_1;
-#endif
         }
 
         /// <summary>
@@ -88,13 +85,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         }
 
 #if !DotNetCoreClr
-
         /// <summary>
         /// Creates a V1 service remoting listener for remoting the service interface.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceImplementation">The service implementation object.</param>
         /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public abstract IServiceRemotingListener CreateServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation);
@@ -105,9 +102,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// </summary>
         /// <param name="callbackClient">Client implementation where the callbacks should be dispatched.</param>
         /// <returns>An <see cref="IServiceRemotingClientFactory"/>.</returns>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Remoting.V1.IServiceRemotingCallbackClient callbackClient);
-
 #endif
 
         /// <summary>
@@ -140,17 +137,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
-            var assembly = Assembly.GetEntryAssembly();
-            if (assembly != null)
+            if (entryAssembly != null)
             {
-                var attribute = assembly.GetCustomAttribute<ServiceRemotingProviderAttribute>();
+                var attribute = entryAssembly.GetCustomAttribute<ServiceRemotingProviderAttribute>();
                 if (attribute != null)
                 {
                     return attribute;
                 }
             }
 
-            return new FabricTransportServiceRemotingProviderAttribute();
+            InvalidOperationException exception = new InvalidOperationException("To use Service Remoting, the version of the remoting stack must be specified explicitely.");
+            exception.HelpLink = "https://github.com/microsoft/service-fabric/blob/master/release_notes/Deprecated/RemotingV1.md";
+            throw exception;
         }
     }
 }

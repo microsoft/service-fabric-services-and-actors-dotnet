@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------
+// ------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
     using SR = Microsoft.ServiceFabric.Services.Remoting.SR;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class DummyNativeClient : FabricTransportClient
     {
         public DummyNativeClient()

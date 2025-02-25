@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.ServiceFabric.Actors.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Client;
@@ -21,6 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Client
     /// actors over interfaces that are remoted via
     /// <see cref="FabricTransportServiceRemotingListener"/>.
     /// </summary>
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public class FabricTransportActorRemotingClientFactory : FabricTransportServiceRemotingClientFactory
     {
         /// <summary>

@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class ServiceCodeBuilder : CodeBuilder
     {
         private static readonly ICodeBuilder Instance = new ServiceCodeBuilder();

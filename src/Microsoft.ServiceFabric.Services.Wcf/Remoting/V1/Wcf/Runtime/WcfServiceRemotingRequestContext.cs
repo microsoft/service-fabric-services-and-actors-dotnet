@@ -5,10 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Runtime
 {
+    using System;
     using System.ServiceModel;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal sealed class WcfServiceRemotingRequestContext : IServiceRemotingRequestContext
     {
         public IServiceRemotingCallbackClient GetCallbackClient()

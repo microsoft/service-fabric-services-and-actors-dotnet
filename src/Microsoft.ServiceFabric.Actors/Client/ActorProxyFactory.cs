@@ -20,6 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         private readonly OperationRetrySettings retrySettings;
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private Remoting.V1.Client.ActorProxyFactory proxyFactoryV1;
 #endif
         private Remoting.V2.Client.ActorProxyFactory proxyFactoryV2;
@@ -42,6 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// </summary>
         /// <param name="createServiceRemotingClientFactory">Factory method to create remoting communication client factory.</param>
         /// <param name="retrySettings">Retry settings for the remote object calls  made by proxy.</param>
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public ActorProxyFactory(
             Func<Services.Remoting.V1.IServiceRemotingCallbackClient,
                     Services.Remoting.V1.Client.IServiceRemotingClientFactory>
@@ -198,10 +200,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
         public void Dispose()
         {
 #if !DotNetCoreClr
+#pragma warning disable 618
             if (this.proxyFactoryV1 != null)
             {
                 this.proxyFactoryV1.Dispose();
             }
+#pragma warning restore 618
 #endif
             if (this.proxyFactoryV2 != null)
             {
@@ -217,6 +221,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         {
             this.GetOrSetProxyFactory(actorInterfaceType);
 #if !DotNetCoreClr
+#pragma warning disable 618
             if (this.proxyFactoryV1 != null)
             {
                 return this.proxyFactoryV1.CreateActorProxy(
@@ -225,6 +230,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
                     actorId,
                     this.OverrideListenerNameIfConditionMet(listenerName));
             }
+#pragma warning restore 618
 #endif
 
             return this.proxyFactoryV2.CreateActorProxy(
@@ -244,13 +250,14 @@ namespace Microsoft.ServiceFabric.Actors.Client
 #if !DotNetCoreClr
 
             // Use provider to find the stack
+#pragma warning disable 618
             if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
             {
                 lock (this.thisLock)
                 {
-                        if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
-                        {
-                            var provider = this.GetProviderAttribute(actorInterfaceType);
+                    if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
+                    {
+                        var provider = this.GetProviderAttribute(actorInterfaceType);
                             if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
                             {
                                 // We are overriding listenerName since using provider service can have multiple listener configured for upgrade cases
@@ -259,11 +266,12 @@ namespace Microsoft.ServiceFabric.Actors.Client
                                     new Remoting.V2.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
                                 return this.proxyFactoryV2;
                             }
-
-                            this.proxyFactoryV1 =
+                        this.proxyFactoryV1 =
                                 new Remoting.V1.Client.ActorProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
-                            return this.proxyFactoryV1;
-                        }
+
+                        return this.proxyFactoryV1;
+#pragma warning restore 618
+                    }
                 }
             }
 
@@ -271,8 +279,9 @@ namespace Microsoft.ServiceFabric.Actors.Client
             {
                 return this.proxyFactoryV2;
             }
-
+#pragma warning disable 618
             return this.proxyFactoryV1;
+#pragma warning restore 618
 
 #else
             if (this.proxyFactoryV2 == null)

@@ -23,6 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
     /// Provides an implementation of <see cref="IServiceRemotingMessageHandler"/> that can dispatch
     /// messages to an actor service and to the actors hosted in the service.
     /// </summary>
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public class ActorServiceRemotingDispatcher : ServiceRemotingDispatcher
     {
         private readonly ActorService actorService;

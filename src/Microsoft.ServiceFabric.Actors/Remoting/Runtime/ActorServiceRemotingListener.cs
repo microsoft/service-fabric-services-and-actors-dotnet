@@ -27,7 +27,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
                 return provider.CreateServiceRemotingListeners().ElementAt(0).Value(actorService);
             }
 
+#pragma warning disable 618
             return provider.CreateServiceRemotingListener(actorService);
+#pragma warning restore 618
         }
 
 #endif

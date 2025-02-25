@@ -18,6 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Builder
     /// The class dispatches the requests from the client to the interface/method of the remoted objectts.
     /// This class is used by remoting code generator. This class caches the Serializer.
     /// </summary>
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public abstract class MethodDispatcherBaseWithSerializer : MethodDispatcherBase
     {
         private DataContractSerializer requestBodySerializer;

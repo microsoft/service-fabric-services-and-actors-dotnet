@@ -3,6 +3,8 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     /// <summary>
@@ -14,6 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// This is selected to create V1 Client. V1 is an old(soon to be deprecated) Remoting Stack.
         /// </summary>
+        [Obsolete("This is an old version of remoting stack and will be removed in future versions.")]
         V1 = 1,
 
 #endif
