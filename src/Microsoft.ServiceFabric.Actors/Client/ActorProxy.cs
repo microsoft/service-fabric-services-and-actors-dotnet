@@ -379,7 +379,6 @@ namespace Microsoft.ServiceFabric.Actors.Client
                 out var info))
             {
                 await this.servicePartitionClient.UnsubscribeAsync(info.Subscriber.EventId, info.Id);
-
             }
 #pragma warning restore 618
 #endif

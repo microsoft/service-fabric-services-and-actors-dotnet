@@ -368,10 +368,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 #if !DotNetCoreClr
             if (Services.Remoting.Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
-                #pragma warning disable 618
+#pragma warning disable 618
                serviceReplicaListeners.Add(
                     new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }));
-                    #pragma warning restore 618
+#pragma warning restore 618
             }
 #endif
             if (Services.Remoting.Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
