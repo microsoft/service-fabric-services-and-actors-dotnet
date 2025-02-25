@@ -80,17 +80,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             var impl = (IService)serviceImplementation;
             var provider = ServiceRemotingProviderAttribute.GetProvider(interfaceTypes);
             var serviceReplicaListeners = new List<ServiceReplicaListener>();
-#if !DotNetCoreClr
 
+#if !DotNetCoreClr
+#pragma warning disable 618
             if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
-#pragma warning disable 618
                 serviceReplicaListeners.Add(new ServiceReplicaListener((t) =>
                 {
                     return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
                 }));
-#pragma warning restore 618
             }
+#pragma warning restore 618
 #endif
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
@@ -133,16 +133,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Runtime
             var serviceInstanceListeners = new List<ServiceInstanceListener>();
 
 #if !DotNetCoreClr
-
+#pragma warning disable 618
             if (Helper.IsRemotingV1(provider.RemotingListenerVersion))
             {
-#pragma warning disable 618
                 serviceInstanceListeners.Add(new ServiceInstanceListener((t) =>
                 {
                     return provider.CreateServiceRemotingListener(serviceImplementation.Context, impl);
                 }));
-#pragma warning restore 618
             }
+#pragma warning restore 618
 #endif
             if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
             {
