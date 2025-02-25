@@ -561,10 +561,12 @@ namespace FabActUtil.Generator
         {
             var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
 #if !DotNetCoreClr
+#pragma warning disable 618
             if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
             }
+#pragma warning restore 618
 #endif
             if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
@@ -583,6 +585,7 @@ namespace FabActUtil.Generator
         {
             var endpoints = new List<EndpointType>();
 #if !DotNetCoreClr
+#pragma warning disable 618
             if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(
@@ -591,6 +594,7 @@ namespace FabActUtil.Generator
                         Name = GetFabricServiceEndpointName(actorTypeInfo),
                     });
             }
+#pragma warning restore 618
 #endif
             if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {

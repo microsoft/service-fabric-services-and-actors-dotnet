@@ -5,12 +5,14 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
 {
+    using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
     /// Defines the interface that must be implemented to provide a client for Service Remoting communication.
     /// </summary>
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public interface IServiceRemotingClient : ICommunicationClient
     {
         /// <summary>

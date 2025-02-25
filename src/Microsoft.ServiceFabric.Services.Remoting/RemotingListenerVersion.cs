@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         /// <summary>
         /// This is selected to create V1 Listener.V1 is an old (soon to be deprecated) Remoting Stack.
         /// </summary>
+        [Obsolete("This is an old version of remoting stack and will be removed in future versions.")]
         V1 = 1,
 
 #endif

@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Builder
     using Microsoft.ServiceFabric.Services.Remoting.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
 
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     internal class ActorProxyGeneratorBuilder : ProxyGeneratorBuilder<ActorProxyGeneratorWith, ActorProxy>
     {
         public ActorProxyGeneratorBuilder(ICodeBuilder codeBuilder)

@@ -56,18 +56,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     [AttributeUsage(AttributeTargets.Assembly)]
     public abstract class ActorRemotingProviderAttribute : Attribute
     {
+        private static Assembly entryAssembly = Assembly.GetEntryAssembly();
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActorRemotingProviderAttribute"/> class.
         /// </summary>
         protected ActorRemotingProviderAttribute()
         {
-#if !DotNetCoreClr
-            this.RemotingListenerVersion = RemotingListenerVersion.V1;
-            this.RemotingClientVersion = RemotingClientVersion.V1;
-#else
             this.RemotingListenerVersion = RemotingListenerVersion.V2_1;
             this.RemotingClientVersion = RemotingClientVersion.V2_1;
-#endif
         }
 
         /// <summary>
@@ -81,7 +78,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         public RemotingListenerVersion RemotingListenerVersion { get; set; }
 
 #if !DotNetCoreClr
-
         /// <summary>
         ///     Creates a service remoting listener for remoting the actor interfaces.
         /// </summary>
@@ -93,7 +89,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         ///     An <see cref="IServiceRemotingListener"/>
         ///     for the specified actor service.
         /// </returns>
-        ///
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public abstract IServiceRemotingListener CreateServiceRemotingListener(
             ActorService actorService);
 
@@ -108,6 +104,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         ///     that can be used with <see cref="Microsoft.ServiceFabric.Actors.Client.ActorProxyFactory"/> to
         ///     generate actor proxy to talk to the actor over remoted actor interface.
         /// </returns>
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             IServiceRemotingCallbackClient callbackClient);
 #endif
@@ -143,17 +140,18 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
                 }
             }
 
-            var assembly = Assembly.GetEntryAssembly();
-            if (assembly != null)
+            if (entryAssembly != null)
             {
-                var attribute = assembly.GetCustomAttribute<ActorRemotingProviderAttribute>();
+                var attribute = entryAssembly.GetCustomAttribute<ActorRemotingProviderAttribute>();
                 if (attribute != null)
                 {
                     return attribute;
                 }
             }
 
-            return new FabricTransportActorRemotingProviderAttribute();
+            InvalidOperationException exception = new InvalidOperationException("To use Actor Remoting, the version of the remoting stack must be specified explicitely.");
+            exception.HelpLink = "https://github.com/microsoft/service-fabric/blob/master/release_notes/Deprecated/RemotingV1.md";
+            throw exception;
         }
     }
 }

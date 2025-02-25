@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1
 {
+    using System;
     using System.Threading.Tasks;
 
     /// <summary>
     /// Defines the interface that must be implemented for providing callback mechanism from the remoting listener to the client.
     /// </summary>
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public interface IServiceRemotingCallbackClient
     {
         /// <summary>

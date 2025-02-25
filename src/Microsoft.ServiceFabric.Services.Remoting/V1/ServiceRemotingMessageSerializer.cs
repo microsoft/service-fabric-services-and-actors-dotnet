@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal static class ServiceRemotingMessageSerializer
     {
         public static DataContractSerializer GetMessageBodySerializer(IEnumerable<Type> knownTypes)

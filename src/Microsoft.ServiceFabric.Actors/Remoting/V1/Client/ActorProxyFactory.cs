@@ -20,6 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
     /// <summary>
     /// Represents a factory class to create a proxy to the remote actor objects.
     /// </summary>
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     internal class ActorProxyFactory : IActorProxyFactory
     {
         private readonly object thisLock;

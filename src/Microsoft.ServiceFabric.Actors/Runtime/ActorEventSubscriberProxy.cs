@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     internal class ActorEventSubscriberProxy : IActorEventSubscriberProxy
     {
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback;
 #endif
         private readonly ServiceFabric.Services.Remoting.V2.Runtime.IServiceRemotingCallbackClient callbackV2;
@@ -20,6 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly RemotingListenerVersion remotingListener;
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         public ActorEventSubscriberProxy(Guid id, ServiceFabric.Services.Remoting.V1.IServiceRemotingCallbackClient callback)
         {
             this.id = id;
@@ -46,6 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         void IActorEventSubscriberProxy.RaiseEvent(int eventInterfaceId, int eventMethodId, byte[] eventMsgBody)
         {
             this.callback.OneWayMessage(

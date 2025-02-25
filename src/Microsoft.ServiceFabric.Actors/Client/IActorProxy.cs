@@ -3,6 +3,8 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Actors.Client
 {
     /// <summary>
@@ -21,6 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Client
         /// Gets <see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.
         /// </summary>
         /// <value><see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         Remoting.V1.Client.IActorServicePartitionClient ActorServicePartitionClient { get; }
 #endif
 

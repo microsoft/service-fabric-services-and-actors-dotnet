@@ -16,6 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class FabricTransportServiceRemotingClient : IServiceRemotingClient
     {
         private readonly DataContractSerializer serializer =

@@ -5,9 +5,11 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf
 {
+    using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal sealed class WcfServiceRemotingCommunicationCallback : IServiceRemotingCallbackClient
     {
         private readonly IServiceRemotingCallbackContract callbackChannel;

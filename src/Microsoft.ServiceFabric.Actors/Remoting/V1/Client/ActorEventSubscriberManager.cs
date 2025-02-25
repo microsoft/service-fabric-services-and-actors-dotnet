@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Client
     using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Remoting.V1;
 
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     internal class ActorEventSubscriberManager : IServiceRemotingCallbackClient
     {
         public static readonly ActorEventSubscriberManager Instance = new ActorEventSubscriberManager();

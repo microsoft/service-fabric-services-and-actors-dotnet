@@ -18,7 +18,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
     internal class ActorEventProxyGeneratorBuilder : Microsoft.ServiceFabric.Services.Remoting.V2.Builder.ProxyGeneratorBuilder<ActorEventProxyGenerator, ActorEventProxy>
     {
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly MethodInfo invokeMethodInfoV1;
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private readonly V1.Builder.ActorEventProxyGeneratorBuilder proxyGeneratorBuilderV1;
 #endif
 
@@ -26,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
             : base(codeBuilder)
         {
 #if !DotNetCoreClr
-
+#pragma warning disable 618
             this.invokeMethodInfoV1 = this.ProxyBaseType.GetMethod(
                 "Invoke",
                 BindingFlags.Instance | BindingFlags.NonPublic,
@@ -35,6 +37,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 new[] { typeof(int), typeof(int), typeof(object) },
                 null);
             this.proxyGeneratorBuilderV1 = new V1.Builder.ActorEventProxyGeneratorBuilder(codeBuilder);
+#pragma warning restore 618
 #endif
         }
 
@@ -59,13 +62,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                 item => item.Key.V1Id,
                 item => item.Value.GetResponseBodyTypes());
 
+#pragma warning disable 618
             var v1ProxyGenerator = new Remoting.V1.Builder.ActorEventProxyGeneratorWith(
+#pragma warning restore 618
                 proxyInterfaceType,
                 null,
                 requestBodyTypes,
                 responseBodyTypes);
 
+#pragma warning disable 618
             ((ActorEventProxyGenerator)result.ProxyGenerator).InitializeV1ProxyGenerator(v1ProxyGenerator);
+#pragma warning restore 618
 #endif
             return result;
         }
@@ -104,12 +111,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
                             wrappedRequestBody,
                             interfaceDescription.InterfaceType.FullName);
 #if !DotNetCoreClr
-
+#pragma warning disable 618
                         this.AddVoidMethodImplementationV1(
                             ilGen,
                             interfaceDescription.V1Id,
                             methodDescription,
                             wrappedRequestBody);
+#pragma warning restore 618
 #endif
                         ilGen.Emit(OpCodes.Ret);
                     }
@@ -125,6 +133,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
         }
 
 #if !DotNetCoreClr
+        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
         private void AddVoidMethodImplementationV1(
             ILGenerator ilGen,
             int interfaceIdV1,

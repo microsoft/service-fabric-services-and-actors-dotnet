@@ -85,6 +85,7 @@ namespace Microsoft.ServiceFabric.Actors
             if (actor is IActorProxy actorProxy)
             {
 #if !DotNetCoreClr
+#pragma warning disable 618
                 if (actorProxy.ActorServicePartitionClient != null)
                 {
                     return new ActorReference()
@@ -94,6 +95,7 @@ namespace Microsoft.ServiceFabric.Actors
                         ListenerName = actorProxy.ActorServicePartitionClient.ListenerName,
                     };
                 }
+#pragma warning restore 618
 #endif
                 return new ActorReference()
                 {

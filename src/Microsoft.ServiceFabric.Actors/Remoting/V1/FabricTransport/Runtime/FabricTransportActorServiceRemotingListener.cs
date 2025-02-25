@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
 {
+    using System;
     using System.Fabric;
     using System.Fabric.Common;
     using Microsoft.ServiceFabric.Actors.Generator;
@@ -21,6 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V1.FabricTransport.Runtime
     ///     that uses fabric TCP transport to provide remoting of actor and service interfaces for actor
     ///     service.
     /// </summary>
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     public class FabricTransportActorServiceRemotingListener : FabricTransportServiceRemotingListener
     {
         /// <summary>

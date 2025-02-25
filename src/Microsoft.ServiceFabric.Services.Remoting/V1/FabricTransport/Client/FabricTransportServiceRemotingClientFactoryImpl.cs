@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Client
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class FabricTransportServiceRemotingClientFactoryImpl :
         CommunicationClientFactoryBase<FabricTransportServiceRemotingClient>
     {

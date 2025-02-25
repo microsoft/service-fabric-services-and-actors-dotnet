@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.FabricTransport.Runtime
 {
+    using System;
     using System.Globalization;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V1.Runtime;
 
+    [Obsolete(DeprecationMessage.RemotingV1)]
     internal class FabricTransportServiceRemotingRequestContext : IServiceRemotingRequestContext
     {
         private readonly FabricTransportRequestContext requestContext;

@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1.Runtime
 {
+    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using Microsoft.ServiceFabric.Actors.Remoting.V1.Builder;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     internal class ActorMethodDispatcherMap
     {
         private readonly IDictionary<int, ActorMethodDispatcherBase> map;

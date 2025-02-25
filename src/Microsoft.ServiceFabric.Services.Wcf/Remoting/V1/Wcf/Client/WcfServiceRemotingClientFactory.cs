@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V1.Wcf.Client
     /// and stateful services over interfaces that are remoted via
     /// <see cref="WcfServiceRemotingListener"/>.
     /// </summary>
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public class WcfServiceRemotingClientFactory : IServiceRemotingClientFactory
     {
         private readonly WcfCommunicationClientFactory<IServiceRemotingContract> wcfFactory;

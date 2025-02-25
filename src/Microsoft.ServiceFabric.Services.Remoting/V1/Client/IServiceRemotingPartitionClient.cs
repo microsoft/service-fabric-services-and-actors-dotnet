@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V1.Client
 {
+    using System;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     /// <summary>
     /// Defines the interface for the client that communicate over remoting to a particular replica of a service partition.
     /// </summary>
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public interface IServiceRemotingPartitionClient : IServicePartitionClient<IServiceRemotingClient>
     {
     }

@@ -5,12 +5,14 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V1
 {
+    using System;
     using System.Runtime.Serialization;
     using Microsoft.ServiceFabric.Actors.Remoting;
 
     /// <summary>
     ///  Represents the body of the actor messages.
     /// </summary>
+    [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
     [DataContract(Name = "msgBody", Namespace = Constants.Namespace)]
     internal class ActorMessageBody
     {
