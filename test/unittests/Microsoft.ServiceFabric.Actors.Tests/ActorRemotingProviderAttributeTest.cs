@@ -1,16 +1,15 @@
 using System;
 using System.Reflection;
-using Microsoft.ServiceFabric.Actors.Remoting;
-using Xunit;
 using Inspector;
+using Microsoft.ServiceFabric.Actors.Remoting;
 using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
 using Moq;
+using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Tests
 {
     public class ActorRemotingProviderAttributeTest
     {
-
         public class StaticConstructor : ActorRemotingProviderAttributeTest
         {
             [Fact]
@@ -22,33 +21,34 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
         public class GetProvider : ActorRemotingProviderAttributeTest, IDisposable
         {
-            protected Mock<Assembly> mockAssemblyWithoutRemotingProviderAttribute = new Mock<Assembly>();
-            protected Mock<Assembly> mockAssemblyWithRemotingProviderAttribute = new Mock<Assembly>();
+            protected readonly Mock<Assembly> mockAssemblyWithoutRemotingProviderAttribute = new Mock<Assembly>();
+            protected readonly Mock<Assembly> mockAssemblyWithRemotingProviderAttribute = new Mock<Assembly>();
 
             private readonly string expectedExceptionMessagesForMissingRemotingProviderAttribute =
                 "To use Actor Remoting, the version of the remoting stack must be specified explicitely.";
+
+            private readonly FabricTransportActorRemotingProviderAttribute expectedRemotingProvider = 
+                new FabricTransportActorRemotingProviderAttribute();
 
             public GetProvider()
             {
                 this.mockAssemblyWithoutRemotingProviderAttribute
                     .Setup(assembly => assembly.GetCustomAttributes(It.IsAny<Type>(), It.IsAny<bool>()))
-                    .Returns(new Attribute[] { });
+                    .Returns(new Attribute[0]);
                 this.mockAssemblyWithRemotingProviderAttribute
                     .Setup(assembly => assembly.GetCustomAttributes(It.IsAny<Type>(), It.IsAny<bool>()))
-                    .Returns(new Attribute[] { new FabricTransportActorRemotingProviderAttribute() });
+                    .Returns(new Attribute[] { this.expectedRemotingProvider });
             }
 
             public class WithNullArgument : GetProvider
             {
                 [Fact]
-                public void ThrowsExceptionWhenEntryAssselbyIsNull()
+                public void ThrowsExceptionWhenEntryAssemblyIsUnmanagedAssembly()
                 {
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
 
-                    var exception = Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        ActorRemotingProviderAttribute.GetProvider();
-                    });
+                    var exception = Assert.Throws<InvalidOperationException>(
+                        () => ActorRemotingProviderAttribute.GetProvider());
 
                     Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
@@ -58,29 +58,27 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 {
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.mockAssemblyWithoutRemotingProviderAttribute.Object);
 
-                    var exception = Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        ActorRemotingProviderAttribute.GetProvider();
-                    });
+                    var exception = Assert.Throws<InvalidOperationException>(
+                        () => ActorRemotingProviderAttribute.GetProvider());
 
                     Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]
-                public void DoesNotThrowExcpetionWhenEntryAssemblyHasProviderAttribute()
+                public void ReturnsRemotingProviderAttributeOfEntryAssembly()
                 {
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.mockAssemblyWithRemotingProviderAttribute.Object);
 
                     ActorRemotingProviderAttribute provider = ActorRemotingProviderAttribute.GetProvider();
 
-                    Assert.IsType<FabricTransportActorRemotingProviderAttribute>(provider);
+                    Assert.Same(this.expectedRemotingProvider, provider);
                 }
             }
 
             public class WithTypeArrayArgument : GetProvider
             {
-                Mock<Type> mockTypeWithAssemblyProviderAttribute = new Mock<Type>();
-                Mock<Type> mockTypeWithoutAssemblyProviderAttribute = new Mock<Type>();
+                readonly Mock<Type> mockTypeWithAssemblyProviderAttribute = new Mock<Type>();
+                readonly Mock<Type> mockTypeWithoutAssemblyProviderAttribute = new Mock<Type>();
 
                 public WithTypeArrayArgument()
                 {
@@ -98,22 +96,20 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     var types = new Type[] { this.mockTypeWithoutAssemblyProviderAttribute.Object };
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
 
-                    var exception = Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        ActorRemotingProviderAttribute.GetProvider();
-                    });
+                    var exception = Assert.Throws<InvalidOperationException>(
+                        () => ActorRemotingProviderAttribute.GetProvider(types));
 
                     Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]
-                public void DoesNotThrowExceptionWhenTypeHasAssemblyProviderAttribute()
+                public void ReturnsRemotingProviderAttributeOfTypeAssembly()
                 {
                     var types = new Type[] { this.mockTypeWithAssemblyProviderAttribute.Object };
 
                     ActorRemotingProviderAttribute provider = ActorRemotingProviderAttribute.GetProvider(types);
 
-                    Assert.IsType<FabricTransportActorRemotingProviderAttribute>(provider);
+                    Assert.Same(this.expectedRemotingProvider, provider);
                 }
             }
 
