@@ -77,15 +77,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
             public class WithTypeArrayArgument : GetProvider 
             {
-                readonly Mock<Type> mockTypeWithAssemblyProviderAttribute = new Mock<Type>();
-                readonly Mock<Type> mockTypeWithoutAssemblyProviderAttribute = new Mock<Type>();
+                readonly Mock<Type> mockTypeWithRemotingProviderAssemblyAttribute = new Mock<Type>();
+                readonly Mock<Type> mockTypeWithoutRemotingProviderAssemblyAttribute = new Mock<Type>();
 
                 public WithTypeArrayArgument()
                 {
-                    this.mockTypeWithAssemblyProviderAttribute
+                    this.mockTypeWithRemotingProviderAssemblyAttribute
                         .Setup(type => type.Assembly)
                         .Returns(this.mockAssemblyWithRemotingProviderAttribute.Object);
-                    this.mockTypeWithoutAssemblyProviderAttribute
+                    this.mockTypeWithoutRemotingProviderAssemblyAttribute
                         .Setup(type => type.Assembly)
                         .Returns(this.mockAssemblyWithoutRemotingProviderAttribute.Object);
                 }
@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 [Fact]
                 public void ThrowsExceptionWhenTypeHasNoAssemblyProviderAttribute()
                 {
-                    var types = new Type[] { this.mockTypeWithoutAssemblyProviderAttribute.Object };
+                    var types = new Type[] { this.mockTypeWithoutRemotingProviderAssemblyAttribute.Object };
                     typeof(ServiceRemotingProviderAttribute).Field<Assembly>().Set(null);
 
                     var exception = Assert.Throws<InvalidOperationException>(
@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 [Fact]
                 public void ReturnsRemotingProviderAttributeOfTypeAssembly()
                 {
-                    var types = new Type[] { this.mockTypeWithAssemblyProviderAttribute.Object };
+                    var types = new Type[] { this.mockTypeWithRemotingProviderAssemblyAttribute.Object };
 
                     ServiceRemotingProviderAttribute provider = ServiceRemotingProviderAttribute.GetProvider(types);;
 
