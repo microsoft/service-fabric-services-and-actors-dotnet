@@ -146,7 +146,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
-            throw new InvalidOperationException("To use Service Remoting, the version of the remoting stack must be specified explicitely.");
+            InvalidOperationException exception = new InvalidOperationException("To use Service Remoting, the version of the remoting stack must be specified explicitely.");
+            exception.HelpLink = "https://github.com/microsoft/service-fabric/blob/master/release_notes/Deprecated/RemotingV1.md";
+            throw exception;
         }
     }
 }
