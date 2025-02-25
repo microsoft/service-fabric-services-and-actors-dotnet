@@ -35,6 +35,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             protected Mock<Assembly> mockAssemblyWithoutRemotingProviderAttribute = new Mock<Assembly>();
             protected Mock<Assembly> mockAssemblyWithRemotingProviderAttribute = new Mock<Assembly>();
 
+            private readonly string expectedExceptionMessagesForMissingRemotingProviderAttribute =
+                "To use Service Remoting, the version of the remoting stack must be specified explicitely.";
+
             public GetProvider()
             {
                 this.mockAssemblyWithoutRemotingProviderAttribute
@@ -57,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                         ServiceRemotingProviderAttribute.GetProvider(); 
                     });
 
-                    Assert.Equal(ServiceRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]
@@ -70,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                         ServiceRemotingProviderAttribute.GetProvider(); 
                     });
 
-                    Assert.Equal(ServiceRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]
@@ -110,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                         ServiceRemotingProviderAttribute.GetProvider(types);
                     });
 
-                    Assert.Equal(ServiceRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]

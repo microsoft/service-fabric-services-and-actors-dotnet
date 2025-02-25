@@ -77,12 +77,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// </summary>
         public RemotingListenerVersion RemotingListenerVersion { get; set; }
 
-        internal static string DefaultRemotingProviderExceptionMessage
-        {
-            get { return "To use Actor Remoting, the version of the remoting stack must be specified explicitely."; }
-        }
 #if !DotNetCoreClr
-
         /// <summary>
         ///     Creates a service remoting listener for remoting the actor interfaces.
         /// </summary>
@@ -154,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
                 }
             }
 
-            throw new InvalidOperationException(DefaultRemotingProviderExceptionMessage);
+            throw new InvalidOperationException("To use Actor Remoting, the version of the remoting stack must be specified explicitely.");
         }
     }
 }

@@ -25,6 +25,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             protected Mock<Assembly> mockAssemblyWithoutRemotingProviderAttribute = new Mock<Assembly>();
             protected Mock<Assembly> mockAssemblyWithRemotingProviderAttribute = new Mock<Assembly>();
 
+            private readonly string expectedExceptionMessagesForMissingRemotingProviderAttribute =
+                "To use Actor Remoting, the version of the remoting stack must be specified explicitely.";
+
             public GetProvider()
             {
                 this.mockAssemblyWithoutRemotingProviderAttribute
@@ -42,12 +45,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 {
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
 
-                    var exception = Assert.Throws<InvalidOperationException>(() => 
-                    { 
-                        ActorRemotingProviderAttribute.GetProvider(); 
+                    var exception = Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        ActorRemotingProviderAttribute.GetProvider();
                     });
 
-                    Assert.Equal(ActorRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]
@@ -60,7 +63,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                         ActorRemotingProviderAttribute.GetProvider();
                     });
 
-                    Assert.Equal(ActorRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]
@@ -100,7 +103,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                         ActorRemotingProviderAttribute.GetProvider();
                     });
 
-                    Assert.Equal(ActorRemotingProviderAttribute.DefaultRemotingProviderExceptionMessage, exception.Message);
+                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
                 }
 
                 [Fact]

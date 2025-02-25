@@ -84,12 +84,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             get { return "V2_1Listener"; }
         }
 
-        internal static string DefaultRemotingProviderExceptionMessage
-        {
-            get { return "To use Service Remoting, the version of the remoting stack must be specified explicitely."; }
-        }
 #if !DotNetCoreClr
-
         /// <summary>
         /// Creates a V1 service remoting listener for remoting the service interface.
         /// </summary>
@@ -110,7 +105,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting
         [Obsolete(DeprecationMessage.RemotingV1)]
         public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
             Remoting.V1.IServiceRemotingCallbackClient callbackClient);
-
 #endif
 
         /// <summary>
@@ -152,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
-            throw new InvalidOperationException(DefaultRemotingProviderExceptionMessage);
+            throw new InvalidOperationException("To use Service Remoting, the version of the remoting stack must be specified explicitely.");
         }
     }
 }
