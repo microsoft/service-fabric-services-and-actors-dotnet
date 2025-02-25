@@ -178,19 +178,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var types = new List<Type> { actorType };
             types.AddRange(actorInterfaces);
-            types.AddRange(actorInterfaces);
-#if !DotNetCoreClr
-#pragma warning disable 618
-            var remotingserver = Services.Remoting.RemotingListenerVersion.V1;
-#pragma warning restore 618
-#else
-            var remotingserver = Services.Remoting.RemotingListenerVersion.V2;
-#endif
+
             var remotingserverAttribuite = ActorRemotingProviderAttribute.GetProvider(types);
-            if (remotingserverAttribuite != null)
-            {
-                remotingserver = remotingserverAttribuite.RemotingListenerVersion;
-            }
 
             return new ActorTypeInformation()
             {
@@ -201,7 +190,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 IsRemindable = actorType.IsRemindableActor(),
                 EventInterfaceTypes = eventInterfaces,
                 StatePersistence = StatePersistenceAttribute.Get(actorType).StatePersistence,
-                RemotingListenerVersion = remotingserver,
+                RemotingListenerVersion = remotingserverAttribuite.RemotingListenerVersion,
             };
         }
     }
