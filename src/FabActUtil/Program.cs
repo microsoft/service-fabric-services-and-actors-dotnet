@@ -33,7 +33,8 @@ namespace FabActUtil
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine(e);
+                Console.Error.WriteLine(e.Message);
+                Console.WriteLine(e);
                 return -1;
             }
 
