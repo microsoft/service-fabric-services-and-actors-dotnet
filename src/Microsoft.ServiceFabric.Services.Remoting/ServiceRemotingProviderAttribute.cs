@@ -6,13 +6,13 @@
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Fabric;
     using System.Reflection;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-#if !DotNetCoreClr
+#if DotNetCoreClr
+    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
+#else
     using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
 #endif
 
@@ -146,9 +146,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
-            InvalidOperationException exception = new InvalidOperationException("To use Service Remoting, the version of the remoting stack must be specified explicitely.");
+#if DotNetCoreClr
+            return new FabricTransportServiceRemotingProviderAttribute();
+#else
+            var exception = new InvalidOperationException(
+                "Version 1 of the remoting protocol has been deprecated and will be removed in the next major version of Service Fabric. " +
+                "Please add a ServiceRemotingProviderAttribute to the service assembly to specify the remoting stack you want to use. " +
+                "Note that remoting protocol version 2.1 is now used by default and version 1 must be enabled explicitly.");
             exception.HelpLink = "https://github.com/microsoft/service-fabric/blob/master/release_notes/Deprecated/RemotingV1.md";
             throw exception;
+#endif
         }
     }
 }
