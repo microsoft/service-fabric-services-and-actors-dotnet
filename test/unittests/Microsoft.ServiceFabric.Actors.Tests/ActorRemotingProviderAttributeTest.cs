@@ -26,7 +26,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
 #if NETFRAMEWORK
             private readonly string expectedExceptionMessagesForMissingRemotingProviderAttribute =
-                "To use Actor Remoting, the version of the remoting stack must be specified explicitely.";
+                "Version 1 of the remoting protocol has been deprecated and will be removed in the next major version of Service Fabric. " +
+                "Please add an ActorRemotingProviderAttribute to the service assembly to specify the remoting stack you want to use. " +
+                "Note that remoting protocol version 2.1 is now used by default and version 1 must be enabled explicitly.";
 #endif
 
             private readonly ActorRemotingProviderAttribute expectedRemotingProvider =

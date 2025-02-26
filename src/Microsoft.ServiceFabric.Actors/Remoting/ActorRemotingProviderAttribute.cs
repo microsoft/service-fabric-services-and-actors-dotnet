@@ -151,7 +151,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 #if DotNetCoreClr
             return new FabricTransportActorRemotingProviderAttribute();
 #else
-            var exception = new InvalidOperationException("To use Actor Remoting, the version of the remoting stack must be specified explicitely.");
+            var exception = new InvalidOperationException(
+                "Version 1 of the remoting protocol has been deprecated and will be removed in the next major version of Service Fabric. " +
+                "Please add an ActorRemotingProviderAttribute to the service assembly to specify the remoting stack you want to use. " +
+                "Note that remoting protocol version 2.1 is now used by default and version 1 must be enabled explicitly.");
             exception.HelpLink = "https://github.com/microsoft/service-fabric/blob/master/release_notes/Deprecated/RemotingV1.md";
             throw exception;
 #endif
