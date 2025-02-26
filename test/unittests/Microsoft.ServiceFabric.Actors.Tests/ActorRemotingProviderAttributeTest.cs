@@ -21,25 +21,20 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
         public class GetProvider : ActorRemotingProviderAttributeTest, IDisposable
         {
-            protected readonly Mock<TestAssembly> mockAssemblyWithoutRemotingProviderAttribute = new Mock<TestAssembly>();
-            protected readonly Mock<TestAssembly> mockAssemblyWithRemotingProviderAttribute = new Mock<TestAssembly>();
+            protected readonly Assembly mockAssemblyWithoutRemotingProviderAttribute = MockAssembly();
+            protected readonly Assembly mockAssemblyWithRemotingProviderAttribute;
 
 #if NETFRAMEWORK
             private readonly string expectedExceptionMessagesForMissingRemotingProviderAttribute =
                 "To use Actor Remoting, the version of the remoting stack must be specified explicitely.";
 #endif
 
-            private readonly FabricTransportActorRemotingProviderAttribute expectedRemotingProvider =
+            private readonly ActorRemotingProviderAttribute expectedRemotingProvider =
                 new FabricTransportActorRemotingProviderAttribute();
 
             public GetProvider()
             {
-                this.mockAssemblyWithoutRemotingProviderAttribute
-                    .Setup(assembly => assembly.GetCustomAttributes(It.IsAny<Type>(), It.IsAny<bool>()))
-                    .Returns(new Attribute[0]);
-                this.mockAssemblyWithRemotingProviderAttribute
-                    .Setup(assembly => assembly.GetCustomAttributes(It.IsAny<Type>(), It.IsAny<bool>()))
-                    .Returns(new Attribute[] { this.expectedRemotingProvider });
+                this.mockAssemblyWithRemotingProviderAttribute = MockAssembly(this.expectedRemotingProvider);
             }
 
             public class WithNullArgument : GetProvider
@@ -59,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 [Fact]
                 public void ThrowsExcpetionWhenEntryAssemblyDoesNotHaveProviderAttribute()
                 {
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.mockAssemblyWithoutRemotingProviderAttribute.Object);
+                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.mockAssemblyWithoutRemotingProviderAttribute);
 
                     var exception = Assert.Throws<InvalidOperationException>(
                         () => ActorRemotingProviderAttribute.GetProvider());
@@ -71,7 +66,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 [Fact]
                 public void ReturnsRemotingProviderAttributeOfEntryAssembly()
                 {
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.mockAssemblyWithRemotingProviderAttribute.Object);
+                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.mockAssemblyWithRemotingProviderAttribute);
 
                     ActorRemotingProviderAttribute provider = ActorRemotingProviderAttribute.GetProvider();
 
@@ -86,8 +81,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
                 public WithTypeArrayArgument()
                 {
-                    this.mockTypeWithRemotingProviderAssemblyAttribute = MockType(this.mockAssemblyWithRemotingProviderAttribute.Object);
-                    this.mockTypeWithoutRemotingProviderAssemblyAttribute = MockType(this.mockAssemblyWithoutRemotingProviderAttribute.Object);
+                    this.mockTypeWithRemotingProviderAssemblyAttribute = MockType(this.mockAssemblyWithRemotingProviderAttribute);
+                    this.mockTypeWithoutRemotingProviderAssemblyAttribute = MockType(this.mockAssemblyWithoutRemotingProviderAttribute);
 
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
                 }
@@ -132,6 +127,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(Assembly.GetEntryAssembly());
             }
 
+            static Assembly MockAssembly(ActorRemotingProviderAttribute provider = null)
+            {
+                var assembly = new Mock<TestAssembly>();
+                Attribute[] attributes = provider == null ? new Attribute[0] : new[] { provider };
+                assembly.Setup(_ => _.GetCustomAttributes(typeof(ActorRemotingProviderAttribute), It.IsAny<bool>())).Returns(attributes);
+                return assembly.Object;
+            }
+
             static Type MockType(Assembly assembly)
             {
                 var type = new Mock<Type>();
@@ -152,6 +155,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             }
 #endif
 
+            // Make Assembly concrete to enable mocking on NetFx
             public class TestAssembly : Assembly { }
         }
     }
