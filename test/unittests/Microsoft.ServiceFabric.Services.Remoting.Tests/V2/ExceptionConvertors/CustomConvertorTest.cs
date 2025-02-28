@@ -24,11 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 {
                     new CustomConvertorRuntime(),
                 },
-                new FabricTransportRemotingListenerSettings()
-                {
-                    RemotingExceptionDepth = 3,
-                    ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
-                });
+                new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 3 });
 
         private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
             = new Remoting.V2.Client.ExceptionConversionHandler(
@@ -36,10 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 {
                     new CustomConvertorClient(),
                 },
-                new FabricTransport.FabricTransportRemotingSettings()
-                {
-                    ExceptionDeserializationTechnique = FabricTransport.FabricTransportRemotingSettings.ExceptionDeserialization.Default,
-                });
+                new FabricTransport.FabricTransportRemotingSettings());
 
         /// <summary>
         /// Custom types test.

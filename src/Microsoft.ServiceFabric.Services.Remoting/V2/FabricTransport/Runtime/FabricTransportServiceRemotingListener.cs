@@ -140,10 +140,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.transportMessageHandler,
                 new FabricTransportRemotingConnectionHandler());
 
+#pragma warning disable 618
             ServiceTelemetry.FabricTransportServiceRemotingV2Event(
                 serviceContext,
                 !remotingSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None),
                 remotingSettings.ExceptionSerializationTechnique.ToString());
+#pragma warning restore 618
         }
 
         /// <summary>
