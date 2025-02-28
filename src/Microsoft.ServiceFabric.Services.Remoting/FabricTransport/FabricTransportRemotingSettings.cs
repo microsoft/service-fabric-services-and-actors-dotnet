@@ -35,7 +35,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
-            this.ExceptionDeserializationTechnique = ExceptionDeserialization.Fallback;
         }
 
         internal FabricTransportRemotingSettings(FabricTransportSettings fabricTransportSettings)
@@ -47,6 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <summary>
         /// Exception Deserialization option to use(applies to V2 Remoting only).
         /// </summary>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public enum ExceptionDeserialization
         {
             /// <summary>
@@ -64,6 +64,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <summary>
         /// Gets or sets the exception deserialization techinique to use.
         /// </summary>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public ExceptionDeserialization ExceptionDeserializationTechnique { get; set; }
 
         /// <summary>
@@ -280,6 +281,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             transportSettings = FabricTransportSettings.GetDefault(sectionName);
             var settings = new FabricTransportRemotingSettings(transportSettings);
 
+#pragma warning disable 618
             AppTrace.TraceSource.WriteInfo(
               Tracetype,
               "MaxMessageSize: {0}, MaxConcurrentCalls: {1}, MaxQueueSize: {2}, OperationTimeoutInSeconds: {3}, KeepAliveTimeoutInSeconds : {4}, SecurityCredentials {5}, HeaderBufferSize {6}, HeaderBufferCount {7}, ExceptionSerializationTechinique {8}",
@@ -293,6 +295,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
               settings.HeaderMaxBufferCount,
               settings.ExceptionDeserializationTechnique);
             return settings;
+#pragma warning restore 618
         }
 
         internal FabricTransportSettings GetInternalSettings()

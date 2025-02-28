@@ -114,16 +114,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
             catch (Exception e)
             {
-                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Default)
+#pragma warning disable 618
+                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
                 {
-                    ServiceTrace.Source.WriteWarning(
+                    ServiceTrace.Source.WriteInfo(
                        TraceEventType,
                        "Failed to deserialize stream to RemoteException2: Reason - {0}",
                        e);
                 }
                 else
+#pragma warning restore 618
                 {
-                    ServiceTrace.Source.WriteInfo(
+                    ServiceTrace.Source.WriteWarning(
                        TraceEventType,
                        "Failed to deserialize stream to RemoteException2: Reason - {0}",
                        e);
@@ -163,6 +165,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                         SR.ErrorDeserializationFailure,
                         dcsE.ToString()));
 
+#pragma warning disable 618
                 if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
                 {
                     using (var tSteam = new MemoryStream(buffer))
@@ -184,6 +187,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                         }
                     }
                 }
+#pragma warning restore 618
             }
 
             var requestId = LogContext.GetRequestIdOrDefault();

@@ -36,7 +36,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
             this.remotingExceptionDepth = DefaultRemotingExceptionDepth;
-            this.ExceptionSerializationTechnique = ExceptionSerialization.BinaryFormatter;
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
@@ -48,6 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// <summary>
         /// Exception serialization option to use(applicable only to V2 Remoting).
         /// </summary>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public enum ExceptionSerialization
         {
             /// <summary>
@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
             /// <summary>
             /// Uses binary formatter to serialize exception details in service remoting message.
-            /// To be used in compat scenarios. This option will be deprecated in future.
+            /// To be used in compat scenarios.
             /// </summary>
             BinaryFormatter,
         }
@@ -66,6 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// Gets or sets the exception serialization technique.
         /// </summary>
         /// <remarks>Applies only to V2 Remoting.</remarks>
+        [Obsolete(DeprecationMessage.RemotingV1)]
         public ExceptionSerialization ExceptionSerializationTechnique { get; set; }
 
         /// <summary>
@@ -298,6 +299,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
             var settings = new FabricTransportRemotingListenerSettings(listenerinternalSettings);
 
+#pragma warning disable 618
             AppTrace.TraceSource.WriteInfo(
                 Tracetype,
                 "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," + "HeaderBufferCount {7} , ExceptionSerializationTechinique {8} , RemotingExceptionDepth {9}",
@@ -311,6 +313,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 settings.HeaderMaxBufferCount,
                 settings.ExceptionSerializationTechnique.ToString(),
                 settings.RemotingExceptionDepth);
+#pragma warning restore 618
 
             return settings;
         }

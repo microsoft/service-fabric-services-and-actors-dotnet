@@ -124,17 +124,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
         {
-            if (this.listenerSettings.ExceptionSerializationTechnique == FabricTransportRemotingListenerSettings.ExceptionSerialization.Default)
-            {
-                var svcEx = this.ToServiceException(exception);
-                var remoteEx = this.ToRemoteException(svcEx);
-
-                return this.SerializeRemoteException(remoteEx);
-            }
-            else
-            {
+#pragma warning disable 618
+            if (this.listenerSettings.ExceptionSerializationTechnique == FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter)
                 return RemoteException.FromException(exception).Data;
-            }
+#pragma warning restore 618
+
+            ServiceException svcEx = this.ToServiceException(exception);
+            RemoteException2 remoteEx = this.ToRemoteException(svcEx);
+            return this.SerializeRemoteException(remoteEx);
         }
 
         public class DefaultExceptionConvertor : IExceptionConvertor
