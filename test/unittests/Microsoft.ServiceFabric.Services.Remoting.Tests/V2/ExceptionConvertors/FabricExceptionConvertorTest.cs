@@ -41,10 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
             = new Remoting.V2.Client.ExceptionConversionHandler(
                 clientConvertors,
-                new FabricTransport.FabricTransportRemotingSettings()
-                {
-                    ExceptionDeserializationTechnique = FabricTransport.FabricTransportRemotingSettings.ExceptionDeserialization.Default,
-                });
+                new FabricTransport.FabricTransportRemotingSettings());
 
         private static List<FabricException> fabricExceptions = new List<FabricException>()
         {

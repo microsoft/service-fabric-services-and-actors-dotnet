@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
             = new Remoting.V2.Client.ExceptionConversionHandler(
                 clientConvertors,
-                FabricTransportRemotingSettings.GetDefault());
+                new FabricTransportRemotingSettings { ExceptionDeserializationTechnique = FabricTransportRemotingSettings.ExceptionDeserialization.Fallback });
 
         /// <summary>
         /// Old client and new service test.

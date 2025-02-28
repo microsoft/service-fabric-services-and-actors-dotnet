@@ -32,10 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 {
                     new CustomConvertorClient(),
                 },
-                new FabricTransport.FabricTransportRemotingSettings()
-                {
-                    ExceptionDeserializationTechnique = FabricTransport.FabricTransportRemotingSettings.ExceptionDeserialization.Default,
-                });
+                new FabricTransport.FabricTransportRemotingSettings());
 
         /// <summary>
         /// Custom types test.
