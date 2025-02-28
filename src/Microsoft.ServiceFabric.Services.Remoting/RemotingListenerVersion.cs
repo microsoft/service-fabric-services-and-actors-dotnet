@@ -3,10 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
-    using System;
-
     /// <summary>
     /// Determines the remoting stack for server/listener when using remoting provider attribuite to determine the remoting client.
     /// </summary>
@@ -15,9 +15,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     {
 #if !DotNetCoreClr
         /// <summary>
-        /// This is selected to create V1 Listener.V1 is an old (soon to be deprecated) Remoting Stack.
+        /// This is selected to create V1 Listener.V1 is a deprecated Remoting Stack.
         /// </summary>
-        [Obsolete("This is an old version of remoting stack and will be removed in future versions.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         V1 = 1,
 
 #endif

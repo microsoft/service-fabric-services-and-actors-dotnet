@@ -14,9 +14,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     {
 #if !DotNetCoreClr
         /// <summary>
-        /// This is selected to create V1 Client. V1 is an old(soon to be deprecated) Remoting Stack.
+        /// This is selected to create V1 Client. V1 is a deprecated Remoting Stack.
         /// </summary>
-        [Obsolete("This is an old version of remoting stack and will be removed in future versions.")]
+        [Obsolete(DeprecationMessage.RemotingV1)]
         V1 = 1,
 
 #endif
