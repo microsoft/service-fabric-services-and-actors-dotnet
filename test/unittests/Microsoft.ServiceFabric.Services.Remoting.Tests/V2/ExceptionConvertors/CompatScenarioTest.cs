@@ -17,6 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
     /// <summary>
     /// Compat scenario tests.
     /// </summary>
+    [Obsolete(DeprecationMessage.RemotingV1)]
     public class CompatScenarioTest
     {
         private static List<Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors
@@ -28,7 +29,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
            };
 
         private static Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
-            = new Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, FabricTransportRemotingListenerSettings.GetDefault());
+            = new Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors,
+                new FabricTransportRemotingListenerSettings { ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter });
 
         private static List<Remoting.V2.Client.IExceptionConvertor> clientConvertors
             = new List<Remoting.V2.Client.IExceptionConvertor>()

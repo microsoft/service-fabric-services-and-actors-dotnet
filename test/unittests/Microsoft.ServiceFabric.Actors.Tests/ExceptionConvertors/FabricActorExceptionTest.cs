@@ -28,11 +28,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
             };
 
         private static Services.Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
-            = new Services.Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, new FabricTransportRemotingListenerSettings()
-            {
-                RemotingExceptionDepth = 2,
-                ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.Default,
-            });
+            = new Services.Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, 
+                new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 });
 
         private static List<Services.Remoting.V2.Client.IExceptionConvertor> clientConvertors
             = new List<Services.Remoting.V2.Client.IExceptionConvertor>()
