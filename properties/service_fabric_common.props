@@ -22,9 +22,9 @@
 
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
-    <MajorVersion>8</MajorVersion>
+    <MajorVersion>9</MajorVersion>
     <MinorVersion>0</MinorVersion>
-    <BuildVersion>13</BuildVersion>
+    <BuildVersion>0</BuildVersion>
     <Revision>0</Revision>
 
   </PropertyGroup>
