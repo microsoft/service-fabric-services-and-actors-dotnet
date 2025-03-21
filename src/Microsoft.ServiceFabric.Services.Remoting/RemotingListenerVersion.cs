@@ -13,15 +13,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     [Flags]
     public enum RemotingListenerVersion
     {
-#if !DotNetCoreClr
-        /// <summary>
-        /// This is selected to create V1 Listener.V1 is a deprecated Remoting Stack.
-        /// </summary>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        V1 = 1,
-
-#endif
-
         /// <summary>
         /// This is selected to create V2 Listener.V2 is a new Remoting Stack.
         /// </summary>

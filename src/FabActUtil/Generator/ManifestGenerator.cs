@@ -3,21 +3,21 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric.Management.ServiceModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting;
+using StartupServicesModel;
+
 namespace FabActUtil.Generator
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric.Management.ServiceModel;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
-    using StartupServicesModel;
-
     /// <summary>
     /// ServiceManifestEntryPointType decides which kind of service manifest exe host is generated. By default the existing behavior of serviceName.exe will be used.
     /// </summary>
@@ -560,14 +560,7 @@ namespace FabActUtil.Generator
         private static Dictionary<string, Func<ActorTypeInformation, string>> GetGeneratedNameFunctionForServiceEndpoint(ActorTypeInformation actorTypeInfo)
         {
             var generatedNameFunctions = new Dictionary<string, Func<ActorTypeInformation, string>>();
-#if !DotNetCoreClr
-#pragma warning disable 618
-            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
-            {
-                generatedNameFunctions.Add(GeneratedServiceEndpointName, GetFabricServiceEndpointName);
-            }
-#pragma warning restore 618
-#endif
+
             if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 generatedNameFunctions.Add(GeneratedServiceEndpointV2Name, GetFabricServiceV2EndpointName);
@@ -584,18 +577,7 @@ namespace FabActUtil.Generator
         private static List<EndpointType> CreateEndpointResourceBasedOnRemotingServer(ActorTypeInformation actorTypeInfo)
         {
             var endpoints = new List<EndpointType>();
-#if !DotNetCoreClr
-#pragma warning disable 618
-            if (Helper.IsRemotingV1(actorTypeInfo.RemotingListenerVersion))
-            {
-                endpoints.Add(
-                    new EndpointType()
-                    {
-                        Name = GetFabricServiceEndpointName(actorTypeInfo),
-                    });
-            }
-#pragma warning restore 618
-#endif
+
             if (Helper.IsRemotingV2(actorTypeInfo.RemotingListenerVersion))
             {
                 endpoints.Add(

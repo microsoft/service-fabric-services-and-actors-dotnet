@@ -3,10 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
 {
-    using System;
-
     /// <summary>
     /// This is the base Client side interface for Remoting. The framework provides the
     /// Remoting infrastructure for all the service contracts inheriting from IService through
@@ -20,19 +21,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <value>Service interface type</value>
         Type ServiceInterfaceType { get; }
 
-#if !DotNetCoreClr
         /// <summary>
         /// Gets the service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        Microsoft.ServiceFabric.Services.Remoting.V1.Client.IServiceRemotingPartitionClient ServicePartitionClient { get; }
-#endif
-
-        /// <summary>
-        /// Gets the service partition client used to send requests to the service.
-        /// </summary>
-        /// <value>ServicePartitionClient used by the ServiceProxy</value>
-        Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingPartitionClient ServicePartitionClient2 { get; }
+        IServiceRemotingPartitionClient ServicePartitionClient2 { get; }
     }
 }

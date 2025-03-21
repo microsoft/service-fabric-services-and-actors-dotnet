@@ -3,23 +3,22 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Fabric.Health;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Diagnostics;
+using Microsoft.ServiceFabric.Actors.Query;
+using Microsoft.ServiceFabric.Actors.Remoting;
+using Microsoft.ServiceFabric.Actors.Runtime.Migration;
+using Microsoft.ServiceFabric.Services;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Runtime;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Fabric.Health;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Diagnostics;
-    using Microsoft.ServiceFabric.Actors.Query;
-    using Microsoft.ServiceFabric.Actors.Remoting;
-    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-    using Microsoft.ServiceFabric.Services;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
-
     /// <summary>
     /// Represents the base class for Microsoft Service Fabric based reliable actors service.
     /// </summary>
@@ -37,14 +36,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly IActorActivator actorActivator;
         private readonly ActorManagerAdapter actorManagerAdapter;
         private readonly Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory;
-#if !DotNetCoreClr
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        private Remoting.V1.Runtime.ActorMethodDispatcherMap methodDispatcherMapV1;
-#endif
         private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
         private ReplicaRole replicaRole;
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
-
         private IMigrationOrchestrator migrationOrchestrator;
 
         /// <summary>
@@ -170,16 +164,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             get { return this.actorActivator; }
         }
-
-#if !DotNetCoreClr
-
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        internal Remoting.V1.Runtime.ActorMethodDispatcherMap MethodDispatcherMapV1
-        {
-            get { return this.methodDispatcherMapV1; }
-            set { this.methodDispatcherMapV1 = value; }
-        }
-#endif
 
         internal Remoting.V2.Runtime.ActorMethodDispatcherMap MethodDispatcherMapV2
         {
@@ -326,12 +310,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal void InitializeInternal(ActorMethodFriendlyNameBuilder methodNameBuilder)
         {
             this.methodFriendlyNameBuilder = methodNameBuilder;
-#if !DotNetCoreClr
-#pragma warning disable 618
-            this.MethodDispatcherMapV1 =
-                new Actors.Remoting.V1.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
-#pragma warning restore 618
-#endif
             this.MethodDispatcherMapV2 =
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
@@ -365,26 +343,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
             var serviceReplicaListeners = new List<ServiceReplicaListener>();
-#if !DotNetCoreClr
-#pragma warning disable 618
-            if (Services.Remoting.Helper.IsRemotingV1(provider.RemotingListenerVersion))
+
+            var listeners = provider.CreateServiceRemotingListeners();
+            foreach (var kvp in listeners)
             {
-               serviceReplicaListeners.Add(
-                    new ServiceReplicaListener((t) => { return provider.CreateServiceRemotingListener(this); }));
-            }
-#pragma warning restore 618
-#endif
-            if (Services.Remoting.Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
-            {
-                var listeners = provider.CreateServiceRemotingListeners();
-                foreach (var kvp in listeners)
-                {
-                    serviceReplicaListeners.Add(new ServiceReplicaListener(
-                    t =>
-                    {
-                        return kvp.Value(this);
-                    }, kvp.Key));
-                }
+                serviceReplicaListeners.Add(new ServiceReplicaListener(t => kvp.Value(this), kvp.Key));
             }
 
             this.AddMigrationListener(serviceReplicaListeners);

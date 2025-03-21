@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Diagnostics.Tracing;
+using System.Globalization;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Services
 {
-    using System.Diagnostics.Tracing;
-    using System.Globalization;
-    using Microsoft.ServiceFabric.Diagnostics.Tracing;
-
     /// <summary>
     /// Reliable Services event source collected by Service Fabric runtime diagnostics system.
     /// </summary>
@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Services
         private const string ServiceRemotingUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
-            "isSecure = {9}, remotingVersion = {10}, communicationListenerType = {11}, exceptionSerializationTechnique = {12}";
+            "isSecure = {9}, remotingVersion = {10}, communicationListenerType = {11}";
 
         /// <summary>
         /// Prevents a default instance of the <see cref="ServiceEventSource" /> class from being created.
@@ -183,8 +183,7 @@ namespace Microsoft.ServiceFabric.Services
             string applicationTypeName,
             bool isSecure,
             string remotingVersion,
-            string communicationListenerType,
-            string exceptionSerializationTechnique)
+            string communicationListenerType)
         {
             Instance.ServiceRemotingUsageEvent(
                 type,
@@ -198,8 +197,7 @@ namespace Microsoft.ServiceFabric.Services
                 applicationTypeName.GetHashCode().ToString(),
                 isSecure,
                 remotingVersion,
-                communicationListenerType,
-                exceptionSerializationTechnique);
+                communicationListenerType);
         }
 
         [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
@@ -295,8 +293,7 @@ namespace Microsoft.ServiceFabric.Services
             string applicationTypeName,
             bool isSecure,
             string remotingVersion,
-            string communicationListenerType,
-            string exceptionSerializationTechnique)
+            string communicationListenerType)
         {
             this.WriteEvent(
                 ServiceRemotingUsageEventId,
@@ -311,8 +308,7 @@ namespace Microsoft.ServiceFabric.Services
                 applicationTypeName,
                 isSecure,
                 remotingVersion,
-                communicationListenerType,
-                exceptionSerializationTechnique);
+                communicationListenerType);
         }
 
         public static class Keywords

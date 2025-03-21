@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using Microsoft.ServiceFabric.Services.Remoting;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-
     /// <summary>
     /// Contains methods for SubscriberProxy for actor events.
     /// </summary>
@@ -23,19 +23,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets the value indicating the remoting stack for server/listener when using remoting provider attribuite to determine the remoting client.
         /// </summary>
         RemotingListenerVersion RemotingListener { get; }
-
-#if !DotNetCoreClr
-        /// <summary>
-        /// Raises the event.
-        /// </summary>
-        /// <param name="eventInterfaceId">Id of event interface.</param>
-        /// <param name="methodId">Id of method in event interface.</param>
-        /// <param name="eventMsgBody">Message body for the event.</param>
-        void RaiseEvent(int eventInterfaceId, int methodId, byte[] eventMsgBody);
-
-#endif
-
-        // V2 Stack Api
 
         /// <summary>
         /// Raises the event.

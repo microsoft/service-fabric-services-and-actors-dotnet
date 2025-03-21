@@ -3,18 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
+using System.Xml;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
-    using System.Runtime.Serialization;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-
     internal class ExceptionConversionHandler
     {
         private static readonly string TraceEventType = "ExceptionConversionHandler";
@@ -114,22 +114,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
             catch (Exception e)
             {
-#pragma warning disable 618
-                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
-                {
-                    ServiceTrace.Source.WriteInfo(
-                       TraceEventType,
-                       "Failed to deserialize stream to RemoteException2: Reason - {0}",
-                       e);
-                }
-                else
-#pragma warning restore 618
-                {
-                    ServiceTrace.Source.WriteWarning(
-                       TraceEventType,
-                       "Failed to deserialize stream to RemoteException2: Reason - {0}",
-                       e);
-                }
+                ServiceTrace.Source.WriteWarning(
+                    TraceEventType,
+                    "Failed to deserialize stream to RemoteException2: Reason - {0}",
+                    e);
 
                 throw e;
             }
@@ -160,34 +148,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
             catch (Exception dcsE)
             {
-                var serEx = new ServiceException(dcsE.GetType().FullName, string.Format(
-                        CultureInfo.InvariantCulture,
-                        SR.ErrorDeserializationFailure,
-                        dcsE.ToString()));
-
-#pragma warning disable 618
-                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
-                {
-                    using (var tSteam = new MemoryStream(buffer))
-                    {
-                        var isDeserialized =
-                            RemoteException.ToException(
-                                tSteam,
-                                out var bfE);
-                        if (isDeserialized)
-                        {
-                            exceptionToThrow = new AggregateException(bfE);
-                        }
-                        else
-                        {
-                            exceptionToThrow = new ServiceException(bfE.GetType().FullName, string.Format(
-                                CultureInfo.InvariantCulture,
-                                SR.ErrorDeserializationFailure,
-                                bfE.ToString()));
-                        }
-                    }
-                }
-#pragma warning restore 618
+                exceptionToThrow = new ServiceException(dcsE.GetType().FullName, 
+                    string.Format(CultureInfo.InvariantCulture, SR.ErrorDeserializationFailure, dcsE.ToString()));
             }
 
             var requestId = LogContext.GetRequestIdOrDefault();

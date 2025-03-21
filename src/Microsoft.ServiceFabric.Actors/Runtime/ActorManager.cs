@@ -3,27 +3,25 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Diagnostics;
+using Microsoft.ServiceFabric.Actors.Query;
+using Microsoft.ServiceFabric.Actors.Remoting;
+using Microsoft.ServiceFabric.Services.Common;
+using Microsoft.ServiceFabric.Services.Remoting;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Globalization;
-    using System.Linq;
-    using System.Runtime.ExceptionServices;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Diagnostics;
-    using Microsoft.ServiceFabric.Actors.Query;
-    using Microsoft.ServiceFabric.Actors.Remoting;
-    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-    using Microsoft.ServiceFabric.Services.Common;
-    using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using SR = Microsoft.ServiceFabric.Actors.SR;
-
     internal sealed class ActorManager : IActorManager
     {
         private const string TraceType = "ActorManager";
@@ -145,48 +143,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Aborted.");
         }
-
-#if !DotNetCoreClr
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        public Task<byte[]> InvokeAsync(
-            ActorId actorId,
-            int interfaceId,
-            int methodId,
-            string callContext,
-            byte[] requestMsgBody,
-            CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            this.ThrowIfClosed();
-            this.ThrowIfMigrationInProgress();
-
-            var methodDispatcher = this.actorService.MethodDispatcherMapV1.GetDispatcher(interfaceId, methodId);
-            var actorMethodName = methodDispatcher.GetMethodName(methodId);
-            var actorMethodContext = ActorMethodContext.CreateForActor(actorMethodName);
-
-            var deserializationStartTime = DateTime.UtcNow;
-            var requestBody = methodDispatcher.DeserializeRequestMessageBody(requestMsgBody);
-            this.DiagnosticsEventManager.ActorRequestDeserializationFinish(deserializationStartTime);
-
-            return this.DispatchToActorAsync<byte[]>(
-                actorId: actorId,
-                actorMethodContext: actorMethodContext,
-                createIfRequired: true,
-                actorFunc:
-                    (actor, innerCancellationToken) =>
-                        this.ActorMethodDispatch(
-                            methodDispatcher,
-                            actor,
-                            interfaceId,
-                            methodId,
-                            requestBody,
-                            innerCancellationToken),
-                callContext: callContext,
-                timerCall: false,
-                cancellationToken: cancellationToken);
-        }
-#endif
 
         public async Task<T> DispatchToActorAsync<T>(
             ActorId actorId,
@@ -833,71 +789,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             return actor.SaveStateAsyncInternal();
         }
-
-#if !DotNetCoreClr
-
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        private Task<byte[]> ActorMethodDispatch(
-            Remoting.V1.Builder.ActorMethodDispatcherBase methodDispatcher,
-            ActorBase actor,
-            int interfaceId,
-            int methodId,
-            object requestBody,
-            CancellationToken innerCancellationToken)
-        {
-            var actorInterfaceMethodKey = DiagnosticsEventManager.GetInterfaceMethodKey(
-                (uint)interfaceId,
-                (uint)methodId);
-            this.DiagnosticsEventManager.ActorMethodStart(actorInterfaceMethodKey, actor, RemotingListenerVersion.V1);
-
-            Task<object> dispatchTask;
-            try
-            {
-                dispatchTask = methodDispatcher.DispatchAsync(actor, methodId, requestBody, innerCancellationToken);
-            }
-            catch (Exception e)
-            {
-                this.DiagnosticsEventManager.ActorMethodFinish(
-                    actorInterfaceMethodKey,
-                    actor,
-                    e,
-                    RemotingListenerVersion.V1);
-                throw;
-            }
-
-            return dispatchTask.ContinueWith(
-                t =>
-                {
-                    object responseMsgBody = null;
-                    try
-                    {
-                        responseMsgBody = t.GetAwaiter().GetResult();
-                    }
-                    catch (Exception e)
-                    {
-                        this.DiagnosticsEventManager.ActorMethodFinish(
-                            actorInterfaceMethodKey,
-                            actor,
-                            e,
-                            RemotingListenerVersion.V1);
-                        throw;
-                    }
-
-                    this.DiagnosticsEventManager.ActorMethodFinish(
-                        actorInterfaceMethodKey,
-                        actor,
-                        null,
-                        RemotingListenerVersion.V1);
-
-                    var serializationStartTime = DateTime.UtcNow;
-                    var serializedResponse = methodDispatcher.SerializeResponseMessageBody(responseMsgBody);
-                    this.DiagnosticsEventManager.ActorResponseSerializationFinish(serializationStartTime);
-
-                    return serializedResponse;
-                },
-                TaskContinuationOptions.ExecuteSynchronously);
-        }
-#endif
 
         private Task<IServiceRemotingResponseMessageBody> ActorMethodDispatch(
             Remoting.V2.Builder.ActorMethodDispatcherBase methodDispatcher,

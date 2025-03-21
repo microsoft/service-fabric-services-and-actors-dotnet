@@ -23,14 +23,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
         {
             protected readonly Assembly mockAssemblyWithoutRemotingProviderAttribute = MockAssembly();
             protected readonly Assembly mockAssemblyWithRemotingProviderAttribute;
-
-#if NETFRAMEWORK
-            private readonly string expectedExceptionMessagesForMissingRemotingProviderAttribute =
-                "Version 1 of the remoting protocol has been deprecated and will be removed in the next major version of Service Fabric. " +
-                "Please add an ActorRemotingProviderAttribute to the service assembly to specify the remoting stack you want to use. " +
-                "Note that remoting protocol version 2.1 is now used by default and version 1 must be enabled explicitly.";
-#endif
-
             private readonly ActorRemotingProviderAttribute expectedRemotingProvider =
                 new FabricTransportActorRemotingProviderAttribute();
 
@@ -41,30 +33,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
             public class WithNullArgument : GetProvider
             {
-#if NETFRAMEWORK
-                [Fact]
-                public void ThrowsExceptionWhenEntryAssemblyIsUnmanagedAssembly()
-                {
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
-
-                    var exception = Assert.Throws<InvalidOperationException>(
-                        () => ActorRemotingProviderAttribute.GetProvider());
-
-                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
-                }
-
-                [Fact]
-                public void ThrowsExcpetionWhenEntryAssemblyDoesNotHaveProviderAttribute()
-                {
-                    typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.mockAssemblyWithoutRemotingProviderAttribute);
-
-                    var exception = Assert.Throws<InvalidOperationException>(
-                        () => ActorRemotingProviderAttribute.GetProvider());
-
-                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
-                }
-#endif
-
                 [Fact]
                 public void ReturnsRemotingProviderAttributeOfEntryAssembly()
                 {
@@ -89,18 +57,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(null);
                 }
 
-#if NETFRAMEWORK
-                [Fact]
-                public void ThrowsExceptionWhenTypeHasNoAssemblyProviderAttribute()
-                {
-                    var types = new Type[] { this.mockTypeWithoutRemotingProviderAssemblyAttribute };
-
-                    var exception = Assert.Throws<InvalidOperationException>(
-                        () => ActorRemotingProviderAttribute.GetProvider(types));
-
-                    Assert.Equal(this.expectedExceptionMessagesForMissingRemotingProviderAttribute, exception.Message);
-                }
-#else
                 [Fact]
                 public void ReturnsDefaultFabricTransportActorRemotingProviderWhenTypeHasNoAssemblyProviderAttribute()
                 {
@@ -111,7 +67,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                     Assert.Equal(expected.RemotingClientVersion, actual.RemotingClientVersion);
                     Assert.Equal(expected.RemotingListenerVersion, actual.RemotingListenerVersion);
                 }
-#endif
 
                 [Fact]
                 public void ReturnsRemotingProviderAttributeOfTypeAssembly()

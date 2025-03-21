@@ -3,23 +3,23 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Fabric.Common;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Migration;
+using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
+using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Fabric.Common;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-
     /// <summary>
     ///     An <see cref="IServiceRemotingListener"/>
     ///     that uses fabric TCP transport to provide remoting of actor and service interfaces for actor
@@ -81,36 +81,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
                 serializationProvider,
                 exceptionConvertors,
                 requestForwarderFactory)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
-        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
-        /// This constructor is deprecated, use <see cref="FabricTransportActorServiceRemotingListener(ActorService, IServiceRemotingMessageHandler, FabricTransportRemotingListenerSettings, IServiceRemotingMessageSerializationProvider, IEnumerable{IExceptionConvertor}, Func{RequestForwarderContext, IRequestForwarder})"/>
-        /// </summary>
-        /// <param name="serviceContext">
-        ///     The context of the service for which the remoting listener is being constructed.
-        /// </param>
-        /// <param name="messageHandler">
-        ///     The handler for processing remoting messages. As the messages are received,
-        ///     the listener delivers them to this handler.
-        /// </param>
-        /// <param name="listenerSettings">Listener Settings.</param>
-        /// <param name="serializationProvider">Serialization provider for remoting.</param>
-        [Obsolete("Deprecated, use FabricTransportActorServiceRemotingListener(ActorService, IServiceRemotingMessageHandler, FabricTransportRemotingListenerSettings, IServiceRemotingMessageSerializationProvider)")]
-        public FabricTransportActorServiceRemotingListener(
-            ServiceContext serviceContext,
-            IServiceRemotingMessageHandler messageHandler,
-            FabricTransportRemotingListenerSettings listenerSettings = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null)
-            : base(
-                serviceContext,
-                messageHandler,
-                InitializeSerializerManager(
-                   listenerSettings,
-                   serializationProvider),
-                listenerSettings)
         {
         }
 

@@ -3,16 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+using System.Fabric.Common;
+using Microsoft.ServiceFabric.FabricTransport;
+using Microsoft.ServiceFabric.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 {
-    using System;
-    using System.Fabric;
-    using System.Fabric.Common;
-    using Microsoft.ServiceFabric.FabricTransport;
-    using Microsoft.ServiceFabric.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Constants = Microsoft.ServiceFabric.Services.Remoting.V2.Constants;
-
     /// <summary>
     /// Settings that configures the  FabricTransport Listener.
     /// </summary>
@@ -32,8 +31,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         public FabricTransportRemotingListenerSettings()
         {
             this.listenerSettings = new FabricTransportListenerSettings();
-            this.headerBufferSize = Constants.DefaultHeaderBufferSize;
-            this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
+            this.headerBufferSize = V2.Constants.DefaultHeaderBufferSize;
+            this.headerMaxBufferCount = V2.Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
             this.remotingExceptionDepth = DefaultRemotingExceptionDepth;
         }
@@ -43,31 +42,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         {
             this.listenerSettings = listenerSettings;
         }
-
-        /// <summary>
-        /// Exception serialization option to use(applicable only to V2 Remoting).
-        /// </summary>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public enum ExceptionSerialization
-        {
-            /// <summary>
-            /// Uses DCS to serialize exception details in service remoting message.
-            /// </summary>
-            Default,
-
-            /// <summary>
-            /// Uses binary formatter to serialize exception details in service remoting message.
-            /// To be used in compat scenarios.
-            /// </summary>
-            BinaryFormatter,
-        }
-
-        /// <summary>
-        /// Gets or sets the exception serialization technique.
-        /// </summary>
-        /// <remarks>Applies only to V2 Remoting.</remarks>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public ExceptionSerialization ExceptionSerializationTechnique { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the endpoint resource specified in ServiceManifest.
@@ -299,7 +273,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
             var settings = new FabricTransportRemotingListenerSettings(listenerinternalSettings);
 
-#pragma warning disable 618
             AppTrace.TraceSource.WriteInfo(
                 Tracetype,
                 "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," + "HeaderBufferCount {7} , ExceptionSerializationTechinique {8} , RemotingExceptionDepth {9}",
@@ -311,9 +284,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
                 settings.SecurityCredentials.CredentialType,
                 settings.HeaderBufferSize,
                 settings.HeaderMaxBufferCount,
-                settings.ExceptionSerializationTechnique.ToString(),
                 settings.RemotingExceptionDepth);
-#pragma warning restore 618
 
             return settings;
         }

@@ -3,19 +3,16 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Reflection;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Reflection;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-#if DotNetCoreClr
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-#else
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-#endif
-
     /// <summary>
     /// This is a base type for attribute that sets the default service remoting provider to use for
     /// remoting the service interfaces defined and used in the assembly.
@@ -29,13 +26,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     ///     </para>
     ///     <para>
     ///     On client side, implementation of this attribute is looked up by
-    ///     <see cref="V2.Client.ServiceProxyFactory"/> constructor to create a default
-    ///     <see cref="V2.Client.IServiceRemotingClientFactory"/> when it is not specified.
+    ///     <see cref="ServiceProxyFactory"/> constructor to create a default
+    ///     <see cref="IServiceRemotingClientFactory"/> when it is not specified.
     ///     </para>
     ///     <para>
     ///     Note that on client side
     ///     <see cref="Client.ServiceProxy.Create{TServiceInterface}(Uri, Services.Client.ServicePartitionKey, Communication.Client.TargetReplicaSelector, string)"/>
-    ///     method create a default <see cref="V2.Client.ServiceProxyFactory"/> once and hence the provider lookup happens
+    ///     method create a default <see cref="ServiceProxyFactory"/> once and hence the provider lookup happens
     ///     only for the first time, after which the same provider is used.
     ///     </para>
     ///     <para>
@@ -84,29 +81,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             get { return "V2_1Listener"; }
         }
 
-#if !DotNetCoreClr
-        /// <summary>
-        /// Creates a V1 service remoting listener for remoting the service interface.
-        /// </summary>
-        /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
-        /// <param name="serviceImplementation">The service implementation object.</param>
-        /// <returns>An <see cref="IServiceRemotingListener"/> for the specified service.</returns>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public abstract IServiceRemotingListener CreateServiceRemotingListener(
-            ServiceContext serviceContext,
-            IService serviceImplementation);
-
-        /// <summary>
-        /// Creates a service remoting client factory that can be used by the
-        /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
-        /// </summary>
-        /// <param name="callbackClient">Client implementation where the callbacks should be dispatched.</param>
-        /// <returns>An <see cref="IServiceRemotingClientFactory"/>.</returns>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            Remoting.V1.IServiceRemotingCallbackClient callbackClient);
-#endif
-
         /// <summary>
         /// Returns the func method that creates the remoting listeners.
         /// </summary>
@@ -115,13 +89,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting
             CreateServiceRemotingListeners();
 
         /// <summary>
-        /// Creates a V2 service remoting client factory that can be used by the
-        /// <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
+        /// Creates a service remoting client factory that can be used by the
+        /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
-        /// <returns>An <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>
-        public abstract Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
-            Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
+        public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactoryV2(
+            IServiceRemotingCallbackMessageHandler callbackMessageHandler);
 
         internal static ServiceRemotingProviderAttribute GetProvider(IEnumerable<Type> types = null)
         {
@@ -146,16 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting
                 }
             }
 
-#if DotNetCoreClr
             return new FabricTransportServiceRemotingProviderAttribute();
-#else
-            var exception = new InvalidOperationException(
-                "Version 1 of the remoting protocol has been deprecated and will be removed in the next major version of Service Fabric. " +
-                "Please add a ServiceRemotingProviderAttribute to the service assembly to specify the remoting stack you want to use. " +
-                "Note that remoting protocol version 2.1 is now used by default and version 1 must be enabled explicitly.");
-            exception.HelpLink = "https://github.com/microsoft/service-fabric/blob/master/release_notes/Deprecated/RemotingV1.md";
-            throw exception;
-#endif
         }
     }
 }

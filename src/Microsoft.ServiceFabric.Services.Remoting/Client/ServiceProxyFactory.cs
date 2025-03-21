@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
 {
-    using System;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-
     /// <summary>
     /// Specifies the factory that creates proxies for remote communication to the specified service.
     /// </summary>
@@ -17,11 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
     {
         private readonly object thisLock;
         private readonly OperationRetrySettings retrySettings;
-#if !DotNetCoreClr
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        private Remoting.V1.Client.ServiceProxyFactory proxyFactoryV1;
-#endif
-        private Remoting.V2.Client.ServiceProxyFactory proxyFactoryV2;
+        private V2.Client.ServiceProxyFactory proxyFactoryV2;
         private bool overrideListenerName = false;
         private string defaultListenerName;
 
@@ -33,36 +29,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         {
             this.retrySettings = retrySettings;
             this.thisLock = new object();
-#if !DotNetCoreClr
-#pragma warning disable 618
-            this.proxyFactoryV1 = null;
-#pragma warning restore 618
-#endif
             this.proxyFactoryV2 = null;
         }
-
-#if !DotNetCoreClr
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class with the specified V1 remoting factory and retrysettings.
-        /// </summary>
-        /// <param name="createServiceRemotingClientFactory">
-        /// Specifies the factory method that creates the remoting client factory. The remoting client factory got from this method
-        /// is cached in the ServiceProxyFactory.
-        /// </param>
-        /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
-        /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public ServiceProxyFactory(
-            Func<V1.IServiceRemotingCallbackClient, V1.Client.IServiceRemotingClientFactory> createServiceRemotingClientFactory,
-            OperationRetrySettings retrySettings = null,
-            Action<V1.Client.IServiceRemotingClientFactory> disposeFactory = null)
-        {
-            this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings, disposeFactory);
-            this.thisLock = new object();
-        }
-
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceProxyFactory"/> class with the specified V2 remoting factory and retrysettings.
@@ -74,10 +42,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <param name="retrySettings">Specifies the retry policy to use on exceptions seen when using the proxies created by this factory</param>
         /// <param name="disposeFactory">Specifies the method that disposes clientFactory resources.</param>
         public ServiceProxyFactory(
-            Func<IServiceRemotingCallbackMessageHandler, Remoting.V2.Client.IServiceRemotingClientFactory>
-                createServiceRemotingClientFactory,
+            Func<IServiceRemotingCallbackMessageHandler, IServiceRemotingClientFactory> createServiceRemotingClientFactory,
             OperationRetrySettings retrySettings = null,
-            Action<Remoting.V2.Client.IServiceRemotingClientFactory> disposeFactory = null)
+            Action<IServiceRemotingClientFactory> disposeFactory = null)
         {
             this.proxyFactoryV2 = new V2.Client.ServiceProxyFactory(createServiceRemotingClientFactory, retrySettings, disposeFactory);
             this.thisLock = new object();
@@ -105,63 +72,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         {
             var serviceInterfaceType = typeof(TServiceInterface);
 
-#if !DotNetCoreClr
-            // Use provider to find the stack
-#pragma warning disable 618
-            if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
-#pragma warning restore 618
-            {
-                lock (this.thisLock)
-                {
-#pragma warning disable 618
-                    if (this.proxyFactoryV1 == null && this.proxyFactoryV2 == null)
-#pragma warning restore 618
-                    {
-                        var provider = this.GetProviderAttribute(serviceInterfaceType);
-                        if (Helper.IsEitherRemotingV2(provider.RemotingClientVersion))
-                        {
-                            // We are overriding listenerName since using provider we can have multiple listener configured.
-                            this.overrideListenerName = true;
-                            this.defaultListenerName = this.GetDefaultListenerName(
-                                listenerName,
-                                provider.RemotingClientVersion);
-                            this.proxyFactoryV2 =
-                                new V2.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactoryV2, this.retrySettings);
-                        }
-                        else
-                        {
-#pragma warning disable 618
-                            this.proxyFactoryV1 = new V1.Client.ServiceProxyFactory(provider.CreateServiceRemotingClientFactory, this.retrySettings);
-#pragma warning restore 618
-                        }
-                    }
-                }
-            }
-
-#pragma warning disable 618
-            if (this.proxyFactoryV1 != null)
-            {
-                return this.proxyFactoryV1.CreateServiceProxy<TServiceInterface>(
-#pragma warning restore 618
-                    serviceUri,
-                    partitionKey,
-                    targetReplicaSelector,
-                    listenerName);
-            }
-
-            return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
-                serviceUri,
-                partitionKey,
-                targetReplicaSelector,
-                this.OverrideListenerNameIfConditionMet(listenerName));
-#else
             if (this.proxyFactoryV2 == null)
             {
                 lock (this.thisLock)
                 {
-                  if (this.proxyFactoryV2 == null)
+                    if (this.proxyFactoryV2 == null)
                     {
-                        var provider = this.GetProviderAttribute(serviceInterfaceType);
+                        ServiceRemotingProviderAttribute provider = this.GetProviderAttribute(serviceInterfaceType);
 
                         // We are overriding listenerName since using provider we can have multiple listener configured.
                         this.overrideListenerName = true;
@@ -175,11 +92,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
             }
 
             return this.proxyFactoryV2.CreateServiceProxy<TServiceInterface>(
-              serviceUri,
-              partitionKey,
-              targetReplicaSelector,
-              this.OverrideListenerNameIfConditionMet(listenerName));
-#endif
+                serviceUri,
+                partitionKey,
+                targetReplicaSelector,
+                this.OverrideListenerNameIfConditionMet(listenerName));
         }
 
         /// <summary>
@@ -229,14 +145,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// </summary>
         public void Dispose()
         {
-#if !DotNetCoreClr
-#pragma warning disable 618
-            if (this.proxyFactoryV1 != null)
-            {
-                this.proxyFactoryV1.Dispose();
-            }
-#pragma warning restore 618
-#endif
             if (this.proxyFactoryV2 != null)
             {
                 this.proxyFactoryV2.Dispose();

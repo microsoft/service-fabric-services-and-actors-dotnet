@@ -3,15 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 {
-    using System;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Common;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-
     /// <summary>
     /// The base class used by remoting code generator to generate the proxy for the remoted interfaces.
     /// </summary>
@@ -39,27 +36,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             }
         }
 
-#if !DotNetCoreClr
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal abstract DataContractSerializer GetRequestMessageBodySerializer(int interfaceId);
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal abstract DataContractSerializer GetResponseMessageBodySerializer(int interfaceId);
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal abstract object GetResponseMessageBodyValue(object responseMessageBody);
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal abstract object CreateRequestMessageBody(object requestMessageBodyValue);
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal abstract Task<byte[]> InvokeAsync(int interfaceId, int methodId, byte[] requestMsgBodyBytes, CancellationToken cancellationToken);
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal abstract void Invoke(int interfaceId, int methodId, byte[] requestMsgBodyBytes);
-#endif
-
-        // V2 Stack Internal Api
         internal void InitializeV2(
             IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
         {
@@ -80,69 +56,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
 #if !DotNetCoreClr
         /// <summary>
-        /// Called by the generated proxy class to send the message to the remote object.
-        /// </summary>
-        /// <param name="interfaceId">Id of the remote interface.</param>
-        /// <param name="methodId">Id of the remote method to be invokved.</param>
-        /// <param name="requestMsgBodyValue">Message body to be sent to remote object.</param>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        protected void Invoke(
-            int interfaceId,
-            int methodId,
-            object requestMsgBodyValue)
-        {
-            object requestMsgBody = null;
-            if (requestMsgBodyValue != null)
-            {
-                requestMsgBody = this.CreateRequestMessageBody(requestMsgBodyValue);
-            }
-
-            var requestMsgBodyBytes = SerializationUtility.Serialize(
-                this.GetRequestMessageBodySerializer(interfaceId),
-                requestMsgBody);
-
-            this.Invoke(interfaceId, methodId, requestMsgBodyBytes);
-        }
-
-        /// <summary>
-        /// Called by the generated proxy class to send the request to the remote object and get the response back.
-        /// </summary>
-        /// <param name="interfaceId">Id of the remote interface.</param>
-        /// <param name="methodId">Id of the remote method to be invokved.</param>
-        /// <param name="requestMsgBodyValue">Request body.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>A task that represents the asynchronous operation async call to remote object.</returns>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        protected async Task<object> InvokeAsync(
-            int interfaceId,
-            int methodId,
-            object requestMsgBodyValue,
-            CancellationToken cancellationToken)
-        {
-            object requestMsgBody = null;
-            if (requestMsgBodyValue != null)
-            {
-                requestMsgBody = this.CreateRequestMessageBody(requestMsgBodyValue);
-            }
-
-            var requestMsgBodyBytes = SerializationUtility.Serialize(
-                this.GetRequestMessageBodySerializer(interfaceId),
-                requestMsgBody);
-
-            var responseMsgBodyBytes = await this.InvokeAsync(
-                interfaceId,
-                methodId,
-                requestMsgBodyBytes,
-                cancellationToken);
-
-            var responseMsgBody = SerializationUtility.Deserialize(
-                this.GetResponseMessageBodySerializer(interfaceId),
-                responseMsgBodyBytes);
-
-            return responseMsgBody != null ? this.GetResponseMessageBodyValue(responseMsgBody) : null;
-        }
-
-        /// <summary>
         /// Called by the generated proxy class to get the result from the response body.
         /// </summary>
         /// <typeparam name="TRetval"><see cref="System.Type"/> of the remote method return value.</typeparam>
@@ -159,10 +72,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             var responseBody = await task;
             return (TRetval)this.GetReturnValue(interfaceId, methodId, responseBody);
         }
-
 #endif
-
-        // V2 Stack protected APIs
 
         /// <summary>
         /// This method is used by the generated proxy type and should be used directly. This method converts the Task with object

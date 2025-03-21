@@ -3,19 +3,19 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Fabric;
+using System.Fabric.Common;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Fabric.Common;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-
     /// <summary>
     ///     An <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> that uses
     ///     fabric TCP transport to provide interface remoting for stateless and stateful services.
@@ -140,12 +140,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.transportMessageHandler,
                 new FabricTransportRemotingConnectionHandler());
 
-#pragma warning disable 618
             ServiceTelemetry.FabricTransportServiceRemotingV2Event(
                 serviceContext,
-                !remotingSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None),
-                remotingSettings.ExceptionSerializationTechnique.ToString());
-#pragma warning restore 618
+                !remotingSettings.SecurityCredentials.CredentialType.Equals(CredentialType.None));
         }
 
         /// <summary>
