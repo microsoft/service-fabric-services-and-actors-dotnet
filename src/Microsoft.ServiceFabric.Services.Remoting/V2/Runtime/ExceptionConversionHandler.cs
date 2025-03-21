@@ -3,17 +3,17 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Xml;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.IO;
-    using System.Runtime.Serialization;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-
     internal class ExceptionConversionHandler
     {
         private static readonly string TraceEventType = "ExceptionConversionHandler";
@@ -124,11 +124,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
         {
-#pragma warning disable 618
-            if (this.listenerSettings.ExceptionSerializationTechnique == FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter)
-                return RemoteException.FromException(exception).Data;
-#pragma warning restore 618
-
             ServiceException svcEx = this.ToServiceException(exception);
             RemoteException2 remoteEx = this.ToRemoteException(svcEx);
             return this.SerializeRemoteException(remoteEx);

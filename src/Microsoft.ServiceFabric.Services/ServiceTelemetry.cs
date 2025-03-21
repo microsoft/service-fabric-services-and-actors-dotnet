@@ -3,10 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Fabric;
+
 namespace Microsoft.ServiceFabric.Services
 {
-    using System.Fabric;
-
     /// <summary>
     /// ServiceTelemetry contains the telemetry methods for ServiceFramework.
     /// This class is to be used by other Service Fabric components only and
@@ -76,27 +76,14 @@ namespace Microsoft.ServiceFabric.Services
         }
 
         /// <summary>
-        /// FabricTransportServiceRemotingV1Event captures the telemetry of the usage of V1 FabricTransport
-        /// remoting.
-        /// </summary>
-        /// <param name="context"><see cref="ServiceContext"/> is the service context.</param>
-        /// <param name="isSecure">Captures if the remoting is secure or unsecure.</param>
-        /// <param name="exceptionSerializationTechnique">Exception serailization techinique used.</param>
-        internal static void FabricTransportServiceRemotingV1Event(ServiceContext context, bool isSecure, string exceptionSerializationTechnique)
-        {
-            FabricTransportServiceRemotingEvent(context, TelemetryConstants.RemotingVersionV1, isSecure, exceptionSerializationTechnique);
-        }
-
-        /// <summary>
         /// FabricTransportServiceRemotingV1Event captures the telemetry of the usage of V2 FabricTransport
         /// remoting.
         /// </summary>
         /// <param name="context"><see cref="ServiceContext"/> is the service context.</param>
         /// <param name="isSecure">Captures if the remoting is secure or unsecure.</param>
-        /// <param name="exceptionSerializationTechnique">Exception serailization techinique used.</param>
-        internal static void FabricTransportServiceRemotingV2Event(ServiceContext context, bool isSecure, string exceptionSerializationTechnique)
+        internal static void FabricTransportServiceRemotingV2Event(ServiceContext context, bool isSecure)
         {
-            FabricTransportServiceRemotingEvent(context, TelemetryConstants.RemotingVersionV2, isSecure, exceptionSerializationTechnique);
+            FabricTransportServiceRemotingEvent(context, TelemetryConstants.RemotingVersionV2, isSecure);
         }
 
         private static void StatefulServiceLifecycleEvent(StatefulServiceContext context, string lifecycleEvent)
@@ -131,7 +118,7 @@ namespace Microsoft.ServiceFabric.Services
                 TelemetryConstants.StatelessServiceKind);
         }
 
-        private static void FabricTransportServiceRemotingEvent(ServiceContext context, string remotingVersion, bool isSecure, string exceptionSerializationTechnique)
+        private static void FabricTransportServiceRemotingEvent(ServiceContext context, string remotingVersion, bool isSecure)
         {
             ServiceEventSource.Instance.ServiceRemotingUsageEventWrapper(
                 TelemetryConstants.ServiceRemotingUsageEventName,
@@ -145,8 +132,7 @@ namespace Microsoft.ServiceFabric.Services
                 context.CodePackageActivationContext.ApplicationTypeName,
                 isSecure,
                 remotingVersion,
-                TelemetryConstants.FabricTransportCommunicationListener,
-                exceptionSerializationTechnique);
+                TelemetryConstants.FabricTransportCommunicationListener);
         }
     }
 }

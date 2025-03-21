@@ -3,38 +3,25 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+using Microsoft.ServiceFabric.Services.Remoting.Builder;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
 {
-    using System;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting;
-
-#if !DotNetCoreClr
-
-    using Microsoft.ServiceFabric.Services.Remoting.V1;
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-#endif
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-
     /// <summary>
     /// Provides the base implementation for the proxy to the remoted IService interfaces.
     /// </summary>
-    public abstract class ServiceProxy : Remoting.Builder.ProxyBase, IServiceProxy
+    public abstract class ServiceProxy : ProxyBase, IServiceProxy
     {
         private static readonly ServiceProxyFactory DefaultProxyFactory = new ServiceProxyFactory();
-
-#if !DotNetCoreClr
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        private ServiceProxyGeneratorWith proxyGeneratorV1;
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        private ServiceRemotingPartitionClient partitionClient;
-#endif
-        private V2.Client.ServiceRemotingPartitionClient partitionClientV2;
+        private ServiceRemotingPartitionClient partitionClientV2;
 
         /// <summary>
         /// Gets the interface type that is being remoted.
@@ -42,24 +29,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
         /// <value>Service interface type</value>
         public Type ServiceInterfaceType { get; private set; }
 
-#if !DotNetCoreClr
-
-        /// <summary>
-        /// Gets the V1 Service partition client used to send requests to the service.
-        /// </summary>
-        /// <value>ServicePartitionClient used by the ServiceProxy</value>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public IServiceRemotingPartitionClient ServicePartitionClient
-        {
-            get { return this.partitionClient; }
-        }
-#endif
-
         /// <summary>
         /// Gets the V2 Service partition client used to send requests to the service.
         /// </summary>
         /// <value>ServicePartitionClient used by the ServiceProxy</value>
-        public V2.Client.IServiceRemotingPartitionClient ServicePartitionClient2
+        public IServiceRemotingPartitionClient ServicePartitionClient2
         {
             get { return this.partitionClientV2; }
         }
@@ -91,74 +65,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Client
                 listenerName);
         }
 
-#if !DotNetCoreClr
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal void Initialize(ServiceProxyGeneratorWith generatorWith, ServiceRemotingPartitionClient client)
-        {
-            this.proxyGeneratorV1 = generatorWith;
-            this.ServiceInterfaceType = this.proxyGeneratorV1.ProxyInterfaceType;
-            this.partitionClient = client;
-        }
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal override DataContractSerializer GetRequestMessageBodySerializer(int interfaceId)
-        {
-            return this.proxyGeneratorV1.GetRequestMessageBodySerializer(interfaceId);
-        }
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal override DataContractSerializer GetResponseMessageBodySerializer(int interfaceId)
-        {
-            return this.proxyGeneratorV1.GetResponseMessageBodySerializer(interfaceId);
-        }
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal override object GetResponseMessageBodyValue(object responseMessageBody)
-        {
-            return ((ServiceRemotingMessageBody)responseMessageBody).Value;
-        }
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal override object CreateRequestMessageBody(object requestMessageBodyValue)
-        {
-            return new ServiceRemotingMessageBody()
-            {
-                Value = requestMessageBodyValue,
-            };
-        }
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal override Task<byte[]> InvokeAsync(
-            int interfaceId,
-            int methodId,
-            byte[] requestMsgBodyBytes,
-            CancellationToken cancellationToken)
-        {
-            var headers = new ServiceRemotingMessageHeaders()
-            {
-                InterfaceId = interfaceId,
-                MethodId = methodId,
-            };
-
-            return this.partitionClient.InvokeAsync(
-                headers,
-                requestMsgBodyBytes,
-                cancellationToken);
-        }
-
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        internal override void Invoke(int interfaceId, int methodId, byte[] requestMsgBodyBytes)
-        {
-            // no - op as events/one way messages are not supported for services
-        }
-
-#endif
-
         // V2 APi
         internal void Initialize(
-            ServiceFabric.Services.Remoting.V2.Builder.ServiceProxyGenerator proxyGenerator,
-            ServiceFabric.Services.Remoting.V2.Client.ServiceRemotingPartitionClient client,
+            ServiceProxyGenerator proxyGenerator,
+            ServiceRemotingPartitionClient client,
             IServiceRemotingMessageBodyFactory serviceRemotingMessageBodyFactory)
         {
             this.partitionClientV2 = client;

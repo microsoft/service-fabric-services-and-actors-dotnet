@@ -3,16 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Client;
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
-    using System;
-    using System.Fabric;
-    using System.Fabric.Management.ServiceModel;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Client;
-
     /// <summary>
     /// Specifies an instance of the communication client that can communicate with the replicas of a particular partition.
     /// </summary>
@@ -130,7 +129,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="func">Function being invoked</param>
         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// A <see cref="Task"/> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
         /// </returns>
         public virtual Task<TResult> InvokeWithRetryAsync<TResult>(
@@ -151,9 +150,9 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <typeparam name="TResult">Result from the function being invoked</typeparam>
         /// <param name="func">Function being invoked</param>
         /// <param name="cancellationToken">Cancellation token</param>
-         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
+        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// A <see cref="Task"/> that represents outstanding operation. The result of the Task is
         /// the result from the function given in the argument.
         /// </returns>
         /// <exception cref="OperationCanceledException">The operation has been canceled.</exception>
@@ -275,7 +274,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
         /// <param name="func">Function being invoked</param>
         /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
+        /// A <see cref="Task"/> that represents outstanding operation.
         /// </returns>
         public Task InvokeWithRetryAsync(Func<TCommunicationClient, Task> func, params Type[] doNotRetryExceptionTypes)
         {
@@ -308,53 +307,6 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                     return new object();
                 },
                 cancellationToken,
-                doNotRetryExceptionTypes);
-        }
-
-        /// <summary>
-        /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
-        /// controls if the exception should be retried or not.
-        /// </summary>
-        /// <typeparam name="TResult">Result from the function being invoked</typeparam>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
-        /// <returns>Result from the function given in the argument</returns>
-        [Obsolete("Use InvokeWithRetryAsync Api instead ")]
-        public TResult InvokeWithRetry<TResult>(
-            Func<TCommunicationClient, TResult> func,
-            params Type[] doNotRetryExceptionTypes)
-        {
-            var task = this.InvokeWithRetryAsync(
-                client =>
-                {
-                    var tcs = new TaskCompletionSource<TResult>();
-                    tcs.SetResult(func.Invoke(client));
-                    return tcs.Task;
-                },
-                CancellationToken.None,
-                doNotRetryExceptionTypes);
-            return task.GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Invokes the given Function, retrying for exceptions thrown other than the exceptions in the doNotRetryExceptionTypes.
-        /// For exceptions that are not in doNotRetryExceptionTypes, CommunicationClientFactory's ReportOperationExceptionAsync() method
-        /// controls if the exception should be retried or not.
-        /// </summary>
-        /// <param name="func">Function being invoked</param>
-        /// <param name="doNotRetryExceptionTypes">Exceptions for which the service partition client should not retry</param>
-        [Obsolete("Use InvokeWithRetryAsync Api instead ")]
-        public void InvokeWithRetry(
-            Action<TCommunicationClient> func,
-            params Type[] doNotRetryExceptionTypes)
-        {
-            this.InvokeWithRetry<object>(
-                client =>
-                {
-                    func.Invoke(client);
-                    return null;
-                },
                 doNotRetryExceptionTypes);
         }
 

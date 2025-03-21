@@ -3,20 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Builder;
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 {
-    using System;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-
     internal class ActorEventProxyGenerator : ProxyGenerator
     {
         private readonly IProxyActivator proxyActivator;
-
-#if !DotNetCoreClr
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        private Remoting.V1.Builder.ActorEventProxyGeneratorWith actorV1EventProxyGeneratorW;
-#endif
 
         public ActorEventProxyGenerator(
             Type proxyInterfaceType,
@@ -28,21 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Builder
 
         public ActorEventProxy CreateActorEventProxy()
         {
-            var actorEventProxy = (ActorEventProxy)this.proxyActivator.CreateInstance();
-#if !DotNetCoreClr
-#pragma warning disable 618
-            actorEventProxy.Initialize(this.actorV1EventProxyGeneratorW);
-#pragma warning restore 618
-#endif
-            return actorEventProxy;
+            return (ActorEventProxy)this.proxyActivator.CreateInstance();
         }
-
-#if !DotNetCoreClr
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        internal void InitializeV1ProxyGenerator(Remoting.V1.Builder.ActorEventProxyGeneratorWith actorEventProxyGeneratorWith)
-        {
-            this.actorV1EventProxyGeneratorW = actorEventProxyGeneratorWith;
-        }
-#endif
     }
 }

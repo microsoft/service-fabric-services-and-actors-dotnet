@@ -3,15 +3,14 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
-
     internal static class ActorServiceRemotingListener
     {
 #if !DotNetCoreClr
@@ -22,16 +21,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
             types.AddRange(actorService.ActorTypeInformation.InterfaceTypes);
 
             var provider = ActorRemotingProviderAttribute.GetProvider(types);
-            if (Helper.IsEitherRemotingV2(provider.RemotingListenerVersion))
-            {
-                return provider.CreateServiceRemotingListeners().ElementAt(0).Value(actorService);
-            }
-
-#pragma warning disable 618
-            return provider.CreateServiceRemotingListener(actorService);
-#pragma warning restore 618
+            return provider.CreateServiceRemotingListeners().ElementAt(0).Value(actorService);
         }
-
 #endif
 
     }

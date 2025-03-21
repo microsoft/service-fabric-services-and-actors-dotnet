@@ -3,8 +3,6 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System;
-
 namespace Microsoft.ServiceFabric.Services.Remoting
 {
     /// <summary>
@@ -12,15 +10,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting
     /// </summary>
     public enum RemotingClientVersion
     {
-#if !DotNetCoreClr
-        /// <summary>
-        /// This is selected to create V1 Client. V1 is a deprecated Remoting Stack.
-        /// </summary>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        V1 = 1,
-
-#endif
-
         /// <summary>
         /// This is selected to create V2 Client. V2 is a new Remoting Stack.
         /// </summary>

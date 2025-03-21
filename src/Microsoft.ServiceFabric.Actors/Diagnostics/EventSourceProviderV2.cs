@@ -3,14 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Fabric;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting;
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    using System.Collections.Generic;
-    using System.Fabric;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-
     internal class EventSourceProviderV2 : EventSourceProvider
     {
         private readonly Dictionary<long, ActorMethodInfo> actorMethodInfoV2;
@@ -37,12 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
         {
-            if (Helper.IsEitherRemotingV2(remotingListener))
-            {
-                return this.actorMethodInfoV2[key];
-            }
-
-            return base.GetActorMethodInfo(key, remotingListener);
+            return this.actorMethodInfoV2[key];
         }
     }
 }

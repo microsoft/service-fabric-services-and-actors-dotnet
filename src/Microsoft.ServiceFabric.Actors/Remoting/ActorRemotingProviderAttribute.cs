@@ -3,23 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Microsoft.ServiceFabric.Actors.Client;
+using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+
 namespace Microsoft.ServiceFabric.Actors.Remoting
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-
-#if DotNetCoreClr
-    using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
-#else
-    using Microsoft.ServiceFabric.Services.Remoting.V1;
-    using Microsoft.ServiceFabric.Services.Remoting.V1.Client;
-#endif
-
     /// <summary>
     /// This is a base type for attribute that sets the default remoting provider to use for
     /// remoting the actor interfaces defined or used in the assembly.
@@ -44,10 +39,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     ///     This attribute is looked up in the following order:
     ///     <list type="number">
     ///         <item>
-    ///             In the entry <see cref="System.Reflection.Assembly"/> obtained by calling method <see cref="System.Reflection.Assembly.GetEntryAssembly"/>
+    ///             In the entry <see cref="Assembly"/> obtained by calling method <see cref="Assembly.GetEntryAssembly"/>
     ///         </item>
     ///         <item>
-    ///             In the <see cref="System.Reflection.Assembly"/> that defines the remote interface for which listener or proxy is being created.
+    ///             In the <see cref="Assembly"/> that defines the remote interface for which listener or proxy is being created.
     ///         </item>
     ///     </list>
     ///     </para>
@@ -76,40 +71,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
         /// </summary>
         public RemotingListenerVersion RemotingListenerVersion { get; set; }
 
-#if !DotNetCoreClr
-        /// <summary>
-        ///     Creates a service remoting listener for remoting the actor interfaces.
-        /// </summary>
-        /// <param name="actorService">
-        ///     The implementation of the actor service that hosts the actors whose interfaces
-        ///     needs to be remoted.
-        /// </param>
-        /// <returns>
-        ///     An <see cref="IServiceRemotingListener"/>
-        ///     for the specified actor service.
-        /// </returns>
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        public abstract IServiceRemotingListener CreateServiceRemotingListener(
-            ActorService actorService);
-
-        /// <summary>
-        ///     Creates a service remoting client factory to connected to the remoted actor interfaces.
-        /// </summary>
-        /// <param name="callbackClient">
-        ///     Client implementation where the callbacks should be dispatched.
-        /// </param>
-        /// <returns>
-        ///     An <see cref="IServiceRemotingClientFactory"/>
-        ///     that can be used with <see cref="Microsoft.ServiceFabric.Actors.Client.ActorProxyFactory"/> to
-        ///     generate actor proxy to talk to the actor over remoted actor interface.
-        /// </returns>
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            IServiceRemotingCallbackClient callbackClient);
-#endif
-
-        // V2 Stack
-
         /// <summary>
         /// Creates a V2 service remoting listener for remoting the service interface.
         /// </summary>
@@ -118,12 +79,11 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
 
         /// <summary>
         /// Creates a service remoting client factory that can be used by the
-        /// <see cref="Services.Remoting.V2.Client.ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
+        /// <see cref="ServiceProxyFactory"/> to create a proxy for the remoted interface of the service.
         /// </summary>
         /// <param name="callbackMessageHandler">Client implementation where the callbacks should be dispatched.</param>
-        /// <returns>An <see cref="Services.Remoting.V2.Client.IServiceRemotingClientFactory"/>.</returns>
-        public abstract Services.Remoting.V2.Client.IServiceRemotingClientFactory CreateServiceRemotingClientFactory(
-            Services.Remoting.V2.Client.IServiceRemotingCallbackMessageHandler callbackMessageHandler);
+        /// <returns>An <see cref="IServiceRemotingClientFactory"/>.</returns>
+        public abstract IServiceRemotingClientFactory CreateServiceRemotingClientFactory(IServiceRemotingCallbackMessageHandler callbackMessageHandler);
 
         internal static ActorRemotingProviderAttribute GetProvider(IEnumerable<Type> types = null)
         {
@@ -148,16 +108,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
                 }
             }
 
-#if DotNetCoreClr
             return new FabricTransportActorRemotingProviderAttribute();
-#else
-            var exception = new InvalidOperationException(
-                "Version 1 of the remoting protocol has been deprecated and will be removed in the next major version of Service Fabric. " +
-                "Please add an ActorRemotingProviderAttribute to the service assembly to specify the remoting stack you want to use. " +
-                "Note that remoting protocol version 2.1 is now used by default and version 1 must be enabled explicitly.");
-            exception.HelpLink = "https://github.com/microsoft/service-fabric/blob/master/release_notes/Deprecated/RemotingV1.md";
-            throw exception;
-#endif
         }
     }
 }

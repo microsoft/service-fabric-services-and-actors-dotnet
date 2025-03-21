@@ -3,14 +3,14 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Runtime.Serialization;
+using Microsoft.ServiceFabric.Actors.Client;
+using Microsoft.ServiceFabric.Actors.Remoting;
+using Microsoft.ServiceFabric.Actors.Runtime;
+
 namespace Microsoft.ServiceFabric.Actors
 {
-    using System;
-    using System.Runtime.Serialization;
-    using Microsoft.ServiceFabric.Actors.Client;
-    using Microsoft.ServiceFabric.Actors.Remoting;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-
     /// <summary>
     /// Encapsulation of a reference to an actor for serialization.
     /// </summary>
@@ -84,19 +84,6 @@ namespace Microsoft.ServiceFabric.Actors
             // try as IActorProxy for backward compatibility as customers's mock framework may rely on it before V2 remoting stack.
             if (actor is IActorProxy actorProxy)
             {
-#if !DotNetCoreClr
-#pragma warning disable 618
-                if (actorProxy.ActorServicePartitionClient != null)
-                {
-                    return new ActorReference()
-                    {
-                        ActorId = actorProxy.ActorId,
-                        ServiceUri = actorProxy.ActorServicePartitionClient.ServiceUri,
-                        ListenerName = actorProxy.ActorServicePartitionClient.ListenerName,
-                    };
-                }
-#pragma warning restore 618
-#endif
                 return new ActorReference()
                 {
                     ActorId = actorProxy.ActorId,

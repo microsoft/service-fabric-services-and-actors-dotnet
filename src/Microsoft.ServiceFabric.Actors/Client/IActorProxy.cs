@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System;
+using Microsoft.ServiceFabric.Actors.Remoting.V2.Client;
 
 namespace Microsoft.ServiceFabric.Actors.Client
 {
@@ -13,24 +13,15 @@ namespace Microsoft.ServiceFabric.Actors.Client
     public interface IActorProxy
     {
         /// <summary>
-        /// Gets <see cref="ServiceFabric.Actors.ActorId"/> associated with the proxy object.
+        /// Gets <see cref="Actors.ActorId"/> associated with the proxy object.
         /// </summary>
-        /// <value><see cref="ServiceFabric.Actors.ActorId"/> associated with the proxy object.</value>
+        /// <value><see cref="Actors.ActorId"/> associated with the proxy object.</value>
         ActorId ActorId { get; }
 
-#if !DotNetCoreClr
         /// <summary>
-        /// Gets <see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.
+        /// Gets <see cref="IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.
         /// </summary>
-        /// <value><see cref="Remoting.V1.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
-        [Obsolete(Services.Remoting.DeprecationMessage.RemotingV1)]
-        Remoting.V1.Client.IActorServicePartitionClient ActorServicePartitionClient { get; }
-#endif
-
-        /// <summary>
-        /// Gets <see cref="Remoting.V2.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.
-        /// </summary>
-        /// <value><see cref="Remoting.V2.Client.IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
-        Remoting.V2.Client.IActorServicePartitionClient ActorServicePartitionClientV2 { get; }
+        /// <value><see cref="IActorServicePartitionClient"/> that this proxy is using to communicate with the actor.</value>
+        IActorServicePartitionClient ActorServicePartitionClientV2 { get; }
     }
 }

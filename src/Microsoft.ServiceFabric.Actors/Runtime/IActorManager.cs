@@ -3,17 +3,17 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Diagnostics;
+using Microsoft.ServiceFabric.Actors.Query;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Diagnostics;
-    using Microsoft.ServiceFabric.Actors.Query;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-
     /// <summary>
     /// Interface for ACtorManager.
     /// </summary>
@@ -70,26 +70,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #region Actor Method Dispatch
 
-#if !DotNetCoreClr
-        /// <summary>
-        /// Dispatches method call to actor.
-        /// </summary>
-        /// <param name="actorId">Id of actor.</param>
-        /// <param name="interfaceId">Interface id.</param>
-        /// <param name="methodId">Method Id.</param>
-        /// <param name="callContext">Call context.</param>
-        /// <param name="requestMsgBody">Request Message Body.</param>
-        /// <param name="cancellationToken">Token to cancel the request.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        Task<byte[]> InvokeAsync(
-            ActorId actorId,
-            int interfaceId,
-            int methodId,
-            string callContext,
-            byte[] requestMsgBody,
-            CancellationToken cancellationToken);
-#endif
-
         /// <summary>
         /// Dispatches method call to actor.
         /// </summary>
@@ -110,8 +90,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             string callContext,
             bool timerCall,
             CancellationToken cancellationToken);
-
-        // V2 Stack Apis
 
         /// <summary>
         /// Dispatches method call to actor.

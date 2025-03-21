@@ -3,14 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+using System.Fabric.Common;
+using Microsoft.ServiceFabric.FabricTransport;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
 {
-    using System;
-    using System.Fabric;
-    using System.Fabric.Common;
-    using Microsoft.ServiceFabric.FabricTransport;
-    using Constants = Microsoft.ServiceFabric.Services.Remoting.V2.Constants;
-
     /// <summary>
     /// Represents a settings that configures the  FabricTransport communication.
     /// </summary>
@@ -32,8 +31,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         public FabricTransportRemotingSettings()
         {
             this.fabricTransportSettings = new FabricTransportSettings();
-            this.headerBufferSize = Constants.DefaultHeaderBufferSize;
-            this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
+            this.headerBufferSize = V2.Constants.DefaultHeaderBufferSize;
+            this.headerMaxBufferCount = V2.Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
         }
 
@@ -42,30 +41,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         {
             this.fabricTransportSettings = fabricTransportSettings;
         }
-
-        /// <summary>
-        /// Exception Deserialization option to use(applies to V2 Remoting only).
-        /// </summary>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public enum ExceptionDeserialization
-        {
-            /// <summary>
-            /// Uses only DCS to deserialize the service remoting message containing exception details.
-            /// </summary>
-            Default,
-
-            /// <summary>
-            /// Attempts to deserialize using DCS and fallsback to BinaryFormatter if DCS fails.
-            /// To be used in compat scenarios. Fallback option will be deprecated in future.
-            /// </summary>
-            Fallback,
-        }
-
-        /// <summary>
-        /// Gets or sets the exception deserialization techinique to use.
-        /// </summary>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public ExceptionDeserialization ExceptionDeserializationTechnique { get; set; }
 
         /// <summary>
         /// Gets or sets the operation Timeout  which governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
@@ -277,25 +252,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// <returns>Default <see cref="FabricTransportRemotingSettings"/> configured.</returns>
         internal static FabricTransportRemotingSettings GetDefault(string sectionName = DefaultSectionName)
         {
-            FabricTransportSettings transportSettings;
-            transportSettings = FabricTransportSettings.GetDefault(sectionName);
+            var transportSettings = FabricTransportSettings.GetDefault(sectionName);
             var settings = new FabricTransportRemotingSettings(transportSettings);
 
-#pragma warning disable 618
             AppTrace.TraceSource.WriteInfo(
-              Tracetype,
-              "MaxMessageSize: {0}, MaxConcurrentCalls: {1}, MaxQueueSize: {2}, OperationTimeoutInSeconds: {3}, KeepAliveTimeoutInSeconds : {4}, SecurityCredentials {5}, HeaderBufferSize {6}, HeaderBufferCount {7}, ExceptionSerializationTechinique {8}",
-              settings.MaxMessageSize,
-              settings.MaxConcurrentCalls,
-              settings.MaxQueueSize,
-              settings.OperationTimeout.TotalSeconds,
-              settings.KeepAliveTimeout.TotalSeconds,
-              settings.SecurityCredentials.CredentialType,
-              settings.HeaderBufferSize,
-              settings.HeaderMaxBufferCount,
-              settings.ExceptionDeserializationTechnique);
+                Tracetype,
+                "MaxMessageSize: {0}, MaxConcurrentCalls: {1}, MaxQueueSize: {2}, OperationTimeoutInSeconds: {3}, KeepAliveTimeoutInSeconds : {4}, SecurityCredentials {5}, HeaderBufferSize {6}, HeaderBufferCount {7}",
+                settings.MaxMessageSize,
+                settings.MaxConcurrentCalls,
+                settings.MaxQueueSize,
+                settings.OperationTimeout.TotalSeconds,
+                settings.KeepAliveTimeout.TotalSeconds,
+                settings.SecurityCredentials.CredentialType,
+                settings.HeaderBufferSize,
+                settings.HeaderMaxBufferCount);
+
             return settings;
-#pragma warning restore 618
         }
 
         internal FabricTransportSettings GetInternalSettings()
