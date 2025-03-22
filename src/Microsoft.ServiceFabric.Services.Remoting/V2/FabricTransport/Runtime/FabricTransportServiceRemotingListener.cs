@@ -17,7 +17,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
     /// <summary>
-    ///     An <see cref="Microsoft.ServiceFabric.Services.Remoting.Runtime.IServiceRemotingListener"/> that uses
+    ///     An <see cref="IServiceRemotingListener"/> that uses
     ///     fabric TCP transport to provide interface remoting for stateless and stateful services.
     /// </summary>
     public class FabricTransportServiceRemotingListener : IServiceRemotingListener
@@ -125,12 +125,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             svcExceptionConvertors.Add(new FabricExceptionConvertor());
             svcExceptionConvertors.Add(new SystemExceptionConvertor());
-            svcExceptionConvertors.Add(new ExceptionConversionHandler.DefaultExceptionConvertor());
+            svcExceptionConvertors.Add(new DefaultExceptionConvertor());
 
             this.transportMessageHandler = new FabricTransportMessageHandler(
                 serviceRemotingMessageHandler,
                 serializersManager,
-                new ExceptionConversionHandler(svcExceptionConvertors, remotingSettings),
+                new ExceptionSerializer(svcExceptionConvertors, remotingSettings),
                 serviceContext.PartitionId,
                 serviceContext.ReplicaOrInstanceId);
 
@@ -151,7 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// </summary>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// A <see cref="Task"/> that represents outstanding operation. The result of the Task is
         /// the endpoint string.
         /// </returns>
         public Task<string> OpenAsync(CancellationToken cancellationToken)
@@ -179,7 +179,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         /// </summary>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
+        /// A <see cref="Task"/> that represents outstanding operation.
         /// </returns>
         public async Task CloseAsync(CancellationToken cancellationToken)
         {

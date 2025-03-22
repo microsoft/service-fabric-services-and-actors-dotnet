@@ -3,41 +3,25 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Xunit;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-    using Xunit;
-
-    /// <summary>
-    /// Custom Convertor test
-    /// </summary>
     public class CustomConvertorTest
     {
-        private static Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
-            = new Remoting.V2.Runtime.ExceptionConversionHandler(
-                new List<Remoting.V2.Runtime.IExceptionConvertor>()
-                {
-                    new CustomConvertorRuntime(),
-                },
-                new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 3 });
+        static Remoting.V2.Runtime.ExceptionSerializer serializer = new Remoting.V2.Runtime.ExceptionSerializer(
+            new Remoting.V2.Runtime.IExceptionConvertor[] { new CustomConvertorRuntime() },
+            new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 3 });
 
-        private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
-            = new Remoting.V2.Client.ExceptionConversionHandler(
-                new List<Remoting.V2.Client.IExceptionConvertor>()
-                {
-                    new CustomConvertorClient(),
-                },
-                new FabricTransport.FabricTransportRemotingSettings());
+        static Remoting.V2.Client.ExceptionDeserializer deserializer = new Remoting.V2.Client.ExceptionDeserializer(
+            new Remoting.V2.Client.IExceptionConvertor[] { new CustomConvertorClient() });
 
-        /// <summary>
-        /// Custom types test.
-        /// </summary>
-        /// <returns>Task representing async operation.</returns>
         [Fact]
         public static async Task KnownCustomExceptionSerializationTest()
         {
@@ -51,13 +35,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 exception = ex;
             }
 
-            var serializedData = runtimeHandler.SerializeRemoteException(exception);
-            var msgStream = new SegmentedReadMemoryStream(serializedData);
+            List<ArraySegment<byte>> serializedData = serializer.SerializeRemoteException(exception);
+            using var msgStream = new SegmentedReadMemoryStream(serializedData);
 
             Exception resultEx = null;
             try
             {
-                await clientHandler.DeserializeRemoteExceptionAndThrowAsync(msgStream);
+                await deserializer.DeserializeRemoteExceptionAndThrowAsync(msgStream);
             }
             catch (AggregateException ex)
             {
@@ -74,7 +58,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Assert.Equal(customResultEx.Field2, exception.Field2);
         }
 
-        private static void Throw()
+        static void Throw()
         {
             throw new CustomException("CustomEx", "CutomField1", "CustomField2");
         }
@@ -130,9 +114,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             }
         }
 
-        /// <summary>
-        /// Custom Exception
-        /// </summary>
         internal class CustomException : Exception
         {
             public CustomException(string message, string field1, string field2)

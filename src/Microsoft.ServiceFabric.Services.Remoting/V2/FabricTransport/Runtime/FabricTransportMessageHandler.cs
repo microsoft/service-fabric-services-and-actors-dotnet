@@ -3,19 +3,19 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.FabricTransport.V2;
+using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.FabricTransport.V2;
-    using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-
-    internal class FabricTransportMessageHandler : IFabricTransportMessageHandler
+    sealed class FabricTransportMessageHandler : IFabricTransportMessageHandler
     {
         private static readonly string TraceType = typeof(FabricTransportMessageHandler).Name;
         private readonly IServiceRemotingMessageHandler remotingMessageHandler;
@@ -24,12 +24,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly long replicaOrInstanceId;
         private readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
-        private ExceptionConversionHandler exceptionConvertorHandler;
+        private ExceptionSerializer exceptionSerializer;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
-            ExceptionConversionHandler exceptionConvertorHandler,
+            ExceptionSerializer exceptionConvertorHandler,
             Guid partitionId,
             long replicaOrInstanceId)
         {
@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.partitionId,
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
-            this.exceptionConvertorHandler = exceptionConvertorHandler;
+            this.exceptionSerializer = exceptionConvertorHandler;
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             header.AddHeader("HasRemoteException", new byte[0]);
             var serializedHeader = this.serializersManager.GetHeaderSerializer().SerializeResponseHeader(header);
 
-            var serializedMsg = this.exceptionConvertorHandler.SerializeRemoteException(ex);
+            var serializedMsg = this.exceptionSerializer.SerializeRemoteException(ex);
             var msg = new FabricTransportMessage(
                 new FabricTransportRequestHeader(serializedHeader.GetSendBuffer(), serializedHeader.Dispose),
                 new FabricTransportRequestBody(serializedMsg, null));
