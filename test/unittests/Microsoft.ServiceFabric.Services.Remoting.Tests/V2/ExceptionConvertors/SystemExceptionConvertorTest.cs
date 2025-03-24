@@ -3,54 +3,45 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Resources;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+using Xunit;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Resources;
-    using System.Runtime.CompilerServices;
-    using System.Runtime.InteropServices;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Castle.Core.Internal;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-    using Xunit;
-
-    /// <summary>
-    /// SystemExceptionConvertor test.
-    /// </summary>
     public class SystemExceptionConvertorTest
     {
-        private static List<Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors
-           = new List<Remoting.V2.Runtime.IExceptionConvertor>()
+        static readonly IEnumerable<IExceptionConvertor> runtimeConvertors = new IExceptionConvertor[]
            {
-                new Remoting.V2.Runtime.FabricExceptionConvertor(),
-                new Remoting.V2.Runtime.SystemExceptionConvertor(),
-                new Remoting.V2.Runtime.ExceptionConversionHandler.DefaultExceptionConvertor(),
+                new FabricExceptionConvertor(),
+                new SystemExceptionConvertor(),
+                new DefaultExceptionConvertor(),
            };
 
-        private static Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
-            = new Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, 
-                new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 3 });
+        static readonly ExceptionSerializer serializer = new ExceptionSerializer(
+            runtimeConvertors, new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 3 });
 
-        private static List<Remoting.V2.Client.IExceptionConvertor> clientConvertors
-            = new List<Remoting.V2.Client.IExceptionConvertor>()
+        static readonly IEnumerable<Remoting.V2.Client.IExceptionConvertor> clientConvertors = new Remoting.V2.Client.IExceptionConvertor[]
             {
                 new Remoting.V2.Client.SystemExceptionConvertor(),
                 new Remoting.V2.Client.FabricExceptionConvertor(),
             };
 
-        private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
-            = new Remoting.V2.Client.ExceptionConversionHandler(
-                clientConvertors,
-                new FabricTransport.FabricTransportRemotingSettings());
+        static readonly Remoting.V2.Client.ExceptionDeserializer clientHandler = new Remoting.V2.Client.ExceptionDeserializer(
+            clientConvertors);
 
-        private static List<SystemException> systemExceptions = new List<SystemException>()
+        static IEnumerable<SystemException> systemExceptions = new SystemException[]
         {
             new AccessViolationException("AccessViolationException"),
             new AppDomainUnloadedException("AppDomainUnloadedException"),
@@ -122,22 +113,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             new ObjectDisposedException("MyObject1", "ObjectDisposedException"),
         };
 
-        /// <summary>
-        /// Known types test.
-        /// </summary>
-        /// <returns>Task representing async operation.</returns>
         [Fact]
         public static async Task KnownSystemExceptionSerializationTest()
         {
-            foreach (var exception in systemExceptions)
+            foreach (SystemException exception in systemExceptions)
             {
-                var serializedData = runtimeHandler.SerializeRemoteException(exception);
-                var msgStream = new SegmentedReadMemoryStream(serializedData);
+                List<ArraySegment<byte>> serializedData = serializer.SerializeRemoteException(exception);
+                using var stream = new SegmentedReadMemoryStream(serializedData);
 
                 Exception resultEx = null;
                 try
                 {
-                    await clientHandler.DeserializeRemoteExceptionAndThrowAsync(msgStream);
+                    await clientHandler.DeserializeRemoteExceptionAndThrowAsync(stream);
                 }
                 catch (AggregateException ex)
                 {
@@ -190,23 +177,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             }
         }
 
-        /// <summary>
-        /// Exception depth test.
-        /// </summary>
-        /// <returns>Task representing async operation.</returns>
         [Fact]
         public static async Task ExceptionDepthTest()
         {
-            var aggregateException = new AggregateException(new List<Exception>()
-           {
-               NestedAggregateEx(4, 4),
-               NestedReflectionEx(4, 4),
-               NestedAggregateEx(4, 4),
-               NestedReflectionEx(4, 4),
-           });
+            var aggregateException = new AggregateException(new Exception[]
+            {
+                NestedAggregateEx(4, 4),
+                NestedReflectionEx(4, 4),
+                NestedAggregateEx(4, 4),
+                NestedReflectionEx(4, 4),
+            });
 
-            var serializedData = runtimeHandler.SerializeRemoteException(aggregateException);
-            var msgStream = new SegmentedReadMemoryStream(serializedData);
+            List<ArraySegment<byte>> serializedData = serializer.SerializeRemoteException(aggregateException);
+            using var msgStream = new SegmentedReadMemoryStream(serializedData);
 
             Exception resultEx = null;
             try
@@ -226,46 +209,38 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Assert.False(((ReflectionTypeLoadException)((ReflectionTypeLoadException)((AggregateException)resultEx).InnerExceptions[1]).LoaderExceptions[0]).LoaderExceptions?.Any());
         }
 
-        private static AggregateException NestedAggregateEx(int depth, int breadth)
+        static AggregateException NestedAggregateEx(int depth, int breadth)
         {
             if (depth == 1)
             {
                 var inner1 = new List<Exception>();
                 for (int i = 0; i < breadth; i++)
-                {
                     inner1.Add(new Exception($"Leaf{i}"));
-                }
 
                 return new AggregateException(inner1);
             }
 
-            List<AggregateException> inner = new List<AggregateException>();
+            var inner = new List<AggregateException>();
             for (int i = 0; i < breadth; i++)
-            {
                 inner.Add(NestedAggregateEx(depth - 1, breadth));
-            }
 
             return new AggregateException(inner);
         }
 
-        private static ReflectionTypeLoadException NestedReflectionEx(int depth, int breadth)
+        static ReflectionTypeLoadException NestedReflectionEx(int depth, int breadth)
         {
             if (depth == 1)
             {
                 var inner1 = new List<Exception>();
                 for (int i = 0; i < breadth; i++)
-                {
                     inner1.Add(new Exception($"Leaf{i}"));
-                }
 
                 return new ReflectionTypeLoadException(null, inner1.ToArray());
             }
 
-            List<ReflectionTypeLoadException> inner = new List<ReflectionTypeLoadException>();
+            var inner = new List<ReflectionTypeLoadException>();
             for (int i = 0; i < breadth; i++)
-            {
                 inner.Add(NestedReflectionEx(depth - 1, breadth));
-            }
 
             return new ReflectionTypeLoadException(null, inner.ToArray());
         }

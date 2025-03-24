@@ -3,46 +3,38 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+using Xunit;
+
 namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-    using Xunit;
-
-    /// <summary>
-    /// FabricActorExceptionConvertor test.
-    /// </summary>
     public class FabricActorExceptionTest
     {
-        private static List<Services.Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors
-            = new List<Services.Remoting.V2.Runtime.IExceptionConvertor>()
+        static readonly IEnumerable<IExceptionConvertor> runtimeConvertors = new IExceptionConvertor[]
             {
-                new Actors.Runtime.FabricActorExceptionConvertor(),
-                new Services.Remoting.V2.Runtime.ExceptionConversionHandler.DefaultExceptionConvertor(),
+                new FabricActorExceptionConvertor(),
+                new DefaultExceptionConvertor(),
             };
 
-        private static Services.Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
-            = new Services.Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, 
-                new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 });
+        static readonly ExceptionSerializer serializer = new ExceptionSerializer(
+            runtimeConvertors, new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 });
 
-        private static List<Services.Remoting.V2.Client.IExceptionConvertor> clientConvertors
-            = new List<Services.Remoting.V2.Client.IExceptionConvertor>()
+        static readonly IEnumerable<Services.Remoting.V2.Client.IExceptionConvertor> clientConvertors = new Services.Remoting.V2.Client.IExceptionConvertor[]
             {
-                new Actors.Client.FabricActorExceptionConvertor(),
+                new Client.FabricActorExceptionConvertor(),
             };
 
-        private static Services.Remoting.V2.Client.ExceptionConversionHandler clientHandler
-            = new Services.Remoting.V2.Client.ExceptionConversionHandler(
-                clientConvertors,
-                new FabricTransportRemotingSettings());
+        static readonly Services.Remoting.V2.Client.ExceptionDeserializer deserializer = 
+            new Services.Remoting.V2.Client.ExceptionDeserializer(clientConvertors);
 
-        private static List<FabricException> fabricExceptions = new List<FabricException>()
+        static readonly IEnumerable<FabricException> fabricExceptions = new FabricException[]
         {
             new DuplicateMessageException("DuplicateMessageException"),
             new InvalidReentrantCallException("InvalidReentrantCallException"),
@@ -54,32 +46,28 @@ namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
             new ReminderLoadInProgressException("ReminderLoadInProgressException"),
         };
 
-        /// <summary>
-        /// Known types test.
-        /// </summary>
-        /// <returns>Task representing async operation.</returns>
         [Fact]
         public static async Task KnownFabricActorExceptionSerializationTest()
         {
-            foreach (var exception in fabricExceptions)
+            foreach (FabricException exception in fabricExceptions)
             {
-                var serializedData = runtimeHandler.SerializeRemoteException(exception);
-                var msgStream = new SegmentedReadMemoryStream(serializedData);
+                List<ArraySegment<byte>> serializedData = serializer.SerializeRemoteException(exception);
+                using var stream = new SegmentedReadMemoryStream(serializedData);
 
-                Exception resultFabricEx = null;
+                Exception actual = null;
                 try
                 {
-                    await clientHandler.DeserializeRemoteExceptionAndThrowAsync(msgStream);
+                    await deserializer.DeserializeRemoteExceptionAndThrowAsync(stream);
                 }
                 catch (AggregateException ex)
                 {
-                    resultFabricEx = ex.InnerException;
+                    actual = ex.InnerException;
                 }
 
-                Assert.True(resultFabricEx != null);
-                Assert.Equal(resultFabricEx.GetType(), exception.GetType());
-                Assert.Equal(resultFabricEx.Message, exception.Message);
-                Assert.Equal(resultFabricEx.HResult, exception.HResult);
+                Assert.True(actual != null);
+                Assert.Equal(actual.GetType(), exception.GetType());
+                Assert.Equal(actual.Message, exception.Message);
+                Assert.Equal(actual.HResult, exception.HResult);
             }
         }
     }

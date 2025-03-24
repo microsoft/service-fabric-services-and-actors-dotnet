@@ -3,47 +3,39 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+using Xunit;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-    using Xunit;
-
-    /// <summary>
-    /// FabricExceptionConvertor test.
-    /// </summary>
     public class FabricExceptionConvertorTest
     {
-        private static List<Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors
-            = new List<Remoting.V2.Runtime.IExceptionConvertor>()
+        static readonly IEnumerable<IExceptionConvertor> runtimeConvertors = new IExceptionConvertor[]
             {
-                new Remoting.V2.Runtime.FabricExceptionConvertor(),
-                new Remoting.V2.Runtime.SystemExceptionConvertor(),
-                new Remoting.V2.Runtime.ExceptionConversionHandler.DefaultExceptionConvertor(),
+                new FabricExceptionConvertor(),
+                new SystemExceptionConvertor(),
+                new DefaultExceptionConvertor(),
             };
 
-        private static Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
-            = new Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors, 
-                new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 });
+        static readonly ExceptionSerializer runtimeHandler = new ExceptionSerializer(
+            runtimeConvertors, new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 });
 
-        private static List<Remoting.V2.Client.IExceptionConvertor> clientConvertors
-            = new List<Remoting.V2.Client.IExceptionConvertor>()
+        static readonly IEnumerable<Remoting.V2.Client.IExceptionConvertor> clientConvertors = new Remoting.V2.Client.IExceptionConvertor[]
             {
                 new Remoting.V2.Client.SystemExceptionConvertor(),
                 new Remoting.V2.Client.FabricExceptionConvertor(),
             };
 
-        private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
-            = new Remoting.V2.Client.ExceptionConversionHandler(
-                clientConvertors,
-                new FabricTransport.FabricTransportRemotingSettings());
+        static readonly Remoting.V2.Client.ExceptionDeserializer clientHandler = new Remoting.V2.Client.ExceptionDeserializer(clientConvertors);
 
-        private static List<FabricException> fabricExceptions = new List<FabricException>()
+        static readonly IEnumerable<FabricException> fabricExceptions = new FabricException[]
         {
             new FabricException("FabricException"),
             new FabricInvalidPartitionKeyException("FabricInvalidPartitionKeyException"),
@@ -82,17 +74,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             new FabricTransportCallbackNotFoundException("FabricTransportCallbackNotFoundException"),
         };
 
-        /// <summary>
-        /// Known types test.
-        /// </summary>
-        /// <returns>Task representing async operation.</returns>
         [Fact]
         public static async Task KnownFabricExceptionSerializationTest()
         {
-            foreach (var exception in fabricExceptions)
+            foreach (FabricException exception in fabricExceptions)
             {
-                var serializedData = runtimeHandler.SerializeRemoteException(exception);
-                var msgStream = new SegmentedReadMemoryStream(serializedData);
+                List<ArraySegment<byte>> serializedData = runtimeHandler.SerializeRemoteException(exception);
+                using var msgStream = new SegmentedReadMemoryStream(serializedData);
 
                 Exception resultFabricEx = null;
                 try
@@ -111,10 +99,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             }
         }
 
-        /// <summary>
-        /// Unknown types test.
-        /// </summary>
-        /// <returns>Task representing async operation.</returns>
         [Fact]
         public static async Task UnknownFabricExceptionSerializationTest()
         {
@@ -128,8 +112,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
                 customFabricEx = ex;
             }
 
-            var serializedData = runtimeHandler.SerializeRemoteException(customFabricEx);
-            var msgStream = new SegmentedReadMemoryStream(serializedData);
+            List<ArraySegment<byte>> serializedData = runtimeHandler.SerializeRemoteException(customFabricEx);
+            using var msgStream = new SegmentedReadMemoryStream(serializedData);
 
             Exception resultFabricEx = null;
             try
@@ -151,7 +135,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             Assert.Equal(resultSvcEx1.ActualExceptionStackTrace, customFabricEx.StackTrace);
         }
 
-        private static void ThrowFabricException()
+        static void ThrowFabricException()
         {
             throw new MyFabricException("Thrown from ThrowFabricException");
         }

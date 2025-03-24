@@ -11,58 +11,47 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.ServiceFabric.Services.Communication;
-using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
-    internal class ExceptionConversionHandler
+    sealed class ExceptionDeserializer
     {
-        private static readonly string TraceEventType = "ExceptionConversionHandler";
-        private IEnumerable<IExceptionConvertor> convertors;
-        private FabricTransportRemotingSettings remotingSettings;
+        static readonly string TraceEventType = "ExceptionDeserializer";
+        readonly IEnumerable<IExceptionConvertor> convertors;
 
-        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingSettings remotingSettings)
+        public ExceptionDeserializer(IEnumerable<IExceptionConvertor> convertors)
         {
             this.convertors = convertors;
-            this.remotingSettings = remotingSettings;
         }
 
-        public Exception FromServiceException(ServiceException serviceException)
+        Exception FromServiceException(ServiceException serviceException)
         {
-            List<Exception> innerExceptions = new List<Exception>();
+            var innerExceptions = new List<Exception>();
             if (serviceException.ActualInnerExceptions != null && serviceException.ActualInnerExceptions.Count > 0)
             {
-                foreach (var inner in serviceException.ActualInnerExceptions)
-                {
+                foreach (ServiceException inner in serviceException.ActualInnerExceptions)
                     innerExceptions.Add(this.FromServiceException(inner));
-                }
             }
 
             Exception actualEx = null;
-            foreach (var convertor in this.convertors)
+            foreach (IExceptionConvertor convertor in this.convertors)
             {
                 try
                 {
                     if (innerExceptions.Count == 0)
                     {
                         if (convertor.TryConvertFromServiceException(serviceException, out actualEx))
-                        {
                             break;
-                        }
                     }
                     else if (innerExceptions.Count == 1)
                     {
                         if (convertor.TryConvertFromServiceException(serviceException, innerExceptions[0], out actualEx))
-                        {
                             break;
-                        }
                     }
                     else
                     {
                         if (convertor.TryConvertFromServiceException(serviceException, innerExceptions.ToArray(), out actualEx))
-                        {
                             break;
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -78,7 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             return actualEx != null ? actualEx : serviceException;
         }
 
-        public ServiceException FromRemoteException2(RemoteException2 remoteEx)
+        ServiceException FromRemoteException2(RemoteException2 remoteEx)
         {
             var svcEx = new ServiceException(remoteEx.Type, remoteEx.Message);
             svcEx.ActualExceptionStackTrace = remoteEx.StackTrace;
@@ -88,29 +77,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             {
                 svcEx.ActualInnerExceptions = new List<ServiceException>();
                 foreach (var inner in remoteEx.InnerExceptions)
-                {
                     svcEx.ActualInnerExceptions.Add(this.FromRemoteException2(inner));
-                }
             }
 
             return svcEx;
         }
 
-        public RemoteException2 DeserializeRemoteException2(byte[] buffer)
+        RemoteException2 DeserializeRemoteException2(byte[] buffer)
         {
-            var serializer = new DataContractSerializer(
-                typeof(RemoteException2),
-                new DataContractSerializerSettings()
-                {
-                    MaxItemsInObjectGraph = int.MaxValue,
-                });
+            var settings = new DataContractSerializerSettings { MaxItemsInObjectGraph = int.MaxValue };
+            var serializer = new DataContractSerializer(typeof(RemoteException2), settings);
 
             try
             {
-                using (var reader = XmlDictionaryReader.CreateBinaryReader(buffer, XmlDictionaryReaderQuotas.Max))
-                {
-                    return (RemoteException2)serializer.ReadObject(reader);
-                }
+                using var reader = XmlDictionaryReader.CreateBinaryReader(buffer, XmlDictionaryReaderQuotas.Max);
+                return (RemoteException2)serializer.ReadObject(reader);
             }
             catch (Exception e)
             {
@@ -125,26 +106,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
         public async Task DeserializeRemoteExceptionAndThrowAsync(Stream stream)
         {
-            Exception exceptionToThrow = null;
+            Exception exceptionToThrow;
 
             // Workaround as NativeMessageStream doesn't suport multi read.
-            var streamLength = stream.Length;
+            long streamLength = stream.Length;
             var buffer = new byte[streamLength];
             await stream.ReadAsync(buffer, 0, buffer.Length);
             try
             {
-                var remoteException2 = this.DeserializeRemoteException2(buffer);
-                var svcEx = this.FromRemoteException2(remoteException2);
-                var ex = this.FromServiceException(svcEx);
-
-                if (ex is AggregateException)
-                {
-                    exceptionToThrow = ex;
-                }
-                else
-                {
-                    exceptionToThrow = new AggregateException(ex);
-                }
+                RemoteException2 remoteException2 = this.DeserializeRemoteException2(buffer);
+                ServiceException svcEx = this.FromRemoteException2(remoteException2);
+                Exception ex = this.FromServiceException(svcEx);
+                exceptionToThrow = ex is AggregateException ? ex : new AggregateException(ex);
             }
             catch (Exception dcsE)
             {
@@ -152,7 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                     string.Format(CultureInfo.InvariantCulture, SR.ErrorDeserializationFailure, dcsE.ToString()));
             }
 
-            var requestId = LogContext.GetRequestIdOrDefault();
+            Guid requestId = LogContext.GetRequestIdOrDefault();
             ServiceTrace.Source.WriteInfo(
                 TraceEventType,
                 "[{0}] Remoting call failed with exception : {1}",
