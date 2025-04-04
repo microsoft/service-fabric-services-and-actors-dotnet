@@ -1,19 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Condition="'$(TargetFramework)' == 'netstandard2.0'" Project="..\..\properties\service_fabric_managed_netstandard.props" />
+  <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\properties\service_fabric_managed_netframework.props" />
+
   <PropertyGroup>
-      <Description>Microsoft.ServiceFabric.Diagnostics Library</Description>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <AssemblyName>Microsoft.ServiceFabric.Diagnostics</AssemblyName>
-      <PackageId>Microsoft.ServiceFabric.Diagnostics</PackageId>
       <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
   </PropertyGroup>
 
-  <Target Name="ImportNetStandardProps" Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <Import Project="..\..\properties\service_fabric_managed_netstandard.props" />
-  </Target>
-  <Target Name="ImportNetCoreAppProps" Condition="'$(TargetFramework)' == 'net462'">
-    <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
-  </Target>
-  
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
