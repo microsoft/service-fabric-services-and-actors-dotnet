@@ -17,12 +17,4 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
-  <!--Publishing Directives-->
-  <!-- <Target Name="PublishBinaries" Condition="'$(BuildOnWindows)' == 'true'" AfterTargets="Publish" BeforeTargets="PublishProjectBinaries">
-      <ItemGroup>
-          <BinariesToPublish Include="$(PublishDir)\$(AssemblyName).dll;$(PublishDir)\$(AssemblyName).pdb">
-              <DestinationFolder>$(NugetCommonNetstandardPublishLocation)</DestinationFolder>
-          </BinariesToPublish>
-      </ItemGroup>
-  </Target> -->
 </Project>
