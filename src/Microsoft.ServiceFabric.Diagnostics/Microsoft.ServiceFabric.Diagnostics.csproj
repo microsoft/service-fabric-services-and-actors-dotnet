@@ -6,6 +6,7 @@
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <AssemblyName>Microsoft.ServiceFabric.Diagnostics</AssemblyName>
       <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+      <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
