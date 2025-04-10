@@ -56,6 +56,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Act
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting.Tests_netfx", "test\netfx\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests_netfx.csproj", "{9DA198B2-2C88-432F-87A4-1962225A154B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Diagnostics", "src\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj", "{28252888-7940-97DE-B914-8F1318C8BD83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -208,6 +210,14 @@ Global
 		{9DA198B2-2C88-432F-87A4-1962225A154B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9DA198B2-2C88-432F-87A4-1962225A154B}.Release|x64.ActiveCfg = Release|Any CPU
 		{9DA198B2-2C88-432F-87A4-1962225A154B}.Release|x64.Build.0 = Release|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Debug|x64.Build.0 = Debug|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Release|x64.ActiveCfg = Release|Any CPU
+		{28252888-7940-97DE-B914-8F1318C8BD83}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -235,6 +245,7 @@ Global
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
 		{A5D7C812-6B48-71FD-CACC-C65326E24AC0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9DA198B2-2C88-432F-87A4-1962225A154B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{28252888-7940-97DE-B914-8F1318C8BD83} = {861D6F40-D3CE-46CF-B8AD-0215B9F38BE1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8CC7D7F7-CBD9-428B-A190-7A4D56C920FE}
