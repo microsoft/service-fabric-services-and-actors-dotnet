@@ -5,7 +5,6 @@
     <Projects_Prod_netframework Include="$(RepoRoot)src\FabActUtil\FabActUtil.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj;
-                                   $(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;
@@ -57,7 +56,6 @@
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)Microsoft.ServiceFabric.Actors.Wcf.*"/>
-      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net462\Microsoft.ServiceFabric.Diagnostics.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)Microsoft.ServiceFabric.Services.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)Microsoft.ServiceFabric.Services.Remoting.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>
