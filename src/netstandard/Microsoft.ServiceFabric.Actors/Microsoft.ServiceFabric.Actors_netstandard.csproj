@@ -40,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
-    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(SourceCodeDir)SR.resx">
@@ -50,5 +49,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
+    <ProjectReference Include="..\..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
   </ItemGroup>
 </Project>

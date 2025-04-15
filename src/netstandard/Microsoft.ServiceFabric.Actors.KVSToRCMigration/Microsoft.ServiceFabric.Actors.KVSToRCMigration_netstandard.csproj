@@ -21,7 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
-    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" />
@@ -32,5 +31,6 @@
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
+    <ProjectReference Include="..\..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
   </ItemGroup>
 </Project>

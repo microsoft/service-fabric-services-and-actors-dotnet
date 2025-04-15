@@ -27,9 +27,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
     <PackageReference Include="Microsoft.ServiceFabric.Data" />
-    <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(SourceCodeDir)SR.resx">
