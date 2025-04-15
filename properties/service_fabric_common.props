@@ -27,7 +27,7 @@
     <BuildVersion>3</BuildVersion>
     <Revision>0</Revision>
 
-    <!-- Major Version for Microsoft.ServiceFabric.Diagnostics binary -->
+    <!-- Major Version for Microsoft.ServiceFabric.Diagnostics binary - Bump together with normal MajorVersion -->
     <!-- We migrated Diagnostics package from WindowsFabric repo and we need to keep the versioning consistent -->
     <MajorVersion Condition="'$(MSBuildProjectName)' == 'Microsoft.ServiceFabric.Diagnostics'">12</MajorVersion>
 
