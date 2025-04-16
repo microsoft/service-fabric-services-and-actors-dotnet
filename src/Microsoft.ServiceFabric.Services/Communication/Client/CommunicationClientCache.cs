@@ -130,6 +130,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
 
         private void CacheCleanupTimerCallback()
         {
+            ServiceTrace.Source.WriteInfo(
+                TraceType,
+                "{0} CacheCleanupTimer: Starting cache cleanup",
+                this.traceId);
+
             var totalItemsInCache = 0;
             var totalItemsCleaned = 0;
             foreach (var item in this.clientCache)
@@ -146,7 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         item.Key);
 
                     totalItemsCleaned += itemsCleanedPerEntry;
-                }// We are delaying the delete partition for next cleanup event to reduce the case of false positive partitions (which are still in use), since removing partition means acquiring lock on it.
+                } // We are delaying the delete partition for next cleanup event to reduce the case of false postive partitions (which are still in use), since removing partition means acquiring lock on it.
                 else if (item.Value.IsEmpty())
                 {
                     // delete partition from cache only if when number of entry is zero.
@@ -258,6 +263,14 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         {
                             // If the wait cannot be satisfied in a short time, then it indicates usage for
                             // this cache entry, so it is ok to skip this entry in the current cleanup run.
+                            ServiceTrace.Source.WriteInfo(
+                                TraceType,
+                                "{0} Could not acquire lock to cleanup partitionid {1} endpoint {2} : {3}",
+                                this.traceId,
+                                this.partitionId,
+                                entry.Key.ListenerName,
+                                entry.Key.Endpoint);
+
                             continue;
                         }
 
