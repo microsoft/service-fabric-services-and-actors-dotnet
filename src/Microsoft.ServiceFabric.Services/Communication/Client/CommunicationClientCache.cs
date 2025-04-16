@@ -146,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         item.Key);
 
                     totalItemsCleaned += itemsCleanedPerEntry;
-                }// We are delaying the delete partition for next cleanup event to reduce the case of false postitive partitions (which are still in use), since removing partition means acquiring lock on it.
+                }// We are delaying the delete partition for next cleanup event to reduce the case of false positive partitions (which are still in use), since removing partition means acquiring lock on it.
                 else if (item.Value.IsEmpty())
                 {
                     // delete partition from cache only if when number of entry is zero.
@@ -251,30 +251,37 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 foreach (var entry in this.cache)
                 {
                     ++totalNumberOfItems;
-                    if (!entry.Value.Semaphore.Wait(this.cacheEntryLockWaitTimeForCleanup))
-                    {
-                        // If the wait cannot be satisfied in a short time, then it indicates usage for
-                        // this cache entry, so it is ok to skip this entry in the current cleanup run.
-                        continue;
-                    }
 
                     if (!entry.Value.IsCommunicationClientValid())
                     {
-                        ServiceTrace.Source.WriteNoise(
-                            TraceType,
-                            "{0} CleanupCacheEntries for partitionid {1} endpoint {2} : {3}",
-                            this.traceId,
-                            this.partitionId,
-                            entry.Key.ListenerName,
-                            entry.Key.Endpoint);
+                        if (!entry.Value.Semaphore.Wait(this.cacheEntryLockWaitTimeForCleanup))
+                        {
+                            // If the wait cannot be satisfied in a short time, then it indicates usage for
+                            // this cache entry, so it is ok to skip this entry in the current cleanup run.
+                            continue;
+                        }
 
-                        entry.Value.IsInCache = false;
+                        try
+                        {
+                            ServiceTrace.Source.WriteNoise(
+                                TraceType,
+                                "{0} CleanupCacheEntries for partitionid {1} endpoint {2} : {3}",
+                                this.traceId,
+                                this.partitionId,
+                                entry.Key.ListenerName,
+                                entry.Key.Endpoint);
 
-                        this.cache.TryRemove(entry.Key, out var removedValue);
-                        ++numberOfEntriesCleaned;
+                            entry.Value.IsInCache = false;
+
+                            this.cache.TryRemove(entry.Key, out var removedValue);
+                            ++numberOfEntriesCleaned;
+                        }
+                        finally
+                        {
+                            entry.Value.Semaphore.Release();
+                        }
                     }
 
-                    entry.Value.Semaphore.Release();
                 }
             }
 
