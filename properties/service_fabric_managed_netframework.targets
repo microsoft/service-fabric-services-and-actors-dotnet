@@ -59,7 +59,7 @@
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)Microsoft.ServiceFabric.Actors.Wcf.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net462\Microsoft.ServiceFabric.Diagnostics.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)Microsoft.ServiceFabric.Services.*"/>
-      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net462\Microsoft.ServiceFabric.Services.Remoting.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
     </ItemGroup>
