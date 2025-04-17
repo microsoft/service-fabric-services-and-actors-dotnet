@@ -21,6 +21,6 @@
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj" />
     <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard.csproj" />
-    <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
 </Project>

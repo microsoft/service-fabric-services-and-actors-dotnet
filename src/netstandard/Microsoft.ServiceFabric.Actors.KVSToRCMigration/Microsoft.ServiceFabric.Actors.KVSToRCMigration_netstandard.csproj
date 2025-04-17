@@ -30,7 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj" />
     <ProjectReference Include="..\..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
+    <ProjectReference Include="..\..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
 </Project>
