@@ -20,6 +20,6 @@
     <PackageReference Include="inspector" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>
 </Project>

@@ -3,8 +3,7 @@
   
   <!-- Target to build net standard.-->
   <ItemGroup>
-    <Projects_Prod_netstandard Include="$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj;
-                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj;" />
+    <Projects_Prod_netstandard Include="$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj;" />
   </ItemGroup>
 
   <Target Name="RestoreProd_netstandard">
@@ -29,7 +28,7 @@
     <ItemGroup>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Actors.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)Microsoft.ServiceFabric.Actors.Wcf.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Diagnostics.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Services.*"/>

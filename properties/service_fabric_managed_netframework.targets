@@ -55,7 +55,7 @@
     <ItemGroup>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)FabActUtil.*"/>
       <BinairesNetFramework Include="src\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net462\Microsoft.ServiceFabric.Actors.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)Microsoft.ServiceFabric.Actors.Wcf.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net462\Microsoft.ServiceFabric.Diagnostics.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)\net462\Microsoft.ServiceFabric.Services.*"/>

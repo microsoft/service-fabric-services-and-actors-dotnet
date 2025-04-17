@@ -22,7 +22,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj" />
+    <ProjectReference Include="..\..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(SourceCodeDir)SR.Designer.cs">
