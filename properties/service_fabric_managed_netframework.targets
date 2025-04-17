@@ -61,7 +61,7 @@
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)\net462\Microsoft.ServiceFabric.Services.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net462\Microsoft.ServiceFabric.Services.Remoting.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>
-      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
+      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net462\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
     </ItemGroup>
     <Copy SourceFiles="@(BinairesNetFramework)" DestinationFiles="@(BinairesNetFramework->'$(DropFolderNetFramework)\%(Destination)\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>

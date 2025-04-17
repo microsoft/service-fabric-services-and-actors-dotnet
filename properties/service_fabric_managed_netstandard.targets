@@ -4,8 +4,7 @@
   <!-- Target to build net standard.-->
   <ItemGroup>
     <Projects_Prod_netstandard Include="$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj;
-                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj;
-                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard.csproj;" />
+                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj;" />
   </ItemGroup>
 
   <Target Name="RestoreProd_netstandard">
@@ -36,7 +35,7 @@
       <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Services.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
       <BinairesNetStandard_Win Include="$(OutputPath)Publish\*.dll"/>
