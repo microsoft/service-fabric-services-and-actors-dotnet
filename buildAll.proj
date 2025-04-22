@@ -3,6 +3,7 @@
   <Import Project="properties\service_fabric_common.props" />
   <Import Project="properties\service_fabric_managed_netstandard.targets" />
   <Import Project="properties\service_fabric_managed_netframework.targets" />
+  <Import Project="properties\service_fabric_managed_netcore.targets" />
   <Import Project="properties\service_fabric_nuget.targets" />
   
   <PropertyGroup>
