@@ -20,6 +20,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
+    using ModelKeyValuePair = Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models.KeyValuePair;
+
 
     /// <summary>
     /// Provides an implementation of <see cref="KVStoRCMigrationActorStateProvider"/> which
@@ -258,7 +260,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <param name="skipPresenceDictResolve">If true, attempts to resolve the actorid(ambiguous) from user resolver implementation.
         /// If false, then local presence dictionary is used before user resolvers.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public virtual async Task<long> SaveStateAsync(List<KeyValuePair> kvsData, CancellationToken cancellationToken, bool skipPresenceDictResolve = false)
+        public virtual async Task<long> SaveStateAsync(List<ModelKeyValuePair> kvsData, CancellationToken cancellationToken, bool skipPresenceDictResolve = false)
         {
             List<string> keysMigrated = new List<string>();
             int presenceKeyCount = 0, reminderCompletedKeyCount = 0, logicalTimeCount = 0, actorStateCount = 0, reminderCount = 0;
@@ -379,7 +381,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return this.rcStateProvider.GetStateManager();
         }
 
-        internal virtual async Task ValidateDataPostMigrationAsync(List<KeyValuePair> kvsData, string hashToCompare, bool skipPresenceDictResolve, CancellationToken cancellationToken)
+        internal virtual async Task ValidateDataPostMigrationAsync(List<ModelKeyValuePair> kvsData, string hashToCompare, bool skipPresenceDictResolve, CancellationToken cancellationToken)
         {
             var values = new List<byte[]>();
             foreach (var data in kvsData)
@@ -472,7 +474,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             return key.Substring(firstUnderscorePosition + 1);
         }
 
-        private async Task<IReliableDictionary2<string, byte[]>> GetDictionaryFromKVSKeyAsync(KeyValuePair data, Data.ITransaction tx, bool skipPresenceDictResolve, CancellationToken cancellationToken)
+        private async Task<IReliableDictionary2<string, byte[]>> GetDictionaryFromKVSKeyAsync(ModelKeyValuePair data, Data.ITransaction tx, bool skipPresenceDictResolve, CancellationToken cancellationToken)
         {
             var key = data.Key;
             IReliableDictionary2<string, byte[]> temp = null;

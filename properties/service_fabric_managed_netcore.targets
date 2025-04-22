@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Copy prod binaries for net8 -->
+  <Target Name="CopyProdBinaries_netcore">
+    <!-- Publish FabActUtil so that all binaries from referenced nuget package are available for creation of nuget package-->
+    <!-- FabActUtil is invoked in VS tooling to autogenerate and update manifests for Actors. -->
+    <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;net8.0&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
+
+    <ItemGroup>
+      <BinairesNetCore Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\FabActUtil.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
+
+      <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
+      <BinairesNetCore_Win Include="$(OutputPath)Publish\*.dll"/>
+    </ItemGroup>
+
+    <Copy SourceFiles="@(BinairesNetCore)" DestinationFiles="@(BinairesNetCore->'$(DropFolderNetCore)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetCore_Win)" DestinationFiles="@(BinairesNetCore_Win->'$(DropFolderNetCore_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

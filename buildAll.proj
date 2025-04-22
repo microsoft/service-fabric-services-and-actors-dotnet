@@ -32,7 +32,7 @@
 
   <!-- Targets to Restore packages and project tools -->
   <Target Name="RestorePackagesProd">
-    <CallTarget Targets="RestoreProd_netframework;RestoreProd_netstandard;" />
+    <CallTarget Targets="RestoreProd_netframework" />
   </Target>
 
   <Target Name="RestorePackagesTest">
@@ -42,13 +42,13 @@
   <!--Target for building product code. -->
   <Target Name="BuildProd">
     <Message Text="Building all projects ..." Importance="High"/>
-    <CallTarget Targets="BuildProd_netframework;BuildProd_netstandard;" />
+    <CallTarget Targets="BuildProd_netframework" />
   </Target>
 
   <!--Target for copying product binaries to drop. -->
   <Target Name="CopyProdBinaries">
     <Message Text="Copying binaries to drop folder ..." Importance="High"/>
-    <CallTarget Targets="CopyProdBinaries_netframework;CopyProdBinaries_netstandard;" />
+    <CallTarget Targets="CopyProdBinaries_netframework;CopyProdBinaries_netstandard;CopyProdBinaries_netcore" />
   </Target>
 
   <!--Target for generating nuget packages. -->
@@ -81,7 +81,7 @@
   </Target>
   
   <Target Name="CleanProd">
-    <CallTarget Targets="CleanProd_netframework;CleanProd_netstandard" />
+    <CallTarget Targets="CleanProd_netframework;" />
   </Target>
 
    <Target Name="CleanTest">

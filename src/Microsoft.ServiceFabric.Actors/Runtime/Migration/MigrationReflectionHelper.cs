@@ -64,8 +64,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
                     Version = currentAssembly.GetName().Version,
 #if !DotNetCoreClr
                     CultureInfo = currentAssembly.GetName().CultureInfo,
-#endif
                     ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
+#endif
                 };
 
                 actorsMigrationAssembly.SetPublicKeyToken(currentAssembly.GetName().GetPublicKeyToken());
