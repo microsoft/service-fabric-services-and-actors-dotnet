@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.TraceId,
                     $"Migration worker failed with error: {ex} \n Input: /*Dump input*/");
 
-                throw ex;
+                throw;
             }
         }
 
@@ -252,7 +252,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     "Error occured while enumerating and saving data - StartSN: {0}, Exception: {1}",
                     startSN,
                     ex);
-                throw ex;
+                throw;
             }
         }
 

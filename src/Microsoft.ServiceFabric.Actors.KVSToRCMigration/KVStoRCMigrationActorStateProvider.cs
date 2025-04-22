@@ -327,7 +327,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                             await tx.CommitAsync();
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             await this.metadataDictionary.TryAddAsync(
                                tx,
@@ -347,7 +347,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             // Commit with the same transaction to avoid race condition during failover.
                             await tx.CommitAsync();
 
-                            throw ex;
+                            throw;
                         }
 
                         ActorTrace.Source.WriteNoiseWithId(this.TraceType, this.traceId, string.Join(MigrationConstants.DefaultDelimiter.ToString(), keysMigrated));
