@@ -1,19 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <Target Name="RestoreProd_netstandard">
-    <!-- Restores nuget packages and project specific tools -->
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Targets="restore" Properties="Verbosity=quiet"/>
-  </Target>
-
-  <Target Name="BuildProd_netstandard" DependsOnTargets="RestoreProd_netstandard">
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
-  </Target>
-
-  <Target Name="CleanProd_netstandard" DependsOnTargets="RestoreProd_netstandard">
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Targets="Clean" Properties="Configuration=$(Configuration)"/>
-  </Target>
-
   <!-- Copy prod binaries for net standard-->
   <Target Name="CopyProdBinaries_netstandard">
     <!-- Publish FabActUtil so that all binaries from referenced nuget package are available for creation of nuget package-->
