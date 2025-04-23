@@ -5,7 +5,7 @@
     <ProjectGuid>{63B58D31-66BB-4879-B4F1-0969FA3F4464}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Actors.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net9.0;net462</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
@@ -21,5 +21,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <Compile Remove="**\*.cs" />
+    <Compile Include="ActorRemotingProviderAttributeTest.cs" />
+    <Compile Include="AssemblyAttributes.cs" />
   </ItemGroup>
 </Project>
