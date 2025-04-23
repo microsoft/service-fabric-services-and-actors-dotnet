@@ -17,10 +17,6 @@
     <PackageReference Include="Microsoft.ServiceFabric.Data" />
     <PackageReference Include="Microsoft.ServiceFabric.Diagnostics.Internal" />
   </ItemGroup>
-  <!-- Exclude AssemblyInfo.cs for netstandard builds -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
   
   <ItemGroup>
     <Compile Update="SR.Designer.cs">

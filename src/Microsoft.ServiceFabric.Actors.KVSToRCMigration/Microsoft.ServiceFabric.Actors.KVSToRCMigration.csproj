@@ -34,8 +34,4 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Web" />
   </ItemGroup>
-  <!-- Exclude AssemblyInfo.cs for netstandard builds -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <Compile Remove="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
 </Project>
