@@ -21,8 +21,5 @@
       <File Include="$(DropFolderNetStandard)*.*">
         <TargetPath>lib\netstandard</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore)*.*">
-        <TargetPath>lib\netcore</TargetPath>
-      </File>
     </ItemGroup>
   </Project>

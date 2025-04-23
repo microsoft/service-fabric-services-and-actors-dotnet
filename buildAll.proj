@@ -3,7 +3,6 @@
   <Import Project="properties\service_fabric_common.props" />
   <Import Project="properties\service_fabric_managed_netstandard.targets" />
   <Import Project="properties\service_fabric_managed_netframework.targets" />
-  <Import Project="properties\service_fabric_managed_netcore.targets" />
   <Import Project="properties\service_fabric_nuget.targets" />
   
   <PropertyGroup>
@@ -33,7 +32,7 @@
 
   <!-- Targets to Restore packages and project tools -->
   <Target Name="RestorePackagesProd">
-    <CallTarget Targets="RestoreProd_netframework" />
+    <CallTarget Targets="RestoreProd_netframework;RestoreProd_netstandard;" />
   </Target>
 
   <Target Name="RestorePackagesTest">
@@ -43,13 +42,13 @@
   <!--Target for building product code. -->
   <Target Name="BuildProd">
     <Message Text="Building all projects ..." Importance="High"/>
-    <CallTarget Targets="BuildProd_netframework" />
+    <CallTarget Targets="BuildProd_netframework;BuildProd_netstandard;" />
   </Target>
 
   <!--Target for copying product binaries to drop. -->
   <Target Name="CopyProdBinaries">
     <Message Text="Copying binaries to drop folder ..." Importance="High"/>
-    <CallTarget Targets="CopyProdBinaries_netframework;CopyProdBinaries_netstandard;CopyProdBinaries_netcore" />
+    <CallTarget Targets="CopyProdBinaries_netframework;CopyProdBinaries_netstandard;" />
   </Target>
 
   <!--Target for generating nuget packages. -->
@@ -82,7 +81,7 @@
   </Target>
   
   <Target Name="CleanProd">
-    <CallTarget Targets="CleanProd_netframework;" />
+    <CallTarget Targets="CleanProd_netframework;CleanProd_netstandard" />
   </Target>
 
    <Target Name="CleanTest">

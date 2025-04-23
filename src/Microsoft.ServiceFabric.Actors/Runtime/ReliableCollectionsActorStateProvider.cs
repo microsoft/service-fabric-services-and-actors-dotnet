@@ -1073,7 +1073,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             using (var tx = this.stateManager.CreateTransaction())
             {
-                Microsoft.ServiceFabric.Data.IAsyncEnumerable<KeyValuePair<string, byte[]>> enumerable;
+                IAsyncEnumerable<KeyValuePair<string, byte[]>> enumerable;
                 if (filter == null)
                 {
                     enumerable = await this.reminderCompletedDictionary.CreateEnumerableAsync(tx);
@@ -1276,7 +1276,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task<bool> GetContinuationPointByActorCount(
             long previousActorCount,
-            Microsoft.ServiceFabric.Data.IAsyncEnumerator<string> enumerator,
+            IAsyncEnumerator<string> enumerator,
             CancellationToken cancellationToken)
         {
             long currentActorCount = 0L;
@@ -1296,7 +1296,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private async Task<bool> GetContinuationPointByActorStorageKey(
             string lastSeenActorStorageKey,
-            Microsoft.ServiceFabric.Data.IAsyncEnumerator<string> enumerator,
+            IAsyncEnumerator<string> enumerator,
             CancellationToken cancellationToken)
         {
             bool enumHasMoreEntries = true;

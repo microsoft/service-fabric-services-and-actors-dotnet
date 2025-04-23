@@ -363,7 +363,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to serialize Reminder Completed Data - Key : {key}, ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
 
@@ -386,7 +386,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to deserialize Reminder Completed Data - Key : {key}, ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
 
@@ -409,7 +409,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to serialize Reminder - Key : {key}, ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
 
@@ -432,7 +432,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to deserialize Reminder - Key : {key}, ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
         }
@@ -463,7 +463,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to deserialize Reminder - Key : {key}, ActorId : {reminder.ActorId}, DueTime : {reminder.DueTime}, IsReadOnly : {reminder.IsReadOnly}, LogicalCreationTime : {reminder.LogicalCreationTime}, Name : {reminder.Name}, Period : {reminder.Period}, ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
 
@@ -486,7 +486,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to deserialize Reminder Completed data - Key : {key}, {reminderCompletedData}, ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
 
@@ -509,7 +509,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to deserialize Reminder ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
 
@@ -532,7 +532,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         traceId,
                         $"Failed to deserialize Reminder Completed Data - {key}, ErrorMessage : {ex.Message}");
 
-                    throw;
+                    throw ex;
                 }
             }
 

@@ -221,7 +221,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
                 if (rethrow)
                 {
-                    throw;
+                    throw ex;
                 }
             }
             finally
@@ -288,7 +288,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             {
                 this.exceptionFilter.ReportPartitionHealth(ex, this.StateProvider.StatefulServicePartition, "Aborting Migration workflow failed.");
 
-                throw;
+                throw ex;
             }
         }
 
@@ -750,7 +750,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }
                 else
                 {
-                    throw;
+                    throw ex;
                 }
             }
         }
@@ -785,7 +785,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                 }
                 else
                 {
-                    throw;
+                    throw ex;
                 }
             }
 

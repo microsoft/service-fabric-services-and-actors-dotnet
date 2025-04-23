@@ -98,7 +98,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             catch (Exception e)
             {
                 ActorTrace.Source.WriteError(TraceType, $"Failed to load Migration settings from config package : {e.Message}");
-                throw; // TODO: consider throwing SF Exception.
+                throw e; // TODO: consider throwing SF Exception.
             }
         }
 
