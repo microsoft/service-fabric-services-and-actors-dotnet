@@ -13,15 +13,14 @@
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  <ItemGroup >
     <None Include="App.config" />
-    <None Include="Microsoft.ServiceFabric.Actors_netframework.targets" Link="Microsoft.ServiceFabric.Actors.targets">
+    <None Condition="'$(TargetFramework)' == 'net462'" Include="Microsoft.ServiceFabric.Actors_netframework.targets" 
+    Link="Microsoft.ServiceFabric.Actors.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <None Include="App.config" />
-    <None Include="Microsoft.ServiceFabric.Actors_netstandard.targets" Link="Microsoft.ServiceFabric.Actors.targets">
+    <None Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.ServiceFabric.Actors_netstandard.targets" 
+    Link="Microsoft.ServiceFabric.Actors.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
