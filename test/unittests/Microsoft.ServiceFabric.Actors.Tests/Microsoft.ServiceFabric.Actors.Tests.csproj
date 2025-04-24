@@ -6,6 +6,7 @@
     <AssemblyName>Microsoft.ServiceFabric.Actors.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
