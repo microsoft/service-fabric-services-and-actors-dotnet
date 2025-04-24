@@ -30,8 +30,4 @@
     <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" />
     <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
 </Project>
