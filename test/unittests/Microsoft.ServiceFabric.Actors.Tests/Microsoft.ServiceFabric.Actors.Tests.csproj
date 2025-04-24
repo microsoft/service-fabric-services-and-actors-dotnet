@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />  
+ <Import Condition="'$(TargetFramework)' == 'net9.0'" Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
+ <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\..\properties\service_fabric_managed_netframework.props" />
   <PropertyGroup>
     <ProjectGuid>{63B58D31-66BB-4879-B4F1-0969FA3F4464}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Actors.Tests</AssemblyName>

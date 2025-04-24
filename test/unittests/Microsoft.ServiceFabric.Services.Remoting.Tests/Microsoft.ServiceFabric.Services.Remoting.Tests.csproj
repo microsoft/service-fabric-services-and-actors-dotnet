@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
+ <Import Condition="'$(TargetFramework)' == 'net9.0'" Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
+ <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\..\properties\service_fabric_managed_netframework.props" />
  <PropertyGroup>
     <ProjectGuid>{AE4034AC-27BC-43B8-9176-068B4794E25E}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Services.Remoting.Tests</AssemblyName>
