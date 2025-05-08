@@ -275,7 +275,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 
             AppTrace.TraceSource.WriteInfo(
                 Tracetype,
-                "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6}," + "HeaderBufferCount {7} , ExceptionSerializationTechinique {8} , RemotingExceptionDepth {9}",
+                "MaxMessageSize: {0} , MaxConcurrentCalls: {1} , MaxQueueSize: {2} , OperationTimeoutInSeconds: {3} KeepAliveTimeoutInSeconds : {4} , SecurityCredentials {5} , HeaderBufferSize {6} , HeaderBufferCount {7} , RemotingExceptionDepth {8}",
                 settings.MaxMessageSize,
                 settings.MaxConcurrentCalls,
                 settings.MaxQueueSize,
