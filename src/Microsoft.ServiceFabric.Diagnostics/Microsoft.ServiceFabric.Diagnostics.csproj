@@ -8,7 +8,6 @@
       <RootNamespace>$(AssemblyName)</RootNamespace>
       <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
       <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
-      <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
