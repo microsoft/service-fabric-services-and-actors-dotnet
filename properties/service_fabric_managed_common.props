@@ -8,8 +8,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
     <NoWarn></NoWarn>
-    <!-- Don't append TargetFramework to output path. -->
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
