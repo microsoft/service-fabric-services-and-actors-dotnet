@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\properties\service_fabric_managed_netframework.props" />
+  <PropertyGroup>
+    <ProjectGuid>{A5D7C812-6B48-71FD-CACC-C65326E24AC0}</ProjectGuid>
+    <AssemblyName>Microsoft.ServiceFabric.Actors.Tests</AssemblyName>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Inspector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(RepoRoot)test\unittests\Microsoft.ServiceFabric.Actors.Tests\ActorRemotingProviderAttributeTest.cs" />
+    <Compile Include="$(RepoRoot)test\unittests\Microsoft.ServiceFabric.Actors.Tests\AssemblyAttributes.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
+  </ItemGroup>
+</Project>

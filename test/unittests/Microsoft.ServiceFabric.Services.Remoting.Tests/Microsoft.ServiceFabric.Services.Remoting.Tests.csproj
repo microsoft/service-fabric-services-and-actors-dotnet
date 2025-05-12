@@ -1,14 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
- <Import Condition="'$(TargetFramework)' == 'net9.0'" Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
- <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\..\properties\service_fabric_managed_netframework.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
  <PropertyGroup>
     <ProjectGuid>{AE4034AC-27BC-43B8-9176-068B4794E25E}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Services.Remoting.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-    <TargetFrameworks>net9.0;net462</TargetFrameworks>
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+   <TargetFramework>net9.0</TargetFramework>
+   <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
@@ -22,16 +20,11 @@
     <PackageReference Include="inspector" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
+    <ProjectReference Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+  <ItemGroup>
     <!-- BinaryFormatter compatibility package -->
     <!-- The need for this package is documented in https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-migration-guide/compatibility-package-->
     <PackageReference Include="System.Runtime.Serialization.Formatters" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <Compile Remove="**\*.cs" />
-    <Compile Include="ServiceRemotingProviderAttributeTest.cs" />
-    <Compile Include="AssemblyAttributes.cs" />
   </ItemGroup>
 </Project>
