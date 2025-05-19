@@ -7,6 +7,7 @@
       <RootNamespace>Microsoft.ServiceFabric.Diagnostics</RootNamespace>
       <RootNamespace>$(AssemblyName)</RootNamespace>
       <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+      <DocumentationFile>$(AssemblyName).xml</DocumentationFile>
       <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
   </PropertyGroup>
 
