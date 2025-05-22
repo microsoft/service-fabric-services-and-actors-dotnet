@@ -3,11 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
 namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Writer
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     internal unsafe struct EventDataArrayBuilder
     {
         internal const int TraceEventMaximumSize = 65482;
@@ -37,45 +38,21 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Writer
             this.eventDataPtr++;
         }
 
-        internal EventData* ToEventDataArray(
-            char* v0,
-            char* v1,
-            char* v2,
-            char* v3,
-            char* v4,
-            char* v5,
-            char* v6,
-            char* v7,
-            char* v8)
+        internal EventData* ToEventDataArray(char* v0, char* v1, char* v2, char* v3, char* v4, char* v5, char* v6, char* v7, char* v8)
         {
-            this.SetStringDataPointers(
-            v0, 
-            v1, 
-            v2,
-            v3,
-            v4,
-            v5,
-            v6,
-            v7,
-            v8);
+            this.SetStringDataPointers(v0, v1, v2, v3, v4, v5, v6, v7, v8);
             return this.eventData;
         }
 
-        internal bool IsValid()
+        internal bool Validate(int eventId)
         {
-            return this.totalEventSize <= EventDataArrayBuilder.TraceEventMaximumSize;
+            bool valid = totalEventSize <= TraceEventMaximumSize;
+            if (!valid)
+                Debug.Fail($"Event {eventId} data size {totalEventSize} exceeds the maximum {TraceEventMaximumSize}.");
+            return valid;
         }
 
-        private void SetStringDataPointers(
-            char* v0, 
-            char* v1, 
-            char* v2,
-            char* v3,
-            char* v4,
-            char* v5,
-            char* v6,
-            char* v7,
-            char* v8)
+        private void SetStringDataPointers(char* v0, char* v1, char* v2, char* v3, char* v4, char* v5, char* v6, char* v7, char* v8)
         {
             if (v0 != null)
             {
