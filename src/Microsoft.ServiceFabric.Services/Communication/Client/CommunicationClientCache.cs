@@ -256,25 +256,24 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                 foreach (var entry in this.cache)
                 {
                     ++totalNumberOfItems;
-
-                    if (!entry.Value.IsCommunicationClientValid())
+                    if (!entry.Value.Semaphore.Wait(this.cacheEntryLockWaitTimeForCleanup))
                     {
-                        if (!entry.Value.Semaphore.Wait(this.cacheEntryLockWaitTimeForCleanup))
-                        {
-                            // If the wait cannot be satisfied in a short time, then it indicates usage for
-                            // this cache entry, so it is ok to skip this entry in the current cleanup run.
-                            ServiceTrace.Source.WriteInfo(
-                                TraceType,
-                                "{0} Could not acquire lock to cleanup partitionid {1} endpoint {2} : {3}",
-                                this.traceId,
-                                this.partitionId,
-                                entry.Key.ListenerName,
-                                entry.Key.Endpoint);
+                        // If the wait cannot be satisfied in a short time, then it indicates usage for
+                        // this cache entry, so it is ok to skip this entry in the current cleanup run.
+                        ServiceTrace.Source.WriteInfo(
+                            TraceType,
+                            "{0} Could not acquire lock to cleanup partitionid {1} endpoint {2} : {3}",
+                            this.traceId,
+                            this.partitionId,
+                            entry.Key.ListenerName,
+                            entry.Key.Endpoint);
 
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        try
+                    try
+                    {
+                        if (!entry.Value.IsCommunicationClientValid())
                         {
                             ServiceTrace.Source.WriteNoise(
                                 TraceType,
@@ -289,12 +288,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                             this.cache.TryRemove(entry.Key, out var removedValue);
                             ++numberOfEntriesCleaned;
                         }
-                        finally
-                        {
-                            entry.Value.Semaphore.Release();
-                        }
                     }
-
+                    finally
+                    {
+                        entry.Value.Semaphore.Release();
+                    }
                 }
             }
 
