@@ -1,44 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  
-  <!-- Target to build net standard.-->
-  <ItemGroup>
-    <Projects_Prod_netstandard Include="$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj;
-                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors_netstandard.csproj;
-                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services_netstandard.csproj;
-                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting_netstandard.csproj;
-                               $(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration_netstandard.csproj;" />
-  </ItemGroup>
-
-  <Target Name="RestoreProd_netstandard">
-    <!-- Restores nuget packages and project specific tools -->
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Targets="restore" Properties="Verbosity=quiet"/>
-  </Target>
-
-  <Target Name="BuildProd_netstandard" DependsOnTargets="RestoreProd_netstandard">
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
-  </Target>
-
-  <Target Name="CleanProd_netstandard" DependsOnTargets="RestoreProd_netstandard">
-    <MSBuild Projects ="@(Projects_Prod_netstandard)" ContinueOnError ="false" Targets="Clean" Properties="Configuration=$(Configuration)"/>
-  </Target>
-
   <!-- Copy prod binaries for net standard-->
   <Target Name="CopyProdBinaries_netstandard">
     <!-- Publish FabActUtil so that all binaries from referenced nuget package are available for creation of nuget package-->
     <!-- FabActUtil is invoked in VS tooling to autogenerate and update manifests for Actors. -->
-    <Exec Command="dotnet publish &quot;$(RepoRoot)src\netstandard\FabActUtil\FabActUtil_netstandard.csproj&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
+    <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;netstandard2.0&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
 
     <ItemGroup>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)FabActUtil.*"/>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\FabActUtil\$(OutputPath)Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors\$(OutputPath)Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\netstandard2.0\FabActUtil.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Actors.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.Wcf\$(OutputPath)Microsoft.ServiceFabric.Actors.Wcf.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Diagnostics.*"/>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services\$(OutputPath)Microsoft.ServiceFabric.Services.*"/>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
       <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)Microsoft.ServiceFabric.Services.Wcf.*"/>
-      <BinairesNetStandard Include="$(RepoRoot)src\netstandard\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
+      <BinairesNetStandard Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\netstandard2.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
       <BinairesNetStandard_Win Include="$(OutputPath)Publish\*.dll"/>

@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
-    [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR")]
+    [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR", Guid = "0e1ec353-9f02-55d7-fbb8-f3857458acbd")]
     internal sealed class ActorFrameworkEventSource : EventSource
     {
         // Although the documentation claims it exists, EventKeywords.All does not

@@ -1,18 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
+  <Import Condition="'$(TargetFramework)' == 'netstandard2.0'" Project="..\..\properties\service_fabric_managed_netstandard.props" />
+  <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\properties\service_fabric_managed_netframework.props" />
+
   <PropertyGroup>
     <ProjectGuid>{F6E091C3-9136-4058-91CF-57CDF383DF74}</ProjectGuid>
     <RootNamespace>FabActUtil</RootNamespace>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup >
     <None Include="App.config" />
-    <None Include="Microsoft.ServiceFabric.Actors.targets">
+    <None Condition="'$(TargetFramework)' == 'net462'" Include="Microsoft.ServiceFabric.Actors_netframework.targets" 
+    Link="Microsoft.ServiceFabric.Actors.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition="'$(TargetFramework)' == 'netstandard2.0'" Include="Microsoft.ServiceFabric.Actors_netstandard.targets" 
+    Link="Microsoft.ServiceFabric.Actors.targets">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

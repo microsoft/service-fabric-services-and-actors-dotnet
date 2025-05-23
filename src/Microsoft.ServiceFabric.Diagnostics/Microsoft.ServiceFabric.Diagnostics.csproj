@@ -4,9 +4,11 @@
 
   <PropertyGroup>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <AssemblyName>Microsoft.ServiceFabric.Diagnostics</AssemblyName>
+      <RootNamespace>Microsoft.ServiceFabric.Diagnostics</RootNamespace>
+      <RootNamespace>$(AssemblyName)</RootNamespace>
+      <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+      <DocumentationFile>$(AssemblyName).xml</DocumentationFile>
       <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
-      <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
