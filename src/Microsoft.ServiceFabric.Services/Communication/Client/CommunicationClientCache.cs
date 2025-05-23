@@ -262,7 +262,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
                         // this cache entry, so it is ok to skip this entry in the current cleanup run.
                         ServiceTrace.Source.WriteInfo(
                             TraceType,
-                            "{0} Could not acquire lock to cleanup partitionid {1} endpoint {2} : {3}",
+                            "{0} Could not acquire lock. Skipping cache cleanup of partitionid {1} endpoint {2} : {3} in this iteration",
                             this.traceId,
                             this.partitionId,
                             entry.Key.ListenerName,
