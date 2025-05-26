@@ -12,7 +12,7 @@
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
-  <ItemGroup >
+  <ItemGroup>
     <None Include="App.config" />
     <None Condition="'$(TargetFramework)' == 'net462'" Include="Microsoft.ServiceFabric.Actors_netframework.targets" 
     Link="Microsoft.ServiceFabric.Actors.targets">
@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="SR.Designer.cs">
       <DesignTime>True</DesignTime>

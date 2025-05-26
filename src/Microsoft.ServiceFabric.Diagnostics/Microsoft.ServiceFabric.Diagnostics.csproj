@@ -10,7 +10,6 @@
       <DocumentationFile>$(AssemblyName).xml</DocumentationFile>
       <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>

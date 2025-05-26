@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
+
   <PropertyGroup>
     <ProjectGuid>{BA2E8FE4-2970-40D4-BA55-5415E84C7B50}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric.Actors.Wcf</RootNamespace>
@@ -13,6 +14,7 @@
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Wcf\Microsoft.ServiceFabric.Services.Wcf.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="SR.Designer.cs">
       <DesignTime>True</DesignTime>
