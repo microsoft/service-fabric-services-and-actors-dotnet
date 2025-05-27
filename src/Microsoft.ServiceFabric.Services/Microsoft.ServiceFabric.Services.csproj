@@ -5,7 +5,6 @@
 
   <PropertyGroup>
     <ProjectGuid>{F416C4C3-250D-48F3-822C-1C589E8F851C}</ProjectGuid>
-    <RootNamespace>Microsoft.ServiceFabric.Services</RootNamespace>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>

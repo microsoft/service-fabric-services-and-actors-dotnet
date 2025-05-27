@@ -5,7 +5,6 @@
 
   <PropertyGroup>
     <ProjectGuid>{014D5847-39F5-4660-B385-82EDFBA06CD9}</ProjectGuid>
-    <RootNamespace>Microsoft.ServiceFabric.Actors</RootNamespace>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>

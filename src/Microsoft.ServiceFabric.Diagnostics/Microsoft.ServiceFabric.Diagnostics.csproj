@@ -4,7 +4,6 @@
 
   <PropertyGroup>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <RootNamespace>Microsoft.ServiceFabric.Diagnostics</RootNamespace>
       <RootNamespace>$(AssemblyName)</RootNamespace>
       <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
       <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>

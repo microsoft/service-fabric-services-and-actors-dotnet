@@ -5,7 +5,6 @@
 
   <PropertyGroup>
     <ProjectGuid>{A01358E6-D5E1-44B5-948A-45709D2421A5}</ProjectGuid>
-    <RootNamespace>Microsoft.ServiceFabric.Services.Remoting</RootNamespace>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
