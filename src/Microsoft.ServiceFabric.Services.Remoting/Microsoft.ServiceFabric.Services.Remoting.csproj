@@ -2,7 +2,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Condition="'$(TargetFramework)' == 'netstandard2.0'" Project="..\..\properties\service_fabric_managed_netstandard.props" />
   <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\properties\service_fabric_managed_netframework.props" />
-
   <PropertyGroup>
     <ProjectGuid>{A01358E6-D5E1-44B5-948A-45709D2421A5}</ProjectGuid>
     <RootNamespace>$(AssemblyName)</RootNamespace>
@@ -19,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
-  
   <ItemGroup>
     <Compile Update="SR.Designer.cs">
       <DesignTime>True</DesignTime>

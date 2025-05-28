@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Condition="'$(TargetFramework)' == 'netstandard2.0'" Project="..\..\properties\service_fabric_managed_netstandard.props" />
   <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\properties\service_fabric_managed_netframework.props" />
-
   <PropertyGroup>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
       <RootNamespace>$(AssemblyName)</RootNamespace>
