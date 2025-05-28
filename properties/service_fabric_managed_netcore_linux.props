@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="service_fabric_managed_common.props" />
+  <PropertyGroup>
+    <!-- Define Constants used in code for .NET 8 Linux builds -->
+    <DefineConstants>$(DefineConstants);DotNetCoreClr;DotNetCoreClrLinux</DefineConstants>
+    <NoWarn>$(NoWarn);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</NoWarn>
+  </PropertyGroup>
+</Project>
