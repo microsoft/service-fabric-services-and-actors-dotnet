@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">  <!-- Copy prod binaries for net standard-->
-  <Target Name="CopyProdBinaries_netstandard">
+  <Target Name="CopyProdBinaries_netcore">
     <!-- Publish FabActUtil so that all binaries from referenced nuget package are available for creation of nuget package-->
     <!-- FabActUtil is invoked in VS tooling to autogenerate and update manifests for Actors. -->
     <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;net8.0-windows&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
