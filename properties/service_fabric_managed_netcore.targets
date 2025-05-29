@@ -3,20 +3,21 @@
   <Target Name="CopyProdBinaries_netcore">
     <!-- Publish FabActUtil so that all binaries from referenced nuget package are available for creation of nuget package-->
     <!-- FabActUtil is invoked in VS tooling to autogenerate and update manifests for Actors. -->
-    <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;net8.0-windows&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
+    <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;net8.0&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
 
     <ItemGroup>
       <!-- Windows binaries (net8.0-windows) -->
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0-windows\FabActUtil.*"/>
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Actors.*"/>
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Diagnostics.*"/>
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Services.*"/>
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Services.Remoting.*"/>
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>      
+      <BinairesNetStandard_Win Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Diagnostics.*"/>   
       
-      <!-- Linux binaries (net8.0) - Only Diagnostics project neets different Linux binary for now -->
+      <!-- Linux binaries (net8.0) -->
       <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+      <BinairesNetStandard_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\FabActUtil.*"/>
+      <BinairesNetStandard_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
       <BinairesNetStandard_PublishWin Include="$(OutputPath)Publish\*.dll"/>
