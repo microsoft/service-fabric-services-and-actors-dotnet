@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-      <TargetFrameworks>net8.0;net8.0-windows;net462</TargetFrameworks>
-  </PropertyGroup>
-  <Import Project="..\..\properties\service_fabric_managed.props" />
+  <Import Condition="'$(TargetFramework)' == 'net8.0'" Project="..\..\properties\service_fabric_managed_netcore_linux.props" />
+  <Import Condition="'$(TargetFramework)' == 'net8.0-windows'" Project="..\..\properties\service_fabric_managed_netcore_windows.props" />
+  <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\properties\service_fabric_managed_netframework.props" />
   <PropertyGroup>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <RootNamespace>$(AssemblyName)</RootNamespace>
+      <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+      <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+      <TargetFrameworks>net8.0;net8.0-windows;net462</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
