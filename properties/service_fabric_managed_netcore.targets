@@ -24,11 +24,11 @@
     </ItemGroup>
 
     <!-- Copy Windows binaries -->
-    <Copy SourceFiles="@(BinairesNetStandard_Win)" DestinationFiles="@(BinairesNetStandard_Win->'$(DropFolderNetStandard_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetStandard_Win)" DestinationFiles="@(BinairesNetStandard_Win->'$(DropFolderNetCore_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
     <!-- Copy Linux binaries -->
-    <Copy SourceFiles="@(BinairesNetStandard_Linux)" DestinationFiles="@(BinairesNetStandard_Linux->'$(DropFolderNetStandard_Linux)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetStandard_Linux)" DestinationFiles="@(BinairesNetStandard_Linux->'$(DropFolderNetCore_Linux)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-    <Copy SourceFiles="@(BinairesNetStandard_PublishWin)" DestinationFiles="@(BinairesNetStandard_PublishWin->'$(DropFolderNetStandard_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetStandard_PublishWin)" DestinationFiles="@(BinairesNetStandard_PublishWin->'$(DropFolderNetCore_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

@@ -12,9 +12,9 @@
     <!-- Set Drop folders -->
     <DropFolder>$(RepoRoot)drop\$(Configuration)\</DropFolder>
     <DropFolderNetFramework>$(RepoRoot)drop\$(Configuration)\netframework\</DropFolderNetFramework>
-    <DropFolderNetStandard>$(RepoRoot)drop\$(Configuration)\netstandard\</DropFolderNetStandard>
-    <DropFolderNetStandard_Win>$(DropFolderNetStandard)win\</DropFolderNetStandard_Win>
-    <DropFolderNetStandard_Linux>$(DropFolderNetStandard)linux\</DropFolderNetStandard_Linux>
+    <DropFolderNetCore>$(RepoRoot)drop\$(Configuration)\netstandard\</DropFolderNetCore>
+    <DropFolderNetCore_Win>$(DropFolderNetStandard)win\</DropFolderNetCore_Win>
+    <DropFolderNetCore_Linux>$(DropFolderNetStandard)linux\</DropFolderNetCore_Linux>
     <NugetPackageDropFolder>$(DropFolder)\packages</NugetPackageDropFolder>
 
     <!-- Set Nuget exe path -->
@@ -27,7 +27,7 @@
     <!-- We migrated Diagnostics package from WindowsFabric repo and we need to keep the versioning consistent -->
     <MajorVersion Condition="'$(MSBuildProjectName)' == 'Microsoft.ServiceFabric.Diagnostics'">12</MajorVersion>
     <MinorVersion>3</MinorVersion>
-    <BuildVersion>0</BuildVersion>
+    <BuildVersion>1</BuildVersion>
     <Revision>0</Revision>
 
   </PropertyGroup>
