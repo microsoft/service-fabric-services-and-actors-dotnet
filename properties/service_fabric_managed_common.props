@@ -11,11 +11,6 @@
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
-  <!-- Cls Compliant -->
-  <PropertyGroup>
-    <AssemblyClsCompliant>true</AssemblyClsCompliant>
-  </PropertyGroup>
-
   <!-- set DebugType to full -->
   <PropertyGroup>
     <DebugType>full</DebugType>
@@ -24,11 +19,6 @@
   <!-- Enable /highentropyva flag -->
   <PropertyGroup>
     <HighEntropyVA>true</HighEntropyVA>
-  </PropertyGroup>
-
-  <!-- Set AllowUnsafeBlocks to false -->
-  <PropertyGroup>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <!-- Enable delay signing with Key.snk -->
