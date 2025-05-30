@@ -13,8 +13,8 @@
     <DropFolder>$(RepoRoot)drop\$(Configuration)\</DropFolder>
     <DropFolderNetFramework>$(RepoRoot)drop\$(Configuration)\netframework\</DropFolderNetFramework>
     <DropFolderNetCore>$(RepoRoot)drop\$(Configuration)\netstandard\</DropFolderNetCore>
-    <DropFolderNetCore_Win>$(DropFolderNetStandard)win\</DropFolderNetCore_Win>
-    <DropFolderNetCore_Linux>$(DropFolderNetStandard)linux\</DropFolderNetCore_Linux>
+    <DropFolderNetCore_Win>$(DropFolderNetCore)win\</DropFolderNetCore_Win>
+    <DropFolderNetCore_Linux>$(DropFolderNetCore)linux\</DropFolderNetCore_Linux>
     <NugetPackageDropFolder>$(DropFolder)\packages</NugetPackageDropFolder>
 
     <!-- Set Nuget exe path -->
