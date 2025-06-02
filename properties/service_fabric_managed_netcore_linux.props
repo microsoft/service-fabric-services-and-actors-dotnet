@@ -4,6 +4,6 @@
   <PropertyGroup>
     <!-- Define Constants used in code for .NET 8 Linux builds -->
     <DefineConstants>$(DefineConstants);DotNetCoreClr;DotNetCoreClrLinux</DefineConstants>
-    <NoWarn>$(NoWarn);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</NoWarn>
+    <WarningsNotAsErrors>$(NoWarn);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</WarningsNotAsErrors>
   </PropertyGroup>
 </Project>
