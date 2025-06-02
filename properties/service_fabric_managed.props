@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Condition="'$(TargetFramework)' == 'net462'" Project="$(MSBuildThisFileDirectory)service_fabric_managed_netframework.props" />
-  <Import Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'" Project="$(MSBuildThisFileDirectory)service_fabric_managed_netcore.props" />
-
+  <Import Project="service_fabric_managed_common.props" />
   <PropertyGroup>
       <RootNamespace>$(AssemblyName)</RootNamespace>
       <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
       <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('\test\unittests\'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'"> 
+    <DefineConstants>$(DefineConstants);DotNetCoreClr</DefineConstants>
+    <NoWarn>$(NoWarn);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 </Project>
