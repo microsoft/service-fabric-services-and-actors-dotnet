@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
       <TargetFrameworks>net8.0;net8.0-windows;net462</TargetFrameworks>
-  </PropertyGroup>
-  <Import Project="..\..\properties\service_fabric_managed_common.props" />
-  <PropertyGroup>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
