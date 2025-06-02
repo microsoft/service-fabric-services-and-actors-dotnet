@@ -6,21 +6,21 @@
     <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;net8.0&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
 
     <ItemGroup>    
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\FabActUtil.*"/>
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.*"/>
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
-      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\FabActUtil.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
       <BinairesNetCore_PublishWin Include="$(OutputPath)Publish\*.dll"/>
     </ItemGroup>
 
     <!-- Copy Linux binaries -->
-    <Copy SourceFiles="@(BinairesNetCore_Linux)" DestinationFiles="@(BinairesNetCore_Linux->'$(DropFolderNetCore_Linux)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetCore)" DestinationFiles="@(BinairesNetCore->'$(DropFolderNetCore)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <Copy SourceFiles="@(BinairesNetCore_PublishWin)" DestinationFiles="@(BinairesNetCore_PublishWin->'$(DropFolderNetCore_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
