@@ -4,7 +4,7 @@
     <ProjectGuid>{F416C4C3-250D-48F3-822C-1C589E8F851C}</ProjectGuid>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
   </PropertyGroup>
-  <Import Project="..\..\properties\service_fabric_managed.props" />
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric.Data" />
     <PackageReference Include="Microsoft.ServiceFabric" />

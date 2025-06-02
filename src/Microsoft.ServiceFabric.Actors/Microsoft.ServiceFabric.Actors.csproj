@@ -4,7 +4,7 @@
     <ProjectGuid>{014D5847-39F5-4660-B385-82EDFBA06CD9}</ProjectGuid>   
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
   </PropertyGroup>  
-  <Import Project="..\..\properties\service_fabric_managed.props" />
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <PropertyGroup>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

@@ -4,7 +4,7 @@
     <ProjectGuid>{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8}</ProjectGuid>
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
-  <Import Project="..\..\properties\service_fabric_managed.props" />
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />

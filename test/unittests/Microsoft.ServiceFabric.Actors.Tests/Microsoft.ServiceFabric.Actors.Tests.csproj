@@ -4,7 +4,7 @@
     <ProjectGuid>{63B58D31-66BB-4879-B4F1-0969FA3F4464}</ProjectGuid>
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
   </PropertyGroup>
-  <Import Project="..\..\..\properties\service_fabric_managed.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" />

@@ -5,30 +5,24 @@
     <!-- FabActUtil is invoked in VS tooling to autogenerate and update manifests for Actors. -->
     <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;net8.0&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
 
-    <ItemGroup>
-      <!-- Windows binaries (net8.0-windows) -->
-      <BinairesNetStandard_Win Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0-windows\Microsoft.ServiceFabric.Diagnostics.*"/>   
-      
-      <!-- Linux binaries (net8.0) -->
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\FabActUtil.*"/>
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.targets"/>
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.*"/>
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
-      <BinairesNetStandard_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
+    <ItemGroup>    
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\FabActUtil.*"/>
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.*"/>
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
+      <BinairesNetCore_Linux Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
-      <BinairesNetStandard_PublishWin Include="$(OutputPath)Publish\*.dll"/>
+      <BinairesNetCore_PublishWin Include="$(OutputPath)Publish\*.dll"/>
     </ItemGroup>
 
-    <!-- Copy Windows binaries -->
-    <Copy SourceFiles="@(BinairesNetStandard_Win)" DestinationFiles="@(BinairesNetStandard_Win->'$(DropFolderNetCore_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
     <!-- Copy Linux binaries -->
-    <Copy SourceFiles="@(BinairesNetStandard_Linux)" DestinationFiles="@(BinairesNetStandard_Linux->'$(DropFolderNetCore_Linux)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetCore_Linux)" DestinationFiles="@(BinairesNetCore_Linux->'$(DropFolderNetCore_Linux)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
 
-    <Copy SourceFiles="@(BinairesNetStandard_PublishWin)" DestinationFiles="@(BinairesNetStandard_PublishWin->'$(DropFolderNetCore_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(BinairesNetCore_PublishWin)" DestinationFiles="@(BinairesNetCore_PublishWin->'$(DropFolderNetCore_Win)\%(Destination)\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

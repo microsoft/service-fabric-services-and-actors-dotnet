@@ -11,6 +11,22 @@
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
+  <!-- Assembly name, title and documentation -->
+  <PropertyGroup>
+      <RootNamespace>$(AssemblyName)</RootNamespace>
+      <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+      <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('\test\unittests\'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <!-- Properties specific to certain TargetFrameworks -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'"> 
+    <DefineConstants>$(DefineConstants);DotNetCoreClr</DefineConstants>
+    <NoWarn>$(NoWarn);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
   <!-- set DebugType to full -->
   <PropertyGroup>
     <DebugType>full</DebugType>
