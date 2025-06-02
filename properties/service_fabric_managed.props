@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Condition="'$(TargetFramework)' == 'net462'" Project="$(MSBuildThisFileDirectory)service_fabric_managed_netframework.props" />
-  <Import Condition="'$(TargetFramework)' == 'net8.0'" Project="$(MSBuildThisFileDirectory)service_fabric_managed_netcore_linux.props" />
-  <Import Condition="'$(TargetFramework)' == 'net8.0-windows'" Project="$(MSBuildThisFileDirectory)service_fabric_managed_netcore_windows.props" />
+  <Import Condition="'$(TargetFramework)' == 'net8.0' || '$(TargetFramework)' == 'net9.0'" Project="$(MSBuildThisFileDirectory)service_fabric_managed_netcore.props" />
+
   <PropertyGroup>
       <RootNamespace>$(AssemblyName)</RootNamespace>
       <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
