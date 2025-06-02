@@ -4,7 +4,7 @@
     <ProjectGuid>{ECB3825D-B309-4C76-A20D-76544459F611}</ProjectGuid>
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
-  <Import Project="..\..\..\properties\service_fabric_managed_test.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed.props" />
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

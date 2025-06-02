@@ -5,7 +5,7 @@
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
-  <Import Project="..\..\..\properties\service_fabric_managed_test.props" />
+  <Import Project="..\..\..\properties\service_fabric_managed.props" />
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
