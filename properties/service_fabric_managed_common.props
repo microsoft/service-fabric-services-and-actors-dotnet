@@ -13,9 +13,9 @@
 
   <!-- Assembly name, title and documentation -->
   <PropertyGroup>
-      <RootNamespace>$(AssemblyName)</RootNamespace>
-      <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
-      <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('\test\unittests\'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+    <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('\test\unittests\'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <!-- Properties specific to certain TargetFrameworks -->
