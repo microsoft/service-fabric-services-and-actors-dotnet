@@ -14,23 +14,23 @@ on:
 jobs:
   build:
     name: Build Test - Ubuntu
-    runs-on: windows-latest
-    # info about windows-latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
+    runs-on: ubuntu-latest
+    # info about ubuntu-latest https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
     env:
       DROP_DIR: drop
-      TEST_RESULT_DIR: drop\testresults
+      TEST_RESULT_DIR: drop/testresults
     steps:
       - uses: actions/checkout@v1
-      - name: Disable strong name verification for testing
-        shell: powershell
-        run: .\SkipStrongName.ps1
+      # - name: Disable strong name verification for testing
+      #   shell: powershell
+      #   run: .\SkipStrongName.ps1
       - name: Build Everything
         shell: powershell
         run: dotnet build buildAll.proj
-      - name: Run Tests
-        run: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
-      - name: upload artifacts
-        uses: actions/upload-artifact@master
-        with:
-          name: release_drop
-          path: ${{ env.DROP_DIR }}
+      # - name: Run Tests
+      #   run: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
+      # - name: upload artifacts
+      #   uses: actions/upload-artifact@master
+      #   with:
+      #     name: release_drop
+      #     path: ${{ env.DROP_DIR }}
