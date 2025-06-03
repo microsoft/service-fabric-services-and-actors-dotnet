@@ -3,7 +3,6 @@
   <Import Project="..\..\properties\service_fabric_managed_netframework.props" />
   <PropertyGroup>
     <ProjectGuid>{4ED5DBAD-F3AB-4818-A8ED-48809D2D01E8}</ProjectGuid>
-    <AssemblyName>Microsoft.ServiceFabric.Services.Wcf</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
