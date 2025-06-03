@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// This is used to obtain the port number on which to service will listen.
         /// </summary>
         /// <value>
-        /// EndpointResourceName is  name of the  endpoint resource defined in the service manifest.
+        /// EndpointResourceName is name of the  endpoint resource defined in the service manifest.
         /// </value>
         /// <remarks>
         /// Default value of EndpointResourceName  is "ServiceEndpoint" </remarks>
@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         /// Gets or sets the maxConcurrentCalls which represents maximum number of messages actively service processes at one time.
         /// </summary>
         /// <value>
-        /// MaxConcurrentCalls is  the upper limit of active messages in the service.
+        /// MaxConcurrentCalls is the upper limit of active messages in the service.
         /// </value>
         /// <remarks>
         /// Default value for the MaxConcurrentCalls is 0 which indicates that the setting is not enabled. This implies that all the messages are active and are processed simultaneously.
