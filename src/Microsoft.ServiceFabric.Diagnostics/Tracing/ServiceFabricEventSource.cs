@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
                 var hasId = false;
                 int typeFieldIndex = -1;
 #if DotNetCoreClr
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     var methodParams = eventMethod.GetParameters().ToList();
                     if (methodParams.Any())
@@ -235,7 +235,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             }
 #if DotNetCoreClr
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 this.VariantWriteViaNative(eventId, 9, v0, v1, v2, v3, v4, v5, v6, v7, v8);
             }
