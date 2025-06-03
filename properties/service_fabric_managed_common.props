@@ -21,7 +21,7 @@
   <!-- Properties specific to certain TargetFrameworks -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'"> 
     <DefineConstants>$(DefineConstants);DotNetCoreClr</DefineConstants>
-    <NoWarn>$(NoWarn);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</NoWarn>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</WarningsNotAsErrors >
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <OutputType>Library</OutputType>
