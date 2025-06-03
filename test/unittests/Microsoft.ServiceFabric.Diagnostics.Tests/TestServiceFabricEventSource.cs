@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {
-    public class ServiceFabricEventSourceTests
+    public class TestServiceFabricEventSource
     {
 #if DotNetCoreClr
         [Fact]
