@@ -11,12 +11,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using System.Linq;
     using System.Reflection;
     using System.Resources;
-    using System.Runtime.CompilerServices;
-    using System.Runtime.ExceptionServices;
     using System.Runtime.InteropServices;
     using System.Runtime.Serialization;
     using System.Threading;
-    using System.Xml;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication;
 
     internal class SystemExceptionKnownTypes
@@ -385,6 +383,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<SynchronizationLockException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "System.Threading.Tasks.TaskCanceledException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<TaskCanceledException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
