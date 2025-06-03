@@ -354,7 +354,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                 || typeof(T) == typeof(FabricBackupNotFoundException)
                 || typeof(T) == typeof(FabricReplicationOperationTooLargeException)
                 || typeof(T) == typeof(FabricServiceNotFoundException)
-                || typeof(T) == typeof(FabricServerAuthenticationFailedException)
+                || typeof(T) == typeof(FabricSkipRestoreOperationException)
                 || typeof(T) == typeof(FabricMessageTooLargeException)
                 || typeof(T) == typeof(FabricEndpointNotFoundException)
                 || typeof(T) == typeof(FabricDeleteBackupFileFailedException)
