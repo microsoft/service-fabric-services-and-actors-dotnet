@@ -10,13 +10,17 @@ using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
-{
-    public class TestServiceFabricEventSource
+{    public class TestServiceFabricEventSource
     {
 #if DotNetCoreClr
         [Fact]
         public void VariantWriteViaNative_OnNonLinux_ThrowsPlatformNotSupportedException()
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return;
+            }
+
             var eventSource = new TestEventSource();
             int eventId = 1;
             int argCount = 3;
@@ -24,11 +28,29 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
             Variant v1 = 42;
             Variant v2 = true;
 
-
+            Assert.Throws<PlatformNotSupportedException>(() => eventSource.VariantWriteViaNative(eventId, argCount, v0, v1, v2));
+        }        
+        
+        [Theory]
+        [InlineData(1, true, 1)]
+        [InlineData(2, true, 2)]
+        [InlineData(3, true, -1)]
+        public void Constructor_OnLinux_GeneratesEventDescriptorsCorrectly(int eventId, bool expectedHasId, int expectedTypeFieldIndex)
+        {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Assert.Throws<PlatformNotSupportedException>(() => eventSource.VariantWriteViaNative(eventId, argCount, v0, v1, v2));
+                return;
             }
+
+            var eventSource = new TestEventSource();
+
+            var eventDescriptorsField = typeof(ServiceFabricEventSource).GetField("eventDescriptors", BindingFlags.NonPublic | BindingFlags.Instance);
+            var eventDescriptors = (ReadOnlyDictionary<int, TraceEvent>)eventDescriptorsField.GetValue(eventSource);
+
+            Assert.True(eventDescriptors.ContainsKey(eventId));
+            var traceEvent = eventDescriptors[eventId];
+            Assert.Equal(expectedHasId, traceEvent.hasId);
+            Assert.Equal(expectedTypeFieldIndex, traceEvent.typeFieldIndex);
         }
 #else
         [Fact]
