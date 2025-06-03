@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    name: Build Test
+    name: Build Test - Ubuntu
     runs-on: windows-latest
     # info about windows-latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
     env:
