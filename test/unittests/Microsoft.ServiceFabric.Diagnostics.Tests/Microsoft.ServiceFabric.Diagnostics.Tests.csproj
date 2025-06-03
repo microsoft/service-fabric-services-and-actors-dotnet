@@ -4,8 +4,8 @@
  <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\..\properties\service_fabric_managed_netframework.props" />
   <PropertyGroup>
     <ProjectGuid>{1BDC4681-FDBA-4E55-A247-5F779627A4D7}</ProjectGuid>
-    <AssemblyName>Microsoft.ServiceFabric.Diagnostics.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
+    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
