@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
                 var hasId = false;
                 int typeFieldIndex = -1;
 #if DotNetCoreClr
-                if(IsExecutedOnLinux())
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     var methodParams = eventMethod.GetParameters().ToList();
                     if (methodParams.Any())
@@ -235,7 +235,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             }
 #if DotNetCoreClr
 
-            if(IsExecutedOnLinux())
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 this.VariantWriteViaNative(eventId, 9, v0, v1, v2, v3, v4, v5, v6, v7, v8);
             }
@@ -244,18 +244,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 
 // Methods needed only on Linux, and are included only in NetCore build
 #if DotNetCoreClr
-        private bool IsExecutedOnLinux()
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-        }
-
         [NonEvent]
         public void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
         {
 
-            if (IsExecutedOnLinux())
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                throw new PlatformNotSupportedException("VariantWriteViaNative is only supported on Linux. [eventI]");
+                throw new PlatformNotSupportedException(String.Format("VariantWriteViaNative is only supported on Linux. [eventId={0}]", eventId));
             }
 
             string text = string.Format(this.eventDescriptors[eventId].Message,

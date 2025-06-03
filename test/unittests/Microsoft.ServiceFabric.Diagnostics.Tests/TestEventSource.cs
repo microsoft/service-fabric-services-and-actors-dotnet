@@ -10,11 +10,9 @@ using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
-{    public class TestServiceFabricEventSource
+{
+    [EventSource(Name = "TestEventSource")]
+    internal class TestEventSource : ServiceFabricEventSource
     {
-        [EventSource(Name = "TestEventSource")]
-        private class TestEventSource : ServiceFabricEventSource
-        {
-        }
     }
 }
