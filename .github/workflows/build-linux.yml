@@ -25,7 +25,6 @@ jobs:
       #   shell: powershell
       #   run: .\SkipStrongName.ps1
       - name: Build Everything
-        shell: powershell
         run: dotnet build buildAll.proj
       # - name: Run Tests
       #   run: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
