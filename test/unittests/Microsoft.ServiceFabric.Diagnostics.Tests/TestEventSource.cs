@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
         }
 
         public TestEventSource(IPlatformInformation platformInformation)
-            : base("TestPackage", platformInformation ?? PlatformInformation.Instance)
+            : base("TestPackage", platformInformation)
         {
         }
     }
