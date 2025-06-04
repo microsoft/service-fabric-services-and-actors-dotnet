@@ -360,7 +360,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
             var stateTable = new ActorStateTable();
             VerifyStateTableSnapshot(stateTable, statesPerReplication, long.MaxValue, 0, 0, 0);
 
-            TestCase("# Testcase 1: Commmitted values only");
+            TestCase("# Testcase 1: Committed values only");
 
             var committedKeyPrefixList = new string[] { "apple", "orange", "banana", };
             foreach (var keyPrefix in committedKeyPrefixList)
@@ -404,7 +404,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
                 sequenceNumber,
                 sequenceNumber * statesPerReplication[ActorStateType.Actor]);
 
-            TestCase("# Testcase 2: Commmitted + uncommitted values");
+            TestCase("# Testcase 2: Committed + uncommitted values");
 
             var uncommittedKeyPrefixList = new string[] { "grape", "pear", "kiwi" };
             foreach (var keyPrefix in uncommittedKeyPrefixList)

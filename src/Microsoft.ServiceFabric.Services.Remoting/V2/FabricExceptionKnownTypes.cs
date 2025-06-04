@@ -3,14 +3,14 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-
     internal class FabricExceptionKnownTypes
     {
 #pragma warning disable SA1401 // Fields should be private
@@ -23,6 +23,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "System.Fabric.FabricInsufficientMaxLoadCapacityException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricInsufficientMaxLoadCapacityException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
@@ -91,6 +99,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     }
                 },
                 {
+                    "System.Fabric.FabricSkipRestoreOperationException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricSkipRestoreOperationException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
                     "System.Fabric.FabricInvalidAddressException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
@@ -143,6 +159,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricBackupDirectoryNotEmptyException>(svcEx, innerEx),
+                        InnerExFunc = ex => GetInnerExceptions(ex),
+                    }
+                },
+                {
+                    "System.Fabric.FabricBackupNotFoundException", new ConvertorFuncs()
+                    {
+                        ToServiceExFunc = ex => ToServiceException(ex),
+                        FromServiceExFunc = (svcEx, innerEx) => FromServiceException<FabricBackupNotFoundException>(svcEx, innerEx),
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
@@ -322,12 +346,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
             {
                 args.Add(serviceException.Message);
             }
-            else if (typeof(T) == typeof(FabricMissingFullBackupException)
+            else if (typeof(T) == typeof(FabricInsufficientMaxLoadCapacityException)
+                || typeof(T) == typeof(FabricMissingFullBackupException)
                 || typeof(T) == typeof(FabricNotReadableException)
                 || typeof(T) == typeof(FabricBackupInProgressException)
                 || typeof(T) == typeof(FabricBackupDirectoryNotEmptyException)
+                || typeof(T) == typeof(FabricBackupNotFoundException)
                 || typeof(T) == typeof(FabricReplicationOperationTooLargeException)
                 || typeof(T) == typeof(FabricServiceNotFoundException)
+                || typeof(T) == typeof(FabricSkipRestoreOperationException)
                 || typeof(T) == typeof(FabricMessageTooLargeException)
                 || typeof(T) == typeof(FabricEndpointNotFoundException)
                 || typeof(T) == typeof(FabricDeleteBackupFileFailedException)
