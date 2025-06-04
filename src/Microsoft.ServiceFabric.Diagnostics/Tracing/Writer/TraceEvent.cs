@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Writer
         private readonly TraceConfig configMgr;
         private readonly string message;
         private bool filterState;
-#if DotNetCoreClrLinux
+#if DotNetCoreClr
         internal bool hasId;
         internal int typeFieldIndex;
 #endif
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Writer
             this.message = message;
             this.UpdateSinkEnabledStatus();
             configMgr.OnFilterUpdate += this.UpdateSinkEnabledStatus;
-#if DotNetCoreClrLinux
+#if DotNetCoreClr
             this.hasId = hasId;
             this.typeFieldIndex = typeFieldIndex;
 #endif
