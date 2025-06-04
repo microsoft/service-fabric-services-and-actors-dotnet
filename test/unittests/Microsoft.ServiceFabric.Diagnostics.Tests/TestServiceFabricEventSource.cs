@@ -9,7 +9,8 @@ using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
-{    public class TestServiceFabricEventSource
+{    
+    public class TestServiceFabricEventSource
     {
 #if DotNetCoreClr
         private IPlatformInformation GetPlatformInformation(OSPlatform platform)
