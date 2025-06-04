@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="RebuildAll" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="properties\service_fabric_common.props" />
-  <Import Project="properties\service_fabric_managed_netstandard.targets" />
-  <Import Project="properties\service_fabric_managed_netframework.targets" />
-  <Import Project="properties\service_fabric_nuget.targets" />
-  
+<Project ToolsVersion="14.0" DefaultTargets="RebuildAll" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">  
+  <Import Project="$([MSBuild]::NormalizePath('properties', 'service_fabric_common.props'))" />
+  <Import Project="$([MSBuild]::NormalizePath('properties', 'service_fabric_managed_netstandard.targets'))" />
+  <Import Project="$([MSBuild]::NormalizePath('properties', 'service_fabric_managed_netframework.targets'))" />
+  <Import Project="$([MSBuild]::NormalizePath('properties', 'service_fabric_nuget.targets'))" />
   <PropertyGroup>
     <CurrentDir>$(MSBuildThisFileDirectory)</CurrentDir>
+    <!-- Define cross-platform path to drop directory -->
+    <DropDir>$([MSBuild]::NormalizePath($(CurrentDir), 'drop'))</DropDir>
+    <DropConfigDir>$([MSBuild]::NormalizePath($(DropDir), '$(Configuration)'))</DropConfigDir>
   </PropertyGroup>
-  
-  <!--Targets which can be invoked from Build.ps1-->
+  <!--Targets which can be invoked from Build.ps1-->  
   <Target Name="RebuildAll" DependsOnTargets="BuildCode;GeneratePackages">
-    <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
+    <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(DropConfigDir)" Importance="High"/>
   </Target>
 
   <Target Name="BuildAll" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;BuildProd;BuildTest;CopyProdBinaries;GenerateNugetPackages">
-    <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
+    <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(DropConfigDir)" Importance="High"/>
   </Target>
 
   <!-- Builds code, this target doesn't generates nuget packages. -->
   <Target Name="BuildCode" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;CleanAll;BuildProd;BuildTest;CopyProdBinaries">
-    <Message Text="SUCCESS!  Generated binaries are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
+    <Message Text="SUCCESS!  Generated binaries are dropped at $(DropConfigDir)" Importance="High"/>
   </Target>
-
   <!-- Generates nuget packages from the build, this target doesn't builds code, build must have been done before invoking this target.
        This allows signing of binaires after build and consuming them in nuget packages. -->
   <Target Name="GeneratePackages" DependsOnTargets="GenerateNugetPackages">
-    <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
+    <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(DropConfigDir)" Importance="High"/>
   </Target>
 
 
@@ -66,15 +66,15 @@
   <!--
   This target can be used to clean all of the projects before you build them.
   It will also delete any dll & exe files located in the the DestinationFolder folder.
-  -->
+  -->  
   <Target Name="CleanAll">
     <Message Text="Cleaning drop folder ..."/>
     <!-- Delete any files this process may have created from a previous execution -->
-    <CreateItem Include="$(CurrentDir)\drop\**\*">
+    <CreateItem Include="$([MSBuild]::NormalizePath($(CurrentDir), 'drop', '**', '*'))">
       <Output ItemName="GeneratedFiles" TaskParameter="Include"/>
     </CreateItem>
     <Delete Files="@(GeneratedFiles)"/>
-    <RemoveDir Directories="$(CurrentDir)\drop"/>
+    <RemoveDir Directories="$(DropDir)"/>
     
     <Message Text="Cleaning all projects ..."/>
     <CallTarget Targets="CleanProd;CleanTest" />

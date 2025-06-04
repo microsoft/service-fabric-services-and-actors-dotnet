@@ -1,0 +1,25 @@
+name: build
+
+on: 
+  push:
+    branches:
+      - develop
+      - 'release_*'
+    
+  pull_request:
+    branches: 
+    - develop
+    - 'release_*'
+
+jobs:
+  build:
+    name: Build Test - Ubuntu
+    runs-on: ubuntu-latest
+    # info about ubuntu-latest https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
+    env:
+      DROP_DIR: drop
+      TEST_RESULT_DIR: drop/testresults
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build Everything
+        run: dotnet build buildAll.proj
