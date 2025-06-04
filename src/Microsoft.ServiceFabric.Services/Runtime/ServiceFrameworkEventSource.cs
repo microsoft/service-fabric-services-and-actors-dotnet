@@ -3,19 +3,20 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Diagnostics.Tracing;
+using System.Fabric;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
-    using System;
-    using System.Diagnostics.Tracing;
-    using System.Fabric;
-
     // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
     [EventSource(Name = "Microsoft-ServiceFabric-Services", LocalizationResources = "Microsoft.ServiceFabric.Services.SR")]
-    internal sealed class ServiceFrameworkEventSource : EventSource
+    sealed class ServiceFrameworkEventSource : ServiceFabricEventSource
     {
         internal static readonly ServiceFrameworkEventSource Writer = new ServiceFrameworkEventSource();
 

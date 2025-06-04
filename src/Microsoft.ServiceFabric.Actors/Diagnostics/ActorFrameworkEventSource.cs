@@ -3,19 +3,20 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Diagnostics.Tracing;
+using System.Fabric;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    using System;
-    using System.Diagnostics.Tracing;
-    using System.Fabric;
-
     // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
     [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR")]
-    internal sealed class ActorFrameworkEventSource : EventSource
+    sealed class ActorFrameworkEventSource : ServiceFabricEventSource
     {
         // Although the documentation claims it exists, EventKeywords.All does not
         // seem to be defined in the assembly. So just use a constant with all possible
