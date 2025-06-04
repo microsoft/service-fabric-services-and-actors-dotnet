@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Config;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Util;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;

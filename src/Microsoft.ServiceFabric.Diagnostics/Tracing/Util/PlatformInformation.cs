@@ -3,11 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Runtime.InteropServices;
+
 namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Util
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     /// <summary>
     /// Interface for platform-specific information operations.
     /// Allows for dependency injection and mocking in tests.
