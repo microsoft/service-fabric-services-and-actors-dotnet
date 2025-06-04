@@ -24,7 +24,7 @@
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
     <MajorVersion>9</MajorVersion>
     <MinorVersion>2</MinorVersion>
-    <BuildVersion>4</BuildVersion>
+    <BuildVersion>5</BuildVersion>
     <Revision>0</Revision>
 
   </PropertyGroup>

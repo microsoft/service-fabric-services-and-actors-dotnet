@@ -80,6 +80,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             new FabricPeriodicBackupNotEnabledException("FabricPeriodicBackupNotEnabledException"),
             new FabricValidationException("FabricValidationException"),
             new FabricTransportCallbackNotFoundException("FabricTransportCallbackNotFoundException"),
+            new FabricBackupNotFoundException("FabricBackupNotFoundException"),
+            new FabricSkipRestoreOperationException("FabricSkipRestoreOperationException"),
+            new FabricInsufficientMaxLoadCapacityException("FabricInsufficientMaxLoadCapacityException"),
         };
 
         /// <summary>

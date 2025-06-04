@@ -674,7 +674,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Actor {0} can be decorated with atmost one Reentrancy attribute.
+        ///   Looks up a localized string similar to Actor {0} can be decorated with at most one Reentrancy attribute.
         /// </summary>
         internal static string InvalidReentrancyConfiguration {
             get {
@@ -683,7 +683,7 @@ namespace Microsoft.ServiceFabric.Actors {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A reentrant call has been made from actor while there are other outstanding actor calls. Atmost one reentrant call is allowed at a time..
+        ///   Looks up a localized string similar to A reentrant call has been made from actor while there are other outstanding actor calls. At most one reentrant call is allowed at a time..
         /// </summary>
         internal static string InvalidReentrantCall {
             get {
