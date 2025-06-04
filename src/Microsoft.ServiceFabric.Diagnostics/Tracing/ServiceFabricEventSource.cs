@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Config;
+using Microsoft.ServiceFabric.Diagnostics.Tracing.Util;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tracing
@@ -26,6 +27,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         private readonly ReadOnlyDictionary<int, TraceEvent> eventDescriptors;
         private readonly TraceConfig configMgr;
         private readonly string eventSourceName;
+        private readonly IPlatformInformation platformInformation;
 
         /// <summary>
         /// Constructor which populates the events descriptor data for all events defined
@@ -37,8 +39,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         /// <summary>
         /// Constructor which populates the events descriptor data for all events defined
         /// </summary>
-        protected ServiceFabricEventSource(string configPackageName)
+        protected ServiceFabricEventSource(string configPackageName, IPlatformInformation platformInformation = null)
         {
+            this.platformInformation = platformInformation ?? PlatformInformation.Instance;
+
             Type eventSourceType = this.GetType();
 
             EventSourceAttribute eventSourceAttribute = (EventSourceAttribute)eventSourceType.GetCustomAttributes(typeof(EventSourceAttribute), true).SingleOrDefault();
@@ -135,7 +139,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
                 var hasId = false;
                 int typeFieldIndex = -1;
 #if DotNetCoreClr
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (platformInformation.IsLinuxPlatform())
                 {
                     var methodParams = eventMethod.GetParameters().ToList();
                     if (methodParams.Any())
@@ -235,7 +239,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             }
 #if DotNetCoreClr
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (platformInformation.IsLinuxPlatform())
             {
                 this.VariantWriteViaNative(eventId, 9, v0, v1, v2, v3, v4, v5, v6, v7, v8);
             }
@@ -248,7 +252,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         public void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
         {
 
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (!platformInformation.IsLinuxPlatform())
             {
                 throw new PlatformNotSupportedException(String.Format("VariantWriteViaNative is only supported on Linux. [eventId={0}]", eventId));
             }

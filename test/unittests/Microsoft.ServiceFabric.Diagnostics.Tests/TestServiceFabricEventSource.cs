@@ -1,26 +1,29 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics.Tracing;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
-using Microsoft.ServiceFabric.Diagnostics.Tracing.Config;
+using Microsoft.ServiceFabric.Diagnostics.Tracing.Util;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {    public class TestServiceFabricEventSource
     {
 #if DotNetCoreClr
+        public IPlatformInformation GetPlatformInformation(OSPlatform platform)
+        {
+            var mockPlatform = new Mock<IPlatformInformation>();
+            mockPlatform.Setup(x => x.IsLinuxPlatform()).Returns(platform==OSPlatform.Linux);
+
+            return mockPlatform.Object;
+        }
+
         [Fact]
         public void VariantWriteViaNative_OnNonLinux_ThrowsPlatformNotSupportedException()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return;
-            }
-
-            var eventSource = new TestEventSource();
+            var eventSource = new TestEventSource(GetPlatformInformation(OSPlatform.Windows));
             int eventId = 1;
             int argCount = 3;
             Variant v0 = "test";
@@ -36,12 +39,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
         [InlineData(3, true, -1)]
         public void Constructor_OnLinux_GeneratesEventDescriptorsCorrectly(int eventId, bool expectedHasId, int expectedTypeFieldIndex)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return;
-            }
-
-            var eventSource = new TestEventSource();
+            var eventSource = new TestEventSource(GetPlatformInformation(OSPlatform.Linux));
 
             var eventDescriptorsField = typeof(ServiceFabricEventSource).GetField("eventDescriptors", BindingFlags.NonPublic | BindingFlags.Instance);
             var eventDescriptors = (ReadOnlyDictionary<int, TraceEvent>)eventDescriptorsField.GetValue(eventSource);

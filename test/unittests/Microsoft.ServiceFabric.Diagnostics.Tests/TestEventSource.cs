@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Config;
+using Microsoft.ServiceFabric.Diagnostics.Tracing.Util;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Xunit;
 
@@ -29,6 +30,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
         public void EventWithIdOnly(string id, string message)
         {
             this.WriteEvent(3, id, message);
+        }
+
+        public TestEventSource(IPlatformInformation platformInformation)
+            : base("TestPackage", platformInformation ?? PlatformInformation.Instance)
+        {
         }
     }
 }
