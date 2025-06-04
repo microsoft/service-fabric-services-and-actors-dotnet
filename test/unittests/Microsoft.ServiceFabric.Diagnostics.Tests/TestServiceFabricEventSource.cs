@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {    public class TestServiceFabricEventSource
     {
 #if DotNetCoreClr
-        public IPlatformInformation GetPlatformInformation(OSPlatform platform)
+        private IPlatformInformation GetPlatformInformation(OSPlatform platform)
         {
             var mockPlatform = new Mock<IPlatformInformation>();
             mockPlatform.Setup(x => x.IsLinuxPlatform()).Returns(platform==OSPlatform.Linux);
