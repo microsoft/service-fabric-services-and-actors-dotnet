@@ -3,15 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Communication;
+
 namespace Microsoft.ServiceFabric.Actors
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Communication;
-
     internal class FabricActorExceptionKnownTypes
     {
 #pragma warning disable SA1401 // Fields should be private
