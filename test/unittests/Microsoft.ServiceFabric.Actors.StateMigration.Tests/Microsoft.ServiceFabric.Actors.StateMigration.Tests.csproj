@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
   <PropertyGroup>
     <ProjectGuid>{1BDC4681-FDBA-4E55-A247-5F779627A4D7}</ProjectGuid>
-    <AssemblyName>Microsoft.ServiceFabric.Actors.StateMigration.Tests</AssemblyName>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
+  <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" />

@@ -288,7 +288,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                     this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
 
-                    throw ex;
+                    throw;
                 }
             }
             else
