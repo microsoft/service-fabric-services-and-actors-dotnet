@@ -165,6 +165,61 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             return new ReadOnlyDictionary<int, TraceEvent>(eventDescriptors);
         }
 
+#if DotNetCoreClr
+
+        [NonEvent]
+        public void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
+        {
+
+            if (!platformInformation.IsLinuxPlatform())
+            {
+                throw new PlatformNotSupportedException(String.Format("VariantWriteViaNative is only supported on Linux. [eventId={0}]", eventId));
+            }
+
+            string text = string.Format(this.eventDescriptors[eventId].Message,
+                new object[] { v0.ToObject(), v1.ToObject(), v2.ToObject(), v3.ToObject(), v4.ToObject(), v5.ToObject(), v6.ToObject(), v7.ToObject(), v8.ToObject() }
+            );
+
+            string id = this.eventDescriptors[eventId].hasId && !string.IsNullOrWhiteSpace(v0.ConvertToString()) ? v0.ConvertToString() : eventId.ToString();
+            string type = this.eventDescriptors[eventId].EventName;
+            if (this.eventDescriptors[eventId].typeFieldIndex != -1)
+            {
+                string typeField = GetTypeFromIndex(this.eventDescriptors[eventId].typeFieldIndex, v0, v1, v2, v3, v4, v5, v6, v7, v8);
+                if (!string.IsNullOrWhiteSpace(typeField))
+                {
+                    type = typeField;
+                }
+            }
+
+            System.Fabric.Common.Tracing.TraceViaNative.WriteUnstructured(
+                this.eventSourceName,
+                type,
+                id,
+                (ushort)this.eventDescriptors[eventId].Level,
+                text);
+        }
+
+        [NonEvent]
+        private string GetTypeFromIndex(int index, Variant v0, Variant v1, Variant v2, Variant v3, Variant v4, Variant v5, Variant v6, Variant v7, Variant v8)
+        {
+            switch (index)
+            {
+                case 0: return v0.ConvertToString();
+                case 1: return v1.ConvertToString();
+                case 2: return v2.ConvertToString();
+                case 3: return v3.ConvertToString();
+                case 4: return v4.ConvertToString();
+                case 5: return v5.ConvertToString();
+                case 6: return v6.ConvertToString();
+                case 7: return v7.ConvertToString();
+                case 8: return v8.ConvertToString();
+            }
+
+            return null;
+        }
+
+#endif
+
         [NonEvent]
         unsafe void VariantWrite(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
         {
@@ -245,59 +300,5 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             }
 #endif
         }
-
-// Methods needed only on Linux, and are included only in NetCore build
-#if DotNetCoreClr
-        [NonEvent]
-        public void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
-        {
-
-            if (!platformInformation.IsLinuxPlatform())
-            {
-                throw new PlatformNotSupportedException(String.Format("VariantWriteViaNative is only supported on Linux. [eventId={0}]", eventId));
-            }
-
-            string text = string.Format(this.eventDescriptors[eventId].Message,
-                new object[] { v0.ToObject(), v1.ToObject(), v2.ToObject(), v3.ToObject(), v4.ToObject(), v5.ToObject(), v6.ToObject(), v7.ToObject(), v8.ToObject() }
-            );
-
-            string id = this.eventDescriptors[eventId].hasId && !string.IsNullOrWhiteSpace(v0.ConvertToString()) ? v0.ConvertToString() : eventId.ToString();
-            string type = this.eventDescriptors[eventId].EventName;
-            if (this.eventDescriptors[eventId].typeFieldIndex != -1)
-            {
-                string typeField = GetTypeFromIndex(this.eventDescriptors[eventId].typeFieldIndex, v0, v1, v2, v3, v4, v5, v6, v7, v8);
-                if (!string.IsNullOrWhiteSpace(typeField))
-                {
-                    type = typeField;
-                }
-            }
-
-            System.Fabric.Common.Tracing.TraceViaNative.WriteUnstructured(
-                this.eventSourceName,
-                type,
-                id,
-                (ushort)this.eventDescriptors[eventId].Level,
-                text);
-        }
-
-        [NonEvent]
-        private string GetTypeFromIndex(int index, Variant v0, Variant v1, Variant v2, Variant v3, Variant v4, Variant v5, Variant v6, Variant v7, Variant v8)
-        {
-            switch (index)
-            {
-                case 0: return v0.ConvertToString();
-                case 1: return v1.ConvertToString();
-                case 2: return v2.ConvertToString();
-                case 3: return v3.ConvertToString();
-                case 4: return v4.ConvertToString();
-                case 5: return v5.ConvertToString();
-                case 6: return v6.ConvertToString();
-                case 7: return v7.ConvertToString();
-                case 8: return v8.ConvertToString();
-            }
-
-            return null;
-        }
-#endif
     }
 }
