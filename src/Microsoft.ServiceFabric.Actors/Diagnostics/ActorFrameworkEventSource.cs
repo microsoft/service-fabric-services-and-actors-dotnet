@@ -6,7 +6,8 @@
 using System;
 using System.Diagnostics.Tracing;
 using System.Fabric;
-using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using System.Runtime.InteropServices;
+using Microsoft.ServiceFabric.Services;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
@@ -15,15 +16,23 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
-    [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR")]
-    sealed class ActorFrameworkEventSource : ServiceFabricEventSource
+    [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR", Guid = "0e1ec353-9f02-55d7-fbb8-f3857458acbd")]
+    internal sealed class ActorFrameworkEventSource : EventSource
     {
-        // Although the documentation claims it exists, EventKeywords.All does not
-        // seem to be defined in the assembly. So just use a constant with all possible
-        // bits set.
-        private const long AllKeywords = 0x7FFFFFFFFFFFFFFF;
+#if !NETFRAMEWORK // Remove #if once on net472+ where IsOSPlatform is available
+        static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
 
-        internal static ActorFrameworkEventSource Writer { get; } = new ActorFrameworkEventSource();
+        public ActorFrameworkEventSource()
+        {
+            if (isOSPlatform(OSPlatform.Linux))
+            {
+                var publisher = new UnstructuredTracePublisher();
+                publisher.EnableEvents(this, EventLevel.Informational);
+            }
+        }
+#endif
+
+        internal static ActorFrameworkEventSource Writer { get; private set; } = new ActorFrameworkEventSource();
 
         [NonEvent]
         internal void ReplicaChangeRoleToPrimary(ServiceContext serviceContext)
