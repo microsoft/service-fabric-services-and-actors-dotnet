@@ -6,7 +6,7 @@
 using System;
 using System.Diagnostics.Tracing;
 using System.Fabric;
-using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
@@ -15,10 +15,23 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
-    [EventSource(Name = "Microsoft-ServiceFabric-Services", LocalizationResources = "Microsoft.ServiceFabric.Services.SR")]
-    sealed class ServiceFrameworkEventSource : ServiceFabricEventSource
+    [EventSource(Name = "Microsoft-ServiceFabric-Services", LocalizationResources = "Microsoft.ServiceFabric.Services.SR", Guid = "13c2a97d-71da-5ab5-47cb-1497aec602e1")]
+    sealed class ServiceFrameworkEventSource : EventSource
     {
-        internal static readonly ServiceFrameworkEventSource Writer = new ServiceFrameworkEventSource();
+#if !NETFRAMEWORK // Remove #if once on net472+ where IsOSPlatform is available
+        static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
+
+        public ServiceFrameworkEventSource()
+        {
+            if (isOSPlatform(OSPlatform.Linux))
+            {
+                var publisher = new UnstructuredTracePublisher();
+                publisher.EnableEvents(this, EventLevel.Informational);
+            }
+        }
+#endif
+
+        internal static ServiceFrameworkEventSource Writer { get; private set; } = new ServiceFrameworkEventSource();
 
         [NonEvent]
         internal void StatefulRunAsyncInvocation(
