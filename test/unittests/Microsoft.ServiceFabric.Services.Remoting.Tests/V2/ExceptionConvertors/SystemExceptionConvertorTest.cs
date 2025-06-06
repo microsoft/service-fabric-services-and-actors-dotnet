@@ -104,6 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             new AbandonedMutexException("AbandonedMutexException"),
             new SemaphoreFullException("SemaphoreFullException"),
             new SynchronizationLockException("SynchronizationLockException"),
+            new TaskCanceledException("TaskCanceledException"),
             new ThreadInterruptedException("ThreadInterruptedException"),
             new ThreadStateException("ThreadStateException"),
             new TimeoutException("TimeoutException"),
