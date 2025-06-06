@@ -21,6 +21,13 @@
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <!-- Exclude AssemblyInfo.cs for netstandard builds -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="SR.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

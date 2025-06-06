@@ -16,6 +16,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
   </ItemGroup>
+  <!-- Exclude AssemblyInfo.cs for netstandard builds -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">
       <DesignTime>True</DesignTime>

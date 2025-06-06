@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
+  <!-- Exclude AssemblyInfo.cs for netstandard builds -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
 </Project>
