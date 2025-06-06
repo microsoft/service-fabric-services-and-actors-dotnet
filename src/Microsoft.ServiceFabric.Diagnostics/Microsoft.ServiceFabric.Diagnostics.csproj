@@ -11,4 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
 </Project>
