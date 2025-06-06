@@ -3,21 +3,35 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Diagnostics.Tracing;
+using System.Fabric;
+using System.Runtime.InteropServices;
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
-    using System;
-    using System.Diagnostics.Tracing;
-    using System.Fabric;
-
     // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
-    [EventSource(Name = "Microsoft-ServiceFabric-Services", LocalizationResources = "Microsoft.ServiceFabric.Services.SR")]
-    internal sealed class ServiceFrameworkEventSource : EventSource
+    [EventSource(Name = "Microsoft-ServiceFabric-Services", LocalizationResources = "Microsoft.ServiceFabric.Services.SR", Guid = "13c2a97d-71da-5ab5-47cb-1497aec602e1")]
+    sealed class ServiceFrameworkEventSource : EventSource
     {
-        internal static readonly ServiceFrameworkEventSource Writer = new ServiceFrameworkEventSource();
+#if !NETFRAMEWORK // Remove #if once on net472+ where IsOSPlatform is available
+        static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
+
+        public ServiceFrameworkEventSource()
+        {
+            if (isOSPlatform(OSPlatform.Linux))
+            {
+                var publisher = new UnstructuredTracePublisher();
+                publisher.EnableEvents(this, EventLevel.Informational);
+            }
+        }
+#endif
+
+        internal static ServiceFrameworkEventSource Writer { get; private set; } = new ServiceFrameworkEventSource();
 
         [NonEvent]
         internal void StatefulRunAsyncInvocation(
