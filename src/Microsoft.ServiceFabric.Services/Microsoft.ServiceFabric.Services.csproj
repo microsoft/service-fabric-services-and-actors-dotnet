@@ -14,13 +14,10 @@
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
-  </ItemGroup>
-  <!-- Exclude AssemblyInfo.cs for netstandard builds -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <Compile Remove="Properties\AssemblyInfo.cs" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />    
   </ItemGroup>
   <ItemGroup>
+    <Compile Condition="'$(TargetFramework)' == 'netstandard2.0'" Remove="Properties\AssemblyInfo.cs" />
     <Compile Update="SR.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
