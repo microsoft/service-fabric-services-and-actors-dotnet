@@ -8,7 +8,7 @@
       <Description>This package provides Service Fabric Actors and Services libraries for consumption by other Service Fabric repos.</Description>
       <Summary>This package provides Service Fabric Actors and Services libraries for consumption by other Service Fabric repos.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric</Tags>
-      <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+      <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     </PropertyGroup>
 
     <Import Project="$(NuProjPath)\NuProj.props" />
