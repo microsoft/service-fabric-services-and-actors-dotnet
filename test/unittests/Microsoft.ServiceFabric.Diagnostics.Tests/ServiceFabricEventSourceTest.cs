@@ -3,30 +3,62 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
-using Microsoft.ServiceFabric.Diagnostics.Tracing.Util;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
+using Inspector;
+
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {    
     public abstract class ServiceFabricEventSourceTest
     {
 #if DotNetCoreClr
-        private IPlatformInformation GetPlatformInformation(OSPlatform platform)
+        public sealed class Class : ServiceFabricEventSourceTest
         {
-            return Mock.Of<IPlatformInformation>(x => x.IsLinuxPlatform() == (platform == OSPlatform.Linux));
+            [Fact]
+            public void UsesRuntimeInformationIsOSPlatformToDetectLinux()
+            {
+                Func<OSPlatform, bool> expected = typeof(RuntimeInformation).Method<Func<OSPlatform, bool>>(nameof(RuntimeInformation.IsOSPlatform));
+                Func<OSPlatform, bool> actual = typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>();
+                Assert.Equal(expected, actual);
+            }
         }
 
-        public sealed class Constructor : ServiceFabricEventSourceTest
+
+        public sealed class LinuxSpecificLogic : ServiceFabricEventSourceTest, IDisposable
         {
+
+            readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
+
+            public LinuxSpecificLogic()
+            {
+                // Enable mocking of OSPlatform detection
+                typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(isOsPlatform);
+
+                // Dispose Writer singleton to allow event enablement to work on instances created by the tests
+                var writer = typeof(TestEventSource).Property<TestEventSource>();
+                writer.Value.Dispose();
+            }
+
+            public void Dispose()
+            {
+                // Restore OSPlatform detection
+                typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
+
+                // Restore Writer singleton
+                typeof(TestEventSource).Property<TestEventSource>().Set(new TestEventSource());
+            }
+
             [Theory]
             [InlineData(1, true, 1)]
             [InlineData(2, true, 2)]
             [InlineData(3, true, -1)]
             public void Constructor_OnLinux_GeneratesEventDescriptorsCorrectly(int eventId, bool expectedHasId, int expectedTypeFieldIndex)
             {
-                var eventSource = new TestEventSource(GetPlatformInformation(OSPlatform.Linux));
+                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(true);
+
+                var eventSource = new TestEventSource();
 
                 var eventDescriptorsField = typeof(ServiceFabricEventSource).GetField("eventDescriptors", BindingFlags.NonPublic | BindingFlags.Instance);
                 var eventDescriptors = (ReadOnlyDictionary<int, TraceEvent>)eventDescriptorsField.GetValue(eventSource);
@@ -36,14 +68,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 Assert.Equal(expectedHasId, traceEvent.hasId);
                 Assert.Equal(expectedTypeFieldIndex, traceEvent.typeFieldIndex);
             }
-        }
 
-        public sealed class VariantVriteViaNative : ServiceFabricEventSourceTest
-        {
             [Fact]
             public void VariantWriteViaNative_OnNonLinux_ThrowsPlatformNotSupportedException()
             {
-                var eventSource = new TestEventSource(GetPlatformInformation(OSPlatform.Windows));
+                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(false);
+
+                var eventSource = new TestEventSource();
                 int eventId = 1;
                 int argCount = 3;
                 Variant v0 = "test";

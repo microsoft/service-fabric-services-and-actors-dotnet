@@ -1,12 +1,13 @@
 using System.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
-using Microsoft.ServiceFabric.Diagnostics.Tracing.Util;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {      
     [EventSource(Name = "TestEventSource")]
     internal class TestEventSource : ServiceFabricEventSource
     {
+        internal static TestEventSource Writer { get; private set; } = new TestEventSource();
+
         [Event(1, Message = "Event with id and type: {0}, {1}, {2}", Level = EventLevel.Informational)]
         public void EventWithIdAndType(string id, string type, string message)
         {
@@ -25,8 +26,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
             this.WriteEvent(3, id, message);
         }
 
-        public TestEventSource(IPlatformInformation platformInformation)
-            : base("TestPackage", platformInformation)
+        public TestEventSource()
+            : base("TestPackage")
         {
         }
     }
