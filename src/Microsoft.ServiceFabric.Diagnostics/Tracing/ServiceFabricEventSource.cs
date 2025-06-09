@@ -168,7 +168,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 #if DotNetCoreClr
 
         [NonEvent]
-        private void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
+        public void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
         {
 
             if (!IsLinuxPlatform())
