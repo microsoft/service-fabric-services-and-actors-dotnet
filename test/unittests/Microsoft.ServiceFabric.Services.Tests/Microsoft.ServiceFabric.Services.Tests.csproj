@@ -1,12 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
   <PropertyGroup>
     <ProjectGuid>{ECB3825D-B309-4C76-A20D-76544459F611}</ProjectGuid>
-    <AssemblyName>Microsoft.ServiceFabric.Services.Tests</AssemblyName>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
+  <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Fuzzy" />

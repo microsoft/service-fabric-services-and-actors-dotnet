@@ -1,16 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Condition="'$(TargetFramework)' == 'netstandard2.0'" Project="..\..\properties\service_fabric_managed_netstandard.props" />
-  <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\properties\service_fabric_managed_netframework.props" />
   <PropertyGroup>
     <ProjectGuid>{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}</ProjectGuid>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
-    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn>1591</NoWarn>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>    
   </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" />
