@@ -38,8 +38,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         {
             if(IsLinuxPlatform())
             {
+#if !NETFRAMEWORK
                 var publisher = new UnstructuredTracePublisher();
                 publisher.EnableEvents(this, EventLevel.Informational);
+#endif
             }
         }
 

@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics.Tracing;
 using System.Fabric;
 using System.Runtime.InteropServices;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {

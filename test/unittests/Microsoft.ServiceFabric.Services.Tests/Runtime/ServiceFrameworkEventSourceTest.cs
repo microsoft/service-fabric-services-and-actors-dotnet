@@ -6,6 +6,7 @@ using Inspector;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
