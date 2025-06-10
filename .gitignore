@@ -11,6 +11,7 @@
 
 # MSBuild's log file
 msbuild.log
+*.binlog
 
 # Build.exe
 *.err

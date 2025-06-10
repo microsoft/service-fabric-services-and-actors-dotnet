@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Config;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 
@@ -26,6 +27,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         private readonly TraceConfig configMgr;
         private readonly string eventSourceName;
 
+#if !NETFRAMEWORK
+        protected static Func<OSPlatform, bool> IsOSPlatform = RuntimeInformation.IsOSPlatform;
+#endif
+        
         /// <summary>
         /// Constructor which populates the events descriptor data for all events defined
         /// </summary>
@@ -133,12 +138,15 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 
                 var hasId = false;
                 int typeFieldIndex = -1;
-#if DotNetCoreClrLinux
-                var methodParams = eventMethod.GetParameters().ToList();
-                if (methodParams.Any())
+#if DotNetCoreClr
+                if (IsLinuxPlatform())
                 {
-                    typeFieldIndex = methodParams.FindIndex(e => e.Name == "type");
-                    hasId = methodParams[0].Name == "id";
+                    var methodParams = eventMethod.GetParameters().ToList();
+                    if (methodParams.Any())
+                    {
+                        typeFieldIndex = methodParams.FindIndex(e => e.Name == "type");
+                        hasId = methodParams[0].Name == "id";
+                    }
                 }
 #endif
 
@@ -157,11 +165,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             return new ReadOnlyDictionary<int, TraceEvent>(eventDescriptors);
         }
 
-#if DotNetCoreClrLinux
+#if DotNetCoreClr
 
         [NonEvent]
         public void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
         {
+
+            if (!IsLinuxPlatform())
+            {
+                throw new PlatformNotSupportedException(String.Format("VariantWriteViaNative is only supported on Linux. [eventId={0}]", eventId));
+            }
+
             string text = string.Format(this.eventDescriptors[eventId].Message,
                 new object[] { v0.ToObject(), v1.ToObject(), v2.ToObject(), v3.ToObject(), v4.ToObject(), v5.ToObject(), v6.ToObject(), v7.ToObject(), v8.ToObject() }
             );
@@ -188,17 +202,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         [NonEvent]
         private string GetTypeFromIndex(int index, Variant v0, Variant v1, Variant v2, Variant v3, Variant v4, Variant v5, Variant v6, Variant v7, Variant v8)
         {
-            switch(index)
+            switch (index)
             {
-                case 0:  return v0.ConvertToString();
-                case 1:  return v1.ConvertToString();
-                case 2:  return v2.ConvertToString();
-                case 3:  return v3.ConvertToString();
-                case 4:  return v4.ConvertToString();
-                case 5:  return v5.ConvertToString();
-                case 6:  return v6.ConvertToString();
-                case 7:  return v7.ConvertToString();
-                case 8:  return v8.ConvertToString();
+                case 0: return v0.ConvertToString();
+                case 1: return v1.ConvertToString();
+                case 2: return v2.ConvertToString();
+                case 3: return v3.ConvertToString();
+                case 4: return v4.ConvertToString();
+                case 5: return v5.ConvertToString();
+                case 6: return v6.ConvertToString();
+                case 7: return v7.ConvertToString();
+                case 8: return v8.ConvertToString();
             }
 
             return null;
@@ -278,8 +292,21 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
                     }
                 }
             }
-#if DotNetCoreClrLinux
-            this.VariantWriteViaNative(eventId, 9, v0, v1, v2, v3, v4, v5, v6, v7, v8);
+#if DotNetCoreClr
+
+            if (IsLinuxPlatform())
+            {
+                this.VariantWriteViaNative(eventId, 9, v0, v1, v2, v3, v4, v5, v6, v7, v8);
+            }
+#endif
+        }
+
+        private bool IsLinuxPlatform()
+        {
+#if !NETFRAMEWORK
+            return IsOSPlatform(OSPlatform.Linux);
+#else
+            return false;  
 #endif
         }
     }
