@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+        <PackageVersion Include="Fuzzy" Version="0.1.18" />
         <PackageVersion Include="Inspector" Version="0.1.30" />
         <PackageVersion Include="Microsoft.AspNetCore.Diagnostics" Version="2.1.1" />
         <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
