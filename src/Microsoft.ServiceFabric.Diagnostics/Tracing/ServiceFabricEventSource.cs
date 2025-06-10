@@ -138,7 +138,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 
                 var hasId = false;
                 int typeFieldIndex = -1;
-#if DotNetCoreClr
+#if NET
                 if (IsLinuxPlatform())
                 {
                     var methodParams = eventMethod.GetParameters().ToList();
@@ -165,7 +165,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             return new ReadOnlyDictionary<int, TraceEvent>(eventDescriptors);
         }
 
-#if DotNetCoreClr
+#if NET
 
         [NonEvent]
         public void VariantWriteViaNative(int eventId, int argCount, Variant v0 = default, Variant v1 = default, Variant v2 = default, Variant v3 = default, Variant v4 = default, Variant v5 = default, Variant v6 = default, Variant v7 = default, Variant v8 = default)
@@ -292,7 +292,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
                     }
                 }
             }
-#if DotNetCoreClr
+#if NET
 
             if (IsLinuxPlatform())
             {

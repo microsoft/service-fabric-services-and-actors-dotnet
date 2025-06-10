@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Services
 
         static TelemetryConstants()
         {
-#if DotNetCoreClr
+#if NET
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
             {
                 OsType = TelemetryConstants.ClusterOSWindows;

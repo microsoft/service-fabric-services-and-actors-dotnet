@@ -5,7 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Client
 {
- #if DotNetCoreClr
+ #if NET
     using System.Threading;
 
     internal static class ClientRequestTracker

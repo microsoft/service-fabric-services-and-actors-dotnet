@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
             Type remotingRequestType,
             IEnumerable<Type> knownTypes)
         {
-#if DotNetCoreClr
+#if NET
             var serializer =
                 base.CreateRemotingRequestMessageBodyDataContractSerializer(remotingRequestType, knownTypes);
 
@@ -67,7 +67,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
             Type remotingResponseType,
             IEnumerable<Type> knownTypes)
         {
-#if DotNetCoreClr
+#if NET
             var serializer =
                 base.CreateRemotingResponseMessageBodyDataContractSerializer(remotingResponseType, knownTypes);
             serializer.SetSerializationSurrogateProvider(new ActorDataContractSurrogate());

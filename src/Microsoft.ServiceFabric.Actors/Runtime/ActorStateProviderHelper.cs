@@ -99,7 +99,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new DataContractSerializerSettings
                 {
                     MaxItemsInObjectGraph = int.MaxValue,
-#if !DotNetCoreClr
+#if !NET
                     DataContractSurrogate = ActorDataContractSurrogate.Instance,
 #endif
                     KnownTypes = new[]
@@ -107,7 +107,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         typeof(ActorReference),
                     },
                 });
-#if DotNetCoreClr
+#if NET
             dataContractSerializer.SetSerializationSurrogateProvider(ActorDataContractSurrogate.Instance);
 #endif
             return dataContractSerializer;
@@ -225,7 +225,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IActorStateProvider stateProvider = new NullActorStateProvider();
             if (actorTypeInfo.StatePersistence.Equals(StatePersistence.Persisted))
             {
-#if DotNetCoreClr
+#if NET
                 if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                 {
                     stateProvider = new KvsActorStateProvider();
@@ -321,7 +321,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     if (ex.ErrorCode == FabricErrorCode.DatabaseMigrationInProgress && this.owner is KvsActorStateProvider)
                     {
                         // Do not retry if KVS is not accepting writes.
-                        throw ex;
+                        throw;
                     }
 
                     useLinearBackoff = (ex.ErrorCode == FabricErrorCode.ReplicationQueueFull);

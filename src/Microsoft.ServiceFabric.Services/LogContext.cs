@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Services
 {
     using System;
-#if DotNetCoreClr
+#if NET
     using System.Threading;
 
     internal class LogContext
