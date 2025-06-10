@@ -36,6 +36,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         /// </summary>
         protected ServiceFabricEventSource() : this(DefaultPackageName)
         {
+            if(IsLinuxPlatform())
+            {
+                var publisher = new UnstructuredTracePublisher();
+                publisher.EnableEvents(this, EventLevel.Informational);
+            }
         }
 
         /// <summary>
