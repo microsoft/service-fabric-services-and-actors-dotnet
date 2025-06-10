@@ -18,21 +18,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
     [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR", Guid = "0e1ec353-9f02-55d7-fbb8-f3857458acbd")]
-    internal sealed class ActorFrameworkEventSource : EventSource
+    internal sealed class ActorFrameworkEventSource : ServiceFabricEventSource
     {
-#if !NETFRAMEWORK // Remove #if once on net472+ where IsOSPlatform is available
-        static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
-
-        public ActorFrameworkEventSource()
-        {
-            if (isOSPlatform(OSPlatform.Linux))
-            {
-                var publisher = new UnstructuredTracePublisher();
-                publisher.EnableEvents(this, EventLevel.Informational);
-            }
-        }
-#endif
-
         internal static ActorFrameworkEventSource Writer { get; private set; } = new ActorFrameworkEventSource();
 
         [NonEvent]

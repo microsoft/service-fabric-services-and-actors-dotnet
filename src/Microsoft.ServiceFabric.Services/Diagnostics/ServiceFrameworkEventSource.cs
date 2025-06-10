@@ -9,7 +9,7 @@ using System.Fabric;
 using System.Runtime.InteropServices;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
-namespace Microsoft.ServiceFabric.Services.Runtime
+namespace Microsoft.ServiceFabric.Services.Diagnostics
 {
     // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
@@ -17,21 +17,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
     [EventSource(Name = "Microsoft-ServiceFabric-Services", LocalizationResources = "Microsoft.ServiceFabric.Services.SR", Guid = "13c2a97d-71da-5ab5-47cb-1497aec602e1")]
-    sealed class ServiceFrameworkEventSource : EventSource
+    sealed class ServiceFrameworkEventSource : ServiceFabricEventSource
     {
-#if !NETFRAMEWORK // Remove #if once on net472+ where IsOSPlatform is available
-        static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
-
-        public ServiceFrameworkEventSource()
-        {
-            if (isOSPlatform(OSPlatform.Linux))
-            {
-                var publisher = new UnstructuredTracePublisher();
-                publisher.EnableEvents(this, EventLevel.Informational);
-            }
-        }
-#endif
-
         internal static ServiceFrameworkEventSource Writer { get; private set; } = new ServiceFrameworkEventSource();
 
         [NonEvent]

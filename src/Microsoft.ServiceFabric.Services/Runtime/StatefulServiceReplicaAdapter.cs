@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
+    using Microsoft.ServiceFabric.Services.Diagnostics;
 
     internal class StatefulServiceReplicaAdapter : IStatefulServiceReplica, IInternalStatefulServiceReplica
     {

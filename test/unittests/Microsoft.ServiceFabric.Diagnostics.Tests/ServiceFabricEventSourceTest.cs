@@ -1,3 +1,5 @@
+#if DotNetCoreClr
+
 using System;
 using System.Collections.ObjectModel;
 using System.Reflection;
@@ -51,3 +53,4 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
         }
     }
 }
+#endif
