@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Runtime
 {
     internal static class ActorServiceRemotingListener
     {
-#if !DotNetCoreClr
+#if !NET
         public static ICommunicationListener CreateActorServiceRemotingListener(
             ActorService actorService)
         {

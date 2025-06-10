@@ -5,7 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Remoting
 {
-#if DotNetCoreClr
+#if NET
     using System.Threading;
 
     internal static class ActorLogicalCallContext

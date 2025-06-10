@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
 
         public static AssemblyBuilder CreateAssemblyBuilder(string assemblyName, bool saveOnDisk = false)
         {
-#if !DotNetCoreClr
+#if !NET
             return AssemblyBuilder.DefineDynamicAssembly(
                 new AssemblyName(assemblyName),
                 saveOnDisk ? AssemblyBuilderAccess.RunAndSave : AssemblyBuilderAccess.RunAndCollect);
@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             string moduleName,
             bool saveOnDisk = false)
         {
-#if !DotNetCoreClr
+#if !NET
             return saveOnDisk ?
                 assemblyBuilder.DefineDynamicModule(moduleName, string.Concat(moduleName, ".dll"), true)
                 : assemblyBuilder.DefineDynamicModule(moduleName);

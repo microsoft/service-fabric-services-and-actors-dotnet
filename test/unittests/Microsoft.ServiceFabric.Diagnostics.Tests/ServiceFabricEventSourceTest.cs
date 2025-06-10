@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {    
     public abstract class ServiceFabricEventSourceTest
     {
-#if DotNetCoreClr
+#if NET
         public sealed class Class : ServiceFabricEventSourceTest
         {
             [Fact]

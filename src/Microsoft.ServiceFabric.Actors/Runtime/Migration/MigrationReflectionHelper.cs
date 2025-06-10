@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
                 {
                     Name = assemblyName,
                     Version = currentAssembly.GetName().Version,
-#if !DotNetCoreClr
+#if !NET
                     CultureInfo = currentAssembly.GetName().CultureInfo,
 #endif
                     ProcessorArchitecture = currentAssembly.GetName().ProcessorArchitecture,
