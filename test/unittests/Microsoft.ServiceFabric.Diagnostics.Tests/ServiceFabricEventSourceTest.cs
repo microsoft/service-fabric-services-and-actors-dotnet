@@ -1,5 +1,3 @@
-#if DotNetCoreClr
-
 using System;
 using System.Collections.ObjectModel;
 using System.Reflection;
@@ -9,10 +7,14 @@ using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
 using Inspector;
+using System.Diagnostics.Tracing;
+using System.IO;
+using Xunit.Abstractions;
 
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
-{    
+{
+#if DotNetCoreClr
     public abstract class ServiceFabricEventSourceTest
     {
         public sealed class Class : ServiceFabricEventSourceTest
@@ -27,12 +29,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
         }
 
 
-        public sealed class LinuxSpecificLogic : ServiceFabricEventSourceTest, IDisposable
+        public sealed class Constructor : ServiceFabricEventSourceTest, IDisposable
         {
-
             readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
 
-            public LinuxSpecificLogic()
+            public Constructor()
             {
                 // Enable mocking of OSPlatform detection
                 typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(isOsPlatform);
@@ -50,7 +51,49 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 // Restore Writer singleton
                 typeof(TestEventSource).Property<TestEventSource>().Set(new TestEventSource());
             }
+
+            [Fact]
+            public void EnablesUnstructuredEventPublishingOnLinux()
+            {
+                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(true);
+
+                using var sut = new TestEventSource();
+
+                Assert.True(sut.IsEnabled(EventLevel.Informational, EventKeywords.None)); // None = no filtering
+                EventListener listener = sut.Field("m_Dispatchers").Value.Field<EventListener>();
+                Assert.IsType<UnstructuredTracePublisher>(listener);
+            }
+
+            [Fact]
+            public void DoesntEnableUnstructuredEventPublishingOnWindows()
+            {
+                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(false);
+
+                using var sut = new TestEventSource();
+
+                Assert.False(sut.IsEnabled());
+            }
+        }
+
+        public sealed class Manifest : ServiceFabricEventSourceTest
+        {
+            readonly ITestOutputHelper output;
+
+            public Manifest(ITestOutputHelper output) => this.output = output;
+
+            [Fact]
+            public void CanBeSavedForRegistrationWithExternalTools()
+            {
+                using var sut = new TestEventSource();
+
+                string manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
+
+                string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
+                File.WriteAllText(manifestFile, manifest);
+                output.WriteLine("To register generated manifest for ETL tools, run");
+                output.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
+            }
         }
     }
-}
 #endif
+}
