@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         private readonly string eventSourceName;
 
 #if !NETFRAMEWORK
-        protected static Func<OSPlatform, bool> IsOSPlatform = RuntimeInformation.IsOSPlatform;
+        protected static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
 #endif
         
         /// <summary>
@@ -233,7 +233,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         private bool IsLinuxPlatform()
         {
 #if !NETFRAMEWORK
-            return IsOSPlatform(OSPlatform.Linux);
+            return isOSPlatform(OSPlatform.Linux);
 #else
             return false;  
 #endif

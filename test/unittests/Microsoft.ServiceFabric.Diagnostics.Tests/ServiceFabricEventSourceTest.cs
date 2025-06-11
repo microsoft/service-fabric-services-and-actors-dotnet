@@ -10,6 +10,8 @@ using Inspector;
 using System.Diagnostics.Tracing;
 using System.IO;
 using Xunit.Abstractions;
+using System.Diagnostics.Eventing.Reader;
+using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
@@ -72,6 +74,23 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 using var sut = new TestEventSource();
 
                 Assert.False(sut.IsEnabled());
+            }
+
+            [Theory]
+            [InlineData(1, "EventWithIdAndType", "Event with id and type: {0}, {1}, {2}", EventLevel.Informational)]
+            [InlineData(2, "EventWithIdOnly", "Event with id only: {0}, {1}", EventLevel.Warning)]
+            public void DoesGeneratesEventDescriptorsCorrectly(int eventId, string name, string message, EventLevel eventLevel)
+            {
+                var eventSource = new TestEventSource();
+
+                var eventDescriptorsField = typeof(ServiceFabricEventSource).GetField("eventDescriptors", BindingFlags.NonPublic | BindingFlags.Instance);
+                var eventDescriptors = (ReadOnlyDictionary<int, TraceEvent>)eventDescriptorsField.GetValue(eventSource);
+
+                Assert.True(eventDescriptors.ContainsKey(eventId));
+                var traceEvent = eventDescriptors[eventId];
+                Assert.Equal(name, traceEvent.EventName);
+                Assert.Equal(eventLevel, traceEvent.Level);
+                Assert.Equal(message, traceEvent.Message);
             }
         }
 
