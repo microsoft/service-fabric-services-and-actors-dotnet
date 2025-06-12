@@ -12,7 +12,6 @@ using System.Text;
 using Xunit;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
-
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {
     public abstract class UnstructuredTracePublisherTest
