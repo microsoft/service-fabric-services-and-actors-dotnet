@@ -90,9 +90,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             {
                 using var sut = new ServiceFrameworkEventSource();
 
-                var manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
+                string manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
 
-                var manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
+                string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
                 File.WriteAllText(manifestFile, manifest);
                 output.WriteLine("To register generated manifest for ETL tools, run");
                 output.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
