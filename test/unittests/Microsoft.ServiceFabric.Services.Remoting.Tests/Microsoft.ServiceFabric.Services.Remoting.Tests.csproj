@@ -5,14 +5,15 @@
     <ProjectGuid>{AE4034AC-27BC-43B8-9176-068B4794E25E}</ProjectGuid>
     <AssemblyName>Microsoft.ServiceFabric.Services.Remoting.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
-   <TargetFramework>net8.0</TargetFramework>
-   <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.9.0" />
     <PackageReference Include="Moq" Version="4.13.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="9.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
