@@ -5,7 +5,7 @@ using System.Fabric.Common.Tracing;
 using System.Globalization;
 using System.Linq;
 
-namespace Microsoft.ServiceFabric.Services
+namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
     /// <summary>
     /// Signature of the <see cref="TraceViaNative.WriteUnstructured" /> method used by the tests

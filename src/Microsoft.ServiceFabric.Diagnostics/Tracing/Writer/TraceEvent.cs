@@ -16,19 +16,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Writer
         private readonly TraceConfig configMgr;
         private readonly string message;
         private bool filterState;
-#if DotNetCoreClr
-        internal bool hasId;
-        internal int typeFieldIndex;
-#endif
 
         internal TraceEvent(
             string eventName,
             EventLevel level,
             EventKeywords keywords,
             string message,
-            TraceConfig configMgr,
-            bool hasId,
-            int typeFieldIndex)
+            TraceConfig configMgr)
         {
             this.eventName = eventName;
             this.level = level;
@@ -37,10 +31,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Writer
             this.message = message;
             this.UpdateSinkEnabledStatus();
             configMgr.OnFilterUpdate += this.UpdateSinkEnabledStatus;
-#if DotNetCoreClr
-            this.hasId = hasId;
-            this.typeFieldIndex = typeFieldIndex;
-#endif
         }
 
         public string Message

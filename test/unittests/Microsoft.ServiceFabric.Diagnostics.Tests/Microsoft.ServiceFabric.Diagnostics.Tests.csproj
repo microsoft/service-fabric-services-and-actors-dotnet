@@ -14,6 +14,7 @@
     <PackageReference Include="Moq" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Inspector" />
+    <PackageReference Include="Fuzzy" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
