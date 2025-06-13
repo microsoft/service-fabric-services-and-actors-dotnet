@@ -11,9 +11,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Diagnostics;
 
     internal class StatelessServiceInstanceAdapter : IStatelessServiceInstance
     {

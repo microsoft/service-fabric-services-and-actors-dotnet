@@ -8,7 +8,7 @@ using System.Diagnostics.Tracing;
 using System.Fabric;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
-namespace Microsoft.ServiceFabric.Services.Diagnostics
+namespace Microsoft.ServiceFabric.Services
 {
     // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
         internal void StatefulRunAsyncInvocation(
             StatefulServiceContext serviceContext)
         {
-            this.StatefulRunAsyncInvocation(
+            StatefulRunAsyncInvocation(
                     serviceContext.CodePackageActivationContext.ApplicationTypeName,
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.ServiceTypeName,
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             StatefulServiceContext serviceContext,
             TimeSpan slowCancellationTimeMillis)
         {
-            this.StatefulRunAsyncCancellation(
+            StatefulRunAsyncCancellation(
                     serviceContext.CodePackageActivationContext.ApplicationTypeName,
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.ServiceTypeName,
@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             StatefulServiceContext serviceContext,
             bool wasCanceled)
         {
-            this.StatefulRunAsyncCompletion(
+            StatefulRunAsyncCompletion(
                     serviceContext.CodePackageActivationContext.ApplicationTypeName,
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.ServiceTypeName,
@@ -69,7 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             TimeSpan actualCancellationTimeMillis,
             TimeSpan slowCancellationTimeMillis)
         {
-            this.StatefulRunAsyncSlowCancellation(
+            StatefulRunAsyncSlowCancellation(
                     serviceContext.CodePackageActivationContext.ApplicationTypeName,
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.ServiceTypeName,
@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             bool wasCanceled,
             Exception exception)
         {
-            this.StatefulRunAsyncFailure(
+            StatefulRunAsyncFailure(
                 serviceContext.CodePackageActivationContext.ApplicationTypeName,
                 serviceContext.CodePackageActivationContext.ApplicationName,
                 serviceContext.ServiceTypeName,
@@ -101,7 +101,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
         internal void StatelessRunAsyncInvocation(
             StatelessServiceContext serviceContext)
         {
-            this.StatelessRunAsyncInvocation(
+            StatelessRunAsyncInvocation(
                 serviceContext.CodePackageActivationContext.ApplicationTypeName,
                 serviceContext.CodePackageActivationContext.ApplicationName,
                 serviceContext.ServiceTypeName,
@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             StatelessServiceContext serviceContext,
             TimeSpan slowCancellationTimeMillis)
         {
-            this.StatelessRunAsyncCancellation(
+            StatelessRunAsyncCancellation(
                 serviceContext.CodePackageActivationContext.ApplicationTypeName,
                 serviceContext.CodePackageActivationContext.ApplicationName,
                 serviceContext.ServiceTypeName,
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             StatelessServiceContext serviceContext,
             bool wasCanceled)
         {
-            this.StatelessRunAsyncCompletion(
+            StatelessRunAsyncCompletion(
                 serviceContext.CodePackageActivationContext.ApplicationTypeName,
                 serviceContext.CodePackageActivationContext.ApplicationName,
                 serviceContext.ServiceTypeName,
@@ -146,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             TimeSpan actualCancellationTimeMillis,
             TimeSpan slowCancellationTimeMillis)
         {
-            this.StatelessRunAsyncSlowCancellation(
+            StatelessRunAsyncSlowCancellation(
                 serviceContext.CodePackageActivationContext.ApplicationTypeName,
                 serviceContext.CodePackageActivationContext.ApplicationName,
                 serviceContext.ServiceTypeName,
@@ -163,7 +163,7 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             bool wasCanceled,
             Exception exception)
         {
-            this.StatelessRunAsyncFailure(
+            StatelessRunAsyncFailure(
                 serviceContext.CodePackageActivationContext.ApplicationTypeName,
                 serviceContext.CodePackageActivationContext.ApplicationName,
                 serviceContext.ServiceTypeName,
@@ -183,9 +183,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             string partitionId,
             long replicaId)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     1,
                     applicationTypeName,
                     applicationName,
@@ -206,9 +206,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             long replicaId,
             double slowCancellationTimeMillis)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     2,
                     applicationTypeName,
                     applicationName,
@@ -230,9 +230,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             long replicaId,
             bool wasCanceled)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     3,
                     applicationTypeName,
                     applicationName,
@@ -255,9 +255,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             double actualCancellationTimeMillis,
             double slowCancellationTimeMillis)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     4,
                     applicationTypeName,
                     applicationName,
@@ -281,9 +281,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             bool wasCanceled,
             string exception)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     5,
                     applicationTypeName,
                     applicationName,
@@ -305,9 +305,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             string partitionId,
             long instanceId)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     6,
                     applicationTypeName,
                     applicationName,
@@ -328,9 +328,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             long instanceId,
             double slowCancellationTimeMillis)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     7,
                     applicationTypeName,
                     applicationName,
@@ -352,9 +352,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             long instanceId,
             bool wasCanceled)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     8,
                     applicationTypeName,
                     applicationName,
@@ -377,9 +377,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             double actualCancellationTimeMillis,
             double slowCancellationTimeMillis)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     9,
                     applicationTypeName,
                     applicationName,
@@ -403,9 +403,9 @@ namespace Microsoft.ServiceFabric.Services.Diagnostics
             bool wasCanceled,
             string exception)
         {
-            if (this.IsEnabled())
+            if (IsEnabled())
             {
-                this.WriteEvent(
+                WriteEvent(
                     10,
                     applicationTypeName,
                     applicationName,
