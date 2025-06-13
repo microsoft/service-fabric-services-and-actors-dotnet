@@ -30,19 +30,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 #if !NETFRAMEWORK
         protected static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
 #endif
-        
         /// <summary>
         /// Constructor which populates the events descriptor data for all events defined
         /// </summary>
         protected ServiceFabricEventSource() : this(DefaultPackageName)
         {
-            if(IsLinuxPlatform())
-            {
-#if !NETFRAMEWORK
-                var publisher = new UnstructuredTracePublisher();
-                publisher.EnableEvents(this, EventLevel.Informational);
-#endif
-            }
         }
 
         /// <summary>
@@ -50,6 +42,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         /// </summary>
         protected ServiceFabricEventSource(string configPackageName)
         {
+#if !NETFRAMEWORK
+            if (isOSPlatform(OSPlatform.Linux))
+            {
+                var publisher = new UnstructuredTracePublisher();
+                publisher.EnableEvents(this, EventLevel.Informational);
+            }
+#endif
             Type eventSourceType = this.GetType();
 
             EventSourceAttribute eventSourceAttribute = (EventSourceAttribute)eventSourceType.GetCustomAttributes(typeof(EventSourceAttribute), true).SingleOrDefault();
@@ -228,15 +227,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
                     }
                 }
             }
-        }
-
-        private bool IsLinuxPlatform()
-        {
-#if !NETFRAMEWORK
-            return isOSPlatform(OSPlatform.Linux);
-#else
-            return false;  
-#endif
         }
     }
 }
