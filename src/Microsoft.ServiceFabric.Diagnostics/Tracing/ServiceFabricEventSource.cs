@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             if (isOSPlatform(OSPlatform.Linux))
             {
                 var publisher = new UnstructuredTracePublisher();
-                publisher.EnableEvents(this, EventLevel.Informational);
+                publisher.EnableEvents(this, EventLevel.Verbose);
             }
 #endif
             Type eventSourceType = this.GetType();
