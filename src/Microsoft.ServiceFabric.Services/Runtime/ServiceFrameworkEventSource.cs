@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             if (isOSPlatform(OSPlatform.Linux))
             {
                 var publisher = new UnstructuredTracePublisher();
-                publisher.EnableEvents(this, EventLevel.Informational);
+                publisher.EnableEvents(this, EventLevel.LogAlways);
             }
         }
 #endif
