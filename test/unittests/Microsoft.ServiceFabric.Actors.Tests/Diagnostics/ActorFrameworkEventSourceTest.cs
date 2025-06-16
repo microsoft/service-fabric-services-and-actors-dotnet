@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
                 using var sut = new ActorFrameworkEventSource();
 
-                Assert.True(sut.IsEnabled(EventLevel.Informational, EventKeywords.None)); // None = no filtering
+                Assert.True(sut.IsEnabled(EventLevel.Verbose, EventKeywords.All));
                 EventListener listener = sut.Field("m_Dispatchers").Value.Field<EventListener>();
                 Assert.IsType<UnstructuredTracePublisher>(listener);
             }
