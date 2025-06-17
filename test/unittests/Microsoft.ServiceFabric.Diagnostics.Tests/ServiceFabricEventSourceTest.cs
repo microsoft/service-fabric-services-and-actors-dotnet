@@ -1,16 +1,15 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Tracing;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
-using Inspector;
-using System.Diagnostics.Tracing;
-using System.IO;
 using Xunit.Abstractions;
-using System.Diagnostics.Eventing.Reader;
 using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
 
@@ -61,7 +60,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
                 using var sut = new TestEventSource();
 
-                Assert.True(sut.IsEnabled(EventLevel.Informational, EventKeywords.None)); // None = no filtering
+                Assert.True(sut.IsEnabled(EventLevel.Verbose, EventKeywords.All));
                 EventListener listener = sut.Field("m_Dispatchers").Value.Field<EventListener>();
                 Assert.IsType<UnstructuredTracePublisher>(listener);
             }
