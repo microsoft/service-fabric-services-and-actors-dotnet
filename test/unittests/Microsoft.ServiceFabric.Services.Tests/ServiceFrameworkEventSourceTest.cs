@@ -4,14 +4,14 @@ using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.ServiceFabric.Actors.Diagnostics
+namespace Microsoft.ServiceFabric.Services.Diagnostics
 {
-    public abstract class ActorFrameworkEventSourceTest
+    public abstract class ServiceFrameworkEventSourceTest
     {
 #if NET // Remove #if once on net472+ where IsOSPlatform is available
-        public sealed class Class : ActorFrameworkEventSourceTest
+        public sealed class Class : ServiceFrameworkEventSourceTest
         {
-            readonly ActorFrameworkEventSource sut = new ActorFrameworkEventSource();
+            ServiceFrameworkEventSource sut = new ServiceFrameworkEventSource();
 
             [Fact]
             public void InheritsFromServiceFabricEventSourceToSupportTracingOnLinux()
@@ -20,17 +20,16 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 #endif
-
-        public sealed class Guid : ActorFrameworkEventSourceTest
+        public sealed class Guid : ServiceFrameworkEventSourceTest
         {
             [Fact]
             public void RemainsUnchangedForBackwardCompatibilityWithCollectionTools()
             {
-                Assert.Equal(new System.Guid("0e1ec353-9f02-55d7-fbb8-f3857458acbd"), new ActorFrameworkEventSource().Guid);
+                Assert.Equal(new System.Guid("13c2a97d-71da-5ab5-47cb-1497aec602e1"), new ServiceFrameworkEventSource().Guid);
             }
         }
 
-        public sealed class Manifest : ActorFrameworkEventSourceTest
+        public sealed class Manifest : ServiceFrameworkEventSourceTest
         {
             readonly ITestOutputHelper output;
 
@@ -39,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void CanBeSavedForRegistrationWithExternalTools()
             {
-                using var sut = new ActorFrameworkEventSource();
+                using var sut = new ServiceFrameworkEventSource();
 
                 string manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
 
