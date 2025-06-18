@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 

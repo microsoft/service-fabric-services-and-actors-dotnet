@@ -1,19 +1,23 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Tracing;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
-using Inspector;
+using Xunit.Abstractions;
+using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
-{    
+{
+#if DotNetCoreClr
     public abstract class ServiceFabricEventSourceTest
     {
-#if DotNetCoreClr
         public sealed class Class : ServiceFabricEventSourceTest
         {
             [Fact]
@@ -26,12 +30,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
         }
 
 
-        public sealed class LinuxSpecificLogic : ServiceFabricEventSourceTest, IDisposable
+        public sealed class Constructor : ServiceFabricEventSourceTest, IDisposable
         {
-
             readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
 
-            public LinuxSpecificLogic()
+            public Constructor()
             {
                 // Enable mocking of OSPlatform detection
                 typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(isOsPlatform);
@@ -50,14 +53,33 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 typeof(TestEventSource).Property<TestEventSource>().Set(new TestEventSource());
             }
 
-            [Theory]
-            [InlineData(1, true, 1)]
-            [InlineData(2, true, 2)]
-            [InlineData(3, true, -1)]
-            public void Constructor_OnLinux_GeneratesEventDescriptorsCorrectly(int eventId, bool expectedHasId, int expectedTypeFieldIndex)
+            [Fact]
+            public void EnablesUnstructuredEventPublishingOnLinux()
             {
                 Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(true);
 
+                using var sut = new TestEventSource();
+
+                Assert.True(sut.IsEnabled(EventLevel.Verbose, EventKeywords.All));
+                EventListener listener = sut.Field("m_Dispatchers").Value.Field<EventListener>();
+                Assert.IsType<UnstructuredTracePublisher>(listener);
+            }
+
+            [Fact]
+            public void DoesntEnableUnstructuredEventPublishingOnWindows()
+            {
+                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(false);
+
+                using var sut = new TestEventSource();
+
+                Assert.False(sut.IsEnabled());
+            }
+
+            [Theory]
+            [InlineData(1, "EventWithIdAndType", "Event with id and type: {0}, {1}, {2}", EventLevel.Informational)]
+            [InlineData(2, "EventWithIdOnly", "Event with id only: {0}, {1}", EventLevel.Warning)]
+            public void DoesGeneratesEventDescriptorsCorrectly(int eventId, string name, string message, EventLevel eventLevel)
+            {
                 var eventSource = new TestEventSource();
 
                 var eventDescriptorsField = typeof(ServiceFabricEventSource).GetField("eventDescriptors", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -65,39 +87,31 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
                 Assert.True(eventDescriptors.ContainsKey(eventId));
                 var traceEvent = eventDescriptors[eventId];
-                Assert.Equal(expectedHasId, traceEvent.hasId);
-                Assert.Equal(expectedTypeFieldIndex, traceEvent.typeFieldIndex);
-            }
-
-            [Fact]
-            public void VariantWriteViaNative_OnNonLinux_ThrowsPlatformNotSupportedException()
-            {
-                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(false);
-
-                var eventSource = new TestEventSource();
-                int eventId = 1;
-                int argCount = 3;
-                Variant v0 = "test";
-                Variant v1 = 42;
-                Variant v2 = true;
-
-                Assert.Throws<PlatformNotSupportedException>(() => eventSource.VariantWriteViaNative(eventId, argCount, v0, v1, v2));
+                Assert.Equal(name, traceEvent.EventName);
+                Assert.Equal(eventLevel, traceEvent.Level);
+                Assert.Equal(message, traceEvent.Message);
             }
         }
 
-#else
-        public sealed class NetFramework : ServiceFabricEventSourceTest
+        public sealed class Manifest : ServiceFabricEventSourceTest
         {
+            readonly ITestOutputHelper output;
+
+            public Manifest(ITestOutputHelper output) => this.output = output;
+
             [Fact]
-            public void VariantWriteViaNative_NotAvailableOnNetFramework()
+            public void CanBeSavedForRegistrationWithExternalTools()
             {
-                var eventSourceType = typeof(ServiceFabricEventSource);
+                using var sut = new TestEventSource();
 
-                var method = eventSourceType.GetMethod("VariantWriteViaNative", BindingFlags.Public | BindingFlags.Instance);
+                string manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
 
-                Assert.Null(method);
+                string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
+                File.WriteAllText(manifestFile, manifest);
+                output.WriteLine("To register generated manifest for ETL tools, run");
+                output.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
             }
-        } 
-#endif
+        }
     }
+#endif
 }
