@@ -57,7 +57,7 @@ if($MSBuildFullPath -eq "")
 
 if (!(Test-Path $MSBuildFullPath))
 {
-    throw "Unable to find MSBuild installed on this machine. Please install Visual Studio 2022 or if its installed at non-default location, provide the full ppath to msbuild using -MSBuildFullPath parameter."
+    throw "Unable to find MSBuild installed on this machine. Please install Visual Studio 2022 or if its installed at non-default location, provide the full path to msbuild using -MSBuildFullPath parameter."
 }
 
 
