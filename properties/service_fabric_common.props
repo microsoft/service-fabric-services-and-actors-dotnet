@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Set Paths -->
   <PropertyGroup>
-    <!-- Set RepoRoot -->
-    <RepoRoot>$([System.String]::Copy('$(MSBuildThisFileDirectory)').Replace('properties\',''))</RepoRoot>
+    <RepoRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), .gitignore))\</RepoRoot>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">minimal</RequestedVerbosity>
 
-    <!-- Set Output Paths-->
     <OutputPath>bin\$(Configuration)\</OutputPath>
 
     <!-- Set Drop folders -->
@@ -17,7 +14,6 @@
     <DropFolderNetStandard_Linux>$(DropFolderNetStandard)linux\</DropFolderNetStandard_Linux>
     <NugetPackageDropFolder>$(DropFolder)\packages</NugetPackageDropFolder>
 
-    <!-- Set Nuget exe path -->
     <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(RepoRoot)\nuget\nuget.exe</NuGetExePath>
 
     <!-- Version for binaries, nuget packages generated from this repo. -->
