@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.Tracing;
 using System.Fabric;
 using System.IO;
+using System.Runtime.InteropServices;
 using FluentAssertions.Primitives;
 using Fuzzy;
 using Inspector;
@@ -15,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     public abstract class ActorFrameworkEventSourceTest: IDisposable
     {
-        readonly ActorFrameworkEventSource sut = new ActorFrameworkEventSource();
+        readonly ActorFrameworkEventSource sut;
 
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz();
@@ -24,13 +25,19 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             // Allow event enablement to work on instances created by the tests
             ActorFrameworkEventSource.Writer.Dispose();
+
+            // Disable Linux detection in sut to allow tests to run without libFabricCommon.so
+            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(_ => false);
+
+            sut = new ActorFrameworkEventSource();
         }
 
         public void Dispose()
         {
             sut.Dispose();
 
-            // Restore the singleton instance
+            // Restore original static state
+            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
             typeof(ActorFrameworkEventSource).Property<ActorFrameworkEventSource>().Set(new ActorFrameworkEventSource());
         }
 
