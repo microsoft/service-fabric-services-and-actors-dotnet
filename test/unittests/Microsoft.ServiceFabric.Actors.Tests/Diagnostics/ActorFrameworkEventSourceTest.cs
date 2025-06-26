@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             // Allow event enablement to work on instances created by the tests
             ActorFrameworkEventSource.Writer.Dispose();
 
-            // Disable Linux detection in sut to allow tests to run without libFabricCommon.so
+            // Disable Linux detection in sut to allow tests to run without UnstructuredTracePublisher which fails without FabricCommon
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(_ => false);
 
             sut = new ActorFrameworkEventSource();
