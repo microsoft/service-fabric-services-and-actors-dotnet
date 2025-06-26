@@ -10,7 +10,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
     using System.ServiceModel;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Communication.Wcf;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
 
     /// <summary>
     ///    Interface that defines the contract for WCF service remoting.
@@ -28,7 +27,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
         /// <returns>Response Body is a serialized response recived by the client</returns>
 #pragma warning disable 108
         [OperationContract]
-        [FaultContract(typeof(RemoteException))]
+        [FaultContract(typeof(RemoteException2))]
         Task<ResponseMessage> RequestResponseAsync(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody);
 
         /// <summary>
