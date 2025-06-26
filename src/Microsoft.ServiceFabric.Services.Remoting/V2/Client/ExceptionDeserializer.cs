@@ -104,7 +104,33 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
         }
 
-        public async Task DeserializeRemoteExceptionAndThrowAsync(Stream stream)
+        internal Exception DeserializeRemoteException(RemoteException2 remoteException2)
+        {
+            Exception exceptionToThrow;
+
+            try
+            {
+                ServiceException svcEx = this.FromRemoteException2(remoteException2);
+                Exception ex = this.FromServiceException(svcEx);
+                exceptionToThrow = ex is AggregateException ? ex : new AggregateException(ex);
+            }
+            catch (Exception dcsE)
+            {
+                exceptionToThrow = new ServiceException(dcsE.GetType().FullName,
+                    string.Format(CultureInfo.InvariantCulture, SR.ErrorDeserializationFailure, dcsE.ToString()));
+            }
+
+            Guid requestId = LogContext.GetRequestIdOrDefault();
+            ServiceTrace.Source.WriteInfo(
+                TraceEventType,
+                "[{0}] Remoting call failed with exception : {1}",
+                requestId,
+                exceptionToThrow);
+
+            return exceptionToThrow;
+        }
+
+        internal async Task DeserializeRemoteExceptionAndThrowAsync(Stream stream)
         {
             Exception exceptionToThrow;
 
@@ -121,7 +147,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
             catch (Exception dcsE)
             {
-                exceptionToThrow = new ServiceException(dcsE.GetType().FullName, 
+                exceptionToThrow = new ServiceException(dcsE.GetType().FullName,
                     string.Format(CultureInfo.InvariantCulture, SR.ErrorDeserializationFailure, dcsE.ToString()));
             }
 

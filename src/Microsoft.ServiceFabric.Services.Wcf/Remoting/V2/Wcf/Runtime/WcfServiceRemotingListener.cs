@@ -3,22 +3,23 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Communication.Wcf;
+using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.ServiceModel;
-    using System.ServiceModel.Channels;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Communication.Wcf;
-    using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-
     /// <summary>
     /// An <see cref="IServiceRemotingListener"/> that uses
     /// Windows Communication Foundation to provide interface remoting for stateless and stateful services.
@@ -300,6 +301,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             // the actual callback channel is accessed from the current operation context.
             private readonly WcfServiceRemotingRequestContext requestContext;
 
+            private ExceptionSerializer exceptionSerializer;
+
             public WcfRemotingService(
                 IServiceRemotingMessageHandler messageHandler,
                 ServiceRemotingMessageSerializersManager serializersManager)
@@ -307,6 +310,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 this.messageHandler = messageHandler;
                 this.serializersManager = serializersManager;
                 this.requestContext = new WcfServiceRemotingRequestContext(this.serializersManager);
+
+                //TODO: pass other convertors
+                IEnumerable<IExceptionConvertor> runtimeConvertors = new IExceptionConvertor[]
+                {
+                    new SystemExceptionConvertor(),
+                    new FabricExceptionConvertor(),
+                };
+
+                exceptionSerializer = new ExceptionSerializer(runtimeConvertors, null);
             }
 
             public async Task<ResponseMessage> RequestResponseAsync(
@@ -361,7 +373,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 catch (Exception e)
                 {
                     ServiceTrace.Source.WriteInfo("WcfRemotingService", "Remote Exception occured {0}", e);
-                    throw new FaultException<RemoteException>(RemoteException.FromException(e), e.Message);
+
+                    throw new FaultException<RemoteException2>(exceptionSerializer.BuildRemoteException(e), e.Message);
                 }
             }
 

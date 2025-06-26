@@ -3,20 +3,16 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.IO;
+using System.Runtime.Serialization;
+using System.Xml;
+
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-
     /// <summary>
-    ///     Default serializdr for service remoting request and response message body that uses the
+    ///     Default serializer for service remoting request and response message body that uses the
     ///     buffer pool manager to create outgoing message buffers.
     /// </summary>
     internal class PooledBufferMessageBodySerializer<TRequest, TResponse> :

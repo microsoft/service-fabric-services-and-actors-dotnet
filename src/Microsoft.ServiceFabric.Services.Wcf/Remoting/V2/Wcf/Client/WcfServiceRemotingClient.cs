@@ -3,23 +3,22 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.ServiceModel;
+using System.Threading.Tasks;
+
+using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Globalization;
-    using System.ServiceModel;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-
     internal class WcfServiceRemotingClient : IServiceRemotingClient
     {
         private ServiceRemotingMessageSerializersManager serializersManager;
+        private ExceptionDeserializer exceptionDeserializer;
 
         public WcfServiceRemotingClient(
             WcfCommunicationClient<IServiceRemotingContract> wcfClient,
@@ -27,6 +26,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         {
             this.serializersManager = serializersManager;
             this.WcfClient = wcfClient;
+
+            IEnumerable<IExceptionConvertor> clientConvertors = new IExceptionConvertor[]
+            {
+                new SystemExceptionConvertor(),
+                new FabricExceptionConvertor(),
+            };
+
+            exceptionDeserializer = new ExceptionDeserializer(clientConvertors);
         }
 
         public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }
@@ -114,19 +121,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     header,
                     msgBody);
             }
-            catch (FaultException<RemoteException> faultException)
+            catch (FaultException<RemoteException2> faultException)
             {
-                if (RemoteException.ToException(
-                    new SegmentedReadMemoryStream(faultException.Detail.Data),
-                    out var remoteException))
-                {
-                    throw new AggregateException(remoteException);
-                }
+                RemoteException2 remoteException2 = faultException.Detail;
 
-                throw new ServiceException(remoteException.GetType().FullName, string.Format(
-                    CultureInfo.InvariantCulture,
-                    Microsoft.ServiceFabric.Services.Wcf.SR.ErrorDeserializationFailure,
-                    remoteException.ToString()));
+                Exception exception = exceptionDeserializer.DeserializeRemoteException(remoteException2);
+                throw new AggregateException(exception);
             }
         }
 

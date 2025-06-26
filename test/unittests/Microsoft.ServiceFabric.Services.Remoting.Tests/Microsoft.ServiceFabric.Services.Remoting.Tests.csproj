@@ -7,7 +7,6 @@
     <AssemblyName>Microsoft.ServiceFabric.Services.Remoting.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
@@ -23,11 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <!-- BinaryFormatter compatibility package -->
-    <!-- The need for this package is documented in https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-migration-guide/compatibility-package-->
-    <PackageReference Include="System.Runtime.Serialization.Formatters" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Compile Remove="**\*.cs" />
