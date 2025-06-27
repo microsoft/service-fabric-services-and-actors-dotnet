@@ -1,10 +1,11 @@
 using System.Diagnostics.Tracing;
 using System.IO;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.ServiceFabric.Services.Diagnostics
+namespace Microsoft.ServiceFabric.Services.Tests
 {
     public abstract class ServiceFrameworkEventSourceTest
     {
