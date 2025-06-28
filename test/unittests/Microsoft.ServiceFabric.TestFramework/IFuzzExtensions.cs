@@ -43,5 +43,29 @@ namespace Microsoft.ServiceFabric
             long replicaOrInstanceId = fuzzy.Int64();
             return new Mock<ServiceContext>(nodeContext, activationContext, serviceTypeName, serviceName, initializationData, partitionId, replicaOrInstanceId).Object;
         }
+
+        public static StatefulServiceContext StatefulServiceContext(this IFuzz fuzzy)
+        {
+            NodeContext nodeContext = fuzzy.NodeContext();
+            ICodePackageActivationContext activationContext = fuzzy.ICodePackageActivationContext();
+            string serviceTypeName = fuzzy.String();
+            Uri serviceName = fuzzy.Uri();
+            byte[] initializationData = fuzzy.Array(fuzzy.Byte);
+            Guid partitionId = Guid.NewGuid();
+            long replicaId = fuzzy.Int64();
+            return new StatefulServiceContext(nodeContext, activationContext, serviceTypeName, serviceName, initializationData, partitionId, replicaId);
+        }
+
+        public static StatelessServiceContext StatelessServiceContext(this IFuzz fuzzy)
+        {
+            NodeContext nodeContext = fuzzy.NodeContext();
+            ICodePackageActivationContext activationContext = fuzzy.ICodePackageActivationContext();
+            string serviceTypeName = fuzzy.String();
+            Uri serviceName = fuzzy.Uri();
+            byte[] initializationData = fuzzy.Array(fuzzy.Byte);
+            Guid partitionId = Guid.NewGuid();
+            long instanceId = fuzzy.Int64();
+            return new StatelessServiceContext(nodeContext, activationContext, serviceTypeName, serviceName, initializationData, partitionId, instanceId);
+        }
     }
 }
