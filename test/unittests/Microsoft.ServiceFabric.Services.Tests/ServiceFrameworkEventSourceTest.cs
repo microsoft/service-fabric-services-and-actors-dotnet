@@ -1,24 +1,36 @@
 using System.Diagnostics.Tracing;
 using System.IO;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Runtime;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Services.Tests
 {
-    public abstract class ServiceEventSourceTest
+    public abstract class ServiceFrameworkEventSourceTest
     {
-        readonly ServiceEventSource sut = ServiceEventSource.Instance;
+#if NET // Remove #if once on net472+ where IsOSPlatform is available
+        public sealed class Class : ServiceFrameworkEventSourceTest
+        {
+            ServiceFrameworkEventSource sut = new ServiceFrameworkEventSource();
 
-        public sealed class Guid : ServiceEventSourceTest
+            [Fact]
+            public void InheritsFromServiceFabricEventSourceToSupportTracingOnLinux()
+            {
+                Assert.IsAssignableFrom<ServiceFabricEventSource>(sut);
+            }
+        }
+#endif
+        public sealed class Guid : ServiceFrameworkEventSourceTest
         {
             [Fact]
             public void RemainsUnchangedForBackwardCompatibilityWithCollectionTools()
             {
-                Assert.Equal(new System.Guid("27b7a543-7280-5c2a-b053-f2f798e2cbb7"), sut.Guid);
+                Assert.Equal(new System.Guid("13c2a97d-71da-5ab5-47cb-1497aec602e1"), new ServiceFrameworkEventSource().Guid);
             }
         }
 
-        public sealed class Manifest : ServiceEventSourceTest
+        public sealed class Manifest : ServiceFrameworkEventSourceTest
         {
             readonly ITestOutputHelper output;
 
@@ -27,7 +39,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             [Fact]
             public void CanBeSavedForRegistrationWithExternalTools()
             {
+                using var sut = new ServiceFrameworkEventSource();
+
                 string manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
+
                 string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
                 File.WriteAllText(manifestFile, manifest);
                 output.WriteLine("To register generated manifest for ETL tools, run");
