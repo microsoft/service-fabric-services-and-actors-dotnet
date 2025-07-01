@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
- <Import Condition="'$(TargetFramework)' == 'net9.0'" Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
- <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\..\properties\service_fabric_managed_netframework.props" />
   <PropertyGroup>
     <ProjectGuid>{B8F12A3E-4C5D-4F6A-8B7C-9D1E2F3A4B5C}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric</RootNamespace>
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
+  <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Fuzzy" />
     <PackageReference Include="Microsoft.ServiceFabric" />

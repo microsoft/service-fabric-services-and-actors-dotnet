@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal static class KvsActorStateProviderExtensions
     {
         public static readonly string TombstoneCleanupMessage = "KeyValueStoreReplicaSettings.DisableTombstoneCleanup is either not enabled or set to false";
-        public static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
+        public static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models.KeyValuePair>) });
         private static readonly string TraceType = typeof(KvsActorStateProviderExtensions).Name;
 
         internal static async Task<long> GetFirstSequenceNumberAsync(this KvsActorStateProvider stateProvider, string traceId, CancellationToken cancellationToken)
@@ -106,7 +106,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                                 && !endSequenceNumberReached)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
-                                var pairs = new List<KeyValuePair>();
+                                var pairs = new List<Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models.KeyValuePair>();
                                 var valuePairs = new List<byte[]>();
                                 var sequenceNumberFullyDrained = true;
                                 long? firstSNInChunk = null;
@@ -305,10 +305,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
             await httpResponse.Body.FlushAsync();
         }
 
-        private static async Task<KeyValuePair> MakeKeyValuePairAsync(this KvsActorStateProvider stateProvider, KeyValueStoreItem item, EnumerationRequest request, CancellationToken cancellationToken)
+        private static async Task<Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models.KeyValuePair> MakeKeyValuePairAsync(this KvsActorStateProvider stateProvider, KeyValueStoreItem item, EnumerationRequest request, CancellationToken cancellationToken)
         {
             bool isDeleted = item.Metadata.ValueSizeInBytes < 0;
-            var result = new KeyValuePair
+            var result = new Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models.KeyValuePair
             {
                 IsDeleted = isDeleted,
                 Version = item.Metadata.SequenceNumber,
