@@ -106,10 +106,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             return new List<ArraySegment<byte>> { segment };
         }
 
-        public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
+        internal RemoteException2 BuildRemoteException(Exception exception)
         {
             ServiceException svcEx = this.ToServiceException(exception);
-            RemoteException2 remoteEx = this.ToRemoteException(svcEx);
+            return this.ToRemoteException(svcEx);
+        }
+
+        internal List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
+        {
+            RemoteException2 remoteEx = BuildRemoteException(exception);
             return this.SerializeRemoteException(remoteEx);
         }
     }
