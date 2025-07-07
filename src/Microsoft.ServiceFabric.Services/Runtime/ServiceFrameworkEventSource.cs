@@ -8,7 +8,7 @@ using System.Diagnostics.Tracing;
 using System.Fabric;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
-namespace Microsoft.ServiceFabric.Services
+namespace Microsoft.ServiceFabric.Services.Runtime
 {
     // REMARKS:
     // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,

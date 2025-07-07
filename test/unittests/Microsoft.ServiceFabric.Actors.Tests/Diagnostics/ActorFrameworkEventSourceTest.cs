@@ -7,6 +7,7 @@ using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,7 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             // Allow event enablement to work on instances created by the tests
             ActorFrameworkEventSource.Writer.Dispose();
 
-            // Disable Linux detection in sut to allow tests to run without libFabricCommon.so
+            // Disable Linux detection in sut to allow tests to run without UnstructuredTracePublisher which fails without FabricCommon
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(_ => false);
 
             sut = new ActorFrameworkEventSource();
@@ -40,8 +41,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
             typeof(ActorFrameworkEventSource).Property<ActorFrameworkEventSource>().Set(new ActorFrameworkEventSource());
         }
-
-        class TestEventListener : EventListener { }
 
         public sealed class EventTest : ActorFrameworkEventSourceTest
         {
@@ -58,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             const EventKeywords AllSessions = (EventKeywords)(0xFul << 44);
             EventWrittenEventArgs actual;
 
-            readonly EventListener listener = new TestEventListener();
+            readonly EventListener listener = new Mock<EventListener>() { CallBase = true }.Object;
 
             public EventTest()
             {
@@ -346,7 +345,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             void AssertEventEnabled(bool expected, EventLevel level, EventKeywords keywords, Func<bool> actual)
             {
-                using var listener = new TestEventListener();
+                using var listener = Mock.Of<EventListener>();
                 listener.EnableEvents(sut, level, keywords);
                 Assert.Equal(expected, actual());
             }

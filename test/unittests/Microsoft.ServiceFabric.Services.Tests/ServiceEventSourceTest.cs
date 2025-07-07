@@ -3,7 +3,7 @@ using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.ServiceFabric.Services
+namespace Microsoft.ServiceFabric.Services.Tests
 {
     public abstract class ServiceEventSourceTest
     {
