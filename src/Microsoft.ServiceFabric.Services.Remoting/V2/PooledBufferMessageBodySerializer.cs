@@ -6,7 +6,6 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
-
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2

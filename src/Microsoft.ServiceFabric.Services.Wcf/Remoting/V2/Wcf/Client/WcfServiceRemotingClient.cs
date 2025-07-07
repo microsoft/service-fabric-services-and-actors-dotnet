@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.ServiceModel;
 using System.Threading.Tasks;
-
 using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
@@ -22,18 +21,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
         public WcfServiceRemotingClient(
             WcfCommunicationClient<IServiceRemotingContract> wcfClient,
-            ServiceRemotingMessageSerializersManager serializersManager)
+            ServiceRemotingMessageSerializersManager serializersManager,
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
         {
             this.serializersManager = serializersManager;
             this.WcfClient = wcfClient;
 
-            IEnumerable<IExceptionConvertor> clientConvertors = new IExceptionConvertor[]
+            var convertors = new List<IExceptionConvertor>();
+            if (exceptionConvertors != null)
             {
-                new SystemExceptionConvertor(),
-                new FabricExceptionConvertor(),
-            };
+                convertors.AddRange(exceptionConvertors);
+            }
 
-            exceptionDeserializer = new ExceptionDeserializer(clientConvertors);
+            convertors.Add(new SystemExceptionConvertor());
+            convertors.Add(new FabricExceptionConvertor());
+
+            exceptionDeserializer = new ExceptionDeserializer(convertors);
         }
 
         public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }

@@ -377,7 +377,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             string requestId;
             if (!ClientRequestTracker.TryGet(out requestId))
             {
-               requestId = Guid.NewGuid().ToString();
+                requestId = Guid.NewGuid().ToString();
             }
 
             string currentExceptionId = null;
