@@ -79,6 +79,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
         {
         }
 
+        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
+            IEnumerable<IExceptionHandler> exceptionHandlers)
+        {
+            var handlers = new List<IExceptionHandler>();
+            if (exceptionHandlers != null)
+            {
+                handlers.AddRange(exceptionHandlers);
+            }
+
+            handlers.Add(new ActorRemotingExceptionHandler());
+            return handlers;
+        }
+
         private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
             IEnumerable<IExceptionConvertor> exceptionConvertors)
         {
@@ -91,19 +104,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
             actorConvertors.Add(new FabricActorExceptionConvertor());
 
             return actorConvertors;
-        }
-
-        private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
-            IEnumerable<IExceptionHandler> exceptionHandlers)
-        {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
-            {
-                handlers.AddRange(exceptionHandlers);
-            }
-
-            handlers.Add(new ActorRemotingExceptionHandler());
-            return handlers;
         }
 
         private static ActorRemotingSerializationManager IntializeSerializationManager(
