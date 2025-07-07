@@ -171,6 +171,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             Binding clientBinding = null,
             IServiceRemotingCallbackMessageHandler callbackClient = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             IServicePartitionResolver servicePartitionResolver = null,
             string traceId = null,
             Func<

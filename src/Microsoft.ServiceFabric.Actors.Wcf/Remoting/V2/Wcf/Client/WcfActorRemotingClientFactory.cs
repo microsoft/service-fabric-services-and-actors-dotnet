@@ -3,18 +3,20 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.ServiceModel.Channels;
+using Microsoft.ServiceFabric.Actors.Client;
+using Microsoft.ServiceFabric.Actors.Remoting.Client;
+using Microsoft.ServiceFabric.Actors.Remoting.V2;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client;
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
 {
-    using System.Collections.Generic;
-    using System.ServiceModel.Channels;
-    using Microsoft.ServiceFabric.Actors.Remoting.Client;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client;
-
     /// <summary>
     ///     An <see cref="IServiceRemotingClientFactory"/> that uses
     ///     Windows Communication Foundation to create <see cref="IServiceRemotingClient"/>
@@ -34,8 +36,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
             : this(null, callbackClient)
         {
         }
-
-        //TODO: add actor exception convertor as in FabricTransportActorRemotingClientFactory
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfActorRemotingClientFactory"/> class.
@@ -61,7 +61,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         /// </param>
         /// <param name="serializationProvider">Serialization Provider</param>
         /// <param name="useWrappedMessage">
-        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
+        ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over
+        ///     the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value
+        ///     is set to true, the parameters will be wrapped.Default value is false.
+        /// </param>
         /// <remarks>
         ///     This factory uses <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfExceptionHandler"/>,
         ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.Client.ActorRemotingExceptionHandler"/>, in addition to the
@@ -71,16 +74,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         public WcfActorRemotingClientFactory(
             Binding clientBinding,
             IServiceRemotingCallbackMessageHandler callbackClient,
-            IEnumerable<IExceptionHandler> exceptionHandlers = null,
-            IServicePartitionResolver servicePartitionResolver = null,
-            string traceId = null,
-            IServiceRemotingMessageSerializationProvider serializationProvider = null,
-            bool useWrappedMessage = false)
+            IEnumerable<IExceptionHandler> exceptionHandlers,
+            IServicePartitionResolver servicePartitionResolver,
+            string traceId,
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            bool useWrappedMessage)
             : base(
                 InitializeSerializerManager(serializationProvider, useWrappedMessage),
                 clientBinding,
                 callbackClient,
                 GetExceptionHandlers(exceptionHandlers),
+                null,
                 servicePartitionResolver,
                 traceId)
         {
@@ -113,7 +117,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         /// </param>
         /// <param name="serializationProvider">Serialization Provider</param>
         /// <param name="useWrappedMessage">
-        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
+        ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over
+        ///     the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value
+        ///     is set to true, the parameters will be wrapped.Default value is false.
+        /// </param>
         /// <remarks>
         ///     This factory uses <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfExceptionHandler"/>,
         ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.Client.ActorRemotingExceptionHandler"/>, in addition to the
@@ -133,6 +140,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
                 clientBinding,
                 callbackClient,
                 GetExceptionHandlers(exceptionHandlers),
+                GetExceptionConvertors(exceptionConvertors),
                 servicePartitionResolver,
                 traceId)
         {
@@ -168,6 +176,20 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
 
             handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
+        }
+
+        private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
+        {
+            var actorConvertors = new List<IExceptionConvertor>();
+            if (exceptionConvertors != null)
+            {
+                actorConvertors.AddRange(exceptionConvertors);
+            }
+
+            actorConvertors.Add(new FabricActorExceptionConvertor());
+
+            return actorConvertors;
         }
     }
 }
