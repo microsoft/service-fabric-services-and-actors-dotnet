@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
         }
 
-        internal Exception DeserializeRemoteException(RemoteException2 remoteException2)
+        internal Exception ConvertRemoteException(RemoteException2 remoteException2)
         {
             Exception exceptionToThrow;
 

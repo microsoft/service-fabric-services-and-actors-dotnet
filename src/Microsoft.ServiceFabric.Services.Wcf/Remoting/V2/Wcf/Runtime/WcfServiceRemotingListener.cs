@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 new WcfRemotingService(
                     this.messageHandler,
                     serializerManager,
-                    exceptionConvertors),
+                    this.exceptionConvertors),
                 listenerBinding,
                 endpointResourceName);
         }

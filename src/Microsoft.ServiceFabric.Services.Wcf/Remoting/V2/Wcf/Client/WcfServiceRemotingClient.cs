@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             {
                 RemoteException2 remoteException2 = faultException.Detail;
 
-                Exception exception = exceptionDeserializer.DeserializeRemoteException(remoteException2);
+                Exception exception = exceptionDeserializer.ConvertRemoteException(remoteException2);
                 throw new AggregateException(exception);
             }
         }

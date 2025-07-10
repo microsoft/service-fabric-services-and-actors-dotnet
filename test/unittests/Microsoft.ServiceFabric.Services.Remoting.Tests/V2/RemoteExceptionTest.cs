@@ -16,16 +16,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
     using Xunit;
 
-    /// <summary>
-    /// Tests for RemoteException.
-    /// </summary>
     public class RemoteExceptionTest
     {
-        /// <summary>
-        /// SerializableExceptionStream Test.
-        /// </summary>
         [Fact]
-        public static async Task SerializableExceptionStreamTest()
+        public static async Task GivenSupportedExceptionType_WhenDeserialized_IsRecognized()
         {
             IEnumerable<Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors = new Remoting.V2.Runtime.IExceptionConvertor[]
             {
@@ -58,11 +52,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2
             }
         }
 
-        /// <summary>
-        /// NonSerializableExceptionStream Test
-        /// </summary>
         [Fact]
-        public static async Task NonSerializableExceptionStreamTest()
+        public static async Task GivenUnsupportedExceptionType_WhenDeserialized_FallbacksToServiceException()
         {
             IEnumerable<Remoting.V2.Runtime.IExceptionConvertor> runtimeConvertors = new Remoting.V2.Runtime.IExceptionConvertor[]
             {
