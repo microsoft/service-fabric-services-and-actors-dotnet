@@ -86,7 +86,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             if (diagnosticsEventManager == null)
             {
-                throw new ArgumentNullException(nameof(diagnosticsEventManager));
+                throw new ArgumentNullException("DiagnosticsEventManager cannot be null.");
             }
 
             diagnosticsEventManager.OnRequestStart += this.OnRequestStart;

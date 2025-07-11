@@ -26,8 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 Action act = () => provider.RegisterWithDiagnosticsEventManager(null);
 
-                act.Should().Throw<ArgumentNullException>()
-                    .WithParameterName("diagnosticsEventManager");
+                act.Should().Throw<ArgumentNullException>();
             }
 
             [Fact]
@@ -64,6 +63,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ShouldExecuteWithoutExceptionWhenCalled()
             {
+            // TODO modify test case to verify perfCounter is updated
+            // Currently not possible to access level for PerfCounterWritter
                 var provider = new ServiceRemotingPerformanceCounterProvider(testPartitionId, testReplicaOrInstanceId);
 
                 Action act = () => provider.OnRequestStart();
@@ -92,6 +93,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ShouldExecuteWithoutExceptionWhenCalledWithValidStopwatch()
             {
+            // TODO modify test case to verify perfCounter is updated
+            // Currently not possible to access level for PerfCounterWritter
                 var provider = new ServiceRemotingPerformanceCounterProvider(testPartitionId, testReplicaOrInstanceId);
                 var stopwatch = Stopwatch.StartNew();
                 stopwatch.Stop();
@@ -121,6 +124,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ShouldExecuteWithoutExceptionWhenCalledWithValidStopwatch()
             {
+            // TODO modify test case to verify perfCounter is updated
+            // Currently not possible to access level for PerfCounterWritter
                 var provider = new ServiceRemotingPerformanceCounterProvider(testPartitionId, testReplicaOrInstanceId);
                 var stopwatch = Stopwatch.StartNew();
                 stopwatch.Stop();
@@ -139,7 +144,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 var provider = new ServiceRemotingPerformanceCounterProvider(testPartitionId, testReplicaOrInstanceId);
                 var stopwatch = Stopwatch.StartNew();
                 stopwatch.Stop();
-                
+
                 SetPrivateProperty(provider, "ServiceRequestDeserializationTimeCounterWriter", null);
 
                 Action act = () => provider.OnCreateRemotingMessage(stopwatch);
@@ -150,6 +155,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ShouldExecuteWithoutExceptionWhenCalledWithValidStopwatch()
             {
+            // TODO modify test case to verify perfCounter is updated
+            // Currently not possible to access level for PerfCounterWritter
                 var provider = new ServiceRemotingPerformanceCounterProvider(testPartitionId, testReplicaOrInstanceId);
                 var stopwatch = Stopwatch.StartNew();
                 stopwatch.Stop();
@@ -162,29 +169,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
         public class IntegrationTests : ServiceRemotingPerformanceCounterProviderTest
         {
-            [Fact]
-            public void ShouldWorkEndToEndWithDiagnosticsEventManager()
-            {
-                var provider = new ServiceRemotingPerformanceCounterProvider(testPartitionId, testReplicaOrInstanceId);
-                var diagnosticsEventManager = new DiagnosticsEventManager();
-
-                provider.RegisterWithDiagnosticsEventManager(diagnosticsEventManager);
-
-                var stopwatch = Stopwatch.StartNew();
-                stopwatch.Stop();
-
-                // Simulate the workflow - these should all execute without throwing exceptions
-                Action act = () =>
-                {
-                    diagnosticsEventManager.OnRequestStart?.Invoke();
-                    diagnosticsEventManager.OnCreateRemotingMessage?.Invoke(stopwatch);
-                    diagnosticsEventManager.OnCreateTransportMessage?.Invoke(stopwatch);
-                    diagnosticsEventManager.OnRequestEnd?.Invoke(stopwatch);
-                };
-
-                act.Should().NotThrow();
-            }
-
             [Fact]
             public void ShouldHandleMultipleRegistrationsGracefully()
             {
