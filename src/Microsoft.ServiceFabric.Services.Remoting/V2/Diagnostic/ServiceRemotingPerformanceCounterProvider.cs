@@ -58,28 +58,28 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             this.CreateserviceCounterWriters(serviceCounterInstanceName);
         }
 
-        internal FabricAverageCount64PerformanceCounterWriter ServiceRequestProcessingTimeCounterWriter
+        private FabricAverageCount64PerformanceCounterWriter ServiceRequestProcessingTimeCounterWriter
         {
             get;
-            private set;
+            set;
         }
 
-        internal FabricAverageCount64PerformanceCounterWriter ServiceRequestDeserializationTimeCounterWriter
+        private FabricAverageCount64PerformanceCounterWriter ServiceRequestDeserializationTimeCounterWriter
         {
             get;
-            private set;
+            set;
         }
 
-        internal FabricAverageCount64PerformanceCounterWriter ServiceResponseSerializationTimeCounterWriter
+        private FabricAverageCount64PerformanceCounterWriter ServiceResponseSerializationTimeCounterWriter
         {
             get;
-            private set;
+            set;
         }
 
-        internal FabricNumberOfItems64PerformanceCounterWriter ServiceOutstandingRequestsCounterWriter
+        private FabricNumberOfItems64PerformanceCounterWriter ServiceOutstandingRequestsCounterWriter
         {
             get;
-            private set;
+            set;
         }
 
         public void RegisterWithDiagnosticsEventManager(DiagnosticsEventManager diagnosticsEventManager)
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             diagnosticsEventManager.OnCreateRemotingMessage += this.OnCreateRemotingMessage;
         }
 
-        private void OnRequestStart()
+        internal void OnRequestStart()
         {
             if(ServiceOutstandingRequestsCounterWriter != null)
             {
@@ -103,7 +103,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
             
         }
-        private void OnRequestEnd(Stopwatch stopwatch)
+        internal void OnRequestEnd(Stopwatch stopwatch)
         {
             if (ServiceOutstandingRequestsCounterWriter != null)
             {
@@ -115,14 +115,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                 ServiceRequestProcessingTimeCounterWriter.UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
         }
-        private void OnCreateTransportMessage(Stopwatch stopwatch)
+        internal void OnCreateTransportMessage(Stopwatch stopwatch)
         {
             if (ServiceResponseSerializationTimeCounterWriter != null)
             {
                ServiceResponseSerializationTimeCounterWriter.UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
         }
-        private void OnCreateRemotingMessage(Stopwatch stopwatch)
+        internal void OnCreateRemotingMessage(Stopwatch stopwatch)
         {
             if (ServiceRequestDeserializationTimeCounterWriter != null)
             {
