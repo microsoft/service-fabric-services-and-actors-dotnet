@@ -28,10 +28,11 @@
     <!-- BinaryFormatter compatibility package -->
     <!-- The need for this package is documented in https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-migration-guide/compatibility-package-->
     <PackageReference Include="System.Runtime.Serialization.Formatters" />
-  </ItemGroup>
+  </ItemGroup>  
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Compile Remove="**\*.cs" />
     <Compile Include="ServiceRemotingProviderAttributeTest.cs" />
     <Compile Include="AssemblyAttributes.cs" />
+    <Compile Include="V2\Diagnostic\DiagnosticsManagerTest.cs" />
   </ItemGroup>
 </Project>

@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         public void FabricTransportRequestEnd(Stopwatch stopwatch)
         {
             var callbacks = this.diagnosticsEventManager.OnRequestEnd;
-            if (callbacks != null)
+            if (callbacks != null && stopwatch != null)
             {
                 callbacks(stopwatch);
             }
@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         public void FabricTransportCreateTransportMessage(Stopwatch stopwatch)
         {
             var callbacks = this.diagnosticsEventManager.OnCreateTransportMessage;
-            if (callbacks != null)
+            if (callbacks != null && stopwatch != null)
             {
                 callbacks(stopwatch);
             }
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         public void FabricTransportCreateRemotingMessage(Stopwatch stopwatch)
         {
             var callbacks = this.diagnosticsEventManager.OnCreateRemotingMessage;
-            if (callbacks != null)
+            if (callbacks != null && stopwatch != null)
             {
                 callbacks(stopwatch);
             }
