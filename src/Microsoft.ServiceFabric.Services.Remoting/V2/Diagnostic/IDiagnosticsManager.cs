@@ -4,11 +4,15 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal interface IDiagnosticsManager : IDisposable
     {
-        DiagnosticsEventManager DiagnosticsEventManager { get; }
+        void FabricTransportRequestBegin();
+        void FabricTransportRequestEnd(Stopwatch stopwatch);
+        void FabricTransportCreateTransportMessage(Stopwatch stopwatch);
+        void FabricTransportCreateRemotingMessage(Stopwatch stopwatch);
     }
 }

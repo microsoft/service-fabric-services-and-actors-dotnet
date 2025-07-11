@@ -20,15 +20,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         internal OnDiagnosticEvent<Stopwatch> OnCreateTransportMessage { get; set; }
 
         internal OnDiagnosticEvent<Stopwatch> OnCreateRemotingMessage { get; set; }
-
-        // internal void RemotingRequestStart(DateTime startTime)
-        // {
-        //     var processingTime = DateTime.UtcNow - startTime;
-        //     var callbacks = this.OnActorRequestProcessingFinish;
-        //     if (callbacks != null)
-        //     {
-        //         callbacks(processingTime);
-        //     }
-        // }
     }
 }

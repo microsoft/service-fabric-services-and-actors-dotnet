@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly ServiceRemotingMessageSerializersManager serializersManager;
         private readonly Guid partitionId;
         private readonly long replicaOrInstanceId;
-        private readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
+        private readonly IDiagnosticsManager diagnosticManager;
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
         private ExceptionSerializer exceptionSerializer;
 
@@ -37,9 +37,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.serializersManager = serializersManager;
             this.partitionId = partitionId;
             this.replicaOrInstanceId = replicaOrInstanceId;
-            this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(
-                this.partitionId,
-                this.replicaOrInstanceId);
+            this.diagnosticManager = new DiagnosticsManager(partitionId, replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
             this.exceptionSerializer = exceptionConvertorHandler;
         }
@@ -48,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             FabricTransportRequestContext requestContext,
             FabricTransportMessage fabricTransportMessage)
         {
-            this.serviceRemotingPerformanceCounterProvider.OnRequestStart();
+            this.diagnosticManager.FabricTransportRequestBegin();
 
             var requestStopWatch = Stopwatch.StartNew();
             var requestResponseSerializationStopwatch = Stopwatch.StartNew();
@@ -85,7 +83,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             finally
             {
                 fabricTransportMessage.Dispose();
-                this.serviceRemotingPerformanceCounterProvider.OnRequestEnd(requestStopWatch);
+                this.diagnosticManager.FabricTransportRequestEnd(requestStopWatch);
             }
         }
 
@@ -98,9 +96,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         public void Dispose()
         {
-            if (this.serviceRemotingPerformanceCounterProvider != null)
+            if (this.diagnosticManager != null)
             {
-                this.serviceRemotingPerformanceCounterProvider.Dispose();
+                this.diagnosticManager.Dispose();
             }
 
             if (this.remotingMessageHandler is IDisposable disposableItem)
@@ -140,7 +138,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             stopwatch.Restart();
             var responseMsgBody = responseSerializer.Serialize(retval.GetBody());
 
-            this.serviceRemotingPerformanceCounterProvider.OnCreateTransportMessage(stopwatch);
+            this.diagnosticManager.FabricTransportCreateTransportMessage(stopwatch);
 
             var fabricTransportRequestBody = responseMsgBody != null
                 ? new FabricTransportRequestBody(
@@ -173,7 +171,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 deserializedMsg = null;
             }
 
-            this.serviceRemotingPerformanceCounterProvider.OnCreateRemotingMessage(stopwatch);
+            this.diagnosticManager.FabricTransportCreateRemotingMessage(stopwatch);
 
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
         }

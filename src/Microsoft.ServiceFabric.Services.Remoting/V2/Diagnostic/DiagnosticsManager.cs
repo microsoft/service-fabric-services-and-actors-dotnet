@@ -4,23 +4,57 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Fabric;
+using System.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal sealed class DiagnosticsManager : IDiagnosticsManager
+    internal class DiagnosticsManager : IDiagnosticsManager
     {
         private readonly DiagnosticsEventManager diagnosticsEventManager;
         private ServiceRemotingPerformanceCounterProvider perfCounterProvider;
 
-        internal DiagnosticsManager(ServiceContext serviceContext)
+        internal DiagnosticsManager(Guid partitionId, long replicaOrInstanceId)
         {
             diagnosticsEventManager = new DiagnosticsEventManager();
-            perfCounterProvider = new ServiceRemotingPerformanceCounterProvider(serviceContext.PartitionId, serviceContext.ReplicaOrInstanceId);
+            perfCounterProvider = new ServiceRemotingPerformanceCounterProvider(partitionId, replicaOrInstanceId);
             perfCounterProvider.RegisterWithDiagnosticsEventManager(diagnosticsEventManager);
         }
 
-        DiagnosticsEventManager IDiagnosticsManager.DiagnosticsEventManager => diagnosticsEventManager;
+        public void FabricTransportRequestBegin()
+        {
+            var callbacks = this.diagnosticsEventManager.OnRequestStart;
+            if (callbacks != null)
+            {
+                callbacks();
+            }
+        }
+
+        public void FabricTransportRequestEnd(Stopwatch stopwatch)
+        {
+            var callbacks = this.diagnosticsEventManager.OnRequestEnd;
+            if (callbacks != null)
+            {
+                callbacks(stopwatch);
+            }
+        }
+
+        public void FabricTransportCreateTransportMessage(Stopwatch stopwatch)
+        {
+            var callbacks = this.diagnosticsEventManager.OnCreateTransportMessage;
+            if (callbacks != null)
+            {
+                callbacks(stopwatch);
+            }
+        }
+
+        public void FabricTransportCreateRemotingMessage(Stopwatch stopwatch)
+        {
+            var callbacks = this.diagnosticsEventManager.OnCreateRemotingMessage;
+            if (callbacks != null)
+            {
+                callbacks(stopwatch);
+            }
+        }
 
         void IDisposable.Dispose()
         {
