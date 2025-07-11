@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostics
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal interface IDiagnosticsManager : IDisposable
     {

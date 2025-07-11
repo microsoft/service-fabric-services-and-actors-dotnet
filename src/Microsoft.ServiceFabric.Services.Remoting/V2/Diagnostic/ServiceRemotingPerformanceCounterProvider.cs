@@ -3,14 +3,14 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric.Common;
+using System.Linq;
+using System.Text;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric.Common;
-    using System.Linq;
-    using System.Text;
-
     internal class ServiceRemotingPerformanceCounterProvider : IDisposable
     {
         private static readonly string TraceType = "ServiceRemotingPerformanceCounterProvider";
@@ -79,6 +79,36 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             get;
             private set;
+        }
+
+        public void RegisterWithDiagnosticsEventManager(DiagnosticsEventManager diagnosticsEventManager)
+        {
+            if (diagnosticsEventManager == null)
+            {
+                throw new ArgumentNullException(nameof(diagnosticsEventManager));
+            }
+
+            diagnosticsEventManager.OnRequestStart += this.OnRequestStart;
+            diagnosticsEventManager.OnRequestEnd += this.OnRequestEnd;
+            diagnosticsEventManager.OnCreateTransportMessage += this.OnCreateTransportMessage;
+            diagnosticsEventManager.OnCreateRemotingMessage += this.OnCreateRemotingMessage;
+        }
+
+        private void OnRequestStart(DateTime dateTime)
+        {
+
+        }
+        private void OnRequestEnd(DateTime dateTime)
+        {
+
+        }
+        private void OnCreateTransportMessage(DateTime dateTime)
+        {
+
+        }
+        private void OnCreateRemotingMessage(DateTime dateTime)
+        {
+
         }
 
         public void Dispose()

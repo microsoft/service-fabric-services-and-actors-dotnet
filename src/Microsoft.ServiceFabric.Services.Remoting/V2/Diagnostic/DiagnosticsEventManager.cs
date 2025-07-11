@@ -4,10 +4,8 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Fabric;
-using System.Threading;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostics
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class DiagnosticsEventManager
     {
