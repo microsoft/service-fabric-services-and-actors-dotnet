@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Fabric.Common;
 using System.Linq;
 using System.Text;
@@ -94,21 +95,39 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             diagnosticsEventManager.OnCreateRemotingMessage += this.OnCreateRemotingMessage;
         }
 
-        private void OnRequestStart(DateTime dateTime)
+        private void OnRequestStart()
         {
-
+            if(ServiceOutstandingRequestsCounterWriter != null)
+            {
+                ServiceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
+            }
+            
         }
-        private void OnRequestEnd(DateTime dateTime)
+        private void OnRequestEnd(Stopwatch stopwatch)
         {
+            if (ServiceOutstandingRequestsCounterWriter != null)
+            {
+                ServiceOutstandingRequestsCounterWriter.UpdateCounterValue(-1);
+            }
 
+            if (ServiceRequestProcessingTimeCounterWriter != null)
+            {
+                ServiceRequestProcessingTimeCounterWriter.UpdateCounterValue(stopwatch.ElapsedMilliseconds);
+            }
         }
-        private void OnCreateTransportMessage(DateTime dateTime)
+        private void OnCreateTransportMessage(Stopwatch stopwatch)
         {
-
+            if (ServiceResponseSerializationTimeCounterWriter != null)
+            {
+               ServiceResponseSerializationTimeCounterWriter.UpdateCounterValue(stopwatch.ElapsedMilliseconds);
+            }
         }
-        private void OnCreateRemotingMessage(DateTime dateTime)
+        private void OnCreateRemotingMessage(Stopwatch stopwatch)
         {
-
+            if (ServiceRequestDeserializationTimeCounterWriter != null)
+            {
+                ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(stopwatch.ElapsedMilliseconds);
+            }
         }
 
         public void Dispose()

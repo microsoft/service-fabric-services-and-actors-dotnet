@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System;
+using System.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
@@ -13,13 +13,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         internal delegate void OnDiagnosticEvent<T>(T eventData);
 
-        internal OnDiagnosticEvent<DateTime> OnRequestStart { get; set; }
+        internal OnDiagnosticEvent OnRequestStart { get; set; }
 
-        internal OnDiagnosticEvent<DateTime> OnRequestEnd { get; set; }
+        internal OnDiagnosticEvent<Stopwatch> OnRequestEnd { get; set; }
 
-        internal OnDiagnosticEvent<DateTime> OnCreateTransportMessage { get; set; }
+        internal OnDiagnosticEvent<Stopwatch> OnCreateTransportMessage { get; set; }
 
-        internal OnDiagnosticEvent<DateTime> OnCreateRemotingMessage { get; set; }
+        internal OnDiagnosticEvent<Stopwatch> OnCreateRemotingMessage { get; set; }
 
         // internal void RemotingRequestStart(DateTime startTime)
         // {
