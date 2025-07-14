@@ -16,27 +16,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
     internal class WcfServiceRemotingClient : IServiceRemotingClient
     {
-        private ServiceRemotingMessageSerializersManager serializersManager;
-        private ExceptionDeserializer exceptionDeserializer;
+        readonly ServiceRemotingMessageSerializersManager serializersManager;
+        readonly ExceptionDeserializer exceptionDeserializer;
 
         public WcfServiceRemotingClient(
             WcfCommunicationClient<IServiceRemotingContract> wcfClient,
             ServiceRemotingMessageSerializersManager serializersManager,
-            IEnumerable<IExceptionConvertor> exceptionConvertors)
+            ExceptionDeserializer exceptionDeserializer)
         {
             this.serializersManager = serializersManager;
             this.WcfClient = wcfClient;
-
-            var convertors = new List<IExceptionConvertor>();
-            if (exceptionConvertors != null)
-            {
-                convertors.AddRange(exceptionConvertors);
-            }
-
-            convertors.Add(new SystemExceptionConvertor());
-            convertors.Add(new FabricExceptionConvertor());
-
-            exceptionDeserializer = new ExceptionDeserializer(convertors);
+            this.exceptionDeserializer = exceptionDeserializer;
         }
 
         public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }

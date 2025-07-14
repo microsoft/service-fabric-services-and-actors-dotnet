@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     using System;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Linq;
     using System.ServiceModel;
     using System.ServiceModel.Channels;
     using System.Threading;
@@ -81,22 +82,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory,
             IServiceRemotingMessageSerializationProvider serializationProvider,
-            bool useWrappedMessage)
-        {
-            var serializersManager = new ServiceRemotingMessageSerializersManager(
-                this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
-                new BasicDataContractHeaderSerializer());
-
-            this.Initialize(
-                serializersManager,
+            bool useWrappedMessage) : this(
                 clientBinding,
                 callbackClient,
                 exceptionHandlers,
-                null,
+                null, // exceptionConvertors
                 servicePartitionResolver,
                 traceId,
-                createWcfClientFactory);
-        }
+                createWcfClientFactory,
+                serializationProvider,
+                useWrappedMessage) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingClientFactory"/> class.
@@ -230,7 +225,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             return new WcfServiceRemotingClient(
                 wcfClient,
                 serializersManager,
-                exceptionConvertors);
+                ExceptionDeserializer.CreateSystemAndFabricExceptionDeserializer(exceptionConvertors));
         }
 
         /// <summary>
@@ -265,7 +260,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             return new WcfServiceRemotingClient(
                 wcfClient,
                 serializersManager,
-                exceptionConvertors);
+                ExceptionDeserializer.CreateSystemAndFabricExceptionDeserializer(exceptionConvertors));
         }
 
         /// <summary>
@@ -314,13 +309,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             IEnumerable<IExceptionHandler> exceptionHandlers,
             string traceId)
         {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
-            {
-                handlers.AddRange(exceptionHandlers);
-            }
 
-            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
+            var handlers = new List<IExceptionHandler>(exceptionHandlers ?? Enumerable.Empty<IExceptionHandler>())
+            {
+                new ServiceRemotingExceptionHandler(traceId)
+            };
 
             return handlers;
         }
@@ -381,7 +374,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client, this.serializersManager, exceptionConvertors),
+                        Client = new WcfServiceRemotingClient(
+                            communicationClientEventArgs.Client,
+                            this.serializersManager,
+                            ExceptionDeserializer.CreateSystemAndFabricExceptionDeserializer(exceptionConvertors)),
                     });
             }
         }
@@ -397,7 +393,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     this,
                     new CommunicationClientEventArgs<IServiceRemotingClient>()
                     {
-                        Client = new WcfServiceRemotingClient(communicationClientEventArgs.Client, this.serializersManager, exceptionConvertors),
+                        Client = new WcfServiceRemotingClient(
+                            communicationClientEventArgs.Client,
+                            this.serializersManager,
+                            ExceptionDeserializer.CreateSystemAndFabricExceptionDeserializer(exceptionConvertors)),
                     });
             }
         }

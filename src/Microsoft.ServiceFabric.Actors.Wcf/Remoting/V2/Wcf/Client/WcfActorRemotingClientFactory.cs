@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel.Channels;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Remoting.Client;
@@ -79,14 +80,14 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
             string traceId,
             IServiceRemotingMessageSerializationProvider serializationProvider,
             bool useWrappedMessage)
-            : base(
-                InitializeSerializerManager(serializationProvider, useWrappedMessage),
-                clientBinding,
+            : this(clientBinding,
                 callbackClient,
-                GetExceptionHandlers(exceptionHandlers),
-                null,
+                exceptionHandlers,
+                null, // exceptionConvertors
                 servicePartitionResolver,
-                traceId)
+                traceId,
+                serializationProvider,
+                useWrappedMessage)
         {
         }
 
@@ -146,7 +147,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         {
         }
 
-
         private static ActorRemotingSerializationManager InitializeSerializerManager(
             IServiceRemotingMessageSerializationProvider serializationProvider,
             bool useWrappedMessage)
@@ -168,26 +168,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
 
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(IEnumerable<IExceptionHandler> exceptionHandlers)
         {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
+            var handlers = new List<IExceptionHandler>(exceptionHandlers ?? Enumerable.Empty<IExceptionHandler>())
             {
-                handlers.AddRange(exceptionHandlers);
-            }
+                new ActorRemotingExceptionHandler()
+            };
 
-            handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
         }
 
         private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
             IEnumerable<IExceptionConvertor> exceptionConvertors)
         {
-            var actorConvertors = new List<IExceptionConvertor>();
-            if (exceptionConvertors != null)
+            var actorConvertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
-                actorConvertors.AddRange(exceptionConvertors);
-            }
-
-            actorConvertors.Add(new FabricActorExceptionConvertor());
+                new FabricActorExceptionConvertor()
+            };
 
             return actorConvertors;
         }

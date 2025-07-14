@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading;
@@ -27,24 +28,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
     {
         private IServiceRemotingMessageHandler messageHandler;
         private ICommunicationListener wcfListener;
-        private IEnumerable<IExceptionConvertor> exceptionConvertors;
+        readonly ExceptionSerializer exceptionSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceImplementation">The service implementation object.</param>
-        /// <param name="listenerBinding">WCF binding to use for the listener. If the listener binding is not specified or null,
-        /// a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
-        /// a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
+        /// <param name="listenerBinding">
+        ///     WCF binding to use for the listener. If the listener binding is not specified or null,
+        ///     a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
+        ///     a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider.</param>
-        /// <param name="endpointResourceName">The name of the endpoint resource defined in the service manifest that
-        /// should be used to create the address for the listener. If the endpointResourceName is not specified or null,
-        /// the default value "ServiceEndpointV2" is used.
+        /// <param name="endpointResourceName">
+        ///     The name of the endpoint resource defined in the service manifest that
+        ///     should be used to create the address for the listener. If the endpointResourceName is not specified or null,
+        ///     the default value "ServiceEndpointV2" is used.
         /// </param>
         /// <param name="useWrappedMessage">
-        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
+        ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire.
+        ///     When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the
+        ///     parameters will be wrapped.Default value is false.
+        /// </param>
         [Obsolete]
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
@@ -53,21 +59,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IServiceRemotingMessageSerializationProvider serializationProvider,
             string endpointResourceName,
             bool useWrappedMessage) : this(serviceContext,
-                                                   serviceImplementation,
-                                                   listenerBinding,
-                                                   serializationProvider,
-                                                   endpointResourceName,
-                                                   useWrappedMessage,
-                                                   null) { }
+                                           serviceImplementation,
+                                           listenerBinding,
+                                           serializationProvider,
+                                           endpointResourceName,
+                                           useWrappedMessage,
+                                           null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
         /// <param name="serviceImplementation">The service implementation object.</param>
-        /// <param name="listenerBinding">WCF binding to use for the listener. If the listener binding is not specified or null,
-        /// a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
-        /// a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
+        /// <param name="listenerBinding">
+        ///     WCF binding to use for the listener. If the listener binding is not specified or null,
+        ///     a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
+        ///     a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider.</param>
         /// <param name="endpointResourceName">The name of the endpoint resource defined in the service manifest that
@@ -94,7 +101,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             serializationProvider = this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage);
 
-            this.exceptionConvertors = exceptionConvertors;
+            exceptionSerializer = ExceptionSerializer.CreateSystemAndFabricExceptionSerializer(exceptionConvertors);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
@@ -109,7 +116,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 new WcfRemotingService(
                     this.messageHandler,
                     serializerManager,
-                    this.exceptionConvertors),
+                    ExceptionSerializer.CreateSystemAndFabricExceptionSerializer(exceptionConvertors)),
                 listenerBinding,
                 endpointResourceName);
         }
@@ -118,20 +125,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
-        /// <param name="messageHandler">The handler for receiving and processing remoting messages. As the messages are received
-        /// the listener delivers the messages to the handler.
+        /// <param name="messageHandler">
+        ///     The handler for receiving and processing remoting messages. As the messages are received
+        ///     the listener delivers the messages to the handler.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider.</param>
-        /// <param name="listenerBinding">WCF binding to use for the listener. If the listener binding is not specified or null,
-        /// a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
-        /// a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
+        /// <param name="listenerBinding">
+        ///     WCF binding to use for the listener. If the listener binding is not specified or null,
+        ///     a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method which creates
+        ///     a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
         /// </param>
-        /// <param name="endpointResourceName">The name of the endpoint resource defined in the service manifest that
-        /// should be used to create the address for the listener. If the endpointResourceName is not specified or it is null,
-        /// the default value "ServiceEndpointV2" is used.
+        /// <param name="endpointResourceName">
+        ///     The name of the endpoint resource defined in the service manifest that
+        ///     should be used to create the address for the listener. If the endpointResourceName is not specified or it is null,
+        ///     the default value "ServiceEndpointV2" is used.
         /// </param>
         /// <param name="useWrappedMessage">
-        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
+        ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire.
+        ///     When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the
+        ///     parameters will be wrapped.Default value is false.
+        /// </param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -153,18 +166,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
         /// <param name="serviceContext">The context of the service for which the remoting listener is being constructed.</param>
-        /// <param name="messageHandler">The handler for receiving and processing remoting messages. As the messages are received
-        /// the listener delivers the messages to the handler.
+        /// <param name="messageHandler">
+        ///     The handler for receiving and processing remoting messages. As the messages are received
+        ///     the listener delivers the messages to the handler.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider.</param>
-        /// <param name="listenerBinding">WCF binding to use for the listener. If the listener binding is not specified or null,
-        /// a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method.
+        /// <param name="listenerBinding">
+        ///     WCF binding to use for the listener. If the listener binding is not specified or null,
+        ///     a default listener binding is created using <see cref="WcfUtility.CreateTcpListenerBinding"/> method.
         /// </param>
-        /// <param name="address">The endpoint address to use for the WCF listener. If not specified or null, the endpoint
-        /// address is created using the default endpoint resource named "ServiceEndpointV2" defined in the service manifest.
+        /// <param name="address">
+        ///     The endpoint address to use for the WCF listener. If not specified or null, the endpoint
+        ///     address is created using the default endpoint resource named "ServiceEndpointV2" defined in the service manifest.
         /// </param>
         /// <param name="useWrappedMessage">
-        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
+        ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire.
+        ///     When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the
+        ///     parameters will be wrapped.Default value is false.
+        /// </param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -282,7 +301,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             this.messageHandler = messageHandler;
             this.wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
                 serviceContext,
-                new WcfRemotingService(this.messageHandler, serializerManager, exceptionConvertors),
+                new WcfRemotingService(this.messageHandler, serializerManager, exceptionSerializer),
                 listenerBinding,
                 endpointResourceName);
         }
@@ -302,7 +321,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                     new WcfRemotingService(
                         this.messageHandler,
                         serializerManager,
-                        exceptionConvertors),
+                        exceptionSerializer),
                     listenerBinding,
                     address);
             }
@@ -313,7 +332,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                     new WcfRemotingService(
                         this.messageHandler,
                         serializerManager,
-                        exceptionConvertors),
+                        exceptionSerializer),
                     listenerBinding,
                     "ServiceEndpointV2");
             }
@@ -350,22 +369,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             public WcfRemotingService(
                 IServiceRemotingMessageHandler messageHandler,
                 ServiceRemotingMessageSerializersManager serializersManager,
-                IEnumerable<IExceptionConvertor> exceptionConvertors)
+                ExceptionSerializer exceptionSerializer)
             {
                 this.messageHandler = messageHandler;
                 this.serializersManager = serializersManager;
                 this.requestContext = new WcfServiceRemotingRequestContext(this.serializersManager);
-
-                var runtimeConvertors = new List<IExceptionConvertor>();
-                if (exceptionConvertors != null)
-                {
-                    runtimeConvertors.AddRange(exceptionConvertors);
-                }
-
-                runtimeConvertors.Add(new SystemExceptionConvertor());
-                runtimeConvertors.Add(new FabricExceptionConvertor());
-
-                exceptionSerializer = new ExceptionSerializer(runtimeConvertors, null);
+                this.exceptionSerializer = exceptionSerializer;
             }
 
             public async Task<ResponseMessage> RequestResponseAsync(

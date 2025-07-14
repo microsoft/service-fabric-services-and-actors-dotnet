@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
@@ -22,6 +23,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         public ExceptionDeserializer(IEnumerable<IExceptionConvertor> convertors)
         {
             this.convertors = convertors;
+        }
+
+        public static ExceptionDeserializer CreateSystemAndFabricExceptionDeserializer(
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
+        {
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new SystemExceptionConvertor(),
+                new FabricExceptionConvertor()
+            };
+
+            return new ExceptionDeserializer(convertors);
         }
 
         Exception FromServiceException(ServiceException serviceException)
