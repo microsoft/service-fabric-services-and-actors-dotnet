@@ -33,6 +33,5 @@
     <Compile Remove="**\*.cs" />
     <Compile Include="ServiceRemotingProviderAttributeTest.cs" />
     <Compile Include="AssemblyAttributes.cs" />
-    <Compile Include="V2\Diagnostic\DiagnosticsManagerTest.cs" />
   </ItemGroup>
 </Project>
