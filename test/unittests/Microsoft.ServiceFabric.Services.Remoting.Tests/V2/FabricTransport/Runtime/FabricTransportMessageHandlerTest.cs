@@ -15,22 +15,22 @@ using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Runtime
-{    
+{
     public abstract class FabricTransportMessageHandlerTest
     {
-        public class Constructor: FabricTransportMessageHandlerTest
+        public class Constructor : FabricTransportMessageHandlerTest
         {
             [Fact]
             public void FabricTransportMessageHandler_ShouldHave_DiagnosticsManagerField()
             {
                 var handlerType = typeof(FabricTransportMessageHandler);
 
-                var diagnosticsManagerField = handlerType
+                var diagnosticsSourceField = handlerType
                     .GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public)
-                    .FirstOrDefault(f => f.FieldType == typeof(DiagnosticsManager));
+                    .FirstOrDefault(f => f.FieldType == typeof(IDiagnosticsSource));
 
-                Assert.NotNull(diagnosticsManagerField);
-                Assert.Equal(typeof(DiagnosticsManager), diagnosticsManagerField.FieldType);
+                Assert.NotNull(diagnosticsSourceField);
+                Assert.Equal(typeof(IDiagnosticsSource), diagnosticsSourceField.FieldType);
             }
 
             [Fact]
@@ -56,13 +56,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                 var handlerType = typeof(FabricTransportMessageHandler);
                 var diagnosticsManagerField = handlerType
                     .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .FirstOrDefault(f => f.FieldType == typeof(DiagnosticsManager));
+                    .FirstOrDefault(f => f.FieldType == typeof(IDiagnosticsSource));
 
                 Assert.NotNull(diagnosticsManagerField);
                 var diagnosticsManagerInstance = diagnosticsManagerField.GetValue(handler);
                 Assert.NotNull(diagnosticsManagerInstance);
                 Assert.IsType<DiagnosticsManager>(diagnosticsManagerInstance);
             }
+        }
+
+        public class RequestReponse : FabricTransportMessageHandlerTest
+        {
         }
         
     }
