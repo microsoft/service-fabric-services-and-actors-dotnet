@@ -4,8 +4,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class DiagnosticsManager: IDiagnosticsSource
     {
-        internal DiagnosticsManager(Guid partitionId, long replicaOrInstanceId)
+        private ITimeProvider timeProvider;
+        private Guid partitionId;
+        private long replicaOrInstanceId;
+        
+        internal DiagnosticsManager(ITimeProvider timeProvider, Guid partitionId, long replicaOrInstanceId)
         {
+            this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+            this.partitionId = partitionId;
+            this.replicaOrInstanceId = replicaOrInstanceId;
         }
 
         public DateTime OnCreateRemotingMessageBegin()

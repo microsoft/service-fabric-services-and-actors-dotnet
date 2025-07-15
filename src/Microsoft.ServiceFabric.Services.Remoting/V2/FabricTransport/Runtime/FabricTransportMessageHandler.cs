@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
             this.exceptionSerializer = exceptionConvertorHandler;
-            this.diagnosticsManager = new DiagnosticsManager(this.partitionId, this.replicaOrInstanceId);
+            this.diagnosticsManager = new DiagnosticsManager(new SystemTimeProvider(), this.partitionId, this.replicaOrInstanceId);
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(
