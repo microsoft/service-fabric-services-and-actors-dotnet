@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
         private ExceptionSerializer exceptionSerializer;
+        private DiagnosticsManager diagnosticsManager;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
@@ -42,6 +43,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
             this.exceptionSerializer = exceptionConvertorHandler;
+            this.diagnosticsManager = new DiagnosticsManager(this.partitionId, this.replicaOrInstanceId);
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(
