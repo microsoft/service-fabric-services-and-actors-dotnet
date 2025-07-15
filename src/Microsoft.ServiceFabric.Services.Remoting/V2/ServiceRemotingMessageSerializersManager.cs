@@ -16,6 +16,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
         private readonly IServiceRemotingMessageHeaderSerializer headerSerializer;
         private readonly IServiceRemotingMessageSerializationProvider serializationProvider;
 
+        protected ServiceRemotingMessageSerializersManager() { }
+
         public ServiceRemotingMessageSerializersManager(
             IServiceRemotingMessageSerializationProvider serializationProvider,
             IServiceRemotingMessageHeaderSerializer headerSerializer,
