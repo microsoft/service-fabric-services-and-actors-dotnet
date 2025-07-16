@@ -56,6 +56,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     .UpdateCounterValue(1);
             }
 
+            var startTime = diagnosticsSource.OnRequestResponseBegin();
+
             var requestStopWatch = Stopwatch.StartNew();
             var requestResponseSerializationStopwatch = Stopwatch.StartNew();
 
@@ -103,6 +105,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                         .UpdateCounterValue(
                             requestStopWatch.ElapsedMilliseconds);
                 }
+
+                diagnosticsSource.OnRequestResponseEnd(startTime);
             }
         }
 
@@ -155,12 +159,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var responseSerializer =
                 this.serializersManager.GetResponseBodySerializer(interfaceId);
             stopwatch.Restart();
+            var startTime = diagnosticsSource.OnCreateTransportMessageSerializationBegin();
+
             var responseMsgBody = responseSerializer.Serialize(retval.GetBody());
             if (this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
             {
                 this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter
                     .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
+            diagnosticsSource.OnCreateTransportMessageSerializationEnd(startTime);
 
             var fabricTransportRequestBody = responseMsgBody != null
                 ? new FabricTransportRequestBody(
@@ -182,6 +189,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var msgBodySerializer =
                  this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
             stopwatch.Restart();
+            var startTime = diagnosticsSource.OnRemotingRequestDeserializationBegin();
+
             IServiceRemotingRequestMessageBody deserializedMsg;
             if (fabricTransportMessage.GetBody() != null)
             {
@@ -198,6 +207,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.serviceRemotingPerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
                     stopwatch.ElapsedMilliseconds);
             }
+            diagnosticsSource.OnRemotingRequestDeserializationEnd(startTime);
 
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
         }
