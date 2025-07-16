@@ -221,6 +221,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                 Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageSerializationEnd(methodDeserioalizationStartTime), Times.Once);
             }
         }
-        
     }
 }
