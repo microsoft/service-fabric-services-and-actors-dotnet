@@ -3,14 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
 using Xunit;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
-    public class ExceptionDeserializerTest
+    abstract class ExceptionDeserializerTest
     {
         public class Constructor
         {
