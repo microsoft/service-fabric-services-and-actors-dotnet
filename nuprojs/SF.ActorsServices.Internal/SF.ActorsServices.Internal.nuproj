@@ -16,7 +16,7 @@
 
     <ItemGroup>
       <File Include="$(DropFolderNetFramework)*.*">
-        <TargetPath>lib\netframework</TargetPath>
+        <TargetPath>lib\net462</TargetPath>
       </File>
       <File Include="$(DropFolderNetCore)*.*">
         <TargetPath>lib\net8.0</TargetPath>
