@@ -14,12 +14,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     internal class FabricTransportServiceRemotingCallbackClient : IServiceRemotingCallbackClient
     {
         private readonly FabricTransportCallbackClient fabricTransportCallbackClient;
-        private readonly ServiceRemotingMessageSerializersManager serializersManager;
+        private readonly IServiceRemotingMessageSerializersManager serializersManager;
         private readonly IServiceRemotingMessageBodyFactory remotingMessageBodyFactory;
 
         public FabricTransportServiceRemotingCallbackClient(
             FabricTransportCallbackClient fabricTransportCallbackClient,
-            ServiceRemotingMessageSerializersManager serializersManager)
+            IServiceRemotingMessageSerializersManager serializersManager)
         {
             this.fabricTransportCallbackClient = fabricTransportCallbackClient;
             this.serializersManager = serializersManager;

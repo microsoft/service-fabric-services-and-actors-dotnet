@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     {
         private static readonly string TraceType = typeof(FabricTransportMessageHandler).Name;
         private readonly IServiceRemotingMessageHandler remotingMessageHandler;
-        private readonly ServiceRemotingMessageSerializersManager serializersManager;
+        private readonly IServiceRemotingMessageSerializersManager serializersManager;
         private readonly Guid partitionId;
         private readonly long replicaOrInstanceId;
         private readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
-            ServiceRemotingMessageSerializersManager serializersManager,
+            IServiceRemotingMessageSerializersManager serializersManager,
             ExceptionSerializer exceptionConvertorHandler,
             Guid partitionId,
             long replicaOrInstanceId)

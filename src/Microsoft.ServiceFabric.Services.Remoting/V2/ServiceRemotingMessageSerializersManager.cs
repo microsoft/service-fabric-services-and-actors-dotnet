@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
-    internal class ServiceRemotingMessageSerializersManager
+    internal class ServiceRemotingMessageSerializersManager : IServiceRemotingMessageSerializersManager
     {
         private readonly ConcurrentDictionary<int, CacheEntry> cachedBodySerializers;
         private readonly IServiceRemotingMessageHeaderSerializer headerSerializer;

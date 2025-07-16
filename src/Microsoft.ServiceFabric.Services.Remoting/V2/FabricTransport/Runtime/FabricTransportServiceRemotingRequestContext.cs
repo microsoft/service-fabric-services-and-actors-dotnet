@@ -13,13 +13,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     internal class FabricTransportServiceRemotingRequestContext : IServiceRemotingRequestContext
     {
         private readonly FabricTransportRequestContext requestContext;
-        private readonly ServiceRemotingMessageSerializersManager serializersManager;
+        private readonly IServiceRemotingMessageSerializersManager serializersManager;
         private string id;
         private IServiceRemotingCallbackClient callback = null;
 
         public FabricTransportServiceRemotingRequestContext(
             FabricTransportRequestContext requestContext,
-            ServiceRemotingMessageSerializersManager serializersManager)
+            IServiceRemotingMessageSerializersManager serializersManager)
         {
             this.requestContext = requestContext;
             this.serializersManager = serializersManager;
