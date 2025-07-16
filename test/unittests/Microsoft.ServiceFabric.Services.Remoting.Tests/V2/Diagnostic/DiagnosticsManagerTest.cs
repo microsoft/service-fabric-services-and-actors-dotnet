@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
         public class Signiture : DiagnosticsManagerTest
         {
             [Fact]
-            public void DiagnosticsManager_Should_Implement_IDiagnosticsSource()
+            public void ShouldImplement_IDiagnosticsSource()
             {
                 var diagnosticsManagerType = typeof(DiagnosticsManager);
                 var iDiagnosticsSourceType = typeof(IDiagnosticsSource);
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
         public class Constructor : DiagnosticsManagerTest
         {
             [Fact]
-            public void DiagnosticsManager_ShouldHave_ConstructorWithParameters()
+            public void ShouldHave_ConstructorWithParameters()
             {
                 var diagnosticsManagerType = typeof(DiagnosticsManager);
                 var expectedParameterTypes = new[] { typeof(ITimeProvider), typeof(Guid), typeof(long) };
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             }
 
             [Fact]
-            public void DiagnosticsManager_Constructor_ShouldAssignParametersToFields()
+            public void Constructor_ShouldAssignParametersToFields()
             {
                 var mockTimeProvider = Mock.Of<ITimeProvider>();
                 var partitionId = Guid.NewGuid();
