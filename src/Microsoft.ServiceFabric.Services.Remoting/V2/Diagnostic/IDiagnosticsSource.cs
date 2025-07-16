@@ -6,10 +6,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
     {
         DateTime OnRequestResponseBegin();
         void OnRequestResponseEnd(DateTime startTime);
-        DateTime OnCreateTransportMessageBegin();
+        DateTime OnCreateTransportMessageSerializationBegin();
 
-        void OnCreateTransportMessageEnd(DateTime startTime);
-        DateTime OnCreateRemotingMessageBegin();
-        void OnCreateRemotingMessageEnd(DateTime startTime);
+        void OnCreateTransportMessageSerializationEnd(DateTime startTime);
+        DateTime OnRemotingRequestDeserializationBegin();
+        void OnRemotingRequestDeserializationEnd(DateTime startTime);
     }
 }

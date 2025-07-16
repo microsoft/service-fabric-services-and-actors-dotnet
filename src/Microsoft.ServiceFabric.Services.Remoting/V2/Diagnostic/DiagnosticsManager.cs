@@ -15,22 +15,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             this.replicaOrInstanceId = replicaOrInstanceId;
         }
 
-        public DateTime OnCreateRemotingMessageBegin()
+        public DateTime OnRemotingRequestDeserializationBegin()
         {
             throw new NotImplementedException();
         }
 
-        public void OnCreateRemotingMessageEnd(DateTime startTime)
+        public void OnRemotingRequestDeserializationEnd(DateTime startTime)
         {
             throw new NotImplementedException();
         }
 
-        public DateTime OnCreateTransportMessageBegin()
+        public DateTime OnCreateTransportMessageSerializationBegin()
         {
             throw new NotImplementedException();
         }
 
-        public void OnCreateTransportMessageEnd(DateTime startTime)
+        public void OnCreateTransportMessageSerializationEnd(DateTime startTime)
         {
             throw new NotImplementedException();
         }
