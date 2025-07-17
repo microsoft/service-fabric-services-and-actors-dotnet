@@ -15,9 +15,9 @@ using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {
-#if DotNetCoreClr
     public abstract class ServiceFabricEventSourceTest
     {
+#if DotNetCoreClr
         public sealed class Class : ServiceFabricEventSourceTest
         {
             [Fact]
@@ -28,10 +28,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 Assert.Equal(expected, actual);
             }
         }
-
+#endif
 
         public sealed class Constructor : ServiceFabricEventSourceTest, IDisposable
         {
+#if DotNetCoreClr
             readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
 
             public Constructor()
@@ -42,15 +43,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 // Dispose Writer singleton to allow event enablement to work on instances created by the tests
                 var writer = typeof(TestEventSource).Property<TestEventSource>();
                 writer.Value.Dispose();
-            }
-
-            public void Dispose()
-            {
-                // Restore OSPlatform detection
-                typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
-
-                // Restore Writer singleton
-                typeof(TestEventSource).Property<TestEventSource>().Set(new TestEventSource());
             }
 
             [Fact]
@@ -73,6 +65,18 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 using var sut = new TestEventSource();
 
                 Assert.False(sut.IsEnabled());
+            }
+#endif
+
+            public void Dispose()
+            {
+#if DotNetCoreClr
+                // Restore OSPlatform detection
+                typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
+
+                // Restore Writer singleton
+                typeof(TestEventSource).Property<TestEventSource>().Set(new TestEventSource());
+#endif
             }
 
             [Theory]
@@ -113,5 +117,4 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
             }
         }
     }
-#endif
 }
