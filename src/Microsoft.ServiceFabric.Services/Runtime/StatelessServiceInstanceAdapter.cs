@@ -108,7 +108,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     "Got exception when calling onOpenAsync",
                     exception);
                 await this.CloseCommunicationListenersAsync(cancellationToken);
-                throw;
+                throw exception;
             }
 
             return this.endpointCollection.ToString();

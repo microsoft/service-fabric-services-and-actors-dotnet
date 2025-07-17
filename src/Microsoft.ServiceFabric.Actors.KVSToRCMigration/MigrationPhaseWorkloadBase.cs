@@ -221,7 +221,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                         this.traceId,
                         $"Migration phase failed with error: {ex} \n Input: {inputString}");
 
-                throw;
+                throw ex;
             }
         }
 

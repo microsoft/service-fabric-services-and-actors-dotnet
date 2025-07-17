@@ -603,7 +603,7 @@ namespace Microsoft.ServiceFabric.Services.Client
                     }
                     else
                     {
-                        throw;
+                        throw ex;
                     }
                 }
 

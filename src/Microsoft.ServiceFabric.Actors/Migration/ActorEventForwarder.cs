@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
                     catch (Exception e)
                     {
                         ActorTrace.Source.WriteErrorWithId(TraceType, this.traceId, $"Error encountered while forwarding actor event message - ActorId : {actorHeaders.ActorId}, MethodName : {requestMessage.GetHeader().MethodName}, Exception : {e}");
-                        throw;
+                        throw e;
                     }
 
                     ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, $"Successfully forwarded actor event message - ActorId : {actorHeaders.ActorId}, MethodName : {requestMessage.GetHeader().MethodName}");
