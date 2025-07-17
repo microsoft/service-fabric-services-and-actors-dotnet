@@ -3,9 +3,15 @@
   <PropertyGroup>
     <ProjectGuid>{F6E091C3-9136-4058-91CF-57CDF383DF74}</ProjectGuid>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
+  <PropertyGroup>
+    <!-- 
+      The netframework.targets expects FabActUtil to be an EXE. The netcore.targets expects FabActUtil to be a DLL.
+      The netcore binary cannot be an EXE because the SF.ActorsServices.Internal package reference fails to resolve the DLL with the same name.
+    -->
+    <OutputType Condition="'$(TargetFramework)' == 'net462'">Exe</OutputType>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Condition="'$(TargetFramework)' == 'net462'" Include="Microsoft.ServiceFabric.Actors_netframework.targets" 
