@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             public async Task ShouldCallTransportMessageDiagnostics()
             {
                 var methodStartTime = DateTime.Now;
-                Mock.Get(this.mockDiagnosticsSource).Setup(d => d.OnCreateTransportMessageSerializationBegin()).Returns(methodStartTime);
+                Mock.Get(this.mockDiagnosticsSource).Setup(d => d.OnCreateTransportMessageBegin()).Returns(methodStartTime);
 
                 try
                 {
@@ -158,15 +158,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                     // Expected to fail due to mocked dependencies, but we only care about the diagnostics call
                 }
 
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageSerializationBegin(), Times.Once);
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageSerializationEnd(methodStartTime), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageBegin(), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageEnd(methodStartTime), Times.Once);
             }            
             
             [Fact]
             public async Task ShouldCallRemotingMessageDiagnostics()
             {
                 var methodStartTime = DateTime.Now;
-                Mock.Get(this.mockDiagnosticsSource).Setup(d => d.OnRemotingRequestDeserializationBegin()).Returns(methodStartTime);
+                Mock.Get(this.mockDiagnosticsSource).Setup(d => d.OnRemotingRequestBegin()).Returns(methodStartTime);
 
                 try
                 {
@@ -177,8 +177,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                     // Expected to fail due to mocked dependencies, but we only care about the diagnostics call
                 }
 
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestDeserializationBegin(), Times.Once);
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestDeserializationEnd(methodStartTime), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestBegin(), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestEnd(methodStartTime), Times.Once);
             }
         
             [Fact]
@@ -195,11 +195,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                 };
                 Action onSerializationBeginCallback = () =>
                 {
-                    Mock.Get(this.mockDiagnosticsSource).InSequence(sequence).Setup(d => d.OnCreateTransportMessageSerializationBegin()).Returns(methodDeserioalizationStartTime).Callback(onDeserializationBeginCallback);
+                    Mock.Get(this.mockDiagnosticsSource).InSequence(sequence).Setup(d => d.OnCreateTransportMessageBegin()).Returns(methodDeserioalizationStartTime).Callback(onDeserializationBeginCallback);
                 };
                 Action onRequestResponseBeginCallback = () =>
                 {
-                    Mock.Get(this.mockDiagnosticsSource).InSequence(sequence).Setup(d => d.OnRemotingRequestDeserializationBegin()).Returns(methodSerializationStartTime).Callback(onSerializationBeginCallback);
+                    Mock.Get(this.mockDiagnosticsSource).InSequence(sequence).Setup(d => d.OnRemotingRequestBegin()).Returns(methodSerializationStartTime).Callback(onSerializationBeginCallback);
                 };
 
                 Mock.Get(this.mockDiagnosticsSource).InSequence(sequence).Setup(d => d.OnRequestResponseBegin()).Returns(methodStartTime).Callback(onRequestResponseBeginCallback);
@@ -215,10 +215,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
 
                 Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRequestResponseBegin(), Times.Once);
                 Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRequestResponseEnd(methodStartTime), Times.Once);
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestDeserializationBegin(), Times.Once);
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestDeserializationEnd(methodSerializationStartTime), Times.Once);
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageSerializationBegin(), Times.Once);
-                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageSerializationEnd(methodDeserioalizationStartTime), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestBegin(), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnRemotingRequestEnd(methodSerializationStartTime), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageBegin(), Times.Once);
+                Mock.Get(this.mockDiagnosticsSource).Verify(d => d.OnCreateTransportMessageEnd(methodDeserioalizationStartTime), Times.Once);
             }
         }
     }

@@ -159,7 +159,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var responseSerializer =
                 this.serializersManager.GetResponseBodySerializer(interfaceId);
             stopwatch.Restart();
-            var startTime = diagnosticsSource.OnCreateTransportMessageSerializationBegin();
+            var startTime = diagnosticsSource.OnCreateTransportMessageBegin();
 
             var responseMsgBody = responseSerializer.Serialize(retval.GetBody());
             if (this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
@@ -167,7 +167,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter
                     .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
-            diagnosticsSource.OnCreateTransportMessageSerializationEnd(startTime);
+            diagnosticsSource.OnCreateTransportMessageEnd(startTime);
 
             var fabricTransportRequestBody = responseMsgBody != null
                 ? new FabricTransportRequestBody(
@@ -189,7 +189,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var msgBodySerializer =
                  this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
             stopwatch.Restart();
-            var startTime = diagnosticsSource.OnRemotingRequestDeserializationBegin();
+            var startTime = diagnosticsSource.OnRemotingRequestBegin();
 
             IServiceRemotingRequestMessageBody deserializedMsg;
             if (fabricTransportMessage.GetBody() != null)
@@ -207,7 +207,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.serviceRemotingPerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
                     stopwatch.ElapsedMilliseconds);
             }
-            diagnosticsSource.OnRemotingRequestDeserializationEnd(startTime);
+            diagnosticsSource.OnRemotingRequestEnd(startTime);
 
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
         }

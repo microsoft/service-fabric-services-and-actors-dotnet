@@ -4,22 +4,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class PerformanceCounterDiagnosticsSource : IDiagnosticsSource
     {
-        public DateTime OnCreateTransportMessageSerializationBegin()
+        public DateTime OnCreateTransportMessageBegin()
         {
             throw new NotImplementedException();
         }
 
-        public void OnCreateTransportMessageSerializationEnd(DateTime startTime)
+        public void OnCreateTransportMessageEnd(DateTime startTime)
         {
             throw new NotImplementedException();
         }
 
-        public DateTime OnRemotingRequestDeserializationBegin()
+        public DateTime OnRemotingRequestBegin()
         {
             throw new NotImplementedException();
         }
 
-        public void OnRemotingRequestDeserializationEnd(DateTime startTime)
+        public void OnRemotingRequestEnd(DateTime startTime)
         {
             throw new NotImplementedException();
         }

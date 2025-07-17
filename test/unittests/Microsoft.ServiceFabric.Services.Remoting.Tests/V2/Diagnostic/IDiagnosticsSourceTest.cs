@@ -26,19 +26,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 Assert.NotNull(onRequestResponseEndMethod);
                 Assert.Equal(typeof(void), onRequestResponseEndMethod.ReturnType);
 
-                var onCreateTransportMessageBeginMethod = interfaceType.GetMethod("OnCreateTransportMessageSerializationBegin", new Type[0]);
+                var onCreateTransportMessageBeginMethod = interfaceType.GetMethod("OnCreateTransportMessageBegin", new Type[0]);
                 Assert.NotNull(onCreateTransportMessageBeginMethod);
                 Assert.Equal(typeof(DateTime), onCreateTransportMessageBeginMethod.ReturnType);
 
-                var onCreateTransportMessageEndMethod = interfaceType.GetMethod("OnCreateTransportMessageSerializationEnd", new[] { typeof(DateTime) });
+                var onCreateTransportMessageEndMethod = interfaceType.GetMethod("OnCreateTransportMessageEnd", new[] { typeof(DateTime) });
                 Assert.NotNull(onCreateTransportMessageEndMethod);
                 Assert.Equal(typeof(void), onCreateTransportMessageEndMethod.ReturnType);
 
-                var onCreateRemotingMessageBeginMethod = interfaceType.GetMethod("OnRemotingRequestDeserializationBegin", new Type[0]);
+                var onCreateRemotingMessageBeginMethod = interfaceType.GetMethod("OnRemotingRequestBegin", new Type[0]);
                 Assert.NotNull(onCreateRemotingMessageBeginMethod);
                 Assert.Equal(typeof(DateTime), onCreateRemotingMessageBeginMethod.ReturnType);
 
-                var onCreateRemotingMessageEndMethod = interfaceType.GetMethod("OnRemotingRequestDeserializationEnd", new[] { typeof(DateTime) });
+                var onCreateRemotingMessageEndMethod = interfaceType.GetMethod("OnRemotingRequestEnd", new[] { typeof(DateTime) });
                 Assert.NotNull(onCreateRemotingMessageEndMethod);
                 Assert.Equal(typeof(void), onCreateRemotingMessageEndMethod.ReturnType);
 
