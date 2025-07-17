@@ -79,3 +79,4 @@ bld/
 # Others
 ~$*
 *~
+*.nupkg
