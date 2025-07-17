@@ -28,11 +28,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 Assert.Equal(expected, actual);
             }
         }
-#endif
 
         public sealed class Constructor : ServiceFabricEventSourceTest, IDisposable
         {
-#if DotNetCoreClr
+
             readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
 
             public Constructor()
@@ -43,6 +42,15 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
                 // Dispose Writer singleton to allow event enablement to work on instances created by the tests
                 var writer = typeof(TestEventSource).Property<TestEventSource>();
                 writer.Value.Dispose();
+            }
+
+            public void Dispose()
+            {
+                // Restore OSPlatform detection
+                typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
+
+                // Restore Writer singleton
+                typeof(TestEventSource).Property<TestEventSource>().Set(new TestEventSource());
             }
 
             [Fact]
@@ -66,18 +74,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
                 Assert.False(sut.IsEnabled());
             }
-#endif
 
-            public void Dispose()
-            {
-#if DotNetCoreClr
-                // Restore OSPlatform detection
-                typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
-
-                // Restore Writer singleton
-                typeof(TestEventSource).Property<TestEventSource>().Set(new TestEventSource());
+#else
+        public sealed class Constructor : ServiceFabricEventSourceTest
+        {
 #endif
-            }
 
             [Theory]
             [InlineData(1, "EventWithIdAndType", "Event with id and type: {0}, {1}, {2}", EventLevel.Informational)]
