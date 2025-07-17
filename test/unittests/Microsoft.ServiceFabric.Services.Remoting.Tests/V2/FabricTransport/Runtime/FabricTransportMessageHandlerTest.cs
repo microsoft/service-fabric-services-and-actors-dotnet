@@ -83,18 +83,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             [Fact]
             public void ShouldHave_DiagnosticsSourceField()
             {
-                var diagnosticsSourceField = typeof(FabricTransportMessageHandler).Field<IDiagnosticsSource>();
+                var diagnosticsSourceField = sut.Field<IDiagnosticsSource>();
 
-                Assert.IsAssignableFrom<IDiagnosticsSource>(diagnosticsSourceField);
+                Assert.IsAssignableFrom<IDiagnosticsSource>(diagnosticsSourceField.Value);
             }
 
             [Fact]
             public void ShouldInstantiate_DiagnosticsManagerAsSource()
             {
-                var diagnosticsSourceField = typeof(FabricTransportMessageHandler).Field<IDiagnosticsSource>();
+                var diagnosticsSourceField = sut.Field<IDiagnosticsSource>();
 
-                Assert.NotNull(diagnosticsSourceField);
-                Assert.IsType<DiagnosticsManager>(diagnosticsSourceField);
+                Assert.NotNull(diagnosticsSourceField.Value);
+                Assert.IsType<DiagnosticsManager>(diagnosticsSourceField.Value);
             }
         }            
         
@@ -107,7 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             public RequestReponse()
             {
                 // After creating SUT, we replace DiagnosticsSource with a mock, so we can verify diagnostics calls
-                typeof(FabricTransportMessageHandler).Field<IDiagnosticsSource>().Set(mockDiagnosticsSource);
+                sut.Field<IDiagnosticsSource>().Set(mockDiagnosticsSource);
             }
 
             [Fact]

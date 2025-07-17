@@ -4,8 +4,8 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Linq;
 using System.Reflection;
+using Inspector;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
 using Moq;
 using Xunit;
@@ -55,30 +55,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 
                 var diagnosticsManager = new DiagnosticsManager(mockTimeProvider, partitionId, replicaOrInstanceId);
                 
-                var diagnosticsManagerType = typeof(DiagnosticsManager);
-                var partitionIdField = diagnosticsManagerType
-                    .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .FirstOrDefault(f => f.FieldType == typeof(Guid));
-                    
-                Assert.NotNull(partitionIdField);
-                var actualPartitionId = (Guid)partitionIdField.GetValue(diagnosticsManager);
-                Assert.Equal(partitionId, actualPartitionId);
-                
-                var replicaOrInstanceIdField = diagnosticsManagerType
-                    .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .FirstOrDefault(f => f.FieldType == typeof(long));
-                    
-                Assert.NotNull(replicaOrInstanceIdField);
-                var actualReplicaOrInstanceId = (long)replicaOrInstanceIdField.GetValue(diagnosticsManager);
-                Assert.Equal(replicaOrInstanceId, actualReplicaOrInstanceId);
-                
-                var timeProviderField = diagnosticsManagerType
-                    .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .FirstOrDefault(f => f.FieldType == typeof(ITimeProvider));
-                    
-                Assert.NotNull(timeProviderField);
-                var actualTimeProvider = (ITimeProvider)timeProviderField.GetValue(diagnosticsManager);
-                Assert.Equal(mockTimeProvider, actualTimeProvider);
+                var partitionField = diagnosticsManager.Field<Guid>("partitionId");
+                Assert.NotNull(partitionField);
+                Assert.Equal(partitionId, partitionField.Value);
+
+                var timeProviderFiled = diagnosticsManager.Field<ITimeProvider>("timeProvider");
+                Assert.NotNull(timeProviderFiled);
+                Assert.Equal(mockTimeProvider, timeProviderFiled.Value);
+
+                var replaicaIdField = diagnosticsManager.Field<long>("replicaOrInstanceId");
+                Assert.NotNull(replaicaIdField);
+                Assert.Equal(replicaOrInstanceId, replaicaIdField.Value);
             }
         }
     }
