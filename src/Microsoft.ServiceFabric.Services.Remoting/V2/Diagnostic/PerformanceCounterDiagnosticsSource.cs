@@ -33,5 +33,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             throw new NotImplementedException();
         }
+
+        public void RegisterDiagnosticsSource(IDiagnosticsSource diagnosticsSource)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

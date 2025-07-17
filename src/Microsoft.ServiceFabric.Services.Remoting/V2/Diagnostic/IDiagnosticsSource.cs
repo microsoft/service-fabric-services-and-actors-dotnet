@@ -10,5 +10,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         void OnCreateTransportMessageSerializationEnd(DateTime startTime);
         DateTime OnRemotingRequestDeserializationBegin();
         void OnRemotingRequestDeserializationEnd(DateTime startTime);
+        void RegisterDiagnosticsSource(IDiagnosticsSource diagnosticsSource);
     }
 }

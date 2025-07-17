@@ -41,6 +41,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 var onCreateRemotingMessageEndMethod = interfaceType.GetMethod("OnRemotingRequestDeserializationEnd", new[] { typeof(DateTime) });
                 Assert.NotNull(onCreateRemotingMessageEndMethod);
                 Assert.Equal(typeof(void), onCreateRemotingMessageEndMethod.ReturnType);
+
+                var registerDiagnosticsSourceMethod = interfaceType.GetMethod("RegisterDiagnosticsSource", new[] { typeof(IDiagnosticsSource) });
+                Assert.NotNull(registerDiagnosticsSourceMethod);
+                Assert.Equal(typeof(void), registerDiagnosticsSourceMethod.ReturnType);
             }
         }
     }
