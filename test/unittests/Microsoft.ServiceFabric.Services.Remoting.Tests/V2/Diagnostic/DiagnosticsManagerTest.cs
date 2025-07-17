@@ -4,6 +4,8 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Inspector;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
@@ -11,12 +13,28 @@ using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
-{    public class DiagnosticsManagerTest
+{    
+    public class DiagnosticsManagerTest
     {
-        public class Signiture : DiagnosticsManagerTest
+        internal interface ITestDiagnosticsSource : IDiagnosticsSource { }
+
+        private IDiagnosticsSource mockedFirstSource = Mock.Of<IDiagnosticsSource>();
+        private IDiagnosticsSource mockedSecondSource = Mock.Of<ITestDiagnosticsSource>();
+
+        private DiagnosticsManager sut;
+        ITimeProvider mockTimeProvider = Mock.Of<ITimeProvider>();
+        Guid partitionId = Guid.NewGuid();
+        long replicaOrInstanceId = 123L;
+
+        public DiagnosticsManagerTest()
+        {
+            this.sut = new DiagnosticsManager(mockTimeProvider, partitionId, replicaOrInstanceId);
+        }
+
+        public class Class : DiagnosticsManagerTest
         {
             [Fact]
-            public void ShouldImplement_IDiagnosticsSource()
+            public void HasDiagnosticsSource()
             {
                 var diagnosticsManagerType = typeof(DiagnosticsManager);
                 var iDiagnosticsSourceType = typeof(IDiagnosticsSource);
@@ -28,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
         public class Constructor : DiagnosticsManagerTest
         {
             [Fact]
-            public void ShouldHave_ConstructorWithParameters()
+            public void WithParametersPresent()
             {
                 var diagnosticsManagerType = typeof(DiagnosticsManager);
                 var expectedParameterTypes = new[] { typeof(ITimeProvider), typeof(Guid), typeof(long) };
@@ -47,26 +65,90 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             }
 
             [Fact]
-            public void Constructor_ShouldAssignParametersToFields()
+            public void AssignsParametersToFields()
             {
-                var mockTimeProvider = Mock.Of<ITimeProvider>();
-                var partitionId = Guid.NewGuid();
-                var replicaOrInstanceId = 123L;
-                
-                var diagnosticsManager = new DiagnosticsManager(mockTimeProvider, partitionId, replicaOrInstanceId);
-                
-                var partitionField = diagnosticsManager.Field<Guid>("partitionId");
+                var partitionField = sut.Field<Guid>("partitionId");
                 Assert.NotNull(partitionField);
                 Assert.Equal(partitionId, partitionField.Value);
 
-                var timeProviderFiled = diagnosticsManager.Field<ITimeProvider>("timeProvider");
+                var timeProviderFiled = sut.Field<ITimeProvider>("timeProvider");
                 Assert.NotNull(timeProviderFiled);
                 Assert.Equal(mockTimeProvider, timeProviderFiled.Value);
 
-                var replaicaIdField = diagnosticsManager.Field<long>("replicaOrInstanceId");
+                var replaicaIdField = sut.Field<long>("replicaOrInstanceId");
                 Assert.NotNull(replaicaIdField);
                 Assert.Equal(replicaOrInstanceId, replaicaIdField.Value);
             }
         }
+   
+        public class RegisterDiagnosticsSource : DiagnosticsManagerTest
+        {
+            [Fact]
+            public void RecordsASources()
+            {
+                sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
+                
+                var sources = sut.Field<List<IDiagnosticsSource>>("diagnosticsSources").Value;
+
+                Assert.Single(sources);
+                Assert.IsType<TestDiagnosticsSource>(sources.First());
+            }
+
+            [Fact]
+            public void RecordsDifferentSources()
+            {
+                sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
+                sut.RegisterDiagnosticsSource(new TestDiagnosticsSourceSecond());
+
+                var sources = sut.Field<List<IDiagnosticsSource>>("diagnosticsSources").Value;
+
+                Assert.Equal(2, sources.Count());
+                Assert.IsType<TestDiagnosticsSource>(sources[0]);
+                Assert.IsType<TestDiagnosticsSourceSecond>(sources[1]);
+            }
+
+            [Fact]
+            public void ThrowsOnDuplicateSource()
+            {
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
+                    sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
+                });
+            }
+        }
+
+        public class OnRemotingRequestBegin : DiagnosticsManagerTest
+        {
+
+            private DateTime currentTime = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+
+            public OnRemotingRequestBegin() 
+            { 
+                Mock.Get(mockTimeProvider).Setup(tp => tp.UtcNow).Returns(currentTime);
+            }
+
+            [Fact]
+            public void InvokesAllRegisteredSources()
+            {
+                sut.RegisterDiagnosticsSource(mockedFirstSource);
+                sut.RegisterDiagnosticsSource(mockedSecondSource);
+
+                sut.OnRemotingRequestBegin();
+
+                Mock.Get(mockedFirstSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+                Mock.Get(mockedSecondSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+            }
+
+            [Fact]
+            public void ReturnsCurrentTime()
+            {
+                var result = sut.OnRemotingRequestBegin();
+
+                Mock.Get(mockTimeProvider).Verify(tp => tp.UtcNow, Times.Once);
+                Assert.Equal(currentTime, result);
+            }
+        }
+
     }
 }

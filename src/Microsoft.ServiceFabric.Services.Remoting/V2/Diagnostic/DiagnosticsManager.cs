@@ -1,23 +1,30 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class DiagnosticsManager: IDiagnosticsSource
+    internal class DiagnosticsManager : IDiagnosticsSource
     {
-        private ITimeProvider timeProvider;
-        private Guid partitionId;
-        private long replicaOrInstanceId;
-        
+        readonly ITimeProvider timeProvider;
+        readonly Guid partitionId;
+        readonly long replicaOrInstanceId;
+        private List<IDiagnosticsSource> diagnosticsSources;
+
         internal DiagnosticsManager(ITimeProvider timeProvider, Guid partitionId, long replicaOrInstanceId)
         {
             this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
             this.partitionId = partitionId;
             this.replicaOrInstanceId = replicaOrInstanceId;
+            this.diagnosticsSources = new List<IDiagnosticsSource>();
         }
 
         public DateTime OnRemotingRequestBegin()
         {
-            throw new NotImplementedException();
+            var utcNow = timeProvider.UtcNow;
+
+            diagnosticsSources.ForEach(ds => ds.OnRemotingRequestBegin());
+            return utcNow;
         }
 
         public void OnRemotingRequestEnd(DateTime startTime)
@@ -47,7 +54,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void RegisterDiagnosticsSource(IDiagnosticsSource diagnosticsSource)
         {
-            throw new NotImplementedException();
+            if (diagnosticsSources.Where(ds => ds.GetType() == diagnosticsSource.GetType()).Any())
+            {
+                throw new InvalidOperationException($"Diagnostics source {diagnosticsSource.GetType().Name} already registered. Each source can be registered only once.");
+            }
+            diagnosticsSources.Add(diagnosticsSource);
         }
     }
 }
