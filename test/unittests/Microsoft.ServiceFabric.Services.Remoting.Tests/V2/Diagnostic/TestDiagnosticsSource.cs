@@ -3,7 +3,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {
-    internal class TestDiagnosticsSource : IDiagnosticsSource
+    internal class TestDiagnosticsSource : IDiagnosticEvents
     {
         public DateTime OnCreateTransportMessageBegin()
         {
@@ -35,13 +35,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public void RegisterDiagnosticsSource(IDiagnosticsSource diagnosticsSource)
+        public void RegisterDiagnosticsSource(IDiagnosticEvents diagnosticsSource)
         {
             throw new NotImplementedException();
         }
     }
 
-    internal class TestDiagnosticsSourceSecond : IDiagnosticsSource
+    internal class TestDiagnosticsSourceSecond : IDiagnosticEvents
     {
         public DateTime OnCreateTransportMessageBegin()
         {
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public void RegisterDiagnosticsSource(IDiagnosticsSource diagnosticsSource)
+        public void RegisterDiagnosticsSource(IDiagnosticEvents diagnosticsSource)
         {
             throw new NotImplementedException();
         }

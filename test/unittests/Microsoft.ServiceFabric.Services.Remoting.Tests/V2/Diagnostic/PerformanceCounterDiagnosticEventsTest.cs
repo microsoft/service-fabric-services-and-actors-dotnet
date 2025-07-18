@@ -8,15 +8,15 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {
-    public class PerformanceCounterDiagnosticsSourceTest
+    public class PerformanceCounterDiagnosticEventsTest
     {
-        public class Signature : PerformanceCounterDiagnosticsSourceTest
+        public class Class : PerformanceCounterDiagnosticEventsTest
         {
             [Fact]
-            public void ShouldImplement_IDiagnosticsSource()
+            public void ImplementsIDiagnosticsEvents()
             {
-                var performanceCounterDiagnosticsSourceType = typeof(PerformanceCounterDiagnosticsSource);
-                var iDiagnosticsSourceType = typeof(IDiagnosticsSource);
+                var performanceCounterDiagnosticsSourceType = typeof(PerformanceCounterDiagnosticEvents);
+                var iDiagnosticsSourceType = typeof(IDiagnosticEvents);
 
                 Assert.True(iDiagnosticsSourceType.IsAssignableFrom(performanceCounterDiagnosticsSourceType));
             }

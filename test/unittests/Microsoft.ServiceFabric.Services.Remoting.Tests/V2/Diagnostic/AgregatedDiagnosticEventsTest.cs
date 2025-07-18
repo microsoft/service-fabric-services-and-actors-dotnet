@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Inspector;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
@@ -12,74 +12,66 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {    
-    public class DiagnosticsManagerTest
+    public class AgregatedDiagnosticEventsTest
     {
-        internal interface ITestDiagnosticsSource : IDiagnosticsSource { }
+        internal interface ITestDiagnosticsEvents : IDiagnosticEvents { }
 
-        private IDiagnosticsSource mockedFirstSource = Mock.Of<IDiagnosticsSource>();
-        private IDiagnosticsSource mockedSecondSource = Mock.Of<ITestDiagnosticsSource>();
+        private IDiagnosticEvents mockedDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
+        private IDiagnosticEvents mockedAnotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
 
-        private DiagnosticsManager sut;
+        private AgregatedDiagnosticEvents sut;
         ITimeProvider mockTimeProvider = Mock.Of<ITimeProvider>();
-        Guid partitionId = Guid.NewGuid();
-        long replicaOrInstanceId = 123L;
-
-        public DiagnosticsManagerTest()
+        IEnumerable<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>
         {
-            this.sut = new DiagnosticsManager(mockTimeProvider, partitionId, replicaOrInstanceId);
+            Mock.Of<IDiagnosticEvents>()
+        };
+
+        public AgregatedDiagnosticEventsTest()
+        {
+            this.sut = new AgregatedDiagnosticEvents(mockTimeProvider);
         }
 
-        public class Class : DiagnosticsManagerTest
+        public class Class : AgregatedDiagnosticEventsTest
         {
             [Fact]
-            public void HasDiagnosticsSource()
+            public void ImplementsIDiagnosticEvents()
             {
-                var diagnosticsManagerType = typeof(DiagnosticsManager);
-                var iDiagnosticsSourceType = typeof(IDiagnosticsSource);
+                var sutType = typeof(AgregatedDiagnosticEvents);
+                var expectedType = typeof(IDiagnosticEvents);
 
-                Assert.True(iDiagnosticsSourceType.IsAssignableFrom(diagnosticsManagerType), "DiagnosticsManager should implement IDiagnosticsSource interface");
+                Assert.True(expectedType.IsAssignableFrom(sutType));
             }
         }
 
-        public class Constructor : DiagnosticsManagerTest
+        public class Constructor : AgregatedDiagnosticEventsTest
         {
             [Fact]
             public void WithParametersPresent()
             {
-                var diagnosticsManagerType = typeof(DiagnosticsManager);
-                var expectedParameterTypes = new[] { typeof(ITimeProvider), typeof(Guid), typeof(long) };
+                var sutType = typeof(AgregatedDiagnosticEvents);
+                var expectedParameterTypes = new[] { typeof(ITimeProvider) };
 
-                var constructor = diagnosticsManagerType.GetConstructor(
+                var constructor = sutType.GetConstructor(
                     BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
                     null,
                     expectedParameterTypes,
                     null);
 
                 Assert.NotNull(constructor);
-                Assert.Equal(3, constructor.GetParameters().Length);
+                //Assert.Equal(1, constructor.GetParameters().Length);
                 Assert.Equal(typeof(ITimeProvider), constructor.GetParameters()[0].ParameterType);
-                Assert.Equal(typeof(Guid), constructor.GetParameters()[1].ParameterType);
-                Assert.Equal(typeof(long), constructor.GetParameters()[2].ParameterType);
             }
 
             [Fact]
-            public void AssignsParametersToFields()
+            public void AssignsClockField()
             {
-                var partitionField = sut.Field<Guid>("partitionId");
-                Assert.NotNull(partitionField);
-                Assert.Equal(partitionId, partitionField.Value);
-
                 var timeProviderFiled = sut.Field<ITimeProvider>("timeProvider");
                 Assert.NotNull(timeProviderFiled);
                 Assert.Equal(mockTimeProvider, timeProviderFiled.Value);
-
-                var replaicaIdField = sut.Field<long>("replicaOrInstanceId");
-                Assert.NotNull(replaicaIdField);
-                Assert.Equal(replicaOrInstanceId, replaicaIdField.Value);
             }
         }
 
-        public class OnRemotingRequestBegin : DiagnosticsManagerTest
+        public class OnRemotingRequestBegin : AgregatedDiagnosticEventsTest
         {
 
             //private DateTime currentTime = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc);

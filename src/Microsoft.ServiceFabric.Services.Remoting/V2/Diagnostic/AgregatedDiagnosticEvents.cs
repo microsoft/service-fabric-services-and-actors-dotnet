@@ -3,26 +3,21 @@ using System.Collections.Generic;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class DiagnosticsManager : IDiagnosticsSource
+    internal class AgregatedDiagnosticEvents : IDiagnosticEvents
     {
         readonly ITimeProvider timeProvider;
-        readonly Guid partitionId;
-        readonly long replicaOrInstanceId;
-        private List<IDiagnosticsSource> diagnosticsSources;
+        private List<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>();
 
-        internal DiagnosticsManager(ITimeProvider timeProvider, Guid partitionId, long replicaOrInstanceId)
+        internal AgregatedDiagnosticEvents(ITimeProvider timeProvider)
         {
             this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-            this.partitionId = partitionId;
-            this.replicaOrInstanceId = replicaOrInstanceId;
-            this.diagnosticsSources = new List<IDiagnosticsSource>();
         }
 
         public DateTime OnRemotingRequestBegin()
         {
             var utcNow = timeProvider.UtcNow;
 
-            diagnosticsSources.ForEach(ds => ds.OnRemotingRequestBegin());
+            diagnosticEvents.ForEach(ds => ds.OnRemotingRequestBegin());
             return utcNow;
         }
 

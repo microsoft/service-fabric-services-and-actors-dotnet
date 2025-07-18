@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
 
         readonly internal IServiceRemotingMessageHandler mockRemotingMessageHandler;
         readonly internal IServiceRemotingMessageSerializersManager mockSerializerManager;
-        readonly internal IDiagnosticsSource mockDiagnosticsSource;
+        readonly internal IDiagnosticEvents mockDiagnosticsSource;
 
         readonly internal ExceptionSerializer exceptionSerializer = new ExceptionSerializer(
             new IExceptionConvertor[] { new DefaultExceptionConvertor() },
@@ -59,7 +59,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             Mock.Get(this.mockRemotingMessageHandler).Setup(m => m.HandleRequestResponseAsync(It.IsAny<IServiceRemotingRequestContext>(), It.IsAny<IServiceRemotingRequestMessage>()))
                 .Returns(Task.FromResult(Mock.Of<IServiceRemotingResponseMessage>()));
 
-            this.mockDiagnosticsSource = Mock.Of<IDiagnosticsSource>();
+            this.mockDiagnosticsSource = Mock.Of<IDiagnosticEvents>();
 
             this.mockSerializerManager = Mock.Of<IServiceRemotingMessageSerializersManager>();
             Mock.Get(this.mockSerializerManager).Setup(m => m.GetHeaderSerializer())
@@ -83,18 +83,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             [Fact]
             public void ShouldHave_DiagnosticsSourceField()
             {
-                var diagnosticsSourceField = sut.Field<IDiagnosticsSource>();
+                var diagnosticsSourceField = sut.Field<IDiagnosticEvents>();
 
-                Assert.IsAssignableFrom<IDiagnosticsSource>(diagnosticsSourceField.Value);
+                Assert.IsAssignableFrom<IDiagnosticEvents>(diagnosticsSourceField.Value);
             }
 
             [Fact]
             public void ShouldInstantiate_DiagnosticsManagerAsSource()
             {
-                var diagnosticsSourceField = sut.Field<IDiagnosticsSource>();
+                var diagnosticsSourceField = sut.Field<IDiagnosticEvents>();
 
                 Assert.NotNull(diagnosticsSourceField.Value);
-                Assert.IsType<DiagnosticsManager>(diagnosticsSourceField.Value);
+                Assert.IsType<AgregatedDiagnosticEvents>(diagnosticsSourceField.Value);
             }
         }            
         
@@ -107,7 +107,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             public RequestReponse()
             {
                 // After creating SUT, we replace DiagnosticsSource with a mock, so we can verify diagnostics calls
-                sut.Field<IDiagnosticsSource>().Set(mockDiagnosticsSource);
+                sut.Field<IDiagnosticEvents>().Set(mockDiagnosticsSource);
             }
 
             [Fact]

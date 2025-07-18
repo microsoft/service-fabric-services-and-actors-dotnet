@@ -2,7 +2,7 @@ using System;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class PerformanceCounterDiagnosticsSource : IDiagnosticsSource
+    internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
     {
         public DateTime OnCreateTransportMessageBegin()
         {

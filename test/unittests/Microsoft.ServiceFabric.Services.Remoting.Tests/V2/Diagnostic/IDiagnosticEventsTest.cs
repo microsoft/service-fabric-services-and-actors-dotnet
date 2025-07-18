@@ -9,14 +9,14 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {
-    public abstract class IDiagnosticsSourceTest
+    public abstract class IDiagnosticEventsTest
     {
-        public class Signiture : IDiagnosticsSourceTest
+        public class Signiture : IDiagnosticEventsTest
         {
             [Fact]
-            public void IDiagnosticsSource_ShouldHave_RequiredMethods()
+            public void HasRequiredMethods()
             {
-                var interfaceType = typeof(IDiagnosticsSource);
+                var interfaceType = typeof(IDiagnosticEvents);
 
                 var onRequestResponseBeginMethod = interfaceType.GetMethod("OnRequestResponseBegin", new Type[0]);
                 Assert.NotNull(onRequestResponseBeginMethod);
