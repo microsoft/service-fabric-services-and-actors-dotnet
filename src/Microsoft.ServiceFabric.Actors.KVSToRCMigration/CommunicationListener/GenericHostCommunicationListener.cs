@@ -3,8 +3,6 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
-
-
 {
     using System;
     using System.Fabric;
