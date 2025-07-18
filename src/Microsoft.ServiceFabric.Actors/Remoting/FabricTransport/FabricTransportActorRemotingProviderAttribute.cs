@@ -3,6 +3,8 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+#pragma warning disable CS0618 // Type or member is obsolete (Migration APIs are deprecated but still used internally)
+
 using System;
 using System.Collections.Generic;
 using Microsoft.ServiceFabric.Actors.Generator;

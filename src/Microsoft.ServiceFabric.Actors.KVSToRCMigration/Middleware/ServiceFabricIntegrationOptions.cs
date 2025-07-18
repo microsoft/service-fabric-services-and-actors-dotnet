@@ -3,6 +3,9 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
+
+#pragma warning disable CS0618 // Type or member is obsolete (KVSToRCMigration uses deprecated Migration APIs)
+
 {
     using System;
 

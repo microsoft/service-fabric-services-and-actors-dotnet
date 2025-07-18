@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Exceptions
     /// Exception to represent unresolved ambiguous actor id detection.
     /// </summary>
     [Serializable]
+    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
     public sealed class AmbiguousActorIdDetectedException : FabricException
     {
         /// <summary>

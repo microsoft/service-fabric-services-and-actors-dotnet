@@ -3,8 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+
+#pragma warning disable CS0618 // Type or member is obsolete (KVSToRCMigration uses deprecated Migration APIs)
+
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
 {
+    using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
@@ -12,6 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     /// Migration state response.
     /// </summary>
     [DataContract]
+    [Obsolete("Microsoft.ServiceFabric.Actors.KVSToRCMigration APIs are being removed in a future release.")]
     public class EnumerationResponse
     {
         /// <summary>

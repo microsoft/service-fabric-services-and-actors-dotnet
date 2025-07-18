@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Exceptions
     /// Target Migration service is disallowed to accept calls until all the sequence numbers are migrated successfully.
     /// </summary>
     [Serializable]
+    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
     public sealed class ActorCallsDisallowedException : FabricException
     {
         /// <summary>

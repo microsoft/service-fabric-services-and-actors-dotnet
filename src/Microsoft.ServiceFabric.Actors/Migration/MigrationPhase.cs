@@ -5,9 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
+    using System;
+
     /// <summary>
     /// Indicates actor service migration phase.
     /// </summary>
+    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
     public enum MigrationPhase
     {
         /// <summary>

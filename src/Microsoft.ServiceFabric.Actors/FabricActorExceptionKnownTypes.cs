@@ -87,7 +87,9 @@ namespace Microsoft.ServiceFabric.Actors
                     "Microsoft.ServiceFabric.Actors.Migration.Exceptions.ActorCallsDisallowedException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
+#pragma warning disable CS0618 // Type or member is obsolete
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<ActorCallsDisallowedException>(svcEx, innerEx),
+#pragma warning restore CS0618 // Type or member is obsolete
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
@@ -95,7 +97,9 @@ namespace Microsoft.ServiceFabric.Actors
                     "Microsoft.ServiceFabric.Actors.Migration.Exceptions.InvalidMigrationConfigException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
+#pragma warning disable CS0618 // Type or member is obsolete
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<InvalidMigrationConfigException>(svcEx, innerEx),
+#pragma warning restore CS0618 // Type or member is obsolete
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
@@ -103,7 +107,9 @@ namespace Microsoft.ServiceFabric.Actors
                     "Microsoft.ServiceFabric.Actors.Migration.Exceptions.InvalidMigrationStateProviderException", new ConvertorFuncs()
                     {
                         ToServiceExFunc = ex => ToServiceException(ex),
+#pragma warning disable CS0618 // Type or member is obsolete
                         FromServiceExFunc = (svcEx, innerEx) => FromServiceException<InvalidMigrationStateProviderException>(svcEx, innerEx),
+#pragma warning restore CS0618 // Type or member is obsolete
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },

@@ -2,7 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}</ProjectGuid>
-    <TargetFrameworks>net8.0;net462</TargetFrameworks>    
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <!-- Suppress obsolete warnings for Migration APIs since this entire project is deprecated -->
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>

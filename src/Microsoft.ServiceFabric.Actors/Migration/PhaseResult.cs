@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// Migration phase result.
     /// </summary>
     [DataContract]
+    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
     public class PhaseResult
     {
         private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhaseResult), new DataContractJsonSerializerSettings
@@ -107,6 +108,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
         /// Migration worker result.
         /// </summary>
         [DataContract]
+        [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
         public class WorkerResult
         {
             private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(WorkerResult), new DataContractJsonSerializerSettings

@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors
     /// Exception to indicate actor state provider is invalid and cannot partitipate in migration.
     /// </summary>
     [Serializable]
+    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
     public sealed class InvalidMigrationStateProviderException : FabricException
     {
         /// <summary>
