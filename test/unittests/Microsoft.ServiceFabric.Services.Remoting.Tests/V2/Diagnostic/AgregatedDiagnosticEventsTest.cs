@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
         public AgregatedDiagnosticEventsTest()
         {
-            this.sut = new AgregatedDiagnosticEvents(mockClock, diagnosticEvents);
+            this.sut = new AgregatedDiagnosticEvents(diagnosticEvents);
         }
 
         public class Class : AgregatedDiagnosticEventsTest
@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             public void WithParametersPresent()
             {
                 var sutType = typeof(AgregatedDiagnosticEvents);
-                var expectedParameterTypes = new[] { typeof(IClock), typeof(IEnumerable<IDiagnosticEvents>) };
+                var expectedParameterTypes = new[] { typeof(IEnumerable<IDiagnosticEvents>) };
 
                 var constructor = sutType.GetConstructor(
                     BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
@@ -60,41 +60,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                     null);
 
                 Assert.NotNull(constructor);
-                Assert.Equal(2, constructor.GetParameters().Length);
-                Assert.Equal(typeof(IClock), constructor.GetParameters()[0].ParameterType);
-                Assert.Equal(typeof(IEnumerable<IDiagnosticEvents>), constructor.GetParameters()[1].ParameterType);
-            }
-
-            [Fact]
-            public void ThrowsOnNullClock()
-            {
-                Assert.Throws<ArgumentNullException>(() => new AgregatedDiagnosticEvents(null, new List<IDiagnosticEvents>()));
-            }
-
-            [Fact]
-            public void AssignsClockField()
-            {
-                var timeProviderFiled = this.sut.Field<IClock>("timeProvider");
-                Assert.NotNull(timeProviderFiled);
-                Assert.Equal(mockClock, timeProviderFiled.Value);
+                Assert.Single(constructor.GetParameters());
+                Assert.Equal(typeof(IEnumerable<IDiagnosticEvents>), constructor.GetParameters()[0].ParameterType);
             }
 
             [Fact]
             public void ThrowsOnNullEventsList()
             {
-                Assert.Throws<ArgumentNullException>(() => new AgregatedDiagnosticEvents(mockClock, null));
+                Assert.Throws<ArgumentNullException>(() => new AgregatedDiagnosticEvents(null));
             }
 
             [Fact]
             public void ThrowsOnAnyNullEvents()
             {
-                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(mockClock, new List<IDiagnosticEvents> { mockedDiagnosticEvents, null }));
+                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(new List<IDiagnosticEvents> { mockedDiagnosticEvents, null }));
             }
 
             [Fact]
             public void AssignsEmptyEvent()
             {
-                var newSut = new AgregatedDiagnosticEvents(mockClock, new List<IDiagnosticEvents>());
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>());
 
                 Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet"));
                 Assert.Empty(newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value);
@@ -111,7 +96,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void AssignsMultipleEvent()
             {
-                var newSut = new AgregatedDiagnosticEvents(mockClock, new List<IDiagnosticEvents>
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
@@ -126,7 +111,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void AssignFailsWithMultipleSameDiagnosticEvents()
             {
-                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(mockClock, new List<IDiagnosticEvents>
+                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedDiagnosticEvents

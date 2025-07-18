@@ -7,13 +7,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
     internal class AgregatedDiagnosticEvents : IDiagnosticEvents
     {
         private static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
-        readonly IClock timeProvider;
         private HashSet<IDiagnosticEvents> diagnosticsEventSet;
 
-        internal AgregatedDiagnosticEvents(IClock timeProvider, IEnumerable<IDiagnosticEvents> diagnosticEvents)
+        internal AgregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {
-            this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
             if (diagnosticEvents.Any(d => d == null)) 
                 throw new ArgumentException("Diagnostic events collection cannot contain null elements.", nameof(diagnosticEvents)); 
 
