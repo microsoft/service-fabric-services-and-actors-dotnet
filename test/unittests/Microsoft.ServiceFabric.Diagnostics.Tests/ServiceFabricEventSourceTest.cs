@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
             }
         }
 
-        public sealed class Constructor : ServiceFabricEventSourceTest, IDisposable
+        public sealed class ConstructorNetCore : ServiceFabricEventSourceTest, IDisposable
         {
 
             readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
@@ -74,12 +74,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
                 Assert.False(sut.IsEnabled());
             }
+        }
 
-#else
-        public sealed class Constructor : ServiceFabricEventSourceTest
-        {
 #endif
 
+        public sealed class Constructor : ServiceFabricEventSourceTest
+        {
             [Theory]
             [InlineData(1, "EventWithIdAndType", "Event with id and type: {0}, {1}, {2}", EventLevel.Informational)]
             [InlineData(2, "EventWithIdOnly", "Event with id only: {0}, {1}", EventLevel.Warning)]
