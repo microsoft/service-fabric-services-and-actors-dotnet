@@ -1069,7 +1069,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private void ThrowIfMigrationInProgress()
         {
-            this.ActorService.ThrowIfActorCallsDisallowed();
+            // Migration support has been removed
         }
 
         private void DisposeDiagnosticsManager()

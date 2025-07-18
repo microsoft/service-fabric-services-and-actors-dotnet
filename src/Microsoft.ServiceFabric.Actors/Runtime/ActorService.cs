@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Remoting;
-using Microsoft.ServiceFabric.Actors.Runtime.Migration;
 using Microsoft.ServiceFabric.Services;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
@@ -39,7 +38,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
         private ReplicaRole replicaRole;
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
-        private IMigrationOrchestrator migrationOrchestrator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -57,51 +55,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null,
             IActorStateProvider stateProvider = null,
             ActorServiceSettings settings = null)
-            : this(
-                context,
-                actorTypeInfo,
-                migrationSettings: null,
-                actorFactory,
-                stateManagerFactory,
-                stateProvider,
-                settings)
-        {
-        }
-
-        internal ActorService(
-           StatefulServiceContext context,
-           ActorTypeInformation actorTypeInfo,
-           MigrationSettings migrationSettings,
-           Func<ActorService, ActorId, ActorBase> actorFactory = null,
-           Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null,
-           IActorStateProvider stateProvider = null,
-           ActorServiceSettings settings = null)
-           : this(
-               context,
-               actorTypeInfo,
-               MigrationReflectionHelper.GetMigrationOrchestrator(
-                   stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo),
-                   actorTypeInfo,
-                   context,
-                   migrationSettings),
-               actorFactory,
-               stateManagerFactory,
-               stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo),
-               settings)
-        {
-        }
-
-        internal ActorService(
-            StatefulServiceContext context,
-            ActorTypeInformation actorTypeInfo,
-            IMigrationOrchestrator migrationOrchestrator,
-            Func<ActorService, ActorId, ActorBase> actorFactory = null,
-            Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null,
-            IActorStateProvider stateProvider = null,
-            ActorServiceSettings settings = null)
             : base(
                 context,
-                migrationOrchestrator != null ? migrationOrchestrator.GetMigrationActorStateProvider() : stateProvider)
+                stateProvider ?? ActorStateProviderHelper.CreateDefaultStateProvider(actorTypeInfo))
         {
             this.actorTypeInformation = actorTypeInfo;
             this.stateProvider = (IActorStateProvider)this.StateProviderReplica;
@@ -112,13 +68,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
-
-            if (migrationOrchestrator != null)
-            {
-                // Migration initialization
-                this.migrationOrchestrator = migrationOrchestrator;
-                this.migrationOrchestrator.RegisterCompletionCallback(this.StartRemindersIfNeededAsync);
-            }
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -181,35 +130,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
-        #region Migration
-        internal bool AreActorCallsAllowed
-        {
-            get
-            {
-                if (this.migrationOrchestrator != null)
-                {
-                    return this.migrationOrchestrator.AreActorCallsAllowed();
-                }
 
-                return true;
-            }
-        }
-
-        internal bool IsActorCallToBeForwarded
-        {
-            get
-            {
-                if (this.migrationOrchestrator != null)
-                {
-                    return this.migrationOrchestrator.IsActorCallToBeForwarded();
-                }
-
-                return false;
-            }
-        }
-
-        internal IMigrationOrchestrator MigrationOrchestrator { get => this.migrationOrchestrator; }
-        #endregion Migration
 
         #region IActorService Members
 
@@ -263,44 +184,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         #endregion
 
-        internal async Task StartRemindersIfNeededAsync(bool actorCallsAllowed, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (actorCallsAllowed)
-            {
-                ActorTrace.Source.WriteInfoWithId(
-                    TraceType,
-                    this.Context.TraceId,
-                    "ActorCallsAllowed : TRUE - Starting reminders.");
-                try
-                {
-                    await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    var healthInfo = new HealthInformation("ActorService", "LoadReminders", HealthState.Error)
-                    {
-                        TimeToLive = TimeSpan.MaxValue,
-                        RemoveWhenExpired = false,
-                        Description = ex.Message,
-                    };
 
-                    this.Partition.ReportPartitionHealth(healthInfo, new HealthReportSendOptions { Immediate = true });
-
-                    throw;
-                }
-            }
-            else
-            {
-                ActorTrace.Source.WriteInfoWithId(
-                    TraceType,
-                    this.Context.TraceId,
-                    "ActorCallsAllowed : FALSE");
-
-                //// TODO: Stop reminders from firing
-            }
-        }
 
         internal IActorStateManager CreateStateManager(ActorBase actor)
         {
@@ -314,20 +198,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 new Actors.Remoting.V2.Runtime.ActorMethodDispatcherMap(this.ActorTypeInformation);
         }
 
-        #region Migration
-        internal bool IsConfiguredForMigration()
-        {
-            return this.migrationOrchestrator != null;
-        }
 
-        internal void ThrowIfActorCallsDisallowed()
-        {
-            if (this.migrationOrchestrator != null)
-            {
-                this.migrationOrchestrator.ThrowIfActorCallsDisallowed();
-            }
-        }
-        #endregion Migration
 
         #region StatefulServiceBase Overrides
 
@@ -350,23 +221,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 serviceReplicaListeners.Add(new ServiceReplicaListener(t => kvp.Value(this), kvp.Key));
             }
 
-            this.AddMigrationListener(serviceReplicaListeners);
-
             return serviceReplicaListeners;
-        }
-
-        /// <summary>
-        /// Adds migration specific listeners.
-        /// </summary>
-        /// <param name="serviceReplicaListeners">Existing listener list.</param>
-        /// <remarks>To be used when CreateServiceReplicaListeners() is overriden by Custom implementation of Actor Service.</remarks>
-        protected void AddMigrationListener(IList<ServiceReplicaListener> serviceReplicaListeners)
-        {
-            // Add migration endpoint
-            if (this.migrationOrchestrator != null)
-            {
-                serviceReplicaListeners.Add(new ServiceReplicaListener(_ => this.migrationOrchestrator.GetMigrationCommunicationListener(), Migration.Constants.MigrationListenerName));
-            }
         }
 
         /// <summary>
@@ -387,14 +242,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            if (this.migrationOrchestrator != null)
-            {
-                await this.migrationOrchestrator.StartMigrationAsync(false, cancellationToken);
-            }
-            else
-            {
-                await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
-            }
+            await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);
         }
 
         /// <summary>
