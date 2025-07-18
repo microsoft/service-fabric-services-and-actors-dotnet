@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// <summary>
     /// Default implementation for actor request forwarding scenario.
     /// </summary>
-    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.MigrationApis)]
     public class DefaultActorRequestForwarder : IRequestForwarder
     {
         private static readonly string TraceType = typeof(DefaultActorRequestForwarder).Name;

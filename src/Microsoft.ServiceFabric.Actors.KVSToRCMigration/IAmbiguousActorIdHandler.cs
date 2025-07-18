@@ -10,11 +10,12 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors;
 
     /// <summary>
     /// ActorId Handler.
     /// </summary>
-    [Obsolete("Microsoft.ServiceFabric.Actors.KVSToRCMigration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.KVSToRCMigrationApis)]
     public interface IAmbiguousActorIdHandler
     {
         /// <summary>
@@ -28,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         /// <summary>
         /// Condtional Value.
         /// </summary>
-        [Obsolete("Microsoft.ServiceFabric.Actors.KVSToRCMigration APIs are being removed in a future release.")]
+        [Obsolete(Deprecated.KVSToRCMigrationApis)]
         public class ConditionalValue
         {
             /// <summary>

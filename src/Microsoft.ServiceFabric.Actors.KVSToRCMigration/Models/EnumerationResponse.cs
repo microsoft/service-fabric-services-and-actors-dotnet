@@ -10,12 +10,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
+    using Microsoft.ServiceFabric.Actors;
 
     /// <summary>
     /// Migration state response.
     /// </summary>
     [DataContract]
-    [Obsolete("Microsoft.ServiceFabric.Actors.KVSToRCMigration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.KVSToRCMigrationApis)]
     public class EnumerationResponse
     {
         /// <summary>

@@ -12,12 +12,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
     using System.Text;
+    using Microsoft.ServiceFabric.Actors;
 
     /// <summary>
     /// KeyValuePair
     /// </summary>
     [DataContract]
-    [Obsolete("Microsoft.ServiceFabric.Actors.KVSToRCMigration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.KVSToRCMigrationApis)]
     public class KeyValuePair
     {
         /// <summary>

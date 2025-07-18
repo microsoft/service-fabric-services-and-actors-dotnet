@@ -39,19 +39,42 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         /// </param>
         /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
         /// <param name="requestForwarderFactory">Request forwarder incase migration is ongoing and current service cannot service the request.</param>
-#pragma warning disable CS0618 // Type or member is obsolete
+        [Obsolete(Deprecated.MigrationApis)]
         public FabricTransportActorServiceRemotingListener(
             ActorService actorService,
             FabricTransportRemotingListenerSettings listenerSettings = null,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory = null)
-#pragma warning restore CS0618 // Type or member is obsolete
             : this(
                 actorService,
                 CreateActorRemotingDispatcher(actorService, listenerSettings),
                 SetEndPointResourceName(listenerSettings, actorService),
                 exceptionConvertors: exceptionConvertors,
                 requestForwarderFactory: requestForwarderFactory)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
+        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
+        /// </summary>
+        /// <param name="actorService">
+        ///     The implementation of the actor service.
+        /// </param>
+        /// <param name="listenerSettings">
+        ///     The settings to use for the listener.
+        /// </param>
+        /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
+        public FabricTransportActorServiceRemotingListener(
+            ActorService actorService,
+            FabricTransportRemotingListenerSettings listenerSettings,
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
+            : this(
+                actorService,
+                CreateActorRemotingDispatcher(actorService, listenerSettings),
+                SetEndPointResourceName(listenerSettings, actorService),
+                exceptionConvertors: exceptionConvertors,
+                requestForwarderFactory: null)
         {
         }
 
@@ -70,14 +93,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         /// </param>
         /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
         /// <param name="requestForwarderFactory">Request forwarder incase migration is ongoing and current service cannot service the request.</param>
-#pragma warning disable CS0618 // Type or member is obsolete
+        [Obsolete(Deprecated.MigrationApis)]
         public FabricTransportActorServiceRemotingListener(
             ActorService actorService,
             IServiceRemotingMessageSerializationProvider serializationProvider,
             FabricTransportRemotingListenerSettings listenerSettings = null,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory = null)
-#pragma warning restore CS0618 // Type or member is obsolete
             : this(
                 actorService,
                 new ActorServiceRemotingDispatcher(actorService, serializationProvider.CreateMessageBodyFactory()),
@@ -85,6 +107,35 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
                 serializationProvider,
                 exceptionConvertors,
                 requestForwarderFactory)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
+        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
+        /// </summary>
+        /// <param name="actorService">
+        ///     The implementation of the actor service.
+        /// </param>
+        /// <param name="serializationProvider">
+        /// It is used to serialize deserialize request and response body.
+        /// </param>
+        /// <param name="listenerSettings">
+        ///     The settings to use for the listener.
+        /// </param>
+        /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
+        public FabricTransportActorServiceRemotingListener(
+            ActorService actorService,
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            FabricTransportRemotingListenerSettings listenerSettings,
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
+            : this(
+                actorService,
+                new ActorServiceRemotingDispatcher(actorService, serializationProvider.CreateMessageBodyFactory()),
+                SetEndPointResourceName(listenerSettings, actorService),
+                serializationProvider,
+                exceptionConvertors,
+                null)
         {
         }
 
@@ -103,7 +154,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         /// <param name="serializationProvider">Serialization provider for remoting.</param>
         /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
         /// <param name="requestForwarderFactory">Request forwarder incase migration is ongoing and current service cannot service the request.</param>
-#pragma warning disable CS0618 // Type or member is obsolete
+        [Obsolete(Deprecated.MigrationApis)]
         public FabricTransportActorServiceRemotingListener(
             ActorService actorService,
             IServiceRemotingMessageHandler messageHandler,
@@ -111,7 +162,6 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory = null)
-#pragma warning restore CS0618 // Type or member is obsolete
             : base(
                 GetContext(actorService),
                 OverrideMessageHandlerIfRequired(actorService, messageHandler, requestForwarderFactory),
@@ -123,9 +173,38 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
         {
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportActorServiceRemotingListener"/> class.
+        /// This is a Service Fabric TCP transport based service remoting listener for the specified actor service.
+        /// </summary>
+        /// <param name="actorService">
+        ///     The context of the service for which the remoting listener is being constructed.
+        /// </param>
+        /// <param name="messageHandler">
+        ///     The handler for processing remoting messages. As the messages are received,
+        ///     the listener delivers them to this handler.
+        /// </param>
+        /// <param name="listenerSettings">Listener Settings.</param>
+        /// <param name="serializationProvider">Serialization provider for remoting.</param>
+        /// <param name="exceptionConvertors">Convertors to convert user exception to service exception.</param>
+        public FabricTransportActorServiceRemotingListener(
+            ActorService actorService,
+            IServiceRemotingMessageHandler messageHandler,
+            FabricTransportRemotingListenerSettings listenerSettings,
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
+            : base(
+                GetContext(actorService),
+                OverrideMessageHandlerIfRequired(actorService, messageHandler, null),
+                InitializeSerializerManager(
+                   SetEndPointResourceName(listenerSettings, actorService),
+                   serializationProvider),
+                SetEndPointResourceName(listenerSettings, actorService),
+                GetExceptionConvertors(exceptionConvertors))
+        {
+        }
+
         private static IServiceRemotingMessageHandler OverrideMessageHandlerIfRequired(ActorService actorService, IServiceRemotingMessageHandler messageHandler, Func<RequestForwarderContext, IRequestForwarder> requestForwarderFactory)
-#pragma warning restore CS0618 // Type or member is obsolete
         {
             if (actorService.IsConfiguredForMigration())
             {

@@ -112,7 +112,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
 
                     return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
                         actorService,
-                        listenerSettings);
+                        listenerSettings,
+                        null);
                 });
             }
 
@@ -138,7 +139,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
 
                     return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
                         actorService,
-                        listenerSettings);
+                        listenerSettings,
+                        null);
                 });
             }
 

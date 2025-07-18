@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// Migration result.
     /// </summary>
     [DataContract]
-    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.MigrationApis)]
     public class MigrationResult
     {
         private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(MigrationResult), new DataContractJsonSerializerSettings

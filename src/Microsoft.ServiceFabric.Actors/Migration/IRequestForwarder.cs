@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// <summary>
     /// Interface definition for forwardding actor requests if the current service cannot service the request.
     /// </summary>
-    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.MigrationApis)]
     public interface IRequestForwarder
     {
         /// <summary>

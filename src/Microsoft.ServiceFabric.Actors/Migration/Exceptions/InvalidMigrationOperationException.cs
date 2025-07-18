@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Exceptions
     /// <summary>
     /// Exception to indicate the current migration operation is not allowed.
     /// </summary>
-    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.MigrationApis)]
     public sealed class InvalidMigrationOperationException : FabricException
     {
         /// <summary>

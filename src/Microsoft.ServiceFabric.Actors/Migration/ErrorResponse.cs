@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// </summary>
     [DataContract]
     [KnownType(typeof(FabricErrorCode))]
-    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.MigrationApis)]
     public class ErrorResponse
     {
         /// <summary>

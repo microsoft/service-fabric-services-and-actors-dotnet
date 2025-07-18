@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// <summary>
     /// Indicates actor service migration state.
     /// </summary>
-    [Obsolete("Microsoft.ServiceFabric.Actors.Migration APIs are being removed in a future release.")]
+    [Obsolete(Deprecated.MigrationApis)]
     public enum MigrationState
     {
         /// <summary>
