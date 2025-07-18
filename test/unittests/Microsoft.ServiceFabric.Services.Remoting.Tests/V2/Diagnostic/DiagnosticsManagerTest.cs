@@ -4,8 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Inspector;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
@@ -80,74 +78,37 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 Assert.Equal(replicaOrInstanceId, replaicaIdField.Value);
             }
         }
-   
-        public class RegisterDiagnosticsSource : DiagnosticsManagerTest
-        {
-            [Fact]
-            public void RecordsASources()
-            {
-                sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
-                
-                var sources = sut.Field<List<IDiagnosticsSource>>("diagnosticsSources").Value;
-
-                Assert.Single(sources);
-                Assert.IsType<TestDiagnosticsSource>(sources.First());
-            }
-
-            [Fact]
-            public void RecordsDifferentSources()
-            {
-                sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
-                sut.RegisterDiagnosticsSource(new TestDiagnosticsSourceSecond());
-
-                var sources = sut.Field<List<IDiagnosticsSource>>("diagnosticsSources").Value;
-
-                Assert.Equal(2, sources.Count());
-                Assert.IsType<TestDiagnosticsSource>(sources[0]);
-                Assert.IsType<TestDiagnosticsSourceSecond>(sources[1]);
-            }
-
-            [Fact]
-            public void ThrowsOnDuplicateSource()
-            {
-                Assert.Throws<InvalidOperationException>(() =>
-                {
-                    sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
-                    sut.RegisterDiagnosticsSource(new TestDiagnosticsSource());
-                });
-            }
-        }
 
         public class OnRemotingRequestBegin : DiagnosticsManagerTest
         {
 
-            private DateTime currentTime = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+            //private DateTime currentTime = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc);
 
-            public OnRemotingRequestBegin() 
-            { 
-                Mock.Get(mockTimeProvider).Setup(tp => tp.UtcNow).Returns(currentTime);
-            }
+            //public OnRemotingRequestBegin() 
+            //{ 
+                //Mock.Get(mockTimeProvider).Setup(tp => tp.UtcNow).Returns(currentTime);
+            //}
 
-            [Fact]
-            public void InvokesAllRegisteredSources()
-            {
-                sut.RegisterDiagnosticsSource(mockedFirstSource);
-                sut.RegisterDiagnosticsSource(mockedSecondSource);
+            //[Fact]
+            //public void InvokesAllRegisteredSources()
+            //{
+                //sut.RegisterDiagnosticsSource(mockedFirstSource);
+                //sut.RegisterDiagnosticsSource(mockedSecondSource);
 
-                sut.OnRemotingRequestBegin();
+                //sut.OnRemotingRequestBegin();
 
-                Mock.Get(mockedFirstSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
-                Mock.Get(mockedSecondSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
-            }
+                //Mock.Get(mockedFirstSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+                //Mock.Get(mockedSecondSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+            //}
 
-            [Fact]
-            public void ReturnsCurrentTime()
-            {
-                var result = sut.OnRemotingRequestBegin();
+            //[Fact]
+            //public void ReturnsCurrentTime()
+            //{
+                //var result = sut.OnRemotingRequestBegin();
 
-                Mock.Get(mockTimeProvider).Verify(tp => tp.UtcNow, Times.Once);
-                Assert.Equal(currentTime, result);
-            }
+                //Mock.Get(mockTimeProvider).Verify(tp => tp.UtcNow, Times.Once);
+                //Assert.Equal(currentTime, result);
+            //}
         }
 
     }

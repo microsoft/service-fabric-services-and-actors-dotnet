@@ -33,10 +33,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             throw new NotImplementedException();
         }
-
-        public void RegisterDiagnosticsSource(IDiagnosticsSource diagnosticsSource)
-        {
-            throw new NotSupportedException("PerformanceCounterDiagnosticsSource does not support registering another diagnostics source. If multiple diagnostics sources are needed, consider using DiagnosticsManager class.");
-        }
     }
 }

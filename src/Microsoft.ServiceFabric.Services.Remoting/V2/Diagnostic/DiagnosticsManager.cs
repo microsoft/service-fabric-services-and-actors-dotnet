@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
@@ -50,15 +49,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         public void OnRequestResponseEnd(DateTime startTime)
         {
             throw new NotImplementedException();
-        }
-
-        public void RegisterDiagnosticsSource(IDiagnosticsSource diagnosticsSource)
-        {
-            if (diagnosticsSources.Where(ds => ds.GetType() == diagnosticsSource.GetType()).Any())
-            {
-                throw new InvalidOperationException($"Diagnostics source {diagnosticsSource.GetType().Name} already registered. Each source can be registered only once.");
-            }
-            diagnosticsSources.Add(diagnosticsSource);
         }
     }
 }
