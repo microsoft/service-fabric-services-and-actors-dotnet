@@ -4,7 +4,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
     {
-        public DateTime OnCreateTransportMessageBegin()
+        public void OnCreateTransportMessageBegin()
         {
             throw new NotImplementedException();
         }
@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public DateTime OnRemotingRequestBegin()
+        public void OnRemotingRequestBegin()
         {
             throw new NotImplementedException();
         }
@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public DateTime OnRequestResponseBegin()
+        public void OnRequestResponseBegin()
         {
             throw new NotImplementedException();
         }

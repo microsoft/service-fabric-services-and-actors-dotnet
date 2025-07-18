@@ -4,11 +4,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal interface IDiagnosticEvents
     {
-        DateTime OnRequestResponseBegin();
+        void OnRequestResponseBegin();
         void OnRequestResponseEnd(DateTime startTime);
-        DateTime OnCreateTransportMessageBegin();
+        void OnCreateTransportMessageBegin();
         void OnCreateTransportMessageEnd(DateTime startTime);
-        DateTime OnRemotingRequestBegin();
+        void OnRemotingRequestBegin();
         void OnRemotingRequestEnd(DateTime startTime);
     }
 }

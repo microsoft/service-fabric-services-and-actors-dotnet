@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 var onRequestResponseBeginMethod = interfaceType.GetMethod("OnRequestResponseBegin", new Type[0]);
                 Assert.NotNull(onRequestResponseBeginMethod);
-                Assert.Equal(typeof(DateTime), onRequestResponseBeginMethod.ReturnType);
+                Assert.Equal(typeof(void), onRequestResponseBeginMethod.ReturnType);
 
                 var onRequestResponseEndMethod = interfaceType.GetMethod("OnRequestResponseEnd", new[] { typeof(DateTime) });
                 Assert.NotNull(onRequestResponseEndMethod);
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 var onCreateTransportMessageBeginMethod = interfaceType.GetMethod("OnCreateTransportMessageBegin", new Type[0]);
                 Assert.NotNull(onCreateTransportMessageBeginMethod);
-                Assert.Equal(typeof(DateTime), onCreateTransportMessageBeginMethod.ReturnType);
+                Assert.Equal(typeof(void), onCreateTransportMessageBeginMethod.ReturnType);
 
                 var onCreateTransportMessageEndMethod = interfaceType.GetMethod("OnCreateTransportMessageEnd", new[] { typeof(DateTime) });
                 Assert.NotNull(onCreateTransportMessageEndMethod);
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 var onCreateRemotingMessageBeginMethod = interfaceType.GetMethod("OnRemotingRequestBegin", new Type[0]);
                 Assert.NotNull(onCreateRemotingMessageBeginMethod);
-                Assert.Equal(typeof(DateTime), onCreateRemotingMessageBeginMethod.ReturnType);
+                Assert.Equal(typeof(void), onCreateRemotingMessageBeginMethod.ReturnType);
 
                 var onCreateRemotingMessageEndMethod = interfaceType.GetMethod("OnRemotingRequestEnd", new[] { typeof(DateTime) });
                 Assert.NotNull(onCreateRemotingMessageEndMethod);

@@ -13,35 +13,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         }
 
-        public DateTime OnRemotingRequestBegin()
+        public void OnRemotingRequestBegin()
         {
-            var utcNow = timeProvider.UtcNow;
-
             diagnosticEvents.ForEach(ds => ds.OnRemotingRequestBegin());
-            return utcNow;
         }
-
         public void OnRemotingRequestEnd(DateTime startTime)
         {
             throw new NotImplementedException();
         }
 
-        public DateTime OnCreateTransportMessageBegin()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnCreateTransportMessageEnd(DateTime startTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DateTime OnRequestResponseBegin()
+        public void OnRequestResponseBegin()
         {
             throw new NotImplementedException();
         }
 
         public void OnRequestResponseEnd(DateTime startTime)
+        {
+            throw new NotImplementedException();
+        }
+        public void OnCreateTransportMessageBegin()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnCreateTransportMessageEnd(DateTime startTime)
         {
             throw new NotImplementedException();
         }

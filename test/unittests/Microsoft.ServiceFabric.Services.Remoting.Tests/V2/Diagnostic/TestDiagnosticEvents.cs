@@ -3,9 +3,9 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {
-    internal class TestDiagnosticsSource : IDiagnosticEvents
+    internal class TestDiagnosticEvents : IDiagnosticEvents
     {
-        public DateTime OnCreateTransportMessageBegin()
+        public void OnCreateTransportMessageBegin()
         {
             throw new NotImplementedException();
         }
@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public DateTime OnRemotingRequestBegin()
+        public void OnRemotingRequestBegin()
         {
             throw new NotImplementedException();
         }
@@ -25,25 +25,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public DateTime OnRequestResponseBegin()
+        public void OnRequestResponseBegin()
         {
             throw new NotImplementedException();
         }
 
         public void OnRequestResponseEnd(DateTime startTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterDiagnosticsSource(IDiagnosticEvents diagnosticsSource)
         {
             throw new NotImplementedException();
         }
     }
 
-    internal class TestDiagnosticsSourceSecond : IDiagnosticEvents
+    internal class TestSecondaryDiagnosticEvents : IDiagnosticEvents
     {
-        public DateTime OnCreateTransportMessageBegin()
+        public void OnCreateTransportMessageBegin()
         {
             throw new NotImplementedException();
         }
@@ -53,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public DateTime OnRemotingRequestBegin()
+        public void OnRemotingRequestBegin()
         {
             throw new NotImplementedException();
         }
@@ -63,17 +58,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             throw new NotImplementedException();
         }
 
-        public DateTime OnRequestResponseBegin()
+        public void OnRequestResponseBegin()
         {
             throw new NotImplementedException();
         }
 
         public void OnRequestResponseEnd(DateTime startTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterDiagnosticsSource(IDiagnosticEvents diagnosticsSource)
         {
             throw new NotImplementedException();
         }
