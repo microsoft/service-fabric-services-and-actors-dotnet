@@ -26,31 +26,44 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             {
                 ds.OnRemotingRequestBegin();
             }
-        }
-
-        public void OnRemotingRequestEnd(DateTime startTime)
+        }        public void OnRemotingRequestEnd(DateTime startTime)
         {
-            throw new NotImplementedException();
+            foreach (var ds in diagnosticsEventSet)
+            {
+                ds.OnRemotingRequestEnd(startTime);
+            }
         }
 
         public void OnRequestResponseBegin()
         {
-            throw new NotImplementedException();
+            foreach (var ds in diagnosticsEventSet)
+            {
+                ds.OnRequestResponseBegin();
+            }
         }
 
         public void OnRequestResponseEnd(DateTime startTime)
         {
-            throw new NotImplementedException();
+            foreach (var ds in diagnosticsEventSet)
+            {
+                ds.OnRequestResponseEnd(startTime);
+            }
         }
 
         public void OnCreateTransportMessageBegin()
         {
-            throw new NotImplementedException();
+            foreach (var ds in diagnosticsEventSet)
+            {
+                ds.OnCreateTransportMessageBegin();
+            }
         }
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
         {
-            throw new NotImplementedException();
+            foreach (var ds in diagnosticsEventSet)
+            {
+                ds.OnCreateTransportMessageEnd(startTime);
+            }
         }
 
         private class UniqueIDiagnosticEventsTypeComparer : IEqualityComparer<IDiagnosticEvents>

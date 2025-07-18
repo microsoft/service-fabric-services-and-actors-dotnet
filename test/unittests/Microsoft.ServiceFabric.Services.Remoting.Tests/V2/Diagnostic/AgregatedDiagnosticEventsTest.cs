@@ -119,36 +119,101 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             }
         }
 
-        public class OnRemotingRequestBegin : AgregatedDiagnosticEventsTest
+        public class OnEvents : AgregatedDiagnosticEventsTest
         {
 
-            //private DateTime currentTime = new DateTime(2023, 10, 1, 12, 0, 0, DateTimeKind.Utc);
+            [Fact]
+            public void RemotingRequestBeginInvokesAllDiagnostics()
+            {
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                {
+                    mockedDiagnosticEvents,
+                    mockedAnotherDiagnosticEvents
+                });
 
-            //public OnRemotingRequestBegin() 
-            //{ 
-                //Mock.Get(mockClock).Setup(tp => tp.UtcNow).Returns(currentTime);
-            //}
+                newSut.OnRemotingRequestBegin();
 
-            //[Fact]
-            //public void InvokesAllRegisteredSources()
-            //{
-                //newSut.RegisterDiagnosticsSource(mockedFirstSource);
-                //newSut.RegisterDiagnosticsSource(mockedSecondSource);
+                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+            }
 
-                //newSut.OnRemotingRequestBegin();
+            [Fact]
+            public void RemotingRequestEndInvokesAllDiagnostics()
+            {
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                {
+                    mockedDiagnosticEvents,
+                    mockedAnotherDiagnosticEvents
+                });
 
-                //Mock.Get(mockedFirstSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
-                //Mock.Get(mockedSecondSource).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
-            //}
+                var startTime = DateTime.UtcNow;
+                newSut.OnRemotingRequestEnd(startTime);
 
-            //[Fact]
-            //public void ReturnsCurrentTime()
-            //{
-                //var result = newSut.OnRemotingRequestBegin();
+                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRemotingRequestEnd(startTime), Times.Once);
+                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRemotingRequestEnd(startTime), Times.Once);
+            }
 
-                //Mock.Get(mockClock).Verify(tp => tp.UtcNow, Times.Once);
-                //Assert.Equal(currentTime, result);
-            //}
+            [Fact]
+            public void RequestResponseBeginInvokesAllDiagnostics()
+            {
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                {
+                    mockedDiagnosticEvents,
+                    mockedAnotherDiagnosticEvents
+                });
+
+                newSut.OnRequestResponseBegin();
+
+                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRequestResponseBegin(), Times.Once);
+                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRequestResponseBegin(), Times.Once);
+            }
+
+            [Fact]
+            public void RequestResponseEndInvokesAllDiagnostics()
+            {
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                {
+                    mockedDiagnosticEvents,
+                    mockedAnotherDiagnosticEvents
+                });
+
+                var startTime = DateTime.UtcNow;
+                newSut.OnRequestResponseEnd(startTime);
+
+                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRequestResponseEnd(startTime), Times.Once);
+                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRequestResponseEnd(startTime), Times.Once);
+            }
+
+            [Fact]
+            public void CreateTransportMessageBeginInvokesAllDiagnostics()
+            {
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                {
+                    mockedDiagnosticEvents,
+                    mockedAnotherDiagnosticEvents
+                });
+
+                newSut.OnCreateTransportMessageBegin();
+
+                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageBegin(), Times.Once);
+                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageBegin(), Times.Once);
+            }
+
+            [Fact]
+            public void CreateTransportMessageEndInvokesAllDiagnostics()
+            {
+                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                {
+                    mockedDiagnosticEvents,
+                    mockedAnotherDiagnosticEvents
+                });
+
+                var startTime = DateTime.UtcNow;
+                newSut.OnCreateTransportMessageEnd(startTime);
+
+                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageEnd(startTime), Times.Once);
+                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageEnd(startTime), Times.Once);
+            }
         }
 
     }
