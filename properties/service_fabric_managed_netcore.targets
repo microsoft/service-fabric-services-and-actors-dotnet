@@ -13,7 +13,6 @@
       <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
       <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
       <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
-      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
       <BinairesNetCore_PublishWin Include="$(OutputPath)Publish\*.dll"/>
