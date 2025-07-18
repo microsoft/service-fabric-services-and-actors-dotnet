@@ -58,8 +58,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     .UpdateCounterValue(1);
             }
 
-            var startTime = diagnosticEvents.OnRequestResponseBegin();
-            var currentTime = clock.UtcNow;
+            var operationStartTime = clock.UtcNow;
+            diagnosticEvents.OnRequestResponseBegin();
 
             var requestStopWatch = Stopwatch.StartNew();
             var requestResponseSerializationStopwatch = Stopwatch.StartNew();
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                             requestStopWatch.ElapsedMilliseconds);
                 }
 
-                diagnosticEvents.OnRequestResponseEnd(startTime);
+                diagnosticEvents.OnRequestResponseEnd(operationStartTime);
             }
         }
 
@@ -162,7 +162,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var responseSerializer =
                 this.serializersManager.GetResponseBodySerializer(interfaceId);
             stopwatch.Restart();
-            var startTime = diagnosticEvents.OnCreateTransportMessageBegin();
+
+            var operationStartTime = clock.UtcNow;
+            diagnosticEvents.OnCreateTransportMessageBegin();
 
             var responseMsgBody = responseSerializer.Serialize(retval.GetBody());
             if (this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
@@ -170,7 +172,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter
                     .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
             }
-            diagnosticEvents.OnCreateTransportMessageEnd(startTime);
+            diagnosticEvents.OnCreateTransportMessageEnd(operationStartTime);
 
             var fabricTransportRequestBody = responseMsgBody != null
                 ? new FabricTransportRequestBody(
@@ -192,7 +194,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var msgBodySerializer =
                  this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
             stopwatch.Restart();
-            var startTime = diagnosticEvents.OnRemotingRequestBegin();
+
+            var operationStartTime = clock.UtcNow;
+            diagnosticEvents.OnRemotingRequestBegin();
 
             IServiceRemotingRequestMessageBody deserializedMsg;
             if (fabricTransportMessage.GetBody() != null)
@@ -210,7 +214,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.serviceRemotingPerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
                     stopwatch.ElapsedMilliseconds);
             }
-            diagnosticEvents.OnRemotingRequestEnd(startTime);
+            diagnosticEvents.OnRemotingRequestEnd(operationStartTime);
 
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
         }
