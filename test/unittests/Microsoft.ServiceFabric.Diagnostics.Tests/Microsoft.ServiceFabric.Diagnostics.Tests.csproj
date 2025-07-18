@@ -3,7 +3,6 @@
   <PropertyGroup>
     <ProjectGuid>{1BDC4681-FDBA-4E55-A247-5F779627A4D7}</ProjectGuid>
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
