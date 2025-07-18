@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
             this.exceptionSerializer = exceptionConvertorHandler;
-            this.diagnosticEvents = new AgregatedDiagnosticEvents(new SystemClock());
+            this.diagnosticEvents = new AgregatedDiagnosticEvents(new SystemClock(), new List<IDiagnosticEvents>());
             this.clock = new SystemClock();
         }
 
