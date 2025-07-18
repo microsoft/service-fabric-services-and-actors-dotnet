@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
         private ExceptionSerializer exceptionSerializer;
         private IDiagnosticEvents diagnosticEvents;
+        private IClock clock;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
@@ -43,7 +44,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
             this.exceptionSerializer = exceptionConvertorHandler;
-            this.diagnosticEvents = new AgregatedDiagnosticEvents(new SystemTimeProvider());
+            this.diagnosticEvents = new AgregatedDiagnosticEvents(new SystemClock());
+            this.clock = new SystemClock();
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(
@@ -57,6 +59,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             }
 
             var startTime = diagnosticEvents.OnRequestResponseBegin();
+            var currentTime = clock.UtcNow;
 
             var requestStopWatch = Stopwatch.StartNew();
             var requestResponseSerializationStopwatch = Stopwatch.StartNew();

@@ -81,20 +81,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
         public class Constructor : FabricTransportMessageHandlerTest
         {
             [Fact]
-            public void ShouldHave_DiagnosticsSourceField()
+            public void HasDiagnosticsEventsField()
             {
-                var diagnosticsSourceField = sut.Field<IDiagnosticEvents>();
+                var field = sut.Field<IDiagnosticEvents>();
 
-                Assert.IsAssignableFrom<IDiagnosticEvents>(diagnosticsSourceField.Value);
+                Assert.IsAssignableFrom<IDiagnosticEvents>(field.Value);
+                Assert.IsType<AgregatedDiagnosticEvents>(field.Value);
             }
 
             [Fact]
-            public void ShouldInstantiate_DiagnosticsManagerAsSource()
+            public void HasClockField()
             {
-                var diagnosticsSourceField = sut.Field<IDiagnosticEvents>();
+                var field = sut.Field<IClock>();
 
-                Assert.NotNull(diagnosticsSourceField.Value);
-                Assert.IsType<AgregatedDiagnosticEvents>(diagnosticsSourceField.Value);
+                Assert.IsAssignableFrom<IClock>(field.Value);
+                Assert.IsAssignableFrom<SystemClock>(field.Value);
             }
         }            
         
