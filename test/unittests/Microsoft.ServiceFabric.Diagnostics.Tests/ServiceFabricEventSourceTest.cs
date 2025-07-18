@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
             readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
 
-            public Constructor()
+            public ConstructorNetCore()
             {
                 // Enable mocking of OSPlatform detection
                 typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(isOsPlatform);
