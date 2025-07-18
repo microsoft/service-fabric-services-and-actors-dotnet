@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
         private IDiagnosticEvents mockedAnotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
 
         private AgregatedDiagnosticEvents sut;
-        ITimeProvider mockTimeProvider = Mock.Of<ITimeProvider>();
+        IClock mockTimeProvider = Mock.Of<IClock>();
         IEnumerable<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>
         {
             Mock.Of<IDiagnosticEvents>()
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             public void WithParametersPresent()
             {
                 var sutType = typeof(AgregatedDiagnosticEvents);
-                var expectedParameterTypes = new[] { typeof(ITimeProvider) };
+                var expectedParameterTypes = new[] { typeof(IClock) };
 
                 var constructor = sutType.GetConstructor(
                     BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
@@ -59,13 +59,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 Assert.NotNull(constructor);
                 //Assert.Equal(1, constructor.GetParameters().Length);
-                Assert.Equal(typeof(ITimeProvider), constructor.GetParameters()[0].ParameterType);
+                Assert.Equal(typeof(IClock), constructor.GetParameters()[0].ParameterType);
             }
 
             [Fact]
             public void AssignsClockField()
             {
-                var timeProviderFiled = sut.Field<ITimeProvider>("timeProvider");
+                var timeProviderFiled = sut.Field<IClock>("timeProvider");
                 Assert.NotNull(timeProviderFiled);
                 Assert.Equal(mockTimeProvider, timeProviderFiled.Value);
             }

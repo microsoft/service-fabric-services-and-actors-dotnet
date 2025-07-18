@@ -5,10 +5,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class AgregatedDiagnosticEvents : IDiagnosticEvents
     {
-        readonly ITimeProvider timeProvider;
+        readonly IClock timeProvider;
         private List<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>();
 
-        internal AgregatedDiagnosticEvents(ITimeProvider timeProvider)
+        internal AgregatedDiagnosticEvents(IClock timeProvider)
         {
             this.timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         }
