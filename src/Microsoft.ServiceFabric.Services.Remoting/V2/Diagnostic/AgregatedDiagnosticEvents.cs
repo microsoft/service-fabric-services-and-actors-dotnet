@@ -6,8 +6,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class AgregatedDiagnosticEvents : IDiagnosticEvents
     {
-        private static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
-        private HashSet<IDiagnosticEvents> diagnosticsEventSet;
+        private readonly static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
+        private readonly HashSet<IDiagnosticEvents> diagnosticsEventSet;
 
         internal AgregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {
@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
         }
 
-        private class UniqueIDiagnosticEventsTypeComparer : IEqualityComparer<IDiagnosticEvents>
+        private sealed class UniqueIDiagnosticEventsTypeComparer : IEqualityComparer<IDiagnosticEvents>
         {
             public bool Equals(IDiagnosticEvents x, IDiagnosticEvents y)
             {
