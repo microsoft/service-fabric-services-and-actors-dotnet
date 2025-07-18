@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 
-#pragma warning disable CS0618 // Type or member is obsolete (KVSToRCMigration uses deprecated Migration APIs)
 
 using System.Runtime.CompilerServices;
 
