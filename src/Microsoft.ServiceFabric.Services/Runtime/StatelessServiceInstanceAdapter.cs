@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     using System.Fabric;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Services;
     using Microsoft.ServiceFabric.Services.Communication;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
@@ -108,7 +109,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     "Got exception when calling onOpenAsync",
                     exception);
                 await this.CloseCommunicationListenersAsync(cancellationToken);
-                throw exception;
+                throw;
             }
 
             return this.endpointCollection.ToString();

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="RebuildAll" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="properties\service_fabric_common.props" />
-  <Import Project="properties\service_fabric_managed_netstandard.targets" />
+  <Import Project="properties\service_fabric_managed_netcore.targets" />
   <Import Project="properties\service_fabric_managed_netframework.targets" />
   <Import Project="properties\service_fabric_nuget.targets" />
   
@@ -48,7 +48,7 @@
   <!--Target for copying product binaries to drop. -->
   <Target Name="CopyProdBinaries">
     <Message Text="Copying binaries to drop folder ..." Importance="High"/>
-    <CallTarget Targets="CopyProdBinaries_netframework;CopyProdBinaries_netstandard;" />
+    <CallTarget Targets="CopyProdBinaries_netframework;CopyProdBinaries_netcore;" />
   </Target>
 
   <!--Target for generating nuget packages. -->

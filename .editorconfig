@@ -160,7 +160,7 @@ dotnet_naming_symbols.constant_fields.required_modifiers          = const
 # Use PascalCase for static fields  
 dotnet_naming_rule.static_fields_should_be_pascal_case.severity = warning
 dotnet_naming_rule.static_fields_should_be_pascal_case.symbols  = static_fields
-dotnet_naming_rule.static_fields_should_be_pascal_case.style    = pascal_case_style
+dotnet_naming_rule.static_fields_should_be_pascal_case.style    = camel_case_style
 dotnet_naming_symbols.static_fields.applicable_kinds            = field
 dotnet_naming_symbols.static_fields.applicable_accessibilities  = *
 dotnet_naming_symbols.static_fields.required_modifiers          = static

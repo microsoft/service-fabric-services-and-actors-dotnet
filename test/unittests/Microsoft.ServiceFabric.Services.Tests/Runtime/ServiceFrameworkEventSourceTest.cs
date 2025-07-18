@@ -1,80 +1,285 @@
 using System;
 using System.Diagnostics.Tracing;
+using System.Fabric;
 using System.IO;
 using System.Runtime.InteropServices;
+using Fuzzy;
 using Inspector;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
-    public abstract class ServiceFrameworkEventSourceTest
+    public abstract class ServiceFrameworkEventSourceTest : IDisposable
     {
-#if NET // Remove #if once on net472+ where IsOSPlatform is available
+        readonly ServiceFrameworkEventSource sut;
+
+        // Test fixture
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+
+        public ServiceFrameworkEventSourceTest()
+        {
+            // Allow event enablement to work on instances created by the tests
+            ServiceFrameworkEventSource.Writer.Dispose();
+
+            // Disable Linux detection in sut to allow tests to run without UnstructuredTracePublisher which fails without FabricCommon
+            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(_ => false);
+
+            sut = new ServiceFrameworkEventSource();
+        }
+
+        public virtual void Dispose()
+        {
+            sut.Dispose();
+
+            // Restore original static state
+            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
+            typeof(ServiceFrameworkEventSource).Property<ServiceFrameworkEventSource>().Set(new ServiceFrameworkEventSource());
+        }
+
         public sealed class Class : ServiceFrameworkEventSourceTest
         {
             [Fact]
-            public void UsesRuntimeInformationIsOSPlatformToDetectLinux()
+            public void InheritsFromServiceFabricEventSourceToSupportTracingOnLinux()
             {
-                Func<OSPlatform, bool> expected = typeof(RuntimeInformation).Method<Func<OSPlatform, bool>>(nameof(RuntimeInformation.IsOSPlatform));
-                Func<OSPlatform, bool> actual = typeof(ServiceFrameworkEventSource).Field<Func<OSPlatform, bool>>();
-                Assert.Equal(expected, actual);
+                Assert.IsAssignableFrom<ServiceFabricEventSource>(sut);
             }
         }
 
-        public sealed class Constructor : ServiceFrameworkEventSourceTest, IDisposable
+        public sealed class EventTest : ServiceFrameworkEventSourceTest
         {
-            readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
+            // Method parameters
+            readonly StatefulServiceContext statefulService = fuzzy.StatefulServiceContext();
+            readonly StatelessServiceContext statelessService = fuzzy.StatelessServiceContext();
+            readonly bool wasCanceled = fuzzy.Boolean();
+            readonly Exception exception = new Exception(fuzzy.String());
+            readonly TimeSpan slowCancellationTime = fuzzy.TimeSpan();
+            readonly TimeSpan actualCancellationTime = fuzzy.TimeSpan();
 
-            public Constructor()
+            const EventKeywords AllSessions = (EventKeywords)(0xFul << 44);
+            EventWrittenEventArgs actual;
+
+            readonly EventListener listener = new Mock<EventListener>() { CallBase = true }.Object;
+
+            public EventTest()
             {
-                // Enable mocking of OSPlatform detection
-                typeof(ServiceFrameworkEventSource).Field<Func<OSPlatform, bool>>().Set(isOsPlatform);
-
-                // Dispose Writer singleton to allow event enablement to work on instances created by the tests
-                var writer = typeof(ServiceFrameworkEventSource).Property<ServiceFrameworkEventSource>();
-                writer.Value.Dispose();
+                listener.EventWritten += (object sender, EventWrittenEventArgs args) => actual = args;
+                listener.EnableEvents(sut, EventLevel.LogAlways);
             }
 
-            public void Dispose()
+            public override void Dispose()
             {
-                // Restore OSPlatform detection
-                typeof(ServiceFrameworkEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
+                listener.Dispose();
+                base.Dispose();
+            }
 
-                // Restore Writer singleton
-                typeof(ServiceFrameworkEventSource).Property<ServiceFrameworkEventSource>().Set(new ServiceFrameworkEventSource());
+            static void AssertPayload<T>(int index, string name, T value, EventWrittenEventArgs actual)
+            {
+                Assert.Equal(name, actual.PayloadNames[index]);
+                Assert.Equal(value, actual.Payload[index]);
             }
 
             [Fact]
-            public void EnablesUnstructuredEventPublishingOnLinux()
+            public void StatefulRunAsyncInvocationPublishesExpectedEvent()
             {
-                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(true);
+                sut.StatefulRunAsyncInvocation(statefulService);
 
-                using var sut = new ServiceFrameworkEventSource();
-
-                Assert.True(sut.IsEnabled(EventLevel.Informational, EventKeywords.None)); // None = no filtering
-                EventListener listener = sut.Field("m_Dispatchers").Value.Field<EventListener>();
-                Assert.IsType<UnstructuredTracePublisher>(listener);
+                Assert.NotNull(actual);
+                Assert.Equal(1, actual.EventId);
+                Assert.Equal(EventLevel.Informational, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatefulRunAsyncInvocation", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statefulService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statefulService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statefulService.PartitionId.ToString(), actual);
+                AssertPayload(5, "replicaId", statefulService.ReplicaId, actual);
             }
 
             [Fact]
-            public void DoesntEnableUnstructuredEventPublishingOnWindows()
+            public void StatefulRunAsyncCancellationPublishesExpectedEvent()
             {
-                Mock.Get(isOsPlatform).Setup(_ => _.Invoke(OSPlatform.Linux)).Returns(false);
+                sut.StatefulRunAsyncCancellation(statefulService, slowCancellationTime);
 
-                using var sut = new ServiceFrameworkEventSource();
+                Assert.NotNull(actual);
+                Assert.Equal(2, actual.EventId);
+                Assert.Equal(EventLevel.Informational, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatefulRunAsyncCancellation", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statefulService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statefulService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statefulService.PartitionId.ToString(), actual);
+                AssertPayload(5, "replicaId", statefulService.ReplicaId, actual);
+                AssertPayload(6, "slowCancellationTimeMillis", slowCancellationTime.TotalMilliseconds, actual);
+            }
 
-                Assert.False(sut.IsEnabled());
+            [Fact]
+            public void StatefulRunAsyncCompletionPublishesExpectedEvent()
+            {
+                sut.StatefulRunAsyncCompletion(statefulService, wasCanceled);
+
+                Assert.NotNull(actual);
+                Assert.Equal(3, actual.EventId);
+                Assert.Equal(EventLevel.Informational, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatefulRunAsyncCompletion", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statefulService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statefulService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statefulService.PartitionId.ToString(), actual);
+                AssertPayload(5, "replicaId", statefulService.ReplicaId, actual);
+                AssertPayload(6, "wasCanceled", wasCanceled, actual);
+            }
+
+            [Fact]
+            public void StatefulRunAsyncSlowCancellationPublishesExpectedEvent()
+            {
+                sut.StatefulRunAsyncSlowCancellation(statefulService, actualCancellationTime, slowCancellationTime);
+
+                Assert.NotNull(actual);
+                Assert.Equal(4, actual.EventId);
+                Assert.Equal(EventLevel.Warning, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatefulRunAsyncSlowCancellation", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statefulService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statefulService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statefulService.PartitionId.ToString(), actual);
+                AssertPayload(5, "replicaId", statefulService.ReplicaId, actual);
+                AssertPayload(6, "actualCancellationTimeMillis", actualCancellationTime.TotalMilliseconds, actual);
+                AssertPayload(7, "slowCancellationTimeMillis", slowCancellationTime.TotalMilliseconds, actual);
+            }
+
+            [Fact]
+            public void StatefulRunAsyncFailurePublishesExpectedEvent()
+            {
+                sut.StatefulRunAsyncFailure(statefulService, wasCanceled, exception);
+
+                Assert.NotNull(actual);
+                Assert.Equal(5, actual.EventId);
+                Assert.Equal(EventLevel.Error, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatefulRunAsyncFailure", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statefulService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statefulService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statefulService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statefulService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statefulService.PartitionId.ToString(), actual);
+                AssertPayload(5, "replicaId", statefulService.ReplicaId, actual);
+                AssertPayload(6, "wasCanceled", wasCanceled, actual);
+                AssertPayload(7, "exception", exception.ToString(), actual);
+            }
+
+            [Fact]
+            public void StatelessRunAsyncInvocationPublishesExpectedEvent()
+            {
+                sut.StatelessRunAsyncInvocation(statelessService);
+
+                Assert.NotNull(actual);
+                Assert.Equal(6, actual.EventId);
+                Assert.Equal(EventLevel.Informational, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatelessRunAsyncInvocation", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statelessService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statelessService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statelessService.PartitionId.ToString(), actual);
+                AssertPayload(5, "instanceId", statelessService.InstanceId, actual);
+            }
+
+            [Fact]
+            public void StatelessRunAsyncCancellationPublishesExpectedEvent()
+            {
+                sut.StatelessRunAsyncCancellation(statelessService, slowCancellationTime);
+
+                Assert.NotNull(actual);
+                Assert.Equal(7, actual.EventId);
+                Assert.Equal(EventLevel.Informational, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatelessRunAsyncCancellation", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statelessService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statelessService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statelessService.PartitionId.ToString(), actual);
+                AssertPayload(5, "instanceId", statelessService.InstanceId, actual);
+                AssertPayload(6, "slowCancellationTimeMillis", slowCancellationTime.TotalMilliseconds, actual);
+            }
+
+            [Fact]
+            public void StatelessRunAsyncCompletionPublishesExpectedEvent()
+            {
+                sut.StatelessRunAsyncCompletion(statelessService, wasCanceled);
+
+                Assert.NotNull(actual);
+                Assert.Equal(8, actual.EventId);
+                Assert.Equal(EventLevel.Informational, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatelessRunAsyncCompletion", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statelessService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statelessService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statelessService.PartitionId.ToString(), actual);
+                AssertPayload(5, "instanceId", statelessService.InstanceId, actual);
+                AssertPayload(6, "wasCanceled", wasCanceled, actual);
+            }
+
+            [Fact]
+            public void StatelessRunAsyncSlowCancellationPublishesExpectedEvent()
+            {
+                sut.StatelessRunAsyncSlowCancellation(statelessService, actualCancellationTime, slowCancellationTime);
+
+                Assert.NotNull(actual);
+                Assert.Equal(9, actual.EventId);
+                Assert.Equal(EventLevel.Warning, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatelessRunAsyncSlowCancellation", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statelessService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statelessService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statelessService.PartitionId.ToString(), actual);
+                AssertPayload(5, "instanceId", statelessService.InstanceId, actual);
+                AssertPayload(6, "actualCancellationTimeMillis", actualCancellationTime.TotalMilliseconds, actual);
+                AssertPayload(7, "slowCancellationTimeMillis", slowCancellationTime.TotalMilliseconds, actual);
+            }
+
+            [Fact]
+            public void StatelessRunAsyncFailurePublishesExpectedEvent()
+            {
+                sut.StatelessRunAsyncFailure(statelessService, wasCanceled, exception);
+
+                Assert.NotNull(actual);
+                Assert.Equal(10, actual.EventId);
+                Assert.Equal(EventLevel.Error, actual.Level);
+                Assert.Equal(AllSessions, actual.Keywords);
+                Assert.Equal("StatelessRunAsyncFailure", actual.EventName);
+                AssertPayload(0, "applicationTypeName", statelessService.CodePackageActivationContext.ApplicationTypeName, actual);
+                AssertPayload(1, "applicationName", statelessService.CodePackageActivationContext.ApplicationName, actual);
+                AssertPayload(2, "serviceTypeName", statelessService.ServiceTypeName, actual);
+                AssertPayload(3, "serviceName", statelessService.ServiceName.OriginalString, actual);
+                AssertPayload(4, "partitionId", statelessService.PartitionId.ToString(), actual);
+                AssertPayload(5, "instanceId", statelessService.InstanceId, actual);
+                AssertPayload(6, "wasCanceled", wasCanceled, actual);
+                AssertPayload(7, "exception", exception.ToString(), actual);
             }
         }
-#endif
+
         public sealed class Guid : ServiceFrameworkEventSourceTest
         {
             [Fact]
             public void RemainsUnchangedForBackwardCompatibilityWithCollectionTools()
             {
-                Assert.Equal(new System.Guid("13c2a97d-71da-5ab5-47cb-1497aec602e1"), new ServiceFrameworkEventSource().Guid);
+                Assert.Equal(new System.Guid("13c2a97d-71da-5ab5-47cb-1497aec602e1"), sut.Guid);
             }
         }
 
