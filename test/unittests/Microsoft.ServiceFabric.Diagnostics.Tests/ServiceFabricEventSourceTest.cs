@@ -15,7 +15,7 @@ using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {
-#if DotNetCoreClr
+#if NET
     public abstract class ServiceFabricEventSourceTest
     {
         public sealed class Class : ServiceFabricEventSourceTest
