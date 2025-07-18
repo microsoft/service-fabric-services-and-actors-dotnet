@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
- <Import Condition="'$(TargetFramework)' == 'net9.0'" Project="..\..\..\properties\service_fabric_managed_netstandard.props" />
- <Import Condition="'$(TargetFramework)' == 'net462'" Project="..\..\..\properties\service_fabric_managed_netframework.props" />
   <PropertyGroup>
     <ProjectGuid>{1BDC4681-FDBA-4E55-A247-5F779627A4D7}</ProjectGuid>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
-    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
     <TargetFrameworks>net9.0;net462</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="xunit" />
     <PackageReference Include="Moq" />
