@@ -15,12 +15,12 @@
   <PropertyGroup>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
-    <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('\test\unittests\'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('test'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <!-- Properties specific to certain TargetFrameworks -->
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'"> 
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);SYSLIB0011;SYSLIB0050;SYSLIB0037;SYSLIB0012</WarningsNotAsErrors >
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);SYSLIB0011;SYSLIB0050</WarningsNotAsErrors >
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <OutputType>Library</OutputType>
