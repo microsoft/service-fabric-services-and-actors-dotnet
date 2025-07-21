@@ -10,5 +10,6 @@
     <PackageReference Include="Fuzzy" />
     <PackageReference Include="Microsoft.ServiceFabric" />
     <PackageReference Include="Moq" />
+    <PackageReference Include="coverlet.collector" />
   </ItemGroup>
 </Project>
