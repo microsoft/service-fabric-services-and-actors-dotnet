@@ -34,15 +34,13 @@ jobs:
         with:
           name: release_drop
           path: ${{ env.DROP_DIR }}
-      - name: Code Coverage Report
-        uses: irongut/CodeCoverageSummary@v1.3.0
+      - name: Produce the coverage report
+        uses: insightsengineering/coverage-action@v3
         with:
-          filename: ${{ env.TEST_RESULT_DIR }}/**/coverage.cobertura.xml
-          badge: true
-          fail_below_min: false
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: true
-          indicators: true
-          output: both
-          thresholds: '60 80'
+          path: ${{ env.TEST_RESULT_DIR }}/**/coverage.cobertura.xml
+          fail: false
+          # Publish the rendered output as a PR comment
+          publish: true
+          # Create a coverage diff report.
+          diff: true
+          coverage-summary-title: "Code Coverage Summary"
