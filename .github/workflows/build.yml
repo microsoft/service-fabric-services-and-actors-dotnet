@@ -34,13 +34,10 @@ jobs:
         with:
           name: release_drop
           path: ${{ env.DROP_DIR }}
-      - name: Produce the coverage report
-        uses: insightsengineering/coverage-action@v3
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          path: drop/testresults/**/coverage.cobertura.xml
-          fail: false
-          # Publish the rendered output as a PR comment
-          publish: true
-          # Create a coverage diff report.
-          diff: true
-          coverage-summary-title: "Code Coverage Summary"
+          directory: drop/testresults
+          files: "**/coverage.cobertura.xml"
+          fail_ci_if_error: false
+          verbose: true
