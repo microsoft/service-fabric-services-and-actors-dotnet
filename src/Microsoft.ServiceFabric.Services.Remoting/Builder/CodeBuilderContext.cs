@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
         {
             if (this.enableDebugging)
             {
-#if !DotNetCoreClr
+#if !NET
                 this.assemblyBuilder.Save(this.assemblyBuilder.GetName().Name + ".dll");
 #endif
             }
