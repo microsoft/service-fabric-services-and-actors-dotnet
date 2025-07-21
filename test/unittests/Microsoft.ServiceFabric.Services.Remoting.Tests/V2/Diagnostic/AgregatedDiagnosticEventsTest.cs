@@ -67,7 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ThrowsOnNullEventsList()
             {
-                Assert.Throws<ArgumentNullException>(() => new AgregatedDiagnosticEvents(null));
+                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(null));
             }
 
             [Fact]

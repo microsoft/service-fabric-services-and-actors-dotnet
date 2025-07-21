@@ -16,8 +16,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         internal AgregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {
-            if (diagnosticEvents.Any(d => d == null)) 
-                throw new ArgumentException("Diagnostic events collection cannot contain null elements.", nameof(diagnosticEvents)); 
+            if (diagnosticEvents == null || diagnosticEvents.Any(d => d == null)) 
+                throw new ArgumentException("Diagnostic events collection cannot be null or contain null elements.", nameof(diagnosticEvents)); 
 
             this.diagnosticsEventSet = new HashSet<IDiagnosticEvents>(diagnosticEvents ?? throw new ArgumentNullException(nameof(diagnosticEvents)), uniqueIDiagnosticEventsComparer);
 
