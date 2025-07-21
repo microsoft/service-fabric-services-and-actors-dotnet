@@ -37,7 +37,7 @@ jobs:
       - name: Produce the coverage report
         uses: insightsengineering/coverage-action@v3
         with:
-          path: ${{ env.TEST_RESULT_DIR }}/**/coverage.cobertura.xml
+          path: drop/testresults/**/coverage.cobertura.xml
           fail: false
           # Publish the rendered output as a PR comment
           publish: true
