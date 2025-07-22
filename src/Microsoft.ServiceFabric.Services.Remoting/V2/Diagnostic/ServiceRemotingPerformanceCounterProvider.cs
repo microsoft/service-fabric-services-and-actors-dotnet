@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
     using System.Linq;
     using System.Text;
 
-    internal class ServiceRemotingPerformanceCounterProvider : IDisposable
+    internal class ServiceRemotingPerformanceCounterProvider : IServiceRemotingPerformanceCounterWriterProvider, IDisposable
     {
         private static readonly string TraceType = "ServiceRemotingPerformanceCounterProvider";
         private static readonly int MaxDigits = 10;
@@ -57,25 +57,25 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             this.CreateserviceCounterWriters(serviceCounterInstanceName);
         }
 
-        internal FabricAverageCount64PerformanceCounterWriter ServiceRequestProcessingTimeCounterWriter
+        public FabricAverageCount64PerformanceCounterWriter ServiceRequestProcessingTimeCounterWriter
         {
             get;
             private set;
         }
 
-        internal FabricAverageCount64PerformanceCounterWriter ServiceRequestDeserializationTimeCounterWriter
+        public FabricAverageCount64PerformanceCounterWriter ServiceRequestDeserializationTimeCounterWriter
         {
             get;
             private set;
         }
 
-        internal FabricAverageCount64PerformanceCounterWriter ServiceResponseSerializationTimeCounterWriter
+        public FabricAverageCount64PerformanceCounterWriter ServiceResponseSerializationTimeCounterWriter
         {
             get;
             private set;
         }
 
-        internal FabricNumberOfItems64PerformanceCounterWriter ServiceOutstandingRequestsCounterWriter
+        public FabricNumberOfItems64PerformanceCounterWriter ServiceOutstandingRequestsCounterWriter
         {
             get;
             private set;
