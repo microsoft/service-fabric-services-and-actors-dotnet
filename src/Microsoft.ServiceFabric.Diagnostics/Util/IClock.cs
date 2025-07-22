@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
+namespace Microsoft.ServiceFabric.Diagnostics.Util
 {
     internal interface IClock
     {
