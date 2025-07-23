@@ -32,7 +32,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
                 new SystemExceptionConvertor(),
-                new FabricExceptionConvertor()
+                new FabricExceptionConvertor(),
+                new DefaultExceptionConvertor()
             };
 
             return new ExceptionSerializer(convertors, null);

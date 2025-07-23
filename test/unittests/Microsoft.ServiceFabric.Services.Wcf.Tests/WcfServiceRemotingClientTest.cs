@@ -16,14 +16,14 @@ using Fuzzy;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
-    public abstract class WcfServiceRemotingClientTestBase
+    public abstract class WcfServiceRemotingClientTest
     {
         // Text fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         readonly WcfServiceRemotingClient sut;
 
-        public WcfServiceRemotingClientTestBase()
+        public WcfServiceRemotingClientTest()
         {
             // Create client exception convertors.
             IEnumerable<V2.Client.IExceptionConvertor> clientExceptionConvertors = new List<V2.Client.IExceptionConvertor>
@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 );
         }
 
-        public sealed class WellKnownException : WcfServiceRemotingClientTestBase
+        public sealed class WellKnownException : WcfServiceRemotingClientTest
         {
             readonly FaultException<RemoteException2> faultException;
             readonly string errorMessage;
@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             }
         }
 
-        public sealed class UnsupportedException : WcfServiceRemotingClientTestBase
+        public sealed class UnsupportedException : WcfServiceRemotingClientTest
         {
             readonly FaultException<RemoteException2> faultException;
             readonly string errorMessage;
@@ -126,41 +126,41 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 Assert.Equal(errorMessage, innerException.Message);
             }
         }
-    }
 
-    internal class CustomConvertorRuntime : ExceptionConvertorBase
-    {
-        public override bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
+        internal class CustomConvertorRuntime : ExceptionConvertorBase
         {
-            serviceException = null;
-            if (originalException is CustomException customEx)
+            public override bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
             {
-                serviceException = new ServiceException(customEx.GetType().FullName, customEx.Message);
-                serviceException.ActualExceptionStackTrace = originalException.StackTrace;
-                serviceException.ActualExceptionData = new Dictionary<string, string>()
-            {
-                { "Field1", customEx.Field1 },
-                { "Field2", customEx.Field2 },
-            };
+                serviceException = null;
+                if (originalException is CustomException customEx)
+                {
+                    serviceException = new ServiceException(customEx.GetType().FullName, customEx.Message);
+                    serviceException.ActualExceptionStackTrace = originalException.StackTrace;
+                    serviceException.ActualExceptionData = new Dictionary<string, string>()
+                {
+                    { "Field1", customEx.Field1 },
+                    { "Field2", customEx.Field2 },
+                };
 
-                return true;
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        internal class CustomException : Exception
+        {
+            public CustomException(string message, string field1, string field2)
+                : base(message)
+            {
+                this.Field1 = field1;
+                this.Field2 = field2;
             }
 
-            return false;
+            public string Field1 { get; set; }
+
+            public string Field2 { get; set; }
         }
-    }
-
-    internal class CustomException : Exception
-    {
-        public CustomException(string message, string field1, string field2)
-            : base(message)
-        {
-            this.Field1 = field1;
-            this.Field2 = field2;
-        }
-
-        public string Field1 { get; set; }
-
-        public string Field2 { get; set; }
     }
 }

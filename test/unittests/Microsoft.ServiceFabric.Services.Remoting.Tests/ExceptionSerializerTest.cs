@@ -5,11 +5,12 @@
 
 using System.Collections.Generic;
 using Xunit;
+using Inspector;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
-    abstract class ExceptionSerializerTest
+    public abstract class ExceptionSerializerTest
     {
         public class Constructor
         {
@@ -22,8 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
                 // Assert
                 Assert.NotNull(serializer);
-                var convertorsField = typeof(ExceptionSerializer).GetField("convertors", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var actualConvertors = convertorsField?.GetValue(serializer) as IEnumerable<IExceptionConvertor>;
+                IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
                 Assert.NotNull(actualConvertors);
                 var convertorList = new List<IExceptionConvertor>(actualConvertors);
                 Assert.Single(convertorList);
@@ -41,8 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
                 // Assert
                 Assert.NotNull(serializer);
-                var convertorsField = typeof(ExceptionSerializer).GetField("convertors", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var actualConvertors = convertorsField?.GetValue(serializer) as IEnumerable<IExceptionConvertor>;
+                IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
                 Assert.NotNull(actualConvertors);
                 var convertorList = new List<IExceptionConvertor>(actualConvertors);
                 Assert.Equal(2, convertorList.Count);
@@ -61,8 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
                 // Assert
                 Assert.NotNull(serializer);
-                var convertorsField = typeof(ExceptionSerializer).GetField("convertors", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var actualConvertors = convertorsField?.GetValue(serializer) as IEnumerable<IExceptionConvertor>;
+                IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
                 Assert.NotNull(actualConvertors);
                 var convertorList = new List<IExceptionConvertor>(actualConvertors);
                 Assert.Equal(3, convertorList.Count);

@@ -81,7 +81,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2
             }
             catch (Exception e)
             {
-                
                 Assert.True(e is AggregateException);
                 Assert.True(e.InnerException is ServiceException, "InnerException is not of type ServiceException");
                 Assert.Equal("Testing", e.InnerException.Message);

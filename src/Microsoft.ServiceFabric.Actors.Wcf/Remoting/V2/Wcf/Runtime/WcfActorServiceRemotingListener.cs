@@ -45,6 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
                     GetDefaultSerializationProvider(null, useWrappedMessage),
                     new BasicDataContractActorHeaderSerializer()),
                 listenerBinding,
+                null,
                 ActorNameFormat.GetFabricServiceEndpointName(actorService.ActorTypeInformation.ImplementationType))
         {
         }
