@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                     "Failed to deserialize stream to RemoteException2: Reason - {0}",
                     e);
 
-                throw e;
+                throw;
             }
         }
 

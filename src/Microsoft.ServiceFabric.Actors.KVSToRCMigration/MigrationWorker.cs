@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     internal class MigrationWorker : WorkerBase
     {
         private static readonly string TraceType = typeof(MigrationWorker).Name;
-        private static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<KeyValuePair>) });
+        private static readonly DataContractJsonSerializer ResponseSerializer = new DataContractJsonSerializer(typeof(EnumerationResponse), new[] { typeof(List<Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models.KeyValuePair>) });
         private static readonly DataContractJsonSerializer Requestserializer = new DataContractJsonSerializer(typeof(EnumerationRequest));
         private ServicePartitionClient<HttpCommunicationClient> servicePartitionClient;
         private MigrationSettings migrationSettings;
@@ -118,7 +118,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     this.TraceId,
                     $"Migration worker failed with error: {ex} \n Input: /*Dump input*/");
 
-                throw ex;
+                throw;
             }
         }
 
@@ -250,7 +250,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                     "Error occured while enumerating and saving data - StartSN: {0}, Exception: {1}",
                     startSN,
                     ex);
-                throw ex;
+                throw;
             }
         }
 

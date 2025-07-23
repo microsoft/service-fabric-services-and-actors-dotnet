@@ -15,9 +15,9 @@ using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tests
 {
-#if DotNetCoreClr
     public abstract class ServiceFabricEventSourceTest
     {
+#if NET
         public sealed class Class : ServiceFabricEventSourceTest
         {
             [Fact]
@@ -29,12 +29,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
             }
         }
 
-
-        public sealed class Constructor : ServiceFabricEventSourceTest, IDisposable
+        public sealed class ConstructorNetCore : ServiceFabricEventSourceTest, IDisposable
         {
+
             readonly Func<OSPlatform, bool> isOsPlatform = Mock.Of<Func<OSPlatform, bool>>();
 
-            public Constructor()
+            public ConstructorNetCore()
             {
                 // Enable mocking of OSPlatform detection
                 typeof(TestEventSource).Field<Func<OSPlatform, bool>>().Set(isOsPlatform);
@@ -74,7 +74,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
                 Assert.False(sut.IsEnabled());
             }
+        }
 
+#endif
+
+        public sealed class Constructor : ServiceFabricEventSourceTest
+        {
             [Theory]
             [InlineData(1, "EventWithIdAndType", "Event with id and type: {0}, {1}, {2}", EventLevel.Informational)]
             [InlineData(2, "EventWithIdOnly", "Event with id only: {0}, {1}", EventLevel.Warning)]
@@ -113,5 +118,4 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
             }
         }
     }
-#endif
 }

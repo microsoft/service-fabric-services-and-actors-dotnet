@@ -112,7 +112,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
             catch (Exception e)
             {
                 ActorTrace.Source.WriteErrorWithId(TraceType, this.traceId, $"[{LogContext.GetRequestIdOrDefault()}] Error encountered while forwarding actor request - ActorId : {actorId}, MethodName : {requestMessage.GetHeader().MethodName}, Exception : {e}");
-                throw e;
+                throw;
             }
         }
     }

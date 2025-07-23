@@ -307,12 +307,5 @@ namespace FabActUtil
 
             return false;
         }
-
-        private static string GetToolPath()
-        {
-            var codeBase = Assembly.GetEntryAssembly().CodeBase;
-            var uri = new UriBuilder(codeBase);
-            return Uri.UnescapeDataString(uri.Path);
-        }
     }
 }

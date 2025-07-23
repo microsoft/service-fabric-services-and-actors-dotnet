@@ -11,9 +11,19 @@
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
-  <!-- Cls Compliant -->
+  <!-- Assembly name, title and documentation -->
   <PropertyGroup>
-    <AssemblyClsCompliant>true</AssemblyClsCompliant>
+    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
+    <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('test'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <!-- Properties specific to certain TargetFrameworks -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'"> 
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);SYSLIB0011;SYSLIB0050</WarningsNotAsErrors >
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <!-- set DebugType to full -->
@@ -24,11 +34,6 @@
   <!-- Enable /highentropyva flag -->
   <PropertyGroup>
     <HighEntropyVA>true</HighEntropyVA>
-  </PropertyGroup>
-
-  <!-- Set AllowUnsafeBlocks to false -->
-  <PropertyGroup>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <!-- Enable delay signing with Key.snk -->

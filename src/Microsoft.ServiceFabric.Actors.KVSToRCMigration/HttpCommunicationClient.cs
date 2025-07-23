@@ -18,14 +18,13 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
         public HttpCommunicationClient(string address)
         {
             this.endpointUri = new Uri(address.EndsWith("/") ? address : $"{address}/");
-#if !DotNetCoreClr
+#if !NET
             var handler = new WinHttpHandler();
             this.httpClient = new HttpClient(handler)
             {
                 BaseAddress = this.endpointUri,
             };
-#endif
-#if DotNetCoreClr
+#else
             this.httpClient = new HttpClient()
             {
                 BaseAddress = this.endpointUri,
