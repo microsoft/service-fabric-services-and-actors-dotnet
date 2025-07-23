@@ -4,30 +4,35 @@
 // ------------------------------------------------------------
 
 using System;
+using Microsoft.ServiceFabric.Diagnostics.Util;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
     {
 
-        private AbstractFabricCounterWriterWrapper serviceRequestProcessingTimeCounterWriter;
-        private AbstractFabricCounterWriterWrapper serviceRequestDeserializationTimeCounterWriter;
-        private AbstractFabricCounterWriterWrapper serviceResponseSerializationTimeCounterWriter;
-        private AbstractFabricCounterWriterWrapper serviceOutstandingRequestsCounterWriter;
+        private ServiceRemotingPerformanceCounterProvider performanceCounterProvider;
+        private IClock clock;
 
-        public PerformanceCounterDiagnosticEvents(IServiceRemotingPerformanceCounterWriterProvider performanceCounterProvider)
+        private long CalculateMilisecondsSince(DateTime startTime)
         {
-            if(performanceCounterProvider == null)
-                throw new ArgumentException(nameof(performanceCounterProvider));
+            return (long)Math.Floor((clock.UtcNow - startTime).TotalMilliseconds);
+        }
 
-            this.serviceRequestProcessingTimeCounterWriter = new FabricAverageCountPerformanceCounterWrapper(
-                performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter);
-            this.serviceRequestDeserializationTimeCounterWriter = new FabricAverageCountPerformanceCounterWrapper(
-                performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter);
-            this.serviceResponseSerializationTimeCounterWriter = new FabricAverageCountPerformanceCounterWrapper(
-                performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter);
-            this.serviceOutstandingRequestsCounterWriter = new FabricNumberOfItemsPerformanceCounterWrapper(
-                performanceCounterProvider.ServiceOutstandingRequestsCounterWriter);
+        public PerformanceCounterDiagnosticEvents(ServiceRemotingPerformanceCounterProvider performanceCounterProvider, IClock clock)
+        {
+            this.performanceCounterProvider = performanceCounterProvider ?? throw new ArgumentException(nameof(performanceCounterProvider));
+            this.clock = clock ?? throw new ArgumentException(nameof(clock));
+        }
+
+        public void OnRequestResponseBegin()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnRequestResponseEnd(DateTime startTime)
+        {
+            throw new NotImplementedException();
         }
 
         public void OnCreateTransportMessageBegin()
@@ -46,16 +51,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         }
 
         public void OnRemotingRequestEnd(DateTime startTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnRequestResponseBegin()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnRequestResponseEnd(DateTime startTime)
         {
             throw new NotImplementedException();
         }
