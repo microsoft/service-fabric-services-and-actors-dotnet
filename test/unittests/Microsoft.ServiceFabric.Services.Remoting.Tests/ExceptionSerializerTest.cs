@@ -44,9 +44,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
                 Assert.NotNull(actualConvertors);
                 var convertorList = new List<IExceptionConvertor>(actualConvertors);
-                Assert.Equal(2, convertorList.Count);
+                Assert.Equal(3, convertorList.Count);
                 Assert.IsType<SystemExceptionConvertor>(convertorList[0]);
                 Assert.IsType<FabricExceptionConvertor>(convertorList[1]);
+                Assert.IsType<DefaultExceptionConvertor>(convertorList[2]);
             }
 
             [Fact]
@@ -63,10 +64,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
                 Assert.NotNull(actualConvertors);
                 var convertorList = new List<IExceptionConvertor>(actualConvertors);
-                Assert.Equal(3, convertorList.Count);
+                Assert.Equal(4, convertorList.Count);
                 Assert.IsType<FabricExceptionConvertor>(convertorList[0]); // custom
                 Assert.IsType<SystemExceptionConvertor>(convertorList[1]); // default
                 Assert.IsType<FabricExceptionConvertor>(convertorList[2]); // default
+                Assert.IsType<DefaultExceptionConvertor>(convertorList[3]); // default
             }
         }
     }

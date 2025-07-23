@@ -9,7 +9,6 @@ using System.Linq;
 using System.ServiceModel.Channels;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Remoting.Client;
-using Microsoft.ServiceFabric.Actors.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
@@ -22,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
     ///     An <see cref="IServiceRemotingClientFactory"/> that uses
     ///     Windows Communication Foundation to create <see cref="IServiceRemotingClient"/>
     ///     to communicate with an actor service and actors hosted by it, using actor and service interfaces that are remoted via
-    ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime.WcfActorServiceRemotingListener"/>.
+    ///     <see cref="Runtime.WcfActorServiceRemotingListener"/>.
     /// </summary>
     public class WcfActorRemotingClientFactory : WcfServiceRemotingClientFactory
     {
