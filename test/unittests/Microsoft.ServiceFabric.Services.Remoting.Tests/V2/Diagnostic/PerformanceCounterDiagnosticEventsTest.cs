@@ -171,20 +171,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 sut.OnRemotingRequestEnd(requestStartTime);
 
-                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Never);
+                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
             }
 
             [Fact]
             public void RemotingMessageEndIgnoreIfWriterNull()
             {
-                performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
+                performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
                    .Set(null);
 
                 sut.OnRemotingRequestEnd(DateTime.UtcNow);
 
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
 
-                performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
+                performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
                     .Set(mockResponseSerializationTimeCounterWriter);
             }
 
@@ -213,14 +213,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void TransportMessageEndIgnoreIfWriterNull()
             {
-                performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter))
+                performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter))
                    .Set(null);
 
                 sut.OnCreateTransportMessageEnd(DateTime.UtcNow);
 
                 Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
 
-                performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter))
+                performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter))
                     .Set(mockRequestDeserializationTimeCounterWriter);
             }
         }

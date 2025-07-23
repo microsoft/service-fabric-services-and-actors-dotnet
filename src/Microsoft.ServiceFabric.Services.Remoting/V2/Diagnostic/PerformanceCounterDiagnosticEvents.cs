@@ -26,32 +26,51 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRequestResponseBegin()
         {
-            throw new NotImplementedException();
+            if(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
+            {
+                performanceCounterProvider.ServiceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
+            }
         }
 
         public void OnRequestResponseEnd(DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (performanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
+            {
+                performanceCounterProvider.ServiceOutstandingRequestsCounterWriter.UpdateCounterValue(-1);
+            }
+            if (performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter != null)
+            {
+                performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter.UpdateCounterValue(
+                    CalculateMilisecondsSince(startTime));
+            }
         }
 
         public void OnCreateTransportMessageBegin()
         {
-            throw new NotImplementedException();
+            // Intentionally left blank, since we don't track remoting request begin in performance counters.
         }
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
         {
-            throw new NotImplementedException();
+            if(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
+            {
+                performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
+                    CalculateMilisecondsSince(startTime));
+            }
         }
 
         public void OnRemotingRequestBegin()
         {
-            throw new NotImplementedException();
+            // Intentionally left blank, since we don't track remoting request begin in performance counters.
         }
 
         public void OnRemotingRequestEnd(DateTime startTime)
         {
-            throw new NotImplementedException();
+            if(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
+            {
+                performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter.UpdateCounterValue(
+                    CalculateMilisecondsSince(startTime));
+            }
         }
     }
 }
