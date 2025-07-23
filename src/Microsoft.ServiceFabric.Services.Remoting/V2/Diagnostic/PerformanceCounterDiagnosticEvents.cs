@@ -10,7 +10,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
     {
-
         private ServiceRemotingPerformanceCounterProvider performanceCounterProvider;
         private IClock clock;
 
