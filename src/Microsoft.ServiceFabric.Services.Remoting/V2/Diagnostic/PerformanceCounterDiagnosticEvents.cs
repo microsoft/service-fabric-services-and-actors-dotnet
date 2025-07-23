@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnCreateTransportMessageBegin()
         {
-            // Intentionally left blank, since we don't track remoting request begin in performance counters.
+            // Intentionally left blank, since we don't track transport message begin in performance counters.
         }
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
