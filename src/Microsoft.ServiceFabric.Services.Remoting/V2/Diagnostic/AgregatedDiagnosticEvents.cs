@@ -31,7 +31,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             {
                 ds.OnRemotingRequestBegin();
             }
-        }        public void OnRemotingRequestEnd(DateTime startTime)
+        }        
+        
+        public void OnRemotingRequestEnd(DateTime startTime)
         {
             foreach (var ds in diagnosticsEventSet)
             {
