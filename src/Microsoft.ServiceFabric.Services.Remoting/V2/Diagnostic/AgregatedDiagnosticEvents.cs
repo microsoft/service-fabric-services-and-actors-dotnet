@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class AgregatedDiagnosticEvents : IDiagnosticEvents
+    internal class AgregatedDiagnosticEvents : IDiagnosticEvents, IDisposable
     {
         private readonly static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
         private readonly HashSet<IDiagnosticEvents> diagnosticsEventSet;
@@ -68,6 +68,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             foreach (var ds in diagnosticsEventSet)
             {
                 ds.OnCreateTransportMessageEnd(startTime);
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var ds in diagnosticsEventSet)
+            {
+                if (ds is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
             }
         }
 

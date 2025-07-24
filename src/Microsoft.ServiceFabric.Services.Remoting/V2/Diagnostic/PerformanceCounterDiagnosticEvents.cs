@@ -8,7 +8,7 @@ using Microsoft.ServiceFabric.Diagnostics.Util;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
+    internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents, IDisposable
     {
         private ServiceRemotingPerformanceCounterProvider performanceCounterProvider;
         private IClock clock;
@@ -70,6 +70,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             {
                 performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter.UpdateCounterValue(
                     CalculateMilisecondsSince(startTime));
+            }
+        }
+
+        public void Dispose()
+        {
+            if(performanceCounterProvider != null)
+            {
+                performanceCounterProvider.Dispose();
             }
         }
     }

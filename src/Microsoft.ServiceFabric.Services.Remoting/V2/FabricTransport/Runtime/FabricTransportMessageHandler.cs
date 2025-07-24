@@ -23,7 +23,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly IServiceRemotingMessageSerializersManager serializersManager;
         private readonly Guid partitionId;
         private readonly long replicaOrInstanceId;
-        private readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
         private ExceptionSerializer exceptionSerializer;
         private IDiagnosticEvents diagnosticEvents;
@@ -40,25 +39,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             this.serializersManager = serializersManager;
             this.partitionId = partitionId;
             this.replicaOrInstanceId = replicaOrInstanceId;
-            this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(
-                this.partitionId,
-                this.replicaOrInstanceId);
             this.headerSerializer = this.serializersManager.GetHeaderSerializer();
             this.exceptionSerializer = exceptionConvertorHandler;
-            this.diagnosticEvents = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>());
+
             this.clock = new SystemClock();
+
+            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId), this.clock);
+            var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents };
+            this.diagnosticEvents = new AgregatedDiagnosticEvents(registeredDiagnosticsEvents);
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(
             FabricTransportRequestContext requestContext,
             FabricTransportMessage fabricTransportMessage)
         {
-            if (this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
-            {
-                this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
-                    .UpdateCounterValue(1);
-            }
-
             var operationStartTime = clock.UtcNow;
             diagnosticEvents.OnRequestResponseBegin();
 
@@ -97,19 +91,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             finally
             {
                 fabricTransportMessage.Dispose();
-                if (this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
-                {
-                    this.serviceRemotingPerformanceCounterProvider.ServiceOutstandingRequestsCounterWriter
-                        .UpdateCounterValue(-1);
-                }
-
-                if (this.serviceRemotingPerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter != null)
-                {
-                    this.serviceRemotingPerformanceCounterProvider.ServiceRequestProcessingTimeCounterWriter
-                        .UpdateCounterValue(
-                            requestStopWatch.ElapsedMilliseconds);
-                }
-
                 diagnosticEvents.OnRequestResponseEnd(operationStartTime);
             }
         }
@@ -123,14 +104,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         public void Dispose()
         {
-            if (this.serviceRemotingPerformanceCounterProvider != null)
-            {
-                this.serviceRemotingPerformanceCounterProvider.Dispose();
-            }
-
             if (this.remotingMessageHandler is IDisposable disposableItem)
             {
                 disposableItem.Dispose();
+            }
+            if(this.diagnosticEvents is IDisposable diagnosticEventsDisposable)
+            {
+                diagnosticEventsDisposable.Dispose();
             }
         }
 
@@ -168,11 +148,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             diagnosticEvents.OnCreateTransportMessageBegin();
 
             var responseMsgBody = responseSerializer.Serialize(retval.GetBody());
-            if (this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
-            {
-                this.serviceRemotingPerformanceCounterProvider.ServiceResponseSerializationTimeCounterWriter
-                    .UpdateCounterValue(stopwatch.ElapsedMilliseconds);
-            }
             diagnosticEvents.OnCreateTransportMessageEnd(operationStartTime);
 
             var fabricTransportRequestBody = responseMsgBody != null
@@ -210,11 +185,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 deserializedMsg = null;
             }
 
-            if (this.serviceRemotingPerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
-            {
-                this.serviceRemotingPerformanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
-                    stopwatch.ElapsedMilliseconds);
-            }
             diagnosticEvents.OnRemotingRequestEnd(operationStartTime);
 
             return new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
