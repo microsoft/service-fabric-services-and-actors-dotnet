@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Diagnostics.Util;
 using Microsoft.ServiceFabric.FabricTransport.V2;
@@ -56,13 +55,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var operationStartTime = clock.UtcNow;
             diagnosticEvents.OnRequestResponseBegin();
 
-            var requestStopWatch = Stopwatch.StartNew();
-            var requestResponseSerializationStopwatch = Stopwatch.StartNew();
-
             IServiceRemotingRequestMessage remotingRequestMessage = null;
             try
             {
-                remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage, requestResponseSerializationStopwatch);
+                remotingRequestMessage = this.CreateRemotingRequestMessage(fabricTransportMessage);
 
                 LogContext.Set(new LogContext
                 {
@@ -73,7 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     this.remotingMessageHandler.HandleRequestResponseAsync(
                         new FabricTransportServiceRemotingRequestContext(requestContext, this.serializersManager),
                         remotingRequestMessage);
-                return this.CreateFabricTransportMessage(retval, remotingRequestMessage.GetHeader().InterfaceId, requestResponseSerializationStopwatch);
+                return this.CreateFabricTransportMessage(retval, remotingRequestMessage.GetHeader().InterfaceId);
             }
             catch (Exception ex)
             {
@@ -127,7 +123,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             return msg;
         }
 
-        private FabricTransportMessage CreateFabricTransportMessage(IServiceRemotingResponseMessage retval, int interfaceId, Stopwatch stopwatch)
+        private FabricTransportMessage CreateFabricTransportMessage(IServiceRemotingResponseMessage retval, int interfaceId)
         {
             if (retval == null)
             {
@@ -142,7 +138,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 : new FabricTransportRequestHeader(default(ArraySegment<byte>), null);
             var responseSerializer =
                 this.serializersManager.GetResponseBodySerializer(interfaceId);
-            stopwatch.Restart();
 
             var operationStartTime = clock.UtcNow;
             diagnosticEvents.OnCreateTransportMessageBegin();
@@ -162,14 +157,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             return message;
         }
 
-        private IServiceRemotingRequestMessage CreateRemotingRequestMessage(
-            FabricTransportMessage fabricTransportMessage, Stopwatch stopwatch)
+        private IServiceRemotingRequestMessage CreateRemotingRequestMessage(FabricTransportMessage fabricTransportMessage)
         {
             var deSerializedHeader = this.headerSerializer.DeserializeRequestHeaders(
                 new IncomingMessageHeader(fabricTransportMessage.GetHeader().GetRecievedStream()));
             var msgBodySerializer =
                  this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
-            stopwatch.Restart();
 
             var operationStartTime = clock.UtcNow;
             diagnosticEvents.OnRemotingRequestBegin();
