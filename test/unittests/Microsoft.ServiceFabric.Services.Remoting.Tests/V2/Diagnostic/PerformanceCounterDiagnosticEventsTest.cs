@@ -15,14 +15,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {
     public class PerformanceCounterDiagnosticEventsTest
     {
-        internal readonly ServiceRemotingPerformanceCounterProvider performanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(Guid.NewGuid(), 0);
-        internal readonly IClock mockClock = Mock.Of<IClock>();
-        internal PerformanceCounterDiagnosticEvents sut;
-
-        public PerformanceCounterDiagnosticEventsTest()
-        {
-            this.sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, mockClock);
-        }
+        readonly static ServiceRemotingPerformanceCounterProvider performanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(Guid.NewGuid(), 0);
+        readonly static IClock mockClock = Mock.Of<IClock>();
+        PerformanceCounterDiagnosticEvents sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, mockClock);
 
         public class Class : PerformanceCounterDiagnosticEventsTest
         {
@@ -50,11 +45,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void WithParametersSetsValue()
             {
-                var providerField = sut.Field<ServiceRemotingPerformanceCounterProvider>("performanceCounterProvider").Value;
+                var providerField = sut.Field<ServiceRemotingPerformanceCounterProvider>().Value;
                 Assert.NotNull(providerField);
                 Assert.IsAssignableFrom<ServiceRemotingPerformanceCounterProvider>(providerField);
 
-                var clock = sut.Field<IClock>("clock").Value;
+                var clock = sut.Field<IClock>().Value;
                 Assert.NotNull(clock);
                 Assert.IsAssignableFrom<IClock>(clock);
             }
@@ -100,7 +95,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void RequestBeginIncrementCounter()
             {
-
                 sut.OnRequestResponseBegin();
 
                 Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Once);
@@ -115,7 +109,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 sut.OnRequestResponseBegin();
 
                 Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-
                 performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter))
                     .Set(mockOutstandingRequestsCounterWriter);
             }
@@ -144,8 +137,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
                 Mock.Get(mockRequestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-
-
                 performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter))
                     .Set(mockOutstandingRequestsCounterWriter);
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter))
@@ -183,7 +174,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 sut.OnRemotingRequestEnd(DateTime.UtcNow);
 
                 Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
                     .Set(mockResponseSerializationTimeCounterWriter);
             }
@@ -206,7 +196,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 Mock.Get(mockClock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
 
                 sut.OnCreateTransportMessageEnd(requestStartTime);
-
                 Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Never);
             }
 
@@ -219,7 +208,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 sut.OnCreateTransportMessageEnd(DateTime.UtcNow);
 
                 Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter))
                     .Set(mockRequestDeserializationTimeCounterWriter);
             }

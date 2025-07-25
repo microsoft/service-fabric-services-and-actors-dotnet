@@ -11,8 +11,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class AgregatedDiagnosticEvents : IDiagnosticEvents, IDisposable
     {
-        private readonly static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
-        private readonly HashSet<IDiagnosticEvents> diagnosticsEventSet;
+        readonly static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
+
+        readonly HashSet<IDiagnosticEvents> diagnosticsEventSet;
 
         internal AgregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {

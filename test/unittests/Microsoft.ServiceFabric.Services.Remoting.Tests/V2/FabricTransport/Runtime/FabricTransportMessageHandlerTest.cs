@@ -25,20 +25,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
 {
     public abstract class FabricTransportMessageHandlerTest
     {
-        readonly internal FabricTransportMessageHandler sut;
+        readonly FabricTransportMessageHandler sut;
 
-        readonly internal IServiceRemotingMessageHandler mockRemotingMessageHandler = Mock.Of<IServiceRemotingMessageHandler>();
-        readonly internal IServiceRemotingMessageSerializersManager mockSerializerManager = Mock.Of<IServiceRemotingMessageSerializersManager>();
-        readonly internal IDiagnosticEvents mockDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
-        readonly internal IClock mockClock = Mock.Of<IClock>();
+        readonly IServiceRemotingMessageHandler mockRemotingMessageHandler = Mock.Of<IServiceRemotingMessageHandler>();
+        readonly IServiceRemotingMessageSerializersManager mockSerializerManager = Mock.Of<IServiceRemotingMessageSerializersManager>();
+        readonly IDiagnosticEvents mockDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
+        readonly IClock mockClock = Mock.Of<IClock>();
 
-        readonly internal ExceptionSerializer exceptionSerializer = new ExceptionSerializer(
+        readonly ExceptionSerializer exceptionSerializer = new ExceptionSerializer(
             new IExceptionConvertor[] { new DefaultExceptionConvertor() },
             new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 }
         );
-        readonly internal Guid partitionId = Guid.NewGuid();
-        readonly internal long replicaOrInstanceId = 123L;
-        readonly internal DateTime currentTime = new DateTime(2025, 1, 1);
+        readonly Guid partitionId = Guid.NewGuid();
+        readonly long replicaOrInstanceId = 123L;
+        readonly DateTime currentTime = new DateTime(2025, 1, 1);
 
         public FabricTransportMessageHandlerTest()
         {
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             Mock.Get(this.mockClock).Setup(c => c.UtcNow)
                 .Returns(currentTime);
 
-            // Initialize System Under Test (SUT)
+            // Initialize System Under Test
             this.sut = new FabricTransportMessageHandler(
                 this.mockRemotingMessageHandler,
                 this.mockSerializerManager,
@@ -89,7 +89,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             {
                 var field = sut.Field<IDiagnosticEvents>();
 
-                Assert.IsAssignableFrom<IDiagnosticEvents>(field.Value);
                 Assert.IsType<AgregatedDiagnosticEvents>(field.Value);
             }
 
@@ -97,7 +96,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             public void DiagnosticsEventsHasPerformanceCounterEventsRegistered()
             {
                 var field = sut.Field<IDiagnosticEvents>().Value;
-                var registeredDiagnosticEvents = field.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value;
+                var registeredDiagnosticEvents = field.Field<HashSet<IDiagnosticEvents>>().Value;
 
                 Assert.Single(registeredDiagnosticEvents);
                 Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.First());
@@ -108,7 +107,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             {
                 var field = sut.Field<IClock>();
 
-                Assert.IsAssignableFrom<IClock>(field.Value);
                 Assert.IsAssignableFrom<SystemClock>(field.Value);
             }
         }            
@@ -121,7 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
 
             public RequestReponse()
             {
-                // After creating SUT, we replace DiagnosticsSource with a mock, so we can verify diagnostics calls
+                // After creating SUT, we replace DiagnosticsSource with a mock
                 sut.Field<IDiagnosticEvents>().Set(mockDiagnosticEvents); 
                 sut.Field<IClock>().Set(mockClock);
             }
@@ -129,14 +127,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             [Fact]
             public async Task ShouldCallRequestResponseDiagnostics()
             {
-                try
-                {
-                    await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
-                }
-                catch
-                {
-                    // Expected to fail due to mocked dependencies, but we only care about the diagnostics call
-                }
+                await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
 
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnRequestResponseBegin(), Times.Once);
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnRequestResponseEnd(currentTime), Times.Once);
@@ -145,15 +136,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             [Fact]
             public async Task ShouldCallTransportMessageDiagnostics()
             {
-                try
-                {
-                    await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
-                }
-                catch
-                {
-                    // Expected to fail due to mocked dependencies, but we only care about the diagnostics call
-                }
-
+                await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
+            
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnCreateTransportMessageBegin(), Times.Once);
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnCreateTransportMessageEnd(currentTime), Times.Once);
             }            
@@ -161,15 +145,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             [Fact]
             public async Task ShouldCallRemotingMessageDiagnostics()
             {
-                try
-                {
-                    await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
-                }
-                catch
-                {
-                    // Expected to fail due to mocked dependencies, but we only care about the diagnostics call
-                }
-
+                await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
+                
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnRemotingRequestBegin(), Times.Once);
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnRemotingRequestEnd(currentTime), Times.Once);
             }
@@ -180,7 +157,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                 var sequence = new MockSequence();
                 var remotingMethodStartTime = currentTime.AddMinutes(1);
                 var transportMethodStartTime = currentTime.AddMinutes(2);
-
 
                 Action onSerializationBeginCallback = () =>
                 {
@@ -193,15 +169,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                 };
                 Mock.Get(this.mockDiagnosticEvents).InSequence(sequence).Setup(d => d.OnRequestResponseBegin()).Callback(onRequestBeginCallback);
 
-                try
-                {
-                    await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
-                }
-                catch
-                {
-                    // Expected to fail due to mocked dependencies, but we only care about the diagnostics call
-                }
-
+                await sut.RequestResponseAsync(requestContext, fabricTransportMessage);
+                
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnRequestResponseBegin(), Times.Once);
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnRequestResponseEnd(currentTime), Times.Once);
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnRemotingRequestBegin(), Times.Once);
@@ -209,6 +178,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnCreateTransportMessageBegin(), Times.Once);
                 Mock.Get(this.mockDiagnosticEvents).Verify(d => d.OnCreateTransportMessageEnd(transportMethodStartTime), Times.Once);
 
+                // cleanup
                 Mock.Get(mockClock).Setup(c => c.UtcNow).Returns(currentTime);
             }
         }

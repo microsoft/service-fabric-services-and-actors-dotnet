@@ -20,20 +20,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
     {
         internal interface ITestDiagnosticsEvents : IDiagnosticEvents { }
 
-        private IDiagnosticEvents mockedDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
-        private IDiagnosticEvents mockedAnotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
+        readonly static IDiagnosticEvents mockedDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
+        readonly static IDiagnosticEvents mockedAnotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
 
-        private AgregatedDiagnosticEvents sut;
-        IClock mockClock = Mock.Of<IClock>();
-        IEnumerable<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>
+        readonly static IClock mockClock = Mock.Of<IClock>();
+        readonly static IEnumerable<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>
         {
             Mock.Of<IDiagnosticEvents>()
         };
 
-        public AgregatedDiagnosticEventsTest()
-        {
-            this.sut = new AgregatedDiagnosticEvents(diagnosticEvents);
-        }
+        private AgregatedDiagnosticEvents sut = new AgregatedDiagnosticEvents(diagnosticEvents);
 
         public class Class : AgregatedDiagnosticEventsTest
         {
@@ -83,16 +79,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>());
 
-                Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet"));
-                Assert.Empty(newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value);
+                Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>());
+                Assert.Empty(newSut.Field<HashSet<IDiagnosticEvents>>().Value);
             }
 
             [Fact]
             public void AssignsSingleEvent()
             {
-                Assert.NotNull(this.sut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet"));
-                Assert.Single(this.sut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value);
-                Assert.IsAssignableFrom<IDiagnosticEvents>(this.sut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value.First());
+                Assert.NotNull(this.sut.Field<HashSet<IDiagnosticEvents>>());
+                Assert.Single(this.sut.Field<HashSet<IDiagnosticEvents>>().Value);
+                Assert.IsAssignableFrom<IDiagnosticEvents>(this.sut.Field<HashSet<IDiagnosticEvents>>().Value.First());
             }
 
             [Fact]
@@ -104,10 +100,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                     mockedAnotherDiagnosticEvents
                 });
 
-                Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet"));
-                Assert.Equal(2, newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value.Count);
-                Assert.IsAssignableFrom<IDiagnosticEvents>(newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value.First());
-                Assert.IsAssignableFrom<ITestDiagnosticsEvents>(newSut.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value.Last());
+                Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>());
+                Assert.Equal(2, newSut.Field<HashSet<IDiagnosticEvents>>().Value.Count);
+                Assert.IsAssignableFrom<IDiagnosticEvents>(newSut.Field<HashSet<IDiagnosticEvents>>().Value.First());
+                Assert.IsAssignableFrom<ITestDiagnosticsEvents>(newSut.Field<HashSet<IDiagnosticEvents>>().Value.Last());
             }
 
             [Fact]

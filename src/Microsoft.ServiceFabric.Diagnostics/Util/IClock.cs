@@ -10,6 +10,5 @@ namespace Microsoft.ServiceFabric.Diagnostics.Util
     internal interface IClock
     {
         DateTime UtcNow { get; }
-        DateTime Now { get; }
     }
 }
