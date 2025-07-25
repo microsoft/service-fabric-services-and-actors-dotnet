@@ -4,7 +4,9 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Util;
@@ -89,6 +91,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
 
                 Assert.IsAssignableFrom<IDiagnosticEvents>(field.Value);
                 Assert.IsType<AgregatedDiagnosticEvents>(field.Value);
+            }
+
+            [Fact]
+            public void DiagnosticsEventsHasPerformanceCounterEventsRegistered()
+            {
+                var field = sut.Field<IDiagnosticEvents>().Value;
+                var registeredDiagnosticEvents = field.Field<HashSet<IDiagnosticEvents>>("diagnosticsEventSet").Value;
+
+                Assert.Single(registeredDiagnosticEvents);
+                Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.First());
             }
 
             [Fact]
