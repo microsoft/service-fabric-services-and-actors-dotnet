@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         private long CalculateMilisecondsSince(DateTime startTime)
         {
-            return (long)Math.Floor((clock.UtcNow - startTime).TotalMilliseconds);
+            return (long)Math.Ceiling((clock.UtcNow - startTime).TotalMilliseconds);
         }
 
         public PerformanceCounterDiagnosticEvents(ServiceRemotingPerformanceCounterProvider performanceCounterProvider, IClock clock)
