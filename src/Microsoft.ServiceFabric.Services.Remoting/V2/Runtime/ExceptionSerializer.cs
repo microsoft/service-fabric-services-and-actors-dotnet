@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             this.settings = settings;
         }
 
-        public static ExceptionSerializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors)
+        public static ExceptionSerializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, FabricTransportRemotingListenerSettings settings)
         {
             var convertors = new List<IExceptionConvertor>(exceptionConvertors)
             {
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                 new DefaultExceptionConvertor()
             };
 
-            return new ExceptionSerializer(convertors, null);
+            return new ExceptionSerializer(convertors, settings);
         }
 
         ServiceException ToServiceException(Exception originalException, int currentDepth)

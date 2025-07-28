@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Communication.Wcf;
 using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
@@ -90,6 +91,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// <param name="exceptionConvertors">
         ///     Convertors to convert user exception to service exception.
         /// </param>
+        /// <param name="settings">
+        ///     Settings for the remoting listener.
+        /// </param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation,
@@ -97,7 +101,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             string endpointResourceName = DefaultEndpointResourceName,
             bool useWrappedMessage = false,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null) : this(
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
+            FabricTransportRemotingListenerSettings settings = null) : this(
                 serviceContext,
                 new ServiceRemotingMessageDispatcher(
                     serviceContext,
@@ -110,7 +115,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 listenerBinding,
                 null,
                 endpointResourceName,
-                exceptionConvertors) { }
+                exceptionConvertors,
+                settings) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
@@ -179,6 +185,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// <param name="exceptionConvertors">
         ///     Convertors to convert user exception to service exception.
         /// </param>
+        /// <param name="settings">
+        ///     Settings for the remoting listener.
+        /// </param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -186,7 +195,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             Binding listenerBinding = null,
             string endpointResourceName = DefaultEndpointResourceName,
             bool useWrappedMessage = false,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null) : this(
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
+            FabricTransportRemotingListenerSettings settings = null) : this(
                 serviceContext,
                 messageHandler,
                 new ServiceRemotingMessageSerializersManager(
@@ -195,7 +205,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 listenerBinding,
                 null,
                 endpointResourceName,
-                exceptionConvertors) { }
+                exceptionConvertors,
+                settings) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
@@ -260,6 +271,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// <param name="exceptionConvertors">
         ///     Convertors to convert user exception to service exception.
         /// </param>
+        /// <param name="settings">
+        ///     Settings for the remoting listener.
+        /// </param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -267,7 +281,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             Binding listenerBinding = null,
             EndpointAddress address = null,
             bool useWrappedMessage = false,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null) :
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
+            FabricTransportRemotingListenerSettings settings = null) :
                 this(
                     serviceContext,
                     messageHandler,
@@ -277,9 +292,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                     listenerBinding,
                     address,
                     DefaultEndpointResourceName,
-                    exceptionConvertors) { }
+                    exceptionConvertors,
+                    settings) { }
 
-        readonly Func<IEnumerable<IExceptionConvertor>, ExceptionSerializer> exceptionSerializerFactory = ExceptionSerializer.CreateDefault;
+        readonly Func<IEnumerable<IExceptionConvertor>, FabricTransportRemotingListenerSettings, ExceptionSerializer> exceptionSerializerFactory = ExceptionSerializer.CreateDefault;
 
         internal WcfServiceRemotingListener(
             ServiceContext serviceContext,
@@ -288,9 +304,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             Binding listenerBinding = null,
             EndpointAddress address = null,
             string endpointResourceName = DefaultEndpointResourceName,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
+            FabricTransportRemotingListenerSettings settings = null)
         {
-            ExceptionSerializer exceptionSerializer = exceptionSerializerFactory(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>());
+            settings ??= FabricTransportRemotingListenerSettings.GetDefault();
+
+            ExceptionSerializer exceptionSerializer = exceptionSerializerFactory(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>(), settings);
 
             remotingService = new WcfRemotingService(
                 messageHandler,
