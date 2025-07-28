@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private ExceptionSerializer exceptionSerializer;
         private IDiagnosticEvents diagnosticEvents;
         private IClock clock;
+        private ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
@@ -43,7 +44,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             this.clock = new SystemClock();
 
-            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId), this.clock);
+
+            this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId);
+            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(serviceRemotingPerformanceCounterProvider, this.clock);
             var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents };
             this.diagnosticEvents = new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
         }
@@ -104,9 +107,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 disposableItem.Dispose();
             }
-            if (this.diagnosticEvents is IDisposable diagnosticEventsDisposable)
+            if (this.serviceRemotingPerformanceCounterProvider != null)
             {
-                diagnosticEventsDisposable.Dispose();
+                serviceRemotingPerformanceCounterProvider.Dispose();
             }
         }
 
