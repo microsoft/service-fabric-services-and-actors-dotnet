@@ -4,7 +4,7 @@
 // ------------------------------------------------------------
 
 using System;
-using Microsoft.ServiceFabric.Diagnostics.Util;
+using Microsoft.ServiceFabric.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {

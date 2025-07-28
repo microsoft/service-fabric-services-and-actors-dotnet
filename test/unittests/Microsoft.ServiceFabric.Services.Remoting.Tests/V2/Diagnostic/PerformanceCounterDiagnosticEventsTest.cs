@@ -6,7 +6,7 @@
 using System;
 using System.Fabric.Common;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Util;
+using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
 using Moq;
 using Xunit;

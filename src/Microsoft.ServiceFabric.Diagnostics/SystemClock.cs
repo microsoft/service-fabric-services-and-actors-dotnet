@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Util
+namespace Microsoft.ServiceFabric.Diagnostics
 {
     internal class SystemClock : IClock
     {
