@@ -41,12 +41,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 );
         }
 
-        public sealed class WellKnownException : WcfServiceRemotingClientTest
+        public sealed class RequestResnposeAsync : WcfServiceRemotingClientTest
         {
-            readonly FaultException<RemoteException2> faultException;
-            readonly string errorMessage;
-            public WellKnownException()
+            [Fact]
+            public async Task ThrowsActualExceptionForKnownExceptions()
             {
+                // Arrange
                 IEnumerable<V2.Runtime.IExceptionConvertor> runtimeExceptionConvertors = new List<V2.Runtime.IExceptionConvertor>
                 {
                     new CustomConvertorRuntime(),
@@ -59,16 +59,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 );
 
                 // Create RemoteException and FaultException
-                errorMessage = fuzzy.String();
+                string errorMessage = fuzzy.String();
                 RemoteException2 systemRemoteException = exceptionSerializer.BuildRemoteException(new NotImplementedException(errorMessage));
 
-                faultException = new FaultException<RemoteException2>(systemRemoteException);
-            }
+                var faultException = new FaultException<RemoteException2>(systemRemoteException);
 
-            [Fact]
-            public async Task RequestResponseAsync()
-            {
-                // Arrange
                 IServiceRemotingRequestMessage requestMessageMock = Mock.Of<IServiceRemotingRequestMessage>();
 
                 Mock.Get(requestMessageMock)
@@ -82,14 +77,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 Assert.IsType<NotImplementedException>(innerException);
                 Assert.Equal(errorMessage, innerException.Message);
             }
-        }
 
-        public sealed class UnsupportedException : WcfServiceRemotingClientTest
-        {
-            readonly FaultException<RemoteException2> faultException;
-            readonly string errorMessage;
-
-            public UnsupportedException()
+            [Fact]
+            public async Task ThrowsServiceExceptionForUnknownExceptions()
             {
                 // Create runtime exception convertors.
                 IEnumerable<V2.Runtime.IExceptionConvertor> runtimeExceptionConvertors = new List<V2.Runtime.IExceptionConvertor>
@@ -103,15 +93,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 );
 
                 // Create RemoteException and FaultException
-                errorMessage = fuzzy.String();
+                string errorMessage = fuzzy.String();
                 RemoteException2 customRemoteException = exceptionSerializer.BuildRemoteException(new CustomException(errorMessage, "CustomField1", "CustomField2"));
 
-                faultException = new FaultException<RemoteException2>(customRemoteException);
-            }
+                var faultException = new FaultException<RemoteException2>(customRemoteException);
 
-            [Fact]
-            public async Task RequestResponseAsync()
-            {
                 IServiceRemotingRequestMessage requestMessageMock = Mock.Of<IServiceRemotingRequestMessage>();
 
                 Mock.Get(requestMessageMock)

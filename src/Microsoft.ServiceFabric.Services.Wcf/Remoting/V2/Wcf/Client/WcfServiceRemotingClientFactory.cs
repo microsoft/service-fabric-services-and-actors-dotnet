@@ -149,7 +149,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
                 new BasicDataContractHeaderSerializer());
 
-            this.Initialize(
+            Initialize(
                 serializersManager,
                 clientBinding,
                 callbackClient,
@@ -331,6 +331,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory)
         {
             exceptionDeserializer = ExceptionDeserializer.CreateDefault(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>());
+            
             this.serializersManager = serializersManager;
             if (traceId == null)
             {
