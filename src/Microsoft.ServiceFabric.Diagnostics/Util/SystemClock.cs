@@ -4,9 +4,8 @@
 // ------------------------------------------------------------
 
 using System;
-using Microsoft.ServiceFabric.Diagnostics.Util;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
+namespace Microsoft.ServiceFabric.Diagnostics.Util
 {
     internal class SystemClock : IClock
     {

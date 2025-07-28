@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         private ServiceRemotingPerformanceCounterProvider performanceCounterProvider;
         private IClock clock;
 
-        private long CalculateMilisecondsSince(DateTime startTime)
+        private long CalculateMillisecondsSince(DateTime startTime)
         {
             return (long)Math.Ceiling((clock.UtcNow - startTime).TotalMilliseconds);
         }
@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             if (performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter != null)
             {
                 performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter.UpdateCounterValue(
-                    CalculateMilisecondsSince(startTime));
+                    CalculateMillisecondsSince(startTime));
             }
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             if(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
             {
                 performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
-                    CalculateMilisecondsSince(startTime));
+                    CalculateMillisecondsSince(startTime));
             }
         }
 
@@ -69,7 +69,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             if(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
             {
                 performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter.UpdateCounterValue(
-                    CalculateMilisecondsSince(startTime));
+                    CalculateMillisecondsSince(startTime));
             }
         }
 

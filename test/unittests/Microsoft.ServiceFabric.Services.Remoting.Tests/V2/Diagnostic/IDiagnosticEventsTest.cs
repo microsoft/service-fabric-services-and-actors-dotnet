@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {
     public abstract class IDiagnosticEventsTest
     {
-        public class Signiture : IDiagnosticEventsTest
+        public class Signature : IDiagnosticEventsTest
         {
             [Fact]
             public void HasRequiredMethods()

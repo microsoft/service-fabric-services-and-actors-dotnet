@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId), this.clock);
             var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents };
-            this.diagnosticEvents = new AgregatedDiagnosticEvents(registeredDiagnosticsEvents);
+            this.diagnosticEvents = new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
         }
 
         public async Task<FabricTransportMessage> RequestResponseAsync(

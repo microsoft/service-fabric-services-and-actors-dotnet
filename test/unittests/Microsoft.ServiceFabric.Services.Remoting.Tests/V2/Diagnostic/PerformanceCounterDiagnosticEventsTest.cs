@@ -196,7 +196,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 Mock.Get(mockClock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
 
                 sut.OnCreateTransportMessageEnd(requestStartTime);
-                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Never);
+                Mock.Get(mockRequestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
             }
 
             [Fact]

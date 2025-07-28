@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             {
                 var field = sut.Field<IDiagnosticEvents>();
 
-                Assert.IsType<AgregatedDiagnosticEvents>(field.Value);
+                Assert.IsType<AggregatedDiagnosticEvents>(field.Value);
             }
 
             [Fact]

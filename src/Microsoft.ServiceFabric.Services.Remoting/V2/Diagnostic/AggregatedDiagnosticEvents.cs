@@ -9,13 +9,13 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class AgregatedDiagnosticEvents : IDiagnosticEvents, IDisposable
+    internal class AggregatedDiagnosticEvents : IDiagnosticEvents, IDisposable
     {
         readonly static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
 
         readonly HashSet<IDiagnosticEvents> diagnosticsEventSet;
 
-        internal AgregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
+        internal AggregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {
             if (diagnosticEvents == null || diagnosticEvents.Any(d => d == null)) 
                 throw new ArgumentException("Diagnostic events collection cannot be null or contain null elements.", nameof(diagnosticEvents)); 

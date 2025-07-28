@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {    
-    public class AgregatedDiagnosticEventsTest
+    public class AggregatedDiagnosticEventsTest
     {
         internal interface ITestDiagnosticsEvents : IDiagnosticEvents { }
 
@@ -29,26 +29,26 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             Mock.Of<IDiagnosticEvents>()
         };
 
-        private AgregatedDiagnosticEvents sut = new AgregatedDiagnosticEvents(diagnosticEvents);
+        private AggregatedDiagnosticEvents sut = new AggregatedDiagnosticEvents(diagnosticEvents);
 
-        public class Class : AgregatedDiagnosticEventsTest
+        public class Class : AggregatedDiagnosticEventsTest
         {
             [Fact]
             public void ImplementsIDiagnosticEvents()
             {
-                var sutType = typeof(AgregatedDiagnosticEvents);
+                var sutType = typeof(AggregatedDiagnosticEvents);
                 var expectedType = typeof(IDiagnosticEvents);
 
                 Assert.True(expectedType.IsAssignableFrom(sutType));
             }
         }
 
-        public class Constructor : AgregatedDiagnosticEventsTest
+        public class Constructor : AggregatedDiagnosticEventsTest
         {
             [Fact]
             public void WithParametersPresent()
             {
-                var sutType = typeof(AgregatedDiagnosticEvents);
+                var sutType = typeof(AggregatedDiagnosticEvents);
                 var expectedParameterTypes = new[] { typeof(IEnumerable<IDiagnosticEvents>) };
 
                 var constructor = sutType.GetConstructor(
@@ -65,19 +65,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ThrowsOnNullEventsList()
             {
-                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(null));
+                Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(null));
             }
 
             [Fact]
             public void ThrowsOnAnyNullEvents()
             {
-                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(new List<IDiagnosticEvents> { mockedDiagnosticEvents, null }));
+                Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { mockedDiagnosticEvents, null }));
             }
 
             [Fact]
             public void AssignsEmptyEvent()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>());
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>());
 
                 Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>());
                 Assert.Empty(newSut.Field<HashSet<IDiagnosticEvents>>().Value);
@@ -94,7 +94,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void AssignsMultipleEvent()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void AssignFailsWithMultipleSameDiagnosticEvents()
             {
-                Assert.Throws<ArgumentException>(() => new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedDiagnosticEvents
@@ -117,13 +117,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             }
         }
 
-        public class OnEvents : AgregatedDiagnosticEventsTest
+        public class OnEvents : AggregatedDiagnosticEventsTest
         {
 
             [Fact]
             public void RemotingRequestBeginInvokesAllDiagnostics()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
@@ -138,7 +138,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void RemotingRequestEndInvokesAllDiagnostics()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
@@ -154,7 +154,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void RequestResponseBeginInvokesAllDiagnostics()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
@@ -169,7 +169,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void RequestResponseEndInvokesAllDiagnostics()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
@@ -185,7 +185,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void CreateTransportMessageBeginInvokesAllDiagnostics()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
@@ -200,7 +200,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void CreateTransportMessageEndInvokesAllDiagnostics()
             {
-                var newSut = new AgregatedDiagnosticEvents(new List<IDiagnosticEvents>
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
                     mockedDiagnosticEvents,
                     mockedAnotherDiagnosticEvents
