@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {    
     public class AggregatedDiagnosticEventsTest
     {
-        interface ITestDiagnosticsEvents : IDiagnosticEvents { }
+        internal interface ITestDiagnosticsEvents : IDiagnosticEvents { }
 
         readonly IDiagnosticEvents diagnosticEvent = Mock.Of<IDiagnosticEvents>();
         readonly IDiagnosticEvents anotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
@@ -79,16 +79,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>());
 
-                Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>());
-                Assert.Empty(newSut.Field<HashSet<IDiagnosticEvents>>().Value);
+                Assert.NotNull(newSut.Field<IEnumerable<IDiagnosticEvents>>());
+                Assert.Empty(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value);
             }
 
             [Fact]
             public void AssignsSingleEvent()
             {
-                Assert.NotNull(this.sut.Field<HashSet<IDiagnosticEvents>>());
-                Assert.Single(this.sut.Field<HashSet<IDiagnosticEvents>>().Value);
-                Assert.IsAssignableFrom<IDiagnosticEvents>(this.sut.Field<HashSet<IDiagnosticEvents>>().Value.First());
+                Assert.NotNull(this.sut.Field<IEnumerable<IDiagnosticEvents>>());
+                Assert.Single(this.sut.Field<IEnumerable<IDiagnosticEvents>>().Value);
+                Assert.IsAssignableFrom<IDiagnosticEvents>(this.sut.Field<IEnumerable<IDiagnosticEvents>>().Value.First());
             }
 
             [Fact]
@@ -100,20 +100,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                     anotherDiagnosticEvents
                 });
 
-                Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>());
-                Assert.Equal(2, newSut.Field<HashSet<IDiagnosticEvents>>().Value.Count);
-                Assert.IsAssignableFrom<IDiagnosticEvents>(newSut.Field<HashSet<IDiagnosticEvents>>().Value.First());
-                Assert.IsAssignableFrom<ITestDiagnosticsEvents>(newSut.Field<HashSet<IDiagnosticEvents>>().Value.Last());
-            }
-
-            [Fact]
-            public void AssignFailsWithMultipleSameDiagnosticEvents()
-            {
-                Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
-                {
-                    diagnosticEvent,
-                    diagnosticEvent
-                }));
+                Assert.NotNull(newSut.Field<IEnumerable<IDiagnosticEvents>>());
+                Assert.Equal(2, newSut.Field<IEnumerable<IDiagnosticEvents>>().Value.Count());
+                Assert.IsAssignableFrom<IDiagnosticEvents>(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value.First());
+                Assert.IsAssignableFrom<ITestDiagnosticsEvents>(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value.Last());
             }
         }
 

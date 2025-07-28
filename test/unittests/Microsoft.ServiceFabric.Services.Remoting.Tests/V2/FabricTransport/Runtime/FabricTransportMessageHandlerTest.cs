@@ -96,7 +96,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.FabricTransport.Run
             public void DiagnosticsEventsHasPerformanceCounterEventsRegistered()
             {
                 var field = sut.Field<IDiagnosticEvents>().Value;
-                var registeredDiagnosticEvents = field.Field<HashSet<IDiagnosticEvents>>().Value;
+                var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
 
                 Assert.Single(registeredDiagnosticEvents);
                 Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.First());

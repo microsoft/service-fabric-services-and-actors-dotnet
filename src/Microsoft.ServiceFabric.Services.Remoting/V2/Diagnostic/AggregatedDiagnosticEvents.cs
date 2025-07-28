@@ -11,24 +11,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
     internal class AggregatedDiagnosticEvents : IDiagnosticEvents, IDisposable
     {
-        readonly static UniqueIDiagnosticEventsTypeComparer uniqueIDiagnosticEventsComparer = new UniqueIDiagnosticEventsTypeComparer();
-
-        readonly HashSet<IDiagnosticEvents> diagnosticsEventSet;
+        readonly IEnumerable<IDiagnosticEvents> diagnosticEvents;
 
         internal AggregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {
             if (diagnosticEvents == null || diagnosticEvents.Any(d => d == null)) 
                 throw new ArgumentException("Diagnostic events collection cannot be null or contain null elements.", nameof(diagnosticEvents)); 
 
-            this.diagnosticsEventSet = new HashSet<IDiagnosticEvents>(diagnosticEvents ?? throw new ArgumentNullException(nameof(diagnosticEvents)), uniqueIDiagnosticEventsComparer);
-
-            if (diagnosticEvents.Count() != this.diagnosticsEventSet.Count())
-                throw new ArgumentException("Duplicate diagnostic events detected.", nameof(diagnosticEvents));
+            this.diagnosticEvents = diagnosticEvents;
         }
 
         public void OnRemotingRequestBegin()
         {
-            foreach (var ds in diagnosticsEventSet)
+            foreach (var ds in diagnosticEvents)
             {
                 ds.OnRemotingRequestBegin();
             }
@@ -36,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         
         public void OnRemotingRequestEnd(DateTime startTime)
         {
-            foreach (var ds in diagnosticsEventSet)
+            foreach (var ds in diagnosticEvents)
             {
                 ds.OnRemotingRequestEnd(startTime);
             }
@@ -44,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRequestResponseBegin()
         {
-            foreach (var ds in diagnosticsEventSet)
+            foreach (var ds in diagnosticEvents)
             {
                 ds.OnRequestResponseBegin();
             }
@@ -52,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRequestResponseEnd(DateTime startTime)
         {
-            foreach (var ds in diagnosticsEventSet)
+            foreach (var ds in diagnosticEvents)
             {
                 ds.OnRequestResponseEnd(startTime);
             }
@@ -60,7 +55,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnCreateTransportMessageBegin()
         {
-            foreach (var ds in diagnosticsEventSet)
+            foreach (var ds in diagnosticEvents)
             {
                 ds.OnCreateTransportMessageBegin();
             }
@@ -68,7 +63,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
         {
-            foreach (var ds in diagnosticsEventSet)
+            foreach (var ds in diagnosticEvents)
             {
                 ds.OnCreateTransportMessageEnd(startTime);
             }
@@ -76,31 +71,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void Dispose()
         {
-            foreach (var ds in diagnosticsEventSet)
+            foreach (var ds in diagnosticEvents)
             {
                 if (ds is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }
-            }
-        }
-
-        private sealed class UniqueIDiagnosticEventsTypeComparer : IEqualityComparer<IDiagnosticEvents>
-        {
-            public bool Equals(IDiagnosticEvents x, IDiagnosticEvents y)
-            {
-                if (x == null && y == null)
-                    return true;
-
-                if (x == null || y == null)
-                    return false;
-
-                return x.GetType() == y.GetType();
-            }
-
-            public int GetHashCode(IDiagnosticEvents obj)
-            {
-                return obj?.GetType().GetHashCode() ?? 0;
             }
         }
     }
