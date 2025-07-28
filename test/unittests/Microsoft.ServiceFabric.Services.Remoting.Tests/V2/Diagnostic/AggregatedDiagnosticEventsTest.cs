@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
 using Moq;
 using Xunit;
@@ -20,10 +19,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
     {
         interface ITestDiagnosticsEvents : IDiagnosticEvents { }
 
-        readonly IDiagnosticEvents mockedDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
-        readonly IDiagnosticEvents mockedAnotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
+        readonly IDiagnosticEvents diagnosticEvent = Mock.Of<IDiagnosticEvents>();
+        readonly IDiagnosticEvents anotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
 
-        readonly IClock mockClock = Mock.Of<IClock>();
         readonly IEnumerable<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>
         {
             Mock.Of<IDiagnosticEvents>()
@@ -73,7 +71,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ThrowsOnAnyNullEvents()
             {
-                Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { mockedDiagnosticEvents, null }));
+                Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, null }));
             }
 
             [Fact]
@@ -98,8 +96,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedAnotherDiagnosticEvents
+                    diagnosticEvent,
+                    anotherDiagnosticEvents
                 });
 
                 Assert.NotNull(newSut.Field<HashSet<IDiagnosticEvents>>());
@@ -113,8 +111,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedDiagnosticEvents
+                    diagnosticEvent,
+                    diagnosticEvent
                 }));
             }
         }
@@ -127,14 +125,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedAnotherDiagnosticEvents
+                    diagnosticEvent,
+                    anotherDiagnosticEvents
                 });
 
                 newSut.OnRemotingRequestBegin();
 
-                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
-                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.OnRemotingRequestBegin(), Times.Once);
             }
 
             [Fact]
@@ -142,15 +140,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedAnotherDiagnosticEvents
+                    diagnosticEvent,
+                    anotherDiagnosticEvents
                 });
 
                 var startTime = DateTime.UtcNow;
                 newSut.OnRemotingRequestEnd(startTime);
 
-                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRemotingRequestEnd(startTime), Times.Once);
-                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRemotingRequestEnd(startTime), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.OnRemotingRequestEnd(startTime), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.OnRemotingRequestEnd(startTime), Times.Once);
             }
 
             [Fact]
@@ -158,14 +156,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedAnotherDiagnosticEvents
+                    diagnosticEvent,
+                    anotherDiagnosticEvents
                 });
 
                 newSut.OnRequestResponseBegin();
 
-                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRequestResponseBegin(), Times.Once);
-                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRequestResponseBegin(), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.OnRequestResponseBegin(), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.OnRequestResponseBegin(), Times.Once);
             }
 
             [Fact]
@@ -173,15 +171,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedAnotherDiagnosticEvents
+                    diagnosticEvent,
+                    anotherDiagnosticEvents
                 });
 
                 var startTime = DateTime.UtcNow;
                 newSut.OnRequestResponseEnd(startTime);
 
-                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnRequestResponseEnd(startTime), Times.Once);
-                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnRequestResponseEnd(startTime), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.OnRequestResponseEnd(startTime), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.OnRequestResponseEnd(startTime), Times.Once);
             }
 
             [Fact]
@@ -189,14 +187,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedAnotherDiagnosticEvents
+                    diagnosticEvent,
+                    anotherDiagnosticEvents
                 });
 
                 newSut.OnCreateTransportMessageBegin();
 
-                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageBegin(), Times.Once);
-                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageBegin(), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.OnCreateTransportMessageBegin(), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageBegin(), Times.Once);
             }
 
             [Fact]
@@ -204,15 +202,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>
                 {
-                    mockedDiagnosticEvents,
-                    mockedAnotherDiagnosticEvents
+                    diagnosticEvent,
+                    anotherDiagnosticEvents
                 });
 
                 var startTime = DateTime.UtcNow;
                 newSut.OnCreateTransportMessageEnd(startTime);
 
-                Mock.Get(mockedDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageEnd(startTime), Times.Once);
-                Mock.Get(mockedAnotherDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageEnd(startTime), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.OnCreateTransportMessageEnd(startTime), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.OnCreateTransportMessageEnd(startTime), Times.Once);
             }
         }
 

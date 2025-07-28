@@ -16,10 +16,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
     public class PerformanceCounterDiagnosticEventsTest
     {
         readonly ServiceRemotingPerformanceCounterProvider performanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(Guid.NewGuid(), 0);
-        readonly IClock mockClock = Mock.Of<IClock>();
+        readonly IClock clock = Mock.Of<IClock>();
         PerformanceCounterDiagnosticEvents sut;
 
-        protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, mockClock);
+        protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
 
         public class Class : PerformanceCounterDiagnosticEventsTest
         {
@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 Assert.Throws<ArgumentException>(() =>
                 {
-                    new PerformanceCounterDiagnosticEvents(null, mockClock);
+                    new PerformanceCounterDiagnosticEvents(null, clock);
                 });
             }
 
@@ -77,21 +77,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
         public class OnEvent: PerformanceCounterDiagnosticEventsTest
         {
-            private FabricAverageCount64PerformanceCounterWriter mockRequestProcessingTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
-            private FabricAverageCount64PerformanceCounterWriter mockRequestDeserializationTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
-            private FabricAverageCount64PerformanceCounterWriter mockResponseSerializationTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
-            private FabricNumberOfItems64PerformanceCounterWriter mockOutstandingRequestsCounterWriter = Mock.Of<FabricNumberOfItems64PerformanceCounterWriter>();
+            private FabricAverageCount64PerformanceCounterWriter requestProcessingTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
+            private FabricAverageCount64PerformanceCounterWriter requestDeserializationTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
+            private FabricAverageCount64PerformanceCounterWriter responseSerializationTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
+            private FabricNumberOfItems64PerformanceCounterWriter outstandingRequestsCounterWriter = Mock.Of<FabricNumberOfItems64PerformanceCounterWriter>();
 
             public OnEvent()
             {
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter))
-                    .Set(mockRequestProcessingTimeCounterWriter);
+                    .Set(requestProcessingTimeCounterWriter);
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter))
-                    .Set(mockRequestDeserializationTimeCounterWriter);
+                    .Set(requestDeserializationTimeCounterWriter);
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
-                    .Set(mockResponseSerializationTimeCounterWriter);
+                    .Set(responseSerializationTimeCounterWriter);
                 performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter))
-                    .Set(mockOutstandingRequestsCounterWriter); 
+                    .Set(outstandingRequestsCounterWriter); 
             }
 
             [Fact]
@@ -99,7 +99,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 sut.OnRequestResponseBegin();
 
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Once);
+                Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Once);
             }
 
             [Fact]
@@ -110,21 +110,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 
                 sut.OnRequestResponseBegin();
 
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
                 performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter))
-                    .Set(mockOutstandingRequestsCounterWriter);
+                    .Set(outstandingRequestsCounterWriter);
             }
 
             [Fact]
             public void RequestEndDecrementCounterAndObserveProcessingTime()
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(mockClock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
 
                 sut.OnRequestResponseEnd(requestStartTime);
 
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(-1), Times.Once);
-                Mock.Get(mockRequestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
+                Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(-1), Times.Once);
+                Mock.Get(requestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
             }
 
             [Fact]
@@ -137,12 +137,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 sut.OnRequestResponseEnd(DateTime.UtcNow);
 
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(mockRequestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(requestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
                 performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter))
-                    .Set(mockOutstandingRequestsCounterWriter);
+                    .Set(outstandingRequestsCounterWriter);
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestProcessingTimeCounterWriter))
-                    .Set(mockRequestProcessingTimeCounterWriter);
+                    .Set(requestProcessingTimeCounterWriter);
             }
 
             [Fact]
@@ -150,21 +150,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 sut.OnRemotingRequestBegin();
 
-                Mock.Get(mockRequestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(mockRequestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(requestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(requestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(responseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
             }
 
             [Fact]
             public void RemotingMessageEndObserveSerializationTime()
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(mockClock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
 
                 sut.OnRemotingRequestEnd(requestStartTime);
 
-                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
+                Mock.Get(responseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
             }
 
             [Fact]
@@ -175,9 +175,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 sut.OnRemotingRequestEnd(DateTime.UtcNow);
 
-                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(responseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
-                    .Set(mockResponseSerializationTimeCounterWriter);
+                    .Set(responseSerializationTimeCounterWriter);
             }
 
             [Fact]
@@ -185,20 +185,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             {
                 sut.OnCreateTransportMessageBegin();
 
-                Mock.Get(mockRequestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(mockRequestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(mockResponseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(requestProcessingTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(requestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(responseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
             }
 
             [Fact]
             public void TransportMessageEndObserveDeserializationTime()
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(mockClock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(100));
 
                 sut.OnCreateTransportMessageEnd(requestStartTime);
-                Mock.Get(mockRequestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
+                Mock.Get(requestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
             }
 
             [Fact]
@@ -209,9 +209,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 sut.OnCreateTransportMessageEnd(DateTime.UtcNow);
 
-                Mock.Get(mockOutstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter))
-                    .Set(mockRequestDeserializationTimeCounterWriter);
+                    .Set(requestDeserializationTimeCounterWriter);
             }
         }
     }
