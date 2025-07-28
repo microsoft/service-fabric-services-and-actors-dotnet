@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
         readonly IServiceRemotingMessageHandler messageHandler;
         readonly ICommunicationListener wcfListener;
-        readonly WcfRemotingService wcfRemotingService;
+        readonly WcfRemotingService remotingService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
@@ -292,7 +292,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             ExceptionSerializer exceptionSerializer = exceptionSerializerFactory(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>());
 
-            wcfRemotingService = new WcfRemotingService(
+            remotingService = new WcfRemotingService(
                 messageHandler,
                 serializersManager,
                 exceptionSerializer);
@@ -303,7 +303,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             {
                 wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
                     serviceContext,
-                    wcfRemotingService,
+                    remotingService,
                     listenerBinding,
                     address);
             }
@@ -311,7 +311,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             {
                 wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
                     serviceContext,
-                    wcfRemotingService,
+                    remotingService,
                     listenerBinding,
                     endpointResourceName);
             }

@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
     public abstract class ExceptionDeserializerTest
     {
-        // Text fixture
+        // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         public class Constructor : ExceptionDeserializerTest

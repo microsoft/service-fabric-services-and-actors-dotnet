@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
 {
     public abstract class WcfRemotingServiceTest
     {
-        // Text fixture
+        // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         public class RequestResponseAsyncMethod

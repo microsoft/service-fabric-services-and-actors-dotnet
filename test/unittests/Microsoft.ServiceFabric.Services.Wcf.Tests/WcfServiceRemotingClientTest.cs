@@ -18,13 +18,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
     public abstract class WcfServiceRemotingClientTest
     {
-        // Text fixture
+        // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+        
+        readonly string errorMessage;
 
         readonly WcfServiceRemotingClient sut;
 
         public WcfServiceRemotingClientTest()
         {
+            errorMessage = fuzzy.String();
+
             // Create client exception convertors.
             IEnumerable<V2.Client.IExceptionConvertor> clientExceptionConvertors = new List<V2.Client.IExceptionConvertor>
                 {
@@ -59,7 +63,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 );
 
                 // Create RemoteException and FaultException
-                string errorMessage = fuzzy.String();
                 RemoteException2 systemRemoteException = exceptionSerializer.BuildRemoteException(new NotImplementedException(errorMessage));
 
                 var faultException = new FaultException<RemoteException2>(systemRemoteException);
@@ -93,7 +96,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 );
 
                 // Create RemoteException and FaultException
-                string errorMessage = fuzzy.String();
                 RemoteException2 customRemoteException = exceptionSerializer.BuildRemoteException(new CustomException(errorMessage, "CustomField1", "CustomField2"));
 
                 var faultException = new FaultException<RemoteException2>(customRemoteException);
