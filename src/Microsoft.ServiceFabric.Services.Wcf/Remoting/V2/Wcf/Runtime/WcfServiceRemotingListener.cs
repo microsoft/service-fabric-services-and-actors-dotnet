@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading;
@@ -24,9 +25,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
     /// </summary>
     public class WcfServiceRemotingListener : IServiceRemotingListener
     {
-        private IServiceRemotingMessageHandler messageHandler;
-        private ICommunicationListener wcfListener;
-        private WcfRemotingService wcfRemotingService;
+        internal const string DefaultEndpointResourceName = "ServiceEndpointV2";
+
+        readonly IServiceRemotingMessageHandler messageHandler;
+        readonly ICommunicationListener wcfListener;
+        readonly WcfRemotingService wcfRemotingService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
@@ -92,24 +95,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IService serviceImplementation,
             Binding listenerBinding = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
-            string endpointResourceName = "ServiceEndpointV2",
+            string endpointResourceName = DefaultEndpointResourceName,
             bool useWrappedMessage = false,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
-        {
-            serializationProvider = GetDefaultSerializationProvider(serializationProvider, useWrappedMessage);
-
-            var serializerManager = new ServiceRemotingMessageSerializersManager(
-                serializationProvider,
-                new BasicDataContractHeaderSerializer(),
-                useWrappedMessage);
-
-            messageHandler = new ServiceRemotingMessageDispatcher(
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null) : this(
                 serviceContext,
-                serviceImplementation,
-                serializerManager.GetSerializationProvider().CreateMessageBodyFactory());
-
-            Initialize(serviceContext, listenerBinding, messageHandler, serializerManager, null, endpointResourceName, exceptionConvertors);
-        }
+                new ServiceRemotingMessageDispatcher(
+                    serviceContext,
+                    serviceImplementation,
+                    GetDefaultSerializationProvider(serializationProvider, useWrappedMessage).CreateMessageBodyFactory()),
+                new ServiceRemotingMessageSerializersManager(
+                    GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
+                    new BasicDataContractHeaderSerializer(),
+                    useWrappedMessage),
+                listenerBinding,
+                null,
+                endpointResourceName,
+                exceptionConvertors) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
@@ -141,7 +142,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IServiceRemotingMessageHandler messageHandler,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             Binding listenerBinding = null,
-            string endpointResourceName = "ServiceEndpointV2",
+            string endpointResourceName = DefaultEndpointResourceName,
             bool useWrappedMessage = false) : this(
                 serviceContext,
                 messageHandler,
@@ -150,7 +151,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 endpointResourceName,
                 useWrappedMessage,
                 null) { }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
         /// </summary>
@@ -183,16 +184,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IServiceRemotingMessageHandler messageHandler,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             Binding listenerBinding = null,
-            string endpointResourceName = "ServiceEndpointV2",
+            string endpointResourceName = DefaultEndpointResourceName,
             bool useWrappedMessage = false,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
-        {
-            var serializerManager = new ServiceRemotingMessageSerializersManager(
-                GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
-                new BasicDataContractHeaderSerializer());
-
-            Initialize(serviceContext, listenerBinding, messageHandler, serializerManager, null, endpointResourceName, exceptionConvertors);
-        }
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null) : this(
+                serviceContext,
+                messageHandler,
+                new ServiceRemotingMessageSerializersManager(
+                    GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
+                    new BasicDataContractHeaderSerializer()),
+                listenerBinding,
+                null,
+                endpointResourceName,
+                exceptionConvertors) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingListener"/> class.
@@ -264,13 +267,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             Binding listenerBinding = null,
             EndpointAddress address = null,
             bool useWrappedMessage = false,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
-        {
-            var serializerManager = new ServiceRemotingMessageSerializersManager(
-                GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
-                new BasicDataContractHeaderSerializer());
-            Initialize(serviceContext, listenerBinding, messageHandler, serializerManager, address, null, exceptionConvertors);
-        }
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null) :
+                this(
+                    serviceContext,
+                    messageHandler,
+                    new ServiceRemotingMessageSerializersManager(
+                        GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
+                        new BasicDataContractHeaderSerializer()),
+                    listenerBinding,
+                    address,
+                    DefaultEndpointResourceName,
+                    exceptionConvertors) { }
+
+        readonly Func<IEnumerable<IExceptionConvertor>, ExceptionSerializer> exceptionSerializerFactory = ExceptionSerializer.CreateDefault;
 
         internal WcfServiceRemotingListener(
             ServiceContext serviceContext,
@@ -278,34 +287,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             ServiceRemotingMessageSerializersManager serializersManager,
             Binding listenerBinding = null,
             EndpointAddress address = null,
-            string endpointResourceName = "ServiceEndpointV2")
-        {
-            Initialize(
-                serviceContext,
-                listenerBinding,
-                messageHandler,
-                serializersManager,
-                address,
-                endpointResourceName);
-        }
-
-        private void Initialize(
-            ServiceContext serviceContext,
-            Binding listenerBinding,
-            IServiceRemotingMessageHandler messageHandler,
-            ServiceRemotingMessageSerializersManager serializerManager,
-            EndpointAddress address,
-            string endpointResourceName = "ServiceEndpointV2",
+            string endpointResourceName = DefaultEndpointResourceName,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null)
         {
-            ExceptionSerializer exceptionSerializer = ExceptionSerializer.CreateSystemAndFabricExceptionSerializer(exceptionConvertors);
+            ExceptionSerializer exceptionSerializer = exceptionSerializerFactory(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>());
 
             wcfRemotingService = new WcfRemotingService(
                 messageHandler,
-                serializerManager,
+                serializersManager,
                 exceptionSerializer);
 
             this.messageHandler = messageHandler;
+
             if (address != null)
             {
                 wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
@@ -390,7 +383,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             }
         }
 
-        private IServiceRemotingMessageSerializationProvider GetDefaultSerializationProvider(IServiceRemotingMessageSerializationProvider serializationProvider, bool useWrappedMessage)
+        private static IServiceRemotingMessageSerializationProvider GetDefaultSerializationProvider(IServiceRemotingMessageSerializationProvider serializationProvider, bool useWrappedMessage)
         {
             if (serializationProvider == null)
             {

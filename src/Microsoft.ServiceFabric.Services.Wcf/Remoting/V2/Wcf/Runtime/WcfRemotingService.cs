@@ -15,15 +15,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]
     class WcfRemotingService : IServiceRemotingContract
     {
-        private readonly IServiceRemotingMessageHandler messageHandler;
+        readonly IServiceRemotingMessageHandler messageHandler;
 
-        private readonly ServiceRemotingMessageSerializersManager serializersManager;
+        readonly ServiceRemotingMessageSerializersManager serializersManager;
 
         // The request context need not be generated every time for WCF because for WCF,
         // the actual callback channel is accessed from the current operation context.
-        private readonly WcfServiceRemotingRequestContext requestContext;
+        readonly WcfServiceRemotingRequestContext requestContext;
 
-        private ExceptionSerializer exceptionSerializer;
+        readonly ExceptionSerializer exceptionSerializer;
 
         public WcfRemotingService(
             IServiceRemotingMessageHandler messageHandler,
@@ -44,22 +44,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IMessageHeader outgoingMessageHeader = null;
             try
             {
-                var headerSerializer = this.serializersManager.GetHeaderSerializer();
-                var deSerializedHeader =
+                IServiceRemotingMessageHeaderSerializer headerSerializer = this.serializersManager.GetHeaderSerializer();
+                IServiceRemotingRequestMessageHeader deSerializedHeader =
                     headerSerializer.DeserializeRequestHeaders(
                         new IncomingMessageHeader(new SegmentedReadMemoryStream(messageHeaders)));
 
-                var msgBodySerializer =
+                IServiceRemotingRequestMessageBodySerializer msgBodySerializer =
                     this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
-                var deserializedMsg =
+                IServiceRemotingRequestMessageBody deserializedMsg =
                     msgBodySerializer.Deserialize(
                         new IncomingMessageBody(new SegmentedReadMemoryStream(requestBody)));
 
                 var msg = new ServiceRemotingRequestMessage(deSerializedHeader, deserializedMsg);
-                var retval = await
-                    this.messageHandler.HandleRequestResponseAsync(
-                        this.requestContext,
-                        msg);
+                IServiceRemotingResponseMessage retval = await messageHandler.HandleRequestResponseAsync(requestContext, msg);
 
                 if (retval == null)
                 {
@@ -68,19 +65,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
                 outgoingMessageHeader = headerSerializer.SerializeResponseHeader(retval.GetHeader());
 
-                var responseSerializer =
+                IServiceRemotingResponseMessageBodySerializer responseSerializer =
                     this.serializersManager.GetResponseBodySerializer(deSerializedHeader.InterfaceId);
 
                 outgoingMessageBody = responseSerializer.Serialize(retval.GetBody());
 
                 var responseMessage = new ResponseMessage
                 {
-                    ResponseBody = outgoingMessageBody != null
-                    ? outgoingMessageBody.GetSendBuffers()
-                    : new List<ArraySegment<byte>>(),
-                    MessageHeaders = outgoingMessageHeader != null
-                    ? outgoingMessageHeader.GetSendBuffer()
-                    : default(ArraySegment<byte>),
+                    ResponseBody = outgoingMessageBody != null ? outgoingMessageBody.GetSendBuffers() : new List<ArraySegment<byte>>(),
+                    MessageHeaders = outgoingMessageHeader != null ? outgoingMessageHeader.GetSendBuffer() : default,
                 };
 
                 return responseMessage;

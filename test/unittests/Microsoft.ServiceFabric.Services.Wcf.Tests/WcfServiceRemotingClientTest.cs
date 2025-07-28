@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     new V2.Client.SystemExceptionConvertor(),
                 };
 
-            ExceptionDeserializer exceptionDeserializer = ExceptionDeserializer.CreateSystemAndFabricExceptionDeserializer(
+            ExceptionDeserializer exceptionDeserializer = ExceptionDeserializer.CreateDefault(
                 clientExceptionConvertors);
 
             sut = new WcfServiceRemotingClient(

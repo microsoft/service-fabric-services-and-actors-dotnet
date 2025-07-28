@@ -2,17 +2,25 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
-
+using System;
 using System.Collections.Generic;
-using Xunit;
-using Inspector;
+using System.Fabric;
+using System.Linq;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+using Fuzzy;
+using Inspector;
+using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
     public abstract class ExceptionSerializerTest
     {
-        public class Constructor
+        // Text fixture
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+
+        public class Constructor : ExceptionSerializerTest
         {
             [Fact]
             public void UsesProvidedExceptionConvertors()
@@ -22,34 +30,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 var serializer = new ExceptionSerializer(customConvertors, null);
 
                 // Assert
-                Assert.NotNull(serializer);
-                IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
-                Assert.NotNull(actualConvertors);
-                var convertorList = new List<IExceptionConvertor>(actualConvertors);
-                Assert.Single(convertorList);
-                Assert.IsType<SystemExceptionConvertor>(convertorList[0]);
+                Assert.Same(customConvertors, serializer.Field<IEnumerable<IExceptionConvertor>>().Value);
             }
         }
 
-        public class CreateSystemAndFabricExceptionSerializer
+        public class CreateDefault : ExceptionSerializerTest
         {
-            [Fact]
-            public void AddsDefaultConvertors()
-            {
-                // Act
-                var serializer = ExceptionSerializer.CreateSystemAndFabricExceptionSerializer();
-
-                // Assert
-                Assert.NotNull(serializer);
-                IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
-                Assert.NotNull(actualConvertors);
-                var convertorList = new List<IExceptionConvertor>(actualConvertors);
-                Assert.Equal(3, convertorList.Count);
-                Assert.IsType<SystemExceptionConvertor>(convertorList[0]);
-                Assert.IsType<FabricExceptionConvertor>(convertorList[1]);
-                Assert.IsType<DefaultExceptionConvertor>(convertorList[2]);
-            }
-
             [Fact]
             public void AppendsDefaultConvertorsToCustomList()
             {
@@ -57,18 +43,63 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 var customConvertors = new List<IExceptionConvertor> { new FabricExceptionConvertor() };
 
                 // Act
-                var serializer = ExceptionSerializer.CreateSystemAndFabricExceptionSerializer(customConvertors);
+                ExceptionSerializer serializer = ExceptionSerializer.CreateDefault(customConvertors);
 
                 // Assert
-                Assert.NotNull(serializer);
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
-                Assert.NotNull(actualConvertors);
-                var convertorList = new List<IExceptionConvertor>(actualConvertors);
-                Assert.Equal(4, convertorList.Count);
-                Assert.IsType<FabricExceptionConvertor>(convertorList[0]); // custom
-                Assert.IsType<SystemExceptionConvertor>(convertorList[1]); // default
-                Assert.IsType<FabricExceptionConvertor>(convertorList[2]); // default
-                Assert.IsType<DefaultExceptionConvertor>(convertorList[3]); // default
+                Assert.Equal(4, actualConvertors.Count());
+                Assert.IsType<FabricExceptionConvertor>(actualConvertors.ElementAt(0)); // custom
+                Assert.IsType<SystemExceptionConvertor>(actualConvertors.ElementAt(1)); // default
+                Assert.IsType<FabricExceptionConvertor>(actualConvertors.ElementAt(2)); // default
+                Assert.IsType<DefaultExceptionConvertor>(actualConvertors.ElementAt(3)); // default
+            }
+        }
+
+        public class SerializeRemoteException : ExceptionSerializerTest
+        {
+            [Fact]
+            public void BuildsOriginalExceptionIfItIsKnownExceptionType()
+            {
+                // Arrange
+                var exceptionSerializer = ExceptionSerializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
+                var exceptionDeserializer = Remoting.V2.Client.ExceptionDeserializer.CreateDefault(Enumerable.Empty<Remoting.V2.Client.IExceptionConvertor>());
+                var originalException = new FabricInsufficientMaxLoadCapacityException(fuzzy.String());
+
+                // Act
+                RemoteException2 serializedException = exceptionSerializer.BuildRemoteException(originalException);
+
+                // Assert
+                Exception resultException = exceptionDeserializer.ConvertRemoteException(serializedException);
+                Assert.IsType<AggregateException>(resultException);
+                Exception innerException = ((AggregateException)resultException).Flatten().InnerException;
+                Assert.IsType<FabricInsufficientMaxLoadCapacityException>(innerException);
+                Assert.Equal(originalException.Message, innerException.Message);
+            }
+
+            [Fact]
+            public void BuildsServiceExceptionIfItIsNotKnownExceptionType()
+            {
+                // Arrange
+                var exceptionSerializer = ExceptionSerializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
+                var exceptionDeserializer = Remoting.V2.Client.ExceptionDeserializer.CreateDefault(Enumerable.Empty<Remoting.V2.Client.IExceptionConvertor>());
+                var originalException = new UnknownException(fuzzy.String());
+
+                // Act
+                RemoteException2 serializedException = exceptionSerializer.BuildRemoteException(originalException);
+
+                // Assert
+                Exception resultException = exceptionDeserializer.ConvertRemoteException(serializedException);
+                Assert.IsType<AggregateException>(resultException);
+                Exception innerException = ((AggregateException)resultException).Flatten().InnerException;
+                Assert.IsType<ServiceException>(innerException);
+                Assert.Equal(originalException.Message, innerException.Message);
+            }
+        }
+        
+        private class UnknownException : Exception
+        {
+            public UnknownException(string message) : base(message)
+            {
             }
         }
     }

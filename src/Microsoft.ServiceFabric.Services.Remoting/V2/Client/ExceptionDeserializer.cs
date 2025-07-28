@@ -25,10 +25,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             this.convertors = convertors;
         }
 
-        public static ExceptionDeserializer CreateSystemAndFabricExceptionDeserializer(
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
+        public static ExceptionDeserializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors)
         {
-            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors)
             {
                 new SystemExceptionConvertor(),
                 new FabricExceptionConvertor()

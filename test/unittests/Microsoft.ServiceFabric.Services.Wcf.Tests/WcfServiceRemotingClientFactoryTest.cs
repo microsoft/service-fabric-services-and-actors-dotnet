@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                         new SystemExceptionConvertor(),
                     };
 
-                    ExceptionDeserializer expectedExceptionDeserializer = ExceptionDeserializer.CreateSystemAndFabricExceptionDeserializer(exceptionConvertors);
+                    ExceptionDeserializer expectedExceptionDeserializer = ExceptionDeserializer.CreateDefault(exceptionConvertors);
 
                     var mockBinding = Mock.Of<System.ServiceModel.Channels.Binding>();
                     var factory = new WcfServiceRemotingClientFactory(
@@ -84,7 +84,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     var convertorsField = actualExceptionDeserializer.GetType().GetField("convertors", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     var actualConvertors = convertorsField?.GetValue(actualExceptionDeserializer) as IEnumerable<IExceptionConvertor>;
 
-                    Assert.NotNull(actualConvertors);
                     var convertorList = new List<IExceptionConvertor>(actualConvertors);
                     Assert.Equal(2, convertorList.Count);
                     // Check that default convertors are present and in the expected order

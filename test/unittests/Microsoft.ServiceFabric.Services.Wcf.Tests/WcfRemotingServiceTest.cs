@@ -22,15 +22,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
     {
         // Text fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
-        static readonly IServiceRemotingMessageHandler mockHandler = Mock.Of<IServiceRemotingMessageHandler>();
 
         public class RequestResponseAsyncMethod
         {
+            readonly string errorMessage;
+
+            public RequestResponseAsyncMethod()
+            {
+                errorMessage = fuzzy.String();
+            }
+
             [Fact]
             public async Task ReturnsActualExceptionTypeForKnownExceptions()
             {
                 // Arrange
-                var errorMessage = fuzzy.String();
+                IServiceRemotingMessageHandler mockHandler = Mock.Of<IServiceRemotingMessageHandler>();
+
                 var mockHeaderSerializer = new Mock<IServiceRemotingMessageHeaderSerializer>();
                 mockHeaderSerializer.Setup(h => h.DeserializeRequestHeaders(It.IsAny<IMessageHeader>()))
                     .Throws(new InvalidOperationException(errorMessage));
@@ -78,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
             public async Task ReturnsServiceExceptionForUnknownExceptions()
             {
                 // Arrange
-                var errorMessage = fuzzy.String();
+                IServiceRemotingMessageHandler mockHandler = Mock.Of<IServiceRemotingMessageHandler>();
                 var mockHeaderSerializer = new Mock<IServiceRemotingMessageHeaderSerializer>();
                 mockHeaderSerializer.Setup(h => h.DeserializeRequestHeaders(It.IsAny<IMessageHeader>()))
                     .Throws(new ServerException(errorMessage));
