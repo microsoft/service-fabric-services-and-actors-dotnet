@@ -18,18 +18,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 {    
     public class AggregatedDiagnosticEventsTest
     {
-        internal interface ITestDiagnosticsEvents : IDiagnosticEvents { }
+        interface ITestDiagnosticsEvents : IDiagnosticEvents { }
 
-        readonly static IDiagnosticEvents mockedDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
-        readonly static IDiagnosticEvents mockedAnotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
+        readonly IDiagnosticEvents mockedDiagnosticEvents = Mock.Of<IDiagnosticEvents>();
+        readonly IDiagnosticEvents mockedAnotherDiagnosticEvents = Mock.Of<ITestDiagnosticsEvents>();
 
-        readonly static IClock mockClock = Mock.Of<IClock>();
-        readonly static IEnumerable<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>
+        readonly IClock mockClock = Mock.Of<IClock>();
+        readonly IEnumerable<IDiagnosticEvents> diagnosticEvents = new List<IDiagnosticEvents>
         {
             Mock.Of<IDiagnosticEvents>()
         };
 
-        private AggregatedDiagnosticEvents sut = new AggregatedDiagnosticEvents(diagnosticEvents);
+        private AggregatedDiagnosticEvents sut;
+
+        protected AggregatedDiagnosticEventsTest() => sut = new AggregatedDiagnosticEvents(diagnosticEvents);
 
         public class Class : AggregatedDiagnosticEventsTest
         {
