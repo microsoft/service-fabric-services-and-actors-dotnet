@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 disposableItem.Dispose();
             }
-            if(this.diagnosticEvents is IDisposable diagnosticEventsDisposable)
+            if (this.diagnosticEvents is IDisposable diagnosticEventsDisposable)
             {
                 diagnosticEventsDisposable.Dispose();
             }

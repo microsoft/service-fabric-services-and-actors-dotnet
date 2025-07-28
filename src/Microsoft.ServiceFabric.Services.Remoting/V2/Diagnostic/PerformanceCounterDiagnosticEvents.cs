@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRequestResponseBegin()
         {
-            if(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
+            if (performanceCounterProvider.ServiceOutstandingRequestsCounterWriter != null)
             {
                 performanceCounterProvider.ServiceOutstandingRequestsCounterWriter.UpdateCounterValue(1);
             }
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
         {
-            if(performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
+            if (performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter != null)
             {
                 performanceCounterProvider.ServiceRequestDeserializationTimeCounterWriter.UpdateCounterValue(
                     CalculateMillisecondsSince(startTime));
@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRemotingRequestEnd(DateTime startTime)
         {
-            if(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
+            if (performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter != null)
             {
                 performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter.UpdateCounterValue(
                     CalculateMillisecondsSince(startTime));
@@ -75,7 +75,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void Dispose()
         {
-            if(performanceCounterProvider != null)
+            if (performanceCounterProvider != null)
             {
                 performanceCounterProvider.Dispose();
             }
