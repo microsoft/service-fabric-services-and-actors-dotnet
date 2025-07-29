@@ -5,6 +5,7 @@
 
 using System;
 using System.Fabric.Common;
+using FluentAssertions.Extensions;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
@@ -169,16 +170,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
             [Theory]
             [InlineData(0, 0)]
-            [InlineData(0.01, 1)]
-            [InlineData(0.1, 1)]
-            [InlineData(0.4, 1)]
-            [InlineData(0.6, 1)]
-            [InlineData(0.99, 1)]
-            [InlineData(1.1, 2)]
-            public void RemotingMessageEndObserveShortSerializationTime(double elapsedMilliseconds, long trackedElapsedMilliseconds)
+            [InlineData(50, 0)] // currently 0 due to precision limitations of DateTime class
+            [InlineData(100000, 1)]
+            [InlineData(400000, 1)]
+            [InlineData(600000, 1)]
+            [InlineData(990000, 1)]
+            [InlineData(1100000, 2)]
+            public void RemotingMessageEndObserveShortSerializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(elapsedMilliseconds));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddNanoseconds(elapsedNanoseconds));
 
                 sut.OnRemotingRequestEnd(requestStartTime);
 
@@ -221,16 +222,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
             [Theory]
             [InlineData(0, 0)]
-            [InlineData(0.01, 1)]
-            [InlineData(0.1, 1)]
-            [InlineData(0.4, 1)]
-            [InlineData(0.6, 1)]
-            [InlineData(0.99, 1)]
-            [InlineData(1.1, 2)]
-            public void TransportMessageEndObserveShortDeserializationTime(double elapsedMilliseconds, long trackedElapsedMilliseconds)
+            [InlineData(50, 0)] // currently 0 due to precision limitations of DateTime class
+            [InlineData(100000, 1)]
+            [InlineData(400000, 1)]
+            [InlineData(600000, 1)]
+            [InlineData(990000, 1)]
+            [InlineData(1100000, 2)]
+            public void TransportMessageEndObserveShortDeserializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(elapsedMilliseconds));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddNanoseconds(elapsedNanoseconds));
 
                 sut.OnCreateTransportMessageEnd(requestStartTime);
 
