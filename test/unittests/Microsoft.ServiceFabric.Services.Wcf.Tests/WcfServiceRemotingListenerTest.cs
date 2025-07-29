@@ -12,6 +12,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 using System.Fabric;
 using System.Fabric.Description;
 using System.Collections.ObjectModel;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
 {
@@ -24,6 +25,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
             {
                 // Arrange
                 var exceptionConvertors = new List<IExceptionConvertor> { new SystemExceptionConvertor() };
+                var settings = new FabricTransportRemotingListenerSettings
+                {
+                    RemotingExceptionDepth = 4
+                };
 
                 var mockEndpointsCollection = Mock.Of<KeyedCollection<string, EndpointResourceDescription>>();
                 var mockCodePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
@@ -51,13 +56,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                     listenerBinding: null,
                     endpointResourceName: null,
                     useWrappedMessage: false,
-                    exceptionConvertors: exceptionConvertors
+                    exceptionConvertors: exceptionConvertors,
+                    settings: settings
                 );
 
                 // Assert the number, types, and order of convertors in the produced exceptionSerializer
                 WcfRemotingService wcfRemotingService = listener.Field<WcfRemotingService>().Value;
                 ExceptionSerializer actualSerializer = wcfRemotingService.Field<ExceptionSerializer>().Value;
-                Assert.NotNull(actualSerializer);
 
                 IEnumerable<IExceptionConvertor> actualConvertors = actualSerializer.Field<IEnumerable<IExceptionConvertor>>().Value;
                 Assert.NotNull(actualConvertors);
@@ -68,6 +73,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                 Assert.IsType<SystemExceptionConvertor>(convertorList[1]); // default
                 Assert.IsType<FabricExceptionConvertor>(convertorList[2]); // default
                 Assert.IsType<DefaultExceptionConvertor>(convertorList[3]); // default
+
+                var actualSettings = actualSerializer.Field<FabricTransportRemotingListenerSettings>().Value;
+                Assert.Same(settings, actualSettings);
             }
         }
     }
