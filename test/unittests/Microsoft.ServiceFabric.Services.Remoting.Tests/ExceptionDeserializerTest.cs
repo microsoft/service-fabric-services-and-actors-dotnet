@@ -6,14 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Communication;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 using Fuzzy;
 using Inspector;
 using Xunit;
-using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
@@ -54,6 +54,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 Assert.IsType<SystemExceptionConvertor>(actualConvertors.ElementAt(1)); // default
                 Assert.IsType<FabricExceptionConvertor>(actualConvertors.ElementAt(2)); // default
             }
+
+            [Fact]
+            public void UsesDefaultConvertorsIfNullPassed()
+            {
+                // Arrange
+                var expectedConvertors = new List<IExceptionConvertor>
+                {
+                    new SystemExceptionConvertor(),
+                    new FabricExceptionConvertor(),
+                };
+
+                // Act
+                ExceptionDeserializer deserializer = ExceptionDeserializer.CreateDefault(null);
+
+                // Assert
+                IEnumerable<IExceptionConvertor> actualConvertors = deserializer.Field<IEnumerable<IExceptionConvertor>>().Value;
+
+                Assert.Equal(expectedConvertors.Count, actualConvertors.Count());
+                for (int i = 0; i < expectedConvertors.Count; i++)
+                {
+                    Assert.IsType(expectedConvertors[i].GetType(), actualConvertors.ElementAt(i));
+                }
+            }
         }
 
         public class ConvertRemoteException : ExceptionDeserializerTest
@@ -62,7 +85,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void ReturnsOriginalExceptionIfItIsKnownExceptionType()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>());
+                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), null);
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new FabricInsufficientMaxLoadCapacityException(fuzzy.String());
@@ -83,7 +106,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void ReturnsServiceExceptionForUnknownExceptions()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>());
+                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), null);
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new UnknownException(fuzzy.String());
@@ -107,7 +130,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public async Task ThrowsOriginalExceptionIfItIsKnownExceptionTypeAsync()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>());
+                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), null);
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new FabricInsufficientMaxLoadCapacityException(fuzzy.String());
@@ -130,7 +153,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public async Task ThrowsServiceExceptionForUnknownExceptions()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>());
+                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer.CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), null);
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new UnknownException(fuzzy.String());

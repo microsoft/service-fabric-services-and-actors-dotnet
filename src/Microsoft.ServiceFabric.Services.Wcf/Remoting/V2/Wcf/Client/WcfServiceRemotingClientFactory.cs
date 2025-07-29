@@ -330,8 +330,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 string, IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory)
         {
-            exceptionDeserializer = ExceptionDeserializer.CreateDefault(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>());
-            
+            exceptionDeserializer = ExceptionDeserializer.CreateDefault(exceptionConvertors);
+
             this.serializersManager = serializersManager;
             if (traceId == null)
             {

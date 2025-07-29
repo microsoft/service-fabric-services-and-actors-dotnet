@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 GetExceptionHandlers(exceptionHandlers),
                 traceId)
         {
-            this.exceptionDeserializer = ExceptionDeserializer.CreateDefault(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>());
+            this.exceptionDeserializer = ExceptionDeserializer.CreateDefault(exceptionConvertors);
             this.settings = remotingSettings ?? FabricTransportRemotingSettings.GetDefault();
             this.serializersManager = serializersManager;
             this.disposer = new NativeFabricTransportMessageDisposer();

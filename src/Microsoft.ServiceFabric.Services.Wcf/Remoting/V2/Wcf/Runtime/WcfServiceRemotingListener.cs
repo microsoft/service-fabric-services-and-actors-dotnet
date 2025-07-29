@@ -307,9 +307,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             FabricTransportRemotingListenerSettings settings = null)
         {
-            settings ??= FabricTransportRemotingListenerSettings.GetDefault();
-
-            ExceptionSerializer exceptionSerializer = exceptionSerializerFactory(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>(), settings);
+            ExceptionSerializer exceptionSerializer = exceptionSerializerFactory(exceptionConvertors, settings);
 
             remotingService = new WcfRemotingService(
                 messageHandler,

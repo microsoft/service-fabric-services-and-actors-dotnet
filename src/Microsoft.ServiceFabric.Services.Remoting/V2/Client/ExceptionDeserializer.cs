@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 
         public static ExceptionDeserializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors)
         {
-            var convertors = new List<IExceptionConvertor>(exceptionConvertors)
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
                 new SystemExceptionConvertor(),
                 new FabricExceptionConvertor()
