@@ -167,6 +167,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 Mock.Get(responseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
             }
 
+            [Theory]
+            [InlineData(0, 0)]
+            [InlineData(0.01, 1)]
+            [InlineData(0.1, 1)]
+            [InlineData(0.4, 1)]
+            [InlineData(0.6, 1)]
+            [InlineData(0.99, 1)]
+            [InlineData(1.1, 2)]
+            public void RemotingMessageEndObserveShortSerializationTime(double elapsedMilliseconds, long trackedElapsedMilliseconds)
+            {
+                DateTime requestStartTime = DateTime.UtcNow;
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(elapsedMilliseconds));
+
+                sut.OnRemotingRequestEnd(requestStartTime);
+
+                Mock.Get(responseSerializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(trackedElapsedMilliseconds), Times.Once);
+            }
+
             [Fact]
             public void RemotingMessageEndIgnoreIfWriterNull()
             {
@@ -199,6 +217,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
 
                 sut.OnCreateTransportMessageEnd(requestStartTime);
                 Mock.Get(requestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(100), Times.Once);
+            }
+
+            [Theory]
+            [InlineData(0, 0)]
+            [InlineData(0.01, 1)]
+            [InlineData(0.1, 1)]
+            [InlineData(0.4, 1)]
+            [InlineData(0.6, 1)]
+            [InlineData(0.99, 1)]
+            [InlineData(1.1, 2)]
+            public void TransportMessageEndObserveShortDeserializationTime(double elapsedMilliseconds, long trackedElapsedMilliseconds)
+            {
+                DateTime requestStartTime = DateTime.UtcNow;
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddMilliseconds(elapsedMilliseconds));
+
+                sut.OnCreateTransportMessageEnd(requestStartTime);
+
+                Mock.Get(requestDeserializationTimeCounterWriter).Verify(x => x.UpdateCounterValue(trackedElapsedMilliseconds), Times.Once);
             }
 
             [Fact]
