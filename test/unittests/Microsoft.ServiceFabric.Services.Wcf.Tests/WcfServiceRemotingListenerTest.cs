@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                     settings: settings
                 );
 
-                // Assert the number, types, and order of convertors in the produced exceptionSerializer
+                // Assert
                 WcfRemotingService wcfRemotingService = listener.Field<WcfRemotingService>().Value;
                 ExceptionSerializer actualSerializer = wcfRemotingService.Field<ExceptionSerializer>().Value;
 
