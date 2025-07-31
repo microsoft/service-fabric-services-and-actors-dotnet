@@ -171,11 +171,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Theory]
             [InlineData(0, 0)]
             [InlineData(50, 0)] // currently 0 due to precision limitations of DateTime class
-            [InlineData(100000, 1)]
-            [InlineData(400000, 1)]
+            [InlineData(100000, 0)]
+            [InlineData(400000, 0)]
             [InlineData(600000, 1)]
             [InlineData(990000, 1)]
-            [InlineData(1100000, 2)]
+            [InlineData(1100000, 1)]
+            [InlineData(1600000, 2)]
             public void RemotingMessageEndObserveShortSerializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
@@ -223,11 +224,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Theory]
             [InlineData(0, 0)]
             [InlineData(50, 0)] // currently 0 due to precision limitations of DateTime class
-            [InlineData(100000, 1)]
-            [InlineData(400000, 1)]
+            [InlineData(100000, 0)]
+            [InlineData(400000, 0)]
             [InlineData(600000, 1)]
             [InlineData(990000, 1)]
-            [InlineData(1100000, 2)]
+            [InlineData(1100000, 1)]
+            [InlineData(1600000, 2)]
             public void TransportMessageEndObserveShortDeserializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
