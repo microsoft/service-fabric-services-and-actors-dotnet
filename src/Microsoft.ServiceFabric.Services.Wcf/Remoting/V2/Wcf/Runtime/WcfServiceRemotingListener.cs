@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
     /// </summary>
     public class WcfServiceRemotingListener : IServiceRemotingListener
     {
-        internal const string DefaultEndpointResourceName = "ServiceEndpointV2";
+        const string DefaultEndpointResourceName = "ServiceEndpointV2";
 
         IServiceRemotingMessageHandler messageHandler;
         ICommunicationListener wcfListener;
