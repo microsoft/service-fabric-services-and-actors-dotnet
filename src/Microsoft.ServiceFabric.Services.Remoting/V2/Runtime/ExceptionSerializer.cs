@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
 using Microsoft.ServiceFabric.Services.Communication;
@@ -23,6 +24,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         {
             this.convertors = convertors;
             this.settings = settings;
+        }
+
+        public static ExceptionSerializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, FabricTransportRemotingListenerSettings settings)
+        {
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new SystemExceptionConvertor(),
+                new FabricExceptionConvertor(),
+                new DefaultExceptionConvertor()
+            };
+
+            return new ExceptionSerializer(convertors, settings ?? FabricTransportRemotingListenerSettings.GetDefault());
         }
 
         ServiceException ToServiceException(Exception originalException, int currentDepth)
@@ -106,10 +119,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             return new List<ArraySegment<byte>> { segment };
         }
 
-        public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
+        internal RemoteException2 BuildRemoteException(Exception exception)
         {
             ServiceException svcEx = this.ToServiceException(exception);
-            RemoteException2 remoteEx = this.ToRemoteException(svcEx);
+            return this.ToRemoteException(svcEx);
+        }
+
+        internal List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
+        {
+            RemoteException2 remoteEx = BuildRemoteException(exception);
             return this.SerializeRemoteException(remoteEx);
         }
     }

@@ -4,8 +4,10 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.FabricTransport.V2.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 {
@@ -14,7 +16,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
         public DummyFabricTransportRemotingClient(
             ServiceRemotingMessageSerializersManager serializersManager,
             FabricTransportClient fabricTransportClient)
-            : base(serializersManager, fabricTransportClient, null)
+            : base(serializersManager, fabricTransportClient, null, new ExceptionDeserializer(Enumerable.Empty<IExceptionConvertor>()))
         {
         }
 

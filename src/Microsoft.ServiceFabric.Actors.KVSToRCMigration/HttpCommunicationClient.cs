@@ -12,8 +12,8 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     internal class HttpCommunicationClient : ICommunicationClient
     {
-        private Uri endpointUri;
-        private HttpClient httpClient;
+        readonly Uri endpointUri;
+        readonly HttpClient httpClient;
 
         public HttpCommunicationClient(string address)
         {

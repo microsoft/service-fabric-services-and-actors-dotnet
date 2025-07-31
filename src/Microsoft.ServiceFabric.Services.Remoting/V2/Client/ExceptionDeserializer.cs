@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
@@ -22,6 +23,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         public ExceptionDeserializer(IEnumerable<IExceptionConvertor> convertors)
         {
             this.convertors = convertors;
+        }
+
+        public static ExceptionDeserializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors)
+        {
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new SystemExceptionConvertor(),
+                new FabricExceptionConvertor()
+            };
+
+            return new ExceptionDeserializer(convertors);
         }
 
         Exception FromServiceException(ServiceException serviceException)
@@ -104,7 +116,33 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
         }
 
-        public async Task DeserializeRemoteExceptionAndThrowAsync(Stream stream)
+        internal Exception ConvertRemoteException(RemoteException2 remoteException2)
+        {
+            Exception exceptionToThrow;
+
+            try
+            {
+                ServiceException svcEx = this.FromRemoteException2(remoteException2);
+                Exception ex = this.FromServiceException(svcEx);
+                exceptionToThrow = ex is AggregateException ? ex : new AggregateException(ex);
+            }
+            catch (Exception dcsE)
+            {
+                exceptionToThrow = new ServiceException(dcsE.GetType().FullName,
+                    string.Format(CultureInfo.InvariantCulture, SR.ErrorDeserializationFailure, dcsE.ToString()));
+            }
+
+            Guid requestId = LogContext.GetRequestIdOrDefault();
+            ServiceTrace.Source.WriteInfo(
+                TraceEventType,
+                "[{0}] Remoting call failed with exception : {1}",
+                requestId,
+                exceptionToThrow);
+
+            return exceptionToThrow;
+        }
+
+        internal async Task DeserializeRemoteExceptionAndThrowAsync(Stream stream)
         {
             Exception exceptionToThrow;
 
@@ -121,7 +159,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             }
             catch (Exception dcsE)
             {
-                exceptionToThrow = new ServiceException(dcsE.GetType().FullName, 
+                exceptionToThrow = new ServiceException(dcsE.GetType().FullName,
                     string.Format(CultureInfo.InvariantCulture, SR.ErrorDeserializationFailure, dcsE.ToString()));
             }
 
