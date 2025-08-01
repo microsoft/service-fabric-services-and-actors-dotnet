@@ -15,7 +15,7 @@ For more Service Fabric open source projects, visit the Service Fabric [home rep
 
 ## Getting Started
 
-### Prerequesites
+### Prerequisites
 Each project is a normal C# Visual Studio 2022 project. At minimum, you need [MSBuild 17](https://learn.microsoft.com/en-us/visualstudio/msbuild/whats-new-msbuild-17-0?view=vs-2022), [PowerShell](https://msdn.microsoft.com/powershell/mt173057.aspx), [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) and [.NET Framework 4.6](https://www.microsoft.com/en-US/download/details.aspx?id=48130) to build and generate NuGet packages.
 
 We recommend installing [Visual Studio 2022](https://www.visualstudio.com/vs/) which will set you up with all the .NET build tools and allow you to open the solution files. Community Edition is free and can be used to build everything here.
