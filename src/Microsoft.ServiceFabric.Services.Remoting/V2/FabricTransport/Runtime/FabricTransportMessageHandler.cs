@@ -25,8 +25,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private IServiceRemotingMessageHeaderSerializer headerSerializer;
         private ExceptionSerializer exceptionSerializer;
         private IDiagnosticEvents diagnosticEvents;
-        private IClock clock;
-        private ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
+        readonly IClock clock;
+        readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,

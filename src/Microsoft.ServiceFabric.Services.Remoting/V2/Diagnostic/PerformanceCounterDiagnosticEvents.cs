@@ -8,15 +8,10 @@ using Microsoft.ServiceFabric.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents, IDisposable
+    internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
     {
-        private ServiceRemotingPerformanceCounterProvider performanceCounterProvider;
-        private IClock clock;
-
-        private long CalculateMillisecondsSince(DateTime startTime)
-        {
-            return (long)Math.Round((clock.UtcNow - startTime).TotalMilliseconds);
-        }
+        readonly ServiceRemotingPerformanceCounterProvider performanceCounterProvider;
+        readonly IClock clock;
 
         public PerformanceCounterDiagnosticEvents(ServiceRemotingPerformanceCounterProvider performanceCounterProvider, IClock clock)
         {
@@ -73,12 +68,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
         }
 
-        public void Dispose()
+        private long CalculateMillisecondsSince(DateTime startTime)
         {
-            if (performanceCounterProvider != null)
-            {
-                performanceCounterProvider.Dispose();
-            }
+            return (long)Math.Round((clock.UtcNow - startTime).TotalMilliseconds);
         }
+
     }
 }
