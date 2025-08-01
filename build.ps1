@@ -25,6 +25,10 @@ param
     [string]$MSBuildFullPath
 )
 
+Set-StrictMode -Version Latest
+
+$scriptDirectory = $PSScriptRoot
+
 if($MSBuildFullPath -ne "")
 {
     if (!(Test-Path $MSBuildFullPath))
@@ -62,6 +66,15 @@ if (!(Test-Path $MSBuildFullPath))
 
 
 Write-Output "Using msbuild from $msbuildFullPath"
+$buildProjectPath = Join-Path $scriptDirectory "buildall.proj"
+if (!(Test-Path $buildProjectPath)) {
+    throw "Build project file not found at: $buildProjectPath"
+}
 
-$msbuildArgs = @("buildall.proj", "/nr:false", "/nologo", "/t:$target", "/verbosity:$verbosity", "/property:RequestedVerbosity=$verbosity", "/property:Configuration=$configuration", $args)
+$msbuildArgs = @($buildProjectPath, "/nr:false", "/t:$target", "/verbosity:$verbosity", "/property:RequestedVerbosity=$verbosity", "/property:Configuration=$configuration", $args)
+
+Write-Output "Executing: $msbuildFullPath $($msbuildArgs -join ' ')"
+
+# Execute MSBuild - output should flow directly to console
 & $msbuildFullPath $msbuildArgs
+$msbuildExitCode = $LASTEXITCODE

@@ -22,31 +22,31 @@
 
   <!--Targets for prod code -->
   <Target Name="RestoreProd_netframework">
-    <!-- Restores nuget packages and project specific tools -->
-    <MSBuild Projects ="@(Projects_Prod_netframework)" ContinueOnError ="false" Targets="restore" Properties="Verbosity=quiet"/>
+    <!-- Restore is now handled at solution level in buildAll.proj for credential provider compatibility -->
+    <Message Text="Packages restored at solution level" Importance="low"/>
   </Target>
   
-  <Target Name="BuildProd_netframework" DependsOnTargets="RestoreProd_netframework">
+  <Target Name="BuildProd_netframework">
     <MSBuild Projects ="@(Projects_Prod_netframework)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
   </Target>
 
-  <Target Name="CleanProd_netframework" DependsOnTargets="RestoreProd_netframework">
+  <Target Name="CleanProd_netframework">
     <MSBuild Projects ="@(Projects_Prod_netframework)" ContinueOnError ="false" Targets="Clean" Properties="Configuration=$(Configuration)"/>
   </Target>
 
 
   <!--Targets for test code -->
   <Target Name="RestoreTest_netframework">
-    <!-- Restores nuget packages and project specific tools -->
-    <MSBuild Projects ="@(Projects_Test_netframework)" ContinueOnError ="false" Targets="restore"/>
+    <!-- Restore is now handled at solution level in buildAll.proj for credential provider compatibility -->
+    <Message Text="Packages restored at solution level" Importance="low"/>
   </Target>
 
-  <Target Name="BuildTest_netframework" DependsOnTargets="RestoreTest_netframework">
+  <Target Name="BuildTest_netframework">
     <MSBuild Projects ="@(Projects_Test_netframework)" ContinueOnError ="false" Properties="Configuration=$(Configuration)" BuildInParallel="true"/>
   </Target>
 
   <!-- Target for cleaning test projects. -->
-  <Target Name="CleanTest_netframework" DependsOnTargets="RestoreTest_netframework">
+  <Target Name="CleanTest_netframework">
     <!-- Clean -->
     <MSBuild Projects ="@(Projects_Test_netframework)" ContinueOnError ="false" Targets="Clean" Properties="Configuration=$(Configuration)"/>
   </Target>

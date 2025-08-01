@@ -32,11 +32,12 @@
 
   <!-- Targets to Restore packages and project tools -->
   <Target Name="RestorePackagesProd">
-    <CallTarget Targets="RestoreProd_netframework;" />
+    <!-- Restore the entire solution to resolve all dependencies efficiently with credential provider support -->
+    <Exec Command="dotnet restore &quot;$(CurrentDir)code.sln&quot; --verbosity quiet" ContinueOnError="false" />
   </Target>
 
   <Target Name="RestorePackagesTest">
-    <CallTarget Targets="RestoreTest_netframework" />
+    <!-- Solution restore already handled all projects including test projects -->
   </Target>
 
   <!--Target for building product code. -->
