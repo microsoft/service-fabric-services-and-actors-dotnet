@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             metricsConfigEnabled = configStore.ReadUnencryptedString("Telemetry/Metrics", "IsEnabled").ToLowerInvariant() == "true";
         }
 
-        public IMeter<ValueType> CreateMeter<ValueType>(string name)
+        public IMeter0D<ValueType> CreateMeter<ValueType>(string name)
         {
             if (metricsConfigEnabled){
                 return new Meter<ValueType>(name, nodeName, runtimeVersion);

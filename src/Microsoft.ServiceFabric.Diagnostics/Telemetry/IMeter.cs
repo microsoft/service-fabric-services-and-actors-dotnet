@@ -5,7 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal interface IMeter<ValueType>
+    internal interface IMeter0D<ValueType>
     {
         void Record(ValueType value);
     }
