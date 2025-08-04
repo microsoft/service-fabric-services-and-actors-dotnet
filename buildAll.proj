@@ -14,12 +14,12 @@
     <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
-  <Target Name="BuildAll" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;BuildProd;BuildTest;CopyProdBinaries;GenerateNugetPackages">
+  <Target Name="BuildAll" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;BuildProd;BuildTest;GenerateNugetPackages">
     <Message Text="SUCCESS!  Generated binaries and packages are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
   <!-- Builds code, this target doesn't generates nuget packages. -->
-  <Target Name="BuildCode" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;CleanAll;BuildProd;BuildTest;CopyProdBinaries">
+  <Target Name="BuildCode" DependsOnTargets="RestorePackagesProd;RestorePackagesTest;CleanAll;BuildProd;BuildTest">
     <Message Text="SUCCESS!  Generated binaries are dropped at $(CurrentDir)drop\$(Configuration)" Importance="High"/>
   </Target>
 
@@ -44,12 +44,6 @@
   <Target Name="BuildProd">
     <Message Text="Building all projects ..." Importance="High"/>
     <CallTarget Targets="BuildProd_netframework;" />
-  </Target>
-
-  <!--Target for copying product binaries to drop. -->
-  <Target Name="CopyProdBinaries">
-    <Message Text="Copying binaries to drop folder ..." Importance="High"/>
-    <CallTarget Targets="CopyProdBinaries_netframework;CopyProdBinaries_netcore;" />
   </Target>
 
   <!--Target for generating nuget packages. -->
