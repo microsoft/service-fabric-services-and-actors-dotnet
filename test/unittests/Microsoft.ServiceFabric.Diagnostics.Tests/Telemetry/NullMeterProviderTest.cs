@@ -7,13 +7,12 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-
     public abstract class NullMeterProviderTest
     {
         public class CreateMeter : NullMeterProviderTest
         {
             [Fact]
-            public void ReturnsNullMeterForNoDimensions()
+            public void ReturnsNullMeterForNoDimension()
             {
                 NullMeterProvider meterProvider = new NullMeterProvider();
                 Assert.True(meterProvider.CreateMeter<long>("myLong") is NullMeter<long>);
