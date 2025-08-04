@@ -13,14 +13,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         public class CreateMeter : NullMeterProviderTest
         {
             [Fact]
-            public void CreateMeter_WithNoDimensionMetricsConfigDisabled_ReturnsNullMeter()
+            public void ReturnsNullMeterForNoDimensions()
             {
                 NullMeterProvider meterProvider = new NullMeterProvider();
                 Assert.True(meterProvider.CreateMeter<long>("myLong") is NullMeter<long>);
             }
 
             [Fact]
-            public void CreateMeter_With1DimensionMetricsConfigDisabled_ReturnsNullMeter()
+            public void ReturnsNullMeterForOneDimensions()
             {
                 NullMeterProvider meterProvider = new NullMeterProvider();
                 Assert.True(meterProvider.CreateMeter<long>("myLong", "stringDimension1") is NullMeter1D<long>);
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
 
             [Fact]
-            public void CreateMeter_With2DimensionMetricsConfigDisabled_ReturnsNullMeter()
+            public void ReturnsNullMeterForTwoDimensions()
             {
                 NullMeterProvider meterProvider = new NullMeterProvider();
                 Assert.True(meterProvider.CreateMeter<long>("myLong", "stringDimension1", "stringDimension2") is NullMeter2D<long>);
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
 
             [Fact]
-            public void CreateMeter_With3DimensionMetricsConfigDisabled_ReturnsNullMeter()
+            public void ReturnsNullMeterForThreeDimensions()
             {
                 NullMeterProvider meterProvider = new NullMeterProvider();
                 Assert.True(meterProvider.CreateMeter<long>("myLong", "stringDimension1", "stringDimension2", "stringDimension3") is NullMeter3D<long>);
