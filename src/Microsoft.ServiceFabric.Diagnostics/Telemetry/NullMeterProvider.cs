@@ -3,24 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System.Fabric.Common;
-
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal class MeterProvider
+    internal class NullMeterProvider
     {
-        readonly bool metricsConfigEnabled;
-        readonly string nodeName;
-        readonly string runtimeVersion;
-
-        internal MeterProvider(IConfigStore2 configStore)
-        {
-            nodeName = configStore.ReadUnencryptedString("FabricNode", "InstanceName");
-            // runtimeVersion is of the form "10.x.x:0:0" before formatting -- we only want the 10.x.x part
-            runtimeVersion = configStore.ReadUnencryptedString("FabricNode", "NodeVersion").Split(':')[0];
-            metricsConfigEnabled = configStore.ReadUnencryptedString("Telemetry/Metrics", "IsEnabled").ToLowerInvariant() == "true";
-        }
-
         public IMeter<ValueType> CreateMeter<ValueType>(string name)
         {
             return new NullMeter<ValueType>();

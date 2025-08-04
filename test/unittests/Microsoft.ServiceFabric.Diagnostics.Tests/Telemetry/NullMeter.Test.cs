@@ -3,17 +3,16 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using Microsoft.ServiceFabric.Diagnostics.Telemetry;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
+namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
     public class NullMeterTest
     {
         [Fact]
         public void Record_NullMeter_IntegralValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter<long> meter = meterProvider.CreateMeter<long>("testLongMetric");
 
             var recorder = new MetricsRecorder();
@@ -26,7 +25,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
         [Fact]
         public void Record_NullMeter1D_IntegralValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter1D<long> meter = meterProvider.CreateMeter<long>("testLongMetric", "dimension1Name");
 
             var recorder = new MetricsRecorder();
@@ -39,7 +38,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
         [Fact]
         public void Record_NullMeter2D_IntegralValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter2D<long> meter = meterProvider.CreateMeter<long>("testLongMetric", "dimension1Name", "dimension2Name");
 
             var recorder = new MetricsRecorder();
@@ -52,7 +51,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
         [Fact]
         public void Record_NullMeter3D_IntegralValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter3D<long> meter = meterProvider.CreateMeter<long>("testLongMetric", "dimension1Name", "dimension2Name", "dimension3Name");
 
             var recorder = new MetricsRecorder();
@@ -65,7 +64,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
         [Fact]
         public void Record_NullMeter_FloatingPointValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter<double> meter = meterProvider.CreateMeter<double>("testDoubleMetric");
 
             var recorder = new MetricsRecorder();
@@ -78,7 +77,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
         [Fact]
         public void Record_NullMeter1D_FloatingPointValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter1D<double> meter = meterProvider.CreateMeter<double>("testDoubleMetric", "dimension1Name");
 
             var recorder = new MetricsRecorder();
@@ -91,7 +90,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
         [Fact]
         public void Record_NullMeter2D_FloatingPointValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter2D<double> meter = meterProvider.CreateMeter<double>("testDoubleMetric", "dimension1Name", "dimension2Name");
 
             var recorder = new MetricsRecorder();
@@ -104,7 +103,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
         [Fact]
         public void Record_NullMeter3D_FloatingPointValue_DoesNotProduceMetric(){
 
-            MeterProvider meterProvider = new MeterProvider(new MockConfigStore("Node_0", "10.1", false));
+            NullMeterProvider meterProvider = new NullMeterProvider();
             IMeter3D<double> meter = meterProvider.CreateMeter<double>("testDoubleMetric", "dimension1Name", "dimension2Name", "dimension3Name");
 
             var recorder = new MetricsRecorder();

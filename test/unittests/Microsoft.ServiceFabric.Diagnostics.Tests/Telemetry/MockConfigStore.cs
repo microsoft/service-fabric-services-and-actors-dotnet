@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Fabric.Common;
 using System.Linq;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Tests.Telemetry
+namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
     public class MockConfigStore : IConfigStore2
     {
