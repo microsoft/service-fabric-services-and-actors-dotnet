@@ -5,7 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal class NullMeter<ValueType> : IMeter0D<ValueType>
+    internal class NullMeter<ValueType> : IMeter<ValueType>
     {
         public NullMeter() { }
 

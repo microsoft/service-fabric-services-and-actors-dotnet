@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal class Meter<ValueType> : IMeter0D<ValueType>
+    internal class Meter<ValueType> : IMeter<ValueType>
     {
         readonly string name;
         readonly string nodeName;
