@@ -9,16 +9,58 @@
       <Summary>This package provides Service Fabric Actors and Services libraries for consumption by other Service Fabric repos.</Summary>
       <Tags>ServiceFabric Microsoft Azure Fabric</Tags>
       <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+      <OutputPath>$(NupkgOutputDir)</OutputPath>
     </PropertyGroup>
 
     <Import Project="$(NuProjPath)\NuProj.props" />
     <Import Project="$(NuProjPath)\NuProj.targets" />
 
     <ItemGroup>
-      <File Include="$(DropFolderNetFramework)*.*">
+      <!-- FabAct Util, one off because of publish dir -->
+      <File Include="..\..\src\FabActUtil\bin\$(Configuration)\net462\*">
         <TargetPath>lib\net462</TargetPath>
       </File>
-      <File Include="$(DropFolderNetCore)*.*">
+      <File Include="..\..\src\FabActUtil\bin\$(Configuration)\net8.0\*">
+        <TargetPath>lib\net8.0\win</TargetPath>
+      </File>
+
+      <!-- WCF is only supported for net462 -->
+      <File Include="..\..\src\Microsoft.ServiceFabric.Actors.Wcf\bin\$(Configuration)\net462\Microsoft.ServiceFabric.Actors.Wcf.*">
+        <TargetPath>lib\net462</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Services.Wcf\bin\$(Configuration)\net462\Microsoft.ServiceFabric.Services.Wcf.*">
+        <TargetPath>lib\net462</TargetPath>
+      </File>
+
+      <File Include="..\..\src\Microsoft.ServiceFabric.Actors\bin\$(Configuration)\net462\Microsoft.ServiceFabric.Actors.*">
+        <TargetPath>lib\net462</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Diagnostics\bin\$(Configuration)\net462\Microsoft.ServiceFabric.Diagnostics.*">
+        <TargetPath>lib\net462</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Services\bin\$(Configuration)\net462\Microsoft.ServiceFabric.Services.*">
+        <TargetPath>lib\net462</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Services.Remoting\bin\$(Configuration)\net462\Microsoft.ServiceFabric.Services.Remoting.*">
+        <TargetPath>lib\net462</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\bin\$(Configuration)\net462\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*">
+        <TargetPath>lib\net462</TargetPath>
+      </File>
+
+      <File Include="..\..\src\Microsoft.ServiceFabric.Actors\bin\$(Configuration)\net8.0\Microsoft.ServiceFabric.Actors.*">
+        <TargetPath>lib\net8.0</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Diagnostics\bin\$(Configuration)\net8.0\Microsoft.ServiceFabric.Diagnostics.*">
+        <TargetPath>lib\net8.0</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Services\bin\$(Configuration)\net8.0\Microsoft.ServiceFabric.Services.*">
+        <TargetPath>lib\net8.0</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Services.Remoting\bin\$(Configuration)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*">
+        <TargetPath>lib\net8.0</TargetPath>
+      </File>
+      <File Include="..\..\src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\bin\$(Configuration)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*">
         <TargetPath>lib\net8.0</TargetPath>
       </File>
     </ItemGroup>
