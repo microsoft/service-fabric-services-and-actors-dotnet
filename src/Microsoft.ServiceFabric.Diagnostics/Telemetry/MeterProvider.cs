@@ -23,33 +23,21 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 
         public IMeter<ValueType> CreateMeter<ValueType>(string name)
         {
-            if (metricsConfigEnabled){
-                return new Meter<ValueType>(name, nodeName, runtimeVersion);
-            }
             return new NullMeter<ValueType>();
         }
 
         public IMeter1D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name)
         {
-            if (metricsConfigEnabled){
-                return new Meter1D<ValueType>(name, dimension1Name, nodeName, runtimeVersion);
-            }
             return new NullMeter1D<ValueType>();
         }
 
         public IMeter2D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name)
         {
-            if (metricsConfigEnabled){
-                return new Meter2D<ValueType>(name, dimension1Name, dimension2Name, nodeName, runtimeVersion);
-            }
             return new NullMeter2D<ValueType>();
         }
 
         public IMeter3D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string dimension3Name)
         {
-            if (metricsConfigEnabled){
-                return new Meter3D<ValueType>(name, dimension1Name, dimension2Name, dimension3Name, nodeName, runtimeVersion);
-            }
             return new NullMeter3D<ValueType>();
         }
     }
