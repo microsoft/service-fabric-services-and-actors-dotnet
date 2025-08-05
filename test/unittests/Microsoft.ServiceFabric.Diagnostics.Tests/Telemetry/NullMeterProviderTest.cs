@@ -15,37 +15,37 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             public void ReturnsNullMeterForNoDimension()
             {
                 NullMeterProvider<long> meterProvider = new NullMeterProvider<long>();
-                Assert.True(meterProvider.CreateMeter("myLong") is NullMeter<long>);
+                Assert.True(meterProvider.CreateMeter("namespace", "meterName") is NullMeter<long>);
             }
 
             [Fact]
             public void ReturnsNullMeterForOneDimension()
             {
                 NullMeterProvider<long> longNullMeterProvider = new NullMeterProvider<long>();
-                Assert.True(longNullMeterProvider.CreateMeter("myLong", "stringDimension1") is NullMeter1D<long>);
+                Assert.True(longNullMeterProvider.CreateMeter("namespace", "meterName", "stringDimension1") is NullMeter1D<long>);
 
                 NullMeterProvider<double> doubleNullMeterProvider = new NullMeterProvider<double>();
-                Assert.True(doubleNullMeterProvider.CreateMeter("myDouble", "stringDimension1") is NullMeter1D<double>);
+                Assert.True(doubleNullMeterProvider.CreateMeter("namespace", "meterName", "stringDimension1") is NullMeter1D<double>);
             }
 
             [Fact]
             public void ReturnsNullMeterForTwoDimensions()
             {
                 NullMeterProvider<long> longNullMeterProvider = new NullMeterProvider<long>();
-                Assert.True(longNullMeterProvider.CreateMeter("myLong", "stringDimension1", "stringDimension2") is NullMeter2D<long>);
+                Assert.True(longNullMeterProvider.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2") is NullMeter2D<long>);
 
                 NullMeterProvider<double> doubleNullMeterProvider = new NullMeterProvider<double>();
-                Assert.True(doubleNullMeterProvider.CreateMeter("myDouble", "stringDimension1", "stringDimension2") is NullMeter2D<double>);
+                Assert.True(doubleNullMeterProvider.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2") is NullMeter2D<double>);
             }
 
             [Fact]
             public void ReturnsNullMeterForThreeDimensions()
             {
                 NullMeterProvider<long> longNullMeterProvider = new NullMeterProvider<long>();
-                Assert.True(longNullMeterProvider.CreateMeter("myLong", "stringDimension1", "stringDimension2", "stringDimension3") is NullMeter3D<long>);
+                Assert.True(longNullMeterProvider.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2", "stringDimension3") is NullMeter3D<long>);
 
                 NullMeterProvider<double> doubleNullMeterProvider = new NullMeterProvider<double>();
-                Assert.True(doubleNullMeterProvider.CreateMeter("myDouble", "stringDimension1", "stringDimension2", "stringDimension3") is NullMeter3D<double>);
+                Assert.True(doubleNullMeterProvider.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2", "stringDimension3") is NullMeter3D<double>);
             }
         }
     }

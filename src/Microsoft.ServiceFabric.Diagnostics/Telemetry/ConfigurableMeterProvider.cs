@@ -37,9 +37,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
         }
 
-        public abstract IMeter<ValueType> CreateMeter(string name, string metricNamespace = "");
-        public abstract IMeter1D<ValueType> CreateMeter(string name, string dimension1Name, string metricNamespace = "");
-        public abstract IMeter2D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string metricNamespace = "");
-        public abstract IMeter3D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string dimension3Name, string metricNamespace = "");
+        public abstract IMeter<ValueType> CreateMeter(string metricNamespace, string name);
+        public abstract IMeter1D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name);
+        public abstract IMeter2D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name);
+        public abstract IMeter3D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name);
     }
 }
