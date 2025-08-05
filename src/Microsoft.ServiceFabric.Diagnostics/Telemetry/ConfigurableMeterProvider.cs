@@ -9,10 +9,10 @@ using System.Fabric;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal abstract class ConfigurableMeterProvider : IMeterProvider
+    internal abstract class ConfigurableMeterProvider<ValueType> : IMeterProvider<ValueType>
     {
 
-        readonly protected IDictionary<string, string> systemDimensions = new ConcurrentDictionary<string, string> ();
+        readonly protected IDictionary<string,string> systemDimensions = new ConcurrentDictionary<string, string> ();
         readonly protected bool metricsEnabled;
 
         protected ConfigurableMeterProvider(ConfigStoreWrapper configStoreWrapped, ServiceContext serviceContext = null)
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
 
             this.systemDimensions.Add("NodeName", configStoreWrapped.ReadConfig("FabricNode", "InstanceName") ?? string.Empty);
-            this.systemDimensions.Add("RuntimeVersion", configStoreWrapped.ReadConfig("FabricNode", "NodeVersion").Split(':')[0] ?? string.Empty);
+            this.systemDimensions.Add("RuntimeVersion", configStoreWrapped.ReadConfig("FabricNode", "NodeVersion")?.Split(':')[0] ?? string.Empty);
             this.metricsEnabled = (configStoreWrapped.ReadConfig("Telemetry/Metrics", "IsEnabled")??"false").ToLowerInvariant() == "true";
 
             if (serviceContext != null)
@@ -37,9 +37,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
         }
 
-        public abstract IMeter<ValueType> CreateMeter<ValueType>(string name, string metricNamespace = "");
-        public abstract IMeter1D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string metricNamespace = "");
-        public abstract IMeter2D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string metricNamespace = "");
-        public abstract IMeter3D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string dimension3Name, string metricNamespace = "");
+        public abstract IMeter<ValueType> CreateMeter(string name, string metricNamespace = "");
+        public abstract IMeter1D<ValueType> CreateMeter(string name, string dimension1Name, string metricNamespace = "");
+        public abstract IMeter2D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string metricNamespace = "");
+        public abstract IMeter3D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string dimension3Name, string metricNamespace = "");
     }
 }

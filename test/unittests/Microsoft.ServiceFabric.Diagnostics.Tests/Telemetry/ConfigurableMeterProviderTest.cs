@@ -51,13 +51,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             [Fact]
             public void ShouldThrowExceptionOnConfigStoreNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new TestMeterProvider(null, null));
+                Assert.Throws<ArgumentNullException>(() => new TestMeterProvider<int>(null, null));
             }
 
             [Fact]
             public void ShouldRecordRequiredDimensionsFromConfigStore()
             {
-                TestMeterProvider sut = new TestMeterProvider(configStoreWrapped, null);
+                var sut = new TestMeterProvider<int>(configStoreWrapped, null);
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
                 var metricsEnabled = sut.Field<bool>().Value;
@@ -70,7 +70,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             [Fact]
             public void ShouldRecordRequiredDimensionsFromServiceContext()
             {
-                TestMeterProvider sut = new TestMeterProvider(configStoreWrapped, serviceContext);
+                var sut = new TestMeterProvider<int>(configStoreWrapped, serviceContext);
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
 
@@ -85,7 +85,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             [Fact]
             public void ShouldNotRecordRequiredDimensionsFromNullServiceContext()
             {
-                TestMeterProvider sut = new TestMeterProvider(configStoreWrapped, null);
+                var sut = new TestMeterProvider<int>(configStoreWrapped, null);
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
 
@@ -98,29 +98,29 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
         }
 
-        private class TestMeterProvider : ConfigurableMeterProvider
+        private class TestMeterProvider<ValueType> : ConfigurableMeterProvider<ValueType>
         {
             public TestMeterProvider(ConfigStoreWrapper configStoreWrapped, ServiceContext serviceContext)
                 : base(configStoreWrapped, serviceContext)
             {
             }
 
-            public override IMeter<ValueType> CreateMeter<ValueType>(string name, string metricNamespace = "")
+            public override IMeter<ValueType> CreateMeter(string name, string metricNamespace = "")
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter1D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string metricNamespace = "")
+            public override IMeter1D<ValueType> CreateMeter(string name, string dimension1Name, string metricNamespace = "")
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter2D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string metricNamespace = "")
+            public override IMeter2D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string metricNamespace = "")
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter3D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string dimension3Name, string metricNamespace = "")
+            public override IMeter3D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string dimension3Name, string metricNamespace = "")
             {
                 throw new NotImplementedException();
             }
