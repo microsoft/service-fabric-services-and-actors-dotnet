@@ -22,6 +22,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         const string TestServiceUriString = "fabric:/TestApplication/TestService";
         const string TestApplicationName = "TestApplicationName";
         const string TestApplicationTypeName = "TestApplicationTypeName";
+        const long ReplicaId = 1L;
 
         readonly Guid testPartitionId = new Guid();
         readonly ServiceContext serviceContext;
@@ -44,7 +45,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
                 new Uri(TestServiceUriString),
                 null,
                 testPartitionId,
-                1L);
+                ReplicaId);
         }
 
         public class Constructor : ConfigurableMeterProviderTest
@@ -75,7 +76,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
 
-                Assert.Equal("1", systemDimensions["ReplicaOrInstanceId"]);
+                Assert.Equal(ReplicaId.ToString(), systemDimensions["ReplicaOrInstanceId"]);
                 Assert.Equal(testPartitionId.ToString(), systemDimensions["PartitionId"]);
                 Assert.Equal(TestServiceTypeName, systemDimensions["ServiceTypeName"]);
                 Assert.Equal(TestServiceUriString, systemDimensions["ServiceName"]);

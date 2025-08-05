@@ -12,7 +12,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
     internal abstract class ConfigurableMeterProvider<ValueType> : IMeterProvider<ValueType>
     {
-
         readonly protected IDictionary<string, string> systemDimensions = new ConcurrentDictionary<string, string> ();
         readonly protected bool metricsEnabled;
 
