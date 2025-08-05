@@ -12,14 +12,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         public class CreateMeter : NullMeterProviderTest
         {
             [Fact]
-            public void ReturnsNullMeterForNoDimension()
+            public void ReturnsNullMeterForNoDimensions()
             {
                 NullMeterProvider meterProvider = new NullMeterProvider();
                 Assert.True(meterProvider.CreateMeter<long>("myLong") is NullMeter<long>);
             }
 
             [Fact]
-            public void ReturnsNullMeterForOneDimensions()
+            public void ReturnsNullMeterForOneDimension()
             {
                 NullMeterProvider meterProvider = new NullMeterProvider();
                 Assert.True(meterProvider.CreateMeter<long>("myLong", "stringDimension1") is NullMeter1D<long>);
