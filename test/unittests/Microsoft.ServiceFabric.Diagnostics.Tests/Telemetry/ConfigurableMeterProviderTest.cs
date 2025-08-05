@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Fabric.Common;
 using System.Numerics;
 using Inspector;
 using Moq;
@@ -23,14 +24,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         const string TestApplicationTypeName = "TestApplicationTypeName";
 
         readonly Guid testPartitionId = new Guid();
-        readonly ConfigStoreWrapper configStoreWrapped = Mock.Of<ConfigStoreWrapper>();
         readonly ServiceContext serviceContext;
+        readonly IConfigStore2 configStore = Mock.Of<IConfigStore2>();
 
         public ConfigurableMeterProviderTest()
         {
-            Mock.Get(configStoreWrapped).Setup(x => x.ReadConfig("FabricNode", "InstanceName")).Returns(TestNodeName);
-            Mock.Get(configStoreWrapped).Setup(x => x.ReadConfig("FabricNode", "NodeVersion")).Returns(TestNodeVersion + ":0:0");
-            Mock.Get(configStoreWrapped).Setup(x => x.ReadConfig("Telemetry/Metrics", "IsEnabled")).Returns(true.ToString);
+            Mock.Get(configStore).Setup(x => x.ReadUnencryptedString("FabricNode", "InstanceName")).Returns(TestNodeName);
+            Mock.Get(configStore).Setup(x => x.ReadUnencryptedString("FabricNode", "NodeVersion")).Returns(TestNodeVersion + ":0:0");
+            Mock.Get(configStore).Setup(x => x.ReadUnencryptedString("Telemetry/Metrics", "IsEnabled")).Returns(true.ToString);
 
             var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(TestApplicationName);
@@ -57,7 +58,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             [Fact]
             public void ShouldRecordRequiredDimensionsFromConfigStore()
             {
-                var sut = new TestMeterProvider<int>(configStoreWrapped, null);
+                var sut = new TestMeterProvider<int>(configStore, null);
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
                 var metricsEnabled = sut.Field<bool>().Value;
@@ -70,7 +71,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             [Fact]
             public void ShouldRecordRequiredDimensionsFromServiceContext()
             {
-                var sut = new TestMeterProvider<int>(configStoreWrapped, serviceContext);
+                var sut = new TestMeterProvider<int>(configStore, serviceContext);
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
 
@@ -85,7 +86,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             [Fact]
             public void ShouldNotRecordRequiredDimensionsFromNullServiceContext()
             {
-                var sut = new TestMeterProvider<int>(configStoreWrapped, null);
+                var sut = new TestMeterProvider<int>(configStore, null);
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
 
@@ -100,27 +101,27 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 
         private class TestMeterProvider<ValueType> : ConfigurableMeterProvider<ValueType>
         {
-            public TestMeterProvider(ConfigStoreWrapper configStoreWrapped, ServiceContext serviceContext)
-                : base(configStoreWrapped, serviceContext)
+            public TestMeterProvider(IConfigStore2 configStore, ServiceContext serviceContext)
+                : base(configStore, serviceContext)
             {
             }
 
-            public override IMeter<ValueType> CreateMeter(string name, string metricNamespace = "")
-            {
-                throw new NotImplementedException();
-            }
-
-            public override IMeter1D<ValueType> CreateMeter(string name, string dimension1Name, string metricNamespace = "")
+            public override IMeter<ValueType> CreateMeter(string metricNamespace, string name)
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter2D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string metricNamespace = "")
+            public override IMeter1D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name)
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter3D<ValueType> CreateMeter(string name, string dimension1Name, string dimension2Name, string dimension3Name, string metricNamespace = "")
+            public override IMeter2D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override IMeter3D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name)
             {
                 throw new NotImplementedException();
             }

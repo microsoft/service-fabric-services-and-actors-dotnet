@@ -6,6 +6,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Fabric.Common;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
@@ -15,16 +16,16 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         readonly protected IDictionary<string, string> systemDimensions = new ConcurrentDictionary<string, string> ();
         readonly protected bool metricsEnabled;
 
-        protected ConfigurableMeterProvider(ConfigStoreWrapper configStoreWrapped, ServiceContext serviceContext = null)
+        protected ConfigurableMeterProvider(IConfigStore2 configStore, ServiceContext serviceContext = null)
         {
-            if (configStoreWrapped == null)
+            if (configStore == null)
             {
-                throw new System.ArgumentNullException(nameof(configStoreWrapped), "Config store cannot be null.");
+                throw new System.ArgumentNullException(nameof(configStore), "Config store cannot be null.");
             }
 
-            this.systemDimensions.Add("NodeName", configStoreWrapped.ReadConfig("FabricNode", "InstanceName") ?? string.Empty);
-            this.systemDimensions.Add("RuntimeVersion", configStoreWrapped.ReadConfig("FabricNode", "NodeVersion")?.Split(':')[0] ?? string.Empty);
-            this.metricsEnabled = (configStoreWrapped.ReadConfig("Telemetry/Metrics", "IsEnabled")??"false").ToLowerInvariant() == "true";
+            this.systemDimensions.Add("NodeName", configStore.ReadUnencryptedString("FabricNode", "InstanceName") ?? string.Empty);
+            this.systemDimensions.Add("RuntimeVersion", configStore.ReadUnencryptedString("FabricNode", "NodeVersion")?.Split(':')[0] ?? string.Empty);
+            this.metricsEnabled = (configStore.ReadUnencryptedString("Telemetry/Metrics", "IsEnabled")??"false").ToLowerInvariant() == "true";
 
             if (serviceContext != null)
             {
