@@ -7,22 +7,22 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
     internal class NullMeterProvider : IMeterProvider
     {
-        public IMeter<ValueType> CreateMeter<ValueType>(string name)
+        public IMeter<ValueType> CreateMeter<ValueType>(string name, string metricNamespace = "")
         {
             return new NullMeter<ValueType>();
         }
 
-        public IMeter1D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name)
+        public IMeter1D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string metricNamespace = "")
         {
             return new NullMeter1D<ValueType>();
         }
 
-        public IMeter2D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name)
+        public IMeter2D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string metricNamespace = "")
         {
             return new NullMeter2D<ValueType>();
         }
 
-        public IMeter3D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string dimension3Name)
+        public IMeter3D<ValueType> CreateMeter<ValueType>(string name, string dimension1Name, string dimension2Name, string dimension3Name, string metricNamespace = "")
         {
             return new NullMeter3D<ValueType>();
         }
