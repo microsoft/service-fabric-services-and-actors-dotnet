@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         const string TestServiceTypeName = "TestServiceType";
         const string TestServiceUriString = "fabric:/TestApplication/TestService";
         const string TestApplicationName = "TestApplicationName";
-        const string TestApplicationTypeName = "TestAplicationTypeName";
+        const string TestApplicationTypeName = "TestApplicationTypeName";
 
         readonly Guid testPartitionId = new Guid();
         readonly ConfigStoreWrapper configStoreWrapped = Mock.Of<ConfigStoreWrapper>();
