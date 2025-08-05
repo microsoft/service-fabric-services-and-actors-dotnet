@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
 
             [Fact]
-            public void ReturnsNullMeterForOneDimensions()
+            public void ReturnsNullMeterForOneDimension()
             {
                 NullMeterProvider<long> longNullMeterProvider = new NullMeterProvider<long>();
                 Assert.True(longNullMeterProvider.CreateMeter("myLong", "stringDimension1") is NullMeter1D<long>);
