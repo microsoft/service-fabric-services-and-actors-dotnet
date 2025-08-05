@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         const string TestNodeVersion = "12.0.0";
         const string TestServiceTypeName = "TestServiceType";
         const string TestServiceUriString = "fabric:/TestApplication/TestService";
-        const string TestApplicationName = "TestAplicationName";
+        const string TestApplicationName = "TestApplicationName";
         const string TestApplicationTypeName = "TestAplicationTypeName";
 
         readonly Guid testPartitionId = new Guid();
