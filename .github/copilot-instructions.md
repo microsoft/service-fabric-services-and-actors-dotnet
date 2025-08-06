@@ -8,8 +8,9 @@ This repository contains the Service Fabric Services and Actors .NET SDK. When c
 - Supports both .NET Framework and .NET targets
 - Uses MSBuild and NuGet for package management
 
-## Coding Standards, Formatting, and Style (from .editorconfig)
-NOTE: Since Copilot can't read .editorconfig, please ensure the following standards are followed:
+## Coding Standards, Formatting, and Style
+We define our coding standards in the `.editorconfig` file. Please ensure that your code adheres to these standards when contributing.
+NOTE: Since Copilot can't read .editorconfig, we are providing the key standards here:
 
 ### General File Formatting
 - Use spaces for indentation (never tabs)
@@ -17,6 +18,7 @@ NOTE: Since Copilot can't read .editorconfig, please ensure the following standa
 - End files with CRLF
 - Use UTF-8 charset for code files
 - Insert final newline in code files
+- Insert license header at the top of each file
 
 ### Indentation Rules
 - **C# files (*.cs)**: 4 spaces
@@ -36,7 +38,6 @@ NOTE: Since Copilot can't read .editorconfig, please ensure the following standa
 
 ### C# Formatting Rules
 - **New lines**: Place opening braces on new lines for all constructs
-- **Control flow**: New line before `else`, `catch`, `finally`
 - **Object/anonymous initializers**: New line before members
 - **Switch statements**: Indent case contents and switch labels
 - **Labels**: Flush left alignment
@@ -57,9 +58,13 @@ NOTE: Since Copilot can't read .editorconfig, please ensure the following standa
 
 ## Testing
 - Use MSTest framework following existing patterns
-- Use reflection if needed
-- When writing tests use hierarchical pattern used in existing tests. For example:
+
+### Hierarchical Test Structure
+- We use this structure to help organize tests and ensure clarity in test cases.
+- When writing tests, use a hierarchical pattern similar to existing tests. For example:
   public abstract class SystemUnderTestClassTest
+  '''
+
     {
         public SystemUnderTestClassTest()
         {
@@ -77,6 +82,16 @@ NOTE: Since Copilot can't read .editorconfig, please ensure the following standa
             }
         }
     }
+    
+  '''
+### Whitebox Testing
+- Use reflection if needed for simpler and cleaner test setup - don't shy away from using reflection to access private members if it simplifies the test setup and makes the tests more maintainable.
+- Where possible, use inspector for reflection to simplify test setup and make tests more maintainable.
+- Inspector is a whitebox testing tool that allows you to inspect and manipulate private members of classes during tests. https://github.com/olegsych/inspector
+- Since this tool is not commonly known, here are some common examples on how to use it, more examples can be fond in inspector-instructions.md
+
+
+
     
 ## Documentation
 - Update XML documentation for all public APIs
