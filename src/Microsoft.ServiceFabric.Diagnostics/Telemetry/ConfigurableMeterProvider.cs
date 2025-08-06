@@ -3,6 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Fabric;
@@ -19,7 +20,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
         {
             if (configStore == null)
             {
-                throw new System.ArgumentNullException(nameof(configStore), "Config store cannot be null.");
+                throw new ArgumentNullException(nameof(configStore), "Config store cannot be null.");
             }
 
             this.systemDimensions.Add("NodeName", configStore.ReadUnencryptedString("FabricNode", "InstanceName") ?? string.Empty);
