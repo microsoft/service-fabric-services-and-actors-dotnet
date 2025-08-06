@@ -23,7 +23,7 @@ This repository contains the Service Fabric Services and Actors .NET SDK. When c
 
     namespace Microsoft.ServiceFabric.TestedProject
     {
-        public abstract SystemUnderTestClassTest()
+        public abstract class SystemUnderTestClassTest
         {
             // Setup common test context
         }
