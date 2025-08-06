@@ -1,7 +1,11 @@
 ---
 applyTo: "**"
 ---
-Examples on how to use Inspector library for whitebox testing. These examples are taken from the official Inspector github - https://github.com/olegsych/inspector
+# Whitebox Testing
+- Where possible, use inspector for reflection to simplify test setup and make tests more maintainable.
+- Inspector is a whitebox testing tool that allows you to inspect and manipulate private members of classes during tests. https://github.com/olegsych/inspector
+- Since this tool is not commonly known, we have examples here on how to use it
+- Examples are taken from the official Inspector github - https://github.com/olegsych/inspector
 
 #### Field access
 ```csharp

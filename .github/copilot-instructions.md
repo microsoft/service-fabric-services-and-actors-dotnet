@@ -90,8 +90,3 @@ NOTE: Since Copilot can't read .editorconfig, we are providing the key standards
 
 ```
 - Avoid adding "Tests" suffix to namespaces in tests. This causes too many not needed imports to be required.
-
-### Whitebox Testing
-- Where possible, use inspector for reflection to simplify test setup and make tests more maintainable.
-- Inspector is a whitebox testing tool that allows you to inspect and manipulate private members of classes during tests. https://github.com/olegsych/inspector
-- Since this tool is not commonly known, we have examples in the repository to help you get started in inspector-instructions.md
