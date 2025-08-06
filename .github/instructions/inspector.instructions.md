@@ -494,104 +494,104 @@ using Xunit;
 
 namespace Inspector
 {
-    public class ParameterExample
+    public class PropertyAccessExample
     {
-        class TestType
+        class Foo
         {
-            class Baz { }
-
-            TestType(int foo, string bar, Baz baz) { }
-
-            void TestMethod(int foo, string bar, Baz baz) { }
+            Bar? Bar { get; set; }
+            public Foo(Bar? bar) => Bar = bar;
         }
 
-        public class ConstructorParameter: ParameterExample
+        class Bar { }
+
+        [Fact]
+        public void GetValueExplicitly() {
+            var bar = new Bar();
+            var foo = new Foo(bar);
+
+            Bar? value = foo.Property<Bar>().Get();
+
+            value.ShouldBeSameAs(bar);
+        }
+
+        [Fact]
+        public void GetValueImplicitly() {
+            var bar = new Bar();
+            var foo = new Foo(bar);
+
+            Bar? value = foo.Property<Bar>();
+
+            value.ShouldBeSameAs(bar);
+        }
+
+        [Fact]
+        public void SetValueExplicitly() {
+            var bar = new Bar();
+            var foo = new Foo(null);
+
+            foo.Property<Bar>().Set(bar);
+
+            foo.Property<Bar>().Get().ShouldBe(bar);
+        }
+
+        [Fact]
+        public void GetInfoExplicitly() {
+            var bar = new Bar();
+            var foo = new Foo(bar);
+
+            PropertyInfo info = foo.Property<Bar>().Info;
+
+            info.ShouldBe(typeof(Foo).GetProperty("Bar", BindingFlags.Instance | BindingFlags.NonPublic));
+        }
+
+        [Fact]
+        public void GetInfoImplicitly() {
+            var bar = new Bar();
+            var foo = new Foo(bar);
+
+            PropertyInfo info = foo.Property<Bar>();
+
+            info.ShouldBe(typeof(Foo).GetProperty("Bar", BindingFlags.Instance | BindingFlags.NonPublic));
+        }
+
+        public class ReadOnlyPropertyBackedByField
         {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                ParameterInfo parameter = instance.Constructor().Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
+            class Foo { }
+
+            class Bar
+            {
+                Foo? Foo { get; }
+                public Bar(Foo? foo) => Foo = foo;
             }
 
             [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                ParameterInfo parameter = instance.Constructor().Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
+            public void CanBeSet() {
+                var foo = new Foo();
+                var bar = new Bar(null);
 
-            [Fact]
-            public void CanBeAccessedByName() {
-                ParameterInfo parameter = instance.Constructor().Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
+                bar.Property<Foo>().Set(foo);
+
+                bar.Property<Foo>().Get().ShouldBe(foo);
             }
         }
 
-        public class ConstructorInfoParameter: ParameterExample
+        public class ReadOnlyPropertyNotBackedByField
         {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                ConstructorInfo constructor = instance.Constructor();
-                ParameterInfo parameter = constructor.Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
+            class Foo
+            {
+                public Bar BarProperty => new Bar();
             }
 
-            [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                ConstructorInfo constructor = instance.Constructor();
-                ParameterInfo parameter = constructor.Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
+            class Bar { }
 
             [Fact]
-            public void CanBeAccessedByName() {
-                ConstructorInfo constructor = instance.Constructor();
-                ParameterInfo parameter = constructor.Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
-            }
-        }
+            public void CannotBeSetAndWillThrowDescriptiveException() {
+                var foo = new Foo();
 
-        public class MethodParameter: ParameterExample
-        {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                ParameterInfo parameter = instance.Method().Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
-            }
+                var thrown = Should.Throw<InvalidOperationException>(() => foo.Field<Bar>().Set(new Bar()));
 
-            [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                ParameterInfo parameter = instance.Method().Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
-
-            [Fact]
-            public void CanBeAccessedByName() {
-                ParameterInfo parameter = instance.Method().Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
-            }
-        }
-
-        public class MethodInfoParameter: ParameterExample
-        {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                MethodInfo method = instance.Method();
-                ParameterInfo parameter = method.Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
-            }
-
-            [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                MethodInfo method = instance.Method();
-                ParameterInfo parameter = method.Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
-
-            [Fact]
-            public void CanBeAccessedByName() {
-                MethodInfo method = instance.Method();
-                ParameterInfo parameter = method.Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
+                thrown.Message.ShouldContain(nameof(Bar));
+                thrown.Message.ShouldContain(nameof(Foo.BarProperty));
             }
         }
     }
