@@ -65,8 +65,9 @@ NOTE: Since Copilot can't read .editorconfig, we are providing the key standards
   public abstract class SystemUnderTestClassTest
 ```csharp
 
+    namespace Microsoft.ServiceFabric.TestedProject
     {
-        public SystemUnderTestClassTest()
+        public abstract SystemUnderTestClassTest()
         {
             // Setup common test context
         }
@@ -84,17 +85,14 @@ NOTE: Since Copilot can't read .editorconfig, we are providing the key standards
     }
 
 ```
+- Avoid adding "Tests" suffix to namespaces in tests. This causes too many not needed imports to be required.
+
 ### Whitebox Testing
 - Use reflection if needed for simpler and cleaner test setup - don't shy away from using reflection to access private members if it simplifies the test setup and makes the tests more maintainable.
 - Where possible, use inspector for reflection to simplify test setup and make tests more maintainable.
 - Inspector is a whitebox testing tool that allows you to inspect and manipulate private members of classes during tests. https://github.com/olegsych/inspector
 - Since this tool is not commonly known, here are some common examples on how to use it, more examples can be fond in inspector-instructions.md
 
-
-
-    
 ## Documentation
 - Update XML documentation for all public APIs
-
-## Dependencies
-- Minimize external dependencies
+- Only generate documentation for public APIs
