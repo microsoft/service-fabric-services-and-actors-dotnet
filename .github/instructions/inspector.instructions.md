@@ -1,6 +1,7 @@
-# Summary
-
-This file contains common examples for Inspector API for whitebox testing. These examples are taken from the official Inspector github - https://github.com/olegsych/inspector
+---
+applyTo: "**"
+---
+Examples on how to use Inspector library for whitebox testing. These examples are taken from the official Inspector github - https://github.com/olegsych/inspector
 
 #### Field access
 ```csharp
