@@ -71,7 +71,7 @@ NOTE: Since Copilot can't read .editorconfig, we are providing the key standards
 
     namespace Microsoft.ServiceFabric.TestedProject
     {
-        public abstract SystemUnderTestClassTest()
+        public abstract class SystemUnderTestClassTest
         {
             // Setup common test context
         }
