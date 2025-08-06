@@ -63,7 +63,7 @@ NOTE: Since Copilot can't read .editorconfig, we are providing the key standards
 - We use this structure to help organize tests and ensure clarity in test cases.
 - When writing tests, use a hierarchical pattern similar to existing tests. For example:
   public abstract class SystemUnderTestClassTest
-  '''
+```csharp
 
     {
         public SystemUnderTestClassTest()
@@ -82,8 +82,8 @@ NOTE: Since Copilot can't read .editorconfig, we are providing the key standards
             }
         }
     }
-    
-  '''
+
+```
 ### Whitebox Testing
 - Use reflection if needed for simpler and cleaner test setup - don't shy away from using reflection to access private members if it simplifies the test setup and makes the tests more maintainable.
 - Where possible, use inspector for reflection to simplify test setup and make tests more maintainable.
