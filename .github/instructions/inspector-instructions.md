@@ -2,7 +2,7 @@
 
 This file contains common examples for Inspector API for whitebox testing. These examples are taken from the official Inspector github - https://github.com/olegsych/inspector
 
-## Field access
+#### Field access
 ```csharp
 using System;
 using System.Reflection;
@@ -44,65 +44,6 @@ namespace Inspector
             public void GetWithImplicitConversionToFieldType() {
                 Bar? value = foo.Field<Bar>();
                 value.ShouldBeSameAs(bar);
-            }
-
-            [Fact]
-            public void SetWithMethod() {
-                var baz = new Bar();
-                foo.Field<Bar>().Set(baz);
-                foo.Field<Bar>().Get().ShouldBe(baz);
-            }
-
-            [Fact]
-            public void SetWithValue() {
-                var baz = new Bar();
-                foo.Field<Bar>().Value = baz;
-                foo.Field<Bar>().Value.ShouldBe(baz);
-            }
-
-            //[Fact]
-            //public void CompareImplicitly() {
-            //    (foo.Field<Bar>() == bar).ShouldBeTrue();
-            //    (foo.Field<Bar>() != bar).ShouldBeFalse();
-            //    (bar == foo.Field<Bar>()).ShouldBeTrue();
-            //    (bar != foo.Field<Bar>()).ShouldBeFalse();
-            //}
-        }
-
-        public class FieldInfoScenario : FieldAccessExample
-        {
-            [Fact]
-            public void GetWithProperty() {
-                FieldInfo info = foo.Field<Bar>().Info;
-                info.ShouldBe(typeof(Foo).GetField("bar", BindingFlags.Instance | BindingFlags.NonPublic));
-            }
-
-            [Fact]
-            public void GetWithImplicitConversionToFieldInfo() {
-                FieldInfo info = foo.Field<Bar>();
-                info.ShouldBe(typeof(Foo).GetField("bar", BindingFlags.Instance | BindingFlags.NonPublic));
-            }
-        }
-
-        public class Operators
-        {
-            class Foo
-            {
-                int bar;
-                public Foo(int bar) => this.bar = bar;
-            }
-
-            readonly Foo foo = new Foo(42);
-
-            [Fact]
-            public void UseFieldValueWithBinaryOperators() {
-                (foo.Field<int>() + 1).ShouldBe(43);
-            }
-
-            [Fact]
-            public void ChangeFieldValueWithAssignmentOperator() {
-                foo.Field<int>().Value += 1;
-                foo.Field<int>().Value.ShouldBe(43);
             }
         }
 
@@ -171,8 +112,6 @@ namespace Inspector
 
         public class FilterByDeclaringType
         {
-#pragma warning disable 649
-
             class Foo
             {
                 public Baz? fooField;
@@ -183,19 +122,9 @@ namespace Inspector
                 public Baz? barField;
             }
 
-#pragma warning restore 649
-
             class Baz { }
 
             readonly Bar bar = new Bar();
-
-            [Fact]
-            public void ThrowDescriptiveExceptionWhenMoreThanOneFieldOfGivenTypeExists() {
-                var thrown = Should.Throw<InvalidOperationException>(() => bar.Field<Baz>());
-                thrown.Message.ShouldContain(typeof(Baz).FullName!);
-                thrown.Message.ShouldContain(typeof(Foo).FullName!);
-                thrown.Message.ShouldContain(typeof(Bar).FullName!);
-            }
 
             [Fact]
             public void SelectDeclaredField() {
@@ -224,8 +153,6 @@ namespace Inspector
 
         public class FilterByName
         {
-#pragma warning disable 649
-
             class Foo
             {
                 public Qux? field1;
@@ -244,22 +171,11 @@ namespace Inspector
                 public new Qux? field2;
             }
 
-#pragma warning restore 649
-
             class Qux { }
 
             readonly Foo foo = new Foo();
             readonly Bar bar = new Bar();
             readonly Baz baz = new Baz();
-
-            [Fact]
-            public void ThrowDescriptiveExceptionWhenMoreThanOneFieldOfGivenTypeExistsInDeclaringType() {
-                var thrown = Should.Throw<InvalidOperationException>(() => foo.Field<Qux>());
-                thrown.Message.ShouldContain(typeof(Qux).FullName!);
-                thrown.Message.ShouldContain(typeof(Foo).FullName!);
-                thrown.Message.ShouldContain(nameof(Foo.field1));
-                thrown.Message.ShouldContain(nameof(Foo.field2));
-            }
 
             [Fact]
             public void SelectFieldDeclaredWithSpecificName() {
@@ -279,19 +195,12 @@ namespace Inspector
                 field.DeclaringType.ShouldBe(typeof(Foo));
                 field.Name.ShouldBe(nameof(Foo.field2));
             }
-
-            [Fact]
-            public void SelectFieldWithSpecificNameAndDeclaringType() {
-                FieldInfo field = baz.DeclaredBy<Bar>().Field<Qux>(nameof(Bar.field2));
-                field.DeclaringType.ShouldBe(typeof(Bar));
-                field.Name.ShouldBe(nameof(Bar.field2));
-            }
         }
     }
 }
 ```
 
-## Object access
+#### Object access
 ```csharp
 using System;
 using System.Reflection;
@@ -434,40 +343,6 @@ namespace Inspector
                 class Baz { }
             }
 
-            static readonly Type typeOfFoo = typeof(Inaccessible).GetNestedType("Foo", BindingFlags.NonPublic)!;
-            static readonly Type typeOfBar = typeof(Inaccessible).GetNestedType("Bar", BindingFlags.NonPublic)!;
-            static readonly Type typeOfBaz = typeof(Inaccessible).GetNestedType("Baz", BindingFlags.NonPublic)!;
-
-            public class Create : InaccessibleTypes
-            {
-                [Fact]
-                public void NewInstanceWithDefaultConstructor() {
-                    object foo = typeOfFoo.New();
-
-                    foo.Field(typeOfBar).Value.ShouldNotBeNull();
-                    foo.Field(typeOfBaz).Value.ShouldNotBeNull();
-                }
-
-                [Fact]
-                public void NewInstanceWithGivenConstructorParameters() {
-                    object bar = typeOfBar.New();
-                    object baz = typeOfBaz.New();
-
-                    object foo = typeOfFoo.New(bar, baz);
-
-                    foo.Field(typeOfBar).Value.ShouldBeSameAs(bar);
-                    foo.Field(typeOfBaz).Value.ShouldBeSameAs(baz);
-                }
-
-                [Fact]
-                public void UninitializedInstance() {
-                    object foo = typeOfFoo.Uninitialized();
-
-                    foo.Field(typeOfBar).Value.ShouldBeNull();
-                    foo.Field(typeOfBaz).Value.ShouldBeNull();
-                }
-            }
-
             public class AccessFields : InaccessibleTypes
             {
                 readonly object foo = Activator.CreateInstance(typeOfFoo, true)!;
@@ -498,7 +373,7 @@ namespace Inspector
 }
 ```
 
-## Parameters
+#### Parameters
 ```csharp
 using System;
 using System.Reflection;
@@ -517,9 +392,118 @@ namespace Inspector
 
             void TestMethod(int foo, string bar, Baz baz) { }
         }
+        public class ConstructorParameter: ParameterExample
+        {
+            [Fact]
+            public void CanBeAccessedByRuntimeType() {
+                ParameterInfo parameter = instance.Constructor().Parameter(runtimeType);
+                parameter.Name.ShouldBe("baz");
+            }
 
-        readonly TestType instance = Type<TestType>.Uninitialized();
-        readonly Type runtimeType = typeof(TestType).GetNestedType("Baz", BindingFlags.NonPublic)!;
+            [Fact]
+            public void CanBeAccessedByCompileTimeType() {
+                ParameterInfo parameter = instance.Constructor().Parameter<string>();
+                parameter.Name.ShouldBe("bar");
+            }
+
+            [Fact]
+            public void CanBeAccessedByName() {
+                ParameterInfo parameter = instance.Constructor().Parameter("bar");
+                parameter.ParameterType.ShouldBe(typeof(string));
+            }
+        }
+
+        public class ConstructorInfoParameter: ParameterExample
+        {
+            [Fact]
+            public void CanBeAccessedByRuntimeType() {
+                ConstructorInfo constructor = instance.Constructor();
+                ParameterInfo parameter = constructor.Parameter(runtimeType);
+                parameter.Name.ShouldBe("baz");
+            }
+
+            [Fact]
+            public void CanBeAccessedByCompileTimeType() {
+                ConstructorInfo constructor = instance.Constructor();
+                ParameterInfo parameter = constructor.Parameter<string>();
+                parameter.Name.ShouldBe("bar");
+            }
+
+            [Fact]
+            public void CanBeAccessedByName() {
+                ConstructorInfo constructor = instance.Constructor();
+                ParameterInfo parameter = constructor.Parameter("bar");
+                parameter.ParameterType.ShouldBe(typeof(string));
+            }
+        }
+
+        public class MethodParameter: ParameterExample
+        {
+            [Fact]
+            public void CanBeAccessedByRuntimeType() {
+                ParameterInfo parameter = instance.Method().Parameter(runtimeType);
+                parameter.Name.ShouldBe("baz");
+            }
+
+            [Fact]
+            public void CanBeAccessedByCompileTimeType() {
+                ParameterInfo parameter = instance.Method().Parameter<string>();
+                parameter.Name.ShouldBe("bar");
+            }
+
+            [Fact]
+            public void CanBeAccessedByName() {
+                ParameterInfo parameter = instance.Method().Parameter("bar");
+                parameter.ParameterType.ShouldBe(typeof(string));
+            }
+        }
+
+        public class MethodInfoParameter: ParameterExample
+        {
+            [Fact]
+            public void CanBeAccessedByRuntimeType() {
+                MethodInfo method = instance.Method();
+                ParameterInfo parameter = method.Parameter(runtimeType);
+                parameter.Name.ShouldBe("baz");
+            }
+
+            [Fact]
+            public void CanBeAccessedByCompileTimeType() {
+                MethodInfo method = instance.Method();
+                ParameterInfo parameter = method.Parameter<string>();
+                parameter.Name.ShouldBe("bar");
+            }
+
+            [Fact]
+            public void CanBeAccessedByName() {
+                MethodInfo method = instance.Method();
+                ParameterInfo parameter = method.Parameter("bar");
+                parameter.ParameterType.ShouldBe(typeof(string));
+            }
+        }
+    }
+}
+```
+
+#### Property access
+```csharp
+using System;
+using System.Reflection;
+using Shouldly;
+using Xunit;
+
+namespace Inspector
+{
+    public class ParameterExample
+    {
+        class TestType
+        {
+            class Baz { }
+
+            TestType(int foo, string bar, Baz baz) { }
+
+            void TestMethod(int foo, string bar, Baz baz) { }
+        }
 
         public class ConstructorParameter: ParameterExample
         {
@@ -614,123 +598,7 @@ namespace Inspector
 }
 ```
 
-## Property access
-```csharp
-using System;
-using System.Reflection;
-using Shouldly;
-using Xunit;
-
-namespace Inspector
-{
-    public class ParameterExample
-    {
-        class TestType
-        {
-            class Baz { }
-
-            TestType(int foo, string bar, Baz baz) { }
-
-            void TestMethod(int foo, string bar, Baz baz) { }
-        }
-
-        readonly TestType instance = Type<TestType>.Uninitialized();
-        readonly Type runtimeType = typeof(TestType).GetNestedType("Baz", BindingFlags.NonPublic)!;
-
-        public class ConstructorParameter: ParameterExample
-        {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                ParameterInfo parameter = instance.Constructor().Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
-            }
-
-            [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                ParameterInfo parameter = instance.Constructor().Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
-
-            [Fact]
-            public void CanBeAccessedByName() {
-                ParameterInfo parameter = instance.Constructor().Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
-            }
-        }
-
-        public class ConstructorInfoParameter: ParameterExample
-        {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                ConstructorInfo constructor = instance.Constructor();
-                ParameterInfo parameter = constructor.Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
-            }
-
-            [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                ConstructorInfo constructor = instance.Constructor();
-                ParameterInfo parameter = constructor.Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
-
-            [Fact]
-            public void CanBeAccessedByName() {
-                ConstructorInfo constructor = instance.Constructor();
-                ParameterInfo parameter = constructor.Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
-            }
-        }
-
-        public class MethodParameter: ParameterExample
-        {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                ParameterInfo parameter = instance.Method().Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
-            }
-
-            [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                ParameterInfo parameter = instance.Method().Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
-
-            [Fact]
-            public void CanBeAccessedByName() {
-                ParameterInfo parameter = instance.Method().Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
-            }
-        }
-
-        public class MethodInfoParameter: ParameterExample
-        {
-            [Fact]
-            public void CanBeAccessedByRuntimeType() {
-                MethodInfo method = instance.Method();
-                ParameterInfo parameter = method.Parameter(runtimeType);
-                parameter.Name.ShouldBe("baz");
-            }
-
-            [Fact]
-            public void CanBeAccessedByCompileTimeType() {
-                MethodInfo method = instance.Method();
-                ParameterInfo parameter = method.Parameter<string>();
-                parameter.Name.ShouldBe("bar");
-            }
-
-            [Fact]
-            public void CanBeAccessedByName() {
-                MethodInfo method = instance.Method();
-                ParameterInfo parameter = method.Parameter("bar");
-                parameter.ParameterType.ShouldBe(typeof(string));
-            }
-        }
-    }
-}
-```
-
-## Type access
+#### Type access
 ```csharp
 using System;
 using System.Reflection;
@@ -743,15 +611,11 @@ namespace Inspector
     {
         static class Foo
         {
-#pragma warning disable 414
             public static Bar? barField;
-#pragma warning restore 414
 
             public static Baz? BazProperty { get; set; }
 
-#pragma warning disable 67
             public static event EventHandler<Bar>? BarEvent;
-#pragma warning restore 67
 
             public static Baz? BarFunc(Bar _) => default;
 
@@ -791,197 +655,6 @@ namespace Inspector
             public void GetByTypeAndName() {
                 Property<Baz> property = typeof(Foo).Property<Baz>(nameof(Foo.BazProperty));
                 property.Info.ShouldBe(typeof(Foo).GetRuntimeProperty(nameof(Foo.BazProperty)));
-            }
-        }
-    }
-}
-```
-
-## Complex reflection example
-```csharp
-using System;
-using System.Reflection;
-using System.Runtime.Serialization;
-using Xunit;
-
-namespace Inspector
-{
-    public class ReflectionExperiment
-    {
-        class Foo
-        {
-            public int bar;
-            public Foo(int bar) => this.bar = bar;
-
-            public static int staticBar;
-
-            static Foo() => staticBar = 0;
-        }
-
-        public class ConstructorInfoInvoke : ReflectionExperiment
-        {
-            [Fact]
-            public void ConstructorCreatesNewInstance() {
-                ConstructorInfo constructor = typeof(Foo).GetConstructor(new[] { typeof(int) })!;
-                Assert.False(constructor.IsStatic);
-
-                object foo = constructor.Invoke(new object[] { 42 });
-
-                var typedFoo = (Foo)foo;
-                Assert.Equal(42, typedFoo.bar);
-            }
-
-            [Fact]
-            public void ConstructorReinitializesExistingInstance() {
-                ConstructorInfo constructor = typeof(Foo).GetConstructor(new[] { typeof(int) })!;
-                Assert.False(constructor.IsStatic);
-                var foo = new Foo(0);
-
-                object? result = constructor.Invoke(foo, new object[] { 42 });
-
-                Assert.Null(result);
-                Assert.Equal(42, foo.bar);
-            }
-
-            [Fact]
-            public void StaticConstructorDoesNotReinitializesType() {
-                ConstructorInfo constructor = typeof(Foo).TypeInitializer!;
-                Assert.True(constructor.IsStatic);
-                Foo.staticBar = 42;
-
-                object? act = constructor.Invoke(null, null);
-
-                // This behavior changed in .NET 5, reinitialization stopped working.
-                Assert.Equal(42, Foo.staticBar);
-            }
-        }
-
-        // A very low-level, unsafe way to create a delegate bound to constructor.
-        // Requires separate logic for verifying that delegate and constructor have matching signatures.
-        public class CreateConstructorDelegateUsingTypedDelegateConstructor : ReflectionExperiment
-        {
-            [Fact]
-            public void CreateOpenDelegate() {
-                ConstructorInfo actionInfo = typeof(Action<Foo, int>).GetConstructor(new Type[] { typeof(object), typeof(IntPtr) })!;
-                Assert.NotNull(actionInfo);
-
-                ConstructorInfo fooInfo = typeof(Foo).GetConstructor(new Type[] { typeof(int) })!;
-                Assert.NotNull(fooInfo);
-
-                var ctor = (Action<Foo, int>)actionInfo.Invoke(new object?[] { null, fooInfo.MethodHandle.GetFunctionPointer() });
-                Assert.NotNull(ctor);
-
-                var foo = (Foo)FormatterServices.GetUninitializedObject(typeof(Foo));
-                ctor.Invoke(foo, 42);
-
-                Assert.Equal(42, foo.bar);
-            }
-
-            [Fact]
-            public void CreateClosedDelegate() {
-                ConstructorInfo actionInfo = typeof(Action<int>).GetConstructor(new Type[] { typeof(object), typeof(IntPtr) })!;
-                Assert.NotNull(actionInfo);
-
-                ConstructorInfo fooInfo = typeof(Foo).GetConstructor(new Type[] { typeof(int) })!;
-                Assert.NotNull(fooInfo);
-
-                var foo = (Foo)FormatterServices.GetUninitializedObject(typeof(Foo));
-
-                var ctor = (Action<int>)actionInfo.Invoke(new object[] { foo, fooInfo.MethodHandle.GetFunctionPointer() });
-                Assert.NotNull(ctor);
-
-                ctor.Invoke(42);
-
-                Assert.Equal(42, foo.bar);
-            }
-        }
-
-        public class Signature : ReflectionExperiment
-        {
-            [Fact(Skip = "Broken")]
-            public void CompareSig() {
-                Type signatureType = Type.GetType("System.Signature")!;
-                Assert.NotNull(signatureType);
-
-                Type iRuntimeMethodInfoType = Type.GetType("System.IRuntimeMethodInfo")!;
-                Assert.NotNull(iRuntimeMethodInfoType);
-
-                Type runtimeTypeType = Type.GetType("System.RuntimeType")!;
-                Assert.NotNull(runtimeTypeType);
-
-                ConstructorInfo signatureCtor = signatureType.GetConstructor(new[] { iRuntimeMethodInfoType, runtimeTypeType })!;
-                Assert.NotNull(signatureCtor);
-
-                ConstructorInfo fooCtor = typeof(Foo).GetConstructor(new[] { typeof(int) })!;
-                Assert.NotNull(fooCtor);
-
-                object fooCtorSignature = signatureCtor.Invoke(new object[] { fooCtor, typeof(Foo) });
-                Assert.NotNull(fooCtorSignature);
-
-                MethodInfo invokeMethod = typeof(Action<int>).GetMethod("Invoke")!;
-                Assert.NotNull(invokeMethod);
-
-                object invokeMethodSignature = signatureCtor.Invoke(new object[] { invokeMethod, typeof(Action<int>) });
-                Assert.NotNull(invokeMethodSignature);
-
-                MethodInfo compareSigMethod = signatureType.GetMethod("CompareSig", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!;
-                Assert.NotNull(compareSigMethod);
-
-                object result = compareSigMethod.Invoke(null, new object[] { fooCtorSignature, invokeMethodSignature })!;
-                bool equal = Assert.IsType<bool>(result);
-                Assert.True(equal);
-            }
-        }
-
-        // A high-level way to create a delegate bound to a constructor.
-        // Uses the internal Delegate.BindToMethodInfo method, which ensures that delegate and constructor have matching signatures.
-        public class BindDelegateToConstructor : ReflectionExperiment
-        {
-            [Fact]
-            public void BindOpenDelegate() {
-                MethodInfo internalAlloc = typeof(Delegate).GetMethod("InternalAlloc", BindingFlags.Static | BindingFlags.NonPublic)!;
-                Assert.NotNull(internalAlloc);
-
-                MethodInfo bindToMethodInfo = typeof(Delegate).GetMethod("BindToMethodInfo", BindingFlags.Instance | BindingFlags.NonPublic)!;
-                Assert.NotNull(bindToMethodInfo);
-
-                var d = (Delegate)internalAlloc.Invoke(null, new object[] { typeof(Action<Foo, int>) })!;
-                Assert.NotNull(d);
-
-                object? firstArgument = null;
-                object rtMethod = typeof(Foo).GetConstructor(new[] { typeof(int) })!; // IRuntimeMethodInfo
-                object flags = 0x84; // DelegateBindingFlags
-                var bound = (bool)bindToMethodInfo.Invoke(d, new object?[] { firstArgument, rtMethod, typeof(Foo), flags})!;
-                Assert.True(bound);
-
-                var foo = (Foo)FormatterServices.GetUninitializedObject(typeof(Foo));
-                var constructor = (Action<Foo, int>)d;
-                constructor.Invoke(foo, 42);
-                Assert.Equal(42, foo.bar);
-            }
-
-            [Fact]
-            public void BindClosedDelegate() {
-                MethodInfo internalAlloc = typeof(Delegate).GetMethod("InternalAlloc", BindingFlags.Static | BindingFlags.NonPublic)!;
-                Assert.NotNull(internalAlloc);
-
-                MethodInfo bindToMethodInfo = typeof(Delegate).GetMethod("BindToMethodInfo", BindingFlags.Instance | BindingFlags.NonPublic)!;
-                Assert.NotNull(bindToMethodInfo);
-
-                var d = (Delegate)internalAlloc.Invoke(null, new object[] { typeof(Action<int>) })!;
-                Assert.NotNull(d);
-
-                var foo = (Foo)FormatterServices.GetUninitializedObject(typeof(Foo));
-
-                object firstArgument = foo;
-                object rtMethod = typeof(Foo).GetConstructor(new[] { typeof(int) })!; // IRuntimeMethodInfo
-                object flags = 0x88; // DelegateBindingFlags
-                var bound = (bool)bindToMethodInfo.Invoke(d, new object[] { firstArgument, rtMethod, typeof(Foo), flags })!;
-                Assert.True(bound);
-
-                var constructor = (Action<int>)d;
-                constructor.Invoke(42);
-                Assert.Equal(42, foo.bar);
             }
         }
     }
