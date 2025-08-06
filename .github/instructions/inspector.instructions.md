@@ -56,17 +56,12 @@ namespace Inspector
         {
             class Foo
             {
-#pragma warning disable 169
                 Bar? privateField;
-#pragma warning disable 169
-
-#pragma warning disable 649
                 protected Bar? protectedField;
                 internal Bar? internalField;
                 public readonly Bar? publicField;
                 protected internal Bar? protectedInternalField;
                 private protected Bar? privateProtectedField;
-#pragma warning restore 649
             }
 
             readonly Foo foo = new Foo();
