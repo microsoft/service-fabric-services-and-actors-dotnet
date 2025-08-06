@@ -11,9 +11,9 @@ using System.Fabric.Common;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal abstract class ConfigurableMeterProvider<ValueType> : IMeterProvider<ValueType>
+    internal abstract class ConfigurableMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        readonly protected IDictionary<string, string> systemDimensions = new ConcurrentDictionary<string, string> ();
+        readonly protected IDictionary<string, string> systemDimensions = new ConcurrentDictionary<string, string>();
         readonly protected bool metricsEnabled;
 
         protected ConfigurableMeterProvider(IConfigStore2 configStore, ServiceContext serviceContext = null)
@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 
             this.systemDimensions.Add("NodeName", configStore.ReadUnencryptedString("FabricNode", "InstanceName") ?? string.Empty);
             this.systemDimensions.Add("RuntimeVersion", configStore.ReadUnencryptedString("FabricNode", "NodeVersion")?.Split(':')[0] ?? string.Empty);
-            this.metricsEnabled = (configStore.ReadUnencryptedString("Telemetry/Metrics", "IsEnabled")??"false").ToLowerInvariant() == "true";
+            this.metricsEnabled = (configStore.ReadUnencryptedString("Telemetry/Metrics", "IsEnabled") ?? "false").ToLowerInvariant() == "true";
 
             if (serviceContext != null)
             {
@@ -38,9 +38,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
         }
 
-        public abstract IMeter<ValueType> CreateMeter(string metricNamespace, string name);
-        public abstract IMeter1D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name);
-        public abstract IMeter2D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name);
-        public abstract IMeter3D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name);
+        public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);
+        public abstract IMeter1D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name);
+        public abstract IMeter2D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name);
+        public abstract IMeter3D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name);
     }
 }

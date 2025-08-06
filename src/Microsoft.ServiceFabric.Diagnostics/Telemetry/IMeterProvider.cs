@@ -5,14 +5,14 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal interface IMeterProvider<ValueType>
+    internal interface IMeterProvider<TValueType>
     {
-        IMeter<ValueType> CreateMeter(string metricNamespace, string name);
+        IMeter<TValueType> CreateMeter(string metricNamespace, string name);
 
-        IMeter1D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name);
+        IMeter1D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name);
 
-        IMeter2D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name);
+        IMeter2D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name);
 
-        IMeter3D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name);
+        IMeter3D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name);
     }
 }

@@ -100,29 +100,29 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
             }
         }
 
-        private class TestMeterProvider<ValueType> : ConfigurableMeterProvider<ValueType>
+        private class TestMeterProvider<TValueType> : ConfigurableMeterProvider<TValueType>
         {
             public TestMeterProvider(IConfigStore2 configStore, ServiceContext serviceContext)
                 : base(configStore, serviceContext)
             {
             }
 
-            public override IMeter<ValueType> CreateMeter(string metricNamespace, string name)
+            public override IMeter<TValueType> CreateMeter(string metricNamespace, string name)
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter1D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name)
+            public override IMeter1D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name)
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter2D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name)
+            public override IMeter2D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name)
             {
                 throw new NotImplementedException();
             }
 
-            public override IMeter3D<ValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name)
+            public override IMeter3D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name)
             {
                 throw new NotImplementedException();
             }
