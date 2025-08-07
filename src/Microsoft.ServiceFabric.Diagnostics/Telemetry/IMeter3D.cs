@@ -5,8 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal interface IMeter<ValueType>
+    internal interface IMeter3D<ValueType>
     {
-        void Record(ValueType value);
+        void Record(ValueType value, string dimension1, string dimension2, string dimension3);
     }
 }
