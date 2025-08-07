@@ -9,34 +9,32 @@ namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
     public abstract class NullMeterProviderTest
     {
+        readonly NullMeterProvider<long> sut = new NullMeterProvider<long>();
+
         public class CreateMeter : NullMeterProviderTest
         {
             [Fact]
             public void ReturnsNullMeterForNoDimension()
             {
-                NullMeterProvider<long> meterProvider = new NullMeterProvider<long>();
-                Assert.IsType<NullMeter<long>>(meterProvider.CreateMeter("namespace", "meterName"));
+                Assert.IsType<NullMeter<long>>(sut.CreateMeter("namespace", "meterName"));
             }
 
             [Fact]
             public void ReturnsNullMeterForOneDimension()
             {
-                NullMeterProvider<long> meterProvider = new NullMeterProvider<long>();
-                Assert.IsType<NullMeter1D<long>>(meterProvider.CreateMeter("namespace", "meterName", "stringDimension1"));
+                Assert.IsType<NullMeter1D<long>>(sut.CreateMeter("namespace", "meterName", "stringDimension1"));
             }
 
             [Fact]
             public void ReturnsNullMeterForTwoDimensions()
             {
-                NullMeterProvider<long> meterProvider = new NullMeterProvider<long>();
-                Assert.IsType<NullMeter2D<long>>(meterProvider.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2"));
+                Assert.IsType<NullMeter2D<long>>(sut.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2"));
             }
 
             [Fact]
             public void ReturnsNullMeterForThreeDimensions()
             {
-                NullMeterProvider<long> meterProvider = new NullMeterProvider<long>();
-                Assert.IsType<NullMeter3D<long>>(meterProvider.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2", "stringDimension3"));
+                Assert.IsType<NullMeter3D<long>>(sut.CreateMeter("namespace", "meterName", "stringDimension1", "stringDimension2", "stringDimension3"));
             }
         }
     }
