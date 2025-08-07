@@ -13,7 +13,7 @@ This repository contains the Service Fabric Services and Actors .NET SDK. When c
 - Only generate documentation for public APIs
 
 ## Testing
-- Use MSTest framework following existing patterns
+- Use xUnit framework following existing patterns
 
 ### Hierarchical Test Structure
 - We use this structure to help organize tests and ensure clarity in test cases.
@@ -26,16 +26,20 @@ This repository contains the Service Fabric Services and Actors .NET SDK. When c
         public abstract class SystemUnderTestClassTest
         {
             // Setup common test context
-        }
-
-        public sealed class MethodName : SystemUnderTestClassTest
-        {
-            [Fact]
-            public void ShouldDoSomething()
+            public SystemUnderTestClassTest()
             {
-                // Arrange
-                // Act
-                // Assert
+                // Initialize common resources
+            }
+
+            public sealed class MethodName : SystemUnderTestClassTest
+            {
+                [Fact]
+                public void ShouldDoSomething()
+                {
+                    // Arrange
+                    // Act
+                    // Assert
+                }
             }
         }
     }
