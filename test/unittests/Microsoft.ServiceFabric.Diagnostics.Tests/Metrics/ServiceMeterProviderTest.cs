@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Fabric.Common;
 using System.Numerics;
 using Inspector;
 using Moq;
@@ -14,10 +13,9 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    public class ConfigurableMeterProviderTest
+    public class ServiceMeterProviderTest
     {
         const string TestNodeName = "TestNodeName";
-        const string TestNodeVersion = "12.0.0";
         const string TestServiceTypeName = "TestServiceType";
         const string TestServiceUriString = "fabric:/TestApplication/TestService";
         const string TestApplicationName = "TestApplicationName";
@@ -26,14 +24,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         readonly Guid testPartitionId = new Guid();
         readonly ServiceContext serviceContext;
-        readonly IConfigStore2 configStore = Mock.Of<IConfigStore2>();
 
-        public ConfigurableMeterProviderTest()
+        public ServiceMeterProviderTest()
         {
-            Mock.Get(configStore).Setup(x => x.ReadUnencryptedString("FabricNode", "InstanceName")).Returns(TestNodeName);
-            Mock.Get(configStore).Setup(x => x.ReadUnencryptedString("FabricNode", "NodeVersion")).Returns(TestNodeVersion + ":0:0");
-            Mock.Get(configStore).Setup(x => x.ReadUnencryptedString("Telemetry/Metrics", "IsEnabled")).Returns(true.ToString);
-
             var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(TestApplicationName);
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(TestApplicationTypeName);
@@ -48,31 +41,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 ReplicaId);
         }
 
-        public class Constructor : ConfigurableMeterProviderTest
+        public class Constructor : ServiceMeterProviderTest
         {
-            [Fact]
-            public void ShouldThrowExceptionOnConfigStoreNull()
-            {
-                Assert.Throws<ArgumentNullException>(() => new TestMeterProvider<int>(null, null));
-            }
-
-            [Fact]
-            public void ShouldRecordRequiredDimensionsFromConfigStore()
-            {
-                var sut = new TestMeterProvider<int>(configStore, null);
-
-                var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
-                var metricsEnabled = sut.Field<bool>().Value;
-
-                Assert.Equal(TestNodeName, systemDimensions["NodeName"]);
-                Assert.Equal(TestNodeVersion, systemDimensions["RuntimeVersion"]);
-                Assert.True(metricsEnabled);
-            }
-
             [Fact]
             public void ShouldRecordRequiredDimensionsFromServiceContext()
             {
-                var sut = new TestMeterProvider<int>(configStore, serviceContext);
+                var sut = new TestMeterProvider<int>(serviceContext);
 
                 var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
 
@@ -87,23 +61,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             [Fact]
             public void ShouldNotRecordRequiredDimensionsFromNullServiceContext()
             {
-                var sut = new TestMeterProvider<int>(configStore, null);
-
-                var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
-
-                Assert.False(systemDimensions.ContainsKey("ReplicaOrInstanceId"));
-                Assert.False(systemDimensions.ContainsKey("PartitionId"));
-                Assert.False(systemDimensions.ContainsKey("ServiceTypeName"));
-                Assert.False(systemDimensions.ContainsKey("ServiceName"));
-                Assert.False(systemDimensions.ContainsKey("ApplicationName"));
-                Assert.False(systemDimensions.ContainsKey("ApplicationTypeName"));
+                Assert.Throws<ArgumentNullException>(() => new TestMeterProvider<int>(null));
             }
         }
 
-        private class TestMeterProvider<TValueType> : ConfigurableMeterProvider<TValueType>
+        private class TestMeterProvider<TValueType> : ServiceMeterProvider<TValueType>
         {
-            public TestMeterProvider(IConfigStore2 configStore, ServiceContext serviceContext)
-                : base(configStore, serviceContext)
+            public TestMeterProvider(ServiceContext serviceContext)
+                : base(serviceContext)
             {
             }
 
