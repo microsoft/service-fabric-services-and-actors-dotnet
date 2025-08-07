@@ -5,33 +5,33 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal class NullMeter<ValueType> : IMeter<ValueType>
+    internal class NullMeter<TValueType> : IMeter<TValueType>
     {
-        public void Record(ValueType value)
+        public void Record(TValueType value)
         {
 
         }
     }
 
-    internal class NullMeter1D<ValueType> : IMeter1D<ValueType>
+    internal class NullMeter1D<TValueType> : IMeter1D<TValueType>
     {
-        public void Record(ValueType value, string dimension1)
+        public void Record(TValueType value, string dimension1)
         {
 
         }
     }
 
-    internal class NullMeter2D<ValueType> : IMeter2D<ValueType>
+    internal class NullMeter2D<TValueType> : IMeter2D<TValueType>
     {
-        public void Record(ValueType value, string dimension1, string dimension2)
+        public void Record(TValueType value, string dimension1, string dimension2)
         {
 
         }
     }
 
-    internal class NullMeter3D<ValueType> : IMeter3D<ValueType>
+    internal class NullMeter3D<TValueType> : IMeter3D<TValueType>
     {
-        public void Record(ValueType value, string dimension1, string dimension2, string dimension3)
+        public void Record(TValueType value, string dimension1, string dimension2, string dimension3)
         {
 
         }
