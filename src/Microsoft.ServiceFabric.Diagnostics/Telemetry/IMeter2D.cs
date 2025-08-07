@@ -5,8 +5,18 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal interface IMeter2D<ValueType>
+    /// <summary>
+    /// Defines a two-dimensional meter for recording telemetry values with two dimensions.
+    /// </summary>
+    /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
+    internal interface IMeter2D<TValueType>
     {
-        void Record(ValueType value, string dimension1, string dimension2);
+        /// <summary>
+        /// Records a telemetry value with two dimensions.
+        /// </summary>
+        /// <param name="value">The value to record.</param>
+        /// <param name="dimension1">The first dimension value.</param>
+        /// <param name="dimension2">The second dimension value.</param>
+        void Record(TValueType value, string dimension1, string dimension2);
     }
 }

@@ -5,8 +5,17 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal interface IMeter1D<ValueType>
+    /// <summary>
+    /// Defines a one-dimensional meter for recording telemetry values with a single dimension.
+    /// </summary>
+    /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
+    internal interface IMeter1D<TValueType>
     {
-        void Record(ValueType value, string dimension1);
+        /// <summary>
+        /// Records a telemetry value with one dimension.
+        /// </summary>
+        /// <param name="value">The value to record.</param>
+        /// <param name="dimension1">The first dimension value.</param>
+        void Record(TValueType value, string dimension1);
     }
 }

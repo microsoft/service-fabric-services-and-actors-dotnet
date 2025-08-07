@@ -5,8 +5,19 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
 {
-    internal interface IMeter3D<ValueType>
+    /// <summary>
+    /// Defines a three-dimensional meter for recording telemetry values with three dimensions.
+    /// </summary>
+    /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
+    internal interface IMeter3D<TValueType>
     {
-        void Record(ValueType value, string dimension1, string dimension2, string dimension3);
+        /// <summary>
+        /// Records a telemetry value with three dimensions.
+        /// </summary>
+        /// <param name="value">The value to record.</param>
+        /// <param name="dimension1">The first dimension value.</param>
+        /// <param name="dimension2">The second dimension value.</param>
+        /// <param name="dimension3">The third dimension value.</param>
+        void Record(TValueType value, string dimension1, string dimension2, string dimension3);
     }
 }
