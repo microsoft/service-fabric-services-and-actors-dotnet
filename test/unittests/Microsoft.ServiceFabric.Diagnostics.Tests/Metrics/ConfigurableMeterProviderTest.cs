@@ -12,7 +12,7 @@ using Inspector;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     public class ConfigurableMeterProviderTest
     {

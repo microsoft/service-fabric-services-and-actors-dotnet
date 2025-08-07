@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Common;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     internal abstract class ConfigurableMeterProvider<TValueType> : IMeterProvider<TValueType>
     {

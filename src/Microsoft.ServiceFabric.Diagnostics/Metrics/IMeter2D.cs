@@ -3,19 +3,20 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
-    /// Defines a one-dimensional meter for recording telemetry values with a single dimension.
+    /// Defines a two-dimensional meter for recording telemetry values with two dimensions.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
-    internal interface IMeter1D<TValueType>
+    internal interface IMeter2D<TValueType>
     {
         /// <summary>
-        /// Records a telemetry value with one dimension.
+        /// Records a telemetry value with two dimensions.
         /// </summary>
         /// <param name="value">The value to record.</param>
         /// <param name="dimension1">The first dimension value.</param>
-        void Record(TValueType value, string dimension1);
+        /// <param name="dimension2">The second dimension value.</param>
+        void Record(TValueType value, string dimension1, string dimension2);
     }
 }

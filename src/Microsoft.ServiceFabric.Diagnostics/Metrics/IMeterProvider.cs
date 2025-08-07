@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Diagnostics.Telemetry
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
     /// Provides factory methods for creating telemetry meters with different number of dimensions.
