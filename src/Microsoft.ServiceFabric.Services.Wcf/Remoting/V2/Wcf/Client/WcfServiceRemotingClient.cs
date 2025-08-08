@@ -21,12 +21,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
     {
         private ServiceRemotingMessageSerializersManager serializersManager;
 
+        readonly ExceptionConversionHandler exceptionConversionHandler;
+
         public WcfServiceRemotingClient(
             WcfCommunicationClient<IServiceRemotingContract> wcfClient,
-            ServiceRemotingMessageSerializersManager serializersManager)
+            ServiceRemotingMessageSerializersManager serializersManager,
+            ExceptionConversionHandler exceptionConversionHandler)
         {
             this.serializersManager = serializersManager;
             this.WcfClient = wcfClient;
+            this.exceptionConversionHandler = exceptionConversionHandler;
         }
 
         public WcfCommunicationClient<IServiceRemotingContract> WcfClient { get; }
@@ -127,6 +131,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     CultureInfo.InvariantCulture,
                     Microsoft.ServiceFabric.Services.Wcf.SR.ErrorDeserializationFailure,
                     remoteException.ToString()));
+            }
+            catch (FaultException<RemoteException2> faultException)
+            {
+                RemoteException2 remoteException2 = faultException.Detail;
+
+                ServiceException serviceException = this.exceptionConversionHandler.FromRemoteException2(remoteException2);
+                Exception exception = this.exceptionConversionHandler.FromServiceException(serviceException);
+
+                throw new AggregateException(exception);
             }
         }
 
