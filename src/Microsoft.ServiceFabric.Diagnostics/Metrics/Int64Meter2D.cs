@@ -7,9 +7,9 @@ using System;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class Int64Meter2D : IMeter<long>
+    internal class Int64Meter2D : IMeter2D<long>
     {
-        public void Record(long value)
+        public void Record(long value, string dimension1, string dimension2)
         {
             throw new NotImplementedException();
         }

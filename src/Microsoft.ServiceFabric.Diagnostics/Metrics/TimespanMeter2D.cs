@@ -7,9 +7,9 @@ using System;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class TimespanMeter2D : IMeter<TimeSpan>
+    internal class TimespanMeter2D : IMeter2D<TimeSpan>
     {
-        public void Record(TimeSpan value)
+        public void Record(TimeSpan value, string dimension1, string dimension2)
         {
             throw new NotImplementedException();
         }
