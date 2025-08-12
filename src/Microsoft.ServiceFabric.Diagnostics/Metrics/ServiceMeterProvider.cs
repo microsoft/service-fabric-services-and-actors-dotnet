@@ -4,16 +4,41 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Fabric.Interop;
+using System.Linq;
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     internal abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        readonly protected IDictionary<string, string> systemDimensions = new ConcurrentDictionary<string, string>();
-        readonly protected bool metricsEnabled;
+        readonly protected IList<string> systemDimensionNames = new List<string>
+        {
+            "ReplicaOrInstanceId",
+            "PartitionId",
+            "ServiceTypeName",
+            "ServiceName",
+            "ApplicationName",
+            "ApplicationTypeName"
+        };
+        readonly protected IList<string> systemDimensionValues = new List<string>();
+        readonly protected IFabricMeterProvider fabricMeterProvider;
+
+        private static readonly Func<IFabricMeterProvider> createFabricMeterProvider = () =>
+            Utility.WrapNativeSyncInvokeInMTA(() =>
+            {
+                NativeRuntimeMethods.FabricCreateMeterProvider(out IFabricMeterProvider fabricMeterProvider);
+                return fabricMeterProvider;
+            }, "FabricTelemetry.FabricGetConfigStore");
+
+        private static readonly Func<IFabricMeterProvider, string, string, FabricStringList, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, nativeStingList) =>
+            Utility.WrapNativeSyncInvokeInMTA(() =>
+            {
+                meterProvider.CreateMeter(metricNamespace, metricName, nativeStingList, out IFabricMeter fabricMeter);
+                return fabricMeter;
+            }, "FabricTelemetry.CreateMeter");
 
         protected ServiceMeterProvider(ServiceContext serviceContext)
         {
@@ -22,12 +47,28 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 throw new ArgumentNullException(nameof(serviceContext), "Service context cannot be null.");
             }
 
-            this.systemDimensions.Add("ReplicaOrInstanceId", serviceContext.ReplicaOrInstanceId.ToString());
-            this.systemDimensions.Add("PartitionId", serviceContext.PartitionId.ToString());
-            this.systemDimensions.Add("ServiceTypeName", serviceContext.ServiceTypeName);
-            this.systemDimensions.Add("ServiceName", serviceContext.ServiceName.ToString());
-            this.systemDimensions.Add("ApplicationName", serviceContext.CodePackageActivationContext.ApplicationName);
-            this.systemDimensions.Add("ApplicationTypeName", serviceContext.CodePackageActivationContext.ApplicationTypeName);
+            fabricMeterProvider = createFabricMeterProvider();
+
+            systemDimensionValues.Add(serviceContext.ReplicaOrInstanceId.ToString());
+            systemDimensionValues.Add(serviceContext.PartitionId.ToString());
+            systemDimensionValues.Add(serviceContext.ServiceTypeName);
+            systemDimensionValues.Add(serviceContext.ServiceName.ToString());
+            systemDimensionValues.Add(serviceContext.CodePackageActivationContext.ApplicationName);
+            systemDimensionValues.Add(serviceContext.CodePackageActivationContext.ApplicationTypeName);
+        }
+
+        protected unsafe IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IList<string> additionalDimensions)
+        {
+            var allDimensionNames = new List<string>(systemDimensionNames.Concat(additionalDimensions));
+            var dimensionNames = allDimensionNames.ToArray();
+
+            var nativeStringList = new FabricStringList
+            {
+                Count = (uint)dimensionNames.Length,
+                Items = dimensionNames
+            };
+
+            return createFabricMeter(fabricMeterProvider, metricNamespace, metricName, nativeStringList);
         }
 
         public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);
