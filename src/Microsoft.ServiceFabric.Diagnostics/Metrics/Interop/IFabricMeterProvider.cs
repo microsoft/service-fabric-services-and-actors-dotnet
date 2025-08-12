@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Fabric.Interop;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Interop
@@ -18,7 +17,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Interop
         int CreateMeter(
             [In, MarshalAs(UnmanagedType.LPWStr)] string namespaceName,
             [In, MarshalAs(UnmanagedType.LPWStr)] string name,
-            [In] NativeTypes.FABRIC_STRING_LIST dimensionNames,
+            [In, MarshalAs(UnmanagedType.Struct)] FabricStringList dimensionNames,
             [MarshalAs(UnmanagedType.Interface)] out IFabricMeter meter);
     }
 }

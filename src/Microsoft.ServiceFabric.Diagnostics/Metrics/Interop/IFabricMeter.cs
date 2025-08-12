@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Fabric.Interop;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Interop
@@ -17,6 +16,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Interop
         [PreserveSig]
         int Record(
             [In] long value,
-            [In] NativeTypes.FABRIC_STRING_LIST dimensionValues);
+            [In, MarshalAs(UnmanagedType.Struct)] FabricStringList dimensionValues);
     }
 }
