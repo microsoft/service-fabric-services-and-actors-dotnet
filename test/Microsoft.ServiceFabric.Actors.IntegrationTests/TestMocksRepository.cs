@@ -14,8 +14,6 @@ namespace Microsoft.ServiceFabric.Actors.IntegrationTests
     using Microsoft.ServiceFabric.Services.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Moq;
-    using Microsoft.ServiceFabric.Actors.Diagnostics;
-    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Contains mocks needed by Aspnet core listener unit tests.
