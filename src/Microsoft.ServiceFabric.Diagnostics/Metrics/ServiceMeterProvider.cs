@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Fabric.Interop;
 using System.Linq;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
 
@@ -28,12 +27,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         private static readonly Func<IFabricMeterProvider> createFabricMeterProvider = () => NativeRuntimeMethods.FabricCreateMeterProvider();
 
-        private static readonly Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) =>
-            Utility.WrapNativeSyncInvokeInMTA(() =>
-            {
-                IFabricMeter fabricMeter = meterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, dimensionCount);
-                return fabricMeter;
-            }, "FabricTelemetry.CreateMeter");
+        private static readonly Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) => meterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, dimensionCount);
 
         protected ServiceMeterProvider(ServiceContext serviceContext)
         {
@@ -57,13 +51,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             var allDimensionNames = new List<string>(systemDimensionNames.Concat(additionalDimensions));
             var dimensionNames = allDimensionNames.ToArray();
 
-            var nativeStringList = new FabricStringList
-            {
-                Count = (uint)dimensionNames.Length,
-                Items = dimensionNames
-            };
-
-            return createFabricMeter(fabricMeterProvider, metricNamespace, metricName, nativeStringList);
+            return createFabricMeter(fabricMeterProvider, metricNamespace, metricName, dimensionNames, (uint)dimensionNames.Length);
         }
 
         public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);
