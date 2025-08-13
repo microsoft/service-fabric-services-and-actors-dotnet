@@ -3,16 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System.Fabric;
-
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     internal class NullMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        internal NullMeterProvider(ServiceContext serviceContext)
-        {
-        }
-
         public IMeter<TValueType> CreateMeter(string metricNamespace, string name)
         {
             return new NullMeter<TValueType>();

@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public long Value { get; set; }
         }
 
-        readonly NullMeterProvider<TestValueType> sut = new NullMeterProvider<TestValueType>(null);
+        readonly NullMeterProvider<TestValueType> sut = new NullMeterProvider<TestValueType>();
 
         public class CreateMeter : NullMeterProviderTest
         {
