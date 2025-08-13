@@ -26,17 +26,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         readonly protected IList<string> systemDimensionValues = new List<string>();
         readonly protected IFabricMeterProvider fabricMeterProvider;
 
-        private static readonly Func<IFabricMeterProvider> createFabricMeterProvider = () =>
-            Utility.WrapNativeSyncInvokeInMTA(() =>
-            {
-                NativeRuntimeMethods.FabricCreateMeterProvider(out IFabricMeterProvider fabricMeterProvider);
-                return fabricMeterProvider;
-            }, "FabricTelemetry.FabricGetConfigStore");
+        private static readonly Func<IFabricMeterProvider> createFabricMeterProvider = () => NativeRuntimeMethods.FabricCreateMeterProvider();
 
-        private static readonly Func<IFabricMeterProvider, string, string, FabricStringList, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, nativeStingList) =>
+        private static readonly Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) =>
             Utility.WrapNativeSyncInvokeInMTA(() =>
             {
-                meterProvider.CreateMeter(metricNamespace, metricName, nativeStingList, out IFabricMeter fabricMeter);
+                IFabricMeter fabricMeter = meterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, dimensionCount);
                 return fabricMeter;
             }, "FabricTelemetry.CreateMeter");
 
