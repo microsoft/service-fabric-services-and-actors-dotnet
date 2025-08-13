@@ -4,18 +4,18 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Interop
 {
     [ComImport]
-    [Guid("a0d80970-c062-4c59-a3ca-7aeeb901b49c")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [Guid("A0D80970-C062-4C59-A3CA-7AEEB901B49C")]
     internal interface IFabricMeter
     {
-        [PreserveSig]
-        int Record(
-            [In] long value,
-            [In, MarshalAs(UnmanagedType.Struct)] FabricStringList dimensionValues);
+        [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
+        void Record([In] long value, [In][MarshalAs(UnmanagedType.LPWStr)] ref string dimensionValues, [In] uint count);
     }
+
 }
