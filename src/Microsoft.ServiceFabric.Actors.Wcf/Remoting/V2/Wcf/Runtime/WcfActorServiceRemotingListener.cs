@@ -2,24 +2,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+using System.Collections.Generic;
+using System.Fabric;
+using System.ServiceModel.Channels;
+using System.ServiceModel;
+using System;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+using System.Linq;
 
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.ServiceModel;
-    using System.ServiceModel.Channels;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime;
-
     /// <summary>
     /// An <see cref="IServiceRemotingListener"/> that uses
     /// Windows Communication Foundation to provide interface remoting for actor services.
@@ -44,16 +43,12 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
             ActorService actorService,
             Binding listenerBinding,
             bool useWrappedMessage)
-            : base(
-                GetContext(actorService),
-                new ActorServiceRemotingDispatcher(actorService, GetDefaultRequestMessageFactory(useWrappedMessage)),
-                new ActorRemotingSerializationManager(
-                    GetDefaultSerializationProvider(null, useWrappedMessage),
-                    new BasicDataContractActorHeaderSerializer()),
+            : this(
+                actorService,
                 listenerBinding,
+                useWrappedMessage,
                 null,
-                ActorNameFormat.GetFabricServiceEndpointName(actorService.ActorTypeInformation.ImplementationType),
-                useWrappedMessage)
+                null)
         {
         }
 
@@ -92,7 +87,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
                 null,
                 ActorNameFormat.GetFabricServiceEndpointName(actorService.ActorTypeInformation.ImplementationType),
                 useWrappedMessage,
-                exceptionConvertors,
+                GetDefaultActorConvertors(exceptionConvertors),
                 settings)
         {
         }
@@ -124,16 +119,15 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
             Binding listenerBinding,
             EndpointAddress address,
             bool useWrappedMessage)
-            : base(
+            : this(
                 serviceContext,
                 serviceRemotingMessageHandler,
-                new ActorRemotingSerializationManager(
-                    GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
-                    new BasicDataContractActorHeaderSerializer()),
+                serializationProvider,
                 listenerBinding,
                 address,
+                useWrappedMessage,
                 null,
-                useWrappedMessage)
+                null)
         {
         }
 
@@ -181,9 +175,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
                 address,
                 null,
                 useWrappedMessage,
-                exceptionConvertors,
+                GetDefaultActorConvertors(exceptionConvertors),
                 settings)
         {
+        }
+
+        private static IEnumerable<IExceptionConvertor> GetDefaultActorConvertors(IEnumerable<IExceptionConvertor> exceptionConvertors)
+        {
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new FabricActorExceptionConvertor(),
+            };
+
+            return convertors;
         }
 
         private static IServiceRemotingMessageBodyFactory GetDefaultRequestMessageFactory(bool useWrappedMessage)
