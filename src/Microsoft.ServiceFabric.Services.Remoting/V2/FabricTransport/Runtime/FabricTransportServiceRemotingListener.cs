@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
@@ -117,15 +118,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 }
             }
 
-            var svcExceptionConvertors = new List<IExceptionConvertor>();
-            if (exceptionConvertors != null)
+            var svcExceptionConvertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
-                svcExceptionConvertors.AddRange(exceptionConvertors);
-            }
-
-            svcExceptionConvertors.Add(new FabricExceptionConvertor());
-            svcExceptionConvertors.Add(new SystemExceptionConvertor());
-            svcExceptionConvertors.Add(new DefaultExceptionConvertor());
+                new FabricExceptionConvertor(),
+                new SystemExceptionConvertor(),
+                new DefaultExceptionConvertor()
+            };
 
             this.transportMessageHandler = new FabricTransportMessageHandler(
                 serviceRemotingMessageHandler,

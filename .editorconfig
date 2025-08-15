@@ -149,6 +149,9 @@ dotnet_naming_style.camel_case_style.capitalization             = camel_case
 dotnet_naming_style.I_prefix_style.required_prefix              = I
 dotnet_naming_style.I_prefix_style.capitalization               = pascal_case
 
+dotnet_naming_style.T_prefix_style.required_prefix              = T
+dotnet_naming_style.T_prefix_style.capitalization               = pascal_case
+
 # Use PascalCase for constant fields  
 dotnet_naming_rule.constant_fields_should_be_pascal_case.severity = warning
 dotnet_naming_rule.constant_fields_should_be_pascal_case.symbols  = constant_fields
@@ -192,6 +195,13 @@ dotnet_naming_rule.general_naming.symbols                   = general
 dotnet_naming_rule.general_naming.style                     = pascal_case_style
 dotnet_naming_symbols.general.applicable_kinds              = class,struct,enum,property,method,event,namespace,delegate
 dotnet_naming_symbols.general.applicable_accessibilities    = *
+
+# Type parameters should be PascalCase and start with T
+dotnet_naming_rule.type_parameters_should_be_pascal_case.severity = warning
+dotnet_naming_rule.type_parameters_should_be_pascal_case.symbols  = type_parameters
+dotnet_naming_rule.type_parameters_should_be_pascal_case.style    = T_prefix_style
+dotnet_naming_symbols.type_parameters.applicable_kinds            = type_parameter
+dotnet_naming_symbols.type_parameters.applicable_accessibilities  = *
 
 # Everything else is camelCase
 dotnet_naming_rule.everything_else_naming.severity                  = warning

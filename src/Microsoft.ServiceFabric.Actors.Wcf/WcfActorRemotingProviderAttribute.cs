@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.Wcf
             listeners.Add(Microsoft.ServiceFabric.Services.Remoting.ServiceRemotingProviderAttribute.DefaultV2listenerName, (
                 actorService) =>
             {
-                return new Actors.Remoting.V2.Wcf.Runtime.WcfActorServiceRemotingListener(
+                return new V2.Wcf.Runtime.WcfActorServiceRemotingListener(
                     actorService,
                     WcfUtility.CreateTcpListenerBinding(
                         maxMessageSize: this.GetMaxMessageSize(),

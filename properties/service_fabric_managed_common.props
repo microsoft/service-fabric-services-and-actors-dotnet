@@ -19,9 +19,6 @@
   </PropertyGroup>
 
   <!-- Properties specific to certain TargetFrameworks -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'"> 
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);SYSLIB0011;SYSLIB0050</WarningsNotAsErrors >
-  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <OutputType>Library</OutputType>
   </PropertyGroup>
