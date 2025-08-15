@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.IntegrationTests
 {
-    public class ReminderRegistrationTest
+public class ReminderRegistrationTest : ActorIntegrationTest
     {
         interface IReminderTestActor : IActor
         {
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.IntegrationTests
         [Fact]
         public async Task ReminderSuccessfullyRegisteredAndFired()
         {
-            ActorService actorService = await TestMocksRepository.GetActorService<RemiderTestActor>();
+            ActorService actorService = await this.GetActorService<RemiderTestActor>();
 
             string expectedReminderName = "TestReminder";
             byte[] expectedState = UTF8Encoding.UTF8.GetBytes("TestReminderState");
@@ -100,19 +100,20 @@ namespace Microsoft.ServiceFabric.Actors.IntegrationTests
             TimeSpan expectedPeriod = TimeSpan.FromMinutes(1);
 
             IActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
-                actorId : new ActorId("RemiderTestActor1"),
-                actorMethodContext : new ActorMethodContext(),
-                createIfRequired : true,
-                actorFunc : (actorBase, cacnelationToken) => {
+                actorId: new ActorId("RemiderTestActor1"),
+                actorMethodContext: new ActorMethodContext(),
+                createIfRequired: true,
+                actorFunc: (actorBase, cacnelationToken) =>
+                {
                     return ((RemiderTestActor)actorBase).InitStateAndCreateReminder(
                         reminderName: expectedReminderName,
                         state: expectedState,
                         dueTime: expectedDueTime,
                         period: expectedPeriod);
                 },
-                callContext : "TestCallContext",
-                timerCall : false,
-                cancellationToken : new CancellationToken());
+                callContext: "TestCallContext",
+                timerCall: false,
+                cancellationToken: new CancellationToken());
 
             Assert.NotNull(reminderResult);
             Assert.Equal(expectedReminderName, reminderResult.Name);
