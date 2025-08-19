@@ -7,7 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Numerics;
+using Fuzzy;
 using Inspector;
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
 using Moq;
 using Xunit;
 
@@ -15,30 +17,34 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     public class ServiceMeterProviderTest
     {
-        const string TestNodeName = "TestNodeName";
-        const string TestServiceTypeName = "TestServiceType";
-        const string TestServiceUriString = "fabric:/TestApplication/TestService";
-        const string TestApplicationName = "TestApplicationName";
-        const string TestApplicationTypeName = "TestApplicationTypeName";
-        const long ReplicaId = 1L;
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
+        readonly string testNodeName = fuzzy.String();
+        readonly string testServiceTypeName = fuzzy.String();
+        readonly string testServiceUriString = "fabric:/TestApplication/TestService";
+        readonly string testApplicationName = fuzzy.String();
+        readonly string testApplicationTypeName = fuzzy.String();
+        readonly long replicaId = fuzzy.Int64();
         readonly Guid testPartitionId = new Guid();
+
         readonly ServiceContext serviceContext;
 
         public ServiceMeterProviderTest()
         {
             var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
-            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(TestApplicationName);
-            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(TestApplicationTypeName);
+            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(testApplicationName);
+            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(testApplicationTypeName);
 
             this.serviceContext = new TestServiceContext(
-                new NodeContext(TestNodeName, new NodeId(BigInteger.Zero, BigInteger.Zero), BigInteger.Zero, string.Empty, string.Empty),
+                new NodeContext(testNodeName, new NodeId(BigInteger.Zero, BigInteger.Zero), BigInteger.Zero, string.Empty, string.Empty),
                 codePackageActivationContext,
-                TestServiceTypeName,
-                new Uri(TestServiceUriString),
+                testServiceTypeName,
+                new Uri(testServiceUriString),
                 null,
                 testPartitionId,
-                ReplicaId);
+                replicaId);
+
+            typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
         }
 
         public class Constructor : ServiceMeterProviderTest
@@ -48,14 +54,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             {
                 var sut = new TestMeterProvider<int>(serviceContext);
 
-                var systemDimensions = sut.Field<IDictionary<string, string>>().Value;
+                var systemDimensions = sut.Protected().Field<IList<string>>().Value;
 
-                Assert.Equal(ReplicaId.ToString(), systemDimensions["ReplicaOrInstanceId"]);
-                Assert.Equal(testPartitionId.ToString(), systemDimensions["PartitionId"]);
-                Assert.Equal(TestServiceTypeName, systemDimensions["ServiceTypeName"]);
-                Assert.Equal(TestServiceUriString, systemDimensions["ServiceName"]);
-                Assert.Equal(TestApplicationName, systemDimensions["ApplicationName"]);
-                Assert.Equal(TestApplicationTypeName, systemDimensions["ApplicationTypeName"]);
+                Assert.Equal(replicaId.ToString(), systemDimensions[0]);
+                Assert.Equal(testPartitionId.ToString(), systemDimensions[1]);
+                Assert.Equal(testServiceTypeName, systemDimensions[2]);
+                Assert.Equal(testServiceUriString, systemDimensions[3]);
+                Assert.Equal(testApplicationName, systemDimensions[4]);
+                Assert.Equal(testApplicationTypeName, systemDimensions[5]);
             }
 
             [Fact]
@@ -65,7 +71,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
         }
 
-        private class TestMeterProvider<TValueType> : ServiceMeterProvider<TValueType>
+        class TestMeterProvider<TValueType> : ServiceMeterProvider<TValueType>
         {
             public TestMeterProvider(ServiceContext serviceContext)
                 : base(serviceContext)
@@ -90,14 +96,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public override IMeter3D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name)
             {
                 throw new NotImplementedException();
-            }
-        }
-
-        private class TestServiceContext : ServiceContext
-        {
-            public TestServiceContext(NodeContext nodeContext, ICodePackageActivationContext codePackageActivationContext, string serviceTypeName, Uri serviceName, byte[] initializationData, Guid partitionId, long replicaId)
-                : base(nodeContext, codePackageActivationContext, serviceTypeName, serviceName, initializationData, partitionId, replicaId)
-            {
             }
         }
     }
