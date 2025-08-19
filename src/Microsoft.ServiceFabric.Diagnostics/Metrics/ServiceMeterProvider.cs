@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     internal abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        readonly protected IList<string> systemDimensionNames = new List<string>
+        readonly private IList<string> systemDimensionNames = new List<string>
         {
             "ReplicaOrInstanceId",
             "PartitionId",
@@ -25,9 +25,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         readonly protected IList<string> systemDimensionValues = new List<string>();
         readonly protected IFabricMeterProvider fabricMeterProvider;
 
-        private static readonly Func<IFabricMeterProvider> createFabricMeterProvider = () => NativeRuntimeMethods.FabricCreateMeterProvider();
+        private static Func<IFabricMeterProvider> createFabricMeterProvider = () => NativeRuntimeMethods.FabricCreateMeterProvider();
 
-        private static readonly Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) => meterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, dimensionCount);
+        private static Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) => meterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, dimensionCount);
 
         protected ServiceMeterProvider(ServiceContext serviceContext)
         {
@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             systemDimensionValues.Add(serviceContext.CodePackageActivationContext.ApplicationTypeName);
         }
 
-        protected unsafe IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IList<string> additionalDimensions)
+        protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IList<string> additionalDimensions)
         {
             var allDimensionNames = new List<string>(systemDimensionNames.Concat(additionalDimensions));
             var dimensionNames = allDimensionNames.ToArray();
