@@ -3,13 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System;
 using System.Collections.Generic;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class Int64Meter3D : Int64MeterBase, IMeter3D<long>
+    internal class Int64Meter3D : MeterBase, IMeter3D<long>
     {
         public Int64Meter3D(IFabricMeter fabricMeter, IList<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues)
         {
@@ -17,7 +16,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         public void Record(long value, string dimension1, string dimension2, string dimension3)
         {
-            throw new NotImplementedException();
+            var allDimensionsList = new List<string>(systemDimensionValues)
+            {
+                dimension1,
+                dimension2,
+                dimension3
+            };
+            string[] allDimensionArray = allDimensionsList.ToArray();
+            fabricMeter.Record(value, allDimensionArray, (uint)allDimensionArray.Length);
         }
     }
 }

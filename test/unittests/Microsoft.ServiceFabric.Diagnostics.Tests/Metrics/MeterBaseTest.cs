@@ -8,22 +8,22 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    public abstract class Int64MeterBaseTest
+    public abstract class MeterBaseTest
     {
         readonly internal IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
 
-        public class Constructor : Int64MeterBaseTest
+        public class Constructor : MeterBaseTest
         {
             [Fact]
             public void SholdThrowArgumentNullExceptionWhenMeterNameIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new Int64MeterBase(null, new List<string>()));
+                Assert.Throws<ArgumentNullException>(() => new MeterBase(null, new List<string>()));
             }
 
             [Fact]
             public void ShouldSetEmptySystemDimensionValuesWhenNullProvided()
             {
-                var meter = new Int64MeterBase(fabricMeter, null);
+                var meter = new MeterBase(fabricMeter, null);
 
                 var actualList = meter.Field<IList<string>>().Value;
                 Assert.NotNull(actualList);
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public void ShouldSetSystemDimensionAndMeterValuesWhenProvided()
             {
                 var systemDimensionValues = new List<string> { "value1", "value2" };
-                var meter = new Int64MeterBase(fabricMeter, systemDimensionValues);
+                var meter = new MeterBase(fabricMeter, systemDimensionValues);
 
                 var actualList = meter.Field<IList<string>>().Value;
                 Assert.NotNull(actualList);
