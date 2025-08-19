@@ -9,15 +9,10 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class Int64Meter3D : IMeter3D<long>
+    internal class Int64Meter3D : Int64MeterBase, IMeter3D<long>
     {
-        readonly IList<string> systemDimensionValues;
-        readonly IFabricMeter fabricMeter;
-
-        public Int64Meter3D(IFabricMeter fabricMeter, IList<string> systemDimensionValues)
+        public Int64Meter3D(IFabricMeter fabricMeter, IList<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues)
         {
-            this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
-            this.systemDimensionValues = systemDimensionValues ?? new List<string>();
         }
 
         public void Record(long value, string dimension1, string dimension2, string dimension3)
