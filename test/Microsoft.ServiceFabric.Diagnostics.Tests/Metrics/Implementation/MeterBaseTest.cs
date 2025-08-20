@@ -16,13 +16,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         public class Constructor : MeterBaseTest
         {
             [Fact]
-            public void SholdThrowArgumentNullExceptionWhenMeterNameIsNull()
+            public void ThrowsArgumentNullExceptionWhenMeterNameIsNull()
             {
                 Assert.Throws<ArgumentNullException>(() => new MeterBase(null, new List<string>()));
             }
 
             [Fact]
-            public void ShouldSetEmptySystemDimensionValuesWhenNullProvided()
+            public void SetsEmptySystemDimensionValuesWhenNullProvided()
             {
                 var meter = new MeterBase(fabricMeter, null);
 
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void ShouldSetSystemDimensionAndMeterValuesWhenProvided()
+            public void SetsSystemDimensionAndMeterValuesWhenProvided()
             {
                 var systemDimensionValues = fuzzy.List(() => fuzzy.String());
                 var meter = new MeterBase(fabricMeter, systemDimensionValues);
