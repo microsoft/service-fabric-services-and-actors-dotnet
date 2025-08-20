@@ -4,7 +4,7 @@
     <RootNamespace>Microsoft.ServiceFabric.Actors.Wcf</RootNamespace>
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
-  <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Inspector" />
@@ -18,6 +18,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj" />
-    <ProjectReference Include="$(RepoRoot)test\unittests\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
+    <ProjectReference Include="$(RepoRoot)test\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
   </ItemGroup>
 </Project>
