@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Fuzzy;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
@@ -8,6 +11,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
     public abstract class Int64MeterTest
     {
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         public class Class : Int64MeterTest
         {
@@ -24,10 +28,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             [Fact]
             public void CallsFabricMeterRecord()
             {
-                var systemDimenisions = new List<string> { "systemDimension1", "systemDimension2" };
-                var meter = new Int64Meter(fabricMeter, systemDimenisions);
-                meter.Record(42);
-                Mock.Get(fabricMeter).Verify(m => m.Record(42, It.Is<string[]>(arr => arr.Length == 2 && arr[0] == "systemDimension1" && arr[1] == "systemDimension2"), 2), Times.Once);
+                // Arrange
+                List<string> systemDimensions = fuzzy.List(() => fuzzy.String(), Count.Between(1, 10));
+                long value = fuzzy.Int64();
+                string[] expectedArray = systemDimensions.ToArray();
+
+                // Act
+                var meter = new Int64Meter(fabricMeter, systemDimensions);
+                meter.Record(value);
+
+                // Assert
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
             }
         }
     }
