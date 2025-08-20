@@ -26,10 +26,26 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         public class Record : Int64MeterTest
         {
             [Fact]
-            public void CallsFabricMeterRecord()
+            public void CallsFabricMeterRecordWithMultipleSystemDimensions()
             {
                 // Arrange
                 List<string> systemDimensions = fuzzy.List(() => fuzzy.String(), Count.Between(1, 10));
+                long value = fuzzy.Int64();
+                string[] expectedArray = systemDimensions.ToArray();
+
+                // Act
+                var meter = new Int64Meter(fabricMeter, systemDimensions);
+                meter.Record(value);
+
+                // Assert
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+            }
+
+            [Fact]
+            public void CallsFabricMeterRecordWithNoSystemDimensions()
+            {
+                // Arrange
+                List<string> systemDimensions = new List<string>();
                 long value = fuzzy.Int64();
                 string[] expectedArray = systemDimensions.ToArray();
 
