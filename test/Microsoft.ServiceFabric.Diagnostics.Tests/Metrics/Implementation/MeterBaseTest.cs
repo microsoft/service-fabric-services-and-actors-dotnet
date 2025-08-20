@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using Fuzzy;
 using Inspector;
 using Moq;
 using Xunit;
@@ -10,6 +11,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     public abstract class MeterBaseTest
     {
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         public class Constructor : MeterBaseTest
         {
@@ -32,7 +34,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void ShouldSetSystemDimensionAndMeterValuesWhenProvided()
             {
-                var systemDimensionValues = new List<string> { "value1", "value2" };
+                var systemDimensionValues = fuzzy.List(() => fuzzy.String());
                 var meter = new MeterBase(fabricMeter, systemDimensionValues);
 
                 var actualList = meter.Field<IList<string>>().Value;
