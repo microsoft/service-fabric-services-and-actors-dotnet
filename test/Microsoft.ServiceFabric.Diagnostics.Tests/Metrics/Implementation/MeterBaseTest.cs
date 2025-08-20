@@ -2,11 +2,10 @@
 using System;
 using System.Collections.Generic;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     public abstract class MeterBaseTest
     {

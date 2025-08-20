@@ -9,11 +9,10 @@ using System.Fabric;
 using System.Numerics;
 using Fuzzy;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     public class ServiceMeterProviderTest
     {
@@ -35,7 +34,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(testApplicationName);
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(testApplicationTypeName);
 
-            this.serviceContext = new TestServiceContext(
+            serviceContext = new TestServiceContext(
                 new NodeContext(testNodeName, new NodeId(BigInteger.Zero, BigInteger.Zero), BigInteger.Zero, string.Empty, string.Empty),
                 codePackageActivationContext,
                 testServiceTypeName,
