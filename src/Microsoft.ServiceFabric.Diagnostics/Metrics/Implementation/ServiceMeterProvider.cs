@@ -7,9 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     internal abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {

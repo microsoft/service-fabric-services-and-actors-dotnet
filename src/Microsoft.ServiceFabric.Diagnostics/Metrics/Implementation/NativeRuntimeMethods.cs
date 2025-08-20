@@ -6,7 +6,7 @@
 using System.Runtime.InteropServices;
 using HRESULT = System.Int32;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Interop
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     internal static class NativeRuntimeMethods
     {

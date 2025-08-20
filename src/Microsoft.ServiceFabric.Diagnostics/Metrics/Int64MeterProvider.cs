@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Fabric;
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {

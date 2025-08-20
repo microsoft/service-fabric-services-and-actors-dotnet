@@ -4,7 +4,7 @@
 // ------------------------------------------------------------
 
 using System.Collections.Generic;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
