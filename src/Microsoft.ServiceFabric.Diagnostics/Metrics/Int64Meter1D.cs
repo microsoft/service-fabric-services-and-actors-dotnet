@@ -8,11 +8,9 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class Int64Meter1D : MeterBase, IMeter1D<long>
+    sealed class Int64Meter1D : MeterBase, IMeter1D<long>
     {
-        public Int64Meter1D(IFabricMeter fabricMeter, IList<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues)
-        {
-        }
+        internal Int64Meter1D(IFabricMeter fabricMeter, IList<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
         public void Record(long value, string dimension1)
         {

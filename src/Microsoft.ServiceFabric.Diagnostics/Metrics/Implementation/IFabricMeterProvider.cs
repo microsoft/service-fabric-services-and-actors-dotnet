@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     [ComImport]
     [Guid("15AD37D2-F641-4188-824B-0D68CB4F6C17")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    internal interface IFabricMeterProvider
+    interface IFabricMeterProvider
     {
         [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
         [return: MarshalAs(UnmanagedType.Interface)]

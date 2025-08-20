@@ -9,12 +9,9 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class Int64MeterProvider : ServiceMeterProvider<long>
+    sealed class Int64MeterProvider : ServiceMeterProvider<long>
     {
-        public Int64MeterProvider(ServiceContext serviceContext)
-            : base(serviceContext)
-        {
-        }
+        internal Int64MeterProvider(ServiceContext serviceContext) : base(serviceContext) { }
 
         public override IMeter<long> CreateMeter(string metricNamespace, string name)
         {

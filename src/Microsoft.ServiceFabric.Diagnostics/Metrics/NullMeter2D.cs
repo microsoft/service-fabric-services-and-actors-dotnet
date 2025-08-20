@@ -5,11 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class NullMeter2D<TValueType> : IMeter2D<TValueType>
+    sealed class NullMeter2D<TValueType> : IMeter2D<TValueType>
     {
-        public void Record(TValueType value, string dimension1, string dimension2)
-        {
-
-        }
+        public void Record(TValueType value, string dimension1, string dimension2) { }
     }
 }

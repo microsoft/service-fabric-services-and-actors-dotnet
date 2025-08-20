@@ -5,7 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class NullMeterProvider<TValueType> : IMeterProvider<TValueType>
+    sealed class NullMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
         public IMeter<TValueType> CreateMeter(string metricNamespace, string name)
         {

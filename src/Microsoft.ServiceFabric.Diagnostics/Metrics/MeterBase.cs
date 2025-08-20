@@ -4,12 +4,12 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    internal class MeterBase
+    class MeterBase
     {
-        readonly protected IList<string> systemDimensionValues;
-        readonly protected IFabricMeter fabricMeter;
+        protected readonly IList<string> systemDimensionValues;
+        protected readonly IFabricMeter fabricMeter;
 
-        public MeterBase(IFabricMeter fabricMeter, IList<string> systemDimensionValues)
+        internal MeterBase(IFabricMeter fabricMeter, IList<string> systemDimensionValues)
         {
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
             this.systemDimensionValues = systemDimensionValues ?? new List<string>();

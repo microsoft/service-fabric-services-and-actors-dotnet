@@ -10,9 +10,9 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    internal abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
+    abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        readonly private IList<string> systemDimensionNames = new List<string>
+        private readonly IList<string> systemDimensionNames = new List<string>
         {
             "ReplicaOrInstanceId",
             "PartitionId",
@@ -21,11 +21,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             "ApplicationName",
             "ApplicationTypeName"
         };
-        readonly protected IList<string> systemDimensionValues = new List<string>();
-        readonly protected IFabricMeterProvider fabricMeterProvider;
+        protected readonly IList<string> systemDimensionValues = new List<string>();
+        protected readonly IFabricMeterProvider fabricMeterProvider;
 
         private static Func<IFabricMeterProvider> createFabricMeterProvider = () => NativeRuntimeMethods.FabricCreateMeterProvider();
-
         private static Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) => meterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, dimensionCount);
 
         protected ServiceMeterProvider(ServiceContext serviceContext)
