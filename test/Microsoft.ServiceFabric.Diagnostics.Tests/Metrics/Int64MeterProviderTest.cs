@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     public class Int64MeterProviderTest
     {
-        static readonly protected IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         readonly string testNodeName = fuzzy.String();
         readonly string testServiceTypeName = fuzzy.String();
@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         readonly long replicaId = fuzzy.Int64();
         readonly Guid testPartitionId = new Guid();
 
-        readonly protected ServiceContext serviceContext;
+        readonly ServiceContext serviceContext;
 
         readonly IFabricMeterProvider fabricMeterProvider = Mock.Of<IFabricMeterProvider>();
 

@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     public abstract class MeterBaseTest
     {
-        readonly internal IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
+        readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
 
         public class Constructor : MeterBaseTest
         {

@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     public abstract class Int64Meter3DTest
     {
-        readonly internal IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
+        readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
 
         public class Class : Int64Meter3DTest
         {
