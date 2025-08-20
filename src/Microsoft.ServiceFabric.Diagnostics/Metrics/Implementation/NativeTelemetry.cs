@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     internal static class NativeTelemetry
     {
-        private const string FabricTelemetryLib = "FabricTelemetry";
+        const string FabricTelemetryLib = "FabricTelemetry";
 
         internal static IFabricMeterProvider FabricCreateMeterProvider()
         {
