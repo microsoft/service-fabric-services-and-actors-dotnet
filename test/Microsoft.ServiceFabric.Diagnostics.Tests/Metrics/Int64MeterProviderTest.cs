@@ -9,7 +9,7 @@ using System.Fabric;
 using System.Numerics;
 using Fuzzy;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
 

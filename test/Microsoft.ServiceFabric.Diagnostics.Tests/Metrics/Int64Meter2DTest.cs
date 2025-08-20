@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Interop;
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
 
