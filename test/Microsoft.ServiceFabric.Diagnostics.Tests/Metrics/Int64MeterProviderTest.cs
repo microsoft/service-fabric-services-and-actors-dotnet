@@ -29,6 +29,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         readonly protected ServiceContext serviceContext;
 
+        readonly IFabricMeterProvider fabricMeterProvider = Mock.Of<IFabricMeterProvider>();
+
         public Int64MeterProviderTest()
         {
             var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
@@ -44,8 +46,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 testPartitionId,
                 replicaId);
 
-            typeof(ServiceMeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
-            typeof(ServiceMeterProvider<long>).Field<Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter>>().Set((meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) => Mock.Of<IFabricMeter>());
+            Mock.Get(fabricMeterProvider)
+                .Setup(x => x.CreateMeter(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<uint>()))
+                .Returns(Mock.Of<IFabricMeter>());
+            typeof(ServiceMeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => fabricMeterProvider);
         }
 
         public class CreateMeter : Int64MeterProviderTest

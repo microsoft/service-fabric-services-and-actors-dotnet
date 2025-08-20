@@ -24,8 +24,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         protected readonly IList<string> systemDimensionValues = new List<string>();
         protected readonly IFabricMeterProvider fabricMeterProvider;
 
-        private static Func<IFabricMeterProvider> createFabricMeterProvider = () => NativeRuntimeMethods.FabricCreateMeterProvider();
-        private static Func<IFabricMeterProvider, string, string, string[], uint, IFabricMeter> createFabricMeter = (meterProvider, metricNamespace, metricName, dimensionNames, dimensionCount) => meterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, dimensionCount);
+        private static Func<IFabricMeterProvider> createFabricMeterProvider = NativeRuntimeMethods.FabricCreateMeterProvider;
 
         protected ServiceMeterProvider(ServiceContext serviceContext)
         {
@@ -49,7 +48,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             var allDimensionNames = new List<string>(systemDimensionNames.Concat(additionalDimensions));
             var dimensionNames = allDimensionNames.ToArray();
 
-            return createFabricMeter(fabricMeterProvider, metricNamespace, metricName, dimensionNames, (uint)dimensionNames.Length);
+            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, (uint)dimensionNames.Length);
         }
 
         public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);
