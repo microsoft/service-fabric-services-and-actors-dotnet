@@ -8,22 +8,18 @@ using HRESULT = System.Int32;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    internal static class NativeRuntimeMethods
+    internal static class NativeTelemetry
     {
+        private const string FabricTelemetryLib = "FabricTelemetry";
 
         internal static IFabricMeterProvider FabricCreateMeterProvider()
         {
-            Marshal.ThrowExceptionForHR(PInvoke.FabricCreateMeterProvider(out IFabricMeterProvider meterProvider));
+            Marshal.ThrowExceptionForHR(FabricCreateMeterProvider(out IFabricMeterProvider meterProvider));
             return meterProvider;
         }
 
-        static class PInvoke
-        {
-            private const string FabricTelemetryLib = "FabricTelemetry";
+        [DllImport(FabricTelemetryLib)]
+        static extern HRESULT FabricCreateMeterProvider([MarshalAs(UnmanagedType.Interface)] out IFabricMeterProvider meterProvider);
 
-            [DllImport(FabricTelemetryLib)]
-            internal static extern HRESULT FabricCreateMeterProvider(
-                [MarshalAs(UnmanagedType.Interface)] out IFabricMeterProvider meterProvider);
-        }
     }
 }

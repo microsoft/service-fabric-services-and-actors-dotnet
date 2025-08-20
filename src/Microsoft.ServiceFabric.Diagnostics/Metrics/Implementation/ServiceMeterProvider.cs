@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         protected readonly IList<string> systemDimensionValues = new List<string>();
         protected readonly IFabricMeterProvider fabricMeterProvider;
 
-        private static Func<IFabricMeterProvider> createFabricMeterProvider = NativeRuntimeMethods.FabricCreateMeterProvider;
+        private static Func<IFabricMeterProvider> createFabricMeterProvider = NativeTelemetry.FabricCreateMeterProvider;
 
         protected ServiceMeterProvider(ServiceContext serviceContext)
         {
