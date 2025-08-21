@@ -5,21 +5,30 @@
 
 using System.Runtime.InteropServices;
 using HRESULT = System.Int32;
+#if NET
+using System.Runtime.InteropServices.Marshalling;
+#else
+using LibraryImportAttribute = System.Runtime.InteropServices.DllImportAttribute;
+#endif
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    internal static class NativeTelemetry
+    static partial class NativeTelemetry
     {
-        const string FabricTelemetryLib = "FabricTelemetry";
-
         internal static IFabricMeterProvider FabricCreateMeterProvider()
         {
             Marshal.ThrowExceptionForHR(FabricCreateMeterProvider(out IFabricMeterProvider meterProvider));
             return meterProvider;
         }
 
-        [DllImport(FabricTelemetryLib)]
-        static extern HRESULT FabricCreateMeterProvider([MarshalAs(UnmanagedType.Interface)] out IFabricMeterProvider meterProvider);
+        [LibraryImport("FabricTelemetry")]
+        internal static
+#if NET
+        partial
+#else
+        extern
+#endif
+            HRESULT FabricCreateMeterProvider([MarshalAs(UnmanagedType.Interface)] out IFabricMeterProvider meterProvider);
 
     }
 }

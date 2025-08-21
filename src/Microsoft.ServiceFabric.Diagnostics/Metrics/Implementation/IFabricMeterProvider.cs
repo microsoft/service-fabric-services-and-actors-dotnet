@@ -7,12 +7,18 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+#if NET
+using System.Runtime.InteropServices.Marshalling;
+#else
+using GeneratedComInterfaceAttribute = System.Runtime.InteropServices.ComImportAttribute;
+#endif
+
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    [ComImport]
+    [GeneratedComInterface]
     [Guid("15AD37D2-F641-4188-824B-0D68CB4F6C17")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    interface IFabricMeterProvider
+    partial interface IFabricMeterProvider
     {
         [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
         [return: MarshalAs(UnmanagedType.Interface)]
