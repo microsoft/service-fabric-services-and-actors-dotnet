@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var meter = new MeterBase(fabricMeter, null);
 
-                var actualList = meter.Field<IList<string>>().Value;
+                var actualList = meter.Field<IEnumerable<string>>().Value;
                 Assert.NotNull(actualList);
                 Assert.Empty(actualList);
             }
@@ -37,7 +37,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 var systemDimensionValues = fuzzy.List(() => fuzzy.String());
                 var meter = new MeterBase(fabricMeter, systemDimensionValues);
 
-                var actualList = meter.Field<IList<string>>().Value;
+                var actualList = meter.Field<IEnumerable<string>>().Value;
                 Assert.NotNull(actualList);
                 Assert.Equal(systemDimensionValues, actualList);
 

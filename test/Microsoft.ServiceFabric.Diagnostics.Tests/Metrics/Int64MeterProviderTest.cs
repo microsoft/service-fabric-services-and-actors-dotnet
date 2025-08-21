@@ -51,10 +51,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             readonly string testDimension2 = fuzzy.String();
             readonly string testDimension3 = fuzzy.String();
             readonly Int64MeterProvider sut;
+            readonly IList<string> systemDimensionsValues;
 
             public CreateMeter()
             {
                 sut = new Int64MeterProvider(serviceContext);
+                systemDimensionsValues = sut.Protected().Field<IList<string>>().Value;
             }
 
             [Fact]
@@ -65,8 +67,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 Assert.NotNull(meter);
                 Assert.IsType<Int64Meter>(meter);
 
-                var expectedSystemDimensions = sut.Protected().Field<IList<string>>().Value;
-                Assert.Equal(expectedSystemDimensions, ((Int64Meter)meter).Field<IList<string>>().Value);
+                Assert.Equal(systemDimensionsValues, ((Int64Meter)meter).Field<IEnumerable<string>>().Value);
             }
 
             [Fact]
@@ -77,9 +78,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 Assert.NotNull(meter1D);
                 Assert.IsType<Int64Meter1D>(meter1D);
 
-                var expectedSystemDimensions = sut.Protected().Field<IList<string>>().Value;
-                expectedSystemDimensions.Add(testDimension1);
-                Assert.Equal(expectedSystemDimensions, ((Int64Meter1D)meter1D).Field<IList<string>>().Value);
+                Assert.Equal(systemDimensionsValues, ((Int64Meter1D)meter1D).Field<IEnumerable<string>>().Value);
             }
 
             [Fact]
@@ -90,10 +89,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 Assert.NotNull(meter2D);
                 Assert.IsType<Int64Meter2D>(meter2D);
 
-                var expectedSystemDimensions = sut.Protected().Field<IList<string>>().Value;
-                expectedSystemDimensions.Add(testDimension1);
-                expectedSystemDimensions.Add(testDimension2);
-                Assert.Equal(expectedSystemDimensions, ((Int64Meter2D)meter2D).Field<IList<string>>().Value);
+                Assert.Equal(systemDimensionsValues, ((Int64Meter2D)meter2D).Field<IEnumerable<string>>().Value);
             }
 
             [Fact]
@@ -102,11 +98,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 var meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
                 Assert.NotNull(meter3D);
                 Assert.IsType<Int64Meter3D>(meter3D);
-                var expectedSystemDimensions = sut.Protected().Field<IList<string>>().Value;
-                expectedSystemDimensions.Add(testDimension1);
-                expectedSystemDimensions.Add(testDimension2);
-                expectedSystemDimensions.Add(testDimension3);
-                Assert.Equal(expectedSystemDimensions, ((Int64Meter3D)meter3D).Field<IList<string>>().Value);
+
+                Assert.Equal(systemDimensionsValues, ((Int64Meter3D)meter3D).Field<IEnumerable<string>>().Value);
             }
         }
     }
