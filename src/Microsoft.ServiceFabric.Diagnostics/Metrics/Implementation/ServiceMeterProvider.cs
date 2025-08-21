@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Linq;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
@@ -16,7 +15,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     /// <typeparam name="TValueType">The type of the value to be recorded (e.g. long, TimeSpan).</typeparam>
     abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        private readonly IList<string> systemDimensionNames = new List<string>
+        readonly IList<string> systemDimensionNames = new List<string>
         {
             "ReplicaOrInstanceId",
             "PartitionId",
@@ -49,10 +48,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IList<string> additionalDimensions)
         {
-            var allDimensionNames = new List<string>(systemDimensionNames.Concat(additionalDimensions));
-            var dimensionNames = allDimensionNames.ToArray();
+            string[] allDimensionNamesArray = new string[systemDimensionNames.Count + additionalDimensions.Count];
 
-            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)dimensionNames.Length, dimensionNames);
+            systemDimensionNames.CopyTo(allDimensionNamesArray, 0);
+            additionalDimensions.CopyTo(allDimensionNamesArray, systemDimensionNames.Count);
+
+            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensionNamesArray.Length, allDimensionNamesArray);
         }
 
         public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);

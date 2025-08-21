@@ -33,12 +33,20 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(testApplicationName);
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(testApplicationTypeName);
             this.serviceContext = new Mock<ServiceContext>(fuzzy.NodeContext(), codePackageActivationContext, testServiceTypeName, testServiceNameUri, fuzzy.Array(fuzzy.Byte), testPartitionId, replicaId).Object;
-
-            typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
         }
 
-        public class Constructor : ServiceMeterProviderTest
+        public class Constructor : ServiceMeterProviderTest, IDisposable
         {
+            public Constructor()
+            {
+                typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
+            }
+
+            public void Dispose()
+            {
+                typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
+            }
+
             [Fact]
             public void ShouldRecordRequiredDimensionsFromServiceContext()
             {
@@ -58,6 +66,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public void ShouldNotRecordRequiredDimensionsFromNullServiceContext()
             {
                 Assert.Throws<ArgumentNullException>(() => new TestMeterProvider<int>(null));
+            }
+        }
+
+        public class Class : ServiceMeterProviderTest
+        {
+            [Fact]
+            public void ShouldHaveIFabricMeterNativeInterop()
+            {
+                Func<IFabricMeterProvider> expected = typeof(NativeTelemetry).Method<Func<IFabricMeterProvider>>(nameof(NativeTelemetry.FabricCreateMeterProvider));
+                Func<IFabricMeterProvider> actual = typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>();
+                Assert.Equal(expected, actual);
             }
         }
 

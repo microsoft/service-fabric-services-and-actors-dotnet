@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// </summary>
         /// <param name="fabricMeter">The native fabric meter implementation.</param>
         /// <param name="systemDimensionValues">System dimension values that will be included with all recorded metrics.</param>
-        internal Int64Meter(IFabricMeter fabricMeter, IList<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
+        internal Int64Meter(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
         /// <summary>
         /// Records a long integer telemetry value.
