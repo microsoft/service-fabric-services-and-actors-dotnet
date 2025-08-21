@@ -31,13 +31,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <param name="dimension3">The third additional dimension value.</param>
         public void Record(long value, string dimension1, string dimension2, string dimension3)
         {
-            var allDimensionsList = new List<string>(systemDimensionValues)
-            {
-                dimension1,
-                dimension2,
-                dimension3
-            };
-            string[] allDimensionArray = allDimensionsList.ToArray();
+            var systemDimensionsList = (List<string>)systemDimensionValues;
+            string[] allDimensionArray = new string[systemDimensionsList.Count + 3];
+
+            systemDimensionsList.CopyTo(allDimensionArray, 0);
+            allDimensionArray[allDimensionArray.Length - 3] = dimension1;
+            allDimensionArray[allDimensionArray.Length - 2] = dimension2;
+            allDimensionArray[allDimensionArray.Length - 1] = dimension3;
+
             fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
         }
     }

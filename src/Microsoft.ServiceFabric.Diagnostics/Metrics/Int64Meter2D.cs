@@ -30,12 +30,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <param name="dimension2">The second additional dimension value.</param>
         public void Record(long value, string dimension1, string dimension2)
         {
-            var allDimensionsList = new List<string>(systemDimensionValues)
-            {
-                dimension1,
-                dimension2
-            };
-            string[] allDimensionArray = allDimensionsList.ToArray();
+            var systemDimensionsList = (List<string>)systemDimensionValues;
+            string[] allDimensionArray = new string[systemDimensionsList.Count + 2];
+
+            systemDimensionsList.CopyTo(allDimensionArray, 0);
+            allDimensionArray[allDimensionArray.Length - 2] = dimension1;
+            allDimensionArray[allDimensionArray.Length - 1] = dimension2;
+
             fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
         }
     }

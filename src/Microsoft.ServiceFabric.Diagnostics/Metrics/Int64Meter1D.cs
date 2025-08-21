@@ -29,11 +29,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <param name="dimension1">The additional dimension value to record with the metric.</param>
         public void Record(long value, string dimension1)
         {
-            var allDimensionsList = new List<string>(systemDimensionValues)
-            {
-                dimension1
-            };
-            string[] allDimensionArray = allDimensionsList.ToArray();
+            var systemDimensionsList = (List<string>)systemDimensionValues;
+            string[] allDimensionArray = new string[systemDimensionsList.Count + 1];
+
+            systemDimensionsList.CopyTo(allDimensionArray, 0);
+            allDimensionArray[allDimensionArray.Length - 1] = dimension1;
+
             fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
         }
     }
