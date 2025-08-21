@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Numerics;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
@@ -21,11 +20,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         readonly string testNodeName = fuzzy.String();
         readonly string testServiceTypeName = fuzzy.String();
-        readonly string testServiceUriString = "fabric:/TestApplication/TestService";
+        readonly Uri testServiceNameUri = fuzzy.Uri();
         readonly string testApplicationName = fuzzy.String();
         readonly string testApplicationTypeName = fuzzy.String();
         readonly long replicaId = fuzzy.Int64();
-        readonly Guid testPartitionId = new Guid();
+        readonly Guid testPartitionId = Guid.NewGuid();
 
         readonly ServiceContext serviceContext;
 
@@ -36,15 +35,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(testApplicationName);
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(testApplicationTypeName);
-
-            this.serviceContext = new TestServiceContext(
-                new NodeContext(testNodeName, new NodeId(BigInteger.Zero, BigInteger.Zero), BigInteger.Zero, string.Empty, string.Empty),
-                codePackageActivationContext,
-                testServiceTypeName,
-                new Uri(testServiceUriString),
-                null,
-                testPartitionId,
-                replicaId);
+            this.serviceContext = new Mock<ServiceContext>(fuzzy.NodeContext(), codePackageActivationContext, testServiceTypeName, testServiceNameUri, fuzzy.Array(fuzzy.Byte), testPartitionId, replicaId).Object;
 
             Mock.Get(fabricMeterProvider)
                 .Setup(x => x.CreateMeter(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<uint>()))
