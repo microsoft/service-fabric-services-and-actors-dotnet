@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
@@ -28,8 +29,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         readonly ServiceContext serviceContext;
 
-        readonly IFabricMeterProvider fabricMeterProvider = Mock.Of<IFabricMeterProvider>();
-
         public Int64MeterProviderTest()
         {
             var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
@@ -37,10 +36,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(testApplicationTypeName);
             this.serviceContext = new Mock<ServiceContext>(fuzzy.NodeContext(), codePackageActivationContext, testServiceTypeName, testServiceNameUri, fuzzy.Array(fuzzy.Byte), testPartitionId, replicaId).Object;
 
-            Mock.Get(fabricMeterProvider)
-                .Setup(x => x.CreateMeter(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>(), It.IsAny<uint>()))
-                .Returns(Mock.Of<IFabricMeter>());
-            typeof(ServiceMeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => fabricMeterProvider);
+            typeof(ServiceMeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
         }
 
         public class CreateMeter : Int64MeterProviderTest
@@ -50,13 +46,18 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             readonly string testDimension1 = fuzzy.String();
             readonly string testDimension2 = fuzzy.String();
             readonly string testDimension3 = fuzzy.String();
+
             readonly Int64MeterProvider sut;
+            readonly IList<string> systemDimensionsNames;
             readonly IList<string> systemDimensionsValues;
+            readonly IFabricMeterProvider fabricMeterProvider = new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object;
 
             public CreateMeter()
             {
                 sut = new Int64MeterProvider(serviceContext);
+                systemDimensionsNames = sut.Private().Field<IList<string>>().Value;
                 systemDimensionsValues = sut.Protected().Field<IList<string>>().Value;
+                sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
             }
 
             [Fact]
@@ -100,6 +101,42 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 Assert.IsType<Int64Meter3D>(meter3D);
 
                 Assert.Equal(systemDimensionsValues, ((Int64Meter3D)meter3D).Field<IEnumerable<string>>().Value);
+            }
+
+            [Fact]
+            public void ShouldCreateNativeMeterWithCorrectDimensions()
+            {
+                var meter = sut.CreateMeter(testNamespace, testMetric);
+
+                var expectedArray = systemDimensionsNames.ToArray();
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+            }
+
+            [Fact]
+            public void ShouldCreateNativeMeterWithCorrectDimensions1D()
+            {
+                var meter1D = sut.CreateMeter(testNamespace, testMetric, testDimension1);
+
+                var expectedArray = new List<string>(systemDimensionsNames) { testDimension1 }.ToArray();
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+            }
+
+            [Fact]
+            public void ShouldCreateNativeMeterWithCorrectDimensions2D()
+            {
+                var meter2D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2);
+
+                var expectedArray = new List<string>(systemDimensionsNames) { testDimension1, testDimension2 }.ToArray();
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+            }
+
+            [Fact]
+            public void ShouldCreateNativeMeterWithCorrectDimensions3D()
+            {
+                var meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
+
+                var expectedArray = new List<string>(systemDimensionsNames) { testDimension1, testDimension2, testDimension3 }.ToArray();
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
             }
         }
     }
