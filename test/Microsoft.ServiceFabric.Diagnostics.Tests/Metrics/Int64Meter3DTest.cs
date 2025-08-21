@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 meter.Record(value, customDimension1, customDimension2, customDimension3);
 
                 // Assert
-                Mock.Get(fabricMeter).Verify(m => m.Record(value, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
 
             [Fact]
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 meter.Record(value, customDimension1, customDimension2, customDimension3);
 
                 // Assert
-                Mock.Get(fabricMeter).Verify(m => m.Record(value, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
         }
     }

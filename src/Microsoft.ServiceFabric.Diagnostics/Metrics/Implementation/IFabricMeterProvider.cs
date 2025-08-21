@@ -16,6 +16,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
         [return: MarshalAs(UnmanagedType.Interface)]
-        IFabricMeter CreateMeter([MarshalAs(UnmanagedType.LPWStr)] string metricNamespace, [MarshalAs(UnmanagedType.LPWStr)] string name, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionNames, uint count);
+        IFabricMeter CreateMeter([MarshalAs(UnmanagedType.LPWStr)] string metricNamespace, [MarshalAs(UnmanagedType.LPWStr)] string name, uint count, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionNames);
     }
 }

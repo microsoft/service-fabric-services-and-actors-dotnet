@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 dimension2
             };
             string[] allDimensionArray = allDimensionsList.ToArray();
-            fabricMeter.Record(value, allDimensionArray, (uint)allDimensionArray.Length);
+            fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
         }
     }
 }

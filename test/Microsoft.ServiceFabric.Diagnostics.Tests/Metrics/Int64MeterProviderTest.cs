@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 var meter = sut.CreateMeter(testNamespace, testMetric);
 
                 var expectedArray = systemDimensionsNames.ToArray();
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
 
             [Fact]
@@ -118,7 +118,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 var meter1D = sut.CreateMeter(testNamespace, testMetric, testDimension1);
 
                 var expectedArray = new List<string>(systemDimensionsNames) { testDimension1 }.ToArray();
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
 
             [Fact]
@@ -127,7 +127,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 var meter2D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2);
 
                 var expectedArray = new List<string>(systemDimensionsNames) { testDimension1, testDimension2 }.ToArray();
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
 
             [Fact]
@@ -136,7 +136,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 var meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
 
                 var expectedArray = new List<string>(systemDimensionsNames) { testDimension1, testDimension2, testDimension3 }.ToArray();
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray)), (uint)expectedArray.Length), Times.Once);
+                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
         }
     }

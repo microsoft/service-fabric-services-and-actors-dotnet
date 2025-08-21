@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             var allDimensionNames = new List<string>(systemDimensionNames.Concat(additionalDimensions));
             var dimensionNames = allDimensionNames.ToArray();
 
-            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, dimensionNames, (uint)dimensionNames.Length);
+            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)dimensionNames.Length, dimensionNames);
         }
 
         public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);

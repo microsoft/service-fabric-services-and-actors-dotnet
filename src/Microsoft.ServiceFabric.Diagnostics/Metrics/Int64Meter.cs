@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         public void Record(long value)
         {
             string[] allDimensionArray = systemDimensionValues.ToArray();
-            fabricMeter.Record(value, allDimensionArray, (uint)allDimensionArray.Length);
+            fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
         }
     }
 }
