@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     interface IFabricMeter
     {
         [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-        void Record(long value, uint count, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionValues);
+        void Record(long value, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionValues, uint count);
     }
 
 }
