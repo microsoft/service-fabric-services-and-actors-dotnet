@@ -5,17 +5,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using Moq;
+using Inspector;
+using Xunit;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 using System.Fabric;
 using System.Fabric.Description;
-using Inspector;
-using Microsoft.ServiceFabric.Actors;
+using System.Collections.ObjectModel;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime;
 using Microsoft.ServiceFabric.Actors.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-using Moq;
-using Xunit;
+using Microsoft.ServiceFabric.Actors;
+using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
 {
@@ -56,7 +57,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                     actorTypeInfo,
                     null,
                     null,
-                    new NullActorStateProvider(),
+                    null,
                     new ActorServiceSettings());
 
                 // Act
