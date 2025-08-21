@@ -34,12 +34,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void SetsSystemDimensionAndMeterValuesWhenProvided()
             {
-                var systemDimensionValues = fuzzy.List(() => fuzzy.String());
-                var meter = new MeterBase(fabricMeter, systemDimensionValues);
+                var expectedValues = fuzzy.List(() => fuzzy.String());
+                var meter = new MeterBase(fabricMeter, expectedValues);
 
                 var actualList = meter.Field<IEnumerable<string>>().Value;
                 Assert.NotNull(actualList);
-                Assert.Equal(systemDimensionValues, actualList);
+                Assert.Equal(expectedValues, actualList);
 
 
                 var createdMeter = meter.Field<IFabricMeter>().Value;

@@ -61,7 +61,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateMeterWithCorrectSystemDimensions()
+            public void CreatesMeterWithCorrectSystemDimensions()
             {
                 var meter = sut.CreateMeter(testNamespace, testMetric);
 
@@ -72,7 +72,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateMeter1DWithCorrectSystemDimensions()
+            public void CreatesMeter1DWithCorrectSystemDimensions()
             {
                 var meter1D = sut.CreateMeter(testNamespace, testMetric, testDimension1);
 
@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateMeter2DWithCorrectSystemDimensions()
+            public void CreatesMeter2DWithCorrectSystemDimensions()
             {
                 var meter2D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2);
 
@@ -94,7 +94,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateMeter3DWithCorrectSystemDimensions()
+            public void CreatesMeter3DWithCorrectSystemDimensions()
             {
                 var meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
                 Assert.NotNull(meter3D);
@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateNativeMeterWithCorrectDimensions()
+            public void CreatesNativeMeterWithCorrectDimensions()
             {
                 var meter = sut.CreateMeter(testNamespace, testMetric);
 
@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateNativeMeterWithCorrectDimensions1D()
+            public void CreatesNativeMeterWithCorrectDimensions1D()
             {
                 var meter1D = sut.CreateMeter(testNamespace, testMetric, testDimension1);
 
@@ -122,7 +122,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateNativeMeterWithCorrectDimensions2D()
+            public void CreatesNativeMeterWithCorrectDimensions2D()
             {
                 var meter2D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2);
 
@@ -131,7 +131,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void ShouldCreateNativeMeterWithCorrectDimensions3D()
+            public void CreatesNativeMeterWithCorrectDimensions3D()
             {
                 var meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
 

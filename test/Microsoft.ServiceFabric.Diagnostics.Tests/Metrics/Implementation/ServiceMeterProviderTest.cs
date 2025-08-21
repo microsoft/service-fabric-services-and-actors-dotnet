@@ -52,14 +52,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var sut = new TestMeterProvider<int>(serviceContext);
 
-                var systemDimensions = sut.Protected().Field<IList<string>>().Value;
+                var actualValues = sut.Protected().Field<IList<string>>().Value;
 
-                Assert.Equal(replicaId.ToString(), systemDimensions[0]);
-                Assert.Equal(testPartitionId.ToString(), systemDimensions[1]);
-                Assert.Equal(testServiceTypeName, systemDimensions[2]);
-                Assert.Equal(testServiceNameUri.ToString(), systemDimensions[3]);
-                Assert.Equal(testApplicationName, systemDimensions[4]);
-                Assert.Equal(testApplicationTypeName, systemDimensions[5]);
+                Assert.Equal(replicaId.ToString(), actualValues[0]);
+                Assert.Equal(testPartitionId.ToString(), actualValues[1]);
+                Assert.Equal(testServiceTypeName, actualValues[2]);
+                Assert.Equal(testServiceNameUri.ToString(), actualValues[3]);
+                Assert.Equal(testApplicationName, actualValues[4]);
+                Assert.Equal(testApplicationTypeName, actualValues[5]);
             }
 
             [Fact]
