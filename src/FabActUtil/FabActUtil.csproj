@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{F6E091C3-9136-4058-91CF-57CDF383DF74}</ProjectGuid>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+  </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
+  <PropertyGroup>
+    <!-- 
+      The netframework.targets expects FabActUtil to be an EXE. The netcore.targets expects FabActUtil to be a DLL.
+      The netcore binary cannot be an EXE because the SF.ActorsServices.Internal package reference fails to resolve the DLL with the same name.
+    -->
+    <OutputType Condition="'$(TargetFramework)' == 'net462'">Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Condition="'$(TargetFramework)' == 'net462'" Include="Microsoft.ServiceFabric.Actors_netframework.targets">
+      <Link>Microsoft.ServiceFabric.Actors.targets</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition="'$(TargetFramework)' == 'net8.0'" Include="Microsoft.ServiceFabric.Actors_netcore.targets">
+      <Link>Microsoft.ServiceFabric.Actors.targets</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="SR.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SR.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="SR.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SR.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
