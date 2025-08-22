@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 #if NET
@@ -20,7 +19,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     partial interface IFabricMeter
     {
-        [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
         void Record(long value, uint count, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionValues);
     }
 
