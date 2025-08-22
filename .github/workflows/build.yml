@@ -24,6 +24,12 @@ jobs:
       - name: Disable strong name verification for testing
         shell: powershell
         run: .\SkipStrongName.ps1
+      - name: Uninstall SF SDK assemblies from GAC
+        shell: powershell
+        # Run command in VS Dev shell
+        run: |
+          & "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -SkipAutomaticLocation 
+          .\UninstallSfSdkFromGac.ps1
       - name: Build Everything
         shell: powershell
         run: dotnet build buildAll.proj
