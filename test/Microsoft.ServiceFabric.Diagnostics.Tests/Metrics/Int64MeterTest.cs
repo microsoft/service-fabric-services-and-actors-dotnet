@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public void CallsFabricMeterRecordWithNoSystemDimensions()
             {
                 // Arrange
-                string[] expectedArray = new string[0];
+                string[] expectedArray = Array.Empty<string>();
 
                 // Act
                 var meter = new Int64Meter(fabricMeter, new List<string>());
