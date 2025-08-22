@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.IntegrationTests
 {
-public class ReminderRegistrationTest : ActorIntegrationTest
+    public class ReminderRegistrationTest : ActorIntegrationTest
     {
         interface IReminderTestActor : IActor
         {
@@ -34,22 +34,22 @@ public class ReminderRegistrationTest : ActorIntegrationTest
 
             protected override Task OnPreActorMethodAsync(ActorMethodContext actorMethodContext)
             {
-                this.currentMethodContext = actorMethodContext; 
+                currentMethodContext = actorMethodContext;
                 return base.OnPreActorMethodAsync(actorMethodContext);
             }
 
             public async Task<IActorReminder> InitStateAndCreateReminder(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period)
             {
-                await this.StateManager.SetStateAsync(this.expectedReminderStateKey, state);
+                await StateManager.SetStateAsync(expectedReminderStateKey, state);
 
-                return await this.RegisterReminderAsync(reminderName, state, dueTime, period);
+                return await RegisterReminderAsync(reminderName, state, dueTime, period);
             }
 
             public async Task<bool> ValidateActorState()
             {
-                int fireCount = await this.StateManager.GetStateAsync<int>(this.fireCountKey);
-                bool isValidCallContext = (await this.StateManager.TryGetStateAsync<bool>(this.isValidCallContextKey)).Value;
-                bool isValidReminderState = (await this.StateManager.TryGetStateAsync<bool>(this.isValidReminderStateKey)).Value;
+                int fireCount = await StateManager.GetStateAsync<int>(fireCountKey);
+                bool isValidCallContext = (await StateManager.TryGetStateAsync<bool>(isValidCallContextKey)).Value;
+                bool isValidReminderState = (await StateManager.TryGetStateAsync<bool>(isValidReminderStateKey)).Value;
 
                 if (fireCount == 0)
                 {
@@ -69,30 +69,30 @@ public class ReminderRegistrationTest : ActorIntegrationTest
 
             public async Task ReceiveReminderAsync(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period)
             {
-                if (this.currentMethodContext.MethodName == "ReceiveReminderAsync" &&
-                    this.currentMethodContext.CallType == ActorCallType.ReminderMethod)
+                if (currentMethodContext.MethodName == "ReceiveReminderAsync" &&
+                    currentMethodContext.CallType == ActorCallType.ReminderMethod)
                 {
-                    await this.StateManager.SetStateAsync(this.isValidCallContextKey, true);
+                    await StateManager.SetStateAsync(isValidCallContextKey, true);
                 }
 
-                byte[] expectedReminderState = await this.StateManager.GetStateAsync<byte[]>(this.expectedReminderStateKey);
+                byte[] expectedReminderState = await StateManager.GetStateAsync<byte[]>(expectedReminderStateKey);
 
                 string receivedState = UTF8Encoding.UTF8.GetString(state);
                 string expectedState = UTF8Encoding.UTF8.GetString(expectedReminderState);
 
                 if (String.Equals(receivedState, expectedState))
                 {
-                    await this.StateManager.SetStateAsync(this.isValidReminderStateKey, true);
+                    await StateManager.SetStateAsync(isValidReminderStateKey, true);
                 }
 
-                await this.StateManager.AddOrUpdateStateAsync(this.fireCountKey, 1, (stateName, oldValue) => { return oldValue + 1; });
+                await StateManager.AddOrUpdateStateAsync(fireCountKey, 1, (stateName, oldValue) => { return oldValue + 1; });
             }
         }
 
         [Fact]
         public async Task ReminderSuccessfullyRegisteredAndFired()
         {
-            ActorService actorService = await this.GetActorService<RemiderTestActor>();
+            ActorService actorService = await GetActorService<RemiderTestActor>();
 
             string expectedReminderName = "TestReminder";
             byte[] expectedState = UTF8Encoding.UTF8.GetBytes("TestReminderState");
