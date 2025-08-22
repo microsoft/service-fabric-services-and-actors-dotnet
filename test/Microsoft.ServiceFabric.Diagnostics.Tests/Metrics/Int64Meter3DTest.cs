@@ -1,3 +1,8 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +62,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public void CallsFabricMeterRecordWithNoSystemDimensions()
             {
                 // Arrange
-                string[] expectedArray = new List<string> { customDimension1, customDimension2, customDimension3 }.ToArray();
+                string[] expectedArray = new string[] { customDimension1, customDimension2, customDimension3 };
 
                 // Act
                 var sut = new Int64Meter3D(fabricMeter, new List<string>());
