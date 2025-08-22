@@ -9,10 +9,6 @@ using System.Fabric;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    /// <summary>
-    /// Base class for Service Fabric meter providers that create and manage telemetry meters
-    /// </summary>
-    /// <typeparam name="TValueType">The type of the value to be recorded (e.g. long, TimeSpan).</typeparam>
     abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
         readonly IList<string> systemDimensionNames = new List<string>
