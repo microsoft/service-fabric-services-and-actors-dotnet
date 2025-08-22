@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 #else
         extern
 #endif
-        HRESULT FabricCreateMeterProvider([MarshalAs(UnmanagedType.Interface)] out IFabricMeterProvider meterProvider);
+        HRESULT FabricCreateMeterProvider(out IFabricMeterProvider meterProvider);
 
     }
 }
