@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public void InheritsFromInt64MeterBase()
             {
                 var meter = new Int64Meter2D(fabricMeter, null);
-                Assert.IsAssignableFrom<MeterBase>(meter);
+                Assert.IsAssignableFrom<Meter>(meter);
             }
         }
 

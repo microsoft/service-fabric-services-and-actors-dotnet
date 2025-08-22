@@ -18,13 +18,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void ThrowsArgumentNullExceptionWhenMeterNameIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new MeterBase(null, new List<string>()));
+                Assert.Throws<ArgumentNullException>(() => new Meter(null, new List<string>()));
             }
 
             [Fact]
             public void SetsEmptySystemDimensionValuesWhenNullProvided()
             {
-                var meter = new MeterBase(fabricMeter, null);
+                var meter = new Meter(fabricMeter, null);
 
                 var actualList = meter.Field<IEnumerable<string>>().Value;
                 Assert.NotNull(actualList);
@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public void SetsSystemDimensionAndMeterValuesWhenProvided()
             {
                 var expectedValues = fuzzy.List(() => fuzzy.String());
-                var meter = new MeterBase(fabricMeter, expectedValues);
+                var meter = new Meter(fabricMeter, expectedValues);
 
                 var actualList = meter.Field<IEnumerable<string>>().Value;
                 Assert.NotNull(actualList);

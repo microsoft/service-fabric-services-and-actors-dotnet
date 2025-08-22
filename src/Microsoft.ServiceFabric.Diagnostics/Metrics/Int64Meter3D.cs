@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
     /// Implementation of <see cref="IMeter3D{TValueType}"/> for long integer metrics.
     /// Records integer telemetry values with system dimensions and three additional dimensions.
     /// </summary>
-    sealed class Int64Meter3D : MeterBase, IMeter3D<long>
+    sealed class Int64Meter3D : Meter, IMeter3D<long>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Int64Meter3D"/> class.
