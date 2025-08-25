@@ -9,7 +9,7 @@ using Moq;
 
 namespace Microsoft.ServiceFabric.Actors.IntegrationTests
 {
-    public class ActorIntegrationTest
+    public abstract class ActorIntegrationTest
     {
         /// <summary>
         /// Gets mock Actor Service.
