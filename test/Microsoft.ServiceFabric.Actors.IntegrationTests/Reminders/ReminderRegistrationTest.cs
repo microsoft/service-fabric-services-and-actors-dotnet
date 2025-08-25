@@ -8,7 +8,7 @@ using Microsoft.ServiceFabric.Services.Runtime;
 using Xunit;
 using Fuzzy;
 
-namespace Microsoft.ServiceFabric.Actors.IntegrationTests
+namespace Microsoft.ServiceFabric.Actors
 {
     public class ActorIntegrationTest
     {
