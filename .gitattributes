@@ -1,0 +1,2 @@
+# Let Git detect text files, store LF line endings, check out LF endings on Linux and CRLF endings on Windows
+* text=auto
