@@ -16,13 +16,15 @@ namespace Microsoft.ServiceFabric.Actors.IntegrationTests
         /// </summary>
         /// <typeparam name="T">Type of Actor.</typeparam>
         /// <returns>Actor Service.</returns>
-        protected async Task<ActorService> GetActorService<T>(ActorServiceSettings actorServiceSettings = null)
+        protected async Task<ActorService> GetActorService<T>(
+            Func<ActorService, ActorId, ActorBase> actorFactory = null,
+            ActorServiceSettings actorServiceSettings = null)
             where T : Actor
         {
             ActorService actorService = new ActorService(
                 GetMockStatefulServiceContext(),
                 ActorTypeInformation.Get(typeof(T)),
-                null,
+                actorFactory,
                 null,
                 new NullActorStateProvider(),
                 actorServiceSettings);
