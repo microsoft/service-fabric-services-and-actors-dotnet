@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Tests.Runtime.Volatile
+namespace Microsoft.ServiceFabric.Actors.Runtime.Volatile
 {
     using System;
     using System.Diagnostics;

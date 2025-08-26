@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Tests.Generator
+namespace Microsoft.ServiceFabric.Actors.Generator
 {
     using FluentAssertions;
     using Microsoft.ServiceFabric.Actors.Generator;

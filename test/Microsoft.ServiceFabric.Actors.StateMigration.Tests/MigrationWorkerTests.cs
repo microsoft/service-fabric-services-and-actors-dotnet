@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
+namespace Microsoft.ServiceFabric.Actors.StateMigration
 {
     using System;
     using System.Threading;

@@ -13,7 +13,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Actors.Tests.ExceptionConvertors
+namespace Microsoft.ServiceFabric.Actors.ExceptionConvertors
 {
     public class FabricActorExceptionTest
     {

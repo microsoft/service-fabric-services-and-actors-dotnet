@@ -1,7 +1,7 @@
 using System;
 using Fuzzy;
 
-namespace Microsoft.ServiceFabric.Actors.Tests
+namespace Microsoft.ServiceFabric.Actors
 {
     static class IFuzzExtensions
     {

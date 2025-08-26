@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
+namespace Microsoft.ServiceFabric.Actors.StateMigration
 {
     using System;
     using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-    using Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes;
+    using Microsoft.ServiceFabric.Actors.StateMigration.MockTypes;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Moq;
     using Xunit;

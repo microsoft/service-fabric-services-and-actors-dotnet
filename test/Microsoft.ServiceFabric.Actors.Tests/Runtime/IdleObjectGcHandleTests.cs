@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
+namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

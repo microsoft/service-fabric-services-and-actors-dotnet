@@ -6,7 +6,7 @@ using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Actors.Tests
+namespace Microsoft.ServiceFabric.Actors
 {
     public class ActorRemotingProviderAttributeTest
     {

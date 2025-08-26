@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes
+namespace Microsoft.ServiceFabric.Actors.StateMigration.MockTypes
 {
     using System.Collections.Generic;
     using System.Threading;
