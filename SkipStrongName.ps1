@@ -12,6 +12,7 @@ $assemblies = "FabActUtil",
               "Microsoft.ServiceFabric.Actors.IntegrationTests",
               "Microsoft.ServiceFabric.Services.Tests",
               "Microsoft.ServiceFabric.Services.Remoting.Tests",
+              "Microsoft.ServiceFabric.TestFramework"
               "Microsoft.ServiceFabric.Diagnostics",
               "Microsoft.ServiceFabric.Diagnostics.Tests",
               "Microsoft.ServiceFabric.Services.Wcf.Tests"
