@@ -18,7 +18,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.ExceptionConvertors
 {
     public class SystemExceptionConvertorTest
     {

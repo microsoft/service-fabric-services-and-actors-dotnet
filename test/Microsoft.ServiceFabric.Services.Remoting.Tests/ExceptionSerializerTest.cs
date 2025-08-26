@@ -15,7 +15,7 @@ using Fuzzy;
 using Inspector;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.Tests
+namespace Microsoft.ServiceFabric.Services.Remoting
 {
     public abstract class ExceptionSerializerTest
     {

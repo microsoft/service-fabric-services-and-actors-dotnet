@@ -1,7 +1,7 @@
 using System.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Tests
+namespace Microsoft.ServiceFabric.Diagnostics
 {      
     [EventSource(Name = "TestEventSource")]
     internal class TestEventSource : ServiceFabricEventSource

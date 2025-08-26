@@ -11,7 +11,7 @@ using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.ExceptionConvertors
 {
     public class CustomConvertorTest
     {

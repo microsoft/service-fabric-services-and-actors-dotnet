@@ -14,7 +14,7 @@ using System.Fabric.Description;
 using System.Collections.ObjectModel;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 {
     public abstract class WcfServiceRemotingListenerTest
     {

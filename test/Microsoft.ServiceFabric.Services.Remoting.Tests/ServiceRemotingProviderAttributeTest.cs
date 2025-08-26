@@ -5,7 +5,7 @@ using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.Tests
+namespace Microsoft.ServiceFabric.Services.Remoting
 {
     public class ServiceRemotingProviderAttributeTest
     {

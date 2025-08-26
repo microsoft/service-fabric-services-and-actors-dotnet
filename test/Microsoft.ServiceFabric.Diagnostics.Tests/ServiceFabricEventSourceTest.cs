@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
 
-namespace Microsoft.ServiceFabric.Diagnostics.Tests
+namespace Microsoft.ServiceFabric.Diagnostics
 {
     public abstract class ServiceFabricEventSourceTest
     {

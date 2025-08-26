@@ -16,7 +16,7 @@ using Fuzzy;
 using System.Runtime.Remoting;
 using Microsoft.ServiceFabric.Services.Communication;
 
-namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 {
     public abstract class WcfRemotingServiceTest
     {
