@@ -74,7 +74,6 @@ namespace Microsoft.ServiceFabric.Actors
             [Fact]
             public async Task ReminderParametersPersistBetweenRegisteringAndReceivingReminder()
             {
-
                 int expectedCallbackInvocationCounter = 1;
                 string expectedReminderName = "TestReminder";
                 string expectedActorMethodName = "ReceiveReminderAsync";
@@ -129,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors
                 Assert.Equal(expectedPeriod, reminderResult.Period);
 
                 // Wait enough time for reminder to fire
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(2));
 
                 Assert.Equal(expectedCallbackInvocationCounter, reminderCallbackInvocationCounter);
                 Assert.Equal(expectedReminderName, actualReminderName);
