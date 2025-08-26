@@ -131,13 +131,13 @@ namespace Microsoft.ServiceFabric.Actors
                 // Wait enough time for reminder to fire
                 await Task.Delay(TimeSpan.FromSeconds(5));
 
-                Assert.Equal(reminderCallbackInvocationCounter, expectedCallbackInvocationCounter);
-                Assert.Equal(actualReminderName, expectedReminderName);
-                Assert.Equal(actualActorMethodName, expectedActorMethodName);
-                Assert.Equal(actualActorCallType, expectedActorCallType);
-                Assert.Equal(actualState, expectedState);
-                Assert.Equal(actualDueTime, expectedDueTime);
-                Assert.Equal(actualPeriod, expectedPeriod);
+                Assert.Equal(expectedCallbackInvocationCounter, reminderCallbackInvocationCounter);
+                Assert.Equal(expectedReminderName, actualReminderName);
+                Assert.Equal(expectedActorMethodName, actualActorMethodName);
+                Assert.Equal(expectedActorCallType, actualActorCallType);
+                Assert.Equal(expectedState, actualState);
+                Assert.Equal(expectedDueTime, actualDueTime);
+                Assert.Equal(expectedPeriod, actualPeriod);
             }
         }
     }
