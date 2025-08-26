@@ -5,7 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
-using Microsoft.ServiceFabric.Actors.Tests;
+using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Moq;
 using Xunit;

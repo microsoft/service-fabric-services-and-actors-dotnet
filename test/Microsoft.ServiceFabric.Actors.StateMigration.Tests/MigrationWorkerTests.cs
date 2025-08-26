@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration;
-    using Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes;
+    using Microsoft.ServiceFabric.Actors.StateMigration.MockTypes;
     using Xunit;
 
     /// <summary>

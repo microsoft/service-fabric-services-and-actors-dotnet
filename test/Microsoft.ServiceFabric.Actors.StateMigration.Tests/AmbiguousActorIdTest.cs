@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration;
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-    using Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes;
+    using Microsoft.ServiceFabric.Actors.StateMigration.MockTypes;
     using Xunit;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.IAmbiguousActorIdHandler;
 
