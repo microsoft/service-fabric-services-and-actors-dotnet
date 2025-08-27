@@ -17,23 +17,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly string testNodeName = fuzzy.String();
-        readonly string testServiceTypeName = fuzzy.String();
-        readonly Uri testServiceNameUri = fuzzy.Uri();
-        readonly string testApplicationName = fuzzy.String();
-        readonly string testApplicationTypeName = fuzzy.String();
-        readonly long replicaId = fuzzy.Int64();
-        readonly Guid testPartitionId = Guid.NewGuid();
-
-        readonly ServiceContext serviceContext;
-
-        public ServiceMeterProviderTest()
-        {
-            var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
-            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(testApplicationName);
-            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(testApplicationTypeName);
-            this.serviceContext = new Mock<ServiceContext>(fuzzy.NodeContext(), codePackageActivationContext, testServiceTypeName, testServiceNameUri, fuzzy.Array(fuzzy.Byte), testPartitionId, replicaId).Object;
-        }
+        readonly ServiceContext serviceContext = fuzzy.ServiceContext();
 
         public class Constructor : ServiceMeterProviderTest, IDisposable
         {
@@ -54,12 +38,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 var actualValues = sut.Protected().Field<IList<string>>().Value;
 
-                Assert.Equal(replicaId.ToString(), actualValues[0]);
-                Assert.Equal(testPartitionId.ToString(), actualValues[1]);
-                Assert.Equal(testServiceTypeName, actualValues[2]);
-                Assert.Equal(testServiceNameUri.ToString(), actualValues[3]);
-                Assert.Equal(testApplicationName, actualValues[4]);
-                Assert.Equal(testApplicationTypeName, actualValues[5]);
+                Assert.Equal(serviceContext.ReplicaOrInstanceId.ToString(), actualValues[0]);
+                Assert.Equal(serviceContext.PartitionId.ToString(), actualValues[1]);
+                Assert.Equal(serviceContext.ServiceTypeName, actualValues[2]);
+                Assert.Equal(serviceContext.ServiceName.ToString(), actualValues[3]);
+                Assert.Equal(serviceContext.CodePackageActivationContext.ApplicationName, actualValues[4]);
+                Assert.Equal(serviceContext.CodePackageActivationContext.ApplicationTypeName, actualValues[5]);
             }
 
             [Fact]

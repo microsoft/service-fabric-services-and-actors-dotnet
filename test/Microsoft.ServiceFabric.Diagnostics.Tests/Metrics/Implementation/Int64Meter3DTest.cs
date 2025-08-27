@@ -47,27 +47,21 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsFabricMeterRecordWithMultipleSystemDimensions()
             {
-                // Arrange
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2, customDimension3 }).ToArray();
 
-                // Act
                 sut.Record(value, customDimension1, customDimension2, customDimension3);
 
-                // Assert
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
 
             [Fact]
             public void CallsFabricMeterRecordWithNoSystemDimensions()
             {
-                // Arrange
                 var expectedArray = new string[] { customDimension1, customDimension2, customDimension3 };
 
-                // Act
                 var sut = new Int64Meter3D(fabricMeter, new List<string>());
                 sut.Record(value, customDimension1, customDimension2, customDimension3);
 
-                // Assert
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
         }
