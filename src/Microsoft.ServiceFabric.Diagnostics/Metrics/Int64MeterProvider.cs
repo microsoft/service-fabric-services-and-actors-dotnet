@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System.Collections.Generic;
+using System;
 using System.Fabric;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <returns>A meter instance for recording long integer values without additional dimensions.</returns>
         public override IMeter<long> CreateMeter(string metricNamespace, string name)
         {
-            return new Int64Meter(CreateNativeMeter(metricNamespace, name, new List<string>()), systemDimensionValues);
+            return new Int64Meter(CreateNativeMeter(metricNamespace, name, Array.Empty<string>()), systemDimensionValues);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <returns>A meter instance for recording long integer values with one additional dimension.</returns>
         public override IMeter1D<long> CreateMeter(string metricNamespace, string name, string dimension1Name)
         {
-            return new Int64Meter1D(CreateNativeMeter(metricNamespace, name, new List<string>() { dimension1Name }), systemDimensionValues);
+            return new Int64Meter1D(CreateNativeMeter(metricNamespace, name, new[] { dimension1Name }), systemDimensionValues);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <returns>A meter instance for recording long integer values with two additional dimensions.</returns>
         public override IMeter2D<long> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name)
         {
-            return new Int64Meter2D(CreateNativeMeter(metricNamespace, name, new List<string>() { dimension1Name, dimension2Name }), systemDimensionValues);
+            return new Int64Meter2D(CreateNativeMeter(metricNamespace, name, new[] { dimension1Name, dimension2Name }), systemDimensionValues);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <returns>A meter instance for recording long integer values with three additional dimensions.</returns>
         public override IMeter3D<long> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name)
         {
-            return new Int64Meter3D(CreateNativeMeter(metricNamespace, name, new List<string>() { dimension1Name, dimension2Name, dimension3Name }), systemDimensionValues);
+            return new Int64Meter3D(CreateNativeMeter(metricNamespace, name, new[] { dimension1Name, dimension2Name, dimension3Name }), systemDimensionValues);
         }
     }
 }

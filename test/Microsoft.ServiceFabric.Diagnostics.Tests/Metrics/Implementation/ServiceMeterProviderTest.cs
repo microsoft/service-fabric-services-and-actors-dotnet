@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var sut = new TestMeterProvider<int>(serviceContext);
 
-                var actualValues = sut.Protected().Field<IList<string>>().Value;
+                var actualValues = (string[])sut.Protected().Field<IEnumerable<string>>().Value;
 
                 Assert.Equal(serviceContext.ReplicaOrInstanceId.ToString(), actualValues[0]);
                 Assert.Equal(serviceContext.PartitionId.ToString(), actualValues[1]);

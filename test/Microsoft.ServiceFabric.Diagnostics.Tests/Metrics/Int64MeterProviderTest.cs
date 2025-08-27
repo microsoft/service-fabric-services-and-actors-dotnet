@@ -48,16 +48,16 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             readonly string testDimension3 = fuzzy.String();
 
             readonly Int64MeterProvider sut;
-            readonly IList<string> systemDimensionsNames;
-            readonly IList<string> systemDimensionsValues;
+            readonly IEnumerable<string> systemDimensionsNames;
+            readonly IEnumerable<string> systemDimensionsValues;
             readonly IFabricMeterProvider fabricMeterProvider = new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object;
             readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
 
             public CreateMeter()
             {
                 sut = new Int64MeterProvider(serviceContext);
-                systemDimensionsNames = sut.Private().Field<IList<string>>().Value;
-                systemDimensionsValues = sut.Protected().Field<IList<string>>().Value;
+                systemDimensionsNames = sut.Private().Field<IEnumerable<string>>().Value;
+                systemDimensionsValues = sut.Protected().Field<IEnumerable<string>>().Value;
                 sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
 
                 Mock.Get(fabricMeterProvider).Setup(x => x.CreateMeter(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<uint>(), It.IsAny<string[]>())).Returns(fabricMeter);

@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        readonly IList<string> systemDimensionNames = new List<string>
+        readonly IEnumerable<string> systemDimensionNames = new[]
         {
             nameof(ServiceContext.ReplicaOrInstanceId),
             nameof(ServiceContext.PartitionId),
@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             nameof(ServiceContext.CodePackageActivationContext.ApplicationName),
             nameof(ServiceContext.CodePackageActivationContext.ApplicationTypeName)
         };
-        protected readonly IList<string> systemDimensionValues = new List<string>();
+        protected readonly IEnumerable<string> systemDimensionValues;
         protected readonly IFabricMeterProvider fabricMeterProvider;
 
         private static Func<IFabricMeterProvider> createFabricMeterProvider = NativeTelemetry.FabricCreateMeterProvider;
@@ -35,23 +35,27 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
             fabricMeterProvider = createFabricMeterProvider();
 
-            systemDimensionValues.Add(serviceContext.ReplicaOrInstanceId.ToString());
-            systemDimensionValues.Add(serviceContext.PartitionId.ToString());
-            systemDimensionValues.Add(serviceContext.ServiceTypeName);
-            systemDimensionValues.Add(serviceContext.ServiceName.ToString());
-            systemDimensionValues.Add(serviceContext.CodePackageActivationContext.ApplicationName);
-            systemDimensionValues.Add(serviceContext.CodePackageActivationContext.ApplicationTypeName);
+            var systemDimensionValuesList = new[]
+            {
+                serviceContext.ReplicaOrInstanceId.ToString(),
+                serviceContext.PartitionId.ToString(),
+                serviceContext.ServiceTypeName,
+                serviceContext.ServiceName.ToString(),
+                serviceContext.CodePackageActivationContext.ApplicationName,
+                serviceContext.CodePackageActivationContext.ApplicationTypeName
+            };
+            this.systemDimensionValues = systemDimensionValuesList;
         }
 
         protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IEnumerable<string> additionalDimensions)
         {
-            List<string> allDimensionsList = new List<string>(systemDimensionNames.Count + additionalDimensions.Count());
-            allDimensionsList.AddRange(systemDimensionNames);
+            var allDimensionsList = new List<string>(this.systemDimensionNames.Count() + additionalDimensions.Count());
+
+            allDimensionsList.AddRange(this.systemDimensionNames);
             allDimensionsList.AddRange(additionalDimensions);
 
-            string[] allDimensionNamesArray = allDimensionsList.ToArray();
-
-            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensionNamesArray.Length, allDimensionNamesArray);
+            var allDimensions = allDimensionsList.ToArray();
+            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensions.Length, allDimensions);
         }
 
         public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);
