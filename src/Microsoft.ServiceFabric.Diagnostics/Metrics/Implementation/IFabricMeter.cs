@@ -21,5 +21,4 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         void Record(long value, uint count, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionValues);
     }
-
 }

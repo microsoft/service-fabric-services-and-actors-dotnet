@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
@@ -42,12 +43,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             systemDimensionValues.Add(serviceContext.CodePackageActivationContext.ApplicationTypeName);
         }
 
-        protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IList<string> additionalDimensions)
+        protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IEnumerable<string> additionalDimensions)
         {
-            string[] allDimensionNamesArray = new string[systemDimensionNames.Count + additionalDimensions.Count];
+            List<string> allDimensionsList = new List<string>(systemDimensionNames.Count + additionalDimensions.Count());
+            allDimensionsList.AddRange(systemDimensionNames);
+            allDimensionsList.AddRange(additionalDimensions);
 
-            systemDimensionNames.CopyTo(allDimensionNamesArray, 0);
-            additionalDimensions.CopyTo(allDimensionNamesArray, systemDimensionNames.Count);
+            string[] allDimensionNamesArray = allDimensionsList.ToArray();
 
             return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensionNamesArray.Length, allDimensionNamesArray);
         }

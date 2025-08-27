@@ -5,9 +5,7 @@
 
 using System.Runtime.InteropServices;
 using HRESULT = System.Int32;
-#if NET
-using System.Runtime.InteropServices.Marshalling;
-#else
+#if !NET
 using LibraryImportAttribute = System.Runtime.InteropServices.DllImportAttribute;
 #endif
 

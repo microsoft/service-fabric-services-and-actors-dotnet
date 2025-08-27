@@ -26,12 +26,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void SetsEmptySystemDimensionValuesWhenNullProvided()
+            public void ThrowsArgumentNullExceptionWhenNullSystemDimensionsProvided()
             {
-                Meter meter = new MeterImplementation(fabricMeter, null);
-
-                Assert.NotNull(meter.Field<IEnumerable<string>>().Value);
-                Assert.Empty(meter.Field<IEnumerable<string>>().Value);
+                Assert.Throws<ArgumentNullException>(() => new MeterImplementation(fabricMeter, null));
             }
 
             [Fact]
