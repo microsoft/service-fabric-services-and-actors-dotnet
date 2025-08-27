@@ -28,13 +28,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void ThrowsArgumentNullExceptionWhenNullSystemDimensionsProvided()
+            public void ThrowsArgumentNullExceptionWhenSystemDimensionsAreNull()
             {
                 Assert.Throws<ArgumentNullException>(() => new MeterImplementation(fabricMeter, null));
             }
 
             [Fact]
-            public void SetsSystemDimensionAndMeterValuesWhenEmptySystemDimensionsProvided()
+            public void SetsSystemDimensionAndMeterValuesWhenSystemDimensionsAreEmpty()
             {
                 var expectedSystemDimensions = new List<string>();
                 Meter meter = new MeterImplementation(fabricMeter, expectedSystemDimensions);
@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void SetsSystemDimensionAndMeterValuesWhenProvided()
+            public void SetsSystemDimensionAndMeter()
             {
                 Meter meter = new MeterImplementation(fabricMeter, systemDimensions);
 

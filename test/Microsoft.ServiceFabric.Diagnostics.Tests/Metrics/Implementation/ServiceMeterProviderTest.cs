@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void ShouldRecordRequiredDimensionsFromServiceContext()
+            public void SetsRequiredDimensionsFromServiceContext()
             {
                 var sut = new TestMeterProvider<int>(serviceContext);
 
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void ShouldNotRecordRequiredDimensionsFromNullServiceContext()
+            public void ThrowAnArgumentExceptionWhenServiceContextNull()
             {
                 Assert.Throws<ArgumentNullException>(() => new TestMeterProvider<int>(null));
             }
@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         public class Class : ServiceMeterProviderTest
         {
             [Fact]
-            public void ShouldHaveIFabricMeterNativeInterop()
+            public void HasFabricCreateMeterProviderFunc()
             {
                 Func<IFabricMeterProvider> expected = typeof(NativeTelemetry).Method<Func<IFabricMeterProvider>>(nameof(NativeTelemetry.FabricCreateMeterProvider));
                 Func<IFabricMeterProvider> actual = typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>();

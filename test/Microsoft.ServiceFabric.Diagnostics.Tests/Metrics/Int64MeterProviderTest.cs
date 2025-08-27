@@ -51,50 +51,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void CreatesMeterWithCorrectSystemDimensions()
-            {
-                IMeter<long> meter = sut.CreateMeter(testNamespace, testMetric);
-
-                Assert.NotNull(meter);
-                Assert.IsType<Int64Meter>(meter);
-
-                Assert.Equal(systemDimensionsValues, ((Int64Meter)meter).Field<IEnumerable<string>>().Value);
-            }
-
-            [Fact]
-            public void CreatesMeter1DWithCorrectSystemDimensions()
-            {
-                IMeter1D<long> meter1D = sut.CreateMeter(testNamespace, testMetric, testDimension1);
-
-                Assert.NotNull(meter1D);
-                Assert.IsType<Int64Meter1D>(meter1D);
-
-                Assert.Equal(systemDimensionsValues, ((Int64Meter1D)meter1D).Field<IEnumerable<string>>().Value);
-            }
-
-            [Fact]
-            public void CreatesMeter2DWithCorrectSystemDimensions()
-            {
-                IMeter2D<long> meter2D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2);
-
-                Assert.NotNull(meter2D);
-                Assert.IsType<Int64Meter2D>(meter2D);
-
-                Assert.Equal(systemDimensionsValues, ((Int64Meter2D)meter2D).Field<IEnumerable<string>>().Value);
-            }
-
-            [Fact]
-            public void CreatesMeter3DWithCorrectSystemDimensions()
-            {
-                IMeter3D<long> meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
-                Assert.NotNull(meter3D);
-                Assert.IsType<Int64Meter3D>(meter3D);
-
-                Assert.Equal(systemDimensionsValues, ((Int64Meter3D)meter3D).Field<IEnumerable<string>>().Value);
-            }
-
-            [Fact]
-            public void CreatesNativeMeterWithCorrectDimensions()
+            public void CreatesMeterWithCorrectDimensionsAndMeter()
             {
                 var combinedDimensions = systemDimensionsNames.ToArray();
 
@@ -106,7 +63,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void CreatesNativeMeterWithCorrectDimensions1D()
+            public void CreatesMeterWithCorrectDimensionsAndMeter1D()
             {
                 var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1 }.ToArray();
 
@@ -118,7 +75,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void CreatesNativeMeterWithCorrectDimensions2D()
+            public void CreatesMeterWithCorrectDimensionsAndMeter2D()
             {
                 var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2 }.ToArray();
 
@@ -130,7 +87,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
 
             [Fact]
-            public void CreatesNativeMeterWithCorrectDimensions3D()
+            public void CreatesMeterWithCorrectDimensionsAndMeter3D()
             {
                 var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2, testDimension3 }.ToArray();
 
