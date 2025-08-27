@@ -5,7 +5,7 @@
 
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     public abstract class NullMeterProviderTest
     {

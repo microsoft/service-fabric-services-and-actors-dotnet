@@ -8,15 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Fuzzy;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    public abstract class Int64Meter1DTest
+    public abstract class Int64Meter2DTest
     {
-        readonly IMeter1D<long> sut;
+        readonly IMeter2D<long> sut;
 
         // Constructor parameters
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
@@ -25,9 +24,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        public Int64Meter1DTest() => sut = new Int64Meter1D(fabricMeter, systemDimensions);
+        public Int64Meter2DTest() => sut = new Int64Meter2D(fabricMeter, systemDimensions);
 
-        public class Class : Int64Meter1DTest
+        public class Class : Int64Meter2DTest
         {
             [Fact]
             public void InvokesBaseWithGivenArguments()
@@ -38,19 +37,20 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             }
         }
 
-        public class Record : Int64Meter1DTest
+        public class Record : Int64Meter2DTest
         {
             readonly string customDimension1 = fuzzy.String();
+            readonly string customDimension2 = fuzzy.String();
             readonly long value = fuzzy.Int64();
 
             [Fact]
             public void CallsFabricMeterRecordWithMultipleSystemDimensions()
             {
                 // Arrange
-                string[] expectedArray = systemDimensions.Concat(new[] { customDimension1 }).ToArray();
+                var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2 }).ToArray();
 
                 // Act
-                sut.Record(value, customDimension1);
+                sut.Record(value, customDimension1, customDimension2);
 
                 // Assert
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
@@ -60,11 +60,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public void CallsFabricMeterRecordWithNoSystemDimensions()
             {
                 // Arrange
-                string[] expectedArray = new string[] { customDimension1 };
+                var expectedArray = new string[] { customDimension1, customDimension2 };
 
                 // Act
-                var meter = new Int64Meter1D(fabricMeter, new List<string>());
-                meter.Record(value, customDimension1);
+                var sut = new Int64Meter2D(fabricMeter, new List<string>());
+                sut.Record(value, customDimension1, customDimension2);
 
                 // Assert
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);

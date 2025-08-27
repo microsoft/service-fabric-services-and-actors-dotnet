@@ -5,9 +5,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     /// <summary>
     /// Implementation of <see cref="IMeter{TValueType}"/> for long integer metrics.
@@ -29,7 +28,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <param name="value">The integer value to record.</param>
         public void Record(long value)
         {
-            string[] allDimensionArray = systemDimensionValues.ToArray();
+            var allDimensionArray = systemDimensionValues.ToArray();
             fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
         }
     }

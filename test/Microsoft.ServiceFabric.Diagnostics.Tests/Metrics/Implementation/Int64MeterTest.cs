@@ -8,11 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Fuzzy;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     public abstract class Int64MeterTest
     {
@@ -46,7 +45,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public void CallsFabricMeterRecordWithMultipleSystemDimensions()
             {
                 // Arrange
-                string[] expectedArray = systemDimensions.ToArray();
+                var expectedArray = systemDimensions.ToArray();
 
                 // Act
                 sut.Record(value);
@@ -59,7 +58,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public void CallsFabricMeterRecordWithNoSystemDimensions()
             {
                 // Arrange
-                string[] expectedArray = Array.Empty<string>();
+                var expectedArray = Array.Empty<string>();
 
                 // Act
                 var meter = new Int64Meter(fabricMeter, new List<string>());

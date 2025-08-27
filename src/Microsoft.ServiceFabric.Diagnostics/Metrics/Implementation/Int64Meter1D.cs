@@ -4,9 +4,8 @@
 // ------------------------------------------------------------
 
 using System.Collections.Generic;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     /// <summary>
     /// Implementation of <see cref="IMeter1D{TValueType}"/> for long integer metrics.
@@ -30,7 +29,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         public void Record(long value, string dimension1)
         {
             var systemDimensionsList = (List<string>)systemDimensionValues;
-            string[] allDimensionArray = new string[systemDimensionsList.Count + 1];
+            var allDimensionArray = new string[systemDimensionsList.Count + 1];
 
             systemDimensionsList.CopyTo(allDimensionArray, 0);
             allDimensionArray[allDimensionArray.Length - 1] = dimension1;
