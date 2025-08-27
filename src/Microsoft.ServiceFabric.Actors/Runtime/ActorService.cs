@@ -112,6 +112,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.stateManagerFactory = stateManagerFactory ?? DefaultActorStateManagerFactory;
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
+            this.methodFriendlyNameBuilder = new ActorMethodFriendlyNameBuilder(actorTypeInformation);
 
             if (migrationOrchestrator != null)
             {
