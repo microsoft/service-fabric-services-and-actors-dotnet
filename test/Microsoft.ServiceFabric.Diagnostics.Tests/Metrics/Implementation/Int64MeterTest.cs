@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         // Constructor parameters
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
-        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String(), Count.Min(1));
+        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
 
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
@@ -47,17 +47,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 var expectedArray = systemDimensions.ToArray();
 
                 sut.Record(value);
-
-                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
-            }
-
-            [Fact]
-            public void CallsFabricMeterRecordWithNoSystemDimensions()
-            {
-                var expectedArray = Array.Empty<string>();
-
-                var meter = new Int64Meter(fabricMeter, new List<string>());
-                meter.Record(value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }

@@ -15,6 +15,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     public abstract class MeterTest
     {
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
+        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
+
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         public class Constructor : MeterTest
@@ -22,7 +24,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void ThrowsArgumentNullExceptionWhenMeterNameIsNull()
             {
-                Assert.Throws<ArgumentNullException>(() => new MeterImplementation(null, new List<string>()));
+                Assert.Throws<ArgumentNullException>(() => new MeterImplementation(null, systemDimensions));
             }
 
             [Fact]
@@ -32,14 +34,22 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void SetsSystemDimensionAndMeterValuesWhenProvided()
+            public void SetsSystemDimensionAndMeterValuesWhenEmptySystemDimensionsProvided()
             {
-                var expectedValues = fuzzy.List(() => fuzzy.String());
-
-                Meter meter = new MeterImplementation(fabricMeter, expectedValues);
+                var expectedSystemDimensions = new List<string>();
+                Meter meter = new MeterImplementation(fabricMeter, expectedSystemDimensions);
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Same(expectedValues, meter.Field<IEnumerable<string>>().Value);
+                Assert.Same(expectedSystemDimensions, meter.Field<IEnumerable<string>>().Value);
+            }
+
+            [Fact]
+            public void SetsSystemDimensionAndMeterValuesWhenProvided()
+            {
+                Meter meter = new MeterImplementation(fabricMeter, systemDimensions);
+
+                Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
+                Assert.Same(systemDimensions, meter.Field<IEnumerable<string>>().Value);
             }
         }
 
