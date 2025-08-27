@@ -14,12 +14,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         readonly IList<string> systemDimensionNames = new List<string>
         {
-            "ReplicaOrInstanceId",
-            "PartitionId",
-            "ServiceTypeName",
-            "ServiceName",
-            "ApplicationName",
-            "ApplicationTypeName"
+            nameof(ServiceContext.ReplicaOrInstanceId),
+            nameof(ServiceContext.PartitionId),
+            nameof(ServiceContext.ServiceTypeName),
+            nameof(ServiceContext.ServiceName),
+            nameof(ServiceContext.CodePackageActivationContext.ApplicationName),
+            nameof(ServiceContext.CodePackageActivationContext.ApplicationTypeName)
         };
         protected readonly IList<string> systemDimensionValues = new List<string>();
         protected readonly IFabricMeterProvider fabricMeterProvider;
