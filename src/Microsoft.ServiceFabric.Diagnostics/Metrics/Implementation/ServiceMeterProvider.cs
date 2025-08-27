@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
             fabricMeterProvider = createFabricMeterProvider();
 
-            var systemDimensionValuesList = new[]
+            var systemDimensionValuesArray = new[]
             {
                 serviceContext.ReplicaOrInstanceId.ToString(),
                 serviceContext.PartitionId.ToString(),
@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 serviceContext.CodePackageActivationContext.ApplicationName,
                 serviceContext.CodePackageActivationContext.ApplicationTypeName
             };
-            this.systemDimensionValues = systemDimensionValuesList;
+            this.systemDimensionValues = systemDimensionValuesArray;
         }
 
         protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IEnumerable<string> additionalDimensions)

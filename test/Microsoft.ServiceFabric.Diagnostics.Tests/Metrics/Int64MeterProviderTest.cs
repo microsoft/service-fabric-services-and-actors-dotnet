@@ -19,23 +19,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly string testNodeName = fuzzy.String();
-        readonly string testServiceTypeName = fuzzy.String();
-        readonly Uri testServiceNameUri = fuzzy.Uri();
-        readonly string testApplicationName = fuzzy.String();
-        readonly string testApplicationTypeName = fuzzy.String();
-        readonly long replicaId = fuzzy.Int64();
-        readonly Guid testPartitionId = Guid.NewGuid();
-
-        readonly ServiceContext serviceContext;
+        readonly ServiceContext serviceContext = fuzzy.ServiceContext();
 
         public Int64MeterProviderTest()
         {
-            var codePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
-            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationName).Returns(testApplicationName);
-            Mock.Get(codePackageActivationContext).SetupGet(x => x.ApplicationTypeName).Returns(testApplicationTypeName);
-            this.serviceContext = new Mock<ServiceContext>(fuzzy.NodeContext(), codePackageActivationContext, testServiceTypeName, testServiceNameUri, fuzzy.Array(fuzzy.Byte), testPartitionId, replicaId).Object;
-
             typeof(ServiceMeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
         }
 

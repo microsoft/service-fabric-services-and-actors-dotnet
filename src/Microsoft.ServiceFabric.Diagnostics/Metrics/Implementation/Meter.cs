@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         internal Meter(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues)
         {
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
-            this.systemDimensionValues = systemDimensionValues ?? throw new ArgumentNullException(nameof(fabricMeter));
+            this.systemDimensionValues = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
         }
     }
 }
