@@ -39,8 +39,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         public class Record : Int64Meter1DTest
         {
-            readonly string customDimension1 = fuzzy.String();
             readonly long value = fuzzy.Int64();
+            readonly string customDimension1 = fuzzy.String();
 
             [Fact]
             public void CallsFabricMeterRecordWithMultipleSystemDimensions()
