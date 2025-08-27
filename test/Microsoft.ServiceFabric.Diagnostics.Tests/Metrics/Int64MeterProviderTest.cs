@@ -51,6 +51,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             readonly IList<string> systemDimensionsNames;
             readonly IList<string> systemDimensionsValues;
             readonly IFabricMeterProvider fabricMeterProvider = new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object;
+            readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
 
             public CreateMeter()
             {
@@ -58,6 +59,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 systemDimensionsNames = sut.Private().Field<IList<string>>().Value;
                 systemDimensionsValues = sut.Protected().Field<IList<string>>().Value;
                 sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
+
+                Mock.Get(fabricMeterProvider).Setup(x => x.CreateMeter(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<uint>(), It.IsAny<string[]>())).Returns(fabricMeter);
             }
 
             [Fact]
@@ -106,37 +109,49 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             [Fact]
             public void CreatesNativeMeterWithCorrectDimensions()
             {
+                var combinedDimensions = systemDimensionsNames.ToArray();
+
                 IMeter<long> meter = sut.CreateMeter(testNamespace, testMetric);
 
-                var combinedDimensions = systemDimensionsNames.ToArray();
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Same(fabricMeter, ((Int64Meter)meter).Field<IFabricMeter>().Value);
+                Assert.Same(systemDimensionsValues, ((Int64Meter)meter).Field<IEnumerable<string>>().Value);
             }
 
             [Fact]
             public void CreatesNativeMeterWithCorrectDimensions1D()
             {
+                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1 }.ToArray();
+
                 IMeter1D<long> meter1D = sut.CreateMeter(testNamespace, testMetric, testDimension1);
 
-                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1 }.ToArray();
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Same(fabricMeter, ((Int64Meter1D)meter1D).Field<IFabricMeter>().Value);
+                Assert.Same(systemDimensionsValues, ((Int64Meter1D)meter1D).Field<IEnumerable<string>>().Value);
             }
 
             [Fact]
             public void CreatesNativeMeterWithCorrectDimensions2D()
             {
+                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2 }.ToArray();
+
                 IMeter2D<long> meter2D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2);
 
-                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2 }.ToArray();
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Same(fabricMeter, ((Int64Meter2D)meter2D).Field<IFabricMeter>().Value);
+                Assert.Same(systemDimensionsValues, ((Int64Meter2D)meter2D).Field<IEnumerable<string>>().Value);
             }
 
             [Fact]
             public void CreatesNativeMeterWithCorrectDimensions3D()
             {
+                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2, testDimension3 }.ToArray();
+
                 IMeter3D<long> meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
 
-                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2, testDimension3 }.ToArray();
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Same(fabricMeter, ((Int64Meter3D)meter3D).Field<IFabricMeter>().Value);
+                Assert.Same(systemDimensionsValues, ((Int64Meter3D)meter3D).Field<IEnumerable<string>>().Value);
             }
         }
     }
