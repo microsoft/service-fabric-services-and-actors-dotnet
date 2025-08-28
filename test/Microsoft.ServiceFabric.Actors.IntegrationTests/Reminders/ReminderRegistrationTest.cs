@@ -169,6 +169,7 @@ namespace Microsoft.ServiceFabric.Actors
                 TimeSpan reminderDueTime = TimeSpan.FromSeconds(1);
                 TimeSpan reminderPeriod = TimeSpan.FromSeconds(1);
                 TimeSpan timeToWait = reminderDueTime + TimeSpan.FromMilliseconds((expectedCallbackInvocationCounter - 1) * reminderDueTime.TotalMilliseconds);
+                TimeSpan allowedTimeVariation = TimeSpan.FromMilliseconds(100);
 
                 Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cacnelationToken) =>
                 {
@@ -185,7 +186,6 @@ namespace Microsoft.ServiceFabric.Actors
 
                 ActorService actorService = await GetActorService<TestableActor>(actorFactory);
 
-
                 IActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
                     actorId: new ActorId("TestableActor2"),
                     actorMethodContext: new ActorMethodContext(),
@@ -195,8 +195,7 @@ namespace Microsoft.ServiceFabric.Actors
                     timerCall: false,
                     cancellationToken: new CancellationToken());
 
-                await Task.Delay(timeToWait);
-                await Task.Delay(100);
+                await Task.Delay(timeToWait + allowedTimeVariation);
 
                 Assert.Equal(expectedCallbackInvocationCounter, reminderCallbackInvocationCounter);
             }
