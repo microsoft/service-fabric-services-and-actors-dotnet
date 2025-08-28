@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.Actors
                 TimeSpan actualDueTime = TimeSpan.Zero;
                 TimeSpan actualPeriod = TimeSpan.Zero;
 
-                Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cacnelationToken) =>
+                Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
                 {
                     var testActor = (ITestableActor)actorBase;
                     return await testActor.RegisterReminderAsync(expectedReminderName, expectedState, expectedDueTime, expectedPeriod);
@@ -171,7 +171,7 @@ namespace Microsoft.ServiceFabric.Actors
                 TimeSpan timeToWait = reminderDueTime + TimeSpan.FromMilliseconds((expectedCallbackInvocationCounter - 1) * reminderDueTime.TotalMilliseconds);
                 TimeSpan allowedTimeVariation = TimeSpan.FromMilliseconds(100);
 
-                Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cacnelationToken) =>
+                Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
                 {
                     var testActor = (ITestableActor)actorBase;
                     return await testActor.RegisterReminderAsync(fuzzy.String(Length.Between(5,10)), UTF8Encoding.UTF8.GetBytes(fuzzy.String(Length.Between(5,10))), reminderDueTime, reminderPeriod);
