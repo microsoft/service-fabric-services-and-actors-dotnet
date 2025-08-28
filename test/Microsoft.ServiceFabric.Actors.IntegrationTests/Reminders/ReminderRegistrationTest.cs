@@ -35,6 +35,24 @@ namespace Microsoft.ServiceFabric.Actors
             return actorService;
         }
 
+        class ReminderCallbackInfo
+        {
+            public ReminderCallbackInfo(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period, ActorMethodContext methodContext)
+            {
+                ReminderName = reminderName;
+                State = state;
+                DueTime = dueTime;
+                Period = period;
+                MethodContext = methodContext;
+            }
+
+            public string ReminderName { get; set; }
+            public byte[] State { get; set; }
+            public TimeSpan DueTime { get; set; }
+            public TimeSpan Period { get; set; }
+            public ActorMethodContext MethodContext { get; set; }
+        }
+
         interface ITestableActor : IActor
         {
             Task<IActorReminder> RegisterReminderAsync(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period);
@@ -43,9 +61,9 @@ namespace Microsoft.ServiceFabric.Actors
         class TestableActor : Actor, ITestableActor, IRemindable
         {
             ActorMethodContext currentMethodContext;
-            Action<string, string, ActorCallType, byte[], TimeSpan, TimeSpan> receiveReminderCallback;
+            Action<ReminderCallbackInfo> receiveReminderCallback;
 
-            public TestableActor(ActorService actorService, ActorId actorId, Action<string, string, ActorCallType, byte[], TimeSpan, TimeSpan> receiveReminderCallback)
+            public TestableActor(ActorService actorService, ActorId actorId, Action<ReminderCallbackInfo> receiveReminderCallback)
                 : base(actorService, actorId)
             {
                 this.receiveReminderCallback = receiveReminderCallback;
@@ -59,7 +77,8 @@ namespace Microsoft.ServiceFabric.Actors
 
             public Task ReceiveReminderAsync(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period)
             {
-                receiveReminderCallback(reminderName, currentMethodContext.MethodName, currentMethodContext.CallType, state, dueTime, period);
+                var reminderCallbackInfo = new ReminderCallbackInfo(reminderName, state, dueTime, period, currentMethodContext);
+                receiveReminderCallback(reminderCallbackInfo);
                 return Task.CompletedTask;
             }
 
@@ -96,14 +115,14 @@ namespace Microsoft.ServiceFabric.Actors
                     return await testActor.RegisterReminderAsync(expectedReminderName, expectedState, expectedDueTime, expectedPeriod);
                 };
 
-                Action<string, string, ActorCallType, byte[], TimeSpan, TimeSpan> receiveReminderCallback = (reminderName, actorMethodName, actorCallType, state, dueTime, period) =>
+                Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
                 {
-                    actualReminderName = reminderName;
-                    actualActorMethodName = actorMethodName;
-                    actualActorCallType = actorCallType;
-                    actualState = state;
-                    actualDueTime = dueTime;
-                    actualPeriod = period;
+                    actualReminderName = reminderCallbackInfo.ReminderName;
+                    actualActorMethodName = reminderCallbackInfo.MethodContext.MethodName;
+                    actualActorCallType = reminderCallbackInfo.MethodContext.CallType;
+                    actualState = reminderCallbackInfo.State;
+                    actualDueTime = reminderCallbackInfo.DueTime;
+                    actualPeriod = reminderCallbackInfo.Period;
 
                     reminderCallbackInvocationCounter += 1;
                 };
@@ -157,7 +176,7 @@ namespace Microsoft.ServiceFabric.Actors
                     return await testActor.RegisterReminderAsync(fuzzy.String(Length.Between(5,10)), UTF8Encoding.UTF8.GetBytes(fuzzy.String(Length.Between(5,10))), reminderDueTime, reminderPeriod);
                 };
 
-                Action<string, string, ActorCallType, byte[], TimeSpan, TimeSpan> receiveReminderCallback = (reminderName, actorMethodName, actorCallType, state, dueTime, period) =>
+                Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
                 {
                     reminderCallbackInvocationCounter += 1;
                 };
