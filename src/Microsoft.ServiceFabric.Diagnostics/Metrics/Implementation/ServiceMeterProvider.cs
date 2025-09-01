@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        readonly IEnumerable<string> systemDimensionNames = new[]
+        readonly static IEnumerable<string> systemDimensionNames = new[]
         {
             nameof(ServiceContext.ReplicaOrInstanceId),
             nameof(ServiceContext.PartitionId),
@@ -49,9 +49,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IEnumerable<string> additionalDimensions)
         {
-            var allDimensionsList = new List<string>(this.systemDimensionNames.Count() + additionalDimensions.Count());
+            var allDimensionsList = new List<string>(ServiceMeterProvider<TValueType>.systemDimensionNames.Count() + additionalDimensions.Count());
 
-            allDimensionsList.AddRange(this.systemDimensionNames);
+            allDimensionsList.AddRange(ServiceMeterProvider<TValueType>.systemDimensionNames);
             allDimensionsList.AddRange(additionalDimensions);
 
             var allDimensions = allDimensionsList.ToArray();
