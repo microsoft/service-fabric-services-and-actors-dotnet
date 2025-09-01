@@ -6,14 +6,16 @@
     <Exec Command="dotnet publish &quot;$(RepoRoot)src\FabActUtil\FabActUtil.csproj&quot; -f &quot;net8.0&quot; -o &quot;$(OutputPath)Publish&quot; --no-restore --nologo" />
 
     <ItemGroup>    
-      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
+
       <BinairesNetCore Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\FabActUtil.*"/>
       <BinairesNetCore Include="$(RepoRoot)src\FabActUtil\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.targets"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
       <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.*"/>
       <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>
-      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Diagnostics.*"/>      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.FabricTransport\$(OutputPath)\net8.0\Microsoft.ServiceFabric.FabricTransport.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.FabricTransport.V2\$(OutputPath)\net8.0\Microsoft.ServiceFabric.FabricTransport.V2.*"/>
       <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.Remoting.*"/>
-      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
+      <BinairesNetCore Include="$(RepoRoot)src\Microsoft.ServiceFabric.Services\$(OutputPath)\net8.0\Microsoft.ServiceFabric.Services.*"/>
 
       <!-- Copy libs from referenced nuget packages to drop for nuget package creation -->
       <BinairesNetCore_PublishWin Include="$(OutputPath)Publish\*.dll"/>
