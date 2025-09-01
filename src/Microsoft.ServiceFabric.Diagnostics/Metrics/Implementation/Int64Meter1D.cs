@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         {
             var allDimensionArray = new string[systemDimensionValues.Count() + 1];
 
-            systemDimensionValues.ToArray().CopyTo(allDimensionArray, 0);
+            systemDimensionValues.CopyTo(allDimensionArray, 0);
             allDimensionArray[allDimensionArray.Length - 1] = dimension1;
 
             fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);

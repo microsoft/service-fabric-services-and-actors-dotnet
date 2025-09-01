@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         {
             var allDimensionArray = new string[systemDimensionValues.Count() + 3];
 
-            systemDimensionValues.ToArray().CopyTo(allDimensionArray, 0);
+            systemDimensionValues.CopyTo(allDimensionArray, 0);
             allDimensionArray[allDimensionArray.Length - 3] = dimension1;
             allDimensionArray[allDimensionArray.Length - 2] = dimension2;
             allDimensionArray[allDimensionArray.Length - 1] = dimension3;
