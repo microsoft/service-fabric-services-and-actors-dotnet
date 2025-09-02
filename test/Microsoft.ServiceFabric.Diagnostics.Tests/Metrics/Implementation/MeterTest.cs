@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 Meter meter = new MeterImplementation(fabricMeter, expectedSystemDimensions);
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Same(expectedSystemDimensions, meter.Field<IEnumerable<string>>().Value);
+                Assert.Equal(expectedSystemDimensions, meter.Field<string[]>().Value);
             }
 
             [Fact]
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 Meter meter = new MeterImplementation(fabricMeter, systemDimensions);
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Same(systemDimensions, meter.Field<IEnumerable<string>>().Value);
+                Assert.Equal(systemDimensions, meter.Field<string[]>().Value);
             }
         }
 

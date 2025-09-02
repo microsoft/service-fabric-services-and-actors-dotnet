@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var meter = (Meter)sut;
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Same(systemDimensions, meter.Field<IEnumerable<string>>().Value);
+                Assert.Equal(systemDimensions, meter.Field<string[]>().Value);
             }
         }
 

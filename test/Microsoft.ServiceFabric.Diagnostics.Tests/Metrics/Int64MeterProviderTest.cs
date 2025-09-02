@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public CreateMeter()
             {
                 sut = new Int64MeterProvider(serviceContext);
-                systemDimensionsNames = sut.Private().Field<IEnumerable<string>>().Value;
+                systemDimensionsNames = typeof(Int64MeterProvider).Private().Field<IEnumerable<string>>().Value;
                 systemDimensionsValues = sut.Protected().Field<IEnumerable<string>>().Value;
                 sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
 
@@ -59,7 +59,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter)meter).Field<IFabricMeter>().Value);
-                Assert.Same(systemDimensionsValues, ((Int64Meter)meter).Field<IEnumerable<string>>().Value);
+                Assert.Equal(systemDimensionsValues, ((Int64Meter)meter).Field<string[]>().Value);
             }
 
             [Fact]
@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter1D)meter1D).Field<IFabricMeter>().Value);
-                Assert.Same(systemDimensionsValues, ((Int64Meter1D)meter1D).Field<IEnumerable<string>>().Value);
+                Assert.Equal(systemDimensionsValues, ((Int64Meter1D)meter1D).Field<string[]>().Value);
             }
 
             [Fact]
@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter2D)meter2D).Field<IFabricMeter>().Value);
-                Assert.Same(systemDimensionsValues, ((Int64Meter2D)meter2D).Field<IEnumerable<string>>().Value);
+                Assert.Equal(systemDimensionsValues, ((Int64Meter2D)meter2D).Field<string[]>().Value);
             }
 
             [Fact]
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter3D)meter3D).Field<IFabricMeter>().Value);
-                Assert.Same(systemDimensionsValues, ((Int64Meter3D)meter3D).Field<IEnumerable<string>>().Value);
+                Assert.Equal(systemDimensionsValues, ((Int64Meter3D)meter3D).Field<string[]>().Value);
             }
         }
     }
