@@ -64,6 +64,12 @@ namespace Microsoft.ServiceFabric.Actors
             ActorMethodContext currentMethodContext;
             Action<ReminderCallbackInfo> receiveReminderCallback;
 
+            public TestableActor(ActorService actorService, ActorId actorId)
+                : base(actorService, actorId)
+            {
+                this.receiveReminderCallback = (reminderCallbackInfo) => { return; };
+            }
+
             public TestableActor(ActorService actorService, ActorId actorId, Action<ReminderCallbackInfo> receiveReminderCallback)
                 : base(actorService, actorId)
             {
