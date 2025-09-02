@@ -161,22 +161,25 @@ namespace Microsoft.ServiceFabric.Actors
             }
 
             [Fact]
-            public async Task ReminderIsRegisteredAndFiredMultipleTimes()
+            public async Task ReminderFiresInExpectedTimeIntervals()
             {
                 IFuzz fuzzy = new RandomFuzz();
 
-                int expectedCallbackInvocationCounter = 5;
+                int expectedReminderInvocationCounterAfterReminderDueTime = 1;
+                int expectedReminderInvocationCounterAfterReminderPeriod = 2;
 
                 int reminderCallbackInvocationCounter = 0;
-                TimeSpan reminderDueTime = TimeSpan.FromSeconds(1);
+                int reminderInvocationCounterAfterReminderDueTime = 0;
+                int reminderInvocationCounterAfterReminderPeriod = 0;
+
+                TimeSpan reminderDueTime = TimeSpan.FromSeconds(2);
                 TimeSpan reminderPeriod = TimeSpan.FromSeconds(1);
-                TimeSpan timeToWait = reminderDueTime + TimeSpan.FromMilliseconds((expectedCallbackInvocationCounter - 1) * reminderDueTime.TotalMilliseconds);
                 TimeSpan allowedTimeVariation = TimeSpan.FromMilliseconds(100);
 
                 Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
                 {
                     var testActor = (ITestableActor)actorBase;
-                    return await testActor.RegisterReminderAsync(fuzzy.String(Length.Between(5,10)), UTF8Encoding.UTF8.GetBytes(fuzzy.String(Length.Between(5,10))), reminderDueTime, reminderPeriod);
+                    return await testActor.RegisterReminderAsync(fuzzy.String(Length.Between(5, 10)), UTF8Encoding.UTF8.GetBytes(fuzzy.String(Length.Between(5, 10))), reminderDueTime, reminderPeriod);
                 };
 
                 Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
@@ -197,9 +200,16 @@ namespace Microsoft.ServiceFabric.Actors
                     timerCall: false,
                     cancellationToken: new CancellationToken());
 
-                await Task.Delay(timeToWait + allowedTimeVariation);
+                await Task.Delay(reminderDueTime + allowedTimeVariation);
 
-                Assert.Equal(expectedCallbackInvocationCounter, reminderCallbackInvocationCounter);
+                reminderInvocationCounterAfterReminderDueTime = reminderCallbackInvocationCounter;
+
+                await Task.Delay(reminderPeriod + allowedTimeVariation);
+
+                reminderInvocationCounterAfterReminderPeriod = reminderCallbackInvocationCounter;
+
+                Assert.Equal(expectedReminderInvocationCounterAfterReminderDueTime, reminderInvocationCounterAfterReminderDueTime);
+                Assert.Equal(expectedReminderInvocationCounterAfterReminderPeriod, reminderInvocationCounterAfterReminderPeriod);
             }
         }
     }
