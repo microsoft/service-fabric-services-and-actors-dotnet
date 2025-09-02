@@ -90,126 +90,176 @@ namespace Microsoft.ServiceFabric.Actors
 
         public class RegisterReminderAsync : ActorIntegrationTest
         {
-            [Fact]
-            public async Task ReminderParametersPersistBetweenRegisteringAndReceivingReminder()
+
+            public class WithNewReminderName : RegisterReminderAsync
             {
-                int expectedCallbackInvocationCounter = 1;
-                string expectedReminderName = "TestReminder";
-                string expectedActorMethodName = "ReceiveReminderAsync";
-                ActorCallType expectedActorCallType = ActorCallType.ReminderMethod;
-                byte[] expectedState = UTF8Encoding.UTF8.GetBytes("TestReminderState");
-                TimeSpan expectedDueTime = TimeSpan.FromSeconds(1);
-                TimeSpan expectedPeriod = TimeSpan.FromMinutes(1);
-
-                int reminderCallbackInvocationCounter = 0;
-                string actualReminderName = "";
-                string actualActorMethodName = "";
-                ActorCallType actualActorCallType = default;
-                byte[] actualState = UTF8Encoding.UTF8.GetBytes("");
-                TimeSpan actualDueTime = TimeSpan.Zero;
-                TimeSpan actualPeriod = TimeSpan.Zero;
-
-                Func<ActorBase, CancellationToken, Task<ActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
+                [Fact]
+                public async Task ReminderParametersPersistBetweenRegisteringAndReceivingReminder()
                 {
-                    var testActor = (ITestableActor)actorBase;
-                    IActorReminder reminderResult = await testActor.RegisterReminderAsync(expectedReminderName, expectedState, expectedDueTime, expectedPeriod);
-                    return (ActorReminder)reminderResult;
-                };
+                    int expectedCallbackInvocationCounter = 1;
+                    string expectedReminderName = "TestReminder";
+                    string expectedActorMethodName = "ReceiveReminderAsync";
+                    ActorCallType expectedActorCallType = ActorCallType.ReminderMethod;
+                    byte[] expectedState = UTF8Encoding.UTF8.GetBytes("TestReminderState");
+                    TimeSpan expectedDueTime = TimeSpan.FromSeconds(1);
+                    TimeSpan expectedPeriod = TimeSpan.FromMinutes(1);
 
-                Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
+                    int reminderCallbackInvocationCounter = 0;
+                    string actualReminderName = "";
+                    string actualActorMethodName = "";
+                    ActorCallType actualActorCallType = default;
+                    byte[] actualState = UTF8Encoding.UTF8.GetBytes("");
+                    TimeSpan actualDueTime = TimeSpan.Zero;
+                    TimeSpan actualPeriod = TimeSpan.Zero;
+
+                    Func<ActorBase, CancellationToken, Task<ActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
+                    {
+                        var testActor = (ITestableActor)actorBase;
+                        IActorReminder reminderResult = await testActor.RegisterReminderAsync(expectedReminderName, expectedState, expectedDueTime, expectedPeriod);
+                        return (ActorReminder)reminderResult;
+                    };
+
+                    Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
+                    {
+                        actualReminderName = reminderCallbackInfo.ReminderName;
+                        actualActorMethodName = reminderCallbackInfo.MethodContext.MethodName;
+                        actualActorCallType = reminderCallbackInfo.MethodContext.CallType;
+                        actualState = reminderCallbackInfo.State;
+                        actualDueTime = reminderCallbackInfo.DueTime;
+                        actualPeriod = reminderCallbackInfo.Period;
+
+                        reminderCallbackInvocationCounter += 1;
+                    };
+
+                    Func<ActorService, ActorId, ActorBase> actorFactory = (actorService, actorId) => new TestableActor(actorService, actorId, receiveReminderCallback);
+
+                    ActorService actorService = await GetActorService<TestableActor>(actorFactory);
+
+                    ActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
+                        actorId: new ActorId("TestableActor1"),
+                        actorMethodContext: new ActorMethodContext(),
+                        createIfRequired: true,
+                        registerActorReminder,
+                        callContext: "TestCallContext",
+                        timerCall: false,
+                        cancellationToken: new CancellationToken());
+
+                    Assert.NotNull(reminderResult);
+                    Assert.Equal(expectedReminderName, reminderResult.Name);
+                    Assert.Equal(expectedState, reminderResult.State);
+                    Assert.Equal(expectedDueTime, reminderResult.DueTime);
+                    Assert.Equal(expectedPeriod, reminderResult.Period);
+                    Assert.True(reminderResult.IsValid());
+
+                    // Wait enough time for reminder to fire
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+
+                    Assert.Equal(expectedCallbackInvocationCounter, reminderCallbackInvocationCounter);
+                    Assert.Equal(expectedReminderName, actualReminderName);
+                    Assert.Equal(expectedActorMethodName, actualActorMethodName);
+                    Assert.Equal(expectedActorCallType, actualActorCallType);
+                    Assert.Equal(expectedState, actualState);
+                    Assert.Equal(expectedDueTime, actualDueTime);
+                    Assert.Equal(expectedPeriod, actualPeriod);
+                }
+
+                [Fact]
+                public async Task ReminderFiresInExpectedTimeIntervals()
                 {
-                    actualReminderName = reminderCallbackInfo.ReminderName;
-                    actualActorMethodName = reminderCallbackInfo.MethodContext.MethodName;
-                    actualActorCallType = reminderCallbackInfo.MethodContext.CallType;
-                    actualState = reminderCallbackInfo.State;
-                    actualDueTime = reminderCallbackInfo.DueTime;
-                    actualPeriod = reminderCallbackInfo.Period;
+                    IFuzz fuzzy = new RandomFuzz();
 
-                    reminderCallbackInvocationCounter += 1;
-                };
+                    int expectedReminderInvocationCounterAfterReminderDueTime = 1;
+                    int expectedReminderInvocationCounterAfterReminderPeriod = 2;
 
-                Func<ActorService, ActorId, ActorBase> actorFactory = (actorService, actorId) => new TestableActor(actorService, actorId, receiveReminderCallback);
+                    int reminderCallbackInvocationCounter = 0;
+                    int reminderInvocationCounterAfterReminderDueTime = 0;
+                    int reminderInvocationCounterAfterReminderPeriod = 0;
 
-                ActorService actorService = await GetActorService<TestableActor>(actorFactory);
+                    TimeSpan reminderDueTime = TimeSpan.FromSeconds(2);
+                    TimeSpan reminderPeriod = TimeSpan.FromSeconds(1);
+                    TimeSpan allowedTimeVariation = TimeSpan.FromMilliseconds(100);
 
-                ActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
-                    actorId: new ActorId("TestableActor1"),
-                    actorMethodContext: new ActorMethodContext(),
-                    createIfRequired: true,
-                    registerActorReminder,
-                    callContext: "TestCallContext",
-                    timerCall: false,
-                    cancellationToken: new CancellationToken());
+                    Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
+                    {
+                        var testActor = (ITestableActor)actorBase;
+                        return await testActor.RegisterReminderAsync(fuzzy.String(Length.Between(5, 10)), UTF8Encoding.UTF8.GetBytes(fuzzy.String(Length.Between(5, 10))), reminderDueTime, reminderPeriod);
+                    };
 
-                Assert.NotNull(reminderResult);
-                Assert.Equal(expectedReminderName, reminderResult.Name);
-                Assert.Equal(expectedState, reminderResult.State);
-                Assert.Equal(expectedDueTime, reminderResult.DueTime);
-                Assert.Equal(expectedPeriod, reminderResult.Period);
-                Assert.True(reminderResult.IsValid());
+                    Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
+                    {
+                        reminderCallbackInvocationCounter += 1;
+                    };
 
-                // Wait enough time for reminder to fire
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                    Func<ActorService, ActorId, ActorBase> actorFactory = (actorService, actorId) => new TestableActor(actorService, actorId, receiveReminderCallback);
 
-                Assert.Equal(expectedCallbackInvocationCounter, reminderCallbackInvocationCounter);
-                Assert.Equal(expectedReminderName, actualReminderName);
-                Assert.Equal(expectedActorMethodName, actualActorMethodName);
-                Assert.Equal(expectedActorCallType, actualActorCallType);
-                Assert.Equal(expectedState, actualState);
-                Assert.Equal(expectedDueTime, actualDueTime);
-                Assert.Equal(expectedPeriod, actualPeriod);
+                    ActorService actorService = await GetActorService<TestableActor>(actorFactory);
+
+                    IActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
+                        actorId: new ActorId("TestableActor2"),
+                        actorMethodContext: new ActorMethodContext(),
+                        createIfRequired: true,
+                        registerActorReminder,
+                        callContext: "TestCallContext",
+                        timerCall: false,
+                        cancellationToken: new CancellationToken());
+
+                    await Task.Delay(reminderDueTime + allowedTimeVariation);
+
+                    reminderInvocationCounterAfterReminderDueTime = reminderCallbackInvocationCounter;
+
+                    await Task.Delay(reminderPeriod + allowedTimeVariation);
+
+                    reminderInvocationCounterAfterReminderPeriod = reminderCallbackInvocationCounter;
+
+                    Assert.Equal(expectedReminderInvocationCounterAfterReminderDueTime, reminderInvocationCounterAfterReminderDueTime);
+                    Assert.Equal(expectedReminderInvocationCounterAfterReminderPeriod, reminderInvocationCounterAfterReminderPeriod);
+                }
             }
 
-            [Fact]
-            public async Task ReminderFiresInExpectedTimeIntervals()
+            public class WithExistingReminderName : RegisterReminderAsync
             {
-                IFuzz fuzzy = new RandomFuzz();
-
-                int expectedReminderInvocationCounterAfterReminderDueTime = 1;
-                int expectedReminderInvocationCounterAfterReminderPeriod = 2;
-
-                int reminderCallbackInvocationCounter = 0;
-                int reminderInvocationCounterAfterReminderDueTime = 0;
-                int reminderInvocationCounterAfterReminderPeriod = 0;
-
-                TimeSpan reminderDueTime = TimeSpan.FromSeconds(2);
-                TimeSpan reminderPeriod = TimeSpan.FromSeconds(1);
-                TimeSpan allowedTimeVariation = TimeSpan.FromMilliseconds(100);
-
-                Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
+                [Fact]
+                public async Task NewReminderIsCreatedAndOldReminderIsInvalidated()
                 {
-                    var testActor = (ITestableActor)actorBase;
-                    return await testActor.RegisterReminderAsync(fuzzy.String(Length.Between(5, 10)), UTF8Encoding.UTF8.GetBytes(fuzzy.String(Length.Between(5, 10))), reminderDueTime, reminderPeriod);
-                };
+                    IFuzz fuzzy = new RandomFuzz();
 
-                Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
-                {
-                    reminderCallbackInvocationCounter += 1;
-                };
+                    string fuzzyReminderName = fuzzy.String(Length.Between(5, 10));
 
-                Func<ActorService, ActorId, ActorBase> actorFactory = (actorService, actorId) => new TestableActor(actorService, actorId, receiveReminderCallback);
+                    Func<ActorBase, CancellationToken, Task<ActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
+                    {
+                        var testActor = (ITestableActor)actorBase;
 
-                ActorService actorService = await GetActorService<TestableActor>(actorFactory);
+                        byte[] fuzzyReminderState = UTF8Encoding.UTF8.GetBytes(fuzzy.String(Length.Between(5, 10)));
+                        TimeSpan fuzzyDueTime = TimeSpan.FromSeconds(fuzzy.Int32().Between(1, 5));
+                        TimeSpan fuzzyPeriod = TimeSpan.FromSeconds(fuzzy.Int32().Between(1, 5));
 
-                IActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
-                    actorId: new ActorId("TestableActor2"),
-                    actorMethodContext: new ActorMethodContext(),
-                    createIfRequired: true,
-                    registerActorReminder,
-                    callContext: "TestCallContext",
-                    timerCall: false,
-                    cancellationToken: new CancellationToken());
+                        IActorReminder reminderResult = await testActor.RegisterReminderAsync(fuzzyReminderName, fuzzyReminderState, fuzzyDueTime, fuzzyPeriod);
+                        return (ActorReminder)reminderResult;
+                    };
 
-                await Task.Delay(reminderDueTime + allowedTimeVariation);
+                    ActorService actorService = await GetActorService<TestableActor>();
 
-                reminderInvocationCounterAfterReminderDueTime = reminderCallbackInvocationCounter;
+                    ActorReminder firstReminder = await actorService.ActorManager.DispatchToActorAsync(
+                        actorId: new ActorId("TestableActor3"),
+                        actorMethodContext: new ActorMethodContext(),
+                        createIfRequired: true,
+                        registerActorReminder,
+                        callContext: "TestCallContext",
+                        timerCall: false,
+                        cancellationToken: new CancellationToken());
 
-                await Task.Delay(reminderPeriod + allowedTimeVariation);
+                    ActorReminder secondReminder = await actorService.ActorManager.DispatchToActorAsync(
+                        actorId: new ActorId("TestableActor3"),
+                        actorMethodContext: new ActorMethodContext(),
+                        createIfRequired: true,
+                        registerActorReminder,
+                        callContext: "TestCallContext",
+                        timerCall: false,
+                        cancellationToken: new CancellationToken());
 
-                reminderInvocationCounterAfterReminderPeriod = reminderCallbackInvocationCounter;
-
-                Assert.Equal(expectedReminderInvocationCounterAfterReminderDueTime, reminderInvocationCounterAfterReminderDueTime);
-                Assert.Equal(expectedReminderInvocationCounterAfterReminderPeriod, reminderInvocationCounterAfterReminderPeriod);
+                    Assert.False(firstReminder.IsValid());
+                    Assert.True(secondReminder.IsValid());
+                }
             }
         }
     }
