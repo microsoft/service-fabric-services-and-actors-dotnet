@@ -109,10 +109,11 @@ namespace Microsoft.ServiceFabric.Actors
                 TimeSpan actualDueTime = TimeSpan.Zero;
                 TimeSpan actualPeriod = TimeSpan.Zero;
 
-                Func<ActorBase, CancellationToken, Task<IActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
+                Func<ActorBase, CancellationToken, Task<ActorReminder>> registerActorReminder = async (actorBase, cancellationToken) =>
                 {
                     var testActor = (ITestableActor)actorBase;
-                    return await testActor.RegisterReminderAsync(expectedReminderName, expectedState, expectedDueTime, expectedPeriod);
+                    IActorReminder reminderResult = await testActor.RegisterReminderAsync(expectedReminderName, expectedState, expectedDueTime, expectedPeriod);
+                    return (ActorReminder)reminderResult;
                 };
 
                 Action<ReminderCallbackInfo> receiveReminderCallback = (reminderCallbackInfo) =>
@@ -131,7 +132,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                 ActorService actorService = await GetActorService<TestableActor>(actorFactory);
 
-                IActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
+                ActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
                     actorId: new ActorId("TestableActor1"),
                     actorMethodContext: new ActorMethodContext(),
                     createIfRequired: true,
@@ -145,6 +146,7 @@ namespace Microsoft.ServiceFabric.Actors
                 Assert.Equal(expectedState, reminderResult.State);
                 Assert.Equal(expectedDueTime, reminderResult.DueTime);
                 Assert.Equal(expectedPeriod, reminderResult.Period);
+                Assert.True(reminderResult.IsValid());
 
                 // Wait enough time for reminder to fire
                 await Task.Delay(TimeSpan.FromSeconds(2));
