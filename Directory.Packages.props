@@ -26,7 +26,6 @@
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
         <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.0-dev.user-cburg-wi-32024996.1003" />
         <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.0-dev.user-cburg-wi-32024996.1003" />
-        <PackageVersion Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="9.0.0-dev.user-cburg-wi-32024996.1003" />
         <PackageVersion Include="Moq" Version="4.20.70" />
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" /> <!-- Transitive dependency -->
         <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
@@ -41,5 +40,8 @@
         <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" /> <!-- Transitive dependency -->
         <PackageVersion Include="xunit" Version="2.8.1" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.1" />
+        <PackageVersion Include="System.ServiceModel.Http" Version="4.8.1" />
+        <PackageVersion Include="System.ServiceModel.NetTcp" Version="4.8.1" />
+        <PackageVersion Include="System.ServiceModel.Primitives" Version="4.8.1" />
     </ItemGroup>
   </Project>

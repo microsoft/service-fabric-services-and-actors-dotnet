@@ -18,10 +18,17 @@
 
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
-    <MajorVersion Condition="'$(MSBuildProjectName)' != 'Microsoft.ServiceFabric.Diagnostics'">9</MajorVersion>
-    <!-- Major Version for Microsoft.ServiceFabric.Diagnostics binary - Bump together with normal MajorVersion -->
-    <!-- We migrated Diagnostics package from WindowsFabric repo and we need to keep the versioning consistent -->
-    <MajorVersion Condition="'$(MSBuildProjectName)' == 'Microsoft.ServiceFabric.Diagnostics'">12</MajorVersion>
+    <MajorVersion>9</MajorVersion>
+
+    <!-- Major Version for Microsoft.ServiceFabric.Diagnostics/FabricTransport/FabricTransport.V2 binary -->
+    <!-- Bump together with normal MajorVersion -->
+    <!-- We migrated these packages from WindowsFabric repo and we need to keep the versioning consistent -->
+    <ProjectsWithRuntimeMajorVersion>
+      Microsoft.ServiceFabric.Diagnostics;
+      Microsoft.ServiceFabric.FabricTransport;
+      Microsoft.ServiceFabric.FabricTransport.V2
+    </ProjectsWithRuntimeMajorVersion>
+    <MajorVersion Condition="$(ProjectsWithMajorVersion12.Contains('$(MSBuildProjectName);'))">12</MajorVersion>
     <MinorVersion>7</MinorVersion>
     <BuildVersion>0</BuildVersion>
     <Revision>0</Revision>
