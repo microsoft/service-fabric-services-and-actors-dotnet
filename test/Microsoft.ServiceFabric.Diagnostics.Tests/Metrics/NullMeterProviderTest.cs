@@ -3,9 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     public abstract class NullMeterProviderTest
     {
