@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private const string OperationTimeoutInSecondsSettingName = "OperationTimeoutInSeconds";
         private const string KeepAliveTimeoutInSecondsSettingName = "KeepAliveTimeoutInSeconds";
         private const string ConnectTimeoutInMillisecondsSettingName = "ConnectTimeoutInMilliseconds";
-        internal static readonly uint DefaultMaxReceivedMessageSize = 4*1024*1024;
+        internal static readonly uint DefaultMaxReceivedMessageSize = 4 * 1024 * 1024;
         internal static readonly TimeSpan DefaultConnectTimeout = TimeSpan.FromSeconds(5);
         internal static readonly TimeSpan DefaultOperationTimeout = TimeSpan.FromMinutes(5);
         internal static readonly TimeSpan DefaultKeepAliveTimeout = TimeSpan.Zero;
@@ -397,7 +397,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
             }
             else
             {
-                nativeObj.OperationTimeoutInSeconds = (uint) this.OperationTimeout.TotalSeconds;
+                nativeObj.OperationTimeoutInSeconds = (uint)this.OperationTimeout.TotalSeconds;
             }
 
             if (this.KeepAliveTimeout.TotalSeconds < 0)
@@ -406,29 +406,29 @@ namespace Microsoft.ServiceFabric.FabricTransport
             }
             else
             {
-                nativeObj.KeepAliveTimeoutInSeconds = (uint) this.KeepAliveTimeout.TotalSeconds;
+                nativeObj.KeepAliveTimeoutInSeconds = (uint)this.KeepAliveTimeout.TotalSeconds;
             }
 
             Helper.ThrowIfValueOutOfBounds(this.MaxMessageSize, MaxMessageSizeSettingName);
 
-            nativeObj.MaxMessageSize = (uint) this.MaxMessageSize;
+            nativeObj.MaxMessageSize = (uint)this.MaxMessageSize;
 
             Helper.ThrowIfValueOutOfBounds(this.MaxConcurrentCalls, MaxConcurrentCallsSettingName);
-            nativeObj.MaxConcurrentCalls = (uint) this.MaxConcurrentCalls;
+            nativeObj.MaxConcurrentCalls = (uint)this.MaxConcurrentCalls;
 
             Helper.ThrowIfValueOutOfBounds(this.MaxQueueSize, MaxQueueSizeSettingName);
 
-            nativeObj.MaxQueueSize = (uint) this.MaxQueueSize;
+            nativeObj.MaxQueueSize = (uint)this.MaxQueueSize;
 
             var ex1settings = new NativeTypes.FABRIC_SERVICE_TRANSPORT_SETTINGS_EX1();
 
             if (this.ConnectTimeout.TotalMilliseconds < 0)
             {
-                ex1settings.ConnectTimeoutInMilliseconds = (uint) DefaultConnectTimeout.TotalMilliseconds;
+                ex1settings.ConnectTimeoutInMilliseconds = (uint)DefaultConnectTimeout.TotalMilliseconds;
             }
             else
             {
-                ex1settings.ConnectTimeoutInMilliseconds = (uint) this.ConnectTimeout.TotalMilliseconds;
+                ex1settings.ConnectTimeoutInMilliseconds = (uint)this.ConnectTimeout.TotalMilliseconds;
             }
 
             var ex2settings = new NativeTypes.FABRIC_SERVICE_TRANSPORT_SETTINGS_EX2();
@@ -510,7 +510,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
                 var issuerStoreLocations = issuerCertStore.Value.Split(',').ToList();
                 remoteCertIssuers.Add(new X509IssuerStore(issuerCertStore.Key, issuerStoreLocations));
             }
-            if (remoteCertIssuers.Count !=0)
+            if (remoteCertIssuers.Count != 0)
             {
                 x509SecurityCredential.RemoteCertIssuers = remoteCertIssuers;
             }

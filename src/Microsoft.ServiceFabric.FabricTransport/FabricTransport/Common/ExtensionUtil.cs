@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
     {
 #if NET
         static readonly StrategyBasedComWrappers comWrappers = new StrategyBasedComWrappers();
-#endif
+#endif 
 
         public static int FinalReleaseComObject(this object obj)
         {

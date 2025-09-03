@@ -7,12 +7,10 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Fabric.Common;
     using System.IO;
     using System.Runtime.InteropServices;
-   
-    internal class NativeMessageStream  : Stream
+
+    internal class NativeMessageStream : Stream
     {
         private List<Tuple<uint, IntPtr>> bufferList;
         private int length;
@@ -44,17 +42,15 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             //For Empty Message
             if (this.length > 0)
             {
-                this.currentBufferLength = (int) this.bufferList[this.currentBufferIndex].Item1;
+                this.currentBufferLength = (int)this.bufferList[this.currentBufferIndex].Item1;
                 this.currentChunk = this.bufferList[this.currentBufferIndex].Item2;
             }
             else
             {
                 this.currentBufferLength = 0;
-                this.currentChunk = IntPtr.Zero;;
+                this.currentChunk = IntPtr.Zero;
             }
-		}
-    
-
+        }
 
         public override bool CanRead
         {
@@ -80,10 +76,10 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
         {
             get
             {
-               return this.position;
+                return this.position;
             }
 
-            set { this.position = (int) value; }
+            set { this.position = (int)value; }
         }
 
 
@@ -170,8 +166,8 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             {
                 return -1;
             }
-            
-			//Read from next buffer
+
+            //Read from next buffer
             if (this.currentBufferReadOffset == this.currentBufferLength)
             {
 
@@ -196,7 +192,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
 
         private void SetLength()
         {
-            for(int i =0;i < this.bufferList.Count;i++)
+            for (int i = 0; i < this.bufferList.Count; i++)
             {
                 this.length += (int)this.bufferList[i].Item1;
             }
@@ -212,10 +208,10 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
                 {
                     this.bufferList.Clear();
                 }
-                
+
                 this.disposedValue = true;
             }
         }
-        
+
     }
 }

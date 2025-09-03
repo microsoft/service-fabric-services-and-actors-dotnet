@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             else
             {
                 msg = new FabricTransportMessage(null,
-                    NativeMessageToFabricTransportBody(count, messageBuffer), 
+                    NativeMessageToFabricTransportBody(count, messageBuffer),
                     message);
 
             }
@@ -81,19 +81,19 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
 
         public static unsafe byte[] GetBytesFromNative(IntPtr ptr)
         {
-            var nativeBodyBuffers = (NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER*) ptr;
+            var nativeBodyBuffers = (NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER*)ptr;
             return NativeTypes.FromNativeBytes(nativeBodyBuffers->Buffer, nativeBodyBuffers->BufferSize);
         }
 
         private static unsafe List<Tuple<uint, IntPtr>> GetBuffersPtr(
            uint count, IntPtr messageBuffer)
         {
-          var bufferList = new List<Tuple<uint, IntPtr>>((int) count);
+            var bufferList = new List<Tuple<uint, IntPtr>>((int)count);
             for (var i = 0; i < count; i++)
             {
                 var msgBuffer =
                     (NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER*)
-                        (messageBuffer + i*Marshal.SizeOf(typeof(NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER)));
+                        (messageBuffer + i * Marshal.SizeOf(typeof(NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER)));
                 var tuple = new Tuple<uint, IntPtr>(msgBuffer->BufferSize, msgBuffer->Buffer);
                 bufferList.Add(tuple);
             }
@@ -106,7 +106,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
         {
             var buffer = (NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER*)headerPtr;
             var bufferList = new List<Tuple<uint, IntPtr>>(1);
-            
+
             var tuple = new Tuple<uint, IntPtr>(buffer->BufferSize, buffer->Buffer);
             bufferList.Add(tuple);
 
@@ -138,9 +138,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             int i = 0;
             foreach (var item in bodyBuffer)
             {
-                bufferarray[i].BufferSize = (uint) item.Count;
+                bufferarray[i].BufferSize = (uint)item.Count;
                 var bufferAddress = this.pin.AddBlittable(item.Array);
-                bufferarray[i].Buffer = IntPtr.Add(bufferAddress, sizeof(byte)*item.Offset);
+                bufferarray[i].Buffer = IntPtr.Add(bufferAddress, sizeof(byte) * item.Offset);
                 i++;
             }
 
@@ -158,9 +158,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             }
             var nativeObj = new NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER();
             var headers = this.message.GetHeader().GetSendBuffer();
-            nativeObj.BufferSize = (uint) headers.Count;
+            nativeObj.BufferSize = (uint)headers.Count;
             var bufferAddress = this.pin.AddBlittable(headers.Array);
-            nativeObj.Buffer = IntPtr.Add(bufferAddress, sizeof(byte)*headers.Offset);
+            nativeObj.Buffer = IntPtr.Add(bufferAddress, sizeof(byte) * headers.Offset);
 
             return nativeObj;
         }
@@ -175,7 +175,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
                 return emptyNativebuffer;
             }
             var nativeObj = new NativeFabricTransport.FABRIC_TRANSPORT_MESSAGE_BUFFER();
-            nativeObj.BufferSize = (uint) bytes.Length;
+            nativeObj.BufferSize = (uint)bytes.Length;
             nativeObj.Buffer = this.pin.AddBlittable(bytes);
             return nativeObj;
         }
@@ -199,7 +199,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
                 this.disposedValue = true;
             }
         }
-        
+
         public void GetHeaderAndBodyBuffer(out IntPtr HeaderPtr, out uint bufferlength, out IntPtr bufferPtr)
         {
             bufferPtr = this.nativeBodyBuffersPtr;
@@ -214,6 +214,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
         }
 
         #endregion
- 
+
     }
 }

@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
     using System;
     using System.Fabric.Interop;
-    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;
@@ -23,7 +22,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
             this.nativeClientConnection = nativeClientConnection;
             var clientId = this.nativeClientConnection.get_ClientId();
             this.clientId = NativeTypes.FromNativeString(clientId);
-            ;
         }
 
         public string GetClientId()

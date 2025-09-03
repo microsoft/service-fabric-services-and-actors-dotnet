@@ -8,8 +8,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
     using System;
     using System.Fabric.Common;
     using System.Fabric.Interop;
-    using Microsoft.ServiceFabric.FabricTransport;
-    using Microsoft.ServiceFabric.FabricTransport.Client;
 
     internal class FabricTransportConnectionHandlerBroker : NativeFabricTransport.IFabricTransportConnectionHandler
     {

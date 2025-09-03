@@ -27,7 +27,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         }
 
         public FabricTransportCallbackClient GetCallbackClient()
-
         {
             if (this.callback == null)
             {

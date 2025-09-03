@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
 {
     using System;
     using System.Fabric.Interop;
-    using System.Runtime.InteropServices;
 
     internal class FabricTransportCallbackClient : IDisposable
     {
@@ -21,7 +20,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
             this.nativeClientConnection = nativeClientConnection;
             var clientId = this.nativeClientConnection.get_ClientId();
             this.clientId = NativeTypes.FromNativeString(clientId);
-            ;
         }
 
         public string GetClientId()

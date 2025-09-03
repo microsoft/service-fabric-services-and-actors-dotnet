@@ -45,7 +45,8 @@ namespace Microsoft.ServiceFabric.FabricTransport
         {
             const string FabricServiceCommunicationDll = "FabricServiceCommunication";
 
-            [DllImport(FabricServiceCommunicationDll)] internal static extern
+            [DllImport(FabricServiceCommunicationDll)]
+            internal static extern
             HRESULT CreateServiceCommunicationListener(
                 ref Guid iid,
                 [In] IntPtr transportSettings,
@@ -54,7 +55,8 @@ namespace Microsoft.ServiceFabric.FabricTransport
                 [In, MarshalAs(UnmanagedType.Interface)] IFabricServiceConnectionHandler connectionHandler,
                 [MarshalAs(UnmanagedType.Interface)] out IFabricServiceCommunicationListener listener);
 
-            [DllImport(FabricServiceCommunicationDll)] internal static extern
+            [DllImport(FabricServiceCommunicationDll)]
+            internal static extern
             HRESULT CreateServiceCommunicationClient(
                 ref Guid iid,
                 [In] IntPtr transportSettings,

@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
             nativeObj.IPAddressOrFQDN = pin.AddBlittable(this.IpAddressOrFQDN);
 
             Helper.ThrowIfValueOutOfBounds(this.Port, "Port");
-            nativeObj.Port = (uint) this.Port;
+            nativeObj.Port = (uint)this.Port;
 
             if (string.IsNullOrEmpty(this.Path))
             {

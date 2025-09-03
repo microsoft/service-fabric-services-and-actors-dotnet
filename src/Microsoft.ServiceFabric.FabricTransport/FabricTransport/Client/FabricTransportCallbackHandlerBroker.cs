@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
     using System;
     using System.Fabric.Interop;
-    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;
 

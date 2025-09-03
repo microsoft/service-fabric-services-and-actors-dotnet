@@ -8,10 +8,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
     using System;
     using System.Fabric;
     using System.Fabric.Common;
+    using System.Fabric.Description;
+    using System.Fabric.Management.ServiceModel;
     using System.IO;
     using System.Reflection;
-    using System.Fabric.Management.ServiceModel;
-    using System.Fabric.Description;
 
     internal sealed class FabricServiceConfig
     {
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
                     Assembly.GetEntryAssembly().GetName().Name + ".Settings.xml");
                 return path;
             }
-   
+
             AppTrace.TraceSource.WriteInfo(TraceType, "GetEntryAssembly was null ,couldn't find file path");
             return path;
         }
@@ -143,15 +143,15 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private static bool InitializeFromConfigPkgWithCallerHoldingLock(string configPackageName)
         {
 
-                ConfigurationPackage configurationPackage = null;
-                if (TryGetConfigPackageObject(configPackageName, out configurationPackage))
-                {
-                    instance = new FabricServiceConfig();
-                    instance.configurationSettings = configurationPackage.Settings;
-                    return true;
-                }
-                return false;
-            
+            ConfigurationPackage configurationPackage = null;
+            if (TryGetConfigPackageObject(configPackageName, out configurationPackage))
+            {
+                instance = new FabricServiceConfig();
+                instance.configurationSettings = configurationPackage.Settings;
+                return true;
+            }
+            return false;
+
 
         }
     }

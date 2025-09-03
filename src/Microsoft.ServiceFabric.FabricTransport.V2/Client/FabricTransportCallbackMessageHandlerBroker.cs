@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
 
         public void HandleOneWay(NativeFabricTransport.IFabricTransportMessage message)
         {
-        this.callImpl.OneWayMessage(NativeFabricTransportMessage.ToFabricTransportMessage(message));
+            this.callImpl.OneWayMessage(NativeFabricTransportMessage.ToFabricTransportMessage(message));
         }
     }
 }

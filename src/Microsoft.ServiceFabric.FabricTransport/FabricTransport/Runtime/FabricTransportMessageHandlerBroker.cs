@@ -55,7 +55,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
             this.service.HandleOneWay(context, headers, body);
         }
 
-     
         private async Task<FabricServiceCommunicationMessage> RequestResponseAsync(string clientId, byte[] header,
             byte[] body, TimeSpan timeout)
         {

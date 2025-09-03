@@ -10,7 +10,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
     using System.Fabric.Interop;
     using System.Globalization;
     using System.Reflection;
-    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;

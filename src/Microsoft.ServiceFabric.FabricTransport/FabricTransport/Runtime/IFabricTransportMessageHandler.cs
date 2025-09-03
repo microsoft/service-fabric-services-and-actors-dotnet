@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
     {
         /// <summary>
         /// Handles a message from the client that requires a response from the service.
-        /// </summary>
+        /// </summary> 
         /// <param name="requestContext">Request context - contains additional information about the request</param>
         /// <param name="messageHeaders">Request message headers</param>
         /// <param name="requestBody">Request message body</param>

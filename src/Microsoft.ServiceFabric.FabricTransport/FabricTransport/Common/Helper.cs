@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
 
         public static unsafe byte[] Get_Byte(IntPtr message)
         {
-            var msgBufferValue = (NativeTypes.FABRIC_MESSAGE_BUFFER*) message;
+            var msgBufferValue = (NativeTypes.FABRIC_MESSAGE_BUFFER*)message;
             // TODO: Copy shld be removed
             return NativeTypes.FromNativeBytes(msgBufferValue->Buffer, msgBufferValue->BufferSize);
         }

@@ -11,7 +11,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
     using System.Fabric.Interop;
     using System.Globalization;
     using System.Reflection;
-    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
     using static Microsoft.ServiceFabric.FabricTransport.V2.NativeFabricTransport;
@@ -32,7 +31,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
             this.ConnectionAddress = connectionAddress;
             this.settings = transportSettings;
             Utility.WrapNativeSyncInvokeInMTA(
-                () => this.CreateNativeClient(transportSettings, connectionAddress, eventHandler, contract,messageMessageDisposer),
+                () => this.CreateNativeClient(transportSettings, connectionAddress, eventHandler, contract, messageMessageDisposer),
                 "FabricTransportClient.Create");
         }
 
@@ -48,7 +47,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
         {
             try
             {
-                await   Utility.WrapNativeAsyncInvokeInMTA(
+                await Utility.WrapNativeAsyncInvokeInMTA(
                     (callback) => this.BeginOpen(this.settings.ConnectTimeout, callback),
                     this.EndOpen,
                     cancellationToken,
@@ -135,7 +134,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
             this.nativeClient.Send(nativeMessage);
         }
 
-    
+
         private void CreateNativeClient(
             FabricTransportSettings transportSettings,
             string connectionAddress,
@@ -151,7 +150,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
                 var nativeConnectionAddress = pin.AddBlittable(connectionAddress);
                 var nativeEventHandler = new FabricTransportClientConnectionEventHandlerBroker(eventHandler);
                 this.nativeClient =
-                    (NativeFabricTransport.IFabricTransportClient2) NativeFabricTransport.CreateFabricTransportClient(
+                    (NativeFabricTransport.IFabricTransportClient2)NativeFabricTransport.CreateFabricTransportClient(
                         ref iid,
                         nativeTransportSettings,
                         nativeConnectionAddress,
@@ -167,9 +166,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
             TimeSpan timeout,
             NativeCommon.IFabricAsyncOperationCallback callback)
         {
-                var timeoutInMilliSeconds = Utility.ToMilliseconds(timeout, "timeout");
-                NativeFabricTransport.IFabricTransportMessage nativeFabricTransportMessage =
-                    new NativeFabricTransportMessage(message);
+            var timeoutInMilliSeconds = Utility.ToMilliseconds(timeout, "timeout");
+            NativeFabricTransport.IFabricTransportMessage nativeFabricTransportMessage =
+                new NativeFabricTransportMessage(message);
 
             if (requestId == default(Guid))
             {
@@ -254,9 +253,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
         private NativeCommon.IFabricAsyncOperationContext BeginOpen(TimeSpan connectTimeout,
             NativeCommon.IFabricAsyncOperationCallback callback)
         {
-          
-                var timeoutInMilliSeconds = Utility.ToMilliseconds(connectTimeout, "timeout");
-                return this.nativeClient.BeginOpen(timeoutInMilliSeconds, callback);
+
+            var timeoutInMilliSeconds = Utility.ToMilliseconds(connectTimeout, "timeout");
+            return this.nativeClient.BeginOpen(timeoutInMilliSeconds, callback);
         }
 
         private void EndOpen(NativeCommon.IFabricAsyncOperationContext context)

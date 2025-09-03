@@ -93,7 +93,8 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
         {
             const string FabricTransportDll = "FabricTransport";
 
-            [DllImport(FabricTransportDll)] internal static extern
+            [DllImport(FabricTransportDll)]
+            internal static extern
             HRESULT CreateFabricTransportListener(
                 ref Guid iid,
                 [In] IntPtr settings,
@@ -103,7 +104,8 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
                 [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessageDisposer messageDisposer,
                 [MarshalAs(UnmanagedType.Interface)] out IFabricTransportListener listener);
 
-            [DllImport(FabricTransportDll)] internal static extern
+            [DllImport(FabricTransportDll)]
+            internal static extern
             HRESULT CreateFabricTransportClient(
                 ref Guid iid,
                 [In] IntPtr settings,
@@ -138,7 +140,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             void Dispose(
                 [In] UInt32 count,
                 [In] IntPtr messages);
-            
+
         }
 
         //// ----------------------------------------------------------------------------

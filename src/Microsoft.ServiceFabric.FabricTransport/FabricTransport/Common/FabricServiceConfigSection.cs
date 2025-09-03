@@ -8,10 +8,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
     using System;
     using System.Collections.Generic;
     using System.Fabric.Common;
+    using System.Fabric.Description;
+    using System.Fabric.Management.ServiceModel;
     using System.Linq;
     using System.Reflection;
-    using System.Fabric.Management.ServiceModel;
-    using System.Fabric.Description;
 
     internal class FabricServiceConfigSection
     {
@@ -83,7 +83,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
             {
                 if (this.configSection.Parameters.Contains(settingName.Trim()))
                 {
-                    var param= this.configSection.Parameters[settingName.Trim()];
+                    var param = this.configSection.Parameters[settingName.Trim()];
                     return CastParameter<T>(param.Value);
                 }
 

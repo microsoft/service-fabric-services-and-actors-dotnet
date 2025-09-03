@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
 {
-    using System;
     using System.Threading.Tasks;
 
     /// <summary>

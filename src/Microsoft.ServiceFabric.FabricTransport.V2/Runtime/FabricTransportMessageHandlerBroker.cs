@@ -47,10 +47,10 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
         public void HandleOneWay(IntPtr nativeClientId,
             NativeFabricTransport.IFabricTransportMessage message)
         {
-       
+
             var clientId = NativeTypes.FromNativeString(nativeClientId);
             var context = new FabricTransportRequestContext(clientId, this.nativeConnectionHandler.GetCallBack);
-            this.service.HandleOneWay(context,NativeFabricTransportMessage.ToFabricTransportMessage(message));
+            this.service.HandleOneWay(context, NativeFabricTransportMessage.ToFabricTransportMessage(message));
         }
 
         private async Task<NativeFabricTransportMessage> RequestResponseAsync(string clientId,

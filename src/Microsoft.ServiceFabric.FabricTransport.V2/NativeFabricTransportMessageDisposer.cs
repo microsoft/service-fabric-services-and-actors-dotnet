@@ -6,7 +6,6 @@
 namespace Microsoft.ServiceFabric.FabricTransport.V2
 {
     using System;
-    using System.Fabric.Interop;
     using System.Runtime.InteropServices;
     using static Microsoft.ServiceFabric.FabricTransport.V2.NativeFabricTransport;
 

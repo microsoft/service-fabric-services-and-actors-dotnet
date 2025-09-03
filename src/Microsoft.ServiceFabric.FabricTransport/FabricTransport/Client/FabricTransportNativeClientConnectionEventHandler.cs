@@ -6,7 +6,6 @@
 namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
     using System;
-    using System.Fabric.Interop;
     using Microsoft.ServiceFabric.FabricTransport;
 
     internal class FabricTransportNativeClientConnectionEventHandler : NativeServiceCommunication.IFabricServiceConnectionEventHandler

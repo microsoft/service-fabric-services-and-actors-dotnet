@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             }
             else
             {
-                nativeObj.OperationTimeoutInSeconds = (uint) transportSettings.OperationTimeout.TotalSeconds;
+                nativeObj.OperationTimeoutInSeconds = (uint)transportSettings.OperationTimeout.TotalSeconds;
             }
 
             if (transportSettings.KeepAliveTimeout.TotalSeconds < 0)
@@ -40,30 +40,30 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
             }
             else
             {
-                nativeObj.KeepAliveTimeoutInSeconds = (uint) transportSettings.KeepAliveTimeout.TotalSeconds;
+                nativeObj.KeepAliveTimeoutInSeconds = (uint)transportSettings.KeepAliveTimeout.TotalSeconds;
             }
 
 
             Helper.ThrowIfValueOutOfBounds(transportSettings.MaxMessageSize, "MaxMessageSize");
 
-            nativeObj.MaxMessageSize = (uint) transportSettings.MaxMessageSize;
+            nativeObj.MaxMessageSize = (uint)transportSettings.MaxMessageSize;
 
             Helper.ThrowIfValueOutOfBounds(transportSettings.MaxConcurrentCalls, "MaxConcurrentCalls");
-            nativeObj.MaxConcurrentCalls = (uint) transportSettings.MaxConcurrentCalls;
+            nativeObj.MaxConcurrentCalls = (uint)transportSettings.MaxConcurrentCalls;
 
             Helper.ThrowIfValueOutOfBounds(transportSettings.MaxQueueSize, "MaxQueueSize");
 
-            nativeObj.MaxQueueSize = (uint) transportSettings.MaxQueueSize;
+            nativeObj.MaxQueueSize = (uint)transportSettings.MaxQueueSize;
 
             var ex1settings = new NativeFabricTransport.FABRIC_TRANSPORT_SETTINGS_EX1();
 
             if (transportSettings.ConnectTimeout.TotalMilliseconds < 0)
             {
-                ex1settings.ConnectTimeoutInMilliseconds = (uint) FabricTransportSettings.DefaultConnectTimeout.TotalMilliseconds;
+                ex1settings.ConnectTimeoutInMilliseconds = (uint)FabricTransportSettings.DefaultConnectTimeout.TotalMilliseconds;
             }
             else
             {
-                ex1settings.ConnectTimeoutInMilliseconds = (uint) transportSettings.ConnectTimeout.TotalMilliseconds;
+                ex1settings.ConnectTimeoutInMilliseconds = (uint)transportSettings.ConnectTimeout.TotalMilliseconds;
             }
 
             var ex2settings = new NativeFabricTransport.FABRIC_TRANSPORT_SETTINGS_EX2();
