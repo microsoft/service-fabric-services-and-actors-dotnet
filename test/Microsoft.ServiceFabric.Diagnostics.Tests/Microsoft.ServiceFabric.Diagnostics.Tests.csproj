@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
+    <ProjectReference Include="$(RepoRoot)test\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
   </ItemGroup>
 </Project>
