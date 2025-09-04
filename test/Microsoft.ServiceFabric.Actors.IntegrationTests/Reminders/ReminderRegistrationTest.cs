@@ -10,31 +10,8 @@ using Fuzzy;
 
 namespace Microsoft.ServiceFabric.Actors
 {
-    public class ActorIntegrationTest
+    public class ActorIntegrationTest : ActorServiceIntegrationTest
     {
-        protected async Task<ActorService> GetActorService<T>(
-            Func<ActorService, ActorId, ActorBase> actorFactory = null,
-            ActorServiceSettings actorServiceSettings = null)
-            where T : Actor
-        {
-            IFuzz fuzzy = new RandomFuzz();
-
-            ActorService actorService = new ActorService(
-                fuzzy.StatefulServiceContext(),
-                ActorTypeInformation.Get(typeof(T)),
-                actorFactory,
-                null,
-                new NullActorStateProvider(),
-                actorServiceSettings);
-
-            IStatefulUserServiceReplica statefulServiceReplica = actorService;
-            await statefulServiceReplica.OnOpenAsync(ReplicaOpenMode.New, CancellationToken.None);
-            await statefulServiceReplica.OnChangeRoleAsync(ReplicaRole.Primary, CancellationToken.None);
-            await statefulServiceReplica.RunAsync(CancellationToken.None);
-
-            return actorService;
-        }
-
         class ReminderCallbackInfo
         {
             public ReminderCallbackInfo(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period, ActorMethodContext methodContext)
