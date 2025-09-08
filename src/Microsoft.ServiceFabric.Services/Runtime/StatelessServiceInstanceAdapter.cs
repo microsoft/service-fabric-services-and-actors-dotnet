@@ -352,11 +352,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     continue;
                 }
 
-                var communicationListenerInfo = new CommunicationListenerInfo
-                {
-                    Name = entry.Name.Equals(ServiceInstanceListener.DefaultName) ? "default" : entry.Name,
-                    Listener = communicationListener,
-                };
+                var communicationListenerInfo = new CommunicationListenerInfo(
+                    entry.Name.Equals(ServiceInstanceListener.DefaultName) ? "default" : entry.Name,
+                    communicationListener);
 
                 this.AddCommunicationListener(communicationListenerInfo);
 
