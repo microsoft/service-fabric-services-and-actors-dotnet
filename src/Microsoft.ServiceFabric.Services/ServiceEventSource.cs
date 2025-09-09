@@ -13,12 +13,12 @@ namespace Microsoft.ServiceFabric.Services
     /// Reliable Services event source collected by Service Fabric runtime diagnostics system.
     /// </summary>
     [EventSource(Guid = "27b7a543-7280-5c2a-b053-f2f798e2cbb7", Name = "ServiceFramework")]
-    internal sealed class ServiceEventSource : ServiceFabricEventSource
+    sealed class ServiceEventSource : ServiceFabricEventSource, IServiceEventSource
     {
         /// <summary>
         /// Gets instance of <see cref="ServiceEventSource"/> class.
         /// </summary>
-        internal static readonly ServiceEventSource Instance = new ServiceEventSource();
+        internal static ServiceEventSource Instance { get; private set; } = new ServiceEventSource();
 
         private const int ServiceLifecycleEventId = 5;
         private const int CommunicationListenerUsageEventId = 6;
@@ -201,19 +201,19 @@ namespace Microsoft.ServiceFabric.Services
         }
 
         [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void InfoText(string id, string type, string message)
+        public void InfoText(string id, string type, string message)
         {
             this.WriteEvent(1, id, type, message);
         }
 
         [Event(2, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
-        private void WarningText(string id, string type, string message)
+        public void WarningText(string id, string type, string message)
         {
             this.WriteEvent(2, id, type, message);
         }
 
         [Event(3, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
-        private void ErrorText(string id, string type, string message)
+        public void ErrorText(string id, string type, string message)
         {
             this.WriteEvent(3, id, type, message);
         }
