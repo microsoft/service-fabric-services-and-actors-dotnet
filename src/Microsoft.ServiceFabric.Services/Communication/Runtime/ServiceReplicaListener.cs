@@ -3,11 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+
 namespace Microsoft.ServiceFabric.Services.Communication.Runtime
 {
-    using System;
-    using System.Fabric;
-
     /// <summary>
     /// Represents the communication listener and its properties for a Stateful Service replica.
     /// Endpoints given out by the communication listener are associated with the name of the communication listener.
@@ -33,35 +33,49 @@ namespace Microsoft.ServiceFabric.Services.Communication.Runtime
             string name = DefaultName,
             bool listenOnSecondary = false)
         {
-            this.CreateCommunicationListener = createCommunicationListener;
-            this.Name = name;
-            this.ListenOnSecondary = listenOnSecondary;
+            CreateCommunicationListener = createCommunicationListener ?? throw new ArgumentNullException(nameof(createCommunicationListener));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            ListenOnSecondary = listenOnSecondary;
         }
 
         /// <summary>
         /// Gets the name of the communication listener.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
-        /// Gets a value indicating whether this communication listener should be opened when the replica becomes an
-        /// <see cref="System.Fabric.ReplicaRole.ActiveSecondary"/>.
-        /// When this member is false, the communication listener is opened only when the replica becomes
-        /// <see cref="System.Fabric.ReplicaRole.Primary"/>.
+        /// Gets a value indicating whether this communication listener should be opened when the replica becomes an <see cref="ReplicaRole.ActiveSecondary"/>.
+        /// When false, the communication listener is opened only when the replica becomes <see cref="ReplicaRole.Primary"/>.
         /// The default value for this property is <languageKeyword>false</languageKeyword>.
         /// </summary>
         /// <remarks>
         /// This flag can be set when the primary replica is too busy to serve reads and writes efficiently and the application can tolerate reading stale (but consistent) data,
         /// then data can be read from secondary replica.
         /// </remarks>
-        public bool ListenOnSecondary { get; private set; }
+        public bool ListenOnSecondary { get; }
 
         /// <summary>
         /// Gets the factory method for creating the communication listener.
         /// </summary>
         /// <remarks>
-        /// <para>The factory method takes in a <see cref="System.Fabric.StatefulServiceContext"/> and returns communication listener implementing <see cref="Microsoft.ServiceFabric.Services.Communication.Runtime.ICommunicationListener"/>.</para>
+        /// The factory method takes in a <see cref="StatefulServiceContext"/> and returns an <see cref="ICommunicationListener"/>.
         /// </remarks>
-        public Func<StatefulServiceContext, ICommunicationListener> CreateCommunicationListener { get; private set; }
+        public Func<StatefulServiceContext, ICommunicationListener> CreateCommunicationListener { get; }
+
+        internal static CommunicationListenerInfo Instantiate(ServiceReplicaListener listener, StatefulServiceContext context)
+        {
+            if (listener == null)
+                throw new ArgumentNullException(nameof(listener));
+
+            ICommunicationListener communicationListener = listener.CreateCommunicationListener(context);
+            if (communicationListener == null)
+                return null;
+
+            string name = listener.Name.Equals(DefaultName) ? "default" : listener.Name;
+            var original = new CommunicationListenerInfo(name, communicationListener);
+            var trace = new Trace(typeof(ServiceReplicaListener), context, ServiceEventSource.Instance);
+            var tracer = new TracingCommunicationListener(original, trace);
+            return new CommunicationListenerInfo(name, tracer);
+        }
     }
 }
