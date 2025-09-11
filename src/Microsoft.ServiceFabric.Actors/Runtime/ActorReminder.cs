@@ -136,7 +136,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
                 catch (Exception e)
                 {
-                    this.actorManager.TraceSource.WriteErrorWithId(
+                    this.actorManager.TraceSource.WriteWarningWithId(
                         TraceType,
                         this.actorManager.GetActorTraceId(this.OwnerActorId),
                         "Failed to arm timer for reminder {0} exception {1}",
