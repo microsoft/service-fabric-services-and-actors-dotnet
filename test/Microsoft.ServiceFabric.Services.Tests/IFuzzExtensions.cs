@@ -20,6 +20,13 @@ namespace Microsoft.ServiceFabric.Services
             return new CommunicationListenerInfo(name, listener);
         }
 
+        internal static ServiceInstanceListener ServiceInstanceListener(this IFuzz fuzzy)
+        {
+            var createCommunicationListener = Mock.Of<Func<StatelessServiceContext, ICommunicationListener>>();
+            string name = fuzzy.String();
+            return new ServiceInstanceListener(createCommunicationListener, name);
+        }
+
         internal static ServiceReplicaListener ServiceReplicaListener(this IFuzz fuzzy)
         {
             var createCommunicationListener = Mock.Of<Func<StatefulServiceContext, ICommunicationListener>>();
