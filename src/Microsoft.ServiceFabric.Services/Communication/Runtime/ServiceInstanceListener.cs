@@ -3,11 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+
 namespace Microsoft.ServiceFabric.Services.Communication.Runtime
 {
-    using System;
-    using System.Fabric;
-
     /// <summary>
     /// Represents the communication listener and its properties for a Stateless Service instance.
     /// Endpoints given out by the communication listener are associated with the name of the communication listener.
@@ -31,21 +31,37 @@ namespace Microsoft.ServiceFabric.Services.Communication.Runtime
             Func<StatelessServiceContext, ICommunicationListener> createCommunicationListener,
             string name = DefaultName)
         {
-            this.CreateCommunicationListener = createCommunicationListener;
-            this.Name = name;
+            CreateCommunicationListener = createCommunicationListener ?? throw new ArgumentNullException(nameof(createCommunicationListener));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
         /// <summary>
         /// Gets the name of the communication listener.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         /// Gets the factory method for creating the communication listener.
         /// </summary>
         /// <remarks>
-        /// <para>The factory method takes in a <see cref="System.Fabric.StatelessServiceContext"/> and returns communication listener implementing <see cref="Microsoft.ServiceFabric.Services.Communication.Runtime.ICommunicationListener"/>.</para>
+        /// The factory method takes in a <see cref="StatelessServiceContext"/> and returns an <see cref="ICommunicationListener"/>.
         /// </remarks>
-        public Func<StatelessServiceContext, ICommunicationListener> CreateCommunicationListener { get; private set; }
+        public Func<StatelessServiceContext, ICommunicationListener> CreateCommunicationListener { get; }
+
+        static internal CommunicationListenerInfo Instantiate(ServiceInstanceListener listener, StatelessServiceContext context)
+        {
+            if (listener == null)
+                throw new ArgumentNullException(nameof(listener));
+
+            ICommunicationListener communicationListener = listener.CreateCommunicationListener(context);
+            if (communicationListener == null)
+                return null;
+
+            string name = listener.Name.Equals(DefaultName) ? "default" : listener.Name;
+            var original = new CommunicationListenerInfo(name, communicationListener);
+            var trace = new Trace(typeof(ServiceInstanceListener), context, ServiceEventSource.Instance);
+            var tracer = new TracingCommunicationListener(original, trace);
+            return new CommunicationListenerInfo(name, tracer);
+        }
     }
 }
