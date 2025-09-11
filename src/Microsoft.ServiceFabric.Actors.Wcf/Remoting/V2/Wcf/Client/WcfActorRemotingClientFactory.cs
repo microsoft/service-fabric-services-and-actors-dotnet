@@ -3,17 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.ServiceModel.Channels;
+using Microsoft.ServiceFabric.Actors.Client;
+using Microsoft.ServiceFabric.Actors.Remoting.Client;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client;
+
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
 {
-    using System.Collections.Generic;
-    using System.ServiceModel.Channels;
-    using Microsoft.ServiceFabric.Actors.Remoting.Client;
-    using Microsoft.ServiceFabric.Actors.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client;
 
     /// <summary>
     ///     An <see cref="IServiceRemotingClientFactory"/> that uses
@@ -79,7 +80,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
                 callbackClient,
                 GetExceptionHandlers(exceptionHandlers),
                 servicePartitionResolver,
-                traceId)
+                traceId,
+                null,
+                new List<IExceptionConvertor> { new FabricActorExceptionConvertor() },
+                null)
         {
         }
 

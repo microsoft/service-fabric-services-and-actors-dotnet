@@ -56,6 +56,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Act
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Remoting.Tests_netfx", "test\netfx\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests_netfx.csproj", "{9DA198B2-2C88-432F-87A4-1962225A154B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Wcf.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Wcf.Tests\Microsoft.ServiceFabric.Services.Wcf.Tests.csproj", "{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

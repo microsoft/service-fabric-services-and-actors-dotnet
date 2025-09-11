@@ -157,8 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             FabricTransportRemotingSettings remotingSettings = null)
         {
-            IEnumerable<IExceptionConvertor> convertors = this.GetConvertors(exceptionConvertors);
-            this.exceptionConversionHandler = new ExceptionConversionHandler(convertors, remotingSettings);
+            this.exceptionConversionHandler = new ExceptionConversionHandler(this.GetConvertors(exceptionConvertors), remotingSettings);
 
             var serializersManager = new ServiceRemotingMessageSerializersManager(
                 this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage),
@@ -188,10 +187,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 string,
                 IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
-            IEnumerable<IExceptionConvertor> convertors = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             FabricTransportRemotingSettings remotingSettings = null)
         {
-            this.exceptionConversionHandler = new ExceptionConversionHandler(convertors, remotingSettings);
+            this.exceptionConversionHandler = new ExceptionConversionHandler(this.GetConvertors(exceptionConvertors), remotingSettings);
 
             this.Initialize(serializersManager, clientBinding, callbackClient, exceptionHandlers, servicePartitionResolver, traceId, createWcfClientFactory);
         }

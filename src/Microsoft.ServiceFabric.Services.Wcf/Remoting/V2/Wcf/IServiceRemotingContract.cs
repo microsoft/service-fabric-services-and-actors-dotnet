@@ -29,6 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf
 #pragma warning disable 108
         [OperationContract]
         [FaultContract(typeof(RemoteException))]
+        [FaultContract(typeof(RemoteException2))]
         Task<ResponseMessage> RequestResponseAsync(ArraySegment<byte> messageHeaders, IEnumerable<ArraySegment<byte>> requestBody);
 
         /// <summary>
