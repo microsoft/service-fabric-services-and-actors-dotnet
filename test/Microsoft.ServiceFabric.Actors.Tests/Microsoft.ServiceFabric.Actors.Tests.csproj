@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Compile Remove="**\*.cs" />
+    <Compile Include="ActorEventSourceTest.cs" />
     <Compile Include="ActorRemotingProviderAttributeTest.cs" />
     <Compile Include="AssemblyAttributes.cs" />
   </ItemGroup>

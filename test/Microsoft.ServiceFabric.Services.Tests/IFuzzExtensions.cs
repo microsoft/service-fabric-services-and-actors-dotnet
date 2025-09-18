@@ -34,12 +34,5 @@ namespace Microsoft.ServiceFabric.Services
             bool listenOnSecondary = fuzzy.Boolean();
             return new ServiceReplicaListener(createCommunicationListener, name, listenOnSecondary);
         }
-
-        internal static Type Type(this IFuzz fuzzy)
-        {
-            var mock = new Mock<Type>();
-            mock.SetupGet(_ => _.Name).Returns(fuzzy.String());
-            return mock.Object;
-        }
     }
 }

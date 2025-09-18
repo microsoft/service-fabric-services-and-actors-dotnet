@@ -7,6 +7,7 @@ using System;
 using System.Fabric;
 using Fuzzy;
 using Inspector;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Moq;
 using Xunit;
 

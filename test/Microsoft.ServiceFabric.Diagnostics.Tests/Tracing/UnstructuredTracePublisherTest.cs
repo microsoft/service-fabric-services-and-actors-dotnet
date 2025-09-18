@@ -10,9 +10,8 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Xunit;
-using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Tests
+namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
     public abstract class UnstructuredTracePublisherTest
     {

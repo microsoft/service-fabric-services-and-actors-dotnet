@@ -7,21 +7,21 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.ServiceFabric.Services
+namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
-    public sealed class ServiceEventSourceTest: IDisposable
+    public sealed class ServiceFabricStringEventSourceTest : IDisposable
     {
-        readonly EventSourceTest<ServiceEventSource> test;
+        readonly EventSourceTest<ServiceFabricStringEventSource> test;
 
-        public ServiceEventSourceTest(ITestOutputHelper output) =>
-            test = new EventSourceTest<ServiceEventSource>(output);
+        public ServiceFabricStringEventSourceTest(ITestOutputHelper output) =>
+            test = new EventSourceTest<ServiceFabricStringEventSource>(output);
 
         public void Dispose() =>
             test.Dispose();
 
         [Fact]
-        public void RemainsUnchangedForBackwardCompatibilityWithCollectionTools() =>
-            Assert.Equal(new Guid("27b7a543-7280-5c2a-b053-f2f798e2cbb7"), test.Instance.Guid);
+        public void GuidRemainsUnchangedForBackwardCompatibilityWithCollectionTools() =>
+            Assert.Equal(new Guid("74CF0846-E6A3-4a3e-A10F-80FD527DA5FD"), test.Instance.Guid);
 
         [Fact]
         public void ManifestCanBeSavedForRegistrationWithExternalTools() =>

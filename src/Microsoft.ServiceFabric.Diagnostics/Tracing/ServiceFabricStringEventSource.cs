@@ -3,15 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Diagnostics.Tracing;
+using System.Globalization;
+
 namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
-    using System.Diagnostics.Tracing;
-    using System.Globalization;
-
     [EventSource(Guid = "74CF0846-E6A3-4a3e-A10F-80FD527DA5FD", Name = "StringEvent")]
-    internal sealed class ServiceFabricStringEventSource : ServiceFabricEventSource
+    sealed class ServiceFabricStringEventSource : ServiceFabricEventSource, ITextEventSource
     {
-        internal static readonly ServiceFabricStringEventSource Instance = new ServiceFabricStringEventSource();
+        internal static ServiceFabricStringEventSource Instance { get; private set; } = new ServiceFabricStringEventSource();
 
         private ServiceFabricStringEventSource()
         {
@@ -98,29 +98,22 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         #endregion
 
         #region Events
-        [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void InfoText(string id, string type, string message)
-        {
-            this.WriteEvent(1, id, type, message);
-        }
+        [Event(InfoTextEventId, Message = TextEventFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        public void InfoText(string id, string type, string message) =>
+            WriteEvent(InfoTextEventId, id, type, message);
 
-        [Event(2, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
-        private void WarningText(string id, string type, string message)
-        {
-            this.WriteEvent(2, id, type, message);
-        }
+        [Event(WarningTextEventId, Message = TextEventFormat, Level = EventLevel.Warning, Keywords = Keywords.Default)]
+        public void WarningText(string id, string type, string message) =>
+            WriteEvent(WarningTextEventId, id, type, message);
 
-        [Event(3, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
-        private void ErrorText(string id, string type, string message)
-        {
-            this.WriteEvent(3, id, type, message);
-        }
+        [Event(ErrorTextEventId, Message = TextEventFormat, Level = EventLevel.Error, Keywords = Keywords.Default)]
+        public void ErrorText(string id, string type, string message) =>
+            WriteEvent(ErrorTextEventId, id, type, message);
 
-        [Event(4, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void NoiseText(string id, string type, string message)
-        {
-            this.WriteEvent(4, id, type, message);
-        }
+        [Event(NoiseTextEventId, Message = TextEventFormat, Level = EventLevel.Verbose, Keywords = Keywords.Default)]
+        private void NoiseText(string id, string type, string message) =>
+            WriteEvent(NoiseTextEventId, id, type, message);
+
         #endregion
 
         #region Keywords / Tasks / Opcodes

@@ -13,12 +13,12 @@ namespace Microsoft.ServiceFabric.Actors
     /// Actor Framework event source collected by Service Fabric runtime diagnostics system.
     /// </summary>
     [EventSource(Guid = "e2f2656b-985e-5c5b-5ba3-bbe8a851e1d7", Name = "ActorFramework")]
-    internal sealed class ActorEventSource : ServiceFabricEventSource
+    sealed class ActorEventSource : ServiceFabricEventSource, ITextEventSource
     {
         /// <summary>
         /// Gets instance of <see cref="ActorEventSource"/> class.
         /// </summary>
-        internal static readonly ActorEventSource Instance = new ActorEventSource();
+        internal static ActorEventSource Instance { get; private set; } = new ActorEventSource();
 
         private const int ActorStateProviderUsageEventId = 5;
         private const int CustomActorServiceUsageEventId = 6;
@@ -419,29 +419,21 @@ namespace Microsoft.ServiceFabric.Actors
         #endregion MigrationEvents
 
         #region Events
-        [Event(1, Message = "{2}", Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void InfoText(string id, string type, string message)
-        {
-            this.WriteEvent(1, id, type, message);
-        }
+        [Event(InfoTextEventId, Message = TextEventFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        public void InfoText(string id, string type, string message) =>
+            WriteEvent(InfoTextEventId, id, type, message);
 
-        [Event(2, Message = "{2}", Level = EventLevel.Warning, Keywords = Keywords.Default)]
-        private void WarningText(string id, string type, string message)
-        {
-            this.WriteEvent(2, id, type, message);
-        }
+        [Event(WarningTextEventId, Message = TextEventFormat, Level = EventLevel.Warning, Keywords = Keywords.Default)]
+        public void WarningText(string id, string type, string message) =>
+            WriteEvent(WarningTextEventId, id, type, message);
 
-        [Event(3, Message = "{2}", Level = EventLevel.Error, Keywords = Keywords.Default)]
-        private void ErrorText(string id, string type, string message)
-        {
-            this.WriteEvent(3, id, type, message);
-        }
+        [Event(ErrorTextEventId, Message = TextEventFormat, Level = EventLevel.Error, Keywords = Keywords.Default)]
+        public void ErrorText(string id, string type, string message) =>
+            WriteEvent(ErrorTextEventId, id, type, message);
 
-        [Event(4, Message = "{2}", Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void NoiseText(string id, string type, string message)
-        {
-            this.WriteEvent(4, id, type, message);
-        }
+        [Event(NoiseTextEventId, Message = TextEventFormat, Level = EventLevel.Verbose, Keywords = Keywords.Default)]
+        private void NoiseText(string id, string type, string message) =>
+            WriteEvent(NoiseTextEventId, id, type, message);
 
         [Event(ActorStateProviderUsageEventId, Message = ActorStateProviderUsageEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
         private void ActorStateProviderUsageEvent(
