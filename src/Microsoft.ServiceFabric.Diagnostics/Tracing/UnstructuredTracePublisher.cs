@@ -22,13 +22,21 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 
         protected override void OnEventWritten(EventWrittenEventArgs written)
         {
+            bool isTextEvent = IsTextEvent(written);
+
             string task = written.EventSource.Name;
-            string @event = written.EventName;
-            string id = written.EventId.ToString();
+            string id = isTextEvent ? (string)written.Payload[0] : string.Empty;
+            string @event = isTextEvent ? (string)written.Payload[1] : written.EventName;
             var level = (ushort)written.Level;
             var text = string.Format(CultureInfo.InvariantCulture, written.Message, written.Payload.ToArray());
+
             publish(task, @event, id, level, text);
         }
+
+        bool IsTextEvent(EventWrittenEventArgs written) =>
+            written.EventId >= ServiceFabricEventSource.InfoTextEventId &&
+            written.EventId <= ServiceFabricEventSource.ErrorTextEventId &&
+            written.EventSource is ITextEventSource;
     }
 }
 
