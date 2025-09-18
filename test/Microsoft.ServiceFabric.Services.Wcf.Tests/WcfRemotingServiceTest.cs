@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                 {
                     new V2.Runtime.SystemExceptionConvertor(),
                 };
-                ExceptionSerializer exceptionSerializer = new ExceptionSerializer(runtimeExceptionConvertors, null);
+                ExceptionSerializer exceptionSerializer = new ExceptionSerializer(runtimeExceptionConvertors, new WcfRemotingListenerSettings());
 
                 var serializersManager = new ServiceRemotingMessageSerializersManager(
                     null, // serializationProvider
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                     new V2.Runtime.SystemExceptionConvertor(),
                     new V2.Runtime.DefaultExceptionConvertor(),
                 };
-                ExceptionSerializer exceptionSerializer = new ExceptionSerializer(runtimeExceptionConvertors, null);
+                ExceptionSerializer exceptionSerializer = new ExceptionSerializer(runtimeExceptionConvertors, new WcfRemotingListenerSettings());
 
                 var serializersManager = new ServiceRemotingMessageSerializersManager(
                     null, // serializationProvider

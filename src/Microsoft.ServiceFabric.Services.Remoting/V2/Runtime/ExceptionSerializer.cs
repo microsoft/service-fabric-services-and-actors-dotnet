@@ -21,13 +21,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         readonly IEnumerable<IExceptionConvertor> convertors;
         readonly IExceptionSerializerSettings settings;
 
-        public ExceptionSerializer(IEnumerable<IExceptionConvertor> convertors, IExceptionSerializerSettings settings)
+        internal ExceptionSerializer(IEnumerable<IExceptionConvertor> convertors, IExceptionSerializerSettings settings)
         {
             this.convertors = convertors;
-            this.settings = settings;
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public static ExceptionSerializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, IExceptionSerializerSettings settings)
+        internal static ExceptionSerializer CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, IExceptionSerializerSettings settings)
         {
             var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                 {
                     if (convertor.TryConvertToServiceException(originalException, out serviceException))
                     {
-                        if (++currentDepth > this.settings.GetRemotingExceptionDepth())
+                        if (++currentDepth > this.settings.RemotingExceptionDepth)
                             break;
 
                         Exception[] innerExceptions = convertor.GetInnerExceptions(originalException);
@@ -58,7 +58,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                             int currentBreadth = 0;
                             foreach (Exception innerException in innerExceptions)
                             {
-                                if (++currentBreadth > this.settings.GetRemotingExceptionDepth())
+                                if (++currentBreadth > this.settings.RemotingExceptionDepth)
                                     break;
 
                                 serviceException.ActualInnerExceptions.Add(this.ToServiceException(innerException, currentDepth));

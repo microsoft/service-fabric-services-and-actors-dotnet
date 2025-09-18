@@ -14,11 +14,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
     {
         private int remotingExceptionDepth;
 
-        internal static WcfRemotingListenerSettings GetDefault()
-        {
-            return new WcfRemotingListenerSettings() { remotingExceptionDepth = ExceptionSerializer.DefaultRemotingExceptionDepth };
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfRemotingListenerSettings"/> class with default values.
         /// </summary>
@@ -49,14 +44,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                     this.remotingExceptionDepth = value;
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets the depth of exceptions to be sent to the client in case of remoting call failing with exception.
-        /// </summary>
-        public int GetRemotingExceptionDepth()
-        {
-            return this.remotingExceptionDepth;
         }
     }
 }

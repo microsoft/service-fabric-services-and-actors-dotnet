@@ -200,14 +200,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             }
         }
 
-        /// <summary>
-        /// Gets the depth of exceptions to be sent to the client in case of remoting call failing with exception.
-        /// </summary>
-        public int GetRemotingExceptionDepth()
-        {
-            return this.remotingExceptionDepth;
-        }
-
         internal static object DefaultEndpointResourceName
         {
             get { return FabricTransportListenerSettings.DefaultEndpointResourceName; }

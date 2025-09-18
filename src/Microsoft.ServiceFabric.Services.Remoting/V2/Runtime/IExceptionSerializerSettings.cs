@@ -5,15 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 {
-    /// <summary>
-    /// Defines the interface that provides settings for exception serialization.
-    /// </summary>
-    public interface IExceptionSerializerSettings
+    internal interface IExceptionSerializerSettings
     {
-        /// <summary>
-        /// Gets maximal exception depth to be serialized for remoting transfer.
-        /// </summary>
-        /// <returns>Maximum exception depth for remoting transfer.</returns>
-        int GetRemotingExceptionDepth();
+        int RemotingExceptionDepth { get; }
     }
 }
