@@ -12,6 +12,7 @@ using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+using Moq;
 using Fuzzy;
 using Inspector;
 using Xunit;
@@ -22,6 +23,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
     {
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+
+        Remoting.V2.Runtime.ExceptionSerializer exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer
+                .CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), Mock.Of<Remoting.V2.Runtime.IExceptionSerializerSettings>());
 
         public class Constructor : ExceptionDeserializerTest
         {
@@ -86,8 +90,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void ReturnsOriginalExceptionIfItIsKnownExceptionType()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer
-                        .CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), new FabricTransportRemotingListenerSettings());
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new FabricInsufficientMaxLoadCapacityException(fuzzy.String());
@@ -108,8 +110,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void ReturnsServiceExceptionForUnknownExceptions()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer
-                        .CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), new FabricTransportRemotingListenerSettings());
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new UnknownException(fuzzy.String());
@@ -133,8 +133,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public async Task ThrowsOriginalExceptionIfItIsKnownExceptionTypeAsync()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer
-                        .CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), new FabricTransportRemotingListenerSettings());
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new FabricInsufficientMaxLoadCapacityException(fuzzy.String());
@@ -157,8 +155,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public async Task ThrowsServiceExceptionForUnknownExceptions()
             {
                 // Arrange
-                var exceptionSerializer = Remoting.V2.Runtime.ExceptionSerializer
-                        .CreateDefault(Enumerable.Empty<Remoting.V2.Runtime.IExceptionConvertor>(), new FabricTransportRemotingListenerSettings());
                 var exceptionDeserializer = ExceptionDeserializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>());
 
                 var originalException = new UnknownException(fuzzy.String());

@@ -11,30 +11,20 @@ namespace Microsoft.ServiceFabric.Services.Wcf.Remoting.V2.Wcf.Runtime
 {
     public abstract class WcfRemotingListenerSettingsTest
     {
-        public WcfRemotingListenerSettingsTest()
-        {
-        }
+        readonly WcfRemotingListenerSettings sut = new WcfRemotingListenerSettings();
 
         public sealed class Constructor : WcfRemotingListenerSettingsTest
         {
             [Fact]
             public void ShouldInitializeRemotingExceptionDepthToDefaultValue()
             {
-                // Act
-                var settings = new WcfRemotingListenerSettings();
-
-                // Assert
-                Assert.Equal(ExceptionSerializer.DefaultRemotingExceptionDepth, settings.RemotingExceptionDepth);
+                Assert.Equal(ExceptionSerializer.DefaultRemotingExceptionDepth, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldImplementIExceptionSerializerSettings()
             {
-                // Act
-                var settings = new WcfRemotingListenerSettings();
-
-                // Assert
-                Assert.IsAssignableFrom<IExceptionSerializerSettings>(settings);
+                Assert.IsAssignableFrom<IExceptionSerializerSettings>(sut);
             }
         }
 
@@ -43,55 +33,37 @@ namespace Microsoft.ServiceFabric.Services.Wcf.Remoting.V2.Wcf.Runtime
             [Fact]
             public void ShouldReturnSetValue()
             {
-                // Arrange
-                var settings = new WcfRemotingListenerSettings();
                 const int expectedDepth = 5;
 
-                // Act
-                settings.RemotingExceptionDepth = expectedDepth;
+                sut.RemotingExceptionDepth = expectedDepth;
 
-                // Assert
-                Assert.Equal(expectedDepth, settings.RemotingExceptionDepth);
+                Assert.Equal(expectedDepth, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldSetToMaxValueWhenValueIsZero()
             {
-                // Arrange
-                var settings = new WcfRemotingListenerSettings();
+                sut.RemotingExceptionDepth = 0;
 
-                // Act
-                settings.RemotingExceptionDepth = 0;
-
-                // Assert
-                Assert.Equal(int.MaxValue, settings.RemotingExceptionDepth);
+                Assert.Equal(int.MaxValue, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldSetToMaxValueWhenValueIsNegative()
             {
-                // Arrange
-                var settings = new WcfRemotingListenerSettings();
+                sut.RemotingExceptionDepth = -1;
 
-                // Act
-                settings.RemotingExceptionDepth = -1;
-
-                // Assert
-                Assert.Equal(int.MaxValue, settings.RemotingExceptionDepth);
+                Assert.Equal(int.MaxValue, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldAcceptPositiveValues()
             {
-                // Arrange
-                var settings = new WcfRemotingListenerSettings();
                 const int expectedDepth = 10;
 
-                // Act
-                settings.RemotingExceptionDepth = expectedDepth;
+                sut.RemotingExceptionDepth = expectedDepth;
 
-                // Assert
-                Assert.Equal(expectedDepth, settings.RemotingExceptionDepth);
+                Assert.Equal(expectedDepth, sut.RemotingExceptionDepth);
             }
         }
     }

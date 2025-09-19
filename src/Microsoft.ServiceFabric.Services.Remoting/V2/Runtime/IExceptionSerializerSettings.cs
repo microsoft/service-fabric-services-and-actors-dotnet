@@ -5,7 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 {
-    internal interface IExceptionSerializerSettings
+    interface IExceptionSerializerSettings
     {
         int RemotingExceptionDepth { get; }
     }

@@ -11,30 +11,19 @@ namespace Microsoft.ServiceFabric.Services
 {
     public abstract class FabricTransportRemotingListenerSettingsTest
     {
-        public FabricTransportRemotingListenerSettingsTest()
-        {
-        }
-
+        readonly FabricTransportRemotingListenerSettings sut = new FabricTransportRemotingListenerSettings();
         public sealed class Constructor : FabricTransportRemotingListenerSettingsTest
         {
             [Fact]
             public void ShouldInitializeRemotingExceptionDepthToDefaultValue()
             {
-                // Act
-                var settings = new FabricTransportRemotingListenerSettings();
-
-                // Assert
-                Assert.Equal(ExceptionSerializer.DefaultRemotingExceptionDepth, settings.RemotingExceptionDepth);
+                Assert.Equal(ExceptionSerializer.DefaultRemotingExceptionDepth, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldImplementIExceptionSerializerSettings()
             {
-                // Act
-                var settings = new FabricTransportRemotingListenerSettings();
-
-                // Assert
-                Assert.IsAssignableFrom<IExceptionSerializerSettings>(settings);
+                Assert.IsAssignableFrom<IExceptionSerializerSettings>(sut);
             }
         }
 
@@ -43,55 +32,37 @@ namespace Microsoft.ServiceFabric.Services
             [Fact]
             public void ShouldReturnSetValue()
             {
-                // Arrange
-                var settings = new FabricTransportRemotingListenerSettings();
                 const int expectedDepth = 5;
 
-                // Act
-                settings.RemotingExceptionDepth = expectedDepth;
+                sut.RemotingExceptionDepth = expectedDepth;
 
-                // Assert
-                Assert.Equal(expectedDepth, settings.RemotingExceptionDepth);
+                Assert.Equal(expectedDepth, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldSetToMaxValueWhenValueIsZero()
             {
-                // Arrange
-                var settings = new FabricTransportRemotingListenerSettings();
+                sut.RemotingExceptionDepth = 0;
 
-                // Act
-                settings.RemotingExceptionDepth = 0;
-
-                // Assert
-                Assert.Equal(int.MaxValue, settings.RemotingExceptionDepth);
+                Assert.Equal(int.MaxValue, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldSetToMaxValueWhenValueIsNegative()
             {
-                // Arrange
-                var settings = new FabricTransportRemotingListenerSettings();
+                sut.RemotingExceptionDepth = -1;
 
-                // Act
-                settings.RemotingExceptionDepth = -1;
-
-                // Assert
-                Assert.Equal(int.MaxValue, settings.RemotingExceptionDepth);
+                Assert.Equal(int.MaxValue, sut.RemotingExceptionDepth);
             }
 
             [Fact]
             public void ShouldAcceptPositiveValues()
             {
-                // Arrange
-                var settings = new FabricTransportRemotingListenerSettings();
                 const int expectedDepth = 10;
 
-                // Act
-                settings.RemotingExceptionDepth = expectedDepth;
+                sut.RemotingExceptionDepth = expectedDepth;
 
-                // Assert
-                Assert.Equal(expectedDepth, settings.RemotingExceptionDepth);
+                Assert.Equal(expectedDepth, sut.RemotingExceptionDepth);
             }
         }
     }
