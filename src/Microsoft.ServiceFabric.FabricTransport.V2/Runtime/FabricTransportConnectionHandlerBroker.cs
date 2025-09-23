@@ -8,8 +8,10 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
     using System;
     using System.Fabric.Common;
     using System.Fabric.Interop;
-
-    internal class FabricTransportConnectionHandlerBroker : NativeFabricTransport.IFabricTransportConnectionHandler
+#if NET
+    [System.Runtime.InteropServices.Marshalling.GeneratedComClass]
+#endif
+    partial class FabricTransportConnectionHandlerBroker : NativeFabricTransport.IFabricTransportConnectionHandler
     {
         private IFabricTransportConnectionHandler connectionHandler;
 

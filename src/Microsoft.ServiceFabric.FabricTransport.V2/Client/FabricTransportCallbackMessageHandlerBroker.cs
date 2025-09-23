@@ -5,7 +5,10 @@
 
 namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
 {
-    internal class FabricTransportCallbackHandlerBroker : NativeFabricTransport.IFabricTransportCallbackMessageHandler
+#if NET
+    [System.Runtime.InteropServices.Marshalling.GeneratedComClass]
+#endif
+    partial class FabricTransportCallbackHandlerBroker : NativeFabricTransport.IFabricTransportCallbackMessageHandler
     {
         private readonly IFabricTransportCallbackMessageHandler callImpl;
 

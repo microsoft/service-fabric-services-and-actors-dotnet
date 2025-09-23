@@ -42,7 +42,7 @@
 
   <!-- Use C# 8.0 features -->
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
   </PropertyGroup>
 
   <!-- Set Version numbers. These are used for generating Assemblies. -->

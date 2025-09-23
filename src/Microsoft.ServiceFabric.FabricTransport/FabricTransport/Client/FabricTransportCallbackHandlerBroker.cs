@@ -7,10 +7,14 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
     using System;
     using System.Fabric.Interop;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport;
 
-    internal class FabricTransportCallbackHandlerBroker : NativeServiceCommunication.IFabricCommunicationMessageHandler
+#if NET
+    [System.Runtime.InteropServices.Marshalling.GeneratedComClass]
+#endif
+    partial class FabricTransportCallbackHandlerBroker : NativeServiceCommunication.IFabricCommunicationMessageHandler
     {
         private IFabricTransportCallbackMessageHandler callImpl;
 

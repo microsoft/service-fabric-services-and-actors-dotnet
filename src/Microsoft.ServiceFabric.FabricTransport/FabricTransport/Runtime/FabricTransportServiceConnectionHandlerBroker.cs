@@ -10,8 +10,10 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
     using System.Fabric.Interop;
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Client;
-
-    internal class FabricTransportServiceConnectionHandlerBroker : NativeServiceCommunication.IFabricServiceConnectionHandler
+#if NET
+    [System.Runtime.InteropServices.Marshalling.GeneratedComClass]
+#endif
+    partial class FabricTransportServiceConnectionHandlerBroker : NativeServiceCommunication.IFabricServiceConnectionHandler
     {
         private IFabricTransportConnectionHandler connectionHandler;
 

@@ -11,7 +11,10 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
     using System.Linq;
     using System.Runtime.InteropServices;
 
-    internal class NativeFabricTransportMessage : NativeFabricTransport.IFabricTransportMessage
+#if NET
+    [System.Runtime.InteropServices.Marshalling.GeneratedComClass]
+#endif
+    partial class NativeFabricTransportMessage : NativeFabricTransport.IFabricTransportMessage
     {
         private PinCollection pin;
         private readonly IntPtr nativeHeadersPtr;

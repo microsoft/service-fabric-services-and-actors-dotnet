@@ -12,8 +12,14 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
     using BOOLEAN = System.SByte;
     using HRESULT = System.Int32;
     using REMOTING_REQUEST_ID = System.Guid;
+#if NET
+    using System.Runtime.InteropServices.Marshalling;
+#else
+    using GeneratedComInterfaceAttribute = System.Runtime.InteropServices.ComImportAttribute;
+    using LibraryImportAttribute = System.Runtime.InteropServices.DllImportAttribute;
+#endif
 
-    internal static class NativeFabricTransport
+    static partial class NativeFabricTransport
     {
         // ------------------------------------------------------------------------
         // Fabric Transport Structures
@@ -89,57 +95,67 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
 
         #endregion
 
-        static class PInvoke
+        static partial class PInvoke
         {
             const string FabricTransportDll = "FabricTransport";
 
-            [DllImport(FabricTransportDll)]
-            internal static extern
+            [LibraryImport(FabricTransportDll)]
+            internal static
+#if NET
+            partial
+#else
+            extern
+#endif
             HRESULT CreateFabricTransportListener(
                 ref Guid iid,
-                [In] IntPtr settings,
-                [In] IntPtr address,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessageHandler messageHandler,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportConnectionHandler connectionHandler,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessageDisposer messageDisposer,
-                [MarshalAs(UnmanagedType.Interface)] out IFabricTransportListener listener);
+                IntPtr settings,
+                IntPtr address,
+                IFabricTransportMessageHandler messageHandler,
+                IFabricTransportConnectionHandler connectionHandler,
+                IFabricTransportMessageDisposer messageDisposer,
+                out IFabricTransportListener listener);
 
-            [DllImport(FabricTransportDll)]
-            internal static extern
+            [LibraryImport(FabricTransportDll)]
+            internal static
+#if NET
+            partial
+#else
+            extern
+#endif
             HRESULT CreateFabricTransportClient(
                 ref Guid iid,
-                [In] IntPtr settings,
-                [In] IntPtr address,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportCallbackMessageHandler messageHandler,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportClientEventHandler eventHandler,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessageDisposer messageDisposer,
-                [MarshalAs(UnmanagedType.Interface)] out IFabricTransportClient2 client);
+                IntPtr settings,
+                IntPtr address,
+                IFabricTransportCallbackMessageHandler messageHandler,
+                IFabricTransportClientEventHandler eventHandler,
+                IFabricTransportMessageDisposer messageDisposer,
+                out IFabricTransportClient2 client);
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("b4357dab-ef06-465f-b453-938f3b0ad4b5")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportMessage
+        internal partial interface IFabricTransportMessage
         {
             [PreserveSig]
             void GetHeaderAndBodyBuffer(
-           [Out] out IntPtr HeaderPtr,
-           [Out] out UInt32 bufferlength,
-           [Out] out IntPtr bufferPtr);
+                out IntPtr HeaderPtr,
+                out UInt32 bufferlength,
+                out IntPtr bufferPtr);
 
             [PreserveSig]
             void Dispose();
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("914097f3-a821-46ea-b3d9-feafe5f7c4a9")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportMessageDisposer
+        internal partial interface IFabricTransportMessageDisposer
         {
             [PreserveSig]
             void Dispose(
-                [In] UInt32 count,
-                [In] IntPtr messages);
+                UInt32 count,
+                IntPtr messages);
 
         }
 
@@ -147,306 +163,182 @@ namespace Microsoft.ServiceFabric.FabricTransport.V2
         //// Interfaces
         ///     
         /// 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("6815bdb4-1479-4c44-8b9d-57d6d0cc9d64")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportMessageHandler
+        internal partial interface IFabricTransportMessageHandler
         {
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginProcessRequest(
-                [In] IntPtr clientId,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message,
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                IntPtr clientId,
+                IFabricTransportMessage message,
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             IFabricTransportMessage EndProcessRequest(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void HandleOneWay(
-                [In] IntPtr clientId,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message);
+                IntPtr clientId,
+                IFabricTransportMessage message);
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("1b63a266-1eeb-4f3e-8886-521458980d10")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportListener
+        internal partial interface IFabricTransportListener
         {
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginOpen(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricStringResult EndOpen(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginClose(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void EndClose(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
             [PreserveSig]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void Abort();
         }
 
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("5b0634fe-6a52-4bd9-8059-892c72c1d73a")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportClient
+        internal partial interface IFabricTransportClient
         {
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginRequest(
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message,
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                IFabricTransportMessage message,
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             IFabricTransportMessage EndRequest(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void Send(
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message);
+                IFabricTransportMessage message);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginOpen(
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void EndOpen(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginClose(
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void EndClose(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
             [PreserveSig]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void Abort();
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("9a078db3-aa29-40b2-8ca1-2913bc966b7c")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportClient2 : IFabricTransportClient
+        internal partial interface IFabricTransportClient2 : IFabricTransportClient
         {
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
+#if NETFRAMEWORK // Base methods must be redefined. Legacy NetFx interop doesn't support COM interface inheritance.
             new NativeCommon.IFabricAsyncOperationContext BeginRequest(
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message,
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                IFabricTransportMessage message,
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             new IFabricTransportMessage EndRequest(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             new void Send(
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message);
+                IFabricTransportMessage message);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             new NativeCommon.IFabricAsyncOperationContext BeginOpen(
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             new void EndOpen(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             new NativeCommon.IFabricAsyncOperationContext BeginClose(
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             new void EndClose(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
             [PreserveSig]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             new void Abort();
-
-            // IFabricTransportClient2 methods
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
 #endif
             NativeCommon.IFabricAsyncOperationContext BeginRequestWithId(
-                [In] REMOTING_REQUEST_ID requestId,
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message,
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                REMOTING_REQUEST_ID requestId,
+                IFabricTransportMessage message,
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             IFabricTransportMessage EndRequestWithId(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("9ba8ac7a-3464-4774-b9b9-1d7f0f1920ba")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportCallbackMessageHandler
+        internal partial interface IFabricTransportCallbackMessageHandler
         {
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void HandleOneWay(
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message);
+                IFabricTransportMessage message);
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("a54c17f7-fe94-4838-b14d-e9b5c258e2d0")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportClientConnection
+        internal partial interface IFabricTransportClientConnection
         {
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void Send(
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportMessage message);
+                IFabricTransportMessage message);
 
             [PreserveSig]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             IntPtr get_ClientId();
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("b069692d-e8f0-4f25-a3b6-b2992598a64c")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportConnectionHandler
+        internal partial interface IFabricTransportConnectionHandler
         {
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginProcessConnect(
-                [In, MarshalAs(UnmanagedType.Interface)] IFabricTransportClientConnection clientConnection,
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                IFabricTransportClientConnection clientConnection,
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void EndProcessConnect(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
 
-            [return: MarshalAs(UnmanagedType.Interface)]
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             NativeCommon.IFabricAsyncOperationContext BeginProcessDisconnect(
-                [In] IntPtr clientId,
-                [In] uint timeoutMilliseconds,
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationCallback callback);
+                IntPtr clientId,
+                uint timeoutMilliseconds,
+                NativeCommon.IFabricAsyncOperationCallback callback);
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void EndProcessDisconnect(
-                [In, MarshalAs(UnmanagedType.Interface)] NativeCommon.IFabricAsyncOperationContext context);
+                NativeCommon.IFabricAsyncOperationContext context);
         }
 
-        [ComImport]
+        [GeneratedComInterface]
         [Guid("4935ab6f-a8bc-4b10-a69e-7a3ba3324892")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        internal interface IFabricTransportClientEventHandler
+        internal partial interface IFabricTransportClientEventHandler
         {
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void OnConnected(
-                [In] IntPtr connectionAddress);
+                IntPtr connectionAddress);
 
-#if !DotNetCoreClr
-            [MethodImpl(MethodImplOptions.InternalCall, MethodCodeType = MethodCodeType.Runtime)]
-#endif
             void OnDisconnected(
-                [In] IntPtr connectionAddress,
-                [In] int errorCode);
+                IntPtr connectionAddress,
+                int errorCode);
         }
     }
 }

@@ -8,7 +8,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
     using System;
     using System.Fabric.Interop;
 
-    internal class FabricServiceCommunicationMessage : NativeServiceCommunication.IFabricServiceCommunicationMessage,
+#if NET
+    [System.Runtime.InteropServices.Marshalling.GeneratedComClass]
+#endif
+    partial class FabricServiceCommunicationMessage : NativeServiceCommunication.IFabricServiceCommunicationMessage,
         IDisposable
     {
         private PinCollection pin;
