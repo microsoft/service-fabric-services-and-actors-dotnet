@@ -144,78 +144,41 @@ namespace Microsoft.ServiceFabric
             /// <summary>
             /// Tests the <typeparamref name="TEventSource"/> implementation of the <see cref="ITextEventSource.ErrorText"/> method.
             /// </summary>
-            internal void ErrorText()
-            {
-                test.EnableEvents(EventLevel.LogAlways);
+            internal void ErrorText() =>
+                VerifyTextEvent(_ => _.ErrorText, ServiceFabricEventSource.ErrorTextEventId, EventLevel.Error);
 
-                var instance = Assert.IsAssignableFrom<ITextEventSource>(test.Instance);
-                instance.ErrorText(id, type, message);
-
-                Assert.NotNull(test.Event);
-                Assert.Equal(ServiceFabricEventSource.ErrorTextEventId, test.Event.EventId);
-                Assert.Equal(EventLevel.Error, test.Event.Level);
-                test.EventKeywords(Default);
-                Assert.Equal("ErrorText", test.Event.EventName);
-                test.EventPayload(0, "id", id);
-                test.EventPayload(1, "type", type);
-                test.EventPayload(2, "message", message);
-            }
 
             /// <summary>
             /// Tests the <typeparamref name="TEventSource"/> implementation of the <see cref="ITextEventSource.InfoText"/> method.
             /// </summary>
-            internal void InfoText()
-            {
-                test.EnableEvents(EventLevel.LogAlways);
-
-                var instance = Assert.IsAssignableFrom<ITextEventSource>(test.Instance);
-                instance.InfoText(id, type, message);
-
-                Assert.NotNull(test.Event);
-                Assert.Equal(ServiceFabricEventSource.InfoTextEventId, test.Event.EventId);
-                Assert.Equal(EventLevel.Informational, test.Event.Level);
-                Assert.Equal(AllSessions | Default, test.Event.Keywords);
-                Assert.Equal("InfoText", test.Event.EventName);
-                test.EventPayload(0, "id", id);
-                test.EventPayload(1, "type", type);
-                test.EventPayload(2, "message", message);
-            }
+            internal void InfoText() =>
+                VerifyTextEvent(_ => _.InfoText, ServiceFabricEventSource.InfoTextEventId, EventLevel.Informational);
 
             /// <summary>
             /// Tests the <typeparamref name="TEventSource"/> implementation of the <see cref="ITextEventSource.NoiseText"/> method.
             /// </summary>
-            internal void NoiseText()
-            {
-                test.EnableEvents(EventLevel.LogAlways);
-
-                var instance = Assert.IsAssignableFrom<ITextEventSource>(test.Instance);
-                instance.NoiseText(id, type, message);
-
-                Assert.NotNull(test.Event);
-                Assert.Equal(ServiceFabricEventSource.NoiseTextEventId, test.Event.EventId);
-                Assert.Equal(EventLevel.Verbose, test.Event.Level);
-                Assert.Equal(AllSessions | Default, test.Event.Keywords);
-                Assert.Equal("NoiseText", test.Event.EventName);
-                test.EventPayload(0, "id", id);
-                test.EventPayload(1, "type", type);
-                test.EventPayload(2, "message", message);
-            }
+            internal void NoiseText() =>
+                VerifyTextEvent(_ => _.NoiseText, ServiceFabricEventSource.NoiseTextEventId, EventLevel.Verbose);
 
             /// <summary>
             /// Tests the <typeparamref name="TEventSource"/> implementation of the <see cref="ITextEventSource.WarningText"/> method.
             /// </summary>
-            internal void WarningText()
+            internal void WarningText() =>
+                VerifyTextEvent(_ => _.WarningText, ServiceFabricEventSource.WarningTextEventId, EventLevel.Warning);
+
+            void VerifyTextEvent(Func<ITextEventSource, Action<string, string, string>> getEventMethod, int eventId, EventLevel level)
             {
                 test.EnableEvents(EventLevel.LogAlways);
 
                 var instance = Assert.IsAssignableFrom<ITextEventSource>(test.Instance);
-                instance.WarningText(id, type, message);
+                Action<string, string, string> act = getEventMethod(instance);
+                act(id, type, message);
 
                 Assert.NotNull(test.Event);
-                Assert.Equal(ServiceFabricEventSource.WarningTextEventId, test.Event.EventId);
-                Assert.Equal(EventLevel.Warning, test.Event.Level);
-                Assert.Equal(AllSessions | ServiceFabricStringEventSource.Keywords.Default, test.Event.Keywords);
-                Assert.Equal("WarningText", test.Event.EventName);
+                Assert.Equal(eventId, test.Event.EventId);
+                Assert.Equal(level, test.Event.Level);
+                Assert.Equal(AllSessions | Default, test.Event.Keywords);
+                Assert.Equal(act.Method.Name, test.Event.EventName);
                 test.EventPayload(0, "id", id);
                 test.EventPayload(1, "type", type);
                 test.EventPayload(2, "message", message);
