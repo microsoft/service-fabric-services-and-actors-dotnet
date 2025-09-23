@@ -29,7 +29,7 @@
       Microsoft.ServiceFabric.FabricTransport.V2
     </ProjectsWithRuntimeMajorVersion>
     <MajorVersion Condition="$(ProjectsWithMajorVersion12.Contains('$(MSBuildProjectName);'))">12</MajorVersion>
-    <MinorVersion>7</MinorVersion>
+    <MinorVersion>8</MinorVersion>
     <BuildVersion>0</BuildVersion>
     <Revision>0</Revision>
 
