@@ -4,12 +4,15 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.Tracing;
 using System.IO;
 using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
@@ -73,8 +76,11 @@ namespace Microsoft.ServiceFabric
         /// event source <see cref="Instance"/>. Once events are enabled, the <see cref="Event"/> property
         /// will capture the last event emitted by the event source.
         /// </summary>
-        internal void EnableEvents(EventLevel level, EventKeywords keywords = default) =>
+        internal void EnableEvents(EventLevel level, EventKeywords keywords = default)
+        {
             listener.EnableEvents(Instance, level, keywords);
+            EnableEventsInServiceFabricConfiguration(level, keywords);
+        }
 
         /// <summary>
         /// Verifies that a function checking whether an event is enabled returns expected result when events
@@ -176,6 +182,26 @@ namespace Microsoft.ServiceFabric
             }
 
             /// <summary>
+            /// Tests the <typeparamref name="TEventSource"/> implementation of the <see cref="ITextEventSource.NoiseText"/> method.
+            /// </summary>
+            internal void NoiseText()
+            {
+                test.EnableEvents(EventLevel.LogAlways);
+
+                var instance = Assert.IsAssignableFrom<ITextEventSource>(test.Instance);
+                instance.NoiseText(id, type, message);
+
+                Assert.NotNull(test.Event);
+                Assert.Equal(ServiceFabricEventSource.NoiseTextEventId, test.Event.EventId);
+                Assert.Equal(EventLevel.Verbose, test.Event.Level);
+                Assert.Equal(AllSessions | Default, test.Event.Keywords);
+                Assert.Equal("NoiseText", test.Event.EventName);
+                test.EventPayload(0, "id", id);
+                test.EventPayload(1, "type", type);
+                test.EventPayload(2, "message", message);
+            }
+
+            /// <summary>
             /// Tests the <typeparamref name="TEventSource"/> implementation of the <see cref="ITextEventSource.WarningText"/> method.
             /// </summary>
             internal void WarningText()
@@ -206,6 +232,21 @@ namespace Microsoft.ServiceFabric
         readonly EventListener listener = new Mock<EventListener>() { CallBase = true }.Object;
 
         readonly ITestOutputHelper output;
+
+        void EnableEventsInServiceFabricConfiguration(EventLevel level, EventKeywords keywords)
+        {
+            var metadata = Instance.Field<ReadOnlyDictionary<int, TraceEvent>>().Value;
+            foreach (KeyValuePair<int, TraceEvent> item in metadata)
+            {
+                TraceEvent @event = item.Value;
+
+                bool enable = true;
+                enable &= level == EventLevel.LogAlways || level > @event.Level;
+                enable &= keywords == System.Diagnostics.Tracing.EventKeywords.None || keywords == (@event.Keywords & keywords);
+
+                @event.Field<bool>().Set(enable);
+            }
+        }
 
         #endregion
     }

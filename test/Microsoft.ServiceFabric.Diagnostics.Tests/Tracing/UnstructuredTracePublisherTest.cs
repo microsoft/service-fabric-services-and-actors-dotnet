@@ -72,6 +72,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             [Theory]
             [InlineData(ServiceFabricEventSource.ErrorTextEventId, nameof(ITextEventSource.ErrorText), EventLevel.Error)]
             [InlineData(ServiceFabricEventSource.InfoTextEventId, nameof(ITextEventSource.InfoText), EventLevel.Informational)]
+            [InlineData(ServiceFabricEventSource.NoiseTextEventId, nameof(ITextEventSource.NoiseText), EventLevel.Verbose)]
             [InlineData(ServiceFabricEventSource.WarningTextEventId, nameof(ITextEventSource.WarningText), EventLevel.Warning)]
             public void UsesIdAndTypeWhenBothAreIncludedInEventPayload(int eventId, string eventName, EventLevel eventLevel)
             {

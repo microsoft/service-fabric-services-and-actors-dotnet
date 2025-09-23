@@ -17,13 +17,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
     /// interface for that purpose instead. </para>
     /// <para> Event methods implementing this interface must be defined with an <see cref="EventAttribute"/> with the
     /// well-known IDs: <see cref="ServiceFabricEventSource.InfoTextEventId"/>, <see cref="ServiceFabricEventSource.WarningTextEventId"/>,
-    /// <see cref="ServiceFabricEventSource.ErrorTextEventId"/>, the <see cref="ServiceFabricEventSource.TextEventFormat"/> message template,
-    /// and matching <see cref="EventLevel"/> values. </para>
+    /// <see cref="ServiceFabricEventSource.ErrorTextEventId"/>, <see cref="ServiceFabricEventSource.NoiseTextEventId"/>,
+    /// the <see cref="ServiceFabricEventSource.TextEventFormat"/> message template, and matching <see cref="EventLevel"/> values.</para>
     /// </remarks>
     interface ITextEventSource
     {
         void InfoText(string id, string type, string message);
         void WarningText(string id, string type, string message);
         void ErrorText(string id, string type, string message);
+        void NoiseText(string id, string type, string message);
     }
 }

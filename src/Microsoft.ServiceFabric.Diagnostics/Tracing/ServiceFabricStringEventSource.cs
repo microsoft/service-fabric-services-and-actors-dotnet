@@ -111,7 +111,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
             WriteEvent(ErrorTextEventId, id, type, message);
 
         [Event(NoiseTextEventId, Message = TextEventFormat, Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void NoiseText(string id, string type, string message) =>
+        public void NoiseText(string id, string type, string message) =>
             WriteEvent(NoiseTextEventId, id, type, message);
 
         #endregion

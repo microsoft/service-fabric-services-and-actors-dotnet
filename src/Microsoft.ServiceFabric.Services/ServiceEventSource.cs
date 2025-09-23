@@ -213,7 +213,7 @@ namespace Microsoft.ServiceFabric.Services
             WriteEvent(ErrorTextEventId, id, type, message);
 
         [Event(NoiseTextEventId, Message = TextEventFormat, Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void NoiseText(string id, string type, string message) =>
+        public void NoiseText(string id, string type, string message) =>
             WriteEvent(NoiseTextEventId, id, type, message);
 
         [Event(ServiceLifecycleEventId, Message = ServiceLifecycleEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]

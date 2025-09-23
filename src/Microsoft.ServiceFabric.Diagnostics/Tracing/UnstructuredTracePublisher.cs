@@ -35,7 +35,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 
         bool IsTextEvent(EventWrittenEventArgs written) =>
             written.EventId >= ServiceFabricEventSource.InfoTextEventId &&
-            written.EventId <= ServiceFabricEventSource.ErrorTextEventId &&
+            written.EventId <= ServiceFabricEventSource.NoiseTextEventId &&
             written.EventSource is ITextEventSource;
     }
 }

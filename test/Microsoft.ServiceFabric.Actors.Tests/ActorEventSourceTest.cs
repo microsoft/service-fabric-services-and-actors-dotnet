@@ -36,6 +36,10 @@ namespace Microsoft.ServiceFabric.Actors
             test.ITextEventSource.InfoText();
 
         [Fact]
+        public void NoiseTextPublishesExpectedEvent() =>
+            test.ITextEventSource.NoiseText();
+
+        [Fact]
         public void WarningTextPublishesExpectedEvent() =>
             test.ITextEventSource.WarningText();
     }
