@@ -209,3 +209,7 @@ dotnet_naming_rule.everything_else_naming.symbols                   = everything
 dotnet_naming_rule.everything_else_naming.style                     = camel_case_style
 dotnet_naming_symbols.everything_else.applicable_kinds              = *
 dotnet_naming_symbols.everything_else.applicable_accessibilities    = *
+
+# Disable not needed rule
+dotnet_diagnostic.CA1416.severity = none
+dotnet_diagnostic.CS0618.severity = none
