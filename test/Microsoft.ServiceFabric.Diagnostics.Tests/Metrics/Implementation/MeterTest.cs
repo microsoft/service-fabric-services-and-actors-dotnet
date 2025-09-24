@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Fuzzy;
 using Inspector;
 using Moq;
@@ -50,6 +51,26 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
                 Assert.Equal(systemDimensions, meter.Field<string[]>().Value);
+            }
+        }
+
+        public class Record : MeterTest
+        {
+            readonly Meter sut;
+
+            readonly List<string> customDimensions = fuzzy.List(() => fuzzy.String());
+            readonly long value = fuzzy.Int64();
+
+            public Record() => sut = new MeterImplementation(fabricMeter, systemDimensions);
+
+            [Fact]
+            public void CallsFabricMeterRecordWithMultipleSystemDimensions()
+            {
+                var expectedArray = systemDimensions.Concat(customDimensions).ToArray();
+
+                sut.Method<Action<long, string[]>>().Invoke(value, customDimensions.ToArray());
+
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
         }
 

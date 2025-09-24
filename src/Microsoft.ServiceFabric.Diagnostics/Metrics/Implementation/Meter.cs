@@ -23,5 +23,18 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
             this.systemDimensionValues = systemDimensionValues.ToArray();
         }
+
+        protected long ConvertTimeSpanToLong(TimeSpan value)
+        {
+            return (long)Math.Round(value.TotalMilliseconds);
+        }
+
+        protected void Record(long value, params string[] customDimensions)
+        {
+            var allDimensionArray = new string[systemDimensionValues.Length + customDimensions.Length];
+            systemDimensionValues.CopyTo(allDimensionArray, 0);
+            customDimensions.CopyTo(allDimensionArray, systemDimensionValues.Length);
+            fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
+        }
     }
 }
