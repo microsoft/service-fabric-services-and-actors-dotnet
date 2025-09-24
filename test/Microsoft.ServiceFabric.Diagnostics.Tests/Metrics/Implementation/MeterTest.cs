@@ -35,26 +35,28 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void SetsSystemDimensionAndMeterValuesWhenSystemDimensionsAreEmpty()
+            public void SetsAllFieldsWhenSystemDimensionsAreEmpty()
             {
                 var expectedSystemDimensions = new List<string>();
                 Meter meter = new MeterImplementation(fabricMeter, expectedSystemDimensions);
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
                 Assert.Equal(expectedSystemDimensions, meter.Field<string[]>().Value);
+                Assert.Equal(meter.Private().Method<Action<long, int, string, string, string>>(), meter.Field<Action<long, int, string, string, string>>().Value);
             }
 
             [Fact]
-            public void SetsSystemDimensionAndMeter()
+            public void SetsAllFields()
             {
                 Meter meter = new MeterImplementation(fabricMeter, systemDimensions);
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
                 Assert.Equal(systemDimensions, meter.Field<string[]>().Value);
+                Assert.Equal(meter.Private().Method<Action<long, int, string, string, string>>(), meter.Field<Action<long, int, string, string, string>>().Value);
             }
         }
 
-        public class Record : MeterTest
+        public class RecordViaNative : MeterTest
         {
             readonly Meter sut;
 
@@ -65,10 +67,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
             readonly Method<Action<long, int, string, string, string>> sutMethod;
 
-            public Record()
+            public RecordViaNative()
             {
                 sut = new MeterImplementation(fabricMeter, systemDimensions);
-                sutMethod = sut.Method<Action<long, int, string, string, string>>();
+                sutMethod = sut.Private().Method<Action<long, int, string, string, string>>();
             }
 
             [Fact]
@@ -94,6 +96,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
+
             [Fact]
             public void CallsFabricMeterRecordWithMultipleSystemDimensions1D()
             {
@@ -103,6 +106,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
+
             [Fact]
             public void CallsFabricMeterRecordWithMultipleSystemDimensions2D()
             {
@@ -112,6 +116,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
             }
+
             [Fact]
             public void CallsFabricMeterRecordWithMultipleSystemDimensions3D()
             {
@@ -120,6 +125,34 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
+            }
+        }
+
+        public class Record : MeterTest
+        {
+            readonly Meter sut;
+
+            readonly long value = fuzzy.Int64();
+            readonly string customDimension1 = fuzzy.String();
+            readonly string customDimension2 = fuzzy.String();
+            readonly string customDimension3 = fuzzy.String();
+
+            readonly Method<Action<long, int, string, string, string>> sutMethod;
+            readonly Action<long, int, string, string, string> mockRecordAction = Mock.Of<Action<long, int, string, string, string>>();
+
+            public Record()
+            {
+                sut = new MeterImplementation(fabricMeter, systemDimensions);
+                sutMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
+                sut.Private().Field<Action<long, int, string, string, string>>().Set(mockRecordAction);
+            }
+
+            [Fact]
+            public void CallsInvokesRecordAction()
+            {
+                sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
+
+                Mock.Get(mockRecordAction).Verify(a => a.Invoke(value, 3, customDimension1, customDimension2, customDimension3), Times.Once);
             }
         }
 

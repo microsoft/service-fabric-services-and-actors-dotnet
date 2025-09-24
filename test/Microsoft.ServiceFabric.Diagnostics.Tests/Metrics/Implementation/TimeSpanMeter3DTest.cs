@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Fuzzy;
 using Inspector;
 using Moq;
@@ -40,19 +39,25 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         public class Record : TimeSpanMeter3DTest
         {
             readonly TimeSpan value = fuzzy.TimeSpan();
+            readonly long longValue;
             readonly string customDimension1 = fuzzy.String();
             readonly string customDimension2 = fuzzy.String();
             readonly string customDimension3 = fuzzy.String();
 
-            [Fact]
-            public void CallsFabricMeterRecordWithMultipleSystemDimensions()
-            {
-                var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2, customDimension3 }).ToArray();
-                long expectedLongValue = (long)Math.Round(value.TotalMilliseconds);
+            readonly Action<long, int, string, string, string> mockRecordAction = Mock.Of<Action<long, int, string, string, string>>();
 
+            public Record()
+            {
+                sut.Private().Field<Action<long, int, string, string, string>>().Set(mockRecordAction);
+                longValue = (long)Math.Round(value.TotalMilliseconds);
+            }
+
+            [Fact]
+            public void CallsRecordMethodFromBaseClass()
+            {
                 sut.Record(value, customDimension1, customDimension2, customDimension3);
 
-                Mock.Get(fabricMeter).Verify(m => m.Record(expectedLongValue, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
+                Mock.Get(mockRecordAction).Verify(m => m.Invoke(longValue, 3, customDimension1, customDimension2, customDimension3), Times.Once);
             }
         }
     }
