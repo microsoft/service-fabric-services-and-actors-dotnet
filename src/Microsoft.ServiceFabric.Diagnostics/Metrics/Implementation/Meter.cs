@@ -29,11 +29,29 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             return (long)Math.Round(value.TotalMilliseconds);
         }
 
-        protected void Record(long value, params string[] customDimensions)
+        protected void Record(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
         {
-            var allDimensionArray = new string[systemDimensionValues.Length + customDimensions.Length];
+            if (customDimensionCount < 0 || customDimensionCount > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
+            }
+
+            var allDimensionArray = new string[systemDimensionValues.Length + customDimensionCount];
             systemDimensionValues.CopyTo(allDimensionArray, 0);
-            customDimensions.CopyTo(allDimensionArray, systemDimensionValues.Length);
+
+            if (customDimensionCount > 0)
+            {
+                allDimensionArray[systemDimensionValues.Length] = customDimension1;
+            }
+            if (customDimensionCount > 1)
+            {
+                allDimensionArray[systemDimensionValues.Length + 1] = customDimension2;
+            }
+            if (customDimensionCount > 2)
+            {
+                allDimensionArray[systemDimensionValues.Length + 2] = customDimension3;
+            }
+
             fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
         }
     }

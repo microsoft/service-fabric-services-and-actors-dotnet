@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         public void Record(long value, string dimension1, string dimension2, string dimension3)
         {
-            base.Record(value, dimension1, dimension2, dimension3);
+            base.Record(value, 3, dimension1, dimension2, dimension3);
         }
     }
 }
