@@ -3,16 +3,17 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric.Common;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Remoting.Description;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Diagnostic
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric.Common;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-
     internal class ServicePerformanceCounterProvider : IDisposable
     {
 #pragma warning disable SA1401 // Fields should be private

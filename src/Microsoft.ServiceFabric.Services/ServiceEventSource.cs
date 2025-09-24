@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System.Diagnostics.Tracing;
-using System.Globalization;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
 namespace Microsoft.ServiceFabric.Services
@@ -44,76 +43,6 @@ namespace Microsoft.ServiceFabric.Services
         /// </summary>
         private ServiceEventSource()
         {
-        }
-
-        [NonEvent]
-        internal void WriteErrorWithId(string type, string id, string format, params object[] args)
-        {
-            if (args == null || args.Length == 0)
-            {
-                Instance.ErrorText(id, type, format);
-            }
-            else
-            {
-                Instance.ErrorText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
-            }
-        }
-
-        [NonEvent]
-        internal void WriteWarning(string type, string format, params object[] args)
-        {
-            this.WriteWarningWithId(type, string.Empty, format, args);
-        }
-
-        [NonEvent]
-        internal void WriteWarningWithId(string type, string id, string format, params object[] args)
-        {
-            if (args == null || args.Length == 0)
-            {
-                Instance.WarningText(id, type, format);
-            }
-            else
-            {
-                Instance.WarningText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
-            }
-        }
-
-        [NonEvent]
-        internal void WriteInfo(string type, string format, params object[] args)
-        {
-            this.WriteInfoWithId(type, string.Empty, format, args);
-        }
-
-        [NonEvent]
-        internal void WriteInfoWithId(string type, string id, string format, params object[] args)
-        {
-            if (args == null || args.Length == 0)
-            {
-                Instance.InfoText(id, type, format);
-            }
-            else
-            {
-                Instance.InfoText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
-            }
-        }
-
-        [NonEvent]
-        internal void WriteNoise(string type, string format, params object[] args)
-        {
-            this.WriteNoiseWithId(type, string.Empty, format, args);
-        }
-
-        [NonEvent]
-        internal void WriteNoiseWithId(string type, string id, string format, params object[] args)
-        {
-            if (args == null || args.Length == 0)
-            {
-                Instance.NoiseText(id, type, format);
-            }
-            else
-            {
-                Instance.NoiseText(id, type, string.Format(CultureInfo.InvariantCulture, format, args));
-            }
         }
 
         [NonEvent]

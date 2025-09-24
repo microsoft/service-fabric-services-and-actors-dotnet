@@ -3,21 +3,22 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using Microsoft.ServiceFabric.Actors.Migration;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
+
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
-
     internal static class MigrationUtility
     {
         private static readonly string TraceType = typeof(MigrationUtility).ToString();

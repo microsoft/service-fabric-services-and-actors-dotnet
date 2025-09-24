@@ -3,32 +3,32 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Fabric.Common;
+using System.Fabric.Health;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Query;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Runtime;
+
+using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
+using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
+using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
+using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Fabric.Common;
-    using System.Fabric.Health;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Query;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Services.Runtime;
-
-    using CopyCompletionCallback = System.Action<System.Fabric.KeyValueStoreEnumerator>;
-    using DataLossCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task<bool>>;
-    using ReplicationCallback = System.Action<System.Collections.Generic.IEnumerator<System.Fabric.KeyValueStoreNotification>>;
-    using RestoreCompletedCallback = System.Func<System.Threading.CancellationToken, System.Threading.Tasks.Task>;
-    using SR = Microsoft.ServiceFabric.Actors.SR;
-
     /// <summary>
     /// Provides an implementation of <see cref="IActorStateProvider"/> which
     /// uses <see cref="KeyValueStoreReplica"/> to store and persist the actor state.

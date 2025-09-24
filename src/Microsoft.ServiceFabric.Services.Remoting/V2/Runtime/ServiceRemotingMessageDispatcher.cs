@@ -3,21 +3,22 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Fabric;
+using System.Globalization;
+using System.Runtime.ExceptionServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Remoting.Description;
+using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Fabric;
-    using System.Globalization;
-    using System.Runtime.ExceptionServices;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
-    using Microsoft.ServiceFabric.Services.Remoting.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
-
     /// <summary>
     /// Provides an implementation of <see cref="IServiceRemotingMessageHandler"/> that can dispatch
     /// messages to the service implementing <see cref="IService"/> interface.
