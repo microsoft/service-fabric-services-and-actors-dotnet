@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fuzzy;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors
@@ -65,13 +68,43 @@ namespace Microsoft.ServiceFabric.Actors
 
             public class WhenReminderAreRegister : GetRemindersAsync
             {
+                protected readonly IActorStateProvider actorStateProviderWithReminders;
+                protected readonly int numberOfActor;
+                protected readonly int numberOfReminderPerActor;
 
-                [Fact]
-                public void ThrowsWhenCancellationTokenIsCanceled()
+                public WhenReminderAreRegister()
                 {
-                    Assert.True(true);
-                }  
-                
+                    var fuzzy = new RandomFuzz();
+                    numberOfActor = fuzzy.Int32().Between(5, 10);
+                    numberOfReminderPerActor = fuzzy.Int32().Between(10, 20);
+                    actorStateProviderWithReminders = new NullActorStateProvider();
+
+                    for (int i = 0; i < numberOfActor; i++)
+                    {
+                        for (int j = 0; j < numberOfReminderPerActor; j++)
+                        {
+                            var reminderMock = new Mock<IActorReminder>();
+                            reminderMock.SetupGet(r => r.Name).Returns($"Reminder_{j}");
+
+                            actorStateProviderWithReminders.SaveReminderAsync(new ActorId($"Actor_{i}"), reminderMock.Object).Wait();
+                        }
+                    }
+                }
+
+                public class CancellationTokenIsNotNull : WhenReminderAreRegister
+                {
+                    [Fact]
+                    public async Task ThrowsWhenCancellationTokenIsCanceled()
+                    {
+                        IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
+
+                        var cts = new CancellationTokenSource();
+
+                        cts.Cancel();
+                        await Assert.ThrowsAsync<OperationCanceledException>(() => actorService.GetRemindersAsync(null, null, cts.Token));
+                    }   
+                } 
+
                 public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
 
@@ -87,9 +120,41 @@ namespace Microsoft.ServiceFabric.Actors
                     public class WhenActorIdIsNotGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
                     {
                         [Fact]
-                        public void ReturnsTheSameReminderWhichHaveBeenRegistered()
+                        public async Task ReturnsTheSameReminderWhichHaveBeenRegistered()
                         {
-                            Assert.True(true);
+                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
+
+                            ContinuationToken continuationToken = null;
+                            int expectedNumberOfReminder = numberOfActor * numberOfReminderPerActor;
+
+                            var allReminders = new List<ActorReminderState>();
+
+                            do
+                            {
+                                var page = await actorService.GetRemindersAsync(null, continuationToken, default);
+                                continuationToken = page.ContinuationToken;
+
+                                foreach (var kvp in page.Items)
+                                {
+                                    ActorId actorId = kvp.Key;
+                                    List<ActorReminderState> reminderList = kvp.Value;
+
+                                    foreach (var reminderState in reminderList)
+                                    {
+                                        allReminders.Add(reminderState);
+                                    }
+                                }
+                            }
+                            while (continuationToken != null);
+
+                            var duplicateReminders = allReminders
+                                .GroupBy(r => r) // Group by ActorReminderState
+                                .Where(g => g.Count() > 1) // Filter out group which have 1 or less ActorReminderStates
+                                .SelectMany(g => g) // Flattens groups
+                                .ToList();
+
+                            Assert.Equal(expectedNumberOfReminder, allReminders.Count());
+                            Assert.Empty(duplicateReminders);
                         }
                     }
                 }
