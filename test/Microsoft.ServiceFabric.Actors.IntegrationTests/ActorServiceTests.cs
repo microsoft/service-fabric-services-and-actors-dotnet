@@ -3,6 +3,7 @@ using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 using Fuzzy;
+using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Xunit;
@@ -38,9 +39,8 @@ namespace Microsoft.ServiceFabric.Actors
         public class GetRemindersAsync : ActorServiceIntegrationTest
         {
             interface ITestableActor : IActor
-            {
-                
-            }
+            { }
+            
             class TestActor : Actor, ITestableActor
             {
                 public TestActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
@@ -60,9 +60,15 @@ namespace Microsoft.ServiceFabric.Actors
             public class WhenNoReminderIsRegistered : GetRemindersAsync
             {
                 [Fact]
-                public void ReturnEmptyResultIfNoRemindersAreRegistered()
+                public async Task ReturnEmptyResultIfNoRemindersAreRegistered()
                 {
-                    Assert.True(true);
+                    IActorService actorService = await GetActorService<TestActor>();
+
+                    ContinuationToken continuationToken = null;
+                    var page = await actorService.GetRemindersAsync(null, continuationToken, CancellationToken.None);
+
+                    Assert.Empty(page.Items);
+                    Assert.Null(continuationToken);
                 }
             }
 
@@ -133,6 +139,6 @@ namespace Microsoft.ServiceFabric.Actors
                 }
                 
             }
+            }
         }
     }
-}
