@@ -5,11 +5,12 @@
 
 using System;
 using System.Fabric;
+using System.Globalization;
 using Fuzzy;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Services
+namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
     public abstract partial class TraceTest
     {
@@ -18,7 +19,7 @@ namespace Microsoft.ServiceFabric.Services
         // Constructor parameters
         readonly Type type = fuzzy.Type();
         readonly ServiceContext context = fuzzy.ServiceContext();
-        readonly IServiceEventSource events = Mock.Of<IServiceEventSource>();
+        readonly ITextEventSource events = Mock.Of<ITextEventSource>();
 
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
@@ -58,7 +59,7 @@ namespace Microsoft.ServiceFabric.Services
             protected readonly string traceId;
 
             protected MethodTest() =>
-                traceId = ServiceTrace.GetTraceIdForReplica(context.PartitionId, context.ReplicaOrInstanceId);
+                traceId = context.PartitionId.ToString("B") + ":" + context.ReplicaOrInstanceId.ToString(CultureInfo.InvariantCulture);
         }
 
         public sealed class Error : MethodTest
@@ -112,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services
 
             [Fact]
             public void ReturnsFalseWhenEventsAreDifferent() =>
-                Assert.False(sut.Equals(new Trace(type, context, Mock.Of<IServiceEventSource>())));
+                Assert.False(sut.Equals(new Trace(type, context, Mock.Of<ITextEventSource>())));
 
             [Fact]
             public void ReturnsFalseWhenOtherIsNull() =>

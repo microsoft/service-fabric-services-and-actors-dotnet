@@ -15,421 +15,357 @@ using ActorFrameworkKeywords = Microsoft.ServiceFabric.Actors.Diagnostics.ActorF
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    public abstract class ActorFrameworkEventSourceTest : IDisposable
+    public sealed class ActorFrameworkEventSourceTest : IDisposable
     {
-        readonly ActorFrameworkEventSource sut;
+        readonly EventSourceTest<ActorFrameworkEventSource> test;
 
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        public ActorFrameworkEventSourceTest()
+        public ActorFrameworkEventSourceTest(ITestOutputHelper output) =>
+            test = new EventSourceTest<ActorFrameworkEventSource>(output);
+
+        public void Dispose() =>
+            test.Dispose();
+
+        // Method parameters
+        readonly string exception = fuzzy.String();
+        readonly long countOfWaitingMethodCalls = fuzzy.Int64();
+        readonly TimeSpan executionTime = fuzzy.TimeSpan();
+        readonly string methodName = fuzzy.String();
+        readonly string methodSignature = fuzzy.String();
+        readonly string actorType = fuzzy.String();
+        readonly ActorId actorId = fuzzy.ActorId();
+        readonly ServiceContext service = fuzzy.ServiceContext();
+
+        [Fact]
+        public void ActorActivatedPublishesExpectedEvent()
         {
-            // Allow event enablement to work on instances created by the tests
-            ActorFrameworkEventSource.Writer.Dispose();
+            test.EnableEvents(EventLevel.LogAlways);
 
-            // Disable Linux detection in sut to allow tests to run without UnstructuredTracePublisher which fails without FabricCommon
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(_ => false);
+            test.Instance.ActorActivated(actorType, actorId, service);
 
-            sut = new ActorFrameworkEventSource();
+            Assert.NotNull(test.Event);
+            Assert.Equal(5, test.Event.EventId);
+            Assert.Equal(EventLevel.Informational, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.Default);
+            Assert.Equal("ActorActivated", test.Event.EventName);
+            test.EventPayload(0, "actorType", actorType);
+            test.EventPayload(1, "actorId", actorId.ToString());
+            test.EventPayload(2, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(3, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(4, "partitionId", service.PartitionId);
+            test.EventPayload(5, "serviceName", service.ServiceName);
+            test.EventPayload(6, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(7, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(8, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(9, "nodeName", service.NodeContext.NodeName);
         }
 
-        public virtual void Dispose()
+        [Fact]
+        public void ActorDeactivatedPublishesExpectedEvent()
         {
-            sut.Dispose();
+            test.EnableEvents(EventLevel.LogAlways);
 
-            // Restore original static state
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
-            typeof(ActorFrameworkEventSource).Property<ActorFrameworkEventSource>().Set(new ActorFrameworkEventSource());
+            test.Instance.ActorDeactivated(actorType, actorId, service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(6, test.Event.EventId);
+            Assert.Equal(EventLevel.Informational, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.Default);
+            Assert.Equal("ActorDeactivated", test.Event.EventName);
+            test.EventPayload(0, "actorType", actorType);
+            test.EventPayload(1, "actorId", actorId.ToString());
+            test.EventPayload(2, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(3, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(4, "partitionId", service.PartitionId);
+            test.EventPayload(5, "serviceName", service.ServiceName);
+            test.EventPayload(6, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(7, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(8, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(9, "nodeName", service.NodeContext.NodeName);
         }
 
-        public sealed class EventTest : ActorFrameworkEventSourceTest
+        [Fact]
+        public void ActorMethodCallsWaitingForLockPublishesExpectedEvent()
         {
-            // Method parameters
-            readonly string exception = fuzzy.String();
-            readonly long countOfWaitingMethodCalls = fuzzy.Int64();
-            readonly TimeSpan executionTime = fuzzy.TimeSpan();
-            readonly string methodName = fuzzy.String();
-            readonly string methodSignature = fuzzy.String();
-            readonly string actorType = fuzzy.String();
-            readonly ActorId actorId = fuzzy.ActorId();
-            readonly ServiceContext service = fuzzy.ServiceContext();
+            test.EnableEvents(EventLevel.LogAlways);
 
-            const EventKeywords AllSessions = (EventKeywords)(0xFul << 44);
-            EventWrittenEventArgs actual;
+            test.Instance.ActorMethodCallsWaitingForLock(countOfWaitingMethodCalls, actorType, actorId, service);
 
-            readonly EventListener listener = new Mock<EventListener>() { CallBase = true }.Object;
-
-            public EventTest()
-            {
-                listener.EventWritten += (object sender, EventWrittenEventArgs args) => actual = args;
-                listener.EnableEvents(sut, EventLevel.LogAlways);
-            }
-
-            public override void Dispose()
-            {
-                listener.Dispose();
-                base.Dispose();
-            }
-
-            static void AssertPayload<T>(int index, string name, T value, EventWrittenEventArgs actual)
-            {
-                Assert.Equal(name, actual.PayloadNames[index]);
-                Assert.Equal(value, actual.Payload[index]);
-            }
-
-            [Fact]
-            public void ActorActivatedPublishesExpectedEvent()
-            {
-                sut.ActorActivated(actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(5, actual.EventId);
-                Assert.Equal(EventLevel.Informational, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.Default, actual.Keywords);
-                Assert.Equal("ActorActivated", actual.EventName);
-                AssertPayload(0, "actorType", actorType, actual);
-                AssertPayload(1, "actorId", actorId.ToString(), actual);
-                AssertPayload(2, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(3, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(4, "partitionId", service.PartitionId, actual);
-                AssertPayload(5, "serviceName", service.ServiceName, actual);
-                AssertPayload(6, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(7, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(8, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(9, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ActorDeactivatedPublishesExpectedEvent()
-            {
-                sut.ActorDeactivated(actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(6, actual.EventId);
-                Assert.Equal(EventLevel.Informational, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.Default, actual.Keywords);
-                Assert.Equal("ActorDeactivated", actual.EventName);
-                AssertPayload(0, "actorType", actorType, actual);
-                AssertPayload(1, "actorId", actorId.ToString(), actual);
-                AssertPayload(2, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(3, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(4, "partitionId", service.PartitionId, actual);
-                AssertPayload(5, "serviceName", service.ServiceName, actual);
-                AssertPayload(6, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(7, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(8, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(9, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ActorMethodCallsWaitingForLockPublishesExpectedEvent()
-            {
-                sut.ActorMethodCallsWaitingForLock(countOfWaitingMethodCalls, actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(12, actual.EventId);
-                Assert.Equal(EventLevel.Verbose, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.MetricActorMethodCallsWaitingForLock, actual.Keywords);
-                Assert.Equal("ActorMethodCallsWaitingForLock", actual.EventName);
-                AssertPayload(0, "countOfWaitingMethodCalls", countOfWaitingMethodCalls, actual);
-                AssertPayload(1, "actorType", actorType, actual);
-                AssertPayload(2, "actorId", actorId.ToString(), actual);
-                AssertPayload(3, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(4, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(5, "partitionId", service.PartitionId, actual);
-                AssertPayload(6, "serviceName", service.ServiceName, actual);
-                AssertPayload(7, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(8, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(9, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(10, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ActorMethodStartPublishesExpectedEvent()
-            {
-                sut.ActorMethodStart(methodName, methodSignature, actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(7, actual.EventId);
-                Assert.Equal(EventLevel.Verbose, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.ActorMethod, actual.Keywords);
-                Assert.Equal("ActorMethodStart", actual.EventName);
-                AssertPayload(0, "methodName", methodName, actual);
-                AssertPayload(1, "methodSignature", methodSignature, actual);
-                AssertPayload(2, "actorType", actorType, actual);
-                AssertPayload(3, "actorId", actorId.ToString(), actual);
-                AssertPayload(4, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(5, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(6, "partitionId", service.PartitionId, actual);
-                AssertPayload(7, "serviceName", service.ServiceName, actual);
-                AssertPayload(8, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(9, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(10, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(11, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ActorMethodStopPublishesExpectedEvent()
-            {
-                sut.ActorMethodStop(executionTime.Ticks, methodName, methodSignature, actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(8, actual.EventId);
-                Assert.Equal(EventLevel.Verbose, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.ActorMethod, actual.Keywords);
-                Assert.Equal("ActorMethodStop", actual.EventName);
-                AssertPayload(0, "methodExecutionTimeTicks", executionTime.Ticks, actual);
-                AssertPayload(1, "methodName", methodName, actual);
-                AssertPayload(2, "methodSignature", methodSignature, actual);
-                AssertPayload(3, "actorType", actorType, actual);
-                AssertPayload(4, "actorId", actorId.ToString(), actual);
-                AssertPayload(5, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(6, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(7, "partitionId", service.PartitionId, actual);
-                AssertPayload(8, "serviceName", service.ServiceName, actual);
-                AssertPayload(9, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(10, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(11, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(12, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ActorMethodThrewExceptionPublishesExpectedEvent()
-            {
-                sut.ActorMethodThrewException(exception, executionTime.Ticks, methodName, methodSignature, actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(9, actual.EventId);
-                Assert.Equal(EventLevel.Warning, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.Default | ActorFrameworkKeywords.ActorMethod, actual.Keywords);
-                Assert.Equal("ActorMethodThrewException", actual.EventName);
-                AssertPayload(0, "exception", exception, actual);
-                AssertPayload(1, "methodExecutionTimeTicks", executionTime.Ticks, actual);
-                AssertPayload(2, "methodName", methodName, actual);
-                AssertPayload(3, "methodSignature", methodSignature, actual);
-                AssertPayload(4, "actorType", actorType, actual);
-                AssertPayload(5, "actorId", actorId.ToString(), actual);
-                AssertPayload(6, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(7, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(8, "partitionId", service.PartitionId, actual);
-                AssertPayload(9, "serviceName", service.ServiceName, actual);
-                AssertPayload(10, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(11, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(12, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(13, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ActorSaveStateStartPublishesExpectedEvent()
-            {
-                sut.ActorSaveStateStart(actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(10, actual.EventId);
-                Assert.Equal(EventLevel.Verbose, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.ActorState, actual.Keywords);
-                Assert.Equal("ActorSaveStateStart", actual.EventName);
-                AssertPayload(0, "actorType", actorType, actual);
-                AssertPayload(1, "actorId", actorId.ToString(), actual);
-                AssertPayload(2, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(3, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(4, "partitionId", service.PartitionId, actual);
-                AssertPayload(5, "serviceName", service.ServiceName, actual);
-                AssertPayload(6, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(7, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(8, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(9, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ActorSaveStateStopPublishesExpectedEvent()
-            {
-                sut.ActorSaveStateStop(executionTime.Ticks, actorType, actorId, service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(11, actual.EventId);
-                Assert.Equal(EventLevel.Verbose, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.ActorState, actual.Keywords);
-                Assert.Equal("ActorSaveStateStop", actual.EventName);
-                AssertPayload(0, "saveStateExecutionTimeTicks", executionTime.Ticks, actual);
-                AssertPayload(1, "actorType", actorType, actual);
-                AssertPayload(2, "actorId", actorId.ToString(), actual);
-                AssertPayload(3, "actorIdKind", (int)actorId.Kind, actual);
-                AssertPayload(4, "replicaOrInstanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(5, "partitionId", service.PartitionId, actual);
-                AssertPayload(6, "serviceName", service.ServiceName, actual);
-                AssertPayload(7, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(8, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(9, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(10, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ReplicaChangeRoleFromPrimaryPublishesExpectedEvent()
-            {
-                sut.ReplicaChangeRoleFromPrimary(service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(2, actual.EventId);
-                Assert.Equal(EventLevel.Informational, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.Default, actual.Keywords);
-                Assert.Equal("ReplicaChangeRoleFromPrimary", actual.EventName);
-                AssertPayload(0, "replicaId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(1, "partitionId", service.PartitionId, actual);
-                AssertPayload(2, "serviceName", service.ServiceName, actual);
-                AssertPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(4, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(6, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ReplicaChangeRoleToPrimaryPublishesExpectedEvent()
-            {
-                sut.ReplicaChangeRoleToPrimary(service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(1, actual.EventId);
-                Assert.Equal(EventLevel.Informational, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.Default, actual.Keywords);
-                Assert.Equal("ReplicaChangeRoleToPrimary", actual.EventName);
-                AssertPayload(0, "replicaId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(1, "partitionId", service.PartitionId, actual);
-                AssertPayload(2, "serviceName", service.ServiceName, actual);
-                AssertPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(4, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(6, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ServiceInstanceClosePublishesExpectedEvent()
-            {
-                sut.ServiceInstanceClose(service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(4, actual.EventId);
-                Assert.Equal(EventLevel.Informational, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.Default, actual.Keywords);
-                Assert.Equal("ServiceInstanceClose", actual.EventName);
-                AssertPayload(0, "instanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(1, "partitionId", service.PartitionId, actual);
-                AssertPayload(2, "serviceName", service.ServiceName, actual);
-                AssertPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(4, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(6, "nodeName", service.NodeContext.NodeName, actual);
-            }
-
-            [Fact]
-            public void ServiceInstanceOpenPublishesExpectedEvent()
-            {
-                sut.ServiceInstanceOpen(service);
-
-                Assert.NotNull(actual);
-                Assert.Equal(3, actual.EventId);
-                Assert.Equal(EventLevel.Informational, actual.Level);
-                Assert.Equal(AllSessions | ActorFrameworkKeywords.Default, actual.Keywords);
-                Assert.Equal("ServiceInstanceOpen", actual.EventName);
-                AssertPayload(0, "instanceId", service.ReplicaOrInstanceId, actual);
-                AssertPayload(1, "partitionId", service.PartitionId, actual);
-                AssertPayload(2, "serviceName", service.ServiceName, actual);
-                AssertPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName, actual);
-                AssertPayload(4, "serviceTypeName", service.ServiceTypeName, actual);
-                AssertPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName, actual);
-                AssertPayload(6, "nodeName", service.NodeContext.NodeName, actual);
-            }
+            Assert.NotNull(test.Event);
+            Assert.Equal(12, test.Event.EventId);
+            Assert.Equal(EventLevel.Verbose, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.MetricActorMethodCallsWaitingForLock);
+            Assert.Equal("ActorMethodCallsWaitingForLock", test.Event.EventName);
+            test.EventPayload(0, "countOfWaitingMethodCalls", countOfWaitingMethodCalls);
+            test.EventPayload(1, "actorType", actorType);
+            test.EventPayload(2, "actorId", actorId.ToString());
+            test.EventPayload(3, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(4, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(5, "partitionId", service.PartitionId);
+            test.EventPayload(6, "serviceName", service.ServiceName);
+            test.EventPayload(7, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(8, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(9, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(10, "nodeName", service.NodeContext.NodeName);
         }
 
-        public sealed class EventEnabledTest : ActorFrameworkEventSourceTest
+        [Fact]
+        public void ActorMethodStartPublishesExpectedEvent()
         {
-            void AssertEventEnabled(bool expected, EventLevel level, EventKeywords keywords, Func<bool> actual)
-            {
-                using var listener = Mock.Of<EventListener>();
-                listener.EnableEvents(sut, level, keywords);
-                Assert.Equal(expected, actual());
-            }
+            test.EnableEvents(EventLevel.LogAlways);
 
-            [Theory]
-            [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorMethod)]
-            [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorMethod)]
-            [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
-            public void IsActorMethodStartEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords)
-            {
-                AssertEventEnabled(expected, level, keywords, sut.IsActorMethodStartEventEnabled);
-            }
+            test.Instance.ActorMethodStart(methodName, methodSignature, actorType, actorId, service);
 
-            [Theory]
-            [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorMethod)]
-            [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorMethod)]
-            [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
-            public void IsActorMethodStopEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords)
-            {
-                AssertEventEnabled(expected, level, keywords, sut.IsActorMethodStopEventEnabled);
-            }
-
-            [Theory]
-            [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorState)]
-            [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorState)]
-            [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
-            public void IsActorSaveStateStartEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords)
-            {
-                AssertEventEnabled(expected, level, keywords, sut.IsActorSaveStateStartEventEnabled);
-            }
-
-            [Theory]
-            [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorState)]
-            [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorState)]
-            [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
-            public void IsActorSaveStateStopEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords)
-            {
-                AssertEventEnabled(expected, level, keywords, sut.IsActorSaveStateStopEventEnabled);
-            }
-
-            [Theory]
-            [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.MetricActorMethodCallsWaitingForLock)]
-            [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.MetricActorMethodCallsWaitingForLock)]
-            [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
-            public void IsPendingMethodCallsEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords)
-            {
-                AssertEventEnabled(expected, level, keywords, sut.IsPendingMethodCallsEventEnabled);
-            }
+            Assert.NotNull(test.Event);
+            Assert.Equal(7, test.Event.EventId);
+            Assert.Equal(EventLevel.Verbose, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.ActorMethod);
+            Assert.Equal("ActorMethodStart", test.Event.EventName);
+            test.EventPayload(0, "methodName", methodName);
+            test.EventPayload(1, "methodSignature", methodSignature);
+            test.EventPayload(2, "actorType", actorType);
+            test.EventPayload(3, "actorId", actorId.ToString());
+            test.EventPayload(4, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(5, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(6, "partitionId", service.PartitionId);
+            test.EventPayload(7, "serviceName", service.ServiceName);
+            test.EventPayload(8, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(9, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(10, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(11, "nodeName", service.NodeContext.NodeName);
         }
 
-        public sealed class Class : ActorFrameworkEventSourceTest
+        [Fact]
+        public void ActorMethodStopPublishesExpectedEvent()
         {
-            [Fact]
-            public void InheritsFromServiceFabricEventSourceToSupportTracingOnLinux()
-            {
-                Assert.IsAssignableFrom<ServiceFabricEventSource>(sut);
-            }
+            test.EnableEvents(EventLevel.LogAlways);
+
+            test.Instance.ActorMethodStop(executionTime.Ticks, methodName, methodSignature, actorType, actorId, service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(8, test.Event.EventId);
+            Assert.Equal(EventLevel.Verbose, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.ActorMethod);
+            Assert.Equal("ActorMethodStop", test.Event.EventName);
+            test.EventPayload(0, "methodExecutionTimeTicks", executionTime.Ticks);
+            test.EventPayload(1, "methodName", methodName);
+            test.EventPayload(2, "methodSignature", methodSignature);
+            test.EventPayload(3, "actorType", actorType);
+            test.EventPayload(4, "actorId", actorId.ToString());
+            test.EventPayload(5, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(6, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(7, "partitionId", service.PartitionId);
+            test.EventPayload(8, "serviceName", service.ServiceName);
+            test.EventPayload(9, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(10, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(11, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(12, "nodeName", service.NodeContext.NodeName);
         }
 
-        public sealed class Guid : ActorFrameworkEventSourceTest
+        [Fact]
+        public void ActorMethodThrewExceptionPublishesExpectedEvent()
         {
-            [Fact]
-            public void RemainsUnchangedForBackwardCompatibilityWithCollectionTools()
-            {
-                Assert.Equal(new System.Guid("0e1ec353-9f02-55d7-fbb8-f3857458acbd"), sut.Guid);
-            }
+            test.EnableEvents(EventLevel.LogAlways);
+
+            test.Instance.ActorMethodThrewException(exception, executionTime.Ticks, methodName, methodSignature, actorType, actorId, service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(9, test.Event.EventId);
+            Assert.Equal(EventLevel.Warning, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.Default | ActorFrameworkKeywords.ActorMethod);
+            Assert.Equal("ActorMethodThrewException", test.Event.EventName);
+            test.EventPayload(0, "exception", exception);
+            test.EventPayload(1, "methodExecutionTimeTicks", executionTime.Ticks);
+            test.EventPayload(2, "methodName", methodName);
+            test.EventPayload(3, "methodSignature", methodSignature);
+            test.EventPayload(4, "actorType", actorType);
+            test.EventPayload(5, "actorId", actorId.ToString());
+            test.EventPayload(6, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(7, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(8, "partitionId", service.PartitionId);
+            test.EventPayload(9, "serviceName", service.ServiceName);
+            test.EventPayload(10, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(11, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(12, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(13, "nodeName", service.NodeContext.NodeName);
         }
 
-        public sealed class Manifest : ActorFrameworkEventSourceTest
+        [Fact]
+        public void ActorSaveStateStartPublishesExpectedEvent()
         {
-            readonly ITestOutputHelper output;
+            test.EnableEvents(EventLevel.LogAlways);
 
-            public Manifest(ITestOutputHelper output) => this.output = output;
+            test.Instance.ActorSaveStateStart(actorType, actorId, service);
 
-            [Fact]
-            public void CanBeSavedForRegistrationWithExternalTools()
-            {
-                string manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
-
-                string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
-                File.WriteAllText(manifestFile, manifest);
-                output.WriteLine("To register generated manifest for ETL tools, run");
-                output.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
-            }
+            Assert.NotNull(test.Event);
+            Assert.Equal(10, test.Event.EventId);
+            Assert.Equal(EventLevel.Verbose, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.ActorState);
+            Assert.Equal("ActorSaveStateStart", test.Event.EventName);
+            test.EventPayload(0, "actorType", actorType);
+            test.EventPayload(1, "actorId", actorId.ToString());
+            test.EventPayload(2, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(3, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(4, "partitionId", service.PartitionId);
+            test.EventPayload(5, "serviceName", service.ServiceName);
+            test.EventPayload(6, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(7, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(8, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(9, "nodeName", service.NodeContext.NodeName);
         }
+
+        [Fact]
+        public void ActorSaveStateStopPublishesExpectedEvent()
+        {
+            test.EnableEvents(EventLevel.LogAlways);
+
+            test.Instance.ActorSaveStateStop(executionTime.Ticks, actorType, actorId, service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(11, test.Event.EventId);
+            Assert.Equal(EventLevel.Verbose, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.ActorState);
+            Assert.Equal("ActorSaveStateStop", test.Event.EventName);
+            test.EventPayload(0, "saveStateExecutionTimeTicks", executionTime.Ticks);
+            test.EventPayload(1, "actorType", actorType);
+            test.EventPayload(2, "actorId", actorId.ToString());
+            test.EventPayload(3, "actorIdKind", (int)actorId.Kind);
+            test.EventPayload(4, "replicaOrInstanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(5, "partitionId", service.PartitionId);
+            test.EventPayload(6, "serviceName", service.ServiceName);
+            test.EventPayload(7, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(8, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(9, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(10, "nodeName", service.NodeContext.NodeName);
+        }
+
+        [Fact]
+        public void ReplicaChangeRoleFromPrimaryPublishesExpectedEvent()
+        {
+            test.EnableEvents(EventLevel.LogAlways);
+
+            test.Instance.ReplicaChangeRoleFromPrimary(service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(2, test.Event.EventId);
+            Assert.Equal(EventLevel.Informational, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.Default);
+            Assert.Equal("ReplicaChangeRoleFromPrimary", test.Event.EventName);
+            test.EventPayload(0, "replicaId", service.ReplicaOrInstanceId);
+            test.EventPayload(1, "partitionId", service.PartitionId);
+            test.EventPayload(2, "serviceName", service.ServiceName);
+            test.EventPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(4, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(6, "nodeName", service.NodeContext.NodeName);
+        }
+
+        [Fact]
+        public void ReplicaChangeRoleToPrimaryPublishesExpectedEvent()
+        {
+            test.EnableEvents(EventLevel.LogAlways);
+
+            test.Instance.ReplicaChangeRoleToPrimary(service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(1, test.Event.EventId);
+            Assert.Equal(EventLevel.Informational, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.Default);
+            Assert.Equal("ReplicaChangeRoleToPrimary", test.Event.EventName);
+            test.EventPayload(0, "replicaId", service.ReplicaOrInstanceId);
+            test.EventPayload(1, "partitionId", service.PartitionId);
+            test.EventPayload(2, "serviceName", service.ServiceName);
+            test.EventPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(4, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(6, "nodeName", service.NodeContext.NodeName);
+        }
+
+        [Fact]
+        public void ServiceInstanceClosePublishesExpectedEvent()
+        {
+            test.EnableEvents(EventLevel.LogAlways);
+
+            test.Instance.ServiceInstanceClose(service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(4, test.Event.EventId);
+            Assert.Equal(EventLevel.Informational, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.Default);
+            Assert.Equal("ServiceInstanceClose", test.Event.EventName);
+            test.EventPayload(0, "instanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(1, "partitionId", service.PartitionId);
+            test.EventPayload(2, "serviceName", service.ServiceName);
+            test.EventPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(4, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(6, "nodeName", service.NodeContext.NodeName);
+        }
+
+        [Fact]
+        public void ServiceInstanceOpenPublishesExpectedEvent()
+        {
+            test.EnableEvents(EventLevel.LogAlways);
+
+            test.Instance.ServiceInstanceOpen(service);
+
+            Assert.NotNull(test.Event);
+            Assert.Equal(3, test.Event.EventId);
+            Assert.Equal(EventLevel.Informational, test.Event.Level);
+            test.EventKeywords(ActorFrameworkKeywords.Default);
+            Assert.Equal("ServiceInstanceOpen", test.Event.EventName);
+            test.EventPayload(0, "instanceId", service.ReplicaOrInstanceId);
+            test.EventPayload(1, "partitionId", service.PartitionId);
+            test.EventPayload(2, "serviceName", service.ServiceName);
+            test.EventPayload(3, "applicationName", service.CodePackageActivationContext.ApplicationName);
+            test.EventPayload(4, "serviceTypeName", service.ServiceTypeName);
+            test.EventPayload(5, "applicationTypeName", service.CodePackageActivationContext.ApplicationTypeName);
+            test.EventPayload(6, "nodeName", service.NodeContext.NodeName);
+        }
+
+        [Theory]
+        [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorMethod)]
+        [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorMethod)]
+        [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
+        public void IsActorMethodStartEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords) =>
+            test.EventEnabled(expected, level, keywords, test.Instance.IsActorMethodStartEventEnabled);
+
+        [Theory]
+        [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorMethod)]
+        [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorMethod)]
+        [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
+        public void IsActorMethodStopEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords) =>
+            test.EventEnabled(expected, level, keywords, test.Instance.IsActorMethodStopEventEnabled);
+
+        [Theory]
+        [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorState)]
+        [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorState)]
+        [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
+        public void IsActorSaveStateStartEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords) =>
+            test.EventEnabled(expected, level, keywords, test.Instance.IsActorSaveStateStartEventEnabled);
+
+        [Theory]
+        [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.ActorState)]
+        [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.ActorState)]
+        [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
+        public void IsActorSaveStateStopEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords) =>
+            test.EventEnabled(expected, level, keywords, test.Instance.IsActorSaveStateStopEventEnabled);
+
+        [Theory]
+        [InlineData(true, EventLevel.Verbose, ActorFrameworkKeywords.MetricActorMethodCallsWaitingForLock)]
+        [InlineData(false, EventLevel.Informational, ActorFrameworkKeywords.MetricActorMethodCallsWaitingForLock)]
+        [InlineData(false, EventLevel.Verbose, ActorFrameworkKeywords.Default)]
+        public void IsPendingMethodCallsEventEnabledReturnsExpectedResult(bool expected, EventLevel level, EventKeywords keywords) =>
+            test.EventEnabled(expected, level, keywords, test.Instance.IsPendingMethodCallsEventEnabled);
+
+        [Fact]
+        public void GuidRemainsUnchangedForBackwardCompatibilityWithCollectionTools() =>
+            Assert.Equal(new Guid("0e1ec353-9f02-55d7-fbb8-f3857458acbd"), test.Instance.Guid);
+
+        [Fact]
+        public void ManifestCanBeSavedForRegistrationWithExternalTools() =>
+            test.Manifest();
     }
 }

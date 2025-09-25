@@ -7,6 +7,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Fuzzy;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Moq;
 using Xunit;
 

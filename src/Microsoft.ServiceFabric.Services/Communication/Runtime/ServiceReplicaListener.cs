@@ -5,6 +5,7 @@
 
 using System;
 using System.Fabric;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
 namespace Microsoft.ServiceFabric.Services.Communication.Runtime
 {

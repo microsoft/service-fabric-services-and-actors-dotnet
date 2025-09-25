@@ -5,15 +5,13 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
 using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
-
-namespace Microsoft.ServiceFabric.Diagnostics.Tests
+namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
     public abstract class ServiceFabricEventSourceTest
     {

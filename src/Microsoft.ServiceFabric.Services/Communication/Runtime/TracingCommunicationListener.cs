@@ -6,6 +6,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
 namespace Microsoft.ServiceFabric.Services.Communication.Runtime
 {
