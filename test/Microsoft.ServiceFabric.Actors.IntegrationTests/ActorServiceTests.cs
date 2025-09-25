@@ -47,15 +47,6 @@ namespace Microsoft.ServiceFabric.Actors
                 {
                 }
             }
-
-            public class WithCancellationToken : GetRemindersAsync
-            {
-                [Fact]
-                public void ThrowsWhenCancellationTokenIsCanceled()
-                {
-                    Assert.True(true);
-                }  
-            }
             
             public class WhenNoReminderIsRegistered : GetRemindersAsync
             {
@@ -74,6 +65,13 @@ namespace Microsoft.ServiceFabric.Actors
 
             public class WhenReminderAreRegister : GetRemindersAsync
             {
+
+                [Fact]
+                public void ThrowsWhenCancellationTokenIsCanceled()
+                {
+                    Assert.True(true);
+                }  
+                
                 public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
 
