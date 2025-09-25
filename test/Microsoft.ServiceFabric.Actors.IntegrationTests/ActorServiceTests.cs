@@ -13,7 +13,8 @@ namespace Microsoft.ServiceFabric.Actors
     {
         protected async Task<ActorService> GetActorService<T>(
             Func<ActorService, ActorId, ActorBase> actorFactory = null,
-            ActorServiceSettings actorServiceSettings = null)
+            ActorServiceSettings actorServiceSettings = null,
+            IActorStateProvider actorStateProvider = null)
             where T : Actor
         {
             IFuzz fuzzy = new RandomFuzz();
@@ -23,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors
                 ActorTypeInformation.Get(typeof(T)),
                 actorFactory,
                 null,
-                new NullActorStateProvider(),
+                actorStateProvider ?? new NullActorStateProvider(),
                 actorServiceSettings);
 
             IStatefulUserServiceReplica statefulServiceReplica = actorService;
@@ -34,10 +35,29 @@ namespace Microsoft.ServiceFabric.Actors
             return actorService;
         }
 
-        public class GetReminderAsync : ActorServiceIntegrationTest
+        public class GetRemindersAsync : ActorServiceIntegrationTest
         {
+            interface ITestableActor : IActor
+            {
+                
+            }
+            class TestActor : Actor, ITestableActor
+            {
+                public TestActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
+                {
+                }
+            }
 
-            public class WhenNoReminderIsRegistered : GetReminderAsync
+            public class WithCancellationToken : GetRemindersAsync
+            {
+                [Fact]
+                public void ThrowsWhenCancellationTokenIsCanceled()
+                {
+                    Assert.True(true);
+                }  
+            }
+            
+            public class WhenNoReminderIsRegistered : GetRemindersAsync
             {
                 [Fact]
                 public void ReturnEmptyResultIfNoRemindersAreRegistered()
@@ -46,29 +66,60 @@ namespace Microsoft.ServiceFabric.Actors
                 }
             }
 
-            public class WhenReminderAreRegister : GetReminderAsync
+            public class WhenReminderAreRegister : GetRemindersAsync
             {
                 public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
-                    [Fact]
-                    public void ReturnsTheSameReminderWhichHaveBeenRegistered()
+
+                    public class WhenActorIdIsGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
                     {
-                        Assert.True(true);
+                        [Fact]
+                        public void ReturnsTheSameReminderWhichHaveBeenRegisteredForEachActor()
+                        {
+                            Assert.True(true);
+                        }
+                    }
+
+                    public class WhenActorIdIsNotGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
+                    {
+                        [Fact]
+                        public void ReturnsTheSameReminderWhichHaveBeenRegistered()
+                        {
+                            Assert.True(true);
+                        }
                     }
                 }
 
                 public class WhenChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
-                    [Fact]
-                    public void ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
+                    public class WhenActorIdIsGiven : WhenChangesAreMadeToTheRemindersBetweenResults
                     {
-                        Assert.True(true);
+                        [Fact]
+                        public void ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
+                        {
+                            Assert.True(true);
+                        }
+
+                        [Fact]
+                        public void ReflectsChangesToRemindersInConsecutivePages()
+                        {
+                            Assert.True(true);
+                        }
                     }
 
-                    [Fact]
-                    public void ReflectsChangesToRemindersInConsecutivePages()
+                    public class WhenActorIdIsNotGiven : WhenChangesAreMadeToTheRemindersBetweenResults
                     {
-                        Assert.True(true);
+                        [Fact]
+                        public void ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
+                        {
+                            Assert.True(true);
+                        }
+
+                        [Fact]
+                        public void ReflectsChangesToRemindersInConsecutivePages()
+                        {
+                            Assert.True(true);
+                        }
                     }
                 }
 
