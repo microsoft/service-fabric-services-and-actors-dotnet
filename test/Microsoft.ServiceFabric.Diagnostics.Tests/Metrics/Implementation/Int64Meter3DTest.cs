@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public Record() => sut.Private().Field<Action<long, int, string, string, string>>().Set(mockRecordAction);
 
             [Fact]
-            public void CallsRecordMethodFromBaseClass()
+            public void InvokesBaseRecord()
             {
                 sut.Record(value, customDimension1, customDimension2, customDimension3);
 

@@ -43,13 +43,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             readonly string customDimension1 = fuzzy.String();
 
             readonly Action<long, int, string, string, string> mockRecordAction = Mock.Of<Action<long, int, string, string, string>>();
+
             public Record()
             {
                 sut.Private().Field<Action<long, int, string, string, string>>().Set(mockRecordAction);
                 longValue = (long)Math.Round(value.TotalMilliseconds);
             }
             [Fact]
-            public void CallsRecordMethodFromBaseClass()
+            public void InvokesBaseRecord()
             {
                 sut.Record(value, customDimension1);
 

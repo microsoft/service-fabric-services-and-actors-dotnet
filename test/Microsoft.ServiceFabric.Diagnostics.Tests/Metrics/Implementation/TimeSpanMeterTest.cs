@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsRecordMethodFromBaseClass()
+            public void InvokesBaseRecord()
             {
                 sut.Record(value);
 

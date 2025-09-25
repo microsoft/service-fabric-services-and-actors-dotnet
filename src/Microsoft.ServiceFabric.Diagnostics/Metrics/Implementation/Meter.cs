@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         protected void Record(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
         {
-            recordAction(value, customDimensionCount, customDimension1, customDimension2, customDimension3);
+            recordAction.Invoke(value, customDimensionCount, customDimension1, customDimension2, customDimension3);
         }
 
         private void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
