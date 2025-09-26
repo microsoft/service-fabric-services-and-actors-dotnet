@@ -23,7 +23,7 @@ jobs:
       - uses: actions/upload-artifact@master
         with:
           name: build
-          path: drop
+          path: ${{ env.DROP_DIR }}
 
   test-windows:
     needs: build
