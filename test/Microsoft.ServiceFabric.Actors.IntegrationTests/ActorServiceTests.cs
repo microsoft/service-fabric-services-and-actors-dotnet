@@ -83,13 +83,13 @@ namespace Microsoft.ServiceFabric.Actors
 
                     for (int i = 0; i < numberOfActor; i++)
                     {
+                        var actorId = new ActorId($"Actor_{i}");
+                        allActors.Add(actorId);
+
                         for (int j = 0; j < numberOfReminderPerActor; j++)
                         {
-                            var actorId = new ActorId($"Actor_{i}");
                             var reminderMock = new Mock<IActorReminder>();
                             reminderMock.SetupGet(r => r.Name).Returns($"Reminder_{j}");
-
-                            allActors.Add(actorId);
                             actorStateProviderWithReminders.SaveReminderAsync(actorId, reminderMock.Object).Wait();
                         }
                     }
@@ -101,10 +101,9 @@ namespace Microsoft.ServiceFabric.Actors
                     public async Task ThrowsWhenCancellationTokenIsCanceled()
                     {
                         IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
-
                         var cts = new CancellationTokenSource();
-
                         cts.Cancel();
+
                         await Assert.ThrowsAsync<OperationCanceledException>(() => actorService.GetRemindersAsync(null, null, cts.Token));
                     }   
                 } 
