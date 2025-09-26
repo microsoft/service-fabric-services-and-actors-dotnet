@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.ServiceModel;
@@ -12,7 +13,6 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 {
-
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]
     class WcfRemotingService : IServiceRemotingContract
     {
@@ -26,18 +26,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
         readonly ExceptionConversionHandler exceptionConversionHandler;
 
+        readonly WcfRemotingListenerSettings listenerSettings;
+
         public WcfRemotingService(
             IServiceRemotingMessageHandler messageHandler,
             ServiceRemotingMessageSerializersManager serializersManager,
-            ExceptionConversionHandler exceptionConversionHandler)
+            ExceptionConversionHandler exceptionConversionHandler,
+            WcfRemotingListenerSettings listenerSettings)
         {
             this.exceptionConversionHandler = exceptionConversionHandler;
 
             this.messageHandler = messageHandler;
             this.serializersManager = serializersManager;
             this.requestContext = new WcfServiceRemotingRequestContext(this.serializersManager);
+            this.listenerSettings = listenerSettings;
         }
-
 
         public async Task<ResponseMessage> RequestResponseAsync(
             ArraySegment<byte> messageHeaders,
@@ -91,12 +94,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             catch (Exception e)
             {
                 ServiceTrace.Source.WriteInfo("WcfRemotingService", "Remote Exception occured {0}", e);
-                bool oldException = true;
-
-                if (oldException)
+#pragma warning disable 618                
+                if (this.listenerSettings.ExceptionSerializationTechnique == ExceptionSerialization.BinaryFormatter)
                 {
                     throw new FaultException<RemoteException>(RemoteException.FromException(e), e.Message);
                 }
+#pragma warning restore 618                
                 else
                 {
                     ServiceException svcException = this.exceptionConversionHandler.ToServiceException(e);

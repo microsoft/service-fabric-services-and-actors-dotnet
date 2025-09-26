@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System.Collections.Generic;
     using System.Fabric;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.FabricTransport.V2;
@@ -21,11 +22,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 
     internal class FabricTransportServiceRemotingClientFactoryImpl : CommunicationClientFactoryBase<FabricTransportServiceRemotingClient>
     {
-        private readonly IFabricTransportCallbackMessageHandler fabricTransportRemotingCallbackMessageHandler;
-        private readonly ServiceRemotingMessageSerializersManager serializersManager;
-        private readonly FabricTransportRemotingSettings settings;
-        private readonly NativeFabricTransportMessageDisposer disposer;
-        private IEnumerable<IExceptionConvertor> exceptionConvertors;
+        readonly IFabricTransportCallbackMessageHandler fabricTransportRemotingCallbackMessageHandler;
+        readonly ServiceRemotingMessageSerializersManager serializersManager;
+        readonly FabricTransportRemotingSettings settings;
+        readonly NativeFabricTransportMessageDisposer disposer;
+        readonly ExceptionConversionHandler exceptionConversionHandler;
 
         public FabricTransportServiceRemotingClientFactoryImpl(
             ServiceRemotingMessageSerializersManager serializersManager,
@@ -40,8 +41,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 GetExceptionHandlers(exceptionHandlers),
                 traceId)
         {
-            this.exceptionConvertors = GetExceptionConvertors(exceptionConvertors);
             this.settings = remotingSettings ?? FabricTransportRemotingSettings.GetDefault();
+            this.exceptionConversionHandler = ExceptionConversionHandler.CreateDefault(exceptionConvertors, remotingSettings);
             this.serializersManager = serializersManager;
             this.disposer = new NativeFabricTransportMessageDisposer();
             this.fabricTransportRemotingCallbackMessageHandler = new FabricTransportRemotingCallbackMessageHandler(remotingCallbackMessageHandler, this.serializersManager);
@@ -88,7 +89,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                     nativeClient,
                     remotingHandler,
                     this.settings,
-                    this.exceptionConvertors);
+                    this.exceptionConversionHandler);
                 remotingHandler.ClientConnected += this.OnFabricTransportClientConnected;
                 remotingHandler.ClientDisconnected += this.OnFabricTransportClientDisconnected;
                 return Task.FromResult(client);
@@ -128,32 +129,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             return remotingClient.IsValid && remotingClient.ConnectionAddress.Equals(endpoint);
         }
 
-        private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
-            IEnumerable<IExceptionConvertor> exceptionConvertors)
-        {
-            var svcExceptionConvetors = new List<IExceptionConvertor>();
-            if (exceptionConvertors != null)
-            {
-                svcExceptionConvetors.AddRange(exceptionConvertors);
-            }
-
-            svcExceptionConvetors.Add(new FabricExceptionConvertor());
-            svcExceptionConvetors.Add(new SystemExceptionConvertor());
-
-            return svcExceptionConvetors;
-        }
-
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
             IEnumerable<IExceptionHandler> exceptionHandlers)
         {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
+            var handlers = new List<IExceptionHandler>(exceptionHandlers ?? Enumerable.Empty<IExceptionHandler>())
             {
-                handlers.AddRange(exceptionHandlers);
-            }
+                new ExceptionHandler(),
+                new ServiceRemotingExceptionHandler()
+            };
 
-            handlers.Add(new ExceptionHandler());
-            handlers.Add(new ServiceRemotingExceptionHandler());
             return handlers;
         }
 

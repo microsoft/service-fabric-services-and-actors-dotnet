@@ -11,15 +11,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
     using Microsoft.ServiceFabric.FabricTransport;
     using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
     using Constants = Microsoft.ServiceFabric.Services.Remoting.V2.Constants;
 
     /// <summary>
     /// Settings that configures the  FabricTransport Listener.
     /// </summary>
-    public class FabricTransportRemotingListenerSettings
+    public class FabricTransportRemotingListenerSettings : IExceptionSerializerSettings
     {
         private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
-        private static readonly int DefaultRemotingExceptionDepth = 2;
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
@@ -35,31 +35,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.headerBufferSize = Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
-            this.remotingExceptionDepth = DefaultRemotingExceptionDepth;
+            this.remotingExceptionDepth = ExceptionConversionHandler.DefaultRemotingExceptionDepth;
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
             : this()
         {
             this.listenerSettings = listenerSettings;
-        }
-
-        /// <summary>
-        /// Exception serialization option to use(applicable only to V2 Remoting).
-        /// </summary>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public enum ExceptionSerialization
-        {
-            /// <summary>
-            /// Uses DCS to serialize exception details in service remoting message.
-            /// </summary>
-            Default,
-
-            /// <summary>
-            /// Uses binary formatter to serialize exception details in service remoting message.
-            /// To be used in compat scenarios.
-            /// </summary>
-            BinaryFormatter,
         }
 
         /// <summary>

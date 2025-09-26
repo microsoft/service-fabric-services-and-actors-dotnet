@@ -9,12 +9,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     using System.Fabric;
     using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
-    using Constants = Microsoft.ServiceFabric.Services.Remoting.V2.Constants;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+    using Constants = V2.Constants;
 
     /// <summary>
     /// Represents a settings that configures the  FabricTransport communication.
     /// </summary>
-    public class FabricTransportRemotingSettings
+    public class FabricTransportRemotingSettings : IExceptionDeserializerSettings
     {
         internal const string DefaultSectionName = "TransportSettings";
 
@@ -44,25 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         }
 
         /// <summary>
-        /// Exception Deserialization option to use(applies to V2 Remoting only).
-        /// </summary>
-        [Obsolete(DeprecationMessage.RemotingV1)]
-        public enum ExceptionDeserialization
-        {
-            /// <summary>
-            /// Uses only DCS to deserialize the service remoting message containing exception details.
-            /// </summary>
-            Default,
-
-            /// <summary>
-            /// Attempts to deserialize using DCS and fallsback to BinaryFormatter if DCS fails.
-            /// To be used in compat scenarios. Fallback option will be deprecated in future.
-            /// </summary>
-            Fallback,
-        }
-
-        /// <summary>
-        /// Gets or sets the exception deserialization techinique to use.
+        /// Gets or sets the exception deserialization technique to use.
         /// </summary>
         [Obsolete(DeprecationMessage.RemotingV1)]
         public ExceptionDeserialization ExceptionDeserializationTechnique { get; set; }
@@ -84,7 +67,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
         /// </summary>
         /// <value>The KeepAliveTimeout as <see cref="System.TimeSpan"/>.</value>
         /// <remarks>Default Value for KeepAliveTimeout Timeout is set as TimeSpan.Zero. which indicates we disable the tcp keepalive option.
-        /// If you are using loadbalancer , you may need to configure this in order to avoid  the loadbalancer to close the connection after certain time. </remarks>
+        /// If you are using loadbalancer, you may need to configure this in order to avoid  the loadbalancer to close the connection after certain time. </remarks>
         public TimeSpan KeepAliveTimeout
         {
             get { return this.fabricTransportSettings.KeepAliveTimeout; }

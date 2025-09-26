@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
     using System.Collections.Generic;
     using System.Fabric;
     using System.Fabric.Common;
+    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Remoting.FabricTransport;
@@ -159,13 +160,10 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
 
         private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(IEnumerable<IExceptionConvertor> exceptionConvertors)
         {
-            var actorConvertors = new List<IExceptionConvertor>();
-            if (exceptionConvertors != null)
+            var actorConvertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
-                actorConvertors.AddRange(exceptionConvertors);
-            }
-
-            actorConvertors.Add(new FabricActorExceptionConvertor());
+                new FabricActorExceptionConvertor()
+            };
 
             return actorConvertors;
         }

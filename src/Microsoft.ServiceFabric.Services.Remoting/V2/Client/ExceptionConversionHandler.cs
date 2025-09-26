@@ -3,28 +3,45 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
+using System.Xml;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.IO;
-    using System.Runtime.Serialization;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-
     internal class ExceptionConversionHandler
     {
         private static readonly string TraceEventType = "ExceptionConversionHandler";
         private IEnumerable<IExceptionConvertor> convertors;
-        private FabricTransportRemotingSettings remotingSettings;
+        private IExceptionDeserializerSettings remotingSettings;
 
-        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingSettings remotingSettings)
+        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, IExceptionDeserializerSettings remotingSettings)
         {
             this.convertors = convertors;
             this.remotingSettings = remotingSettings;
+        }
+
+        public static ExceptionConversionHandler CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, IExceptionDeserializerSettings remotingSettings)
+        {
+            if (remotingSettings == null)
+            {
+                throw new ArgumentNullException(nameof(remotingSettings));
+            }
+
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new SystemExceptionConvertor(),
+                new FabricExceptionConvertor()
+            };
+
+            return new ExceptionConversionHandler(convertors, remotingSettings);
         }
 
         public Exception FromServiceException(ServiceException serviceException)
@@ -115,7 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             catch (Exception e)
             {
 #pragma warning disable 618
-                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
+                if (this.remotingSettings.ExceptionDeserializationTechnique == ExceptionDeserialization.Fallback)
                 {
                     ServiceTrace.Source.WriteInfo(
                        TraceEventType,
@@ -139,7 +156,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
         {
             Exception exceptionToThrow = null;
 
-            // Workaround as NativeMessageStream doesn't suport multi read.
+            // Workaround as NativeMessageStream doesn't support multi read.
             var streamLength = stream.Length;
             var buffer = new byte[streamLength];
             await stream.ReadAsync(buffer, 0, buffer.Length);
@@ -166,7 +183,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                         dcsE.ToString()));
 
 #pragma warning disable 618
-                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
+                if (this.remotingSettings.ExceptionDeserializationTechnique == ExceptionDeserialization.Fallback)
                 {
                     using (var tSteam = new MemoryStream(buffer))
                     {

@@ -13,10 +13,8 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Communication.Wcf;
 using Microsoft.ServiceFabric.Services.Communication.Wcf.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-using static Microsoft.ServiceFabric.Services.Remoting.V2.Runtime.ExceptionConversionHandler;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 {
@@ -89,7 +87,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         ///     parameters will be wrapped.Default value is false.
         /// </param>
         /// <param name="exceptionConvertors">Exception convertors to use for converting exceptions to RemoteException2.</param>
-        /// <param name="listenerSettings">Settings for the FabricTransport remoting listener.</param>
+        /// <param name="listenerSettings">Settings for the WCF remoting listener.</param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation,
@@ -98,12 +96,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             string endpointResourceName = "ServiceEndpointV2",
             bool useWrappedMessage = false,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingListenerSettings listenerSettings = null)
+            WcfRemotingListenerSettings listenerSettings = null)
         {
             serializationProvider = this.GetDefaultSerializationProvider(serializationProvider, useWrappedMessage);
 
-            var exceptionConversionHandler = new ExceptionConversionHandler(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            listenerSettings ??= new WcfRemotingListenerSettings();
 
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
@@ -117,7 +116,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             this.wcfRemotingService = new WcfRemotingService(
                 this.messageHandler,
                 serializerManager,
-                exceptionConversionHandler);
+                exceptionConversionHandler,
+                listenerSettings);
 
             this.wcfListener = new WcfCommunicationListener<IServiceRemotingContract>(
                 serviceContext,
@@ -186,7 +186,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         ///     parameters will be wrapped.Default value is false.
         /// </param>
         /// <param name="exceptionConvertors">Exception convertors to use for converting exceptions to RemoteException2.</param>
-        /// <param name="listenerSettings">Settings for the FabricTransport remoting listener.</param>
+        /// <param name="listenerSettings">Settings for the WCF remoting listener.</param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -195,9 +195,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             string endpointResourceName = "ServiceEndpointV2",
             bool useWrappedMessage = false,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingListenerSettings listenerSettings = null)
+            WcfRemotingListenerSettings listenerSettings = null)
         {
-            var exceptionConversionHandler = new ExceptionConversionHandler(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            listenerSettings ??= new WcfRemotingListenerSettings();
+
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 this.GetDefaultSerializationProvider(
@@ -208,7 +210,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             this.wcfRemotingService = new WcfRemotingService(
                         this.messageHandler,
                         serializerManager,
-                        exceptionConversionHandler);
+                        exceptionConversionHandler,
+                        listenerSettings);
 
             this.Initialize(serviceContext, messageHandler, listenerBinding, endpointResourceName, serializerManager, this.wcfRemotingService);
         }
@@ -271,7 +274,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         ///     parameters will be wrapped.Default value is false.
         /// </param>
         /// <param name="exceptionConvertors">Exception convertors to use for converting exceptions to RemoteException2.</param>
-        /// <param name="listenerSettings">Settings for the FabricTransport remoting listener.</param>
+        /// <param name="listenerSettings">Settings for the WCF remoting listener.</param>
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
@@ -280,9 +283,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             EndpointAddress address = null,
             bool useWrappedMessage = false,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingListenerSettings listenerSettings = null)
+            WcfRemotingListenerSettings listenerSettings = null)
         {
-            var exceptionConversionHandler = new ExceptionConversionHandler(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            listenerSettings ??= new WcfRemotingListenerSettings();
+
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 this.GetDefaultSerializationProvider(
@@ -293,7 +298,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             this.wcfRemotingService = new WcfRemotingService(
                         this.messageHandler,
                         serializerManager,
-                        exceptionConversionHandler);
+                        exceptionConversionHandler,
+                        listenerSettings);
 
             this.Initialize(serviceContext, listenerBinding, address, serializerManager, messageHandler, this.wcfRemotingService);
         }
@@ -305,14 +311,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             Binding listenerBinding = null,
             EndpointAddress address = null,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingListenerSettings listenerSettings = null)
+            WcfRemotingListenerSettings listenerSettings = null)
         {
-            var exceptionConversionHandler = new ExceptionConversionHandler(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            listenerSettings ??= new WcfRemotingListenerSettings();
+
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
 
             this.wcfRemotingService = new WcfRemotingService(
                         this.messageHandler,
                         serializersManager,
-                        exceptionConversionHandler);
+                        exceptionConversionHandler,
+                        listenerSettings);
 
             this.Initialize(
                 serviceContext,
@@ -330,14 +339,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             Binding listenerBinding,
             string endpointResourceName,
             IEnumerable<IExceptionConvertor> exceptionConvertors,
-            FabricTransportRemotingListenerSettings listenerSettings)
+            WcfRemotingListenerSettings listenerSettings)
         {
-            var exceptionConversionHandler = new ExceptionConversionHandler(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            listenerSettings ??= new WcfRemotingListenerSettings();
+
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
 
             this.wcfRemotingService = new WcfRemotingService(
                         this.messageHandler,
                         serializerManager,
-                        exceptionConversionHandler);
+                        exceptionConversionHandler,
+                        listenerSettings);
 
             this.Initialize(serviceContext, messageHandler, listenerBinding, endpointResourceName, serializerManager, this.wcfRemotingService);
         }
@@ -379,7 +391,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// </summary>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// A <see cref="Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the endpoint string.
         /// </returns>
         Task<string> ICommunicationListener.OpenAsync(CancellationToken cancellationToken)
@@ -394,7 +406,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// </summary>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation.
+        /// A <see cref="Task">Task</see> that represents outstanding operation.
         /// </returns>
         Task ICommunicationListener.CloseAsync(CancellationToken cancellationToken)
         {
@@ -420,6 +432,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
                 disposableItem.Dispose();
             }
         }
+
+        readonly Func<IEnumerable<IExceptionConvertor>, WcfRemotingListenerSettings, ExceptionConversionHandler> exceptionConversionHandlerFactory = ExceptionConversionHandler.CreateDefault;
 
         private void Initialize(
             ServiceContext serviceContext,

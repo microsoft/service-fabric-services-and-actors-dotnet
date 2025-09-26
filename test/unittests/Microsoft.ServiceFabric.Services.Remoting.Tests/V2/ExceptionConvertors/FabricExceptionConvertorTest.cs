@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
             {
                 new Remoting.V2.Runtime.FabricExceptionConvertor(),
                 new Remoting.V2.Runtime.SystemExceptionConvertor(),
-                new Remoting.V2.Runtime.ExceptionConversionHandler.DefaultExceptionConvertor(),
+                new Remoting.V2.Runtime.DefaultExceptionConvertor(),
             };
 
         private static Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler

@@ -3,7 +3,9 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.ServiceModel.Channels;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Remoting.Client;
@@ -60,7 +62,65 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
         /// </param>
         /// <param name="serializationProvider">Serialization Provider</param>
         /// <param name="useWrappedMessage">
-        /// It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.</param>
+        ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is
+        ///     set to false, parameters will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.
+        /// </param>
+        /// <remarks>
+        ///     This factory uses <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfExceptionHandler"/>,
+        ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.Client.ActorRemotingExceptionHandler"/>, in addition to the
+        ///     exception handlers supplied to the constructor.
+        /// </remarks>
+        [Obsolete]
+        public WcfActorRemotingClientFactory(
+            Binding clientBinding,
+            IServiceRemotingCallbackMessageHandler callbackClient,
+            IEnumerable<IExceptionHandler> exceptionHandlers,
+            IServicePartitionResolver servicePartitionResolver,
+            string traceId,
+            IServiceRemotingMessageSerializationProvider serializationProvider,
+            bool useWrappedMessage)
+            : this(
+                clientBinding,
+                callbackClient,
+                exceptionHandlers,
+                null, // exceptionConvertors
+                servicePartitionResolver,
+                traceId,
+                serializationProvider,
+                useWrappedMessage)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WcfActorRemotingClientFactory"/> class.
+        /// </summary>
+        /// <param name="clientBinding">
+        ///     WCF binding to use for the client. If the client binding is null,
+        ///     a default client binding is created using
+        ///     <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method
+        ///     which creates a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
+        /// </param>
+        /// <param name="callbackClient">
+        ///     The callback client that receives the callbacks from the service.
+        /// </param>
+        /// <param name="exceptionHandlers">
+        ///     Exception handlers to handle the exceptions encountered in communicating with the service.
+        /// </param>
+        /// <param name="exceptionConvertors">
+        ///     Convertors to convert service exception to user exception.
+        /// </param>
+        /// <param name="servicePartitionResolver">
+        ///     Service partition resolver to resolve the service endpoints. If not specified, a default
+        ///     service partition resolver returned by <see cref="ServicePartitionResolver.GetDefault"/> is used.
+        /// </param>
+        /// <param name="traceId">
+        ///     Id to use in diagnostics traces from this component.
+        /// </param>
+        /// <param name="serializationProvider">Serialization Provider</param>
+        /// <param name="useWrappedMessage">
+        ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire. When UseWrappedMessage is
+        ///     set to false, parameters will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.
+        /// </param>
         /// <remarks>
         ///     This factory uses <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfExceptionHandler"/>,
         ///     <see cref="Microsoft.ServiceFabric.Actors.Remoting.Client.ActorRemotingExceptionHandler"/>, in addition to the
@@ -70,19 +130,21 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
             Binding clientBinding,
             IServiceRemotingCallbackMessageHandler callbackClient,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             IServicePartitionResolver servicePartitionResolver = null,
             string traceId = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             bool useWrappedMessage = false)
             : base(
-                InitializeSerializerManager(serializationProvider, useWrappedMessage),
                 clientBinding,
                 callbackClient,
                 GetExceptionHandlers(exceptionHandlers),
+                GetExceptionConvertors(exceptionConvertors),
                 servicePartitionResolver,
                 traceId,
                 null,
-                new List<IExceptionConvertor> { new FabricActorExceptionConvertor() },
+                serializationProvider,
+                useWrappedMessage,
                 null)
         {
         }
@@ -116,6 +178,17 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Client
 
             handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
+        }
+
+        private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
+        {
+            var actorConvertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new FabricActorExceptionConvertor()
+            };
+
+            return actorConvertors;
         }
     }
 }

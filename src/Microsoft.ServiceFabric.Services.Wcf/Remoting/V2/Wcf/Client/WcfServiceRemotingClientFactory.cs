@@ -15,8 +15,6 @@ using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
-using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
-using Microsoft.ServiceFabric.Services.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
@@ -32,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         private WcfCommunicationClientFactory<IServiceRemotingContract> wcfFactory;
         private ServiceRemotingMessageSerializersManager serializersManager;
         private IServiceRemotingMessageBodyFactory remotingMessageBodyFactory;
-        readonly ExceptionConversionHandler exceptionConversionHandler;
+        private ExceptionConversionHandler exceptionConversionHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WcfServiceRemotingClientFactory"/> class.
@@ -40,8 +38,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is not specified or null,
         ///     a default client binding is created using
-        ///     <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method
-        ///     which creates a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
+        ///     <see cref="Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method
+        ///     which creates a <see cref="NetTcpBinding"/> with no security.
         /// </param>
         /// <param name="callbackClient">
         ///     The callback client that receives the callbacks from the service.
@@ -57,8 +55,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         ///     Id to use in diagnostics traces from this component.
         /// </param>
         /// <param name="createWcfClientFactory">
-        ///     Delegate function that creates <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfCommunicationClientFactory{TServiceContract}"/> using the
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.IServiceRemotingContract"/>.
+        ///     Delegate function that creates <see cref="WcfCommunicationClientFactory{TServiceContract}"/> using the
+        ///     <see cref="IServiceRemotingContract"/>.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider</param>
         /// <param name="useWrappedMessage">
@@ -88,12 +86,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             bool useWrappedMessage) : this(clientBinding,
                 callbackClient,
                 exceptionHandlers,
+                null, // exceptionConvertors
                 servicePartitionResolver,
                 traceId,
                 createWcfClientFactory,
                 serializationProvider,
                 useWrappedMessage,
-                null,
                 null) { }
 
         /// <summary>
@@ -102,14 +100,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// <param name="clientBinding">
         ///     WCF binding to use for the client. If the client binding is not specified or null,
         ///     a default client binding is created using
-        ///     <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method
-        ///     which creates a <see cref="System.ServiceModel.NetTcpBinding"/> with no security.
+        ///     <see cref="Communication.Wcf.WcfUtility.CreateTcpClientBinding"/> method
+        ///     which creates a <see cref="NetTcpBinding"/> with no security.
         /// </param>
         /// <param name="callbackClient">
         ///     The callback client that receives the callbacks from the service.
         /// </param>
         /// <param name="exceptionHandlers">
         ///     Exception handlers to handle the exceptions encountered in communicating with the service.
+        /// </param>
+        /// <param name="exceptionConvertors">
+        ///     Convertors to convert user exception to service exception.
         /// </param>
         /// <param name="servicePartitionResolver">
         ///     Service partition resolver to resolve the service endpoints. If not specified, a default
@@ -119,17 +120,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         ///     Id to use in diagnostics traces from this component.
         /// </param>
         /// <param name="createWcfClientFactory">
-        ///     Delegate function that creates <see cref="Microsoft.ServiceFabric.Services.Communication.Wcf.Client.WcfCommunicationClientFactory{TServiceContract}"/> using the
-        ///     <see cref="Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.IServiceRemotingContract"/>.
+        ///     Delegate function that creates <see cref="WcfCommunicationClientFactory{TServiceContract}"/> using the
+        ///     <see cref="IServiceRemotingContract"/>.
         /// </param>
         /// <param name="serializationProvider">Serialization Provider</param>
         /// <param name="useWrappedMessage">
         ///     It indicates whether the remoting method parameters should be wrapped or not before sending it over the wire.
         ///     When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the
         ///     parameters will be wrapped.Default value is false.
-        /// </param>
-        /// <param name="exceptionConvertors">
-        ///     Convertors to convert user exception to service exception.
         /// </param>
         /// <param name="remotingSettings">
         ///     The settings for the fabric transport. If the settings are not provided or null, default settings
@@ -143,6 +141,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             Binding clientBinding = null,
             IServiceRemotingCallbackMessageHandler callbackClient = null,
             IEnumerable<IExceptionHandler> exceptionHandlers = null,
+            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
             IServicePartitionResolver servicePartitionResolver = null,
             string traceId = null,
             Func<
@@ -154,8 +153,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             bool useWrappedMessage = false,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingSettings remotingSettings = null)
+            WcfRemotingSettings remotingSettings = null)
         {
             this.exceptionConversionHandler = new ExceptionConversionHandler(this.GetConvertors(exceptionConvertors), remotingSettings);
 
@@ -168,9 +166,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 clientBinding,
                 callbackClient,
                 exceptionHandlers,
+                exceptionConvertors,
                 servicePartitionResolver,
                 traceId,
-                createWcfClientFactory);
+                createWcfClientFactory,
+                remotingSettings);
         }
 
         internal WcfServiceRemotingClientFactory(
@@ -188,11 +188,18 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingSettings remotingSettings = null)
+            WcfRemotingSettings remotingSettings = null)
         {
-            this.exceptionConversionHandler = new ExceptionConversionHandler(this.GetConvertors(exceptionConvertors), remotingSettings);
-
-            this.Initialize(serializersManager, clientBinding, callbackClient, exceptionHandlers, servicePartitionResolver, traceId, createWcfClientFactory);
+            this.Initialize(
+                serializersManager,
+                clientBinding,
+                callbackClient,
+                exceptionHandlers,
+                exceptionConvertors,
+                servicePartitionResolver,
+                traceId,
+                createWcfClientFactory,
+                remotingSettings);
         }
 
         /// <summary>
@@ -218,7 +225,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// A <see cref="Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
         /// </returns>
         async Task<IServiceRemotingClient> ICommunicationClientFactory<IServiceRemotingClient>.GetClientAsync(
@@ -266,7 +273,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// <param name="retrySettings">Specifies the retry policy that should be used for exceptions that occur when creating the client.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// A <see cref="Task">Task</see> that represents outstanding operation. The result of the Task is
         /// the CommunicationClient(<see cref="ICommunicationClient" />) object.
         /// </returns>
         async Task<IServiceRemotingClient> ICommunicationClientFactory<IServiceRemotingClient>.GetClientAsync(
@@ -297,7 +304,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// <param name="retrySettings">Specifies the retry policy that should be used for handling the reported exception.</param>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>
-        /// A <see cref="System.Threading.Tasks.Task">Task</see> that represents outstanding operation. The result of the Task is
+        /// A <see cref="Task">Task</see> that represents outstanding operation. The result of the Task is
         /// a <see cref="OperationRetryControl" /> object that provides information on retry policy for this exception.
         /// </returns>
         Task<OperationRetryControl> ICommunicationClientFactory<IServiceRemotingClient>.ReportOperationExceptionAsync(
@@ -335,13 +342,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             IEnumerable<IExceptionHandler> exceptionHandlers,
             string traceId)
         {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
+            var handlers = new List<IExceptionHandler>(exceptionHandlers ?? Enumerable.Empty<IExceptionHandler>())
             {
-                handlers.AddRange(exceptionHandlers);
-            }
-
-            handlers.Add(new ServiceRemotingExceptionHandler(traceId));
+                new ServiceRemotingExceptionHandler(traceId)
+            };
 
             return handlers;
         }
@@ -351,13 +355,19 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             Binding clientBinding,
             IServiceRemotingCallbackMessageHandler callbackClient,
             IEnumerable<IExceptionHandler> exceptionHandlers,
+            IEnumerable<IExceptionConvertor> exceptionConvertors,
             IServicePartitionResolver servicePartitionResolver,
             string traceId,
             Func<Binding, IEnumerable<IExceptionHandler>,
                 IServicePartitionResolver,
                 string, IServiceRemotingCallbackContract,
-                WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory)
+                WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory,
+            WcfRemotingSettings remotingSettings = null)
         {
+            remotingSettings ??= new WcfRemotingSettings();
+
+            this.exceptionConversionHandler = new ExceptionConversionHandler(this.GetConvertors(exceptionConvertors), remotingSettings);
+
             this.serializersManager = serializersManager;
             if (traceId == null)
             {

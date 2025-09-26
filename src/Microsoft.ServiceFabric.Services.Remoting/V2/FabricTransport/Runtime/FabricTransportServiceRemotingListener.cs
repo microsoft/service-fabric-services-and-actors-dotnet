@@ -125,7 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             svcExceptionConvertors.Add(new FabricExceptionConvertor());
             svcExceptionConvertors.Add(new SystemExceptionConvertor());
-            svcExceptionConvertors.Add(new ExceptionConversionHandler.DefaultExceptionConvertor());
+            svcExceptionConvertors.Add(new DefaultExceptionConvertor());
 
             this.transportMessageHandler = new FabricTransportMessageHandler(
                 serviceRemotingMessageHandler,

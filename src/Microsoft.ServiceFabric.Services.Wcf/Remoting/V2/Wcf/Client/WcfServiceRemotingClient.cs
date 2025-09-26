@@ -3,20 +3,19 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Globalization;
+using System.ServiceModel;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Globalization;
-    using System.ServiceModel;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
-
     internal class WcfServiceRemotingClient : IServiceRemotingClient
     {
         private ServiceRemotingMessageSerializersManager serializersManager;
@@ -60,7 +59,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// <summary>
         /// Gets or Sets the service endpoint to which the client is connected to.
         /// </summary>
-        /// <value><see cref="System.Fabric.ResolvedServiceEndpoint" /></value>
+        /// <value><see cref="ResolvedServiceEndpoint" /></value>
         public ResolvedServiceEndpoint Endpoint
         {
             get { return this.WcfClient.Endpoint; }
@@ -114,7 +113,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                     responseSerializer.Deserialize(incomingMsgBody);
 
                 // Create Response Message
-                return (IServiceRemotingResponseMessage)new ServiceRemotingResponseMessage(
+                return new ServiceRemotingResponseMessage(
                     header,
                     msgBody);
             }
@@ -129,7 +128,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 throw new ServiceException(remoteException.GetType().FullName, string.Format(
                     CultureInfo.InvariantCulture,
-                    Microsoft.ServiceFabric.Services.Wcf.SR.ErrorDeserializationFailure,
+                    Services.Wcf.SR.ErrorDeserializationFailure,
                     remoteException.ToString()));
             }
             catch (FaultException<RemoteException2> faultException)

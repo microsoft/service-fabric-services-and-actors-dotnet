@@ -3,27 +3,45 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml;
+using Microsoft.ServiceFabric.Services.Communication;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.IO;
-    using System.Runtime.Serialization;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-
     internal class ExceptionConversionHandler
     {
         private static readonly string TraceEventType = "ExceptionConversionHandler";
-        private IEnumerable<IExceptionConvertor> convertors;
-        private FabricTransportRemotingListenerSettings listenerSettings;
 
-        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingListenerSettings listenerSettings)
+        public static readonly int DefaultRemotingExceptionDepth = 2;
+        private IEnumerable<IExceptionConvertor> convertors;
+        private IExceptionSerializerSettings listenerSettings;
+
+        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, IExceptionSerializerSettings listenerSettings)
         {
             this.convertors = convertors;
             this.listenerSettings = listenerSettings;
+        }
+
+        public static ExceptionConversionHandler CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, IExceptionSerializerSettings settings)
+        {
+            if (settings == null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new SystemExceptionConvertor(),
+                new FabricExceptionConvertor(),
+                new DefaultExceptionConvertor()
+            };
+
+            return new ExceptionConversionHandler(convertors, settings);
         }
 
         public ServiceException ToServiceException(Exception originalException, int currentDepth)
@@ -122,41 +140,21 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
             }
         }
 
+        internal RemoteException2 BuildRemoteException(Exception exception)
+        {
+            ServiceException svcEx = this.ToServiceException(exception);
+            return this.ToRemoteException(svcEx);
+        }
+
         public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
         {
 #pragma warning disable 618
-            if (this.listenerSettings.ExceptionSerializationTechnique == FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter)
+            if (this.listenerSettings.ExceptionSerializationTechnique == ExceptionSerialization.BinaryFormatter)
                 return RemoteException.FromException(exception).Data;
 #pragma warning restore 618
 
-            ServiceException svcEx = this.ToServiceException(exception);
-            RemoteException2 remoteEx = this.ToRemoteException(svcEx);
+            RemoteException2 remoteEx = this.BuildRemoteException(exception);
             return this.SerializeRemoteException(remoteEx);
-        }
-
-        public class DefaultExceptionConvertor : IExceptionConvertor
-        {
-            public Exception[] GetInnerExceptions(Exception exception)
-            {
-               return exception.InnerException == null ? null : new Exception[] { exception.InnerException };
-            }
-
-            public bool TryConvertToServiceException(Exception originalException, out ServiceException serviceException)
-            {
-                serviceException = new ServiceException(originalException.GetType().FullName, originalException.Message);
-                serviceException.ActualExceptionStackTrace = originalException.StackTrace;
-                serviceException.ActualExceptionData = new Dictionary<string, string>()
-                {
-                    { "HResult", originalException.HResult.ToString() },
-                };
-
-                if (originalException is FabricException fabricEx)
-                {
-                    serviceException.ActualExceptionData.Add("FabricErrorCode", ((long)fabricEx.ErrorCode).ToString());
-                }
-
-                return true;
-            }
         }
     }
 }
