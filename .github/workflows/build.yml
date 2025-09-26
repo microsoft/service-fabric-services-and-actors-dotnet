@@ -20,6 +20,7 @@ jobs:
         shell: powershell
       - uses: actions/upload-artifact@master
         with:
+          name: build
           path: drop
 
   test-windows:
@@ -54,14 +55,7 @@ jobs:
       DROP_DIR: drop
       TEST_RESULT_DIR: drop/testresults
     steps:
-      - uses: actions/checkout@v1
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
-            9.0.x
+      - uses: actions/checkout@master
       - name: Create drop directories
         run: mkdir -p ${{ env.TEST_RESULT_DIR }}
       - name: Build Everything
