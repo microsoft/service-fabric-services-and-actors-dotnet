@@ -15,7 +15,6 @@ jobs:
   build-windows:
     name: Build Test (Windows)
     runs-on: windows-latest
-    # info about windows-latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
     env:
       DROP_DIR: drop
       TEST_RESULT_DIR: drop\testresults
@@ -44,7 +43,6 @@ jobs:
   build-linux:
     name: Build Test (Linux)
     runs-on: ubuntu-latest
-    # info about ubuntu-latest https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
     env:
       DROP_DIR: drop
       TEST_RESULT_DIR: drop/testresults
