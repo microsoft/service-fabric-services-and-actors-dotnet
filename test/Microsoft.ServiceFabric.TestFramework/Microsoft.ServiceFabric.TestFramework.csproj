@@ -14,6 +14,7 @@
     <PackageReference Include="xunit.assert" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src\Constants\Microsoft.ServiceFabric.Constants.csproj" />
     <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
   </ItemGroup>
 </Project>
