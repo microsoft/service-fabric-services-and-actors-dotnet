@@ -9,7 +9,6 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("FabActUtil" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Wcf" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Tests" + PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Tests" + TestKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.IntegrationTests" + PublicKey)]
 [assembly: InternalsVisibleTo("FabActTest.ClientWorkload" + TestKey)]
 [assembly: InternalsVisibleTo("FabActTest.ClientWorkload" + PublicKey)]
@@ -22,5 +21,4 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("ActorMigrationTestKvsActorService" + PublicKey)]
 [assembly: InternalsVisibleTo("ActorMigrationTestRcActorService" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.StateMigration.Tests" + PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.StateMigration.Tests" + TestKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Wcf.Tests" + PublicKey)]
