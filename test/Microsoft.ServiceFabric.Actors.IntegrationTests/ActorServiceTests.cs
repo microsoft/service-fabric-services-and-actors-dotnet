@@ -68,31 +68,38 @@ namespace Microsoft.ServiceFabric.Actors
 
             public class WhenReminderAreRegister : GetRemindersAsync
             {
-                protected readonly IActorStateProvider actorStateProviderWithReminders;
-                protected readonly List<ActorId> allActors;
                 protected readonly int numberOfActor;
                 protected readonly int numberOfReminderPerActor;
+                protected readonly List<ActorId> allActors;
 
                 public WhenReminderAreRegister()
                 {
                     var fuzzy = new RandomFuzz();
                     numberOfActor = fuzzy.Int32().Between(5, 10);
                     numberOfReminderPerActor = fuzzy.Int32().Between(10, 20);
-                    actorStateProviderWithReminders = new NullActorStateProvider();
                     allActors = new List<ActorId>();
 
                     for (int i = 0; i < numberOfActor; i++)
                     {
-                        var actorId = new ActorId($"Actor_{i}");
-                        allActors.Add(actorId);
+                        allActors.Add(new ActorId($"Actor_{i}"));
+                    }
+                }
 
+                protected IActorStateProvider CreateActorStateProviderWithReminders()
+                {
+                    IActorStateProvider actorStateProvider = new NullActorStateProvider();
+
+                    foreach (var actorId in allActors)
+                    {
                         for (int j = 0; j < numberOfReminderPerActor; j++)
                         {
                             var reminderMock = new Mock<IActorReminder>();
                             reminderMock.SetupGet(r => r.Name).Returns($"Reminder_{j}");
-                            actorStateProviderWithReminders.SaveReminderAsync(actorId, reminderMock.Object).Wait();
+                            actorStateProvider.SaveReminderAsync(actorId, reminderMock.Object).Wait();
                         }
                     }
+
+                    return actorStateProvider;
                 }
 
                 public class CancellationTokenIsNotNull : WhenReminderAreRegister
@@ -100,7 +107,8 @@ namespace Microsoft.ServiceFabric.Actors
                     [Fact]
                     public async Task ThrowsWhenCancellationTokenIsCanceled()
                     {
-                        IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
+                        var actorStateProvider = CreateActorStateProviderWithReminders();
+                        IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
                         var cts = new CancellationTokenSource();
                         cts.Cancel();
 
@@ -110,6 +118,12 @@ namespace Microsoft.ServiceFabric.Actors
 
                 public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
+                    protected readonly IActorStateProvider actorStateProviderWithReminders;
+
+                    public WhenNoChangesAreMadeToTheRemindersBetweenResults()
+                    {
+                        actorStateProviderWithReminders = CreateActorStateProviderWithReminders();
+                    }
 
                     public class WhenActorIdIsGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
                     {
@@ -200,12 +214,16 @@ namespace Microsoft.ServiceFabric.Actors
                         [Fact]
                         public void ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
+                            var actorStateProvider = CreateActorStateProviderWithReminders();
+                            // Test implementation here
                             Assert.True(true);
                         }
 
                         [Fact]
                         public void ReflectsChangesToRemindersInConsecutivePages()
                         {
+                            var actorStateProvider = CreateActorStateProviderWithReminders();
+                            // Test implementation here
                             Assert.True(true);
                         }
                     }
@@ -215,12 +233,16 @@ namespace Microsoft.ServiceFabric.Actors
                         [Fact]
                         public void ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
+                            var actorStateProvider = CreateActorStateProviderWithReminders();
+                            // Test implementation here
                             Assert.True(true);
                         }
 
                         [Fact]
                         public void ReflectsChangesToRemindersInConsecutivePages()
                         {
+                            var actorStateProvider = CreateActorStateProviderWithReminders();
+                            // Test implementation here
                             Assert.True(true);
                         }
                     }
@@ -231,10 +253,11 @@ namespace Microsoft.ServiceFabric.Actors
                     [Fact]
                     public void ReflectsChangesToActorsInConsecutivePages()
                     {
+                        var actorStateProvider = CreateActorStateProviderWithReminders();
+                        // Test implementation here
                         Assert.True(true);
                     }
                 }
-                
             }
             }
         }
