@@ -11,6 +11,9 @@ on:
     - develop
     - 'release_*'
 
+permissions:
+  contents: read
+
 env:
   DROP_DIR: drop
 
