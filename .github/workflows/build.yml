@@ -12,8 +12,8 @@ on:
     - 'release_*'
 
 jobs:
-  build:
-    name: Build Test
+  build-windows:
+    name: Build Test (Windows)
     runs-on: windows-latest
     # info about windows-latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
     env:
@@ -38,5 +38,33 @@ jobs:
       - name: upload artifacts
         uses: actions/upload-artifact@master
         with:
-          name: release_drop
+          name: release_drop_windows
+          path: ${{ env.DROP_DIR }}
+
+  build-linux:
+    name: Build Test (Linux)
+    runs-on: ubuntu-latest
+    # info about ubuntu-latest https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
+    env:
+      DROP_DIR: drop
+      TEST_RESULT_DIR: drop/testresults
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            9.0.x
+      - name: Create drop directories
+        run: mkdir -p ${{ env.TEST_RESULT_DIR }}
+      - name: Build Everything
+        run: dotnet build code.sln --configuration release
+      - name: Run Tests
+        run: dotnet test code.sln --configuration release --nologo --settings test/default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
+      - name: upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: release_drop_linux
           path: ${{ env.DROP_DIR }}
