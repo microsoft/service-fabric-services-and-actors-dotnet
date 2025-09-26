@@ -15,9 +15,12 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@master
       - run: dotnet build buildAll.proj
         shell: powershell
+      - uses: actions/upload-artifact@master
+        with:
+          path: drop
 
   test-windows:
     needs: build
