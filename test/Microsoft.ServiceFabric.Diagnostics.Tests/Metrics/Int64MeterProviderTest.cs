@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public CreateMeter()
             {
                 sut = new Int64MeterProvider(serviceContext);
-                systemDimensionsNames = typeof(Int64MeterProvider).Private().Field<IEnumerable<string>>().Value;
+                systemDimensionsNames = sut.Private().Field<IEnumerable<string>>().Value;
                 systemDimensionsValues = sut.Protected().Field<IEnumerable<string>>().Value;
                 sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
 

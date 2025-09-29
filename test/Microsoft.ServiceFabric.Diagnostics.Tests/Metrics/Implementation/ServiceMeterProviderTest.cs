@@ -36,14 +36,22 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var sut = new TestMeterProvider<int>(serviceContext);
 
-                var actualValues = (string[])sut.Protected().Field<IEnumerable<string>>().Value;
+                var actualSystemDimensionNames = (string[])sut.Private().Field<IEnumerable<string>>().Value;
+                var actualSystemDimensionValues = (string[])sut.Protected().Field<IEnumerable<string>>().Value;
 
-                Assert.Equal(serviceContext.ReplicaOrInstanceId.ToString(), actualValues[0]);
-                Assert.Equal(serviceContext.PartitionId.ToString(), actualValues[1]);
-                Assert.Equal(serviceContext.ServiceTypeName, actualValues[2]);
-                Assert.Equal(serviceContext.ServiceName.ToString(), actualValues[3]);
-                Assert.Equal(serviceContext.CodePackageActivationContext.ApplicationName, actualValues[4]);
-                Assert.Equal(serviceContext.CodePackageActivationContext.ApplicationTypeName, actualValues[5]);
+                Assert.Equal(serviceContext.ReplicaOrInstanceId.ToString(), actualSystemDimensionValues[0]);
+                Assert.Equal(serviceContext.PartitionId.ToString(), actualSystemDimensionValues[1]);
+                Assert.Equal(serviceContext.ServiceTypeName, actualSystemDimensionValues[2]);
+                Assert.Equal(serviceContext.ServiceName.ToString(), actualSystemDimensionValues[3]);
+                Assert.Equal(serviceContext.CodePackageActivationContext.ApplicationName, actualSystemDimensionValues[4]);
+                Assert.Equal(serviceContext.CodePackageActivationContext.ApplicationTypeName, actualSystemDimensionValues[5]);
+
+                Assert.Equal(nameof(ServiceContext.ReplicaOrInstanceId), actualSystemDimensionNames[0]);
+                Assert.Equal(nameof(ServiceContext.PartitionId), actualSystemDimensionNames[1]);
+                Assert.Equal(nameof(ServiceContext.ServiceTypeName), actualSystemDimensionNames[2]);
+                Assert.Equal(nameof(ServiceContext.ServiceName), actualSystemDimensionNames[3]);
+                Assert.Equal(nameof(ServiceContext.CodePackageActivationContext.ApplicationName), actualSystemDimensionNames[4]);
+                Assert.Equal(nameof(ServiceContext.CodePackageActivationContext.ApplicationTypeName), actualSystemDimensionNames[5]);
             }
 
             [Fact]
