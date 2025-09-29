@@ -18,8 +18,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <summary>
         /// Initializes a new instance of the <see cref="Int64MeterProvider"/> class.
         /// </summary>
-        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default.</param>
-        internal Int64MeterProvider(ServiceContext serviceContext) : base(serviceContext) { }
+        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default. 
+        /// If no ServiceContext is provided, no system dimensions will be emited.</param>
+        internal Int64MeterProvider(ServiceContext serviceContext = null) : base(serviceContext) { }
 
         /// <summary>
         /// Creates a meter for recording long integer telemetry values without additional dimensions.

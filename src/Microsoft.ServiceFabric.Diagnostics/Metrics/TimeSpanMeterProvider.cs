@@ -18,8 +18,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeSpanMeterProvider"/> class.
         /// </summary>
-        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default.</param>
-        internal TimeSpanMeterProvider(ServiceContext serviceContext) : base(serviceContext) { }
+        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default. 
+        /// If no ServiceContext is provided, no system dimensions will be emited.</param>
+        internal TimeSpanMeterProvider(ServiceContext serviceContext = null) : base(serviceContext) { }
 
         /// <summary>
         /// Creates a meter for recording timespan telemetry values without additional dimensions.

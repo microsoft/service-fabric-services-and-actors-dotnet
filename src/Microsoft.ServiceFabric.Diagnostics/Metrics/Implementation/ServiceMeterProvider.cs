@@ -18,34 +18,37 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         private static Func<IFabricMeterProvider> createFabricMeterProvider = NativeTelemetry.FabricCreateMeterProvider;
 
-        protected ServiceMeterProvider(ServiceContext serviceContext)
+        protected ServiceMeterProvider(ServiceContext serviceContext = null)
         {
-            if (serviceContext == null)
-            {
-                throw new ArgumentNullException(nameof(serviceContext), "Service context cannot be null.");
-            }
-
             fabricMeterProvider = createFabricMeterProvider();
 
-            this.systemDimensionNames = new[]
+            if (serviceContext != null)
             {
-                nameof(ServiceContext.ReplicaOrInstanceId),
-                nameof(ServiceContext.PartitionId),
-                nameof(ServiceContext.ServiceTypeName),
-                nameof(ServiceContext.ServiceName),
-                nameof(ServiceContext.CodePackageActivationContext.ApplicationName),
-                nameof(ServiceContext.CodePackageActivationContext.ApplicationTypeName)
-            };
+                this.systemDimensionNames = new[]
+                {
+                    nameof(ServiceContext.ReplicaOrInstanceId),
+                    nameof(ServiceContext.PartitionId),
+                    nameof(ServiceContext.ServiceTypeName),
+                    nameof(ServiceContext.ServiceName),
+                    nameof(ServiceContext.CodePackageActivationContext.ApplicationName),
+                    nameof(ServiceContext.CodePackageActivationContext.ApplicationTypeName)
+                };
 
-            this.systemDimensionValues = new[]
+                this.systemDimensionValues = new[]
+                {
+                    serviceContext.ReplicaOrInstanceId.ToString(),
+                    serviceContext.PartitionId.ToString(),
+                    serviceContext.ServiceTypeName,
+                    serviceContext.ServiceName.ToString(),
+                    serviceContext.CodePackageActivationContext.ApplicationName,
+                    serviceContext.CodePackageActivationContext.ApplicationTypeName
+                };
+            }
+            else
             {
-                serviceContext.ReplicaOrInstanceId.ToString(),
-                serviceContext.PartitionId.ToString(),
-                serviceContext.ServiceTypeName,
-                serviceContext.ServiceName.ToString(),
-                serviceContext.CodePackageActivationContext.ApplicationName,
-                serviceContext.CodePackageActivationContext.ApplicationTypeName
-            };
+                this.systemDimensionNames = Array.Empty<string>();
+                this.systemDimensionValues = Array.Empty<string>();
+            }
         }
 
         protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IEnumerable<string> additionalDimensions)
