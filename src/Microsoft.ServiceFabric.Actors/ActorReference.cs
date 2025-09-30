@@ -6,7 +6,6 @@
 using System;
 using System.Runtime.Serialization;
 using Microsoft.ServiceFabric.Actors.Client;
-using Microsoft.ServiceFabric.Actors.Remoting;
 using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace Microsoft.ServiceFabric.Actors
@@ -14,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors
     /// <summary>
     /// Encapsulation of a reference to an actor for serialization.
     /// </summary>
-    [DataContract(Name = "ActorReference", Namespace = Constants.Namespace)]
+    [DataContract(Name = "ActorReference", Namespace = Remoting.Constants.Namespace)]
     [Serializable]
     public sealed class ActorReference : IActorReference
     {

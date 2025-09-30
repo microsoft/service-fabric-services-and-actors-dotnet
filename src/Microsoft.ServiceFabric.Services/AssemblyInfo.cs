@@ -1,0 +1,23 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
+using System.Runtime.CompilerServices;
+using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
+
+[assembly: InternalsVisibleTo("FabActUtil" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Remoting" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Wcf" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Tests" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.IntegrationTests" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Tests" + PublicKey)]
+[assembly: InternalsVisibleTo("PresenceLoadDriverLib" + TestKey)]
+[assembly: InternalsVisibleTo("FabActTest.ClientWorkload" + TestKey)]
+[assembly: InternalsVisibleTo("FabActTest.ClientWorkload" + PublicKey)]
+[assembly: InternalsVisibleTo("FabSrvStateManager.Test" + TestKey)]
+[assembly: InternalsVisibleTo("EventsValidationTest" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.KVSToRCMigration" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.StateMigration.Tests" + PublicKey)]
+[assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]
