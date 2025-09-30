@@ -2,6 +2,7 @@
   <PropertyGroup>
     <ProjectGuid>{1BDC4681-FDBA-4E55-A247-5F779627A4D7}</ProjectGuid>
     <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
@@ -9,7 +10,7 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

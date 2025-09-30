@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{63B58D31-66BB-4879-B4F1-0969FA3F4464}</ProjectGuid>
-    <TargetFrameworks>net9.0;net462</TargetFrameworks>
+    <TargetFrameworks>net9.0;net472</TargetFrameworks>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
@@ -11,7 +12,7 @@
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,10 +22,10 @@
     <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
     <ProjectReference Include="$(RepoRoot)test\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Compile Remove="**\*.cs" />
     <Compile Include="ActorEventSourceTest.cs" />
     <Compile Include="ActorRemotingProviderAttributeTest.cs" />
-    <Compile Include="AssemblyAttributes.cs" />
+    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
 </Project>

@@ -5,16 +5,12 @@
 
 using System;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Services
 {
     public sealed class ServiceEventSourceTest: IDisposable
     {
-        readonly EventSourceTest<ServiceEventSource> test;
-
-        public ServiceEventSourceTest(ITestOutputHelper output) =>
-            test = new EventSourceTest<ServiceEventSource>(output);
+        readonly EventSourceTest<ServiceEventSource> test = new EventSourceTest<ServiceEventSource>();
 
         public void Dispose() =>
             test.Dispose();

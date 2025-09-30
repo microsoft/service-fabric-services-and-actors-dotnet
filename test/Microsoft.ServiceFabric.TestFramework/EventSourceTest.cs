@@ -15,7 +15,6 @@ using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric
 {
@@ -38,10 +37,8 @@ namespace Microsoft.ServiceFabric
         /// </summary>
         internal EventWrittenEventArgs Event { get; private set; }
 
-        internal EventSourceTest(ITestOutputHelper output)
+        internal EventSourceTest()
         {
-            this.output = output ?? throw new ArgumentNullException(nameof(output));
-
             // Dispose existing singleton instance to allow the test instance emit events
             singleton.Value.Dispose();
 
@@ -116,8 +113,8 @@ namespace Microsoft.ServiceFabric
             string manifest = EventSource.GenerateManifest(type, type.Assembly.Location);
             string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(type.Assembly.Location), Instance.Name), "man");
             File.WriteAllText(manifestFile, manifest);
-            output.WriteLine("To register generated manifest for ETL tools, run");
-            output.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
+            Console.WriteLine("To register generated manifest for ETL tools, run");
+            Console.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
         }
 
         internal ITextEventSourceTest ITextEventSource =>
@@ -193,8 +190,6 @@ namespace Microsoft.ServiceFabric
         readonly Property<TEventSource> singleton = typeof(TEventSource).Property<TEventSource>();
 
         readonly EventListener listener = new Mock<EventListener>() { CallBase = true }.Object;
-
-        readonly ITestOutputHelper output;
 
         void EnableEventsInServiceFabricConfiguration(EventLevel level, EventKeywords keywords)
         {

@@ -3,43 +3,28 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
-{
-    using System;
-    using System.Fabric;
-    using System.Numerics;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using Microsoft.ServiceFabric.Actors;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Moq;
-    using Xunit;
+using System;
+using System.Fabric;
+using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.ServiceFabric.Actors.Tests;
+using Xunit;
 
-    /// <summary>
-    /// Class containing tests for ActorConcurrencyLock.
-    /// </summary>
+namespace Microsoft.ServiceFabric.Actors.Runtime
+{
     public class ActorConcurrencyLockTests
     {
         private static string currentContext = Guid.Empty.ToString();
 
         private delegate Task<bool> DirtyCallback(Actor actor);
 
-        /// <summary>
-        /// Interface for DummyActor used for tests.
-        /// </summary>
         private interface IDummyActor : IActor
         {
-            /// <summary>
-            /// Actor Method for test.
-            /// </summary>
-            /// <returns>Task with the result.</returns>
             Task<string> Greetings();
         }
 
-        /// <summary>
-        /// Verifies usage of ReentrancyGuard.
-        /// </summary>
         [Fact]
         public async Task VerifyReentrants()
         {
@@ -49,18 +34,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             var tasks = new Task[1];
             for (var i = 0; i < 1; ++i)
             {
-                tasks[i] = Task.Run(() =>
-                {
-                    RunTest(guard);
-                });
+                tasks[i] = Task.Run(() => RunTest(guard), TestContext.Current.CancellationToken);
             }
 
             await Task.WhenAll(tasks);
         }
 
-        /// <summary>
-        /// VerifyDirtyCallbacks test.
-        /// </summary>
         [Fact]
         public async Task VerifyDirtyCallbacks()
         {
@@ -82,9 +61,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             RunTest(guard);
         }
 
-        /// <summary>
-        /// Tests Releasing context with a different call context.
-        /// </summary>
         [Fact]
         public async Task VerifyInvalidContextRelease()
         {
@@ -103,9 +79,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             guard.Test_CurrentCount.Should().Be(0);
         }
 
-        /// <summary>
-        /// Tests ActorReentrancyMode.Disallowed
-        /// </summary>
         [Fact]
         public async Task ReentrancyDisallowedTest()
         {
@@ -156,9 +129,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             return guard;
         }
 
-        /// <summary>
-        /// DummyActor used for tests.
-        /// </summary>
         private class DummyActor : Actor, IDummyActor
         {
             public DummyActor()

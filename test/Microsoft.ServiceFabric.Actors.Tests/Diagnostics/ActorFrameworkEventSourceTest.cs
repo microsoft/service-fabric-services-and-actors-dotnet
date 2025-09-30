@@ -1,15 +1,9 @@
 using System;
 using System.Diagnostics.Tracing;
 using System.Fabric;
-using System.IO;
-using System.Runtime.InteropServices;
 using Fuzzy;
-using Inspector;
 using Microsoft.ServiceFabric.Actors.Tests;
-using Microsoft.ServiceFabric.Diagnostics.Tracing;
-using Moq;
 using Xunit;
-using Xunit.Abstractions;
 
 using ActorFrameworkKeywords = Microsoft.ServiceFabric.Actors.Diagnostics.ActorFrameworkEventSource.Keywords;
 
@@ -17,13 +11,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     public sealed class ActorFrameworkEventSourceTest : IDisposable
     {
-        readonly EventSourceTest<ActorFrameworkEventSource> test;
+        readonly EventSourceTest<ActorFrameworkEventSource> test = new EventSourceTest<ActorFrameworkEventSource>();
 
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
-
-        public ActorFrameworkEventSourceTest(ITestOutputHelper output) =>
-            test = new EventSourceTest<ActorFrameworkEventSource>(output);
 
         public void Dispose() =>
             test.Dispose();
