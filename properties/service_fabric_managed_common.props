@@ -9,6 +9,8 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn></NoWarn>
     <Platforms>AnyCPU</Platforms>
+    <!-- Temporarily disable platform warnings until WindowsFabric assemblies are changed from net8.0-windows to net8.0 -->
+    <NoWarn>CA1416</NoWarn>
   </PropertyGroup>
 
   <!-- Assembly name, title and documentation -->
