@@ -10,16 +10,17 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
-    /// Implementation of <see cref="ServiceMeterProvider{TValueType}"/> for long integer metrics.
+    /// Implementation of <see cref="MeterProvider{TValueType}"/> for long integer metrics.
     /// Creates meters for recording long integer telemetry values with various dimension configurations.
     /// </summary>
-    sealed class Int64MeterProvider : ServiceMeterProvider<long>
+    sealed class Int64MeterProvider : MeterProvider<long>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Int64MeterProvider"/> class.
         /// </summary>
-        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default.</param>
-        internal Int64MeterProvider(ServiceContext serviceContext) : base(serviceContext) { }
+        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default. 
+        /// If no ServiceContext is provided, no system dimensions will be emitted.</param>
+        internal Int64MeterProvider(ServiceContext serviceContext = null) : base(serviceContext) { }
 
         /// <summary>
         /// Creates a meter for recording long integer telemetry values without additional dimensions.

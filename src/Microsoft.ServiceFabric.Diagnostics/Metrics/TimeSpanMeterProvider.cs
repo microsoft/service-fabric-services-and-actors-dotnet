@@ -10,16 +10,17 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
-    /// Implementation of <see cref="ServiceMeterProvider{TValueType}"/> for timespan metrics.
+    /// Implementation of <see cref="MeterProvider{TValueType}"/> for timespan metrics.
     /// Creates meters for recording timespan telemetry values with various dimension configurations.
     /// </summary>
-    sealed class TimeSpanMeterProvider : ServiceMeterProvider<TimeSpan>
+    sealed class TimeSpanMeterProvider : MeterProvider<TimeSpan>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeSpanMeterProvider"/> class.
         /// </summary>
-        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default.</param>
-        internal TimeSpanMeterProvider(ServiceContext serviceContext) : base(serviceContext) { }
+        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default. 
+        /// If no ServiceContext is provided, no system dimensions will be emitted.</param>
+        internal TimeSpanMeterProvider(ServiceContext serviceContext = null) : base(serviceContext) { }
 
         /// <summary>
         /// Creates a meter for recording timespan telemetry values without additional dimensions.

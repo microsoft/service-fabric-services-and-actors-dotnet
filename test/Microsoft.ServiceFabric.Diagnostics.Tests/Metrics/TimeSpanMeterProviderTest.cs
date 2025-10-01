@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         public TimeSpanMeterProviderTest()
         {
-            typeof(ServiceMeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
+            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
         }
 
         public class CreateMeter : TimeSpanMeterProviderTest
@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             public CreateMeter()
             {
                 sut = new TimeSpanMeterProvider(serviceContext);
-                systemDimensionsNames = typeof(TimeSpanMeterProvider).Private().Field<IEnumerable<string>>().Value;
+                systemDimensionsNames = sut.Private().Field<IEnumerable<string>>().Value;
                 systemDimensionsValues = sut.Protected().Field<IEnumerable<string>>().Value;
                 sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
 
