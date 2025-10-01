@@ -7,4 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" />
+  </ItemGroup>
 </Project>

@@ -3,23 +3,25 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Fabric.Common;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Query;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Fabric.Common;
-    using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Serialization;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Query;
-    using Microsoft.ServiceFabric.Data;
     using ActorStateDataWrapper = VolatileActorStateTable<
         VolatileActorStateProvider.ActorStateType,
         string,
@@ -28,7 +30,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         VolatileActorStateProvider.ActorStateType,
         string,
         VolatileActorStateProvider.ActorStateData>;
-    using SR = Microsoft.ServiceFabric.Actors.SR;
 
     /// <summary>
     /// Provides an implementation of <see cref="IActorStateProvider"/> where actor state is kept in-memory and is volatile.

@@ -48,6 +48,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing.Writer
             get { return this.level; }
         }
 
+        public EventKeywords Keywords
+        {
+            get { return this.keywords; }
+        }
+
         internal void UpdateSinkEnabledStatus()
         {
             this.filterState = this.configMgr.GetEventEnabledStatus(this.level, this.keywords, this.eventName);

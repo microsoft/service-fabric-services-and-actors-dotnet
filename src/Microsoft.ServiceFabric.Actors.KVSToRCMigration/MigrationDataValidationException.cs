@@ -3,12 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
-    using System;
-    using System.Fabric;
-    using System.Runtime.Serialization;
-
     [Serializable]
     internal sealed class MigrationDataValidationException : FabricException
     {
@@ -24,11 +23,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
         public MigrationDataValidationException(string message, Exception inner)
             : base(message, inner)
-        {
-        }
-
-        private MigrationDataValidationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

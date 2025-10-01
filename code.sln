@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
@@ -24,25 +23,29 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A0BD3F34-AEC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{DEC12940-3D38-4526-9157-27CB8BD23D3D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unittests", "unittests", "{BB93122C-21C5-4BB8-B385-74FC423D6027}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Tests", "test\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj", "{63B58D31-66BB-4879-B4F1-0969FA3F4464}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Tests", "test\unittests\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj", "{63B58D31-66BB-4879-B4F1-0969FA3F4464}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting.Tests", "test\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj", "{AE4034AC-27BC-43B8-9176-068B4794E25E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Remoting.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj", "{AE4034AC-27BC-43B8-9176-068B4794E25E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Services.Tests", "test\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj", "{ECB3825D-B309-4C76-A20D-76544459F611}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.KVSToRCMigration", "src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration.csproj", "{B5E3B9D7-E91E-4B76-959D-D418E973FCAF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.StateMigration.Tests", "test\unittests\Microsoft.ServiceFabric.Actors.StateMigration.Tests\Microsoft.ServiceFabric.Actors.StateMigration.Tests.csproj", "{1BDC4681-FDBA-4E55-A247-5F779627A4D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.StateMigration.Tests", "test\Microsoft.ServiceFabric.Actors.StateMigration.Tests\Microsoft.ServiceFabric.Actors.StateMigration.Tests.csproj", "{1BDC4681-FDBA-4E55-A247-5F779627A4D7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Diagnostics", "src\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj", "{28252888-7940-97DE-B914-8F1318C8BD83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Diagnostics.Tests", "test\unittests\Microsoft.ServiceFabric.Diagnostics.Tests\Microsoft.ServiceFabric.Diagnostics.Tests.csproj", "{B91993CC-B3CC-4B6F-9474-E582B8505C12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Diagnostics.Tests", "test\Microsoft.ServiceFabric.Diagnostics.Tests\Microsoft.ServiceFabric.Diagnostics.Tests.csproj", "{B91993CC-B3CC-4B6F-9474-E582B8505C12}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.TestFramework", "test\unittests\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj", "{B8F12A3E-4C5D-4F6A-8B7C-9D1E2F3A4B5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.TestFramework", "test\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj", "{B8F12A3E-4C5D-4F6A-8B7C-9D1E2F3A4B5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Wcf.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Wcf.Tests\Microsoft.ServiceFabric.Services.Wcf.Tests.csproj", "{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Wcf.Tests", "test\Microsoft.ServiceFabric.Services.Wcf.Tests\Microsoft.ServiceFabric.Services.Wcf.Tests.csproj", "{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Wcf.Tests", "test\Microsoft.ServiceFabric.Actors.Wcf.Tests\Microsoft.ServiceFabric.Actors.Wcf.Tests.csproj", "{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.IntegrationTests", "test\Microsoft.ServiceFabric.Actors.IntegrationTests\Microsoft.ServiceFabric.Actors.IntegrationTests.csproj", "{788378DE-D58E-3914-CE90-3498F7365C4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Constants", "src\Constants\Microsoft.ServiceFabric.Constants.csproj", "{3AE63740-3B20-8145-DE79-13F96F39AA49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -172,6 +175,30 @@ Global
 		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}.Release|x64.ActiveCfg = Release|Any CPU
 		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}.Release|x64.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|x64.Build.0 = Release|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Debug|x64.Build.0 = Debug|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Release|x64.ActiveCfg = Release|Any CPU
+		{788378DE-D58E-3914-CE90-3498F7365C4F}.Release|x64.Build.0 = Release|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Debug|x64.Build.0 = Debug|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Release|x64.ActiveCfg = Release|Any CPU
+		{3AE63740-3B20-8145-DE79-13F96F39AA49}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -183,16 +210,18 @@ Global
 		{014D5847-39F5-4660-B385-82EDFBA06CD9} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
 		{BA2E8FE4-2970-40D4-BA55-5415E84C7B50} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
 		{F6E091C3-9136-4058-91CF-57CDF383DF74} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
-		{BB93122C-21C5-4BB8-B385-74FC423D6027} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
-		{63B58D31-66BB-4879-B4F1-0969FA3F4464} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
-		{AE4034AC-27BC-43B8-9176-068B4794E25E} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
-		{ECB3825D-B309-4C76-A20D-76544459F611} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{63B58D31-66BB-4879-B4F1-0969FA3F4464} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{AE4034AC-27BC-43B8-9176-068B4794E25E} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{ECB3825D-B309-4C76-A20D-76544459F611} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
 		{B5E3B9D7-E91E-4B76-959D-D418E973FCAF} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
-		{1BDC4681-FDBA-4E55-A247-5F779627A4D7} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{1BDC4681-FDBA-4E55-A247-5F779627A4D7} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
 		{28252888-7940-97DE-B914-8F1318C8BD83} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
-		{B91993CC-B3CC-4B6F-9474-E582B8505C12} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
-		{B8F12A3E-4C5D-4F6A-8B7C-9D1E2F3A4B5C} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
-		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{B91993CC-B3CC-4B6F-9474-E582B8505C12} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{B8F12A3E-4C5D-4F6A-8B7C-9D1E2F3A4B5C} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{788378DE-D58E-3914-CE90-3498F7365C4F} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
+		{3AE63740-3B20-8145-DE79-13F96F39AA49} = {A0BD3F34-AEC0-40FE-9CB0-60A892F5B713}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8CC7D7F7-CBD9-428B-A190-7A4D56C920FE}
