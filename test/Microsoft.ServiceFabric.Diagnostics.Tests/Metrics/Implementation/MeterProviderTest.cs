@@ -13,22 +13,22 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    public class ServiceMeterProviderTest
+    public class MeterProviderTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         readonly ServiceContext serviceContext = fuzzy.ServiceContext();
 
-        public class Constructor : ServiceMeterProviderTest, IDisposable
+        public class Constructor : MeterProviderTest, IDisposable
         {
             public Constructor()
             {
-                typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
+                typeof(MeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
             }
 
             public void Dispose()
             {
-                typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
+                typeof(MeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
             }
 
             [Fact]
@@ -67,18 +67,18 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
         }
 
-        public class Class : ServiceMeterProviderTest
+        public class Class : MeterProviderTest
         {
             [Fact]
             public void HasFabricCreateMeterProviderFunc()
             {
                 Func<IFabricMeterProvider> expected = typeof(NativeTelemetry).Method<Func<IFabricMeterProvider>>(nameof(NativeTelemetry.FabricCreateMeterProvider));
-                Func<IFabricMeterProvider> actual = typeof(ServiceMeterProvider<int>).Field<Func<IFabricMeterProvider>>();
+                Func<IFabricMeterProvider> actual = typeof(MeterProvider<int>).Field<Func<IFabricMeterProvider>>();
                 Assert.Equal(expected, actual);
             }
         }
 
-        class TestMeterProvider<TValueType> : ServiceMeterProvider<TValueType>
+        class TestMeterProvider<TValueType> : MeterProvider<TValueType>
         {
             public TestMeterProvider(ServiceContext serviceContext)
                 : base(serviceContext)

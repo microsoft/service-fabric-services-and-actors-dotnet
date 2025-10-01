@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    abstract class ServiceMeterProvider<TValueType> : IMeterProvider<TValueType>
+    abstract class MeterProvider<TValueType> : IMeterProvider<TValueType>
     {
         readonly IEnumerable<string> systemDimensionNames;
         protected readonly IEnumerable<string> systemDimensionValues;
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         private static Func<IFabricMeterProvider> createFabricMeterProvider = NativeTelemetry.FabricCreateMeterProvider;
 
-        protected ServiceMeterProvider(ServiceContext serviceContext = null)
+        protected MeterProvider(ServiceContext serviceContext = null)
         {
             fabricMeterProvider = createFabricMeterProvider();
 

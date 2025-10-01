@@ -10,10 +10,10 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
-    /// Implementation of <see cref="ServiceMeterProvider{TValueType}"/> for long integer metrics.
+    /// Implementation of <see cref="MeterProvider{TValueType}"/> for long integer metrics.
     /// Creates meters for recording long integer telemetry values with various dimension configurations.
     /// </summary>
-    sealed class Int64MeterProvider : ServiceMeterProvider<long>
+    sealed class Int64MeterProvider : MeterProvider<long>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Int64MeterProvider"/> class.

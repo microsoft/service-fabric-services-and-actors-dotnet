@@ -10,10 +10,10 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
-    /// Implementation of <see cref="ServiceMeterProvider{TValueType}"/> for timespan metrics.
+    /// Implementation of <see cref="MeterProvider{TValueType}"/> for timespan metrics.
     /// Creates meters for recording timespan telemetry values with various dimension configurations.
     /// </summary>
-    sealed class TimeSpanMeterProvider : ServiceMeterProvider<TimeSpan>
+    sealed class TimeSpanMeterProvider : MeterProvider<TimeSpan>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TimeSpanMeterProvider"/> class.

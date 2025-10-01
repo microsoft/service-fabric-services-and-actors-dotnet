@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         public Int64MeterProviderTest()
         {
-            typeof(ServiceMeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
+            typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
         }
 
         public class CreateMeter : Int64MeterProviderTest

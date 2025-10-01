@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
         public TimeSpanMeterProviderTest()
         {
-            typeof(ServiceMeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
+            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
         }
 
         public class CreateMeter : TimeSpanMeterProviderTest
