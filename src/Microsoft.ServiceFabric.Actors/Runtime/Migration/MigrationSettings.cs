@@ -2,14 +2,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+using System;
+using System.Fabric;
+using System.Runtime.Serialization;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
-    using System;
-    using System.Fabric;
-    using System.Runtime.Serialization;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
-
     [DataContract]
     internal class MigrationSettings
     {

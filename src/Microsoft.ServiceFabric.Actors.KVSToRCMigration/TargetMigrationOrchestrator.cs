@@ -3,26 +3,27 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Fabric.Description;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions;
+using Microsoft.ServiceFabric.Actors.Migration;
+using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Actors.Runtime.Migration;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
+using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
+
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Fabric.Description;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions;
-    using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-    using Microsoft.ServiceFabric.Data.Collections;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
-    using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
-
     /// <summary>
     /// Orchestrator for Target(RC based) service.
     /// </summary>
@@ -104,7 +105,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                             this.MigrationSettings.SourceServiceUri,
                             new ServicePartitionKey(partitionInformation.LowKey),
                             TargetReplicaSelector.PrimaryReplica,
-                            Constants.MigrationListenerName);
+                            Runtime.Migration.Constants.MigrationListenerName);
                 }
 
                 return this.partitionClient;

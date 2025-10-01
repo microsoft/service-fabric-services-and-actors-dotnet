@@ -2,16 +2,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
+using System;
+using System.Fabric;
+using System.Reflection;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
-    using System;
-    using System.Fabric;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Generator;
-
     internal static class MigrationReflectionHelper
     {
         private static readonly string TraceType = typeof(MigrationReflectionHelper).Name;

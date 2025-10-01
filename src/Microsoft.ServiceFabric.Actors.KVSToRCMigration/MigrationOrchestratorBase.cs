@@ -3,23 +3,24 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Migration;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Actors.Runtime.Migration;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Client;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
-    using System;
-    using System.Fabric;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-    using Microsoft.ServiceFabric.Services.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-
     /// <summary>
     /// Base class for migration orchestration.
     /// </summary>

@@ -3,13 +3,14 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Globalization;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     internal class ActorReminder : IActorReminder
     {
         private const string TraceType = "ActorReminder";

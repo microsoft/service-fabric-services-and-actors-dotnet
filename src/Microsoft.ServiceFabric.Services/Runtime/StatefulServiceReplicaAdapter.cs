@@ -10,6 +10,7 @@ using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Communication;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
