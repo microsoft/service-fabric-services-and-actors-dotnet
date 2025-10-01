@@ -46,8 +46,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
             else
             {
-                this.systemDimensionNames = Array.Empty<string>();
-                this.systemDimensionValues = Array.Empty<string>();
+                this.systemDimensionNames = Enumerable.Empty<string>();
+                this.systemDimensionValues = Enumerable.Empty<string>();
             }
         }
 
