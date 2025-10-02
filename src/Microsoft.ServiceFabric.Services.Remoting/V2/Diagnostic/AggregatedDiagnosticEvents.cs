@@ -23,49 +23,49 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRemotingRequestBegin()
         {
-            foreach (IDiagnosticEvents ds in diagnosticEvents)
+            foreach (IDiagnosticEvents diagnosticEvent in diagnosticEvents)
             {
-                ds.OnRemotingRequestBegin();
+                diagnosticEvent.OnRemotingRequestBegin();
             }
         }
 
         public void OnRemotingRequestEnd(DateTime startTime)
         {
-            foreach (IDiagnosticEvents ds in diagnosticEvents)
+            foreach (IDiagnosticEvents diagnosticEvent in diagnosticEvents)
             {
-                ds.OnRemotingRequestEnd(startTime);
+                diagnosticEvent.OnRemotingRequestEnd(startTime);
             }
         }
 
         public void OnRequestResponseBegin()
         {
-            foreach (IDiagnosticEvents ds in diagnosticEvents)
+            foreach (IDiagnosticEvents diagnosticEvent in diagnosticEvents)
             {
-                ds.OnRequestResponseBegin();
+                diagnosticEvent.OnRequestResponseBegin();
             }
         }
 
         public void OnRequestResponseEnd(DateTime startTime)
         {
-            foreach (IDiagnosticEvents ds in diagnosticEvents)
+            foreach (IDiagnosticEvents diagnosticEvent in diagnosticEvents)
             {
-                ds.OnRequestResponseEnd(startTime);
+                diagnosticEvent.OnRequestResponseEnd(startTime);
             }
         }
 
         public void OnCreateTransportMessageBegin()
         {
-            foreach (IDiagnosticEvents ds in diagnosticEvents)
+            foreach (IDiagnosticEvents diagnosticEvent in diagnosticEvents)
             {
-                ds.OnCreateTransportMessageBegin();
+                diagnosticEvent.OnCreateTransportMessageBegin();
             }
         }
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
         {
-            foreach (IDiagnosticEvents ds in diagnosticEvents)
+            foreach (IDiagnosticEvents diagnosticEvent in diagnosticEvents)
             {
-                ds.OnCreateTransportMessageEnd(startTime);
+                diagnosticEvent.OnCreateTransportMessageEnd(startTime);
             }
         }
     }
