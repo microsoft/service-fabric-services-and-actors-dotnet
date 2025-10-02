@@ -153,7 +153,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                                 do
                                 {
-                                    var page = await actorService.GetRemindersAsync(actorId, continuationToken, default);
+                                    var page = await actorService.GetRemindersAsync(actorId, continuationToken, TestContext.Current.CancellationToken);
                                     continuationToken = page.ContinuationToken;
 
                                     foreach (var kvp in page.Items)
@@ -195,7 +195,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                             do
                             {
-                                var page = await actorService.GetRemindersAsync(null, continuationToken, default);
+                                var page = await actorService.GetRemindersAsync(null, continuationToken, TestContext.Current.CancellationToken);
                                 continuationToken = page.ContinuationToken;
 
                                 foreach (var kvp in page.Items)
@@ -232,10 +232,10 @@ namespace Microsoft.ServiceFabric.Actors
                             var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
                             var targetActorId = fuzzy.Element(allActors);
 
-                            var page = await actorService.GetRemindersAsync(targetActorId, null, default);
+                            var page = await actorService.GetRemindersAsync(targetActorId, null, TestContext.Current.CancellationToken);
                             var allQueriedReminders = page.Items.First().Value.Select(r => r.Name); // Only one key-value pair is returned when querying for a specific actor
                             var targetReminderState = fuzzy.Element(allQueriedReminders);
-                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminderState);
+                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminderState, TestContext.Current.CancellationToken);
 
                             Assert.Equal(expectedRemindersPerPage, allQueriedReminders.Count());
                             Assert.Contains(targetReminderState, allQueriedReminders);
@@ -256,7 +256,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                             do
                             {
-                                var page = await actorService.GetRemindersAsync(targetActorId, continuationToken, default);
+                                var page = await actorService.GetRemindersAsync(targetActorId, continuationToken, TestContext.Current.CancellationToken);
                                 continuationToken = page.ContinuationToken;
 
                                 IEnumerable<ActorReminderState> queriedReminders = page.Items.First().Value;
@@ -272,8 +272,8 @@ namespace Microsoft.ServiceFabric.Actors
                                     var newReminderMock = new Mock<IActorReminder>();
                                     newReminderMock.Setup(r => r.Name).Returns("Reminder_new");
 
-                                    await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder);
-                                    await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object);
+                                    await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
+                                    await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object, TestContext.Current.CancellationToken);
 
                                     firstPage = false;
                                 }
@@ -297,7 +297,7 @@ namespace Microsoft.ServiceFabric.Actors
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
                             var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
 
-                            var page = await actorService.GetRemindersAsync(null, null, default);
+                            var page = await actorService.GetRemindersAsync(null, null, TestContext.Current.CancellationToken);
                             IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
 
                             var targetActorId = fuzzy.Element(queriedActors);
@@ -307,7 +307,7 @@ namespace Microsoft.ServiceFabric.Actors
                                 .Select(reminder => reminder.Name);
                             var targetReminder = fuzzy.Element(namesOfAllQueriedReminders);
                             
-                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder);
+                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
 
                             Assert.Equal(expectedRemindersPerPage, namesOfAllQueriedReminders.Count());
                             Assert.Contains(targetReminder, namesOfAllQueriedReminders);
@@ -328,7 +328,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                             do
                             {
-                                var page = await actorService.GetRemindersAsync(null, continuationToken, default);
+                                var page = await actorService.GetRemindersAsync(null, continuationToken, TestContext.Current.CancellationToken);
                                 continuationToken = page.ContinuationToken;
 
                                 IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
@@ -346,8 +346,8 @@ namespace Microsoft.ServiceFabric.Actors
                                     var newReminderMock = new Mock<IActorReminder>();
                                     newReminderMock.Setup(r => r.Name).Returns("Reminder_new");
 
-                                    await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder);
-                                    await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object);
+                                    await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
+                                    await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object, TestContext.Current.CancellationToken);
 
                                     firstPage = false;
                                 }
@@ -387,7 +387,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                         do
                         {
-                            var page = await actorService.GetRemindersAsync(null, continuationToken, default);
+                            var page = await actorService.GetRemindersAsync(null, continuationToken, TestContext.Current.CancellationToken);
                             continuationToken = page.ContinuationToken;
 
                             IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
@@ -407,7 +407,7 @@ namespace Microsoft.ServiceFabric.Actors
                                         .Sum(kvp => kvp.Value.Count);
                                 }
 
-                                await actorService.DeleteActorAsync(targetActorId, default);
+                                await actorService.DeleteActorAsync(targetActorId, TestContext.Current.CancellationToken);
                                 firstPage = false;
                             }
 
