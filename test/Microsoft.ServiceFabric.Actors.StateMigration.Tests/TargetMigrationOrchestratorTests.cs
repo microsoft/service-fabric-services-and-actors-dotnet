@@ -3,24 +3,22 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Numerics;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.KVSToRCMigration;
-    using Microsoft.ServiceFabric.Actors.Migration;
-    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-    using Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-    using Moq;
-    using Xunit;
+using System;
+using System.Fabric;
+using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.KVSToRCMigration;
+using Microsoft.ServiceFabric.Actors.Migration;
+using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Actors.Runtime.Migration;
+using Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes;
+using Moq;
+using Xunit;
 
+namespace Microsoft.ServiceFabric.Actors.StateMigration
+{
     /// <summary>
     /// Target Migration orchestrator tests.
     /// </summary>
@@ -88,7 +86,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
         {
             var tcs = new CancellationTokenSource();
             var orchestrator = GetOrchestrator(MigrationMode.Auto, MigrationPhase.Copy);
-            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -141,7 +139,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             // ActorService calling Start Migration when the service is up
             await orchestrator.StartMigrationAsync(false, CancellationToken.None);
 
-            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -191,7 +189,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             var metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
             await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Copy.ToString(), (_, __) => MigrationPhase.Copy.ToString());
             await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
-            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -227,7 +225,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             metaDict = await ((KVStoRCMigrationActorStateProvider)orchestrator.GetMigrationActorStateProvider()).GetMetadataDictionaryAsync();
             await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentPhase, MigrationPhase.Catchup.ToString(), (_, __) => MigrationPhase.Catchup.ToString());
             await metaDict.AddOrUpdateAsync(orchestrator.Transaction, MigrationConstants.MigrationCurrentStatus, MigrationState.InProgress.ToString(), (_, __) => MigrationState.InProgress.ToString());
-            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
+            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -279,7 +277,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             var tcs = new CancellationTokenSource();
             var orchestrator = GetOrchestrator(MigrationMode.Manual);
             await orchestrator.StartMigrationAsync(false, tcs.Token);
-            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -354,7 +352,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
                 });
 
             await orchestrator.StartMigrationAsync(false, tcs.Token);
-            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -407,7 +405,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             Assert.Throws<MigrationFrameworkNotInitializedException>(() => orchestrator.IsActorCallToBeForwarded());
 
             await orchestrator.StartMigrationAsync(false, CancellationToken.None);
-            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult());
+            var migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -441,7 +439,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             var tcs = new CancellationTokenSource();
             orchestrator = GetOrchestrator(MigrationMode.Manual);
             await orchestrator.StartMigrationAsync(false, tcs.Token);
-            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(true, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;
@@ -481,7 +479,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration.Tests
             Assert.True(orchestrator.IsActorCallToBeForwarded());
 
             orchestrator = GetOrchestrator(MigrationMode.Auto, MigrationPhase.Downtime);
-            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult());
+            migrationTask = Task.Run(() => orchestrator.StartMigrationAsync(false, tcs.Token).ConfigureAwait(false).GetAwaiter().GetResult(), TestContext.Current.CancellationToken);
             while (true)
             {
                 MigrationResult result1 = null;

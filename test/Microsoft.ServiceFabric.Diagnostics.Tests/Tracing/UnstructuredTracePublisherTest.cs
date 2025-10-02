@@ -11,7 +11,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
@@ -136,8 +135,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 
                 const string eventSourceMetadataField = "m_eventData";
 
-                var output = new Mock<ITestOutputHelper>();
-                using var stringEventSource = new EventSourceTest<ServiceFabricStringEventSource>(output.Object);
+                using var stringEventSource = new EventSourceTest<ServiceFabricStringEventSource>();
                 stringEventSource.EnableEvents(EventLevel.LogAlways);
                 object metadata = stringEventSource.Instance.Field(eventSourceMetadataField).Value;
                 Assert.NotNull(metadata);

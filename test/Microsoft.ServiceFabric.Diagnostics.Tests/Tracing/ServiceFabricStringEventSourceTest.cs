@@ -5,16 +5,12 @@
 
 using System;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
     public sealed class ServiceFabricStringEventSourceTest : IDisposable
     {
-        readonly EventSourceTest<ServiceFabricStringEventSource> test;
-
-        public ServiceFabricStringEventSourceTest(ITestOutputHelper output) =>
-            test = new EventSourceTest<ServiceFabricStringEventSource>(output);
+        readonly EventSourceTest<ServiceFabricStringEventSource> test = new EventSourceTest<ServiceFabricStringEventSource>();
 
         public void Dispose() =>
             test.Dispose();

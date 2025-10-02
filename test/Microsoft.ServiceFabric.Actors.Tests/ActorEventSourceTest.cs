@@ -5,16 +5,12 @@
 
 using System;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Actors
 {
     public sealed class ActorEventSourceTest : IDisposable
     {
-        readonly EventSourceTest<ActorEventSource> test;
-
-        public ActorEventSourceTest(ITestOutputHelper output) =>
-            test = new EventSourceTest<ActorEventSource>(output);
+        readonly EventSourceTest<ActorEventSource> test = new EventSourceTest<ActorEventSource>();
 
         public void Dispose() =>
             test.Dispose();

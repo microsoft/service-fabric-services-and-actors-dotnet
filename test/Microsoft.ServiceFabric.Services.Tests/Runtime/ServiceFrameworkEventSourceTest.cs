@@ -8,18 +8,14 @@ using System.Diagnostics.Tracing;
 using System.Fabric;
 using Fuzzy;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
     public sealed class ServiceFrameworkEventSourceTest : IDisposable
     {
-        readonly EventSourceTest<ServiceFrameworkEventSource> test;
+        readonly EventSourceTest<ServiceFrameworkEventSource> test = new EventSourceTest<ServiceFrameworkEventSource>();
 
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
-
-        public ServiceFrameworkEventSourceTest(ITestOutputHelper output) =>
-            test = new EventSourceTest<ServiceFrameworkEventSource>(output);
 
         public void Dispose() =>
             test.Dispose();

@@ -3,22 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Xunit;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Xunit;
 
-    /// <summary>
-    /// Tests for IdleObjectGcHandle.
-    /// </summary>
+namespace Microsoft.ServiceFabric.Actors.Runtime
+{
     public class IdleObjectGcHandleTests
     {
-        /// <summary>
-        /// Verifies basic usage of IdleObjectGcHandle.
-        /// </summary>
         [Fact]
         public void VerifyBasicUsage()
         {
@@ -36,16 +29,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             gchandle.TryCollect().Should().BeTrue();
         }
 
-        /// <summary>
-        /// Verify UseUnuseCollect
-        /// </summary>
-        /// <param name="n">MaxIdleCount for IdleObjectGcHandle.</param>
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(5)]
         [InlineData(10)]
-
         public async Task VerifyUseUnuseCollect(int n)
         {
             // 1. Set MaxIdleCount for IdleObjectGcHandle to N.
@@ -61,8 +49,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             for (var i = 0; i < n; i++)
             {
-                tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(false))));
-                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
+                tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(false)), TestContext.Current.CancellationToken));
+                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect()), TestContext.Current.CancellationToken));
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -70,8 +58,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             for (var i = 0; i < n; i++)
             {
-                tasks.Add(Task.Run(() => gchandle.Unuse(false)));
-                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
+                tasks.Add(Task.Run(() => gchandle.Unuse(false), TestContext.Current.CancellationToken));
+                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect()), TestContext.Current.CancellationToken));
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -80,17 +68,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
             gchandle.Unuse(false);
             for (var i = 0; i < n; i++)
             {
-                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
+                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect()), TestContext.Current.CancellationToken));
             }
 
             await Task.WhenAll(tasks.ToArray());
             gchandle.TryCollect().Should().BeTrue();
         }
 
-        /// <summary>
-        /// Tests UseUnuseCollectWithTimerCalls
-        /// </summary>
-        /// <param name="n">MaxIdleCount for IdleObjectGcHandle.</param>
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -115,9 +99,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             for (var i = 0; i < n; i++)
             {
-                tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(false))));
-                tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(true))));
-                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
+                tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(false)), TestContext.Current.CancellationToken));
+                tasks.Add(Task.Run(() => Assert.True(gchandle.TryUse(true)), TestContext.Current.CancellationToken));
+                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect()), TestContext.Current.CancellationToken));
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -125,9 +109,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             for (var i = 0; i < n; i++)
             {
-                tasks.Add(Task.Run(() => gchandle.Unuse(false)));
-                tasks.Add(Task.Run(() => gchandle.Unuse(true)));
-                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
+                tasks.Add(Task.Run(() => gchandle.Unuse(false), TestContext.Current.CancellationToken));
+                tasks.Add(Task.Run(() => gchandle.Unuse(true), TestContext.Current.CancellationToken));
+                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect()), TestContext.Current.CancellationToken));
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -137,7 +121,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             for (var i = 0; i < n - 1; i++)
             {
-                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
+                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect()), TestContext.Current.CancellationToken));
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -146,7 +130,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
             for (var i = 0; i < n; i++)
             {
-                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect())));
+                tasks.Add(Task.Run(() => Assert.False(gchandle.TryCollect()), TestContext.Current.CancellationToken));
             }
 
             await Task.WhenAll(tasks.ToArray());

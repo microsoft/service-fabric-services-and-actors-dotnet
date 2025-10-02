@@ -3,4 +3,8 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-[assembly: Xunit.CollectionBehavior(Xunit.CollectionBehavior.CollectionPerAssembly)]
+using Xunit;
+
+// Run tests sequentially to prevent failures in tests that depend on global state.
+[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
+[assembly: CaptureConsole]

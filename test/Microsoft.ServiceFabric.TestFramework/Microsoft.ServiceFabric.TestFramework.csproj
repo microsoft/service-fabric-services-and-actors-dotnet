@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ProjectGuid>{B8F12A3E-4C5D-4F6A-8B7C-9D1E2F3A4B5C}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric</RootNamespace>
-    <TargetFrameworks>net9.0;net462</TargetFrameworks>
+    <TargetFrameworks>net9.0;net472</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
@@ -10,8 +10,7 @@
     <PackageReference Include="Inspector" />
     <PackageReference Include="Microsoft.ServiceFabric" />
     <PackageReference Include="Moq" />
-    <PackageReference Include="xunit.abstractions" />
-    <PackageReference Include="xunit.assert" />
+    <PackageReference Include="xunit.v3.assert" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src\Constants\Microsoft.ServiceFabric.Constants.csproj" />

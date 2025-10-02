@@ -3,31 +3,25 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Fabric.Health;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Inspector;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+using Microsoft.ServiceFabric.Services.Runtime;
+using Moq;
+using Xunit;
+
 namespace Microsoft.ServiceFabric.Services.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Fabric.Health;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using Inspector;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-    using Microsoft.ServiceFabric.Services.Runtime;
-    using Moq;
-    using Xunit;
-
-    /// <summary>
-    /// State manager tests.
-    /// </summary>
     public class StatefulServiceBaseLifeCycleTests
     {
-        /// <summary>
-        /// Verify ChangeRole for IStateProviderReplica
-        /// </summary>
         [Fact]
         public async Task StateProviderRoleChange()
         {
@@ -56,9 +50,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
             await testServiceReplica.ChangeRoleAsync(ReplicaRole.ActiveSecondary, CancellationToken.None);
         }
 
-        /// <summary>
-        /// Tests RunAsync blocking call.
-        /// </summary>
         [Fact]
         public async Task RunAsyncBlockingCall()
         {
@@ -89,9 +80,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
             await testServiceReplica.CloseAsync(CancellationToken.None);
         }
 
-        /// <summary>
-        /// Tests CancellationDuringWriteStatus.
-        /// </summary>
         [Fact]
         public async Task CancellationDuringWriteStatus()
         {
@@ -120,9 +108,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        /// <summary>
-        /// Tests RunAsync cancellation.
-        /// </summary>
         [Fact]
         public async Task RunAsyncCancellation()
         {
@@ -154,9 +139,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        /// <summary>
-        /// Tests Slow Cancellation in RunAsync
-        /// </summary>
         [Fact]
         public async Task RunAsyncSlowCancellation()
         {
@@ -189,9 +171,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportPartitionHealth(It.Is<HealthInformation>(hinfo => Utility.IsRunAsyncSlowCancellationHealthInformation(hinfo))), Times.AtLeastOnce);
         }
 
-        /// <summary>
-        /// Tests failures from RunAsync.
-        /// </summary>
         [Fact]
         public async Task RunAsyncFail()
         {
@@ -220,9 +199,10 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var dontWait = Task.Run(
                 async () =>
                 {
-                    await Task.Delay(10000);
+                    await Task.Delay(10000, TestContext.Current.CancellationToken);
                     tcs.SetCanceled();
-                });
+                },
+                TestContext.Current.CancellationToken);
 
             await tcs.Task;
 
@@ -429,9 +409,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
             partition.Verify(p => p.ReportFault(It.IsAny<FaultType>()), Times.Never());
         }
 
-        /// <summary>
-        /// Tests ListenerExceptionOnAbort.
-        /// </summary>
         [Fact]
         public async Task ListenerExceptionOnAbort()
         {
@@ -510,9 +487,6 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
         private class StateProviderReplicaRoleWrapper
         {
-            /// <summary>
-            /// Gets or sets Replica role.
-            /// </summary>
             public ReplicaRole Role { get; set; }
         }
 

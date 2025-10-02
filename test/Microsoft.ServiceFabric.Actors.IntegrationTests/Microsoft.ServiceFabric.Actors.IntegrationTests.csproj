@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>788378DE-D58E-3914-CE90-3498F7365C4F</ProjectGuid>
-    <TargetFrameworks>net9.0;net462</TargetFrameworks>
+    <TargetFrameworks>net9.0;net472</TargetFrameworks>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
@@ -10,7 +11,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
     <PackageReference Include="xunit.runner.visualstudio" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />

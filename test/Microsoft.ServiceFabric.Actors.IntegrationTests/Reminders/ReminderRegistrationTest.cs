@@ -164,7 +164,7 @@ namespace Microsoft.ServiceFabric.Actors
                     Assert.True(reminderResult.IsValid());
 
                     // Wait enough time for reminder to fire
-                    await Task.Delay(TimeSpan.FromSeconds(2));
+                    await Task.Delay(TimeSpan.FromSeconds(2), TestContext.Current.CancellationToken);
 
                     Assert.Equal(expectedCallbackInvocationCounter, reminderCallbackInvocationCounter);
                     Assert.Equal(expectedReminderName, actualReminderName);
@@ -215,11 +215,11 @@ namespace Microsoft.ServiceFabric.Actors
                         timerCall: false,
                         cancellationToken: new CancellationToken());
 
-                    await Task.Delay(reminderDueTime + allowedTimeVariation);
+                    await Task.Delay(reminderDueTime + allowedTimeVariation, TestContext.Current.CancellationToken);
 
                     reminderInvocationCounterAfterReminderDueTime = reminderCallbackInvocationCounter;
 
-                    await Task.Delay(reminderPeriod + allowedTimeVariation);
+                    await Task.Delay(reminderPeriod + allowedTimeVariation, TestContext.Current.CancellationToken);
 
                     reminderInvocationCounterAfterReminderPeriod = reminderCallbackInvocationCounter;
 
@@ -341,7 +341,7 @@ namespace Microsoft.ServiceFabric.Actors
                     cancellationToken: new CancellationToken());
 
 
-                await Task.Delay(fuzzyDueTime + fuzzyPeriod + allowedTimeVariation);
+                await Task.Delay(fuzzyDueTime + fuzzyPeriod + allowedTimeVariation, TestContext.Current.CancellationToken);
 
                 callbackInvocationCounterAfterUnregistering = reminderCallbackInvocationCounter;
 

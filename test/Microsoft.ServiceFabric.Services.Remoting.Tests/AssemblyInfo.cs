@@ -1,3 +1,8 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
 using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 using System.Runtime.CompilerServices;
 using Xunit;
@@ -7,3 +12,4 @@ using Xunit;
 // because ServiceRemotingProviderAttribute has static state and cannot be teste in parallel.
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
 [assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]
+[assembly: CaptureConsole]
