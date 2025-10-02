@@ -15,23 +15,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         internal AggregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {
-            if (diagnosticEvents == null || diagnosticEvents.Any(d => d == null)) 
-                throw new ArgumentException("Diagnostic events collection cannot be null or contain null elements.", nameof(diagnosticEvents)); 
+            if (diagnosticEvents == null || diagnosticEvents.Any(d => d == null))
+                throw new ArgumentException("Diagnostic events collection cannot be null or contain null elements.", nameof(diagnosticEvents));
 
             this.diagnosticEvents = diagnosticEvents;
         }
 
         public void OnRemotingRequestBegin()
         {
-            foreach (var ds in diagnosticEvents)
+            foreach (IDiagnosticEvents ds in diagnosticEvents)
             {
                 ds.OnRemotingRequestBegin();
             }
-        }        
-        
+        }
+
         public void OnRemotingRequestEnd(DateTime startTime)
         {
-            foreach (var ds in diagnosticEvents)
+            foreach (IDiagnosticEvents ds in diagnosticEvents)
             {
                 ds.OnRemotingRequestEnd(startTime);
             }
@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRequestResponseBegin()
         {
-            foreach (var ds in diagnosticEvents)
+            foreach (IDiagnosticEvents ds in diagnosticEvents)
             {
                 ds.OnRequestResponseBegin();
             }
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRequestResponseEnd(DateTime startTime)
         {
-            foreach (var ds in diagnosticEvents)
+            foreach (IDiagnosticEvents ds in diagnosticEvents)
             {
                 ds.OnRequestResponseEnd(startTime);
             }
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnCreateTransportMessageBegin()
         {
-            foreach (var ds in diagnosticEvents)
+            foreach (IDiagnosticEvents ds in diagnosticEvents)
             {
                 ds.OnCreateTransportMessageBegin();
             }
@@ -63,7 +63,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
         {
-            foreach (var ds in diagnosticEvents)
+            foreach (IDiagnosticEvents ds in diagnosticEvents)
             {
                 ds.OnCreateTransportMessageEnd(startTime);
             }
