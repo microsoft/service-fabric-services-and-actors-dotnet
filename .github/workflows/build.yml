@@ -11,32 +11,44 @@ on:
     - develop
     - 'release_*'
 
+permissions:
+  contents: read
+
+env:
+  DROP_DIR: drop
+
 jobs:
   build:
-    name: Build Test
     runs-on: windows-latest
-    # info about windows-latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
-    env:
-      DROP_DIR: drop
-      TEST_RESULT_DIR: drop\testresults
     steps:
-      - uses: actions/checkout@v1
-      - name: Disable strong name verification for testing
-        shell: powershell
-        run: .\SkipStrongName.ps1
-      - name: Uninstall SF SDK assemblies from GAC
-        shell: powershell
-        # Run command in VS Dev shell
-        run: |
-          & "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -SkipAutomaticLocation 
-          .\UninstallSfSdkFromGac.ps1
-      - name: Build Everything
-        shell: powershell
-        run: dotnet build buildAll.proj
-      - name: Run Tests
-        run: dotnet test code.sln --configuration release --nologo --settings test\default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
-      - name: upload artifacts
-        uses: actions/upload-artifact@master
+      - uses: actions/checkout@v5
+      - run: dotnet build buildAll.proj
+      - uses: actions/upload-artifact@master
         with:
-          name: release_drop
+          name: build
+          path: ${{ env.DROP_DIR }}
+
+  test-windows:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: .\SkipStrongName.ps1
+      - run: .\UninstallSfSdkFromGac.ps1
+      - run: dotnet test code.sln --configuration release --nologo --settings test\default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-windows
+          path: ${{ env.DROP_DIR }}
+
+  test-linux:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: dotnet test code.sln --configuration release --nologo --settings test/default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-linux
           path: ${{ env.DROP_DIR }}

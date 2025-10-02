@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
             {
                 // Arrange
                 var exceptionConvertors = new List<IExceptionConvertor> { new SystemExceptionConvertor() };
-                var settings = new FabricTransportRemotingListenerSettings
+                var settings = new WcfRemotingListenerSettings
                 {
                     RemotingExceptionDepth = 4
                 };
@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                 Assert.IsType<FabricExceptionConvertor>(convertorList[3]); // default
                 Assert.IsType<DefaultExceptionConvertor>(convertorList[4]); // default
 
-                var actualSettings = actualSerializer.Field<FabricTransportRemotingListenerSettings>().Value;
+                var actualSettings = actualSerializer.Field<IExceptionSerializerSettings>().Value;
                 Assert.Same(settings, actualSettings);
             }
         }

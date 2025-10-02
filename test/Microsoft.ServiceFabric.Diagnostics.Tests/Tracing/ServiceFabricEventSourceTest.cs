@@ -5,15 +5,12 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
-using Xunit.Abstractions;
 using EventLevel = System.Diagnostics.Tracing.EventLevel;
 
-
-namespace Microsoft.ServiceFabric.Diagnostics.Tests
+namespace Microsoft.ServiceFabric.Diagnostics.Tracing
 {
     public abstract class ServiceFabricEventSourceTest
     {
@@ -100,10 +97,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
         public sealed class Manifest : ServiceFabricEventSourceTest
         {
-            readonly ITestOutputHelper output;
-
-            public Manifest(ITestOutputHelper output) => this.output = output;
-
             [Fact]
             public void CanBeSavedForRegistrationWithExternalTools()
             {
@@ -113,8 +106,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests
 
                 string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
                 File.WriteAllText(manifestFile, manifest);
-                output.WriteLine("To register generated manifest for ETL tools, run");
-                output.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
+                Console.WriteLine("To register generated manifest for ETL tools, run");
+                Console.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
             }
         }
     }

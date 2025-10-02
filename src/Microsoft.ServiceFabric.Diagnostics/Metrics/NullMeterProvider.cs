@@ -14,17 +14,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             return new NullMeter<TValueType>();
         }
 
-        public IMeter1D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name)
+        public IMeter1D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1)
         {
             return new NullMeter1D<TValueType>();
         }
 
-        public IMeter2D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name)
+        public IMeter2D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1, string dimension2)
         {
             return new NullMeter2D<TValueType>();
         }
 
-        public IMeter3D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name)
+        public IMeter3D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1, string dimension2, string dimension3)
         {
             return new NullMeter3D<TValueType>();
         }

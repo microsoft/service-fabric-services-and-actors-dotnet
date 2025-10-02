@@ -67,5 +67,12 @@ namespace Microsoft.ServiceFabric
             long instanceId = fuzzy.Int64();
             return new StatelessServiceContext(nodeContext, activationContext, serviceTypeName, serviceName, initializationData, partitionId, instanceId);
         }
+
+        public static Type Type(this IFuzz fuzzy)
+        {
+            var mock = new Mock<Type>();
+            mock.SetupGet(_ => _.Name).Returns(fuzzy.String());
+            return mock.Object;
+        }
     }
 }

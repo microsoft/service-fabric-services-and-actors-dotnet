@@ -10,16 +10,17 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
-    /// Implementation of <see cref="ServiceMeterProvider{TValueType}"/> for long integer metrics.
+    /// Implementation of <see cref="MeterProvider{TValueType}"/> for long integer metrics.
     /// Creates meters for recording long integer telemetry values with various dimension configurations.
     /// </summary>
-    sealed class Int64MeterProvider : ServiceMeterProvider<long>
+    sealed class Int64MeterProvider : MeterProvider<long>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Int64MeterProvider"/> class.
         /// </summary>
-        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit default metrics.</param>
-        internal Int64MeterProvider(ServiceContext serviceContext) : base(serviceContext) { }
+        /// <param name="serviceContext">The Service Fabric ServiceContext provides system dimensions used by IMeter implementations to emit by default. 
+        /// If no ServiceContext is provided, no system dimensions will be emitted.</param>
+        internal Int64MeterProvider(ServiceContext serviceContext = null) : base(serviceContext) { }
 
         /// <summary>
         /// Creates a meter for recording long integer telemetry values without additional dimensions.
@@ -37,11 +38,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// </summary>
         /// <param name="metricNamespace">The namespace for the metric.</param>
         /// <param name="name">The name of the metric.</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
+        /// <param name="dimension1">The name of the first dimension.</param>
         /// <returns>A meter instance for recording long integer values with one additional dimension.</returns>
-        public override IMeter1D<long> CreateMeter(string metricNamespace, string name, string dimension1Name)
+        public override IMeter1D<long> CreateMeter(string metricNamespace, string name, string dimension1)
         {
-            return new Int64Meter1D(CreateNativeMeter(metricNamespace, name, new[] { dimension1Name }), systemDimensionValues);
+            return new Int64Meter1D(CreateNativeMeter(metricNamespace, name, new[] { dimension1 }), systemDimensionValues);
         }
 
         /// <summary>
@@ -49,12 +50,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// </summary>
         /// <param name="metricNamespace">The namespace for the metric.</param>
         /// <param name="name">The name of the metric.</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
+        /// <param name="dimension1">The name of the first dimension.</param>
+        /// <param name="dimension2">The name of the second dimension.</param>
         /// <returns>A meter instance for recording long integer values with two additional dimensions.</returns>
-        public override IMeter2D<long> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name)
+        public override IMeter2D<long> CreateMeter(string metricNamespace, string name, string dimension1, string dimension2)
         {
-            return new Int64Meter2D(CreateNativeMeter(metricNamespace, name, new[] { dimension1Name, dimension2Name }), systemDimensionValues);
+            return new Int64Meter2D(CreateNativeMeter(metricNamespace, name, new[] { dimension1, dimension2 }), systemDimensionValues);
         }
 
         /// <summary>
@@ -62,13 +63,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         /// </summary>
         /// <param name="metricNamespace">The namespace for the metric.</param>
         /// <param name="name">The name of the metric.</param>
-        /// <param name="dimension1Name">The name of the first dimension.</param>
-        /// <param name="dimension2Name">The name of the second dimension.</param>
-        /// <param name="dimension3Name">The name of the third dimension.</param>
+        /// <param name="dimension1">The name of the first dimension.</param>
+        /// <param name="dimension2">The name of the second dimension.</param>
+        /// <param name="dimension3">The name of the third dimension.</param>
         /// <returns>A meter instance for recording long integer values with three additional dimensions.</returns>
-        public override IMeter3D<long> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name, string dimension3Name)
+        public override IMeter3D<long> CreateMeter(string metricNamespace, string name, string dimension1, string dimension2, string dimension3)
         {
-            return new Int64Meter3D(CreateNativeMeter(metricNamespace, name, new[] { dimension1Name, dimension2Name, dimension3Name }), systemDimensionValues);
+            return new Int64Meter3D(CreateNativeMeter(metricNamespace, name, new[] { dimension1, dimension2, dimension3 }), systemDimensionValues);
         }
     }
 }

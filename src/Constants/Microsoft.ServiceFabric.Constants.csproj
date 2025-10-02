@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    This project contains only compile-time constants.
+    Projects referencing it should not generate assembly references in their assemblies.
+    The assembly produced by this project should not be included in any of the NuGet packages.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+</Project>

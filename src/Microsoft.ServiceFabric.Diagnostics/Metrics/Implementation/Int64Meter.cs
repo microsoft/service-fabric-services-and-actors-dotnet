@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         public void Record(long value)
         {
-            fabricMeter.Record(value, (uint)systemDimensionValues.Length, systemDimensionValues);
+            base.Record(value);
         }
     }
 }

@@ -3,4 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-[assembly: Xunit.CollectionBehavior(Xunit.CollectionBehavior.CollectionPerAssembly)]
+namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
+{
+    interface IExceptionSerializerSettings
+    {
+        int RemotingExceptionDepth { get; }
+    }
+}

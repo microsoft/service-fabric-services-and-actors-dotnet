@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             {
                 // Arrange
                 var customConvertors = new List<IExceptionConvertor> { new SystemExceptionConvertor() };
-                var serializer = new ExceptionSerializer(customConvertors, null);
+                var serializer = new ExceptionSerializer(customConvertors, new FabricTransportRemotingListenerSettings());
 
                 // Assert
                 Assert.Same(customConvertors, serializer.Field<IEnumerable<IExceptionConvertor>>().Value);
@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 var customConvertors = new List<IExceptionConvertor> { new FabricExceptionConvertor() };
 
                 // Act
-                ExceptionSerializer serializer = ExceptionSerializer.CreateDefault(customConvertors, null);
+                ExceptionSerializer serializer = ExceptionSerializer.CreateDefault(customConvertors, new FabricTransportRemotingListenerSettings());
 
                 // Assert
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
@@ -68,7 +68,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 };
 
                 // Act
-                ExceptionSerializer serializer = ExceptionSerializer.CreateDefault(null, null);
+                ExceptionSerializer serializer = ExceptionSerializer.CreateDefault(null, new FabricTransportRemotingListenerSettings());
 
                 // Assert
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
@@ -90,20 +90,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 ExceptionSerializer serializer = ExceptionSerializer.CreateDefault(null, expectedSettings);
 
                 // Assert
-                Assert.Same(expectedSettings, serializer.Field<FabricTransportRemotingListenerSettings>().Value);
-            }
-
-            [Fact]
-            public void UsesDefaultRemotingListenerSettingsWhenNullProvided()
-            {
-                // Arrange
-                FabricTransportRemotingListenerSettings expectedSettings = FabricTransportRemotingListenerSettings.GetDefault();
-
-                // Act
-                ExceptionSerializer serializer = ExceptionSerializer.CreateDefault(null, null);
-
-                // Assert
-                serializer.Field<FabricTransportRemotingListenerSettings>().Value.Should().BeEquivalentTo(expectedSettings);
+                Assert.Same(expectedSettings, serializer.Field<IExceptionSerializerSettings>().Value);
             }
         }
 
@@ -113,7 +100,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void BuildsOriginalExceptionIfItIsKnownExceptionType()
             {
                 // Arrange
-                var exceptionSerializer = ExceptionSerializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>(), null);
+                var exceptionSerializer = ExceptionSerializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>(), new FabricTransportRemotingListenerSettings());
                 var exceptionDeserializer = Remoting.V2.Client.ExceptionDeserializer.CreateDefault(Enumerable.Empty<Remoting.V2.Client.IExceptionConvertor>());
                 var originalException = new FabricInsufficientMaxLoadCapacityException(fuzzy.String());
 
@@ -132,7 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void BuildsServiceExceptionIfItIsNotKnownExceptionType()
             {
                 // Arrange
-                var exceptionSerializer = ExceptionSerializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>(), null);
+                var exceptionSerializer = ExceptionSerializer.CreateDefault(Enumerable.Empty<IExceptionConvertor>(), new FabricTransportRemotingListenerSettings());
                 var exceptionDeserializer = Remoting.V2.Client.ExceptionDeserializer.CreateDefault(Enumerable.Empty<Remoting.V2.Client.IExceptionConvertor>());
                 var originalException = new UnknownException(fuzzy.String());
 

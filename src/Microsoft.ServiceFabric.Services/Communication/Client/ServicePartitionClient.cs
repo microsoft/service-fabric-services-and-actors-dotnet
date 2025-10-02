@@ -8,6 +8,7 @@ using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Client;
 
 namespace Microsoft.ServiceFabric.Services.Communication.Client

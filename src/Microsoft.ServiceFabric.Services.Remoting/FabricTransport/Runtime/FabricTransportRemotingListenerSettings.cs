@@ -9,16 +9,16 @@ using System.Fabric.Common;
 using Microsoft.ServiceFabric.FabricTransport;
 using Microsoft.ServiceFabric.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
 {
     /// <summary>
-    /// Settings that configures the  FabricTransport Listener.
+    /// Settings that configure FabricTransport Listener.
     /// </summary>
-    public class FabricTransportRemotingListenerSettings
+    public class FabricTransportRemotingListenerSettings : IExceptionSerializerSettings
     {
         private static readonly string Tracetype = "FabricTransportRemotingListenerSettings";
-        private static readonly int DefaultRemotingExceptionDepth = 2;
         private readonly FabricTransportListenerSettings listenerSettings;
         private int headerBufferSize;
         private int headerMaxBufferCount;
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
             this.headerBufferSize = V2.Constants.DefaultHeaderBufferSize;
             this.headerMaxBufferCount = V2.Constants.DefaultHeaderMaxBufferCount;
             this.useWrappedMessage = false;
-            this.remotingExceptionDepth = DefaultRemotingExceptionDepth;
+            this.remotingExceptionDepth = ExceptionSerializer.DefaultRemotingExceptionDepth;
         }
 
         private FabricTransportRemotingListenerSettings(FabricTransportListenerSettings listenerSettings)
@@ -177,7 +177,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Gets or sets the depth of exceptions to be sent to the client incase of remoting call failing with exception.
+        /// Gets or sets the depth of exceptions to be sent to the client in case of remoting call failing with exception.
         /// </summary>
         /// <remarks>The allowed values are greater than or equal to 1. If the supplied value is less than 1, then the field is set to int.MaxValue.</remarks>
         public int RemotingExceptionDepth

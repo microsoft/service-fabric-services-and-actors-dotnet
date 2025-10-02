@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
@@ -14,12 +13,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         public void Record(long value, string dimension1)
         {
-            var allDimensionArray = new string[systemDimensionValues.Count() + 1];
-
-            systemDimensionValues.CopyTo(allDimensionArray, 0);
-            allDimensionArray[allDimensionArray.Length - 1] = dimension1;
-
-            fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
+            base.Record(value, 1, dimension1);
         }
     }
 }

@@ -3,12 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+
 namespace Microsoft.ServiceFabric.Actors
 {
-    using System;
-    using System.Fabric;
-    using System.Runtime.Serialization;
-
     [Serializable]
     internal sealed class ActorDeletedException : FabricTransientException
     {
@@ -24,11 +23,6 @@ namespace Microsoft.ServiceFabric.Actors
 
         public ActorDeletedException(string message, Exception inner)
             : base(message, inner)
-        {
-        }
-
-        private ActorDeletedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

@@ -142,7 +142,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Runtime
             FabricTransportRemotingListenerSettings listenerSettings,
             IServiceRemotingMessageSerializationProvider serializationProvider)
         {
-            listenerSettings = listenerSettings ?? FabricTransportRemotingListenerSettings.GetDefault();
+            listenerSettings ??= FabricTransportRemotingListenerSettings.GetDefault();
 
             return new ActorRemotingSerializationManager(
                 serializationProvider,
