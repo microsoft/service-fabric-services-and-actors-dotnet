@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fuzzy;
+using Fuzzy.Implementation;
+using Microsoft.Diagnostics.Tracing.Parsers.Clr;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
@@ -15,14 +17,14 @@ namespace Microsoft.ServiceFabric.Actors
 {
     public class ActorServiceIntegrationTest
     {
+        static readonly IFuzz fuzzy = new RandomFuzz();
+
         protected async Task<ActorService> GetActorService<T>(
             Func<ActorService, ActorId, ActorBase> actorFactory = null,
             ActorServiceSettings actorServiceSettings = null,
             IActorStateProvider actorStateProvider = null)
             where T : Actor
         {
-            IFuzz fuzzy = new RandomFuzz();
-
             ActorService actorService = new ActorService(
                 fuzzy.StatefulServiceContext(),
                 ActorTypeInformation.Get(typeof(T)),
@@ -43,14 +45,14 @@ namespace Microsoft.ServiceFabric.Actors
         {
             interface ITestableActor : IActor
             { }
-            
+
             class TestActor : Actor, ITestableActor
             {
                 public TestActor(ActorService actorService, ActorId actorId) : base(actorService, actorId)
                 {
                 }
             }
-            
+
             public class WhenNoReminderIsRegistered : GetRemindersAsync
             {
                 [Fact]
@@ -66,40 +68,51 @@ namespace Microsoft.ServiceFabric.Actors
                 }
             }
 
-            public class WhenReminderAreRegister : GetRemindersAsync
+            public class WhenReminderAreRegister : GetRemindersAsync, IDisposable
             {
-                protected readonly int numberOfActor;
-                protected readonly int numberOfReminderPerActor;
+                static protected readonly int numberOfActors = fuzzy.Int32().Between(5, 10);
+                static protected readonly int numberOfReminderPerActor = fuzzy.Int32().Between(10, 20);
                 protected readonly List<ActorId> allActors;
+                static readonly int newPageSize = fuzzy.Int32().Between(1, numberOfReminderPerActor - 1); // Reminder for a particular actor should be divided in at least two result pages
+                static readonly int defaultPageSize = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
 
                 public WhenReminderAreRegister()
                 {
-                    var fuzzy = new RandomFuzz();
-                    numberOfActor = fuzzy.Int32().Between(5, 10);
-                    numberOfReminderPerActor = fuzzy.Int32().Between(10, 20);
                     allActors = new List<ActorId>();
 
-                    for (int i = 0; i < numberOfActor; i++)
+                    for (int i = 0; i < numberOfActors; i++)
                     {
                         allActors.Add(new ActorId($"Actor_{i}"));
                     }
+                    
+                    ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.SetDefaultPageSize(newPageSize);
+                }
+                
+                public virtual void Dispose()
+                {
+                    ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.SetDefaultPageSize(defaultPageSize);
                 }
 
-                protected IActorStateProvider CreateActorStateProviderWithReminders()
+                protected (IActorStateProvider, Dictionary<ActorId, List<IActorReminder>>) CreateActorStateProviderWithReminders()
                 {
                     IActorStateProvider actorStateProvider = new NullActorStateProvider();
+                    var registeredReminders = new Dictionary<ActorId, List<IActorReminder>>();
 
                     foreach (var actorId in allActors)
                     {
+                        registeredReminders[actorId] = new List<IActorReminder>();
+
                         for (int j = 0; j < numberOfReminderPerActor; j++)
                         {
                             var reminderMock = new Mock<IActorReminder>();
                             reminderMock.SetupGet(r => r.Name).Returns($"Reminder_{j}");
                             actorStateProvider.SaveReminderAsync(actorId, reminderMock.Object).Wait();
+
+                            registeredReminders[actorId].Add(reminderMock.Object);
                         }
                     }
 
-                    return actorStateProvider;
+                    return (actorStateProvider, registeredReminders);
                 }
 
                 public class CancellationTokenIsNotNull : WhenReminderAreRegister
@@ -107,14 +120,14 @@ namespace Microsoft.ServiceFabric.Actors
                     [Fact]
                     public async Task ThrowsWhenCancellationTokenIsCanceled()
                     {
-                        var actorStateProvider = CreateActorStateProviderWithReminders();
+                        var (actorStateProvider, _) = CreateActorStateProviderWithReminders();
                         IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
                         var cts = new CancellationTokenSource();
                         cts.Cancel();
 
                         await Assert.ThrowsAsync<OperationCanceledException>(() => actorService.GetRemindersAsync(null, null, cts.Token));
-                    }   
-                } 
+                    }
+                }
 
                 public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
@@ -122,7 +135,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                     public WhenNoChangesAreMadeToTheRemindersBetweenResults()
                     {
-                        actorStateProviderWithReminders = CreateActorStateProviderWithReminders();
+                        (actorStateProviderWithReminders, _) = CreateActorStateProviderWithReminders();
                     }
 
                     public class WhenActorIdIsGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
@@ -176,7 +189,7 @@ namespace Microsoft.ServiceFabric.Actors
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
 
                             ContinuationToken continuationToken = null;
-                            int expectedNumberOfReminder = numberOfActor * numberOfReminderPerActor;
+                            int expectedNumberOfReminder = numberOfActors * numberOfReminderPerActor;
 
                             var allReminders = new List<ActorReminderState>();
 
@@ -212,38 +225,147 @@ namespace Microsoft.ServiceFabric.Actors
                     public class WhenActorIdIsGiven : WhenChangesAreMadeToTheRemindersBetweenResults
                     {
                         [Fact]
-                        public void ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
+                        public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
-                            var actorStateProvider = CreateActorStateProviderWithReminders();
-                            // Test implementation here
-                            Assert.True(true);
+                            var (actorStateProvider, _) = CreateActorStateProviderWithReminders();
+                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
+                            var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
+                            var targetActorId = fuzzy.Element(allActors);
+
+                            var page = await actorService.GetRemindersAsync(targetActorId, null, default);
+                            var allQueriedReminders = page.Items.First().Value.Select(r => r.Name); // Only one key-value pair is returned when querying for a specific actor
+                            var targetReminderState = fuzzy.Element(allQueriedReminders);
+                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminderState);
+
+                            Assert.Equal(expectedRemindersPerPage, allQueriedReminders.Count());
+                            Assert.Contains(targetReminderState, allQueriedReminders);
                         }
 
                         [Fact]
-                        public void ReflectsChangesToRemindersInConsecutivePages()
+                        public async Task ReflectsChangesToRemindersInConsecutivePages()
                         {
-                            var actorStateProvider = CreateActorStateProviderWithReminders();
-                            // Test implementation here
-                            Assert.True(true);
+                            var (actorStateProvider, registeredReminders) = CreateActorStateProviderWithReminders();
+                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
+
+                            var targetActorId = fuzzy.Element(allActors);
+                            var targetReminder = "";
+                            var allNamesOfQueriedReminders = new List<string>();
+
+                            ContinuationToken continuationToken = null;
+                            bool firstPage = true;
+
+                            do
+                            {
+                                var page = await actorService.GetRemindersAsync(targetActorId, continuationToken, default);
+                                continuationToken = page.ContinuationToken;
+
+                                IEnumerable<ActorReminderState> queriedReminders = page.Items.First().Value;
+
+                                if (firstPage)
+                                {
+                                    var namesOfQueriedReminders = queriedReminders.Select(r => r.Name);
+                                    var namesOfRegisteredReminders = registeredReminders[targetActorId].Select(r => r.Name);
+                                    var namesOfNotQueriedReminders = namesOfRegisteredReminders.Except(namesOfQueriedReminders, StringComparer.OrdinalIgnoreCase);
+
+                                    targetReminder = fuzzy.Element(namesOfNotQueriedReminders.ToList());
+
+                                    var newReminderMock = new Mock<IActorReminder>();
+                                    newReminderMock.Setup(r => r.Name).Returns("Reminder_new");
+
+                                    await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder);
+                                    await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object);
+
+                                    firstPage = false;
+                                }
+
+                                allNamesOfQueriedReminders.AddRange(queriedReminders.Select(rs => rs.Name));
+                            }
+                            while (continuationToken != null);
+
+                            Assert.Equal(numberOfReminderPerActor, allNamesOfQueriedReminders.Count());
+                            Assert.Contains("Reminder_new", allNamesOfQueriedReminders);
+                            Assert.DoesNotContain(targetReminder, allNamesOfQueriedReminders);
                         }
                     }
 
                     public class WhenActorIdIsNotGiven : WhenChangesAreMadeToTheRemindersBetweenResults
                     {
                         [Fact]
-                        public void ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
+                        public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
-                            var actorStateProvider = CreateActorStateProviderWithReminders();
-                            // Test implementation here
-                            Assert.True(true);
+                            var (actorStateProvider, _) = CreateActorStateProviderWithReminders();
+                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
+                            var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
+
+                            var page = await actorService.GetRemindersAsync(null, null, default);
+                            IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
+
+                            var targetActorId = fuzzy.Element(queriedActors);
+                            var namesOfAllQueriedReminders = page.Items
+                                .Where(kvp => kvp.Key == targetActorId)
+                                .SelectMany(kvp => kvp.Value)
+                                .Select(reminder => reminder.Name);
+                            var targetReminder = fuzzy.Element(namesOfAllQueriedReminders);
+                            
+                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder);
+
+                            Assert.Equal(expectedRemindersPerPage, namesOfAllQueriedReminders.Count());
+                            Assert.Contains(targetReminder, namesOfAllQueriedReminders);
                         }
 
                         [Fact]
-                        public void ReflectsChangesToRemindersInConsecutivePages()
+                        public async Task ReflectsChangesToRemindersInConsecutivePages()
                         {
-                            var actorStateProvider = CreateActorStateProviderWithReminders();
-                            // Test implementation here
-                            Assert.True(true);
+                            var (actorStateProvider, registeredReminders) = CreateActorStateProviderWithReminders();
+                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
+
+                            var targetActorId = new ActorId("");
+                            var targetReminder = "";
+                            Dictionary<ActorId, List<string>> allNamesOfQueriedReminders = allActors.ToDictionary(id => id, _ => new List<string>());
+
+                            ContinuationToken continuationToken = null;
+                            bool firstPage = true;
+
+                            do
+                            {
+                                var page = await actorService.GetRemindersAsync(null, continuationToken, default);
+                                continuationToken = page.ContinuationToken;
+
+                                IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
+
+                                if (firstPage)
+                                {
+                                    var actorsNotInFirstPage = allActors.Except(queriedActors);
+
+                                    targetActorId = actorsNotInFirstPage.Any()
+                                        ? fuzzy.Element(actorsNotInFirstPage)
+                                        : fuzzy.Element(queriedActors);
+
+                                    targetReminder = fuzzy.Element(registeredReminders[targetActorId]).Name;
+
+                                    var newReminderMock = new Mock<IActorReminder>();
+                                    newReminderMock.Setup(r => r.Name).Returns("Reminder_new");
+
+                                    await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder);
+                                    await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object);
+
+                                    firstPage = false;
+                                }
+
+                                foreach (var kvp in page.Items)
+                                {
+                                    ActorId actorId = kvp.Key;
+                                    IEnumerable<ActorReminderState> reminders = kvp.Value;
+                                    allNamesOfQueriedReminders[actorId].AddRange(reminders.Select(reminder => reminder.Name));
+                                }
+                            }
+                            while (continuationToken != null);
+
+                            int actualNumberOfQueriedReminders = allNamesOfQueriedReminders.Sum(kvp => kvp.Value.Count());
+
+                            Assert.Equal(numberOfActors * numberOfReminderPerActor, actualNumberOfQueriedReminders);
+                            Assert.Contains("Reminder_new", allNamesOfQueriedReminders[targetActorId]);
+                            Assert.DoesNotContain(targetReminder, allNamesOfQueriedReminders[targetActorId]);
                         }
                     }
                 }
@@ -251,14 +373,57 @@ namespace Microsoft.ServiceFabric.Actors
                 public class WhenChangesAreMadeToActorsBetweenResults : WhenReminderAreRegister
                 {
                     [Fact]
-                    public void ReflectsChangesToActorsInConsecutivePages()
+                    public async Task ReflectsChangesToActorsInConsecutivePages()
                     {
-                        var actorStateProvider = CreateActorStateProviderWithReminders();
-                        // Test implementation here
-                        Assert.True(true);
+                        var (actorStateProvider, registeredReminders) = CreateActorStateProviderWithReminders();
+                        IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
+
+                        var targetActorId = new ActorId("");
+                        var numberOfReminderForTargetActorInFirstPage = 0;
+                        Dictionary<ActorId, List<string>> allNamesOfQueriedReminders = allActors.ToDictionary(id => id, _ => new List<string>());
+
+                        ContinuationToken continuationToken = null;
+                        bool firstPage = true;
+
+                        do
+                        {
+                            var page = await actorService.GetRemindersAsync(null, continuationToken, default);
+                            continuationToken = page.ContinuationToken;
+
+                            IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
+
+                            if (firstPage)
+                            {
+                                var actorsNotInFirstPage = allActors.Except(queriedActors);
+                                if (actorsNotInFirstPage.Any())
+                                {
+                                    targetActorId = fuzzy.Element(actorsNotInFirstPage);
+                                }
+                                else
+                                {
+                                    targetActorId = fuzzy.Element(allActors);
+                                    numberOfReminderForTargetActorInFirstPage = page.Items
+                                        .Where(kvp => kvp.Key == targetActorId)
+                                        .Sum(kvp => kvp.Value.Count);
+                                }
+
+                                await actorService.DeleteActorAsync(targetActorId, default);
+                                firstPage = false;
+                            }
+
+                            foreach (var kvp in page.Items)
+                            {
+                                ActorId actorId = kvp.Key;
+                                IEnumerable<ActorReminderState> reminders = kvp.Value;
+                                allNamesOfQueriedReminders[actorId].AddRange(reminders.Select(reminder => reminder.Name));
+                            }
+                        }
+                        while (continuationToken != null);
+
+                        Assert.Equal(numberOfReminderForTargetActorInFirstPage, allNamesOfQueriedReminders[targetActorId].Count);
                     }
                 }
             }
-            }
         }
     }
+}
