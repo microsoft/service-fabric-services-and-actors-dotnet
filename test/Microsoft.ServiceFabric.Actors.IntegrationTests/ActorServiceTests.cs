@@ -68,29 +68,21 @@ namespace Microsoft.ServiceFabric.Actors
                 }
             }
 
-            public class WhenReminderAreRegister : GetRemindersAsync, IDisposable
+            [Collection(typeof(ServiceStateCollectionFixture))]
+            public class WhenReminderAreRegister : GetRemindersAsync
             {
-                static protected readonly int numberOfActors = fuzzy.Int32().Between(5, 10);
-                static protected readonly int numberOfReminderPerActor = fuzzy.Int32().Between(10, 20);
+                protected readonly ServiceStateFixture serviceStateFixture;
                 protected readonly List<ActorId> allActors;
-                static readonly int newPageSize = fuzzy.Int32().Between(1, numberOfReminderPerActor - 1); // Reminder for a particular actor should be divided in at least two result pages
-                static readonly int defaultPageSize = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
 
-                public WhenReminderAreRegister()
+                public WhenReminderAreRegister(ServiceStateFixture serviceStateFixture)
                 {
+                    this.serviceStateFixture = serviceStateFixture;
                     allActors = new List<ActorId>();
 
-                    for (int i = 0; i < numberOfActors; i++)
+                    for (int i = 0; i < serviceStateFixture.NumberOfActors; i++)
                     {
                         allActors.Add(new ActorId($"Actor_{i}"));
                     }
-                    
-                    ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.SetDefaultPageSize(newPageSize);
-                }
-                
-                public virtual void Dispose()
-                {
-                    ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.SetDefaultPageSize(defaultPageSize);
                 }
 
                 protected (IActorStateProvider, Dictionary<ActorId, List<IActorReminder>>) CreateActorStateProviderWithReminders()
@@ -102,7 +94,7 @@ namespace Microsoft.ServiceFabric.Actors
                     {
                         registeredReminders[actorId] = new List<IActorReminder>();
 
-                        for (int j = 0; j < numberOfReminderPerActor; j++)
+                        for (int j = 0; j < serviceStateFixture.NumberOfReminderPerActor; j++)
                         {
                             var reminderMock = new Mock<IActorReminder>();
                             reminderMock.SetupGet(r => r.Name).Returns($"Reminder_{j}");
@@ -117,6 +109,8 @@ namespace Microsoft.ServiceFabric.Actors
 
                 public class CancellationTokenIsNotNull : WhenReminderAreRegister
                 {
+                    public CancellationTokenIsNotNull(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
                     [Fact]
                     public async Task ThrowsWhenCancellationTokenIsCanceled()
                     {
@@ -133,13 +127,15 @@ namespace Microsoft.ServiceFabric.Actors
                 {
                     protected readonly IActorStateProvider actorStateProviderWithReminders;
 
-                    public WhenNoChangesAreMadeToTheRemindersBetweenResults()
+                    public WhenNoChangesAreMadeToTheRemindersBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture)
                     {
                         (actorStateProviderWithReminders, _) = CreateActorStateProviderWithReminders();
                     }
 
                     public class WhenActorIdIsGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
                     {
+                        public WhenActorIdIsGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
                         [Fact]
                         public async Task ReturnsTheSameReminderWhichHaveBeenRegisteredForEachActor()
                         {
@@ -174,7 +170,7 @@ namespace Microsoft.ServiceFabric.Actors
                                     .SelectMany(g => g) // Flattens groups
                                     .ToList();
 
-                                Assert.Equal(numberOfReminderPerActor, allQueriedRemindersPerActor.Count());
+                                Assert.Equal(serviceStateFixture.NumberOfReminderPerActor, allQueriedRemindersPerActor.Count());
                                 Assert.Empty(actorsNotMatchingQuery);
                                 Assert.Empty(duplicateReminders);
                             }
@@ -183,13 +179,15 @@ namespace Microsoft.ServiceFabric.Actors
 
                     public class WhenActorIdIsNotGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
                     {
+                        public WhenActorIdIsNotGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
                         [Fact]
                         public async Task ReturnsTheSameReminderWhichHaveBeenRegistered()
                         {
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
 
                             ContinuationToken continuationToken = null;
-                            int expectedNumberOfReminder = numberOfActors * numberOfReminderPerActor;
+                            int expectedNumberOfReminder = serviceStateFixture.NumberOfActors * serviceStateFixture.NumberOfReminderPerActor;
 
                             var allReminders = new List<ActorReminderState>();
 
@@ -222,8 +220,12 @@ namespace Microsoft.ServiceFabric.Actors
 
                 public class WhenChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
+                    public WhenChangesAreMadeToTheRemindersBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
                     public class WhenActorIdIsGiven : WhenChangesAreMadeToTheRemindersBetweenResults
                     {
+                        public WhenActorIdIsGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
                         [Fact]
                         public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
@@ -282,7 +284,7 @@ namespace Microsoft.ServiceFabric.Actors
                             }
                             while (continuationToken != null);
 
-                            Assert.Equal(numberOfReminderPerActor, allNamesOfQueriedReminders.Count());
+                            Assert.Equal(serviceStateFixture.NumberOfReminderPerActor, allNamesOfQueriedReminders.Count());
                             Assert.Contains("Reminder_new", allNamesOfQueriedReminders);
                             Assert.DoesNotContain(targetReminder, allNamesOfQueriedReminders);
                         }
@@ -290,6 +292,8 @@ namespace Microsoft.ServiceFabric.Actors
 
                     public class WhenActorIdIsNotGiven : WhenChangesAreMadeToTheRemindersBetweenResults
                     {
+                        public WhenActorIdIsNotGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
                         [Fact]
                         public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
@@ -306,7 +310,7 @@ namespace Microsoft.ServiceFabric.Actors
                                 .SelectMany(kvp => kvp.Value)
                                 .Select(reminder => reminder.Name);
                             var targetReminder = fuzzy.Element(namesOfAllQueriedReminders);
-                            
+
                             await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
 
                             Assert.Equal(expectedRemindersPerPage, namesOfAllQueriedReminders.Count());
@@ -322,6 +326,8 @@ namespace Microsoft.ServiceFabric.Actors
                             var targetActorId = new ActorId("");
                             var targetReminder = "";
                             Dictionary<ActorId, List<string>> allNamesOfQueriedReminders = allActors.ToDictionary(id => id, _ => new List<string>());
+
+                            int expectedNumberOfRegisteredReminders = serviceStateFixture.NumberOfActors * serviceStateFixture.NumberOfReminderPerActor;
 
                             ContinuationToken continuationToken = null;
                             bool firstPage = true;
@@ -363,7 +369,7 @@ namespace Microsoft.ServiceFabric.Actors
 
                             int actualNumberOfQueriedReminders = allNamesOfQueriedReminders.Sum(kvp => kvp.Value.Count());
 
-                            Assert.Equal(numberOfActors * numberOfReminderPerActor, actualNumberOfQueriedReminders);
+                            Assert.Equal(expectedNumberOfRegisteredReminders, actualNumberOfQueriedReminders);
                             Assert.Contains("Reminder_new", allNamesOfQueriedReminders[targetActorId]);
                             Assert.DoesNotContain(targetReminder, allNamesOfQueriedReminders[targetActorId]);
                         }
@@ -372,6 +378,8 @@ namespace Microsoft.ServiceFabric.Actors
 
                 public class WhenChangesAreMadeToActorsBetweenResults : WhenReminderAreRegister
                 {
+                    public WhenChangesAreMadeToActorsBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
                     [Fact]
                     public async Task ReflectsChangesToActorsInConsecutivePages()
                     {
@@ -424,6 +432,35 @@ namespace Microsoft.ServiceFabric.Actors
                     }
                 }
             }
+
+            public class ServiceStateFixture : IDisposable
+            {
+                private readonly int numberOfActors;
+                private readonly int numberOfReminderPerActor;
+                private readonly int defaultPageSize;
+                public int NumberOfActors { get => numberOfActors; }
+                public int NumberOfReminderPerActor { get => numberOfReminderPerActor; }
+
+                public ServiceStateFixture()
+                {
+                    numberOfActors = fuzzy.Int32().Between(5, 10);
+                    numberOfReminderPerActor = fuzzy.Int32().Between(10, 20);
+                    defaultPageSize = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
+
+                    // Reminder for a particular actor should be divided in at least two result pages
+                    int newPageSize = fuzzy.Int32().Between(1, numberOfReminderPerActor - 1);
+                    ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.SetDefaultPageSize(newPageSize);
+                }
+
+                public void Dispose()
+                {
+                    ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.SetDefaultPageSize(defaultPageSize);
+                }
+            }
+
+            [Collection("Service State Collection")]
+            public class ServiceStateCollectionFixture : ICollectionFixture<ServiceStateFixture> { }
+
         }
     }
 }
