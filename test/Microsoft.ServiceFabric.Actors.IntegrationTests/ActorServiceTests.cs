@@ -72,26 +72,20 @@ namespace Microsoft.ServiceFabric.Actors
             public class WhenReminderAreRegister : GetRemindersAsync
             {
                 protected readonly ServiceStateFixture serviceStateFixture;
-                protected readonly List<ActorId> allActors;
 
                 public WhenReminderAreRegister(ServiceStateFixture serviceStateFixture)
                 {
                     this.serviceStateFixture = serviceStateFixture;
-                    allActors = new List<ActorId>();
-
-                    for (int i = 0; i < serviceStateFixture.NumberOfActors; i++)
-                    {
-                        allActors.Add(new ActorId($"Actor_{i}"));
-                    }
                 }
 
-                protected (IActorStateProvider, Dictionary<ActorId, List<IActorReminder>>) CreateActorStateProviderWithReminders()
+                protected (IActorStateProvider, IEnumerable<ActorId>, Dictionary<ActorId, List<IActorReminder>>) CreateActorStateProviderWithReminders()
                 {
                     IActorStateProvider actorStateProvider = new NullActorStateProvider();
                     var registeredReminders = new Dictionary<ActorId, List<IActorReminder>>();
 
-                    foreach (var actorId in allActors)
+                    for (int i = 0; i < serviceStateFixture.NumberOfActors; i++)
                     {
+                        var actorId = new ActorId($"Actor_{i}");
                         registeredReminders[actorId] = new List<IActorReminder>();
 
                         for (int j = 0; j < serviceStateFixture.NumberOfReminderPerActor; j++)
@@ -104,7 +98,7 @@ namespace Microsoft.ServiceFabric.Actors
                         }
                     }
 
-                    return (actorStateProvider, registeredReminders);
+                    return (actorStateProvider, registeredReminders.Keys, registeredReminders);
                 }
 
                 public class CancellationTokenIsNotNull : WhenReminderAreRegister
@@ -114,7 +108,7 @@ namespace Microsoft.ServiceFabric.Actors
                     [Fact]
                     public async Task ThrowsWhenCancellationTokenIsCanceled()
                     {
-                        var (actorStateProvider, _) = CreateActorStateProviderWithReminders();
+                        var (actorStateProvider, _, _) = CreateActorStateProviderWithReminders();
                         IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
                         var cts = new CancellationTokenSource();
                         cts.Cancel();
@@ -126,10 +120,12 @@ namespace Microsoft.ServiceFabric.Actors
                 public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
                 {
                     protected readonly IActorStateProvider actorStateProviderWithReminders;
+                    protected readonly Dictionary<ActorId, List<IActorReminder>> registeredRemindersPerActor;
+                    protected readonly IEnumerable<ActorId> allActors;
 
                     public WhenNoChangesAreMadeToTheRemindersBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture)
                     {
-                        (actorStateProviderWithReminders, _) = CreateActorStateProviderWithReminders();
+                        (actorStateProviderWithReminders, allActors, registeredRemindersPerActor) = CreateActorStateProviderWithReminders();
                     }
 
                     public class WhenActorIdIsGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
@@ -229,7 +225,7 @@ namespace Microsoft.ServiceFabric.Actors
                         [Fact]
                         public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
-                            var (actorStateProvider, _) = CreateActorStateProviderWithReminders();
+                            var (actorStateProvider, allActors, _) = CreateActorStateProviderWithReminders();
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
                             var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
                             var targetActorId = fuzzy.Element(allActors);
@@ -246,7 +242,7 @@ namespace Microsoft.ServiceFabric.Actors
                         [Fact]
                         public async Task ReflectsChangesToRemindersInConsecutivePages()
                         {
-                            var (actorStateProvider, registeredReminders) = CreateActorStateProviderWithReminders();
+                            var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
 
                             var targetActorId = fuzzy.Element(allActors);
@@ -297,7 +293,7 @@ namespace Microsoft.ServiceFabric.Actors
                         [Fact]
                         public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
                         {
-                            var (actorStateProvider, _) = CreateActorStateProviderWithReminders();
+                            var (actorStateProvider, _, _) = CreateActorStateProviderWithReminders();
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
                             var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
 
@@ -320,7 +316,7 @@ namespace Microsoft.ServiceFabric.Actors
                         [Fact]
                         public async Task ReflectsChangesToRemindersInConsecutivePages()
                         {
-                            var (actorStateProvider, registeredReminders) = CreateActorStateProviderWithReminders();
+                            var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
 
                             var targetActorId = new ActorId("");
@@ -383,7 +379,7 @@ namespace Microsoft.ServiceFabric.Actors
                     [Fact]
                     public async Task ReflectsChangesToActorsInConsecutivePages()
                     {
-                        var (actorStateProvider, registeredReminders) = CreateActorStateProviderWithReminders();
+                        var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
                         IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
 
                         var targetActorId = new ActorId("");
