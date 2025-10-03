@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Fuzzy" />
     <PackageReference Include="Moq" />
     <PackageReference Include="xunit" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

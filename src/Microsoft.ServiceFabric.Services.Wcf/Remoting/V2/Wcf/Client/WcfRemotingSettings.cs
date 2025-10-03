@@ -4,7 +4,7 @@
 // ------------------------------------------------------------
 
 using System;
-using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         /// </summary>
         public WcfRemotingSettings()
         {
-#pragma warning disable 618            
+#pragma warning disable 618
             this.ExceptionDeserializationTechnique = ExceptionDeserialization.Fallback;
 #pragma warning restore 618
         }

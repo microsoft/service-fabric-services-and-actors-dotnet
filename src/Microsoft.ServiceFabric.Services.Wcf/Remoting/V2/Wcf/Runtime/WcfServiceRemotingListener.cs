@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
             listenerSettings ??= new WcfRemotingListenerSettings();
 
-            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(exceptionConvertors, listenerSettings);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
@@ -199,7 +199,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             listenerSettings ??= new WcfRemotingListenerSettings();
 
-            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(exceptionConvertors, listenerSettings);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 this.GetDefaultSerializationProvider(
@@ -287,7 +287,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             listenerSettings ??= new WcfRemotingListenerSettings();
 
-            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(exceptionConvertors, listenerSettings);
 
             var serializerManager = new ServiceRemotingMessageSerializersManager(
                 this.GetDefaultSerializationProvider(
@@ -315,7 +315,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             listenerSettings ??= new WcfRemotingListenerSettings();
 
-            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(exceptionConvertors, listenerSettings);
 
             this.wcfRemotingService = new WcfRemotingService(
                         this.messageHandler,
@@ -343,7 +343,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         {
             listenerSettings ??= new WcfRemotingListenerSettings();
 
-            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(this.CreateExceptionConvertorsWithDefaults(exceptionConvertors), listenerSettings);
+            var exceptionConversionHandler = this.exceptionConversionHandlerFactory(exceptionConvertors, listenerSettings);
 
             this.wcfRemotingService = new WcfRemotingService(
                         this.messageHandler,
@@ -353,19 +353,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
 
             this.Initialize(serviceContext, messageHandler, listenerBinding, endpointResourceName, serializerManager, this.wcfRemotingService);
         }
-
-        private IEnumerable<IExceptionConvertor> CreateExceptionConvertorsWithDefaults(IEnumerable<IExceptionConvertor> exceptionConvertors)
-        {
-            IEnumerable<IExceptionConvertor> convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
-            {
-                new SystemExceptionConvertor(),
-                new FabricExceptionConvertor(),
-                new DefaultExceptionConvertor()
-            };
-
-            return convertors;
-        }
-
 
         /// <summary>
         ///     Gets the <see cref="System.ServiceModel.ServiceHost"/> used by this listener to host the

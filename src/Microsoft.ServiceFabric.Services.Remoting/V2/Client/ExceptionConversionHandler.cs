@@ -12,7 +12,6 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.ServiceFabric.Services.Communication;
-using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {

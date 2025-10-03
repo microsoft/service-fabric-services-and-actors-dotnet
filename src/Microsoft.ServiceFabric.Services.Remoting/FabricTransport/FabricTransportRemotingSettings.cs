@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     using System.Fabric;
     using System.Fabric.Common;
     using Microsoft.ServiceFabric.FabricTransport;
-    using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+    using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
     using Constants = V2.Constants;
 
     /// <summary>

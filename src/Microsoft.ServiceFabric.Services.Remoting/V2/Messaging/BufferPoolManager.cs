@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
             this.allocator = new Allocator(segmentSize);
             ServiceTrace.Source.WriteInfo(
                 "BufferPoolManager",
-                "BufferMessageSize {0} ,BufferMacCount {1}",
+                "BufferMessageSize {0} ,BufferMaxCount {1}",
                 segmentSize,
                 bufferLimit);
         }

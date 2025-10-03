@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
     using Xunit;
 
     /// <summary>
-    /// Test class for ServiceNameForamt.
+    /// Test class for ServiceNameFormat.
     /// </summary>
     public class ServiceNameFormatTests
     {

@@ -184,7 +184,7 @@
     <value>Call context does not match current call context</value>
   </data>
   <data name="InvalidReentrancyConfiguration" xml:space="preserve">
-    <value>Actor {0} can be decorated with atmost one Reentrancy attribute</value>
+    <value>Actor {0} can be decorated with at most one Reentrancy attribute</value>
   </data>
   <data name="ReentrancyModeDisallowed" xml:space="preserve">
     <value>Actor {0} does not allow reentrant calls. ReentrancyMode must be set to LogicalCallContext to allow reentrant calls</value>
@@ -310,7 +310,7 @@
     <value>The actor state name '{0}' already exist.</value>
   </data>
   <data name="InvalidReentrantCall" xml:space="preserve">
-    <value>A reentrant call has been made from actor while there are other outstanding actor calls. Atmost one reentrant call is allowed at a time.</value>
+    <value>A reentrant call has been made from actor while there are other outstanding actor calls. At most one reentrant call is allowed at a time.</value>
   </data>
   <data name="TimerArgumentOutOfRange" xml:space="preserve">
     <value>TimeSpan TotalMilliseconds specified value must be between {0} and {1} </value>

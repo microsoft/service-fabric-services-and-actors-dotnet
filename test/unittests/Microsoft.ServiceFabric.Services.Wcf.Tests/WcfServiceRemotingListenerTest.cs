@@ -12,7 +12,6 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 using System.Fabric;
 using System.Fabric.Description;
 using System.Collections.ObjectModel;
-using static Microsoft.ServiceFabric.Services.Remoting.V2.Runtime.ExceptionConversionHandler;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
 {
