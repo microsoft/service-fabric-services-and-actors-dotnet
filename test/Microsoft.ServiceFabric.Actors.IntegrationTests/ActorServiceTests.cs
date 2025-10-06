@@ -5,13 +5,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fuzzy;
-using Fuzzy.Implementation;
-using Microsoft.Diagnostics.Tracing.Parsers.Clr;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Moq;
 using Xunit;
+using Xunit.Internal;
 
 namespace Microsoft.ServiceFabric.Actors
 {
@@ -69,11 +68,11 @@ namespace Microsoft.ServiceFabric.Actors
             }
 
             [Collection(typeof(ServiceStateCollectionFixture))]
-            public class WhenReminderAreRegister : GetRemindersAsync
+            public class WhenReminderAreRegistered : GetRemindersAsync
             {
                 protected readonly ServiceStateFixture serviceStateFixture;
 
-                public WhenReminderAreRegister(ServiceStateFixture serviceStateFixture)
+                public WhenReminderAreRegistered(ServiceStateFixture serviceStateFixture)
                 {
                     this.serviceStateFixture = serviceStateFixture;
                 }
@@ -101,7 +100,30 @@ namespace Microsoft.ServiceFabric.Actors
                     return (actorStateProvider, registeredReminders.Keys, registeredReminders);
                 }
 
-                public class CancellationTokenIsNotNull : WhenReminderAreRegister
+                protected bool ReminderDictionariesAreEqual(
+                    Dictionary<ActorId, List<IActorReminder>> dict1,
+                    Dictionary<ActorId, List<IActorReminder>> dict2
+                )
+                {
+                    if (dict1.Count != dict2.Count)
+                        return false;
+
+                    foreach (var kvp in dict1)
+                    {
+                        if (!dict2.TryGetValue(kvp.Key, out var reminders2))
+                            return false;
+
+                        var names1 = kvp.Value.Select(r => r.Name).ToHashSet();
+                        var names2 = reminders2.Select(r => r.Name).ToHashSet();
+
+                        if (!names1.SetEquals(names2))
+                            return false;
+                    }
+
+                    return true;
+                }
+
+                public class CancellationTokenIsNotNull : WhenReminderAreRegistered
                 {
                     public CancellationTokenIsNotNull(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
@@ -117,7 +139,7 @@ namespace Microsoft.ServiceFabric.Actors
                     }
                 }
 
-                public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
+                public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegistered
                 {
                     protected readonly IActorStateProvider actorStateProviderWithReminders;
                     protected readonly Dictionary<ActorId, List<IActorReminder>> registeredRemindersPerActor;
@@ -139,9 +161,12 @@ namespace Microsoft.ServiceFabric.Actors
 
                             foreach (ActorId actorId in allActors)
                             {
+                                Dictionary<ActorId, List<IActorReminder>> expectedQueryResult = registeredRemindersPerActor
+                                    .Where(kvp => kvp.Key == actorId)
+                                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
                                 ContinuationToken continuationToken = null;
-                                var allQueriedActors = new List<ActorId>();
-                                var allQueriedRemindersPerActor = new List<ActorReminderState>();
+                                var queryResult = new Dictionary<ActorId, List<IActorReminder>>();
 
                                 do
                                 {
@@ -151,24 +176,17 @@ namespace Microsoft.ServiceFabric.Actors
                                     foreach (var kvp in page.Items)
                                     {
                                         ActorId queriedActor = kvp.Key;
-                                        List<ActorReminderState> queriedReminderList = kvp.Value;
+                                        List<ActorReminderState> reminderList = kvp.Value;
 
-                                        allQueriedActors.Add(queriedActor);
-                                        allQueriedRemindersPerActor.AddRange(queriedReminderList);
+                                        if (!queryResult.ContainsKey(actorId))
+                                            queryResult[actorId] = new List<IActorReminder>();
+
+                                        queryResult[actorId].AddRange(reminderList);
                                     }
                                 }
                                 while (continuationToken != null);
 
-                                var actorsNotMatchingQuery = allQueriedActors.Where(aid => aid != actorId);
-                                var duplicateReminders = allQueriedRemindersPerActor
-                                    .GroupBy(r => r) // Group by ActorReminderState
-                                    .Where(g => g.Count() > 1) // Filter out group which have 1 or less ActorReminderStates
-                                    .SelectMany(g => g) // Flattens groups
-                                    .ToList();
-
-                                Assert.Equal(serviceStateFixture.NumberOfReminderPerActor, allQueriedRemindersPerActor.Count());
-                                Assert.Empty(actorsNotMatchingQuery);
-                                Assert.Empty(duplicateReminders);
+                                Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, queryResult));
                             }
                         }
                     }
@@ -183,9 +201,7 @@ namespace Microsoft.ServiceFabric.Actors
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
 
                             ContinuationToken continuationToken = null;
-                            int expectedNumberOfReminder = serviceStateFixture.NumberOfActors * serviceStateFixture.NumberOfReminderPerActor;
-
-                            var allReminders = new List<ActorReminderState>();
+                            var queryResult = new Dictionary<ActorId, List<IActorReminder>>();
 
                             do
                             {
@@ -197,24 +213,20 @@ namespace Microsoft.ServiceFabric.Actors
                                     ActorId actorId = kvp.Key;
                                     List<ActorReminderState> reminderList = kvp.Value;
 
-                                    allReminders.AddRange(reminderList);
+                                    if (!queryResult.ContainsKey(actorId))
+                                        queryResult[actorId] = new List<IActorReminder>();
+
+                                    queryResult[actorId].AddRange(reminderList);
                                 }
                             }
                             while (continuationToken != null);
 
-                            var duplicateReminders = allReminders
-                                .GroupBy(r => r) // Group by ActorReminderState
-                                .Where(g => g.Count() > 1) // Filter out group which have 1 or less ActorReminderStates
-                                .SelectMany(g => g) // Flattens groups
-                                .ToList();
-
-                            Assert.Equal(expectedNumberOfReminder, allReminders.Count());
-                            Assert.Empty(duplicateReminders);
+                            Assert.True(ReminderDictionariesAreEqual(registeredRemindersPerActor, queryResult));
                         }
                     }
                 }
 
-                public class WhenChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegister
+                public class WhenChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegistered
                 {
                     public WhenChangesAreMadeToTheRemindersBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
@@ -246,8 +258,12 @@ namespace Microsoft.ServiceFabric.Actors
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
 
                             var targetActorId = fuzzy.Element(allActors);
-                            var targetReminder = "";
-                            var allNamesOfQueriedReminders = new List<string>();
+                            var targetReminder = ""; // Target reminder is determined when reading the first result page
+                            var expectedQueryResult = registeredReminders
+                                .Where(kvp => kvp.Key == targetActorId)
+                                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+                            var queryResult = new Dictionary<ActorId, List<IActorReminder>>();
 
                             ContinuationToken continuationToken = null;
                             bool firstPage = true;
@@ -257,10 +273,9 @@ namespace Microsoft.ServiceFabric.Actors
                                 var page = await actorService.GetRemindersAsync(targetActorId, continuationToken, TestContext.Current.CancellationToken);
                                 continuationToken = page.ContinuationToken;
 
-                                IEnumerable<ActorReminderState> queriedReminders = page.Items.First().Value;
-
                                 if (firstPage)
                                 {
+                                    IEnumerable<ActorReminderState> queriedReminders = page.Items.First().Value;
                                     var namesOfQueriedReminders = queriedReminders.Select(r => r.Name);
                                     var namesOfRegisteredReminders = registeredReminders[targetActorId].Select(r => r.Name);
                                     var namesOfNotQueriedReminders = namesOfRegisteredReminders.Except(namesOfQueriedReminders, StringComparer.OrdinalIgnoreCase);
@@ -273,16 +288,27 @@ namespace Microsoft.ServiceFabric.Actors
                                     await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
                                     await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object, TestContext.Current.CancellationToken);
 
+                                    expectedQueryResult[targetActorId].RemoveAll(r => r.Name == targetReminder);
+                                    expectedQueryResult[targetActorId].Add(newReminderMock.Object);
+
                                     firstPage = false;
                                 }
 
-                                allNamesOfQueriedReminders.AddRange(queriedReminders.Select(rs => rs.Name));
+                                foreach (var kvp in page.Items)
+                                {
+                                    ActorId actorId = kvp.Key;
+                                    List<ActorReminderState> reminderList = kvp.Value;
+
+                                    if (!queryResult.ContainsKey(actorId))
+                                        queryResult[actorId] = new List<IActorReminder>();
+
+                                    queryResult[actorId].AddRange(reminderList);
+                                }
+
                             }
                             while (continuationToken != null);
 
-                            Assert.Equal(serviceStateFixture.NumberOfReminderPerActor, allNamesOfQueriedReminders.Count());
-                            Assert.Contains("Reminder_new", allNamesOfQueriedReminders);
-                            Assert.DoesNotContain(targetReminder, allNamesOfQueriedReminders);
+                            Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, queryResult));
                         }
                     }
 
@@ -318,12 +344,13 @@ namespace Microsoft.ServiceFabric.Actors
                         {
                             var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
-
+                            
+                            // Target actor and reminder reminder is determined when reading the first result page
                             var targetActorId = new ActorId("");
                             var targetReminder = "";
-                            Dictionary<ActorId, List<string>> allNamesOfQueriedReminders = allActors.ToDictionary(id => id, _ => new List<string>());
+                            var expectedQueryResult = registeredReminders;
 
-                            int expectedNumberOfRegisteredReminders = serviceStateFixture.NumberOfActors * serviceStateFixture.NumberOfReminderPerActor;
+                            var queryResult = new Dictionary<ActorId, List<IActorReminder>>();
 
                             ContinuationToken continuationToken = null;
                             bool firstPage = true;
@@ -333,16 +360,13 @@ namespace Microsoft.ServiceFabric.Actors
                                 var page = await actorService.GetRemindersAsync(null, continuationToken, TestContext.Current.CancellationToken);
                                 continuationToken = page.ContinuationToken;
 
-                                IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
-
                                 if (firstPage)
                                 {
+                                    IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
                                     var actorsNotInFirstPage = allActors.Except(queriedActors);
-
                                     targetActorId = actorsNotInFirstPage.Any()
                                         ? fuzzy.Element(actorsNotInFirstPage)
                                         : fuzzy.Element(queriedActors);
-
                                     targetReminder = fuzzy.Element(registeredReminders[targetActorId]).Name;
 
                                     var newReminderMock = new Mock<IActorReminder>();
@@ -351,28 +375,31 @@ namespace Microsoft.ServiceFabric.Actors
                                     await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
                                     await actorStateProvider.SaveReminderAsync(targetActorId, newReminderMock.Object, TestContext.Current.CancellationToken);
 
+                                    expectedQueryResult[targetActorId].RemoveAll(r => r.Name == targetReminder);
+                                    expectedQueryResult[targetActorId].Add(newReminderMock.Object);
+
                                     firstPage = false;
                                 }
 
                                 foreach (var kvp in page.Items)
                                 {
                                     ActorId actorId = kvp.Key;
-                                    IEnumerable<ActorReminderState> reminders = kvp.Value;
-                                    allNamesOfQueriedReminders[actorId].AddRange(reminders.Select(reminder => reminder.Name));
+                                    List<ActorReminderState> reminderList = kvp.Value;
+
+                                    if (!queryResult.ContainsKey(actorId))
+                                        queryResult[actorId] = new List<IActorReminder>();
+
+                                    queryResult[actorId].AddRange(reminderList);
                                 }
                             }
                             while (continuationToken != null);
 
-                            int actualNumberOfQueriedReminders = allNamesOfQueriedReminders.Sum(kvp => kvp.Value.Count());
-
-                            Assert.Equal(expectedNumberOfRegisteredReminders, actualNumberOfQueriedReminders);
-                            Assert.Contains("Reminder_new", allNamesOfQueriedReminders[targetActorId]);
-                            Assert.DoesNotContain(targetReminder, allNamesOfQueriedReminders[targetActorId]);
+                            Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, queryResult));
                         }
                     }
                 }
 
-                public class WhenChangesAreMadeToActorsBetweenResults : WhenReminderAreRegister
+                public class WhenChangesAreMadeToActorsBetweenResults : WhenReminderAreRegistered
                 {
                     public WhenChangesAreMadeToActorsBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
@@ -382,9 +409,10 @@ namespace Microsoft.ServiceFabric.Actors
                         var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
                         IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
 
-                        var targetActorId = new ActorId("");
-                        var numberOfReminderForTargetActorInFirstPage = 0;
-                        Dictionary<ActorId, List<string>> allNamesOfQueriedReminders = allActors.ToDictionary(id => id, _ => new List<string>());
+                        var targetActorId = new ActorId(""); // Target actor is determined while reading the first page
+                        var expectedQueryResult = registeredReminders; // Will change while reading first page
+
+                        var queryResult = new Dictionary<ActorId, List<IActorReminder>>();
 
                         ContinuationToken continuationToken = null;
                         bool firstPage = true;
@@ -394,37 +422,49 @@ namespace Microsoft.ServiceFabric.Actors
                             var page = await actorService.GetRemindersAsync(null, continuationToken, TestContext.Current.CancellationToken);
                             continuationToken = page.ContinuationToken;
 
-                            IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
-
                             if (firstPage)
                             {
+                                IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
                                 var actorsNotInFirstPage = allActors.Except(queriedActors);
-                                if (actorsNotInFirstPage.Any())
+                                targetActorId = actorsNotInFirstPage.Any()
+                                    ? fuzzy.Element(actorsNotInFirstPage)
+                                    : fuzzy.Element(allActors);
+
+                                await actorService.DeleteActorAsync(targetActorId, TestContext.Current.CancellationToken);
+
+                                IEnumerable<string> reminderNamesForTargetActorInFirstPage = page.Items
+                                    .Where(kvp => kvp.Key == targetActorId)
+                                    .SelectMany(kvp => kvp.Value)
+                                    .Select(r => r.Name);
+
+                                if (reminderNamesForTargetActorInFirstPage.Count() == 0)
                                 {
-                                    targetActorId = fuzzy.Element(actorsNotInFirstPage);
+                                    expectedQueryResult.Remove(targetActorId);
                                 }
                                 else
                                 {
-                                    targetActorId = fuzzy.Element(allActors);
-                                    numberOfReminderForTargetActorInFirstPage = page.Items
+                                    expectedQueryResult
                                         .Where(kvp => kvp.Key == targetActorId)
-                                        .Sum(kvp => kvp.Value.Count);
+                                        .Select(kvp => kvp.Value)
+                                        .ForEach(list => list.RemoveAll(r => reminderNamesForTargetActorInFirstPage.Contains(r.Name)));
                                 }
-
-                                await actorService.DeleteActorAsync(targetActorId, TestContext.Current.CancellationToken);
                                 firstPage = false;
                             }
 
                             foreach (var kvp in page.Items)
                             {
                                 ActorId actorId = kvp.Key;
-                                IEnumerable<ActorReminderState> reminders = kvp.Value;
-                                allNamesOfQueriedReminders[actorId].AddRange(reminders.Select(reminder => reminder.Name));
+                                List<ActorReminderState> reminderList = kvp.Value;
+
+                                if (!queryResult.ContainsKey(actorId))
+                                    queryResult[actorId] = new List<IActorReminder>();
+
+                                queryResult[actorId].AddRange(reminderList);
                             }
                         }
                         while (continuationToken != null);
 
-                        Assert.Equal(numberOfReminderForTargetActorInFirstPage, allNamesOfQueriedReminders[targetActorId].Count);
+                        Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, queryResult));
                     }
                 }
             }
