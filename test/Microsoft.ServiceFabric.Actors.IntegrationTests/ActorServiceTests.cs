@@ -77,7 +77,7 @@ namespace Microsoft.ServiceFabric.Actors
                     this.serviceStateFixture = serviceStateFixture;
                 }
 
-                public class CancellationTokenIsNotNull : WhenReminderAreRegistered
+                public class CancellationTokenIsNotNull : WhenRemindersAreRegistered
                 {
                     public CancellationTokenIsNotNull(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
@@ -97,7 +97,7 @@ namespace Microsoft.ServiceFabric.Actors
                     }
                 }
 
-                public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegistered
+                public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenRemindersAreRegistered
                 {
                     protected readonly IActorStateProvider actorStateProviderWithReminders;
                     protected readonly Dictionary<ActorId, List<IActorReminder>> registeredRemindersPerActor;
@@ -154,7 +154,7 @@ namespace Microsoft.ServiceFabric.Actors
                     }
                 }
 
-                public class WhenChangesAreMadeToTheRemindersBetweenResults : WhenReminderAreRegistered
+                public class WhenChangesAreMadeToTheRemindersBetweenResults : WhenRemindersAreRegistered
                 {
                     public WhenChangesAreMadeToTheRemindersBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
@@ -295,7 +295,7 @@ namespace Microsoft.ServiceFabric.Actors
                     }
                 }
 
-                public class WhenChangesAreMadeToActorsBetweenResults : WhenReminderAreRegistered
+                public class WhenChangesAreMadeToActorsBetweenResults : WhenRemindersAreRegistered
                 {
                     public WhenChangesAreMadeToActorsBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
