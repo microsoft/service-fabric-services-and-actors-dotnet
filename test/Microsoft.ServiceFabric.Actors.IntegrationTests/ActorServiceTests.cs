@@ -123,6 +123,20 @@ namespace Microsoft.ServiceFabric.Actors
                     return true;
                 }
 
+                protected void ReadReminderPage(
+                    ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>> resultPage,
+                    Dictionary<ActorId, List<IActorReminder>> output
+                )
+                {
+                    foreach (var kvp in resultPage.Items)
+                    {
+                       if (!output.ContainsKey(kvp.Key))
+                            output[kvp.Key] = new List<IActorReminder>();
+
+                        output[kvp.Key].AddRange(kvp.Value);
+                    }
+                }
+
                 public class CancellationTokenIsNotNull : WhenReminderAreRegistered
                 {
                     public CancellationTokenIsNotNull(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
@@ -173,16 +187,7 @@ namespace Microsoft.ServiceFabric.Actors
                                     var page = await actorService.GetRemindersAsync(actorId, continuationToken, TestContext.Current.CancellationToken);
                                     continuationToken = page.ContinuationToken;
 
-                                    foreach (var kvp in page.Items)
-                                    {
-                                        ActorId queriedActor = kvp.Key;
-                                        List<ActorReminderState> reminderList = kvp.Value;
-
-                                        if (!queryResult.ContainsKey(actorId))
-                                            queryResult[actorId] = new List<IActorReminder>();
-
-                                        queryResult[actorId].AddRange(reminderList);
-                                    }
+                                    ReadReminderPage(page, queryResult);
                                 }
                                 while (continuationToken != null);
 
@@ -208,16 +213,7 @@ namespace Microsoft.ServiceFabric.Actors
                                 var page = await actorService.GetRemindersAsync(null, continuationToken, TestContext.Current.CancellationToken);
                                 continuationToken = page.ContinuationToken;
 
-                                foreach (var kvp in page.Items)
-                                {
-                                    ActorId actorId = kvp.Key;
-                                    List<ActorReminderState> reminderList = kvp.Value;
-
-                                    if (!queryResult.ContainsKey(actorId))
-                                        queryResult[actorId] = new List<IActorReminder>();
-
-                                    queryResult[actorId].AddRange(reminderList);
-                                }
+                                ReadReminderPage(page, queryResult);
                             }
                             while (continuationToken != null);
 
@@ -294,16 +290,7 @@ namespace Microsoft.ServiceFabric.Actors
                                     firstPage = false;
                                 }
 
-                                foreach (var kvp in page.Items)
-                                {
-                                    ActorId actorId = kvp.Key;
-                                    List<ActorReminderState> reminderList = kvp.Value;
-
-                                    if (!queryResult.ContainsKey(actorId))
-                                        queryResult[actorId] = new List<IActorReminder>();
-
-                                    queryResult[actorId].AddRange(reminderList);
-                                }
+                                ReadReminderPage(page, queryResult);
 
                             }
                             while (continuationToken != null);
@@ -381,16 +368,7 @@ namespace Microsoft.ServiceFabric.Actors
                                     firstPage = false;
                                 }
 
-                                foreach (var kvp in page.Items)
-                                {
-                                    ActorId actorId = kvp.Key;
-                                    List<ActorReminderState> reminderList = kvp.Value;
-
-                                    if (!queryResult.ContainsKey(actorId))
-                                        queryResult[actorId] = new List<IActorReminder>();
-
-                                    queryResult[actorId].AddRange(reminderList);
-                                }
+                                ReadReminderPage(page, queryResult);
                             }
                             while (continuationToken != null);
 
@@ -451,16 +429,7 @@ namespace Microsoft.ServiceFabric.Actors
                                 firstPage = false;
                             }
 
-                            foreach (var kvp in page.Items)
-                            {
-                                ActorId actorId = kvp.Key;
-                                List<ActorReminderState> reminderList = kvp.Value;
-
-                                if (!queryResult.ContainsKey(actorId))
-                                    queryResult[actorId] = new List<IActorReminder>();
-
-                                queryResult[actorId].AddRange(reminderList);
-                            }
+                            ReadReminderPage(page, queryResult);
                         }
                         while (continuationToken != null);
 
