@@ -37,6 +37,7 @@ jobs:
       - run: .\UninstallSfSdkFromGac.ps1
       - run: dotnet test code.sln --configuration release --nologo --settings test\default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: test-windows
           path: ${{ env.DROP_DIR }}
@@ -49,6 +50,7 @@ jobs:
       - run: dotnet test code.sln --configuration release --nologo --settings test/default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
         continue-on-error: true
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: test-linux
           path: ${{ env.DROP_DIR }}

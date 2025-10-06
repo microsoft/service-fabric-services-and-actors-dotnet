@@ -5,8 +5,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
     [EventSource(Name = "TestEventSource")]
     internal class TestEventSource : ServiceFabricEventSource
     {
-        internal static TestEventSource Writer { get; private set; } = new TestEventSource();
-
         [Event(1, Message = "Event with id and type: {0}, {1}, {2}", Level = EventLevel.Informational)]
         public void EventWithIdAndType(string id, string type, string message)
         {

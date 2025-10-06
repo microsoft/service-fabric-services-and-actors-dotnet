@@ -30,6 +30,7 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Tests" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Tests" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.TestFramework" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Remoting.Tests" + PublicKey)]
 [assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]
 
 // Making internals visible for assemblies using Metrics

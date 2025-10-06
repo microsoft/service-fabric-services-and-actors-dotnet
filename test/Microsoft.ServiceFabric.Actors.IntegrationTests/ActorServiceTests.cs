@@ -68,11 +68,11 @@ namespace Microsoft.ServiceFabric.Actors
             }
 
             [Collection(typeof(ServiceStateCollectionFixture))]
-            public class WhenReminderAreRegistered : GetRemindersAsync
+            public class WhenRemindersAreRegistered : GetRemindersAsync
             {
                 protected readonly ServiceStateFixture serviceStateFixture;
 
-                public WhenReminderAreRegistered(ServiceStateFixture serviceStateFixture)
+                public WhenRemindersAreRegistered(ServiceStateFixture serviceStateFixture)
                 {
                     this.serviceStateFixture = serviceStateFixture;
                 }
