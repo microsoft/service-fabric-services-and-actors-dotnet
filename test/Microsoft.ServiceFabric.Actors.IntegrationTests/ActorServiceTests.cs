@@ -332,7 +332,7 @@ namespace Microsoft.ServiceFabric.Actors
                             var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
                             IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
                             
-                            // Target actor and reminder reminder is determined when reading the first result page
+                            // Target actor and reminder is determined when reading the first result page
                             var targetActorId = new ActorId("");
                             var targetReminder = "";
                             var expectedQueryResult = registeredReminders;
