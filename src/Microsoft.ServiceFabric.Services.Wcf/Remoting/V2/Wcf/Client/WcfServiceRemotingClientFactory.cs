@@ -254,8 +254,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         {
             IEnumerable<IExceptionConvertor> convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
-                new FabricExceptionConvertor(),
                 new SystemExceptionConvertor(),
+                new FabricExceptionConvertor(),
             };
 
             return convertors;

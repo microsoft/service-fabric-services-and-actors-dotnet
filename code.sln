@@ -58,6 +58,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Ser
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceFabric.Services.Wcf.Tests", "test\unittests\Microsoft.ServiceFabric.Services.Wcf.Tests\Microsoft.ServiceFabric.Services.Wcf.Tests.csproj", "{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceFabric.Actors.Wcf.Tests", "test\unittests\Microsoft.ServiceFabric.Actors.Wcf.Tests\Microsoft.ServiceFabric.Actors.Wcf.Tests.csproj", "{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -218,6 +220,14 @@ Global
 		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}.Release|x64.ActiveCfg = Release|Any CPU
 		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B}.Release|x64.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -245,6 +255,8 @@ Global
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {DEC12940-3D38-4526-9157-27CB8BD23D3D}
 		{A5D7C812-6B48-71FD-CACC-C65326E24AC0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9DA198B2-2C88-432F-87A4-1962225A154B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{1BFA8614-0A48-4D17-97E5-A34E630A4C2B} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
+		{A1B2C3D4-E5F6-7890-1234-56789ABCDEF0} = {BB93122C-21C5-4BB8-B385-74FC423D6027}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8CC7D7F7-CBD9-428B-A190-7A4D56C920FE}

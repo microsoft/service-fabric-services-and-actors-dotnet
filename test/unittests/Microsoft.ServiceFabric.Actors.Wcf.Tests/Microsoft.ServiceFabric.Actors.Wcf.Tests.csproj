@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{9037d86c-544d-48f2-bdb4-bf68fc8228b7}</ProjectGuid>
+    <RootNamespace>Microsoft.ServiceFabric.Actors.Wcf</RootNamespace>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+  <Import Project="..\..\..\properties\service_fabric_managed_common.props" />
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Inspector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj" />
+  </ItemGroup>
+</Project>

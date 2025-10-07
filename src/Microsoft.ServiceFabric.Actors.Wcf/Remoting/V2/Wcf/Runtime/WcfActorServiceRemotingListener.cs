@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Microsoft.ServiceFabric.Actors.Generator;
@@ -58,13 +59,13 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
         ///     parameters will not be wrapped. When this value is set to true, the parameters will be wrapped.Default value is false.
         /// </param>
         /// <param name="exceptionConvertors">Exception convertors to use for converting exceptions to RemoteException2.</param>
-        /// <param name="listenerSettings">Settings for the WCF remoting listener.</param>
+        /// <param name="settings">Settings for the WCF remoting listener.</param>
         public WcfActorServiceRemotingListener(
             ActorService actorService,
             Binding listenerBinding = null,
             bool useWrappedMessage = false,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            WcfRemotingListenerSettings listenerSettings = null)
+            WcfRemotingListenerSettings settings = null)
             : base(
                 GetContext(actorService),
                 new ActorServiceRemotingDispatcher(actorService, GetDefaultRequestMessageFactory(useWrappedMessage)),
@@ -72,8 +73,8 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
                 listenerBinding,
                 ActorNameFormat.GetFabricServiceEndpointName(actorService.ActorTypeInformation.ImplementationType),
                 useWrappedMessage,
-                exceptionConvertors,
-                listenerSettings)
+                GetDefaultActorConvertors(exceptionConvertors),
+                settings)
         {
         }
 
@@ -136,7 +137,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
         ///     parameters will be wrapped.Default value is false.
         /// </param>
         /// <param name="exceptionConvertors">Exception convertors to use for converting exceptions to RemoteException2.</param>
-        /// <param name="listenerSettings">Settings for the WCF remoting listener.</param>
+        /// <param name="settings">Settings for the WCF remoting listener.</param>
         public WcfActorServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler serviceRemotingMessageHandler,
@@ -145,7 +146,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
             EndpointAddress address = null,
             bool useWrappedMessage = false,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            WcfRemotingListenerSettings listenerSettings = null)
+            WcfRemotingListenerSettings settings = null)
             : base(
                 serviceContext,
                 serviceRemotingMessageHandler,
@@ -154,9 +155,19 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
                     new BasicDataContractActorHeaderSerializer()),
                 listenerBinding,
                 address,
-                exceptionConvertors,
-                listenerSettings)
+                GetDefaultActorConvertors(exceptionConvertors),
+                settings)
         {
+        }
+
+        private static IEnumerable<IExceptionConvertor> GetDefaultActorConvertors(IEnumerable<IExceptionConvertor> exceptionConvertors)
+        {
+            var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new FabricActorExceptionConvertor(),
+            };
+
+            return convertors;
         }
 
         private static IServiceRemotingMessageBodyFactory GetDefaultRequestMessageFactory(bool useWrappedMessage)
