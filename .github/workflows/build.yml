@@ -18,21 +18,11 @@ env:
   DROP_DIR: drop
 
 jobs:
-  build:
+  test-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
       - run: dotnet build buildAll.proj
-      - uses: actions/upload-artifact@master
-        with:
-          name: build
-          path: ${{ env.DROP_DIR }}
-
-  test-windows:
-    needs: build
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v5
       - run: .\SkipStrongName.ps1
       - run: .\UninstallSfSdkFromGac.ps1
       - run: dotnet test code.sln --configuration release --nologo --settings test\default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
@@ -43,7 +33,6 @@ jobs:
           path: ${{ env.DROP_DIR }}
 
   test-linux:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
