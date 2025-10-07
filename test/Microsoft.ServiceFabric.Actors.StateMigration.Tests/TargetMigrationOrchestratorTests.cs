@@ -3,7 +3,6 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-<<<<<<< HEAD
 namespace Microsoft.ServiceFabric.Actors.StateMigration
 {
     using System;
@@ -21,24 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.StateMigration
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Moq;
     using Xunit;
-=======
-using System;
-using System.Fabric;
-using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Actors.KVSToRCMigration;
-using Microsoft.ServiceFabric.Actors.Migration;
-using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
-using Microsoft.ServiceFabric.Actors.Runtime;
-using Microsoft.ServiceFabric.Actors.Runtime.Migration;
-using Microsoft.ServiceFabric.Actors.StateMigration.Tests.MockTypes;
-using Moq;
-using Xunit;
->>>>>>> 4ee062a8a04ddd94d9d772961bc4842b3373549e
 
-namespace Microsoft.ServiceFabric.Actors.StateMigration
-{
     /// <summary>
     /// Target Migration orchestrator tests.
     /// </summary>
