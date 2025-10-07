@@ -47,8 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: dotnet test code.sln --configuration release --nologo --settings test/default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
-        continue-on-error: true
+      - run: dotnet test code.sln --configuration release --nologo --settings test/default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx --framework net9.0
       - uses: actions/upload-artifact@v4
         if: always()
         with:
