@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
     /// Defines a meter for recording telemetry values.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
-    internal interface IMeter<TValueType>
+    interface IMeter<TValueType>
     {
         /// <summary>
         /// Records a telemetry value.

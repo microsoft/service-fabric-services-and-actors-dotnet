@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Runtime.Serialization;
+using System.Threading;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Diagnostics;
-    using System.Runtime.Serialization;
-    using System.Threading;
-
     /// <summary>
     /// Represents state of Actor Reminder.
     /// </summary>

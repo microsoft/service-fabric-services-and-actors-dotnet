@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly FabricTransportMessageHandler transportMessageHandler;
         private readonly string listenAddress;
         private readonly string publishAddress;
-        private FabricTransportListener fabricTransportlistener;
+        readonly FabricTransportListener fabricTransportlistener;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
@@ -201,8 +201,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             IServiceRemotingMessageSerializationProvider serializationProvider,
             FabricTransportRemotingListenerSettings listenerSettings)
         {
-            listenerSettings = listenerSettings ??
-                FabricTransportRemotingListenerSettings.GetDefault();
+            listenerSettings ??= FabricTransportRemotingListenerSettings.GetDefault();
 
             return new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
@@ -230,12 +229,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         private void Dispose()
         {
-            if (this.fabricTransportlistener != null)
-            {
-                this.fabricTransportlistener.Dispose();
-                this.fabricTransportlistener = null;
-            }
-
+            this.fabricTransportlistener.Dispose();
             this.transportMessageHandler.Dispose();
         }
     }

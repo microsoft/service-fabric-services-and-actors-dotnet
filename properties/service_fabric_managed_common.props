@@ -9,6 +9,8 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn></NoWarn>
     <Platforms>AnyCPU</Platforms>
+    <!-- Temporarily disable platform warnings until WindowsFabric assemblies are changed from net8.0-windows to net8.0 -->
+    <NoWarn>CA1416</NoWarn>
   </PropertyGroup>
 
   <!-- Assembly name, title and documentation -->
@@ -40,7 +42,7 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <!-- Use C# 8.0 features -->
+  <!-- Use C# 11.0 features -->
   <PropertyGroup>
     <LangVersion>11.0</LangVersion>
   </PropertyGroup>

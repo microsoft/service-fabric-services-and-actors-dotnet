@@ -3,18 +3,19 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric.Common;
+using System.Reflection;
+using System.Text;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Remoting;
+using Microsoft.ServiceFabric.Services.Remoting.Description;
+using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric.Common;
-    using System.Reflection;
-    using System.Text;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.Services.Remoting;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-    using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
-
     internal class PerformanceCounterProvider : IDisposable
     {
         private const string TraceType = "PerformanceCounterProvider";

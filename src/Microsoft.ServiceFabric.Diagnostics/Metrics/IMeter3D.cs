@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
     /// Defines a three-dimensional meter for recording telemetry values with three dimensions.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
-    internal interface IMeter3D<TValueType>
+    interface IMeter3D<TValueType>
     {
         /// <summary>
         /// Records a telemetry value with three dimensions.

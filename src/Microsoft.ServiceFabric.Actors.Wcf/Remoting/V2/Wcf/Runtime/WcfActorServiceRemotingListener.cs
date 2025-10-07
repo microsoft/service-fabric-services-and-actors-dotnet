@@ -76,7 +76,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
             Binding listenerBinding = null,
             bool useWrappedMessage = false,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingListenerSettings settings = null)
+            WcfRemotingListenerSettings settings = null)
             : base(
                 GetContext(actorService),
                 new ActorServiceRemotingDispatcher(actorService, GetDefaultRequestMessageFactory(useWrappedMessage)),
@@ -164,7 +164,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime
             EndpointAddress address = null,
             bool useWrappedMessage = false,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            FabricTransportRemotingListenerSettings settings = null)
+            WcfRemotingListenerSettings settings = null)
             : base(
                 serviceContext,
                 serviceRemotingMessageHandler,

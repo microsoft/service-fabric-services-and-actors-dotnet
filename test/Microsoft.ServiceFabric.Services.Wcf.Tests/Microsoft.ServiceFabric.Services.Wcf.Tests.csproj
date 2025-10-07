@@ -2,7 +2,8 @@
   <PropertyGroup>
     <ProjectGuid>{1bfa8614-0a48-4d17-97e5-a34e630a4c2b}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric.Services.Wcf</RootNamespace>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
@@ -11,7 +12,7 @@
     <PackageReference Include="Inspector" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
-    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

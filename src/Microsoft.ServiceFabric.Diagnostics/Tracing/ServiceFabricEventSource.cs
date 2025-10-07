@@ -27,6 +27,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tracing
         private readonly TraceConfig configMgr;
         private readonly string eventSourceName;
 
+        // Expected event properties for ITextEventSource implementations
+        internal const int InfoTextEventId = 1;
+        internal const int WarningTextEventId = 2;
+        internal const int ErrorTextEventId = 3;
+        internal const int NoiseTextEventId = 4;
+        internal const string TextEventFormat = "{2}";
+
 #if !NETFRAMEWORK
         protected static Func<OSPlatform, bool> isOSPlatform = RuntimeInformation.IsOSPlatform;
 #endif

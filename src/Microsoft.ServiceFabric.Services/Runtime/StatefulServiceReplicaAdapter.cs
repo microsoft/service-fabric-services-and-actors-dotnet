@@ -3,19 +3,19 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Fabric;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Communication.Runtime;
+
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Fabric;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Services;
-    using Microsoft.ServiceFabric.Services.Communication;
-    using Microsoft.ServiceFabric.Services.Communication.Runtime;
-
     internal class StatefulServiceReplicaAdapter : IStatefulServiceReplica, IInternalStatefulServiceReplica
     {
         private const string TraceType = "StatefulServiceReplicaAdapter";
@@ -26,6 +26,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         private readonly ServiceHelper serviceHelper;
         private readonly StatefulServiceContext serviceContext;
         private readonly IStatefulUserServiceReplica userServiceReplica;
+        readonly Func<ServiceReplicaListener, StatefulServiceContext, CommunicationListenerInfo> createCommunicationListener = ServiceReplicaListener.Instantiate;
 
         private IStateProviderReplica stateProviderReplica;
         private IStatefulServicePartition servicePartition;
@@ -45,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             StatefulServiceContext context,
             IStatefulUserServiceReplica userServiceReplica)
         {
-            this.serviceContext = context;
+            this.serviceContext = context ?? throw new ArgumentNullException(nameof(context));
             this.traceId = ServiceTrace.GetTraceIdForReplica(context.PartitionId, context.ReplicaId);
             this.serviceHelper = new ServiceHelper(TraceType, this.traceId);
 
@@ -57,7 +58,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             this.runAsynCancellationTokenSource = null;
             this.executeRunAsyncTask = null;
 
-            this.userServiceReplica = userServiceReplica;
+            this.userServiceReplica = userServiceReplica ?? throw new ArgumentNullException(nameof(userServiceReplica));
             this.userServiceReplica.Addresses = this.endpointCollection.ToReadOnlyDictionary();
 
             // The state provider replica should ideally be initialized
@@ -68,14 +69,6 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             // For now state provider replica is initialized when runtime calls
             // IStatefulServiceReplica.Initialize(StatefulServiceInitializationParameters initializationParameters)
             this.stateProviderReplica = this.userServiceReplica.CreateStateProviderReplica();
-        }
-
-        /// <summary>
-        /// Gets the communication listener that this service is using. This is only for used for testing.
-        /// </summary>
-        internal IList<CommunicationListenerInfo> Test_CommunicationListeners
-        {
-            get { return this.communicationListenersInfo; }
         }
 
         object IInternalStatefulServiceReplica.GetStatus()
@@ -523,45 +516,26 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             foreach (var entry in this.replicaListeners)
             {
-                string traceMsg;
-
                 if (entry is null)
                 {
-                    traceMsg = "Skipped (<null>) replica listener.";
-                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
-
+                    ServiceTrace.Source.WriteInfoWithId(TraceType, traceId, "Skipped (<null>) replica listener.");
                     continue;
                 }
 
                 if (replicaRole == ReplicaRole.Primary ||
                     (replicaRole == ReplicaRole.ActiveSecondary && entry.ListenOnSecondary))
                 {
-                    var communicationListener = entry.CreateCommunicationListener(this.serviceContext);
-                    if (communicationListener is null)
+                    CommunicationListenerInfo communicationListenerInfo = createCommunicationListener(entry, serviceContext);
+                    if (communicationListenerInfo == null)
                     {
-                        traceMsg = $"Skipped '{entry.Name}' (<null>) communication listener.";
-                        ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
-
+                        ServiceTrace.Source.WriteInfoWithId(TraceType, traceId, $"Skipped '{entry.Name}' (<null>) communication listener.");
                         continue;
                     }
 
-                    var communicationListenerInfo = new CommunicationListenerInfo
-                    {
-                        Name = entry.Name.Equals(ServiceInstanceListener.DefaultName) ? "default" : entry.Name,
-                        Listener = communicationListener,
-                    };
-
                     this.AddCommunicationListener(communicationListenerInfo);
-
-                    traceMsg = $"Opening {communicationListenerInfo.Name} communication listener.";
-                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
-
-                    var endpointAddress = await communicationListener.OpenAsync(cancellationToken);
+                    string endpointAddress = await communicationListenerInfo.Listener.OpenAsync(cancellationToken);
                     endpointsCollection.AddEndpoint(entry.Name, endpointAddress);
                     listenerOpenedCount++;
-
-                    traceMsg = $"Opened {communicationListenerInfo.Name} communication listener.";
-                    ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
                 }
             }
 
@@ -583,14 +557,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 {
                     foreach (var entry in this.communicationListenersInfo)
                     {
-                        var traceMsg = $"Closing {entry.Name} communication listener.";
-                        ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
-
                         var closeCommunicationListenerTask = entry.Listener.CloseAsync(cancellationToken);
                         await this.serviceHelper.AwaitCloseCommunicationListerWithHealthReporting(this.servicePartition, closeCommunicationListenerTask, entry.Name);
-
-                        traceMsg = $"Closed {entry.Name} communication listener.";
-                        ServiceTrace.Source.WriteInfoWithId(TraceType, this.traceId, traceMsg);
                     }
                 }
                 catch (Exception exception)
