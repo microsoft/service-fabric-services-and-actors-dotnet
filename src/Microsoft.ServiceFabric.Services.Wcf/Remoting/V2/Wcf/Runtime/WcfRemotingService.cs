@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 

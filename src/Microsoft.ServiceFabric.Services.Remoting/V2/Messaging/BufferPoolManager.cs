@@ -3,11 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric.Common;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Messaging
 {
-    using System;
-    using System.Fabric.Common;
-
     /// <summary>
     /// You can use the BufferManager class to manage a buffer pool.
     /// The pool is created when you instantiate this class . Buffer is instantiated when there are no unused buffers in the pool.

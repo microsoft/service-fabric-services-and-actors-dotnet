@@ -3,12 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    using System;
-    using System.Fabric;
-    using System.Runtime.Serialization;
-
     /// <summary>
     /// This exception indicates that an Actor received the duplicate message while waiting for to acquire
     /// the turn based concurrency lock.
@@ -41,11 +40,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// <param name="inner">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
         public DuplicateMessageException(string message, Exception inner)
             : base(message, inner)
-        {
-        }
-
-        private DuplicateMessageException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

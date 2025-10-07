@@ -1,38 +1,42 @@
-using System.Diagnostics.Tracing;
-using System.IO;
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
+using System;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Microsoft.ServiceFabric.Services
 {
-    public abstract class ServiceEventSourceTest
+    public sealed class ServiceEventSourceTest: IDisposable
     {
-        readonly ServiceEventSource sut = ServiceEventSource.Instance;
+        readonly EventSourceTest<ServiceEventSource> test = new EventSourceTest<ServiceEventSource>();
 
-        public sealed class Guid : ServiceEventSourceTest
-        {
-            [Fact]
-            public void RemainsUnchangedForBackwardCompatibilityWithCollectionTools()
-            {
-                Assert.Equal(new System.Guid("27b7a543-7280-5c2a-b053-f2f798e2cbb7"), sut.Guid);
-            }
-        }
+        public void Dispose() =>
+            test.Dispose();
 
-        public sealed class Manifest : ServiceEventSourceTest
-        {
-            readonly ITestOutputHelper output;
+        [Fact]
+        public void RemainsUnchangedForBackwardCompatibilityWithCollectionTools() =>
+            Assert.Equal(new Guid("27b7a543-7280-5c2a-b053-f2f798e2cbb7"), test.Instance.Guid);
 
-            public Manifest(ITestOutputHelper output) => this.output = output;
+        [Fact]
+        public void ManifestCanBeSavedForRegistrationWithExternalTools() =>
+            test.Manifest();
 
-            [Fact]
-            public void CanBeSavedForRegistrationWithExternalTools()
-            {
-                string manifest = EventSource.GenerateManifest(sut.GetType(), sut.GetType().Assembly.Location);
-                string manifestFile = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(sut.GetType().Assembly.Location), sut.Name), "man");
-                File.WriteAllText(manifestFile, manifest);
-                output.WriteLine("To register generated manifest for ETL tools, run");
-                output.WriteLine($"sudo wevtutil install-manifest {manifestFile}");
-            }
-        }
+        [Fact]
+        public void ErrorTextPublishesExpectedEvent() =>
+            test.ITextEventSource.ErrorText();
+
+        [Fact]
+        public void InfoTextPublishesExpectedEvent() =>
+            test.ITextEventSource.InfoText();
+
+        [Fact]
+        public void NoiseTextPublishesExpectedEvent() =>
+            test.ITextEventSource.NoiseText();
+
+        [Fact]
+        public void WarningTextPublishesExpectedEvent() =>
+            test.ITextEventSource.WarningText();
     }
 }

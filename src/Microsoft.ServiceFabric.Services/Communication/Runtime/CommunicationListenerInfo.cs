@@ -3,15 +3,31 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Services.Communication.Runtime
 {
     /// <summary>
     /// Represents the communication listener and its name.
     /// </summary>
-    internal class CommunicationListenerInfo
+    sealed class CommunicationListenerInfo : IEquatable<CommunicationListenerInfo>
     {
-        internal string Name { get; set; }
+        readonly string traceString;
 
-        internal ICommunicationListener Listener { get; set; }
+        internal CommunicationListenerInfo(string name, ICommunicationListener listener)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Listener = listener ?? throw new ArgumentNullException(nameof(listener));
+            traceString = $"{Listener.GetType().Name} '{Name}' (#{Listener.GetHashCode()})";
+        }
+
+        internal string Name { get; }
+
+        internal ICommunicationListener Listener { get; }
+
+        public override string ToString() => traceString;
+
+        bool IEquatable<CommunicationListenerInfo>.Equals(CommunicationListenerInfo info) =>
+            info != null && Equals(Name, info.Name) && ReferenceEquals(Listener, info.Listener);
     }
 }

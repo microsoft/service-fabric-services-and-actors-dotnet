@@ -3,17 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+using System.Fabric.Health;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Generator;
+using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
-    using System;
-    using System.Fabric;
-    using System.Fabric.Health;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Generator;
-    using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-
     /// <summary>
     /// Migration orchestrator for source(KVS based) service.
     /// </summary>

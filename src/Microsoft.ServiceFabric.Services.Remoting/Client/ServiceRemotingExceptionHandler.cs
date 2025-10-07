@@ -3,12 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Fabric;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.Client
 {
-    using System;
-    using System.Fabric;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-
     /// <summary>
     /// Provides handling of exceptions encountered in communicating with
     /// a service fabric service over remoted interfaces.

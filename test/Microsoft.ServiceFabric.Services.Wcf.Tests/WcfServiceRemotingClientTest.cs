@@ -9,6 +9,7 @@ using System;
 using System.ServiceModel;
 using System.Collections.Generic;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
+using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime;
 using Microsoft.ServiceFabric.Services.Communication;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
@@ -59,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 ExceptionSerializer exceptionSerializer = new ExceptionSerializer(
                     runtimeExceptionConvertors,
-                    null
+                    new WcfRemotingListenerSettings()
                 );
 
                 // Create RemoteException and FaultException
@@ -92,7 +93,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 ExceptionSerializer exceptionSerializer = new ExceptionSerializer(
                     runtimeExceptionConvertors,
-                    null
+                    new WcfRemotingListenerSettings()
                 );
 
                 // Create RemoteException and FaultException

@@ -3,15 +3,16 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Globalization;
+using System.Threading;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Globalization;
-    using System.Threading;
-
     /// <summary>
     /// This is the cache used by CommunicationClientFactory base class to store the communication channel's
     /// for the replicas or instances of a partition.
@@ -20,8 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
     /// up periodically.
     /// </summary>
     /// <typeparam name="TCommunicationClient">The type of the communication client.</typeparam>
-    internal class CommunicationClientCache<TCommunicationClient>
-    : IDisposable
+    internal class CommunicationClientCache<TCommunicationClient> : IDisposable
         where TCommunicationClient : ICommunicationClient
     {
         private const string TraceType = "CommunicationClientCache";

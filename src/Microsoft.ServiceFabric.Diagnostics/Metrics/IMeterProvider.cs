@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
     /// Provides factory methods for creating telemetry meters with different number of dimensions.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded. Currently intended to support integer and timespan meters.</typeparam>
-    internal interface IMeterProvider<TValueType>
+    interface IMeterProvider<TValueType>
     {
         /// <summary>
         /// Creates a meter for recording telemetry values without dimensions.

@@ -3,14 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric.Common;
+using System.Linq;
+using System.Text;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric.Common;
-    using System.Linq;
-    using System.Text;
-
     internal class ServiceRemotingPerformanceCounterProvider : IDisposable
     {
         private static readonly string TraceType = "ServiceRemotingPerformanceCounterProvider";

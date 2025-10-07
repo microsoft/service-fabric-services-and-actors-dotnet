@@ -285,7 +285,8 @@ namespace Microsoft.ServiceFabric.Actors.Generator
         /// </summary>
         /// <param name="actorImplementationType">Type of class implementing the actor.</param>
         /// <returns>FabricTransport configuration section name.</returns>
-        /// <remarks>Values specified in FabricTransport configuration section are used to configure <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime.FabricTransportRemotingListenerSettings"/>
+        /// <remarks>Values specified in FabricTransport configuration section are used to 
+        /// configure <see cref="Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime.FabricTransportRemotingListenerSettings"/>
         /// for the communication.
         /// </remarks>
         public static string GetFabricServiceTransportSettingsSectionName(Type actorImplementationType)

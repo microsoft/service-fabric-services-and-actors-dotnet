@@ -12,6 +12,8 @@
     <PackageReference Include="System.Reflection.Emit" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
   <ItemGroup>

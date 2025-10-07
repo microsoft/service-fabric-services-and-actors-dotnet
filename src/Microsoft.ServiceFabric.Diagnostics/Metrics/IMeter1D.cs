@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
     /// Defines a one-dimensional meter for recording telemetry values with a single dimension.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
-    internal interface IMeter1D<TValueType>
+    interface IMeter1D<TValueType>
     {
         /// <summary>
         /// Records a telemetry value with one dimension.
