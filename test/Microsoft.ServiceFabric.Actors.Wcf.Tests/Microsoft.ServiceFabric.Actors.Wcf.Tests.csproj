@@ -2,6 +2,7 @@
   <PropertyGroup>
     <ProjectGuid>{9037d86c-544d-48f2-bdb4-bf68fc8228b7}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric.Actors.Wcf</RootNamespace>
+    <IsTestProject Condition="'$(TargetFramework)' != 'net472'">false</IsTestProject>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
