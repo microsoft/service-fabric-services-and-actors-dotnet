@@ -1,16 +1,21 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
 using System;
 using System.Fabric;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Metrics;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    public class TelemetryDiagnosticEventsTest
+    public class TelemetryDiagnosticEventsTest : MockedTelemetryTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
@@ -18,12 +23,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         readonly ServiceContext serviceContext = fuzzy.ServiceContext();
         TelemetryDiagnosticEvents sut;
 
-        protected TelemetryDiagnosticEventsTest()
-        {
-            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object);
-
-            sut = new TelemetryDiagnosticEvents(serviceContext, clock);
-        }
+        protected TelemetryDiagnosticEventsTest() => sut = new TelemetryDiagnosticEvents(serviceContext, clock);
 
         public class Class : TelemetryDiagnosticEventsTest
         {

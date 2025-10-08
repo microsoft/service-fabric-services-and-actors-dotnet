@@ -10,21 +10,17 @@ using System.Linq;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    public class TimeSpanMeterProviderTest
+    public class TimeSpanMeterProviderTest : MockedTelemetryTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         readonly ServiceContext serviceContext = fuzzy.ServiceContext();
-
-        public TimeSpanMeterProviderTest()
-        {
-            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => Mock.Of<IFabricMeterProvider>());
-        }
 
         public class CreateMeter : TimeSpanMeterProviderTest
         {
