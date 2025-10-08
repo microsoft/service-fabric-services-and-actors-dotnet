@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnCreateTransportMessageBegin()
         {
-            // Intentionally left blank, since we don't track remoting request begin in telemetry.
+            // Intentionally left blank, since we don't observe this
         }
 
         public void OnCreateTransportMessageEnd(DateTime startTime)
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRemotingRequestBegin()
         {
-            // Intentionally left blank, since we don't track remoting request begin in telemetry.
+            // Intentionally left blank, since we don't observe this
         }
 
         public void OnRemotingRequestEnd(DateTime startTime)
@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public void OnRequestResponseBegin()
         {
-            // Intentionally left blank, since we don't track remoting request begin in telemetry.
+            // Intentionally left blank, since we don't observe this
         }
 
         public void OnRequestResponseEnd(DateTime startTime)
