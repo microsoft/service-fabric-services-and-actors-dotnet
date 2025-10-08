@@ -27,14 +27,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             [Fact]
             public void ImplementsIDiagnosticsEvents()
             {
-                var performanceCounterDiagnosticsSourceType = typeof(PerformanceCounterDiagnosticEvents);
-                var iDiagnosticsSourceType = typeof(IDiagnosticEvents);
-
-                Assert.True(iDiagnosticsSourceType.IsAssignableFrom(performanceCounterDiagnosticsSourceType));
+                Assert.True(typeof(IDiagnosticEvents).IsAssignableFrom(sut.GetType()));
             }
         }
 
-        public class Constructor: PerformanceCounterDiagnosticEventsTest
+        public class Constructor : PerformanceCounterDiagnosticEventsTest
         {
             [Fact]
             public void WithParametersPresent()
@@ -76,7 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             }
         }
 
-        public class OnEvent: PerformanceCounterDiagnosticEventsTest
+        public class OnEvent : PerformanceCounterDiagnosticEventsTest
         {
             private FabricAverageCount64PerformanceCounterWriter requestProcessingTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
             private FabricAverageCount64PerformanceCounterWriter requestDeserializationTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
@@ -92,7 +89,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                 performanceCounterProvider.Property<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceResponseSerializationTimeCounterWriter))
                     .Set(responseSerializationTimeCounterWriter);
                 performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter))
-                    .Set(outstandingRequestsCounterWriter); 
+                    .Set(outstandingRequestsCounterWriter);
             }
 
             [Fact]
@@ -107,8 +104,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             public void RequestBeginIgnoreIfWriterNull()
             {
                 performanceCounterProvider.Property<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.ServiceOutstandingRequestsCounterWriter))
-                    .Set(null); 
-                
+                    .Set(null);
+
                 sut.OnRequestResponseBegin();
 
                 Mock.Get(outstandingRequestsCounterWriter).Verify(x => x.UpdateCounterValue(It.IsAny<long>()), Times.Never);
