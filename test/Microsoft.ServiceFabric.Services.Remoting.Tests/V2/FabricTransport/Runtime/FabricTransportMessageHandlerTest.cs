@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Microsoft.ServiceFabric.FabricTransport.V2;
 using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
@@ -34,6 +35,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         public FabricTransportMessageHandlerTest()
         {
+            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object);
             Mock.Get(this.clock).Setup(c => c.UtcNow)
                 .Returns(currentTime);
 
@@ -65,8 +67,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 var field = sut.Field<IDiagnosticEvents>().Value;
                 var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
 
-                Assert.Single(registeredDiagnosticEvents);
-                Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.First());
+                Assert.Equal(2, registeredDiagnosticEvents.Count());
+                Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
+                Assert.IsType<TelemetryDiagnosticEvents>(registeredDiagnosticEvents.ToList()[1]);
             }
 
             [Fact]
