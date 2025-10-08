@@ -82,7 +82,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             [Fact]
             public void UsesPassedRemotingListenerSettings()
             {
-                var expectedSettings = new FabricTransportRemotingListenerSettings();
+                var expectedSettings = new FabricTransportRemotingListenerSettings()
+                {
+                    RemotingExceptionDepth = 17
+                };
 
                 var serializer = ExceptionSerializer.CreateDefault(null, expectedSettings);
 
