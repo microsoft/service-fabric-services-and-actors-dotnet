@@ -126,6 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             };
 
             this.transportMessageHandler = new FabricTransportMessageHandler(
+                serviceContext,
                 serviceRemotingMessageHandler,
                 serializersManager,
                 new ExceptionSerializer(svcExceptionConvertors, remotingSettings),

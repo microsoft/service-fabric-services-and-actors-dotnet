@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Fabric;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
@@ -30,6 +31,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
 
         public FabricTransportMessageHandler(
+            ServiceContext serviceContext,
             IServiceRemotingMessageHandler remotingMessageHandler,
             IServiceRemotingMessageSerializersManager serializersManager,
             ExceptionSerializer exceptionConvertorHandler,
@@ -47,6 +49,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId);
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(serviceRemotingPerformanceCounterProvider, this.clock);
+
             var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents };
             this.diagnosticEvents = new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
         }
