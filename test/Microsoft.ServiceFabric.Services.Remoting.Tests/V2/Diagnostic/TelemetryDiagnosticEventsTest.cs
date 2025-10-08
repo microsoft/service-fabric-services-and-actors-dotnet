@@ -80,6 +80,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             readonly IMeter<TimeSpan> mockRequestDeserializationTime = Mock.Of<IMeter<TimeSpan>>();
             readonly IMeter<TimeSpan> mockResponseSerializationTime = Mock.Of<IMeter<TimeSpan>>();
             readonly DateTime currentTime;
+            readonly double durationMilliseconds = fuzzy.Double(0, 5000);
 
             public OnEvents()
             {
@@ -106,31 +107,31 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             [Fact]
             public void OnRequestEndObserveRequestProcessingTime()
             {
-                var startTime = currentTime.AddMilliseconds(-200);
+                var startTime = currentTime.AddMilliseconds(-durationMilliseconds);
 
                 sut.OnRequestResponseEnd(startTime);
 
-                Mock.Get(mockRequestProcessingTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => ts.TotalMilliseconds == 200)), Times.Once);
+                Mock.Get(mockRequestProcessingTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => Math.Abs(ts.TotalMilliseconds - durationMilliseconds) < 0.0001)), Times.Once);
             }
 
             [Fact]
             public void OnRemotingRequestEndObserveRequestProcessingTime()
             {
-                var startTime = currentTime.AddMilliseconds(-200);
+                var startTime = currentTime.AddMilliseconds(-durationMilliseconds);
 
                 sut.OnRemotingRequestEnd(startTime);
 
-                Mock.Get(mockRequestDeserializationTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => ts.TotalMilliseconds == 200)), Times.Once);
+                Mock.Get(mockRequestDeserializationTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => Math.Abs(ts.TotalMilliseconds - durationMilliseconds) < 0.0001)), Times.Once);
             }
 
             [Fact]
             public void OnCreateTransportEndObserveRequestProcessingTime()
             {
-                var startTime = currentTime.AddMilliseconds(-200);
+                var startTime = currentTime.AddMilliseconds(-durationMilliseconds);
 
                 sut.OnCreateTransportMessageEnd(startTime);
 
-                Mock.Get(mockResponseSerializationTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => ts.TotalMilliseconds == 200)), Times.Once);
+                Mock.Get(mockResponseSerializationTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => Math.Abs(ts.TotalMilliseconds - durationMilliseconds) < 0.0001)), Times.Once);
             }
         }
 
