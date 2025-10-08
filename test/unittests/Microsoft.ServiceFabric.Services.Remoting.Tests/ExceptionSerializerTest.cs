@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             {
                 // Arrange
                 var customConvertors = new List<IExceptionConvertor> { new SystemExceptionConvertor() };
-                var serializer = new ExceptionConversionHandler(customConvertors, null);
+                var serializer = new ExceptionConversionHandler(customConvertors, new FabricTransportRemotingListenerSettings());
 
                 // Assert
                 Assert.Same(customConvertors, serializer.Field<IEnumerable<IExceptionConvertor>>().Value);
@@ -42,11 +42,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void AppendsDefaultConvertorsToCustomList()
             {
                 // Arrange
-                var remotingSettings = new FabricTransportRemotingListenerSettings();
                 var customConvertors = new List<IExceptionConvertor> { new FabricExceptionConvertor() };
 
                 // Act
-                ExceptionConversionHandler serializer = ExceptionConversionHandler.CreateDefault(customConvertors, remotingSettings);
+                ExceptionConversionHandler serializer = ExceptionConversionHandler.CreateDefault(customConvertors, new FabricTransportRemotingListenerSettings());
 
                 // Assert
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
@@ -61,7 +60,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void UsesDefaultConvertorsIfNullPassed()
             {
                 // Arrange
-                var remotingSettings = new FabricTransportRemotingListenerSettings();
                 var expectedConvertors = new List<IExceptionConvertor>
                 {
                     new SystemExceptionConvertor(),
@@ -70,7 +68,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
                 };
 
                 // Act
-                ExceptionConversionHandler serializer = ExceptionConversionHandler.CreateDefault(null, remotingSettings);
+                ExceptionConversionHandler serializer = ExceptionConversionHandler.CreateDefault(null, new FabricTransportRemotingListenerSettings());
 
                 // Assert
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
@@ -85,8 +83,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             public void UsesPassedRemotingListenerSettings()
             {
                 // Arrange
-                FabricTransportRemotingListenerSettings expectedSettings = FabricTransportRemotingListenerSettings.GetDefault();
-                expectedSettings.RemotingExceptionDepth = 17;
+                var expectedSettings = new FabricTransportRemotingListenerSettings()
+                {
+                    RemotingExceptionDepth = 17
+                };
 
                 // Act
                 ExceptionConversionHandler serializer = ExceptionConversionHandler.CreateDefault(null, expectedSettings);

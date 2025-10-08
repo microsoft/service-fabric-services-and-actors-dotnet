@@ -24,6 +24,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
             {
                 // Arrange
                 var exceptionConvertors = new List<IExceptionConvertor> { new SystemExceptionConvertor() };
+                var settings = new WcfRemotingListenerSettings
+                {
+                    RemotingExceptionDepth = 4
+                };
 
                 var mockEndpointsCollection = Mock.Of<KeyedCollection<string, EndpointResourceDescription>>();
                 var mockCodePackageActivationContext = Mock.Of<ICodePackageActivationContext>();
@@ -51,7 +55,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                     listenerBinding: null,
                     address: null,
                     useWrappedMessage: false,
-                    exceptionConvertors: exceptionConvertors
+                    exceptionConvertors: exceptionConvertors,
+                    settings: settings
                 );
 
                 // Assert the number, types, and order of convertors in the produced exceptionSerializer
@@ -68,6 +73,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                 Assert.IsType<SystemExceptionConvertor>(convertorList[1]); // default
                 Assert.IsType<FabricExceptionConvertor>(convertorList[2]); // default
                 Assert.IsType<DefaultExceptionConvertor>(convertorList[3]); // default
+
+                var actualSettings = actualExceptionConversionHandler.Field<IExceptionSerializerSettings>().Value;
+                Assert.Same(settings, actualSettings);
             }
         }
     }

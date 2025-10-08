@@ -55,7 +55,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             public async Task ThrowsActualExceptionForKnownExceptions()
             {
                 // Arrange
-                var remotingListenerSettings = new WcfRemotingListenerSettings();
                 IEnumerable<V2.Runtime.IExceptionConvertor> runtimeExceptionConvertors = new List<V2.Runtime.IExceptionConvertor>
                 {
                     new CustomConvertorRuntime(),
@@ -64,7 +63,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 var exceptionSerializer = new V2.Runtime.ExceptionConversionHandler(
                     runtimeExceptionConvertors,
-                    remotingListenerSettings
+                    new WcfRemotingListenerSettings()
                 );
 
                 // Create RemoteException and FaultException
@@ -89,7 +88,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             [Fact]
             public async Task ThrowsServiceExceptionForUnknownExceptions()
             {
-                var remotingListenerSettings = new WcfRemotingListenerSettings();
                 // Create runtime exception convertors.
                 IEnumerable<V2.Runtime.IExceptionConvertor> runtimeExceptionConvertors = new List<V2.Runtime.IExceptionConvertor>
                     {
@@ -98,7 +96,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 var exceptionSerializer = new V2.Runtime.ExceptionConversionHandler(
                     runtimeExceptionConvertors,
-                    remotingListenerSettings
+                    new WcfRemotingListenerSettings()
                 );
 
                 // Create RemoteException and FaultException

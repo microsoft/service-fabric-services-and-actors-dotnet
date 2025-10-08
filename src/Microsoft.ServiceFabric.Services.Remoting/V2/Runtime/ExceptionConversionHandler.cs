@@ -19,21 +19,16 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 
         public static readonly int DefaultRemotingExceptionDepth = 2;
         private IEnumerable<IExceptionConvertor> convertors;
-        private IExceptionSerializerSettings listenerSettings;
+        private IExceptionSerializerSettings settings;
 
-        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, IExceptionSerializerSettings listenerSettings)
+        internal ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, IExceptionSerializerSettings settings)
         {
             this.convertors = convertors;
-            this.listenerSettings = listenerSettings;
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public static ExceptionConversionHandler CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, IExceptionSerializerSettings settings)
+        internal static ExceptionConversionHandler CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, IExceptionSerializerSettings settings)
         {
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
             var convertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
                 new SystemExceptionConvertor(),
@@ -53,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                 {
                     if (convertor.TryConvertToServiceException(originalException, out serviceException))
                     {
-                        if (++currentDepth > this.listenerSettings.RemotingExceptionDepth)
+                        if (++currentDepth > this.settings.RemotingExceptionDepth)
                         {
                             break;
                         }
@@ -65,7 +60,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
                             int currentBreadth = 0;
                             foreach (var inner in innerEx)
                             {
-                                if (++currentBreadth > this.listenerSettings.RemotingExceptionDepth)
+                                if (++currentBreadth > this.settings.RemotingExceptionDepth)
                                 {
                                     break;
                                 }
@@ -149,7 +144,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
         {
 #pragma warning disable 618
-            if (this.listenerSettings.ExceptionSerializationTechnique == ExceptionSerialization.BinaryFormatter)
+            if (this.settings.ExceptionSerializationTechnique == ExceptionSerialization.BinaryFormatter)
                 return RemoteException.FromException(exception).Data;
 #pragma warning restore 618
 
