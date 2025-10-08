@@ -130,7 +130,5 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                 Mock.Get(mockResponseSerializationTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => Math.Abs(ts.TotalMilliseconds - durationMilliseconds) < 0.0001)), Times.Once);
             }
         }
-
-
     }
 }
