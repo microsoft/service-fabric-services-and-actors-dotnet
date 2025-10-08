@@ -24,13 +24,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             {
                 throw new ArgumentException(nameof(serviceContext));
             }
+            this.clock = clock ?? throw new ArgumentException(nameof(clock));
 
             var timeSpanMeterProvider = new TimeSpanMeterProvider(serviceContext);
             this.requestProcessingTime = timeSpanMeterProvider.CreateMeter("Services.Remoting", "MessageHandler.RequestProcessingTime");
             this.requestDeserializationTime = timeSpanMeterProvider.CreateMeter("Services.Remoting", "MessageHandler.RequestDeserializationTime");
             this.responseSerializationTime = timeSpanMeterProvider.CreateMeter("Services.Remoting", "MessageHandler.ResponseSerializationTime");
-
-            this.clock = clock ?? throw new ArgumentException(nameof(clock));
         }
 
         public void OnCreateTransportMessageBegin()
