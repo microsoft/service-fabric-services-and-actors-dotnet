@@ -10,10 +10,12 @@ using System.ServiceModel;
 using System.Collections.Generic;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 using Fuzzy;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime;
+using System.Runtime.Serialization;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
@@ -117,6 +119,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 Assert.IsType<ServiceException>(innerException);
                 Assert.Equal(errorMessage, innerException.Message);
             }
+
+            [Fact]
+            public async Task ThrowsActualExceptionForKnownExceptions_WithBinaryFormatterRemoteException()
+            {
+                // Arrange
+                var originalException = new CustomException(errorMessage, "CustomField1", "CustomField2");
+                
+                // Create RemoteException using BinaryFormatter (legacy path)
+                var binaryFormatterRemoteException = RemoteException.FromException(originalException);
+                var faultException = new FaultException<RemoteException>(binaryFormatterRemoteException, originalException.Message);
+
+                IServiceRemotingRequestMessage requestMessageMock = Mock.Of<IServiceRemotingRequestMessage>();
+
+                Mock.Get(requestMessageMock)
+                    .Setup(m => m.GetHeader()) // We inject exception here for convenience (ideally, it should be in inner RequestResponseAsync call).
+                    .Throws(faultException);
+
+                // Act & Assert
+                // Assert that the exception is deserialized correctly from BinaryFormatter RemoteException
+                AggregateException exception = await Assert.ThrowsAsync<AggregateException>(() => sut.RequestResponseAsync(requestMessageMock));
+                Exception innerException = exception.Flatten().InnerException;
+                Assert.IsType<CustomException>(innerException);
+                Assert.Equal(errorMessage, innerException.Message);
+            }
         }
 
         internal class CustomConvertorRuntime : ExceptionConvertorBase
@@ -141,6 +167,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             }
         }
 
+        [Serializable]
         internal class CustomException : Exception
         {
             public CustomException(string message, string field1, string field2)
@@ -148,6 +175,22 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             {
                 this.Field1 = field1;
                 this.Field2 = field2;
+            }
+
+            // Required constructor for deserialization
+            protected CustomException(SerializationInfo info, StreamingContext context)
+                : base(info, context)
+            {
+                Field1 = info.GetString(nameof(Field1));
+                Field2 = info.GetString(nameof(Field2));
+            }
+
+            // Override GetObjectData to serialize custom properties
+            public override void GetObjectData(SerializationInfo info, StreamingContext context)
+            {
+                base.GetObjectData(info, context);
+                info.AddValue(nameof(Field1), Field1);
+                info.AddValue(nameof(Field2), Field2);
             }
 
             public string Field1 { get; set; }
