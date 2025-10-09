@@ -175,8 +175,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagnosticsEventManager.OnActorRequestProcessingFinish += this.OnActorRequestProcessingFinish;
             diagnosticsEventManager.OnActorLockAcquired += this.OnActorLockAcquired;
             diagnosticsEventManager.OnActorLockReleased += this.OnActorLockReleased;
-            diagnosticsEventManager.OnActorRequestDeserializationFinish += this.OnActorRequestDeserializationFinish;
-            diagnosticsEventManager.OnActorResponseSerializationFinish += this.OnActorResponseSerializationFinish;
             diagnosticsEventManager.OnActorOnActivateAsyncFinish += this.OnActorOnActivateAsyncFinish;
             diagnosticsEventManager.OnLoadActorStateFinish += this.OnLoadActorStateFinish;
         }
