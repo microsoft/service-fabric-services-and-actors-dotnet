@@ -50,6 +50,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal OnDiagnosticEvent<TimeSpan> OnActorLockReleased { get; set; }
 
+        internal OnDiagnosticEvent<TimeSpan> OnActorRequestDeserializationFinish { get; set; }
+
+        internal OnDiagnosticEvent<TimeSpan> OnActorResponseSerializationFinish { get; set; }
+
         internal OnDiagnosticEvent<TimeSpan> OnActorOnActivateAsyncFinish { get; set; }
 
         internal OnDiagnosticEvent<TimeSpan> OnLoadActorStateFinish { get; set; }
@@ -74,6 +78,26 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var processingTime = DateTime.UtcNow - startTime;
             var callbacks = this.OnActorRequestProcessingFinish;
+            if (callbacks != null)
+            {
+                callbacks(processingTime);
+            }
+        }
+
+        internal void ActorRequestDeserializationFinish(DateTime startTime)
+        {
+            var processingTime = DateTime.UtcNow - startTime;
+            var callbacks = this.OnActorRequestDeserializationFinish;
+            if (callbacks != null)
+            {
+                callbacks(processingTime);
+            }
+        }
+
+        internal void ActorResponseSerializationFinish(DateTime startTime)
+        {
+            var processingTime = DateTime.UtcNow - startTime;
+            var callbacks = this.OnActorResponseSerializationFinish;
             if (callbacks != null)
             {
                 callbacks(processingTime);
