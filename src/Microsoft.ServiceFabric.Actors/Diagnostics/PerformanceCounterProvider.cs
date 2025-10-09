@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal PerformanceCounterProvider(Guid partitionId, ActorTypeInformation actorTypeInformation)
+        protected PerformanceCounterProvider(Guid partitionId, ActorTypeInformation actorTypeInformation)
         {
             // The counter instance names end with "_<TickCount>", where <TickCount> is the tick count when
             // the current object is created.
@@ -101,9 +101,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.CreateActorCounterWriters(actorCounterInstanceName);
         }
 
-        internal Guid PartitionId => this.partitionId;
+        protected Guid PartitionId => this.partitionId;
 
-        internal ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;
+        protected ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;
 
         public virtual void Dispose()
         {
@@ -129,7 +129,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal static void InitializeAvailableCounterTypes()
+        private static void InitializeAvailableCounterTypes()
         {
             var actorPerformanceCounters = new ActorPerformanceCounters();
             var requestedCounterSets = actorPerformanceCounters.GetCounterSets();
@@ -159,7 +159,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        protected virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
             return this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
         }
@@ -181,7 +181,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagnosticsEventManager.OnLoadActorStateFinish += this.OnLoadActorStateFinish;
         }
 
-        internal Dictionary<long, CounterInstanceData> CreateActorMethodCounterInstanceData(
+        protected Dictionary<long, CounterInstanceData> CreateActorMethodCounterInstanceData(
             List<KeyValuePair<long, MethodInfo>> methodInfoList,
             PerformanceCounterInstanceNameBuilder percCounterInstanceNameBuilder)
         {
@@ -212,7 +212,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 actorMethodCounterInstanceData;
         }
 
-        internal List<KeyValuePair<long, MethodInfo>> GetMethodInfo(
+        protected List<KeyValuePair<long, MethodInfo>> GetMethodInfo(
             MethodDescription[] actorInterfaceMethodDescriptions,
             int interfaceId)
         {
@@ -233,7 +233,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return methodInfoList;
         }
 
-        internal virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        protected virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
             this.actorMethodCounterInstanceData = new Dictionary<long, CounterInstanceData>();
             var methodInfoList = new List<KeyValuePair<long, MethodInfo>>();

@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             base.Dispose();
         }
 
-        internal override void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        protected override void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
             base.InitializeActorMethodInfo(diagnosticsEventManager);
 
@@ -78,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.actorMethodCounterInstanceDataV2 = this.CreateActorMethodCounterInstanceData(methodInfoListV2, percCounterInstanceNameBuilderV2);
         }
 
-        internal override MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        protected override MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
             return this.actorMethodCounterInstanceDataV2[interfaceMethodKey].CounterWriters;
         }
