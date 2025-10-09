@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.actorMethodInfoV2 = new Dictionary<long, ActorMethodInfo>();
         }
 
-        internal override void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        protected override void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
             foreach (var actorInterfaceType in this.ActorTypeInformation.InterfaceTypes)
             {
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             base.InitializeActorMethodInfo(diagnosticsEventManager);
         }
 
-        internal override ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
+        protected override ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
         {
             return this.actorMethodInfoV2[key];
         }

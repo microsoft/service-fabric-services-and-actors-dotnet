@@ -5,9 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
@@ -21,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         private readonly ActorFrameworkEventSource writer;
         private Dictionary<long, ActorMethodInfo> actorMethodInfo;
 
-        internal EventSourceProvider(ServiceContext serviceContext, ActorTypeInformation actorTypeInformation)
+        protected EventSourceProvider(ServiceContext serviceContext, ActorTypeInformation actorTypeInformation)
         {
             this.serviceContext = serviceContext;
             this.actorTypeInformation = actorTypeInformation;
@@ -30,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.writer = ActorFrameworkEventSource.Writer;
         }
 
-        internal ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;
+        protected ActorTypeInformation ActorTypeInformation => this.actorTypeInformation;
 
         internal void RegisterWithDiagnosticsEventManager(DiagnosticsEventManager diagnosticsEventManager)
         {
@@ -46,7 +44,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             diagnosticsEventManager.OnPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
         }
 
-        internal virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        protected virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
         {
             this.actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
 
@@ -58,7 +56,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal void InitializeActorMethodInfo(
+        protected void InitializeActorMethodInfo(
             MethodDescription[] actorInterfaceMethodDescriptions,
             int interfaceId,
             Dictionary<long, ActorMethodInfo> actorMethodInfos)
@@ -80,7 +78,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
+        protected virtual ActorMethodInfo GetActorMethodInfo(long key, RemotingListenerVersion remotingListener)
         {
             var methodInfo = this.actorMethodInfo[key];
             return methodInfo;
