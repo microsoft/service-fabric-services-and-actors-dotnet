@@ -20,10 +20,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public TelemetryDiagnosticEvents(ServiceContext serviceContext, IClock clock)
         {
-            if (serviceContext == null)
-            {
-                throw new ArgumentException(nameof(serviceContext));
-            }
+            _ = serviceContext ?? throw new ArgumentException(nameof(serviceContext));
             this.clock = clock ?? throw new ArgumentException(nameof(clock));
 
             var timeSpanMeterProvider = new TimeSpanMeterProvider(serviceContext);
