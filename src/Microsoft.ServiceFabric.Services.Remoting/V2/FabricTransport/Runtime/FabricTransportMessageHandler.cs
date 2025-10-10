@@ -5,9 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Fabric;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics.Metrics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.FabricTransport.V2;
 using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
@@ -31,12 +31,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
 
         public FabricTransportMessageHandler(
-            ServiceContext serviceContext,
             IServiceRemotingMessageHandler remotingMessageHandler,
             IServiceRemotingMessageSerializersManager serializersManager,
             ExceptionSerializer exceptionConvertorHandler,
             Guid partitionId,
-            long replicaOrInstanceId)
+            long replicaOrInstanceId,
+            IMeterProvider<TimeSpan> meterProvider)
         {
             this.remotingMessageHandler = remotingMessageHandler;
             this.serializersManager = serializersManager;
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId);
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(serviceRemotingPerformanceCounterProvider, this.clock);
-            var telemetryDiagnosticEvents = new TelemetryDiagnosticEvents(serviceContext, this.clock);
+            var telemetryDiagnosticEvents = new TelemetryDiagnosticEvents(meterProvider, this.clock);
 
             var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, telemetryDiagnosticEvents };
             this.diagnosticEvents = new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);

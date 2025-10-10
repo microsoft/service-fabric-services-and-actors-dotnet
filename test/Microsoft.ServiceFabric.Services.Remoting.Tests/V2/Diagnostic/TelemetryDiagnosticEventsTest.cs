@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Fabric;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics;
@@ -22,12 +21,35 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         readonly IDiagnosticEvents sut;
 
         readonly IClock clock = Mock.Of<IClock>();
-        readonly ServiceContext serviceContext = fuzzy.ServiceContext();
+        readonly IMeterProvider<TimeSpan> meterProvider = new Mock<IMeterProvider<TimeSpan>>() { DefaultValue = DefaultValue.Mock }.Object;
 
-        protected TelemetryDiagnosticEventsTest() => sut = new TelemetryDiagnosticEvents(serviceContext, clock);
+        protected TelemetryDiagnosticEventsTest() => sut = new TelemetryDiagnosticEvents(meterProvider, clock);
 
         public class Constructor : TelemetryDiagnosticEventsTest
         {
+
+            [Fact]
+            public void ThrowsOnNullClock()
+            {
+                var exception = Assert.Throws<ArgumentNullException>(() =>
+                {
+                    new TelemetryDiagnosticEvents(meterProvider, null);
+                });
+
+                Assert.Equal("clock", exception.ParamName);
+            }
+
+            [Fact]
+            public void ThrowsOnNullMeterProvider()
+            {
+                var exception = Assert.Throws<ArgumentNullException>(() =>
+                {
+                    new TelemetryDiagnosticEvents(null, clock);
+                });
+
+                Assert.Equal("meterProvider", exception.ParamName);
+            }
+
             [Fact]
             public void WithParametersSetsClock()
             {
@@ -36,54 +58,30 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
 
             [Fact]
-            public void WithParametersSetsMeters()
+            public void WithParametersCreatesMeters()
             {
-                var requestProcessingTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime");
-                var requestDeserializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime");
-                var responseSerializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime");
+                var mockMeterProvider = Mock.Get(meterProvider);
 
-                Assert.NotNull(requestProcessingTime);
-                Assert.NotNull(requestDeserializationTime);
-                Assert.NotNull(responseSerializationTime);
-            }
-
-            [Fact]
-            public void ThrowsOnNullClock()
-            {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new TelemetryDiagnosticEvents(serviceContext, null);
-                });
-
-                Assert.Equal("clock", exception.ParamName);
-            }
-
-            [Fact]
-            public void ThrowsOnNullServiceContext()
-            {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new TelemetryDiagnosticEvents(null, clock);
-                });
-
-                Assert.Equal("serviceContext", exception.ParamName);
+                mockMeterProvider.Verify(x => x.CreateMeter(It.Is<string>(x => x == "Services.Remoting"), It.Is<string>(x => x == "MessageHandler.RequestProcessingTime")), Times.Once);
+                mockMeterProvider.Verify(x => x.CreateMeter(It.Is<string>(x => x == "Services.Remoting"), It.Is<string>(x => x == "MessageHandler.RequestDeserializationTime")), Times.Once);
+                mockMeterProvider.Verify(x => x.CreateMeter(It.Is<string>(x => x == "Services.Remoting"), It.Is<string>(x => x == "MessageHandler.ResponseSerializationTime")), Times.Once);
             }
         }
 
         public class OnEvents : TelemetryDiagnosticEventsTest
         {
-            readonly IMeter<TimeSpan> mockRequestProcessingTime = Mock.Of<IMeter<TimeSpan>>();
-            readonly IMeter<TimeSpan> mockRequestDeserializationTime = Mock.Of<IMeter<TimeSpan>>();
-            readonly IMeter<TimeSpan> mockResponseSerializationTime = Mock.Of<IMeter<TimeSpan>>();
+            readonly IMeter<TimeSpan> mockRequestProcessingTime;
+            readonly IMeter<TimeSpan> mockRequestDeserializationTime;
+            readonly IMeter<TimeSpan> mockResponseSerializationTime;
             readonly DateTime endTime;
             readonly DateTime startTime;
             readonly double durationMilliseconds = fuzzy.Double(0, 5000);
 
             public OnEvents()
             {
-                sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Set(mockRequestProcessingTime);
-                sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Set(mockRequestDeserializationTime);
-                sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Set(mockResponseSerializationTime);
+                mockRequestProcessingTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Value;
+                mockRequestDeserializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Value;
+                mockResponseSerializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Value;
 
                 startTime = DateTime.UtcNow;
                 endTime = startTime.AddMilliseconds(durationMilliseconds);
