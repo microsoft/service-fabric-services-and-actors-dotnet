@@ -10,7 +10,7 @@ using Fuzzy;
 
 namespace Microsoft.ServiceFabric.Actors
 {
-    public class ActorIntegrationTest : ActorServiceIntegrationTest
+    public class ActorIntegrationTest : ActorServiceTest
     {
         class ReminderCallbackInfo
         {

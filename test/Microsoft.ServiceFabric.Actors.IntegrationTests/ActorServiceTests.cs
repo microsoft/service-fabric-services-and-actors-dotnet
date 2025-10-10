@@ -14,7 +14,7 @@ using Xunit.Internal;
 
 namespace Microsoft.ServiceFabric.Actors
 {
-    public class ActorServiceIntegrationTest
+    public class ActorServiceTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz();
 
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors
             return actorService;
         }
 
-        public class GetRemindersAsync : ActorServiceIntegrationTest
+        public class GetRemindersAsync : ActorServiceTest
         {
             interface ITestableActor : IActor
             { }
@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Actors
             public class WhenNoReminderIsRegistered : GetRemindersAsync
             {
                 [Fact]
-                public async Task ReturnEmptyResultIfNoRemindersAreRegistered()
+                public async Task ReturnEmptyResult()
                 {
                     IActorService actorService = await GetActorService<TestActor>();
 
@@ -77,12 +77,12 @@ namespace Microsoft.ServiceFabric.Actors
                     this.serviceStateFixture = serviceStateFixture;
                 }
 
-                public class CancellationTokenIsNotNull : WhenRemindersAreRegistered
+                public class WithCancellationToken : WhenRemindersAreRegistered
                 {
-                    public CancellationTokenIsNotNull(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+                    public WithCancellationToken(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
                     [Fact]
-                    public async Task ThrowsWhenCancellationTokenIsCanceled()
+                    public async Task ThrowsWhenCancelled()
                     {
                         // Arrange
                         var (actorStateProvider, _, _) = CreateActorStateProviderWithReminders();
@@ -97,73 +97,63 @@ namespace Microsoft.ServiceFabric.Actors
                     }
                 }
 
-                public class WhenNoChangesAreMadeToTheRemindersBetweenResults : WhenRemindersAreRegistered
+                public class WhenNoChangesBetweenResults : WhenRemindersAreRegistered
                 {
                     protected readonly IActorStateProvider actorStateProviderWithReminders;
                     protected readonly Dictionary<ActorId, List<IActorReminder>> registeredRemindersPerActor;
                     protected readonly IEnumerable<ActorId> allActors;
 
-                    public WhenNoChangesAreMadeToTheRemindersBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture)
+                    public WhenNoChangesBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture)
                     {
                         (actorStateProviderWithReminders, allActors, registeredRemindersPerActor) = CreateActorStateProviderWithReminders();
                     }
 
-                    public class WhenActorIdIsGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
+                    [Fact]
+                    public async Task ReturnsTheSameReminderPerActor()
                     {
-                        public WhenActorIdIsGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+                        // Arrange
+                        IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
 
-                        [Fact]
-                        public async Task ReturnsTheSameReminderWhichHaveBeenRegisteredForEachActor()
+                        foreach (ActorId actorId in allActors)
                         {
                             // Arrange
-                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
-
-                            foreach (ActorId actorId in allActors)
-                            {
-                                // Arrange
-                                Dictionary<ActorId, List<IActorReminder>> expectedQueryResult = registeredRemindersPerActor
-                                    .Where(kvp => kvp.Key == actorId)
-                                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-                                // Act
-                                Dictionary<ActorId, List<IActorReminder>> actualQueryResult = await QueryReminders(actorService, actorId);
-
-                                // Assert
-                                Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, actualQueryResult));
-                            }
-                        }
-                    }
-
-                    public class WhenActorIdIsNotGiven : WhenNoChangesAreMadeToTheRemindersBetweenResults
-                    {
-                        public WhenActorIdIsNotGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
-
-                        [Fact]
-                        public async Task ReturnsTheSameReminderWhichHaveBeenRegistered()
-                        {
-                            // Arrange 
-                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
-                            var expectedQueryResult = registeredRemindersPerActor;
+                            Dictionary<ActorId, List<IActorReminder>> expectedQueryResult = registeredRemindersPerActor
+                                .Where(kvp => kvp.Key == actorId)
+                                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
                             // Act
-                            Dictionary<ActorId, List<IActorReminder>> actualQueryResult = await QueryReminders(actorService, null);
+                            Dictionary<ActorId, List<IActorReminder>> actualQueryResult = await QueryReminders(actorService, actorId);
 
                             // Assert
                             Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, actualQueryResult));
                         }
                     }
+                    
+                    [Fact]
+                    public async Task ReturnsSameReminder()
+                    {
+                        // Arrange 
+                        IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProviderWithReminders);
+                        var expectedQueryResult = registeredRemindersPerActor;
+
+                        // Act
+                        Dictionary<ActorId, List<IActorReminder>> actualQueryResult = await QueryReminders(actorService, null);
+
+                        // Assert
+                        Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, actualQueryResult));
+                    }
                 }
 
-                public class WhenChangesAreMadeToTheRemindersBetweenResults : WhenRemindersAreRegistered
+                public class WhenChangesBetweenResults : WhenRemindersAreRegistered
                 {
-                    public WhenChangesAreMadeToTheRemindersBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+                    public WhenChangesBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
-                    public class WhenActorIdIsGiven : WhenChangesAreMadeToTheRemindersBetweenResults
+                    public class WhenChangingCurrentPage : WhenChangesBetweenResults
                     {
-                        public WhenActorIdIsGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+                        public WhenChangingCurrentPage(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
                         [Fact]
-                        public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
+                        public async Task ReturnsSameRemindersPerActor()
                         {
                             // Arrange
                             var (actorStateProvider, allActors, _) = CreateActorStateProviderWithReminders();
@@ -184,7 +174,38 @@ namespace Microsoft.ServiceFabric.Actors
                         }
 
                         [Fact]
-                        public async Task ReflectsChangesToRemindersInConsecutivePages()
+                        public async Task ReturnsSameReminders()
+                        {
+                            // Arrange
+                            var (actorStateProvider, _, _) = CreateActorStateProviderWithReminders();
+                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
+                            var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
+
+                            // Act
+                            var page = await actorService.GetRemindersAsync(null, null, TestContext.Current.CancellationToken);
+                            IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
+
+                            var targetActorId = fuzzy.Element(queriedActors);
+                            var namesOfAllQueriedReminders = page.Items
+                                .Where(kvp => kvp.Key == targetActorId)
+                                .SelectMany(kvp => kvp.Value)
+                                .Select(reminder => reminder.Name);
+                            var targetReminder = fuzzy.Element(namesOfAllQueriedReminders);
+
+                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
+
+                            // Assert
+                            Assert.Equal(expectedRemindersPerPage, namesOfAllQueriedReminders.Count());
+                            Assert.Contains(targetReminder, namesOfAllQueriedReminders);
+                        }
+                    }
+
+                    public class WhenChangingUpcomingPage : WhenChangesBetweenResults
+                    {
+                        public WhenChangingUpcomingPage(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+
+                        [Fact]
+                        public async Task ReflectsChangesInConsecutivePagesPerActor()
                         {
                             // Arrange
                             var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
@@ -223,40 +244,9 @@ namespace Microsoft.ServiceFabric.Actors
                             // Assert
                             Assert.True(ReminderDictionariesAreEqual(expectedQueryResult, actualQueryResult));
                         }
-                    }
-
-                    public class WhenActorIdIsNotGiven : WhenChangesAreMadeToTheRemindersBetweenResults
-                    {
-                        public WhenActorIdIsNotGiven(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
                         [Fact]
-                        public async Task ChangesToReminderAreNotReflectedInPageThatHasBeenRead()
-                        {
-                            // Arrange
-                            var (actorStateProvider, _, _) = CreateActorStateProviderWithReminders();
-                            IActorService actorService = await GetActorService<TestActor>(actorStateProvider: actorStateProvider);
-                            var expectedRemindersPerPage = ReminderPagedResult<KeyValuePair<ActorId, List<ActorReminderState>>>.GetDefaultPageSize();
-
-                            // Act
-                            var page = await actorService.GetRemindersAsync(null, null, TestContext.Current.CancellationToken);
-                            IEnumerable<ActorId> queriedActors = page.Items.Select(kvp => kvp.Key);
-
-                            var targetActorId = fuzzy.Element(queriedActors);
-                            var namesOfAllQueriedReminders = page.Items
-                                .Where(kvp => kvp.Key == targetActorId)
-                                .SelectMany(kvp => kvp.Value)
-                                .Select(reminder => reminder.Name);
-                            var targetReminder = fuzzy.Element(namesOfAllQueriedReminders);
-
-                            await actorStateProvider.DeleteReminderAsync(targetActorId, targetReminder, TestContext.Current.CancellationToken);
-
-                            // Assert
-                            Assert.Equal(expectedRemindersPerPage, namesOfAllQueriedReminders.Count());
-                            Assert.Contains(targetReminder, namesOfAllQueriedReminders);
-                        }
-
-                        [Fact]
-                        public async Task ReflectsChangesToRemindersInConsecutivePages()
+                        public async Task ReflectsChangesInConsecutivePages()
                         {
                             // Arrange 
                             var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
@@ -295,12 +285,12 @@ namespace Microsoft.ServiceFabric.Actors
                     }
                 }
 
-                public class WhenChangesAreMadeToActorsBetweenResults : WhenRemindersAreRegistered
+                public class WhenActorDeleted : WhenRemindersAreRegistered
                 {
-                    public WhenChangesAreMadeToActorsBetweenResults(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
+                    public WhenActorDeleted(ServiceStateFixture serviceStateFixture) : base(serviceStateFixture) { }
 
                     [Fact]
-                    public async Task ReflectsChangesToActorsInConsecutivePages()
+                    public async Task ReflectsChangesInConsecutivePages()
                     {
                         // Arrange
                         var (actorStateProvider, allActors, registeredReminders) = CreateActorStateProviderWithReminders();
