@@ -51,13 +51,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
 
             [Fact]
-            public void WithParametersSetsClock()
-            {
-                var actualClock = sut.Field<IClock>().Value;
-                Assert.Equal(clock, actualClock);
-            }
-
-            [Fact]
             public void WithParametersCreatesMeters()
             {
                 var mockMeterProvider = Mock.Get(meterProvider);
@@ -80,8 +73,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             public OnEvents()
             {
                 mockRequestProcessingTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Value;
-                mockRequestDeserializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Value;
-                mockResponseSerializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Value;
+                mockRequestDeserializationTime = sut.Field<IMeter<TimeSpan>>("requestDeserializationTime").Value;
+                mockResponseSerializationTime = sut.Field<IMeter<TimeSpan>>("responseSerializationTime").Value;
 
                 startTime = DateTime.UtcNow;
                 endTime = startTime.AddMilliseconds(durationMilliseconds);
