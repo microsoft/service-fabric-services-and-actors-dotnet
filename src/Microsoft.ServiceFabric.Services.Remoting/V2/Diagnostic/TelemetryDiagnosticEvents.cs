@@ -20,8 +20,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public TelemetryDiagnosticEvents(ServiceContext serviceContext, IClock clock)
         {
-            _ = serviceContext ?? throw new ArgumentException(nameof(serviceContext));
-            this.clock = clock ?? throw new ArgumentException(nameof(clock));
+            _ = serviceContext ?? throw new ArgumentNullException(nameof(serviceContext));
+            this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
             var timeSpanMeterProvider = new TimeSpanMeterProvider(serviceContext);
             this.requestProcessingTime = timeSpanMeterProvider.CreateMeter("Services.Remoting", "MessageHandler.RequestProcessingTime");

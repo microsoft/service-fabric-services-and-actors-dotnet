@@ -22,7 +22,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
-    public abstract class FabricTransportMessageHandlerTest : MockedTelemetryTest
+    public abstract class FabricTransportMessageHandlerTest : MockedMetricsTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 

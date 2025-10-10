@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Fabric;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics;
@@ -14,24 +15,16 @@ using IClock = Microsoft.ServiceFabric.Diagnostics.IClock;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    public class TelemetryDiagnosticEventsTest : MockedTelemetryTest
+    public class TelemetryDiagnosticEventsTest : MockedMetricsTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        TelemetryDiagnosticEvents sut;
+        readonly IDiagnosticEvents sut;
 
         readonly IClock clock = Mock.Of<IClock>();
+        readonly ServiceContext serviceContext = fuzzy.ServiceContext();
 
-        protected TelemetryDiagnosticEventsTest() => sut = new TelemetryDiagnosticEvents(fuzzy.ServiceContext(), clock);
-
-        public class Class : TelemetryDiagnosticEventsTest
-        {
-            [Fact]
-            public void ImplementsIDiagnosticsEvents()
-            {
-                Assert.True(typeof(IDiagnosticEvents).IsAssignableFrom(sut.GetType()));
-            }
-        }
+        protected TelemetryDiagnosticEventsTest() => sut = new TelemetryDiagnosticEvents(serviceContext, clock);
 
         public class Constructor : TelemetryDiagnosticEventsTest
         {
@@ -45,9 +38,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             [Fact]
             public void WithParametersSetsMeters()
             {
-                var requestProcessingTime = sut.Field<IMeter<TimeSpan>>(nameof(sut.requestProcessingTime));
-                var requestDeserializationTime = sut.Field<IMeter<TimeSpan>>(nameof(sut.requestDeserializationTime));
-                var responseSerializationTime = sut.Field<IMeter<TimeSpan>>(nameof(sut.responseSerializationTime));
+                var requestProcessingTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime");
+                var requestDeserializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime");
+                var responseSerializationTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime");
 
                 Assert.NotNull(requestProcessingTime);
                 Assert.NotNull(requestDeserializationTime);
@@ -57,19 +50,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             [Fact]
             public void ThrowsOnNullClock()
             {
-                Assert.Throws<ArgumentException>(() =>
+                var exception = Assert.Throws<ArgumentNullException>(() =>
                 {
-                    new TelemetryDiagnosticEvents(fuzzy.ServiceContext(), null);
+                    new TelemetryDiagnosticEvents(serviceContext, null);
                 });
+
+                Assert.Equal("clock", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullServiceContext()
             {
-                Assert.Throws<ArgumentException>(() =>
+                var exception = Assert.Throws<ArgumentNullException>(() =>
                 {
                     new TelemetryDiagnosticEvents(null, clock);
                 });
+
+                Assert.Equal("serviceContext", exception.ParamName);
             }
         }
 
@@ -84,9 +81,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
             public OnEvents()
             {
-                sut.Field<IMeter<TimeSpan>>(nameof(sut.requestProcessingTime)).Set(mockRequestProcessingTime);
-                sut.Field<IMeter<TimeSpan>>(nameof(sut.requestDeserializationTime)).Set(mockRequestDeserializationTime);
-                sut.Field<IMeter<TimeSpan>>(nameof(sut.responseSerializationTime)).Set(mockResponseSerializationTime);
+                sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Set(mockRequestProcessingTime);
+                sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Set(mockRequestDeserializationTime);
+                sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Set(mockResponseSerializationTime);
 
                 startTime = DateTime.UtcNow;
                 endTime = startTime.AddMilliseconds(durationMilliseconds);
