@@ -6,16 +6,6 @@
 
     <OutputPath>bin\$(Configuration)\</OutputPath>
 
-    <!-- Set Drop folders -->
-    <DropFolder>$(RepoRoot)drop\$(Configuration)\</DropFolder>
-    <DropFolderNetFramework>$(RepoRoot)drop\$(Configuration)\netframework\</DropFolderNetFramework>
-    <DropFolderNetCore>$(RepoRoot)drop\$(Configuration)\netcore\</DropFolderNetCore>
-    <DropFolderNetCore_Win>$(DropFolderNetCore)win\</DropFolderNetCore_Win>
-    <DropFolderNetCore_Linux>$(DropFolderNetCore)linux\</DropFolderNetCore_Linux>
-    <NugetPackageDropFolder>$(DropFolder)\packages</NugetPackageDropFolder>
-
-    <NuGetExePath Condition="'$(NuGetExePath)' == ''">$(RepoRoot)\nuget\nuget.exe</NuGetExePath>
-
     <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
     <MajorVersion Condition="'$(MSBuildProjectName)' != 'Microsoft.ServiceFabric.Diagnostics'">9</MajorVersion>
