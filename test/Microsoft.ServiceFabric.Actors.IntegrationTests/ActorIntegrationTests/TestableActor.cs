@@ -2,7 +2,7 @@ using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
 using System.Threading.Tasks;
 
-namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTest
+namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTests
 {
     interface ITestableActor : IActor
     {

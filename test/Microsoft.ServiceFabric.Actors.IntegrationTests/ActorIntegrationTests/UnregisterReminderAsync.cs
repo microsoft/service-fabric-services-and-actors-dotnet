@@ -6,7 +6,7 @@ using Fuzzy;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTest
+namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTests
 {
     public class UnregisterReminderAsync
     {

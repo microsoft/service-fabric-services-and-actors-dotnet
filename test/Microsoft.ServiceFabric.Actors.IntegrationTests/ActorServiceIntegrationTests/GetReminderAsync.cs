@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Internal;
 
-namespace Microsoft.ServiceFabric.Actors.ActorServiceIntegrationTest
+namespace Microsoft.ServiceFabric.Actors.ActorServiceIntegrationTests
 {
     public class GetRemindersAsync
     {

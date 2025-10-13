@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTest
-{
+namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTests;
+
     public class RegisterReminderAsync
     {
         public class WithNewReminderName : RegisterReminderAsync
@@ -182,4 +182,3 @@ namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTest
         }
     }
 
-}

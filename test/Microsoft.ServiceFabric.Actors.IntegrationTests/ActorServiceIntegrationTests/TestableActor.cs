@@ -1,6 +1,6 @@
 using Microsoft.ServiceFabric.Actors.Runtime;
 
-namespace Microsoft.ServiceFabric.Actors.ActorServiceIntegrationTest
+namespace Microsoft.ServiceFabric.Actors.ActorServiceIntegrationTests
 {
         interface ITestableActor : IActor
         { }

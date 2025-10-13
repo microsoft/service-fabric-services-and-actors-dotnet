@@ -1,7 +1,7 @@
 using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
 
-namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTest
+namespace Microsoft.ServiceFabric.Actors.ActorIntegrationTests
 {
     class ReminderCallbackInfo
     {
