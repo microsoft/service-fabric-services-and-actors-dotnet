@@ -27,26 +27,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 
         public class Constructor : TelemetryDiagnosticEventsTest
         {
-
             [Fact]
             public void ThrowsOnNullClock()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new TelemetryDiagnosticEvents(meterProvider, null);
-                });
-
+                var exception = Assert.Throws<ArgumentNullException>(() => new TelemetryDiagnosticEvents(meterProvider, null));
                 Assert.Equal("clock", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullMeterProvider()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new TelemetryDiagnosticEvents(null, clock);
-                });
-
+                var exception = Assert.Throws<ArgumentNullException>(() => new TelemetryDiagnosticEvents(null, clock));
                 Assert.Equal("meterProvider", exception.ParamName);
             }
 
