@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Fabric;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Metrics;
