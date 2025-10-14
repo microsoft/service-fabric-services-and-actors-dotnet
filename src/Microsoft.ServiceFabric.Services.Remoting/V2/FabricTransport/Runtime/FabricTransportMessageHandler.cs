@@ -32,7 +32,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
 
         public FabricTransportMessageHandler(
-            ServiceContext serviceContext,
             IServiceRemotingMessageHandler remotingMessageHandler,
             IServiceRemotingMessageSerializersManager serializersManager,
             ExceptionSerializer exceptionConvertorHandler,
