@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Place all build outputs in the root of the repository instead of nested project directories -->
+    <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+    <VSTestResultsDirectory>$(MSBuildThisFileDirectory)out\tests\</VSTestResultsDirectory>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)out\packages\</PackageOutputPath>
+  </PropertyGroup>
+</Project>

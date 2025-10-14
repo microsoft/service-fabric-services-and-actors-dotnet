@@ -59,7 +59,6 @@ Repository Bloat Risks
 [Rr]eleases/
 x64/
 x86/
-build/
 bld/
 [Bb]in/
 [Oo]bj/
@@ -80,4 +79,5 @@ bld/
 ~$*
 *~
 *.nupkg
+*.snupkg
 *.trx
