@@ -199,7 +199,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        internal class ActorMethodInfo
+        protected class ActorMethodInfo
         {
             internal string MethodName { get; set; }
 

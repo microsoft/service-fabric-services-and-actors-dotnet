@@ -594,14 +594,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return tempCounterWriters;
         }
 
-        internal class CounterInstanceData
+        protected class CounterInstanceData
         {
             internal MethodSpecificCounterWriters CounterWriters { get; set; }
 
             internal string InstanceName { get; set; }
         }
 
-        internal class MethodSpecificCounterWriters
+        protected class MethodSpecificCounterWriters
         {
             internal FabricPerformanceCounterSetInstance ActorMethodCounterSetInstance { get; set; }
 
