@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Fabric;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
@@ -18,18 +17,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         internal readonly IMeter<TimeSpan> requestDeserializationTime;
         internal readonly IMeter<TimeSpan> responseSerializationTime;
 
-        public TelemetryDiagnosticEvents(ServiceContext serviceContext, IClock clock)
+        public TelemetryDiagnosticEvents(IMeterProvider<TimeSpan> meterProvider, IClock clock)
         {
-            if (serviceContext == null)
-            {
-                throw new ArgumentException(nameof(serviceContext));
-            }
-            this.clock = clock ?? throw new ArgumentException(nameof(clock));
+            _ = meterProvider ?? throw new ArgumentNullException(nameof(meterProvider));
+            this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
-            var timeSpanMeterProvider = new TimeSpanMeterProvider(serviceContext);
-            this.requestProcessingTime = timeSpanMeterProvider.CreateMeter("Services.Remoting", "MessageHandler.RequestProcessingTime");
-            this.requestDeserializationTime = timeSpanMeterProvider.CreateMeter("Services.Remoting", "MessageHandler.RequestDeserializationTime");
-            this.responseSerializationTime = timeSpanMeterProvider.CreateMeter("Services.Remoting", "MessageHandler.ResponseSerializationTime");
+            this.requestProcessingTime = meterProvider.CreateMeter("Services.Remoting", "MessageHandler.RequestProcessingTime");
+            this.requestDeserializationTime = meterProvider.CreateMeter("Services.Remoting", "MessageHandler.RequestDeserializationTime");
+            this.responseSerializationTime = meterProvider.CreateMeter("Services.Remoting", "MessageHandler.ResponseSerializationTime");
         }
 
         public void OnCreateTransportMessageBegin()

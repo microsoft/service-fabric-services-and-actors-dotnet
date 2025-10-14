@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics.Metrics;
 using Microsoft.ServiceFabric.FabricTransport.V2;
 using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
@@ -22,7 +23,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
-    public abstract class FabricTransportMessageHandlerTest : MockedTelemetryTest
+    public abstract class FabricTransportMessageHandlerTest : MockedMetricsTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
@@ -39,7 +40,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 .Returns(currentTime);
 
             this.sut = new FabricTransportMessageHandler(
-                fuzzy.ServiceContext(),
                 new Mock<IServiceRemotingMessageHandler>() { DefaultValue = DefaultValue.Mock }.Object,
                 new Mock<IServiceRemotingMessageSerializersManager>() { DefaultValue = DefaultValue.Mock }.Object,
                 new ExceptionSerializer(
@@ -47,7 +47,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                     new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 }
                 ),
                 Guid.NewGuid(),
-                fuzzy.Int64());
+                fuzzy.Int64(),
+                Mock.Of<IMeterProvider<TimeSpan>>());
         }
 
         public class Constructor : FabricTransportMessageHandlerTest

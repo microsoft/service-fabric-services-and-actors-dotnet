@@ -18,18 +18,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
     {
         readonly ServiceRemotingPerformanceCounterProvider performanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(Guid.NewGuid(), 0);
         readonly IClock clock = Mock.Of<IClock>();
-        PerformanceCounterDiagnosticEvents sut;
+
+        readonly IDiagnosticEvents sut;
 
         protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
 
-        public class Class : PerformanceCounterDiagnosticEventsTest
-        {
-            [Fact]
-            public void ImplementsIDiagnosticsEvents()
-            {
-                Assert.True(typeof(IDiagnosticEvents).IsAssignableFrom(sut.GetType()));
-            }
-        }
 
         public class Constructor : PerformanceCounterDiagnosticEventsTest
         {
