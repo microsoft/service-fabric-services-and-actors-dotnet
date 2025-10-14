@@ -45,6 +45,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime
         }
 
         /// <summary>
+        /// Exception serialization option to use(applicable only to V2 Remoting).
+        /// </summary>
+        [Obsolete(DeprecationMessage.RemotingV1)]
+        public enum ExceptionSerialization
+        {
+            /// <summary>
+            /// Uses DCS to serialize exception details in service remoting message.
+            /// </summary>
+            Default,
+
+            /// <summary>
+            /// Uses binary formatter to serialize exception details in service remoting message.
+            /// To be used in compat scenarios.
+            /// </summary>
+            BinaryFormatter,
+        }
+
+        /// <summary>
         /// Gets or sets the exception serialization technique.
         /// </summary>
         /// <remarks>Applies only to V2 Remoting.</remarks>

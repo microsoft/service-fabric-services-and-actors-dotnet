@@ -15,6 +15,7 @@ using Microsoft.ServiceFabric.Services.Client;
 using Microsoft.ServiceFabric.Services.Communication.Client;
 using Microsoft.ServiceFabric.Services.Communication.Wcf.Client;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 
@@ -153,7 +154,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
             IServiceRemotingMessageSerializationProvider serializationProvider = null,
             bool useWrappedMessage = false,
-            WcfRemotingSettings remotingSettings = null)
+            FabricTransportRemotingSettings remotingSettings = null)
         {
             this.exceptionConversionHandler = new ExceptionConversionHandler(this.GetConvertors(exceptionConvertors), remotingSettings);
 
@@ -188,7 +189,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory = null,
             IEnumerable<IExceptionConvertor> exceptionConvertors = null,
-            WcfRemotingSettings remotingSettings = null)
+            FabricTransportRemotingSettings remotingSettings = null)
         {
             this.Initialize(
                 serializersManager,
@@ -362,9 +363,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 IServicePartitionResolver,
                 string, IServiceRemotingCallbackContract,
                 WcfCommunicationClientFactory<IServiceRemotingContract>> createWcfClientFactory,
-            WcfRemotingSettings remotingSettings = null)
+             FabricTransportRemotingSettings remotingSettings = null)
         {
-            remotingSettings ??= new WcfRemotingSettings();
+            remotingSettings ??= new FabricTransportRemotingSettings();
 
             this.exceptionConversionHandler = new ExceptionConversionHandler(this.GetConvertors(exceptionConvertors), remotingSettings);
 

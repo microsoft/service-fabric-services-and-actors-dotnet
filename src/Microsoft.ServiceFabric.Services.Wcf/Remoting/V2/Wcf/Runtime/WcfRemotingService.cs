@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
@@ -94,12 +95,12 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
             catch (Exception e)
             {
                 ServiceTrace.Source.WriteInfo("WcfRemotingService", "Remote Exception occured {0}", e);
-#pragma warning disable 618                
-                if (this.listenerSettings.ExceptionSerializationTechnique == ExceptionSerialization.BinaryFormatter)
+#pragma warning disable 618
+                if (this.listenerSettings.ExceptionSerializationTechnique == FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter)
                 {
                     throw new FaultException<RemoteException>(RemoteException.FromException(e), e.Message);
                 }
-#pragma warning restore 618                
+#pragma warning restore 618
                 else
                 {
                     ServiceException svcException = this.exceptionConversionHandler.ToServiceException(e);

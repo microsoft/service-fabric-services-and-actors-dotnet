@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
 
         private static Remoting.V2.Runtime.ExceptionConversionHandler runtimeHandler
             = new Remoting.V2.Runtime.ExceptionConversionHandler(runtimeConvertors,
-                new FabricTransportRemotingListenerSettings { ExceptionSerializationTechnique = Remoting.V2.Runtime.ExceptionSerialization.BinaryFormatter });
+                new FabricTransportRemotingListenerSettings { ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter });
 
         private static List<Remoting.V2.Client.IExceptionConvertor> clientConvertors
             = new List<Remoting.V2.Client.IExceptionConvertor>()
@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.ExceptionConvertors
         private static Remoting.V2.Client.ExceptionConversionHandler clientHandler
             = new Remoting.V2.Client.ExceptionConversionHandler(
                 clientConvertors,
-                new FabricTransportRemotingSettings { ExceptionDeserializationTechnique = ExceptionDeserialization.Fallback });
+                new FabricTransportRemotingSettings { ExceptionDeserializationTechnique = FabricTransportRemotingSettings.ExceptionDeserialization.Fallback });
 
         /// <summary>
         /// Old client and new service test.

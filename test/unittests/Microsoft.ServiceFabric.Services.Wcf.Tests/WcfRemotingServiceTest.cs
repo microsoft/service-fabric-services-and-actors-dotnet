@@ -14,6 +14,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
 {
@@ -118,7 +119,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
 #pragma warning disable 618
                 var binaryFormatterSettings = new WcfRemotingListenerSettings()
                 {
-                    ExceptionSerializationTechnique = ExceptionSerialization.BinaryFormatter
+                    ExceptionSerializationTechnique = FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter
                 };
 #pragma warning restore 618
 

@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 using System;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
@@ -28,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         /// </summary>
         /// <remarks>Applies only to V2 Remoting.</remarks>
         [Obsolete(DeprecationMessage.RemotingV1)]
-        public ExceptionSerialization ExceptionSerializationTechnique { get; set; }
+        public FabricTransportRemotingListenerSettings.ExceptionSerialization ExceptionSerializationTechnique { get; set; }
 
 
         /// <summary>

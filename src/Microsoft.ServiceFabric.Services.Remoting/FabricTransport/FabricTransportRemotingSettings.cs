@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
     /// <summary>
     /// Represents a settings that configures the  FabricTransport communication.
     /// </summary>
-    public class FabricTransportRemotingSettings : IExceptionDeserializerSettings
+    public class FabricTransportRemotingSettings
     {
         internal const string DefaultSectionName = "TransportSettings";
 
@@ -42,6 +42,24 @@ namespace Microsoft.ServiceFabric.Services.Remoting.FabricTransport
             : this()
         {
             this.fabricTransportSettings = fabricTransportSettings;
+        }
+
+        /// <summary>
+        /// Exception Deserialization option to use(applies to V2 Remoting only).
+        /// </summary>
+        [Obsolete(DeprecationMessage.RemotingV1)]
+        public enum ExceptionDeserialization
+        {
+            /// <summary>
+            /// Uses only DCS to deserialize the service remoting message containing exception details.
+            /// </summary>
+            Default,
+
+            /// <summary>
+            /// Attempts to deserialize using DCS and fallsback to BinaryFormatter if DCS fails.
+            /// To be used in compat scenarios. Fallback option will be deprecated in future.
+            /// </summary>
+            Fallback,
         }
 
         /// <summary>

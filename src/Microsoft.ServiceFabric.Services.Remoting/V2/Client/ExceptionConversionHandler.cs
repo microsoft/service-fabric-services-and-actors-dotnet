@@ -12,6 +12,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
 {
@@ -19,15 +20,15 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
     {
         private static readonly string TraceEventType = "ExceptionConversionHandler";
         private IEnumerable<IExceptionConvertor> convertors;
-        private IExceptionDeserializerSettings remotingSettings;
+        private FabricTransportRemotingSettings remotingSettings;
 
-        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, IExceptionDeserializerSettings remotingSettings)
+        public ExceptionConversionHandler(IEnumerable<IExceptionConvertor> convertors, FabricTransportRemotingSettings remotingSettings)
         {
             this.convertors = convertors;
             this.remotingSettings = remotingSettings;
         }
 
-        public static ExceptionConversionHandler CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, IExceptionDeserializerSettings remotingSettings)
+        public static ExceptionConversionHandler CreateDefault(IEnumerable<IExceptionConvertor> exceptionConvertors, FabricTransportRemotingSettings remotingSettings)
         {
             if (remotingSettings == null)
             {
@@ -131,7 +132,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
             catch (Exception e)
             {
 #pragma warning disable 618
-                if (this.remotingSettings.ExceptionDeserializationTechnique == ExceptionDeserialization.Fallback)
+                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
                 {
                     ServiceTrace.Source.WriteInfo(
                        TraceEventType,
@@ -182,7 +183,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Client
                         dcsE.ToString()));
 
 #pragma warning disable 618
-                if (this.remotingSettings.ExceptionDeserializationTechnique == ExceptionDeserialization.Fallback)
+                if (this.remotingSettings.ExceptionDeserializationTechnique == FabricTransportRemotingSettings.ExceptionDeserialization.Fallback)
                 {
                     using (var tSteam = new MemoryStream(buffer))
                     {

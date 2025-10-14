@@ -16,6 +16,7 @@ using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 using Fuzzy;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime;
 using System.Runtime.Serialization;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
@@ -32,7 +33,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
         {
             errorMessage = fuzzy.String();
 
-            var remotingSettings = new WcfRemotingSettings();
+            var remotingSettings = new FabricTransportRemotingSettings();
 
             // Create client exception convertors.
             IEnumerable<V2.Client.IExceptionConvertor> clientExceptionConvertors = new List<V2.Client.IExceptionConvertor>

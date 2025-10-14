@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
 using Microsoft.ServiceFabric.Services.Communication;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
 {
@@ -144,7 +145,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Runtime
         public List<ArraySegment<byte>> SerializeRemoteException(Exception exception)
         {
 #pragma warning disable 618
-            if (this.settings.ExceptionSerializationTechnique == ExceptionSerialization.BinaryFormatter)
+            if (this.settings.ExceptionSerializationTechnique == FabricTransportRemotingListenerSettings.ExceptionSerialization.BinaryFormatter)
                 return RemoteException.FromException(exception).Data;
 #pragma warning restore 618
 

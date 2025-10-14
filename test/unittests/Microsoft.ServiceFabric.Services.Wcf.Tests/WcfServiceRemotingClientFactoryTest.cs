@@ -9,6 +9,7 @@ using Inspector;
 using Xunit;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 using System.Linq;
+using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 {
@@ -20,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
             public void UsesPassedExceptionConvertors()
             {
                 // Arrange
-                var deserializationSettings = new WcfRemotingSettings();
+                var deserializationSettings = new FabricTransportRemotingSettings();
                 var exceptionConvertors = new List<IExceptionConvertor>
                 {
                     new SystemExceptionConvertor(),

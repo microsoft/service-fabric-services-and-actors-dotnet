@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
                 fabricTransportClient,
                 null,
                 FabricTransportRemotingSettings.GetDefault(),
-                new ExceptionConversionHandler(null, null))
+                ExceptionConversionHandler.CreateDefault(null, new FabricTransportRemotingSettings()))
         {
         }
 
