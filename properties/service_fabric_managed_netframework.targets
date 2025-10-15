@@ -8,14 +8,12 @@
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj;
                                    $(RepoRoot)src\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj;
-                                   $(RepoRoot)src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj;
-                                   $(RepoRoot)src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\Microsoft.ServiceFabric.Actors.KVSToRCMigration.csproj" />
+                                   $(RepoRoot)src\Microsoft.ServiceFabric.Services.Wcf\\Microsoft.ServiceFabric.Services.Wcf.csproj" />
     
 
     <Projects_Test_netframework Include="$(RepoRoot)test\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
                                    $(RepoRoot)test\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
                                    $(RepoRoot)test\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj;
-                                   $(RepoRoot)test\Microsoft.ServiceFabric.Actors.StateMigration.Tests\Microsoft.ServiceFabric.Actors.StateMigration.Tests.csproj;
                                    $(RepoRoot)test\Microsoft.ServiceFabric.Diagnostics.Tests\Microsoft.ServiceFabric.Diagnostics.Tests.csproj;
                                    $(RepoRoot)test\Microsoft.ServiceFabric.Actors.IntegrationTests\Microsoft.ServiceFabric.Actors.IntegrationTests.csproj" />
   </ItemGroup>
@@ -63,7 +61,6 @@
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services\$(OutputPath)\net462\Microsoft.ServiceFabric.Services.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Remoting\$(OutputPath)\net462\Microsoft.ServiceFabric.Services.Remoting.*"/>
       <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Services.Wcf\$(OutputPath)\net462\Microsoft.ServiceFabric.Services.Wcf.*"/>
-      <BinairesNetFramework Include="src\Microsoft.ServiceFabric.Actors.KVSToRCMigration\$(OutputPath)\net462\Microsoft.ServiceFabric.Actors.KVSToRCMigration.*"/>
     </ItemGroup>
     <Copy SourceFiles="@(BinairesNetFramework)" DestinationFiles="@(BinairesNetFramework->'$(DropFolderNetFramework)\%(Destination)\%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
