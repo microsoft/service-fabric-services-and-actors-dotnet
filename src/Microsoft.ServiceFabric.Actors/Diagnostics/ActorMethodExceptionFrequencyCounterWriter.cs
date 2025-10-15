@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     // frequency at which a particular actor method throws exceptions.
     internal class ActorMethodExceptionFrequencyCounterWriter : FabricBaselessPerformanceCounterWriter
     {
+        protected ActorMethodExceptionFrequencyCounterWriter() { }
         internal ActorMethodExceptionFrequencyCounterWriter(FabricPerformanceCounterSetInstance counterSetInstance)
             : base(
                 counterSetInstance,
@@ -18,7 +19,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
         }
 
-        internal void UpdateCounterValue(ActorMethodDiagnosticData methodData)
+        internal virtual void UpdateCounterValue(ActorMethodDiagnosticData methodData)
         {
             if (methodData.Exception != null)
             {

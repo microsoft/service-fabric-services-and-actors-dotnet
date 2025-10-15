@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     // time taken to execute a particular actor method.
     internal class ActorMethodExecTimeCounterWriter : FabricPerformanceCounterWriter
     {
+        protected ActorMethodExecTimeCounterWriter() { }
         internal ActorMethodExecTimeCounterWriter(FabricPerformanceCounterSetInstance counterSetInstance)
             : base(
                 counterSetInstance,
@@ -19,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
         }
 
-        internal void UpdateCounterValue(ActorMethodDiagnosticData methodData)
+        internal virtual void UpdateCounterValue(ActorMethodDiagnosticData methodData)
         {
             if (methodData.MethodExecutionTime != null)
             {

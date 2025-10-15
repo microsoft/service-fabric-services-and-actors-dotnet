@@ -9,6 +9,7 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("ServiceFabricTracingStandaloneTest" + TestKey)]
 [assembly: InternalsVisibleTo("ServiceFabricTracingTest" + TestKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Tests" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.KVSToRCMigration" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Remoting" + PublicKey)]

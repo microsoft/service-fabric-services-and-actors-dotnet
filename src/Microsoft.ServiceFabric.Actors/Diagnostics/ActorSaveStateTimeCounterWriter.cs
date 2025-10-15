@@ -11,6 +11,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     // time taken to save actor state.
     internal class ActorSaveStateTimeCounterWriter : FabricPerformanceCounterWriter
     {
+
+        protected ActorSaveStateTimeCounterWriter() { }
         internal ActorSaveStateTimeCounterWriter(FabricPerformanceCounterSetInstance counterSetInstance)
             : base(
                 counterSetInstance,
@@ -19,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
         }
 
-        internal void UpdateCounterValue(ActorStateDiagnosticData stateData)
+        internal virtual void UpdateCounterValue(ActorStateDiagnosticData stateData)
         {
             if (stateData.OperationTime != null)
             {

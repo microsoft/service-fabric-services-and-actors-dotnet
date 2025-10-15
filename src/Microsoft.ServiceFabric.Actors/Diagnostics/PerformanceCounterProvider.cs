@@ -26,17 +26,18 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         private readonly ActorTypeInformation actorTypeInformation;
         private readonly string counterInstanceDifferentiator;
         private readonly FabricPerformanceCounterSetInstance actorCounterSetInstance;
-        private ActorLockContentionCounterWriter actorLockContentionCounterWriter;
-        private ActorSaveStateTimeCounterWriter actorSaveStateTimeCounterWriter;
-        private FabricAverageCount64PerformanceCounterWriter actorRequestProcessingTimeCounterWriter;
-        private FabricAverageCount64PerformanceCounterWriter actorLockAcquireWaitTimeCounterWriter;
-        private FabricAverageCount64PerformanceCounterWriter actorLockHoldTimeCounterWriter;
-        private FabricAverageCount64PerformanceCounterWriter actorRequestDeserializationTimeCounterWriter;
-        private FabricAverageCount64PerformanceCounterWriter actorResponseSerializationTimeCounterWriter;
-        private FabricAverageCount64PerformanceCounterWriter actorOnActivateAsyncTimeCounterWriter;
-        private FabricAverageCount64PerformanceCounterWriter actorLoadStateTimeCounterWriter;
-        private FabricNumberOfItems64PerformanceCounterWriter actorOutstandingRequestsCounterWriter;
-        private Dictionary<long, CounterInstanceData> actorMethodCounterInstanceData;
+        internal ActorLockContentionCounterWriter actorLockContentionCounterWriter;
+        internal ActorSaveStateTimeCounterWriter actorSaveStateTimeCounterWriter;
+        internal FabricAverageCount64PerformanceCounterWriter actorRequestProcessingTimeCounterWriter;
+        internal FabricAverageCount64PerformanceCounterWriter actorLockAcquireWaitTimeCounterWriter;
+        internal FabricAverageCount64PerformanceCounterWriter actorLockHoldTimeCounterWriter;
+        internal FabricAverageCount64PerformanceCounterWriter actorRequestDeserializationTimeCounterWriter;
+        internal FabricAverageCount64PerformanceCounterWriter actorResponseSerializationTimeCounterWriter;
+        internal FabricAverageCount64PerformanceCounterWriter actorOnActivateAsyncTimeCounterWriter;
+        internal FabricAverageCount64PerformanceCounterWriter actorLoadStateTimeCounterWriter;
+        internal FabricNumberOfItems64PerformanceCounterWriter actorOutstandingRequestsCounterWriter;
+        protected Dictionary<long, CounterInstanceData> actorMethodCounterInstanceData;
+
 
         static PerformanceCounterProvider()
         {
@@ -159,7 +160,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        protected virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        internal virtual MethodSpecificCounterWriters GetMethodSpecificCounterWriters(long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
             return this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
         }
@@ -594,14 +595,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return tempCounterWriters;
         }
 
-        protected class CounterInstanceData
+        internal class CounterInstanceData
         {
             internal MethodSpecificCounterWriters CounterWriters { get; set; }
 
             internal string InstanceName { get; set; }
         }
 
-        protected class MethodSpecificCounterWriters
+        internal class MethodSpecificCounterWriters
         {
             internal FabricPerformanceCounterSetInstance ActorMethodCounterSetInstance { get; set; }
 
