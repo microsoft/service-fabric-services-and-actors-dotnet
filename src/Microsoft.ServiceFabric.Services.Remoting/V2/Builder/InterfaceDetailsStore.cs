@@ -3,16 +3,17 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Remoting.Builder;
+using Microsoft.ServiceFabric.Services.Remoting.Description;
+
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Builder
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using Microsoft.ServiceFabric.Services.Remoting.Builder;
-    using Microsoft.ServiceFabric.Services.Remoting.Description;
-
     internal class InterfaceDetailsStore
     {
         private const string TraceType = "InterfaceDetailsStore";

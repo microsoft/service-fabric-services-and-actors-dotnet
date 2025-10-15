@@ -6,8 +6,10 @@
 using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Metrics;
 using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -27,7 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private readonly FabricTransportMessageHandler transportMessageHandler;
         private readonly string listenAddress;
         private readonly string publishAddress;
-        private FabricTransportListener fabricTransportlistener;
+        readonly FabricTransportListener fabricTransportlistener;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportServiceRemotingListener"/> class.
@@ -117,22 +119,20 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 }
             }
 
-            var svcExceptionConvertors = new List<IExceptionConvertor>();
-            if (exceptionConvertors != null)
+            var svcExceptionConvertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
             {
-                svcExceptionConvertors.AddRange(exceptionConvertors);
-            }
-
-            svcExceptionConvertors.Add(new FabricExceptionConvertor());
-            svcExceptionConvertors.Add(new SystemExceptionConvertor());
-            svcExceptionConvertors.Add(new DefaultExceptionConvertor());
+                new FabricExceptionConvertor(),
+                new SystemExceptionConvertor(),
+                new DefaultExceptionConvertor()
+            };
 
             this.transportMessageHandler = new FabricTransportMessageHandler(
                 serviceRemotingMessageHandler,
                 serializersManager,
                 new ExceptionSerializer(svcExceptionConvertors, remotingSettings),
                 serviceContext.PartitionId,
-                serviceContext.ReplicaOrInstanceId);
+                serviceContext.ReplicaOrInstanceId,
+                new TimeSpanMeterProvider(serviceContext));
 
             this.fabricTransportlistener = new FabricTransportListener(
                 remotingSettings.GetInternalSettings(),
@@ -203,8 +203,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             IServiceRemotingMessageSerializationProvider serializationProvider,
             FabricTransportRemotingListenerSettings listenerSettings)
         {
-            listenerSettings = listenerSettings ??
-                FabricTransportRemotingListenerSettings.GetDefault();
+            listenerSettings ??= FabricTransportRemotingListenerSettings.GetDefault();
 
             return new ServiceRemotingMessageSerializersManager(
                 serializationProvider,
@@ -232,12 +231,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
         private void Dispose()
         {
-            if (this.fabricTransportlistener != null)
-            {
-                this.fabricTransportlistener.Dispose();
-                this.fabricTransportlistener = null;
-            }
-
+            this.fabricTransportlistener.Dispose();
             this.transportMessageHandler.Dispose();
         }
     }

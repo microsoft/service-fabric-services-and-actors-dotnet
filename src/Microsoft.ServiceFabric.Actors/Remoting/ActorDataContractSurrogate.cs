@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting
     using System.Reflection;
     using System.Runtime.Serialization;
 
-#if DotNetCoreClr
+#if NET
     internal class ActorDataContractSurrogate : ISerializationSurrogateProvider
     {
         public static readonly ISerializationSurrogateProvider Instance = new ActorDataContractSurrogate();

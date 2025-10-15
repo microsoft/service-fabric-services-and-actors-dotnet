@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2
     using Microsoft.ServiceFabric.Actors.Remoting.V2.Builder;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Builder;
-    using ActorEventSubscription = Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime.ActorEventSubscription;
+    using ActorEventSubscription = Runtime.ActorEventSubscription;
 
     internal class ActorRemotingSerializationManager : ServiceRemotingMessageSerializersManager
     {

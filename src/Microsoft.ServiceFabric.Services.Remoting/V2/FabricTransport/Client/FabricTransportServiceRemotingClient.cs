@@ -31,9 +31,9 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
             ServiceRemotingMessageSerializersManager serializersManager,
             FabricTransportClient fabricTransportClient,
             FabricTransportRemotingClientEventHandler remotingHandler,
-            IEnumerable<IExceptionConvertor> exceptionConvertors = null)
+            ExceptionDeserializer exceptionDeserializer)
         {
-            this.exceptionDeserializer = new ExceptionDeserializer(exceptionConvertors);
+            this.exceptionDeserializer = exceptionDeserializer;
             this.fabricTransportClient = fabricTransportClient;
             this.remotingHandler = remotingHandler;
             this.serializersManager = serializersManager;

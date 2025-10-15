@@ -3,17 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Client;
+
 namespace Microsoft.ServiceFabric.Services.Communication.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Client;
-
     /// <summary>
     /// Provides the base implementation of ICommunicationClientFactory for creating communication clients to talk to service fabric services. Extend the
     /// CommunicationClientFactoryBase class to create communication clients for custom transport implementations. This class maintains a cache of communication
@@ -377,7 +378,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Client
             string requestId;
             if (!ClientRequestTracker.TryGet(out requestId))
             {
-               requestId = Guid.NewGuid().ToString();
+                requestId = Guid.NewGuid().ToString();
             }
 
             string currentExceptionId = null;

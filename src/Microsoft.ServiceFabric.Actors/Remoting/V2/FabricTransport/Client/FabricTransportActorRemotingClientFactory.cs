@@ -6,6 +6,7 @@
 namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
 {
     using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Client;
     using Microsoft.ServiceFabric.Actors.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Client;
@@ -79,31 +80,26 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.FabricTransport.Client
         {
         }
 
-        private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
-            IEnumerable<IExceptionConvertor> exceptionConvertors)
-        {
-            var actorConvertors = new List<IExceptionConvertor>();
-            if (exceptionConvertors != null)
-            {
-                actorConvertors.AddRange(exceptionConvertors);
-            }
-
-            actorConvertors.Add(new FabricActorExceptionConvertor());
-
-            return actorConvertors;
-        }
-
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
             IEnumerable<IExceptionHandler> exceptionHandlers)
         {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
+            var handlers = new List<IExceptionHandler>(exceptionHandlers ?? Enumerable.Empty<IExceptionHandler>())
             {
-                handlers.AddRange(exceptionHandlers);
-            }
+                new ActorRemotingExceptionHandler()
+            };
 
-            handlers.Add(new ActorRemotingExceptionHandler());
             return handlers;
+        }
+
+        private static IEnumerable<IExceptionConvertor> GetExceptionConvertors(
+            IEnumerable<IExceptionConvertor> exceptionConvertors)
+        {
+            var actorConvertors = new List<IExceptionConvertor>(exceptionConvertors ?? Enumerable.Empty<IExceptionConvertor>())
+            {
+                new FabricActorExceptionConvertor()
+            };
+
+            return actorConvertors;
         }
 
         private static ActorRemotingSerializationManager IntializeSerializationManager(

@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Builder
             IServiceRemotingRequestMessageBody requestMsgBodyValue,
             CancellationToken cancellationToken);
 
-#if !DotNetCoreClr
+#if !NET
         /// <summary>
         /// Called by the generated proxy class to get the result from the response body.
         /// </summary>

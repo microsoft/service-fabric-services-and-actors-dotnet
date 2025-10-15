@@ -11,26 +11,34 @@ on:
     - develop
     - 'release_*'
 
+permissions:
+  contents: read
+
+env:
+  DROP_DIR: drop
+
 jobs:
-  build:
-    name: Build Test
+  test-windows:
     runs-on: windows-latest
-    # info about windows-latest https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
-    env:
-      DROP_DIR: drop
-      TEST_RESULT_DIR: drop\testresults
     steps:
-      - uses: actions/checkout@v1
-      - name: Disable strong name verification for testing
-        shell: powershell
-        run: .\SkipStrongName.ps1
-      - name: Build Everything
-        shell: powershell
-        run: dotnet build buildAll.proj
-      - name: Run Tests
-        run: dotnet test code.sln --configuration release --nologo --settings test\unittests\default.runsettings --results-directory ${{ env.TEST_RESULT_DIR }} --logger trx
-      - name: upload artifacts
-        uses: actions/upload-artifact@master
+      - uses: actions/checkout@v5
+      - run: dotnet build buildAll.proj
+      - run: .\SkipStrongName.ps1
+      - run: .\UninstallSfSdkFromGac.ps1
+      - run: dotnet test code.sln --configuration release --nologo --settings test\default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: release_drop
+          name: test-windows
+          path: ${{ env.DROP_DIR }}
+
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: dotnet test code.sln --configuration release --nologo --settings test/default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx --framework net9.0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-linux
           path: ${{ env.DROP_DIR }}

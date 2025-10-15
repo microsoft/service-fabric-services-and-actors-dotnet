@@ -9,6 +9,8 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn></NoWarn>
     <Platforms>AnyCPU</Platforms>
+    <!-- Temporarily disable platform warnings until WindowsFabric assemblies are changed from net8.0-windows to net8.0 -->
+    <NoWarn>CA1416</NoWarn>
   </PropertyGroup>
 
   <!-- Assembly name, title and documentation -->
@@ -19,10 +21,6 @@
   </PropertyGroup>
 
   <!-- Properties specific to certain TargetFrameworks -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'"> 
-    <DefineConstants>$(DefineConstants);DotNetCoreClr</DefineConstants>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);SYSLIB0011;SYSLIB0050</WarningsNotAsErrors >
-  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <OutputType>Library</OutputType>
   </PropertyGroup>
@@ -44,9 +42,9 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <!-- Use C# 8.0 features -->
+  <!-- Use C# 11.0 features -->
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
   </PropertyGroup>
 
   <!-- Set Version numbers. These are used for generating Assemblies. -->

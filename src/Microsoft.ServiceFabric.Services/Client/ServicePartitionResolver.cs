@@ -3,17 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Concurrent;
+using System.Fabric;
+using System.Fabric.Common;
+using System.Fabric.Description;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
+using Microsoft.ServiceFabric.Services.Communication.Client;
+
 namespace Microsoft.ServiceFabric.Services.Client
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Fabric;
-    using System.Fabric.Common;
-    using System.Fabric.Description;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Services.Communication.Client;
-
     /// <summary>
     /// Represents a delegate to create a FabricClient object.
     /// </summary>

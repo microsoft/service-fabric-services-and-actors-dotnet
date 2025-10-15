@@ -8,6 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.ServiceModel;
     using System.ServiceModel.Channels;
     using System.Threading;
@@ -174,13 +175,11 @@ namespace Microsoft.ServiceFabric.Services.Communication.Wcf.Client
         private static IEnumerable<IExceptionHandler> GetExceptionHandlers(
             IEnumerable<IExceptionHandler> exceptionHandlers)
         {
-            var handlers = new List<IExceptionHandler>();
-            if (exceptionHandlers != null)
+            var handlers = new List<IExceptionHandler>(exceptionHandlers ?? Enumerable.Empty<IExceptionHandler>())
             {
-                handlers.AddRange(exceptionHandlers);
-            }
+                new WcfExceptionHandler()
+            };
 
-            handlers.Add(new WcfExceptionHandler());
             return handlers;
         }
     }
