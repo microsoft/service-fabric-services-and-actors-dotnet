@@ -12,11 +12,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Data.Collections;
+#pragma warning disable 618 //[Obsolete(DeprecationMessage.StateMigration)]
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
     using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
+#pragma warning restore 618
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class WorkerBase : IWorker
     {
         private static readonly string TraceType = typeof(WorkerBase).Name;

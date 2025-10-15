@@ -147,18 +147,22 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
                     =>
                 {
                     var listenerSettings = this.InitializeListenerSettings(actorService);
+
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
                     if (actorService.IsConfiguredForMigration())
                     {
                         return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
-                        actorService,
-                        listenerSettings,
-                        requestForwarderFactory: requestForwarderContext => new DefaultActorRequestForwarder(
                             actorService,
-                            requestForwarderContext,
-                            ServiceRemotingProviderAttribute.DefaultV2listenerName,
-                            callbackMessageHandler => this.CreateServiceRemotingClientFactory(callbackMessageHandler),
-                            null));
+                            listenerSettings,
+                            exceptionConvertors: null,
+                            requestForwarderFactory: requestForwarderContext => new DefaultActorRequestForwarder(
+                                actorService,
+                                requestForwarderContext,
+                                ServiceRemotingProviderAttribute.DefaultV2listenerName,
+                                callbackMessageHandler => this.CreateServiceRemotingClientFactory(callbackMessageHandler),
+                                null));
                     }
+#pragma warning restore 618
 
                     return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
                         actorService,
@@ -173,18 +177,22 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.FabricTransport
                 {
                     var listenerSettings = this.InitializeListenerSettings(actorService);
                     listenerSettings.UseWrappedMessage = true;
+
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
                     if (actorService.IsConfiguredForMigration())
                     {
                         return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
-                        actorService,
-                        listenerSettings,
-                        requestForwarderFactory: requestForwarderContext => new DefaultActorRequestForwarder(
                             actorService,
-                            requestForwarderContext,
-                            ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName,
-                            callbackMessageHandler => this.CreateServiceRemotingClientFactory(callbackMessageHandler),
-                            null));
+                            listenerSettings,
+                            exceptionConvertors: null,
+                            requestForwarderFactory: requestForwarderContext => new DefaultActorRequestForwarder(
+                                actorService,
+                                requestForwarderContext,
+                                ServiceRemotingProviderAttribute.DefaultWrappedMessageStackListenerName,
+                                callbackMessageHandler => this.CreateServiceRemotingClientFactory(callbackMessageHandler),
+                                null));
                     }
+#pragma warning restore 618
 
                     return new V2.FabricTransport.Runtime.FabricTransportActorServiceRemotingListener(
                         actorService,

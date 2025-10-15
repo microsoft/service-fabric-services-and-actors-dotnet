@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     /// <summary>
     /// Migration Mode.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     public enum MigrationMode
     {
         /// <summary>

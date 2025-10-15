@@ -198,7 +198,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken cancellationToken)
         {
             this.ThrowIfClosed();
+
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             ExceptionDispatchInfo exceptionInfo = null;
             Exception exception = null;
@@ -322,7 +325,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             cancellationToken.ThrowIfCancellationRequested();
 
             this.ThrowIfClosed();
+
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             var methodDispatcher = this.actorService.MethodDispatcherMapV2.GetDispatcher(interfaceId, methodId);
             var actorMethodName = methodDispatcher.GetMethodName(methodId);
@@ -349,14 +355,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public Task SubscribeAsync(ActorId actorId, int eventInterfaceId, IActorEventSubscriberProxy subscriber)
         {
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             return this.eventManager.SubscribeAsync(actorId, eventInterfaceId, subscriber);
         }
 
         public Task UnsubscribeAsync(ActorId actorId, int eventInterfaceId, Guid subscriberId)
         {
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             return this.eventManager.UnsubscribeAsync(actorId, eventInterfaceId, subscriberId);
         }
@@ -374,7 +384,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             TimeSpan period,
             bool saveState = true)
         {
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             var reminder = new ActorReminder(actorId, this, reminderName, state, dueTime, period);
             await this.RegisterOrUpdateReminderAsync(reminder, dueTime, saveState);
@@ -402,7 +414,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public async Task UnregisterReminderAsync(string reminderName, ActorId actorId, bool removeFromStateProvider)
         {
             this.ThrowIfClosed();
+
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -444,7 +459,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public Task StartLoadingRemindersAsync(CancellationToken cancellationToken)
         {
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             this.loadRemindersTask = this.LoadRemindersAsync(cancellationToken);
             return this.loadRemindersTask;
@@ -452,7 +469,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task FireReminderAsync(ActorReminder reminder)
         {
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             var rearmTimer = true;
 
@@ -539,7 +558,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task DeleteActorAsync(string callContext, ActorId actorId, CancellationToken cancellationToken)
         {
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.ThrowIfMigrationInProgress();
+#pragma warning restore 618
 
             ExceptionDispatchInfo exceptionInfo = null;
 
@@ -1176,6 +1197,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        [Obsolete(Actors.DeprecationMessage.StateMigration)]
         private void ThrowIfMigrationInProgress()
         {
             this.ActorService.ThrowIfActorCallsDisallowed();

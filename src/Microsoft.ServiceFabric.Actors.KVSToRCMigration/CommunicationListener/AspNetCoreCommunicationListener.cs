@@ -18,6 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     /// <summary>
     /// Base class for creating AspNetCore based communication listener for Service Fabric stateless or stateful service.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal abstract class AspNetCoreCommunicationListener : ICommunicationListener
     {
         private readonly ServiceContext serviceContext;

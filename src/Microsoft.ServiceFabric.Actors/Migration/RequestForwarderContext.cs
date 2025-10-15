@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// <summary>
     /// Context for request forwarder when the current service is unable to service the request.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     public class RequestForwarderContext
     {
         /// <summary>

@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 
     [DataContract]
     [KnownType(typeof(Actors.Runtime.Migration.MigrationSettings))]
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class MigrationSettings : Actors.Runtime.Migration.MigrationSettings
     {
         private static readonly string TraceType = typeof(MigrationSettings).ToString();

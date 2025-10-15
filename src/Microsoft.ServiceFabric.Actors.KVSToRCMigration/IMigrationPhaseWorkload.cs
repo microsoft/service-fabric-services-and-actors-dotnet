@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Migration;
@@ -12,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     /// <summary>
     /// Interface definition for migration workload by phase.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal interface IMigrationPhaseWorkload
     {
         /// <summary>

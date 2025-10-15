@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
 {
+    using System;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
 
@@ -12,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     /// Migration state response.
     /// </summary>
     [DataContract]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public class EnumerationResponse
     {
         /// <summary>

@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware
     using Microsoft.AspNetCore.Http;
     using Microsoft.ServiceFabric.Actors.Migration;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class DefaultMigrationExceptionMiddleware
     {
         private static readonly DataContractJsonSerializer Serializer = new DataContractJsonSerializer(typeof(ErrorResponse));

@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Exceptions
     /// This is a transient exception and proxy calls receiving this exception could retry the call.
     /// </summary>
     [Serializable]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public class MigrationFrameworkNotInitializedException : FabricException
     {
         /// <summary>

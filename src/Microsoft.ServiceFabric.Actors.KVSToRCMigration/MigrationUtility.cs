@@ -18,6 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Data.Collections;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal static class MigrationUtility
     {
         private static readonly string TraceType = typeof(MigrationUtility).ToString();

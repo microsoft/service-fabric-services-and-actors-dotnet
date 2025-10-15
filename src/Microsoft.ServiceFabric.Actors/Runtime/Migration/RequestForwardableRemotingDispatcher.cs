@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class RequestForwardableRemotingDispatcher : IServiceRemotingMessageHandler, IDisposable
     {
         private static readonly string TraceType = typeof(RequestForwardableRemotingDispatcher).Name;

@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
 {
+    using System;
     using System.ComponentModel.DataAnnotations;
     using System.Runtime.Serialization;
 
@@ -12,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     /// EnumerationRequest
     /// </summary>
     [DataContract]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public class EnumerationRequest
     {
         /// <summary>

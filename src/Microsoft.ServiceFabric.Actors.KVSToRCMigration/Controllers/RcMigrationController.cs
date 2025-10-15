@@ -16,6 +16,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     /// Represents the controller class for KVS migration REST API.
     /// </summary>
     [Route("[controller]")]
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class RcMigrationController : ControllerBase
     {
         private IMigrationOrchestrator migrationOrchestrator;

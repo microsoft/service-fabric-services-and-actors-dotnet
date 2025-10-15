@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class ActorEventForwarder : IServiceRemotingCallbackMessageHandler
     {
         private static readonly string TraceType = typeof(ActorEventForwarder).Name;

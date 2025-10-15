@@ -3,12 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
 {
     /// <summary>
     /// Interface to resolve actorId from storage key incase there is any ambiguity.
     /// The implementation should have a default constructor.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     public interface IAmbiguousActorIdResolver
     {
         /// <summary>

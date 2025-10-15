@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// Migration phase result.
     /// </summary>
     [DataContract]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public class PhaseResult
     {
         private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhaseResult), new DataContractJsonSerializerSettings

@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Generator;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal static class MigrationReflectionHelper
     {
         private static readonly string TraceType = typeof(MigrationReflectionHelper).Name;

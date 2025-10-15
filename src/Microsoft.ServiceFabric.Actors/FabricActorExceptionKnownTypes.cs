@@ -83,6 +83,7 @@ namespace Microsoft.ServiceFabric.Actors
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
                 {
                     "Microsoft.ServiceFabric.Actors.Migration.Exceptions.ActorCallsDisallowedException", new ConvertorFuncs()
                     {
@@ -107,6 +108,7 @@ namespace Microsoft.ServiceFabric.Actors
                         InnerExFunc = ex => GetInnerExceptions(ex),
                     }
                 },
+#pragma warning restore 618
             };
 
         private static ServiceException ToServiceException(FabricException fabricEx)

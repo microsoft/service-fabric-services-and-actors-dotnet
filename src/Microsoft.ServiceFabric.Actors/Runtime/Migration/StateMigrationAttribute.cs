@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     /// Indicates whether the actor service participates in state migration.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public sealed class StateMigrationAttribute : Attribute
     {
         /// <summary>
