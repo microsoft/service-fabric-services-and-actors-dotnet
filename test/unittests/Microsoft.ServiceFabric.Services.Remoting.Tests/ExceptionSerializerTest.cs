@@ -4,13 +4,9 @@
 // ------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.Fabric;
 using System.Linq;
-using Microsoft.ServiceFabric.Services.Communication;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
-using Microsoft.ServiceFabric.Services.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-using FluentAssertions;
 using Fuzzy;
 using Inspector;
 using Xunit;
@@ -72,11 +68,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 
                 // Assert
                 IEnumerable<IExceptionConvertor> actualConvertors = serializer.Field<IEnumerable<IExceptionConvertor>>().Value;
-                Assert.Equal(expectedConvertors.Count, actualConvertors.Count());
-                for (int i = 0; i < expectedConvertors.Count; i++)
-                {
-                    Assert.IsType(expectedConvertors[i].GetType(), actualConvertors.ElementAt(i));
-                }
+                var expectedTypes = actualConvertors.Select(c => c.GetType()).ToArray();
+                var actualTypes = expectedConvertors.Select(c => c.GetType()).ToArray();
+
+                Assert.Equal(expectedTypes, actualTypes);
             }
 
             [Fact]

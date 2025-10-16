@@ -48,12 +48,10 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
 
                 Assert.NotNull(actualConvertors);
 
-                // Compare that the types of the convertors in both lists are the same
-                Assert.Equal(expectedConvertors.Count(), actualConvertors.Count());
-                for (int i = 0; i < actualConvertors.Count(); i++)
-                {
-                    Assert.Equal(expectedConvertors.ElementAt(i).GetType(), actualConvertors.ElementAt(i).GetType());
-                }
+                var expectedTypes = actualExceptionDeserializer.Field<IEnumerable<IExceptionConvertor>>().Value.Select(c => c.GetType()).ToArray();
+                var actualTypes = expectedExceptionDeserializer.Field<IEnumerable<IExceptionConvertor>>().Value.Select(c => c.GetType()).ToArray();
+
+                Assert.Equal(expectedTypes, actualTypes);
             }
         }
     }

@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading;
@@ -49,7 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         ///     When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the
         ///     parameters will be wrapped.Default value is false.
         /// </param>
-        [Obsolete("This constructor is obsolete. Use the one with exceptionConvertors parameter instead.")]
+        [Obsolete(Services.Wcf.DeprecationMessage.ObsoleteConstructorExceptionConvertors)]
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IService serviceImplementation,
@@ -147,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime
         ///     When UseWrappedMessage is set to false, parameters  will not be wrapped. When this value is set to true, the
         ///     parameters will be wrapped.Default value is false.
         /// </param>
-        [Obsolete("This constructor is obsolete. Use the one with exceptionConvertors parameter instead.")]
+        [Obsolete(Services.Wcf.DeprecationMessage.ObsoleteConstructorExceptionConvertors)]
         public WcfServiceRemotingListener(
             ServiceContext serviceContext,
             IServiceRemotingMessageHandler messageHandler,
