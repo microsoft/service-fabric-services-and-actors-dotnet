@@ -19,9 +19,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         void ActorOnActivateAsyncFinish(DateTime startTime);
 
-        void ActorMethodStart(DiagnosticsManagerActorContext diagnosticContext, ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener);
+        void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener);
 
-        void ActorMethodFinish(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener);
+        void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener);
 
         void LoadActorStateStart();
 
@@ -35,7 +35,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext);
 
-        void AcquireActorLockFinish(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId);
+        void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId);
+
+        void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime);
 
         void ReleaseActorLock(DateTime startTime);
 

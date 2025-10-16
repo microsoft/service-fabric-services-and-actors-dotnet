@@ -39,21 +39,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public void AcquireActorLockFinish(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
-        {
-            try
-            {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.AcquireActorLockFinish(diagnosticContext, startTime, actorId);
-                }
-            }
-            catch
-            {
-                HandleException();
-            }
-        }
-
         public void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext)
         {
             try
@@ -114,13 +99,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public void ActorMethodFinish(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
+        public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
         {
             try
             {
                 foreach (IDiagnosticEvents d in diagnosticEvents)
                 {
-                    d.ActorMethodFinish(diagnosticContext, startTime, actorId, interfaceMethodKey, e, remotingListener);
+                    d.ActorMethodFinish(startTime, actorId, interfaceMethodKey, e, remotingListener);
                 }
             }
             catch
@@ -129,13 +114,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public void ActorMethodStart(DiagnosticsManagerActorContext diagnosticContext, ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
             try
             {
                 foreach (IDiagnosticEvents d in diagnosticEvents)
                 {
-                    d.ActorMethodStart(diagnosticContext, actorId, interfaceMethodKey, remotingListener);
+                    d.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
                 }
             }
             catch
@@ -277,6 +262,26 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 HandleException();
             }
+        }
+
+        public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
+        {
+            try
+            {
+                foreach (IDiagnosticEvents d in diagnosticEvents)
+                {
+                    d.AcquireActorLockFinish(diagnosticData, startTime);
+                }
+            }
+            catch
+            {
+                HandleException();
+            }
+        }
+
+        public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
+        {
+            throw new NotImplementedException();
         }
 
         private void HandleException()

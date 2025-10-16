@@ -30,6 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly ActorId actorId = new ActorId(Guid.NewGuid());
         readonly long interfaceMethodKey = fuzzy.Int64();
         readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2_1;
+        readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData = default(PendingActorMethodDiagnosticData);
 
         public AgregateDiagnosticEventsTest() => sut = new AgregateDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, anotherDiagnosticEvents });
 
@@ -129,22 +130,22 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void StartInvokesAllDiagnostics()
             {
-                sut.ActorMethodStart(diagnosticContext, actorId, interfaceMethodKey, remotingListener);
+                sut.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodStart(diagnosticContext, actorId, interfaceMethodKey, remotingListener), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodStart(diagnosticContext, actorId, interfaceMethodKey, remotingListener), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey, remotingListener), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey, remotingListener), Times.Once);
             }
 
             [Fact]
             public void FinishInvokesAllDiagnostics()
             {
                 var startTime = DateTime.UtcNow;
-                var exception = new InvalidOperationException("test exception");
+                var exception = new InvalidOperationException(fuzzy.String());
 
-                sut.ActorMethodFinish(diagnosticContext, startTime, actorId, interfaceMethodKey, exception, remotingListener);
+                sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodFinish(diagnosticContext, startTime, actorId, interfaceMethodKey, exception, remotingListener), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodFinish(diagnosticContext, startTime, actorId, interfaceMethodKey, exception, remotingListener), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener), Times.Once);
             }
         }
 
@@ -213,10 +214,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             public void AcquireFinishInvokesAllDiagnostics()
             {
                 var startTime = DateTime.UtcNow;
-                sut.AcquireActorLockFinish(diagnosticContext, startTime, actorId);
+                sut.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockFinish(diagnosticContext, startTime, actorId), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockFinish(diagnosticContext, startTime, actorId), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
             }
 
             [Fact]

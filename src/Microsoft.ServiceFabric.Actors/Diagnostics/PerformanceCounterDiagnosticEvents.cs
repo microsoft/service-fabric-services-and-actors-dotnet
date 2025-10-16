@@ -26,9 +26,21 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             // Intentionally left blank, since we don't track
         }
 
-        public void AcquireActorLockFinish(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
+        public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (this.performanceCounterProvider.actorLockContentionCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorLockContentionCounterWriter.UpdateCounterValue(diagnosticData);
+            }
+            if (this.performanceCounterProvider.actorLockAcquireWaitTimeCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorLockAcquireWaitTimeCounterWriter.UpdateCounterValue(LongMillisecondsSinceStart(startTime));
+            }
+        }
+
+        public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
+        {
+            // Intentionally left blank, since we don't track
         }
 
         public void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext)
@@ -38,7 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorActivated(ActorId actorId)
         {
-            throw new NotImplementedException();
+            // Intentionally left blank, since we don't track
         }
 
         public void ActorChangeRole(ReplicaRole currentRole, ReplicaRole newRole)
@@ -51,19 +63,46 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             // Intentionally left blank, since we don't track
         }
 
-        public void ActorMethodFinish(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
+        public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
         {
-            throw new NotImplementedException();
+            var counterWriters = this.performanceCounterProvider.GetMethodSpecificCounterWriters(interfaceMethodKey, remotingListener);
+
+            ActorMethodDiagnosticData methodData = new ActorMethodDiagnosticData()
+            {
+                ActorId = actorId,
+                Exception = e,
+                InterfaceMethodKey = interfaceMethodKey,
+                RemotingListener = remotingListener,
+                MethodExecutionTime = TimeSpan.FromMilliseconds(LongMillisecondsSinceStart(startTime))
+            };
+
+            if (counterWriters.ActorMethodFrequencyCounterWriter != null)
+            {
+                counterWriters.ActorMethodFrequencyCounterWriter.UpdateCounterValue();
+            }
+
+            if (counterWriters.ActorMethodExceptionFrequencyCounterWriter != null)
+            {
+                counterWriters.ActorMethodExceptionFrequencyCounterWriter.UpdateCounterValue(methodData);
+            }
+
+            if (counterWriters.ActorMethodExecTimeCounterWriter != null)
+            {
+                counterWriters.ActorMethodExecTimeCounterWriter.UpdateCounterValue(methodData);
+            }
         }
 
-        public void ActorMethodStart(DiagnosticsManagerActorContext diagnosticContext, ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
             // Intentionally left blank, since we don't track
         }
 
         public void ActorOnActivateAsyncFinish(DateTime startTime)
         {
-            // Intentionally left blank, since we don't track
+            if (this.performanceCounterProvider.actorOnActivateAsyncTimeCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorOnActivateAsyncTimeCounterWriter.UpdateCounterValue(LongMillisecondsSinceStart(startTime));
+            }
         }
 
         public void ActorOnActivateAsyncStart()
@@ -73,17 +112,30 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorRequestProcessingFinish(DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (this.performanceCounterProvider.actorOutstandingRequestsCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorOutstandingRequestsCounterWriter.UpdateCounterValue(-1);
+            }
+            if (this.performanceCounterProvider.actorRequestProcessingTimeCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorRequestProcessingTimeCounterWriter.UpdateCounterValue(LongMillisecondsSinceStart(startTime));
+            }
         }
 
         public void ActorRequestProcessingStart()
         {
-            throw new NotImplementedException();
+            if (this.performanceCounterProvider.actorOutstandingRequestsCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorOutstandingRequestsCounterWriter.UpdateCounterValue(1);
+            }
         }
 
         public void LoadActorStateFinish(DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (this.performanceCounterProvider.actorLoadStateTimeCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorLoadStateTimeCounterWriter.UpdateCounterValue(LongMillisecondsSinceStart(startTime));
+            }
         }
 
         public void LoadActorStateStart()
@@ -93,17 +145,28 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ReleaseActorLock(DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (this.performanceCounterProvider.actorLockHoldTimeCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorLockHoldTimeCounterWriter.UpdateCounterValue(LongMillisecondsSinceStart(startTime));
+            }
         }
 
         public void SaveActorStateFinish(ActorId actorId, DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (this.performanceCounterProvider.actorSaveStateTimeCounterWriter != null)
+            {
+                this.performanceCounterProvider.actorSaveStateTimeCounterWriter.UpdateCounterValue(new ActorStateDiagnosticData() { ActorId = actorId, OperationTime = clock.UtcNow - startTime });
+            }
         }
 
         public void SaveActorStateStart(ActorId actorId)
         {
             // Intentionally left blank, since we don't track
+        }
+
+        private long LongMillisecondsSinceStart(DateTime startTime)
+        {
+            return (long)(clock.UtcNow - startTime).TotalMilliseconds;
         }
     }
 }

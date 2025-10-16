@@ -13,6 +13,7 @@ using Inspector;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Services.Remoting;
 using Moq;
 using Xunit;
 
@@ -83,9 +84,22 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             readonly long interfaceMethodKey = fuzzy.Int64();
             readonly ActorId actorId = fuzzy.ActorId();
             readonly DiagnosticsManagerActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticsManagerActorContext>();
+            readonly DateTime startTime;
+            readonly DateTime endTime;
+            readonly long operationDurationMillis = fuzzy.Int64().Between(100, 2000);
+            readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2;
 
             public OnEvents()
             {
+                actorMethodCounterInstanceData = new Dictionary<long, PerformanceCounterProvider.CounterInstanceData>();
+                var counterInstanceData = new PerformanceCounterProvider.CounterInstanceData { InstanceName = fuzzy.String() };
+                counterInstanceData.CounterWriters = new PerformanceCounterProvider.MethodSpecificCounterWriters();
+                counterInstanceData.CounterWriters.ActorMethodFrequencyCounterWriter = Mock.Of<ActorMethodFrequencyCounterWriter>();
+                counterInstanceData.CounterWriters.ActorMethodExceptionFrequencyCounterWriter = Mock.Of<ActorMethodExceptionFrequencyCounterWriter>();
+                counterInstanceData.CounterWriters.ActorMethodExecTimeCounterWriter = Mock.Of<ActorMethodExecTimeCounterWriter>();
+                actorMethodCounterInstanceData[interfaceMethodKey] = counterInstanceData;
+
+                performanceCounterProvider.Private().Field<Dictionary<long, PerformanceCounterProvider.CounterInstanceData>>().Set(actorMethodCounterInstanceData);
                 performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorRequestProcessingTimeCounterWriter)).Set(actorRequestProcessingTimeCounterWriter);
                 performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLockAcquireWaitTimeCounterWriter)).Set(actorLockAcquireWaitTimeCounterWriter);
                 performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLockHoldTimeCounterWriter)).Set(actorLockHoldTimeCounterWriter);
@@ -97,47 +111,258 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 performanceCounterProvider.Field<ActorLockContentionCounterWriter>(nameof(performanceCounterProvider.actorLockContentionCounterWriter)).Set(actorLockContentionCounterWriter);
                 performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorSaveStateTimeCounterWriter)).Set(actorSaveStateTimeCounterWriter);
 
-                actorMethodCounterInstanceData = new Dictionary<long, PerformanceCounterProvider.CounterInstanceData>();
-
-                var counterInstanceData = new PerformanceCounterProvider.CounterInstanceData { InstanceName = fuzzy.String() };
-                counterInstanceData.CounterWriters = new PerformanceCounterProvider.MethodSpecificCounterWriters();
-                counterInstanceData.CounterWriters.ActorMethodFrequencyCounterWriter = Mock.Of<ActorMethodFrequencyCounterWriter>();
-                counterInstanceData.CounterWriters.ActorMethodExceptionFrequencyCounterWriter = Mock.Of<ActorMethodExceptionFrequencyCounterWriter>();
-                counterInstanceData.CounterWriters.ActorMethodExecTimeCounterWriter = Mock.Of<ActorMethodExecTimeCounterWriter>();
-
-                actorMethodCounterInstanceData[interfaceMethodKey] = counterInstanceData;
-                performanceCounterProvider.Private().Field<Dictionary<long, PerformanceCounterProvider.CounterInstanceData>>().Set(actorMethodCounterInstanceData);
+                startTime = DateTime.Now;
+                endTime = startTime + TimeSpan.FromMilliseconds(operationDurationMillis);
+                Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(endTime);
             }
 
-            [Fact]
-            public void WhenCountersNotNeededDoNotEmitAnything()
+            public class WitnNoPerfCounters : OnEvents
             {
-                sut.ActorOnActivateAsyncStart();
-                sut.ActorOnActivateAsyncFinish(DateTime.Now);
-                sut.ActorMethodStart(diagnosticsManagerActorContext, actorId, interfaceMethodKey, Services.Remoting.RemotingListenerVersion.V2);
-                sut.LoadActorStateStart();
-                sut.SaveActorStateStart(fuzzy.ActorId());
-                sut.AcquireActorLockStart(diagnosticsManagerActorContext);
-                sut.AcquireActorLockFailed(diagnosticsManagerActorContext);
-                sut.ActorChangeRole(ReplicaRole.Primary, ReplicaRole.IdleSecondary);
-                sut.ActorDeactivated(actorId);
-
-                Mock.Get(actorRequestProcessingTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorLockAcquireWaitTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorLockHoldTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorRequestDeserializationTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorResponseSerializationTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorOnActivateAsyncTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorLoadStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorOutstandingRequestsCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                Mock.Get(actorLockContentionCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<PendingActorMethodDiagnosticData>()), Times.Never);
-                Mock.Get(actorSaveStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorStateDiagnosticData>()), Times.Never);
-                foreach (var counterInstanceData in actorMethodCounterInstanceData.Values)
+                [Fact]
+                public void EmitsNothingWhenCountersNotNeeded()
                 {
-                    Mock.Get(counterInstanceData.CounterWriters.ActorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Never);
-                    Mock.Get(counterInstanceData.CounterWriters.ActorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
-                    Mock.Get(counterInstanceData.CounterWriters.ActorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
+                    sut.ActorOnActivateAsyncStart();
+                    sut.ActorMethodStart(actorId, interfaceMethodKey, Services.Remoting.RemotingListenerVersion.V2);
+                    sut.LoadActorStateStart();
+                    sut.SaveActorStateStart(actorId);
+                    sut.AcquireActorLockStart(diagnosticsManagerActorContext);
+                    sut.AcquireActorLockFailed(diagnosticsManagerActorContext);
+                    sut.AcquireActorLockFinishPreProcess(diagnosticsManagerActorContext, startTime, actorId);
+                    sut.ActorChangeRole(ReplicaRole.Primary, ReplicaRole.IdleSecondary);
+                    sut.ActorActivated(actorId);
+                    sut.ActorDeactivated(actorId);
 
+                    Mock.Get(actorRequestProcessingTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorLockAcquireWaitTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorLockHoldTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorRequestDeserializationTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorResponseSerializationTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorOnActivateAsyncTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorLoadStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorOutstandingRequestsCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorLockContentionCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<PendingActorMethodDiagnosticData>()), Times.Never);
+                    Mock.Get(actorSaveStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorStateDiagnosticData>()), Times.Never);
+                    foreach (var counterInstanceData in actorMethodCounterInstanceData.Values)
+                    {
+                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Never);
+                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
+                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
+
+                    }
+                }
+            }
+
+            public class ActorState : OnEvents
+            {
+                [Fact]
+                public void SaveEmitsPerfCounter()
+                {
+                    sut.SaveActorStateFinish(actorId, startTime);
+
+                    Mock.Get(actorSaveStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorStateDiagnosticData>(data => data.OperationTime.Value.TotalMilliseconds == operationDurationMillis && data.ActorId == actorId)), Times.Once);
+                }
+
+                [Fact]
+                public void SaveEmitsNothingWhenCounterNull()
+                {
+                    performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorSaveStateTimeCounterWriter)).Set(null);
+
+                    sut.SaveActorStateFinish(actorId, startTime);
+
+                    Mock.Get(actorSaveStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorStateDiagnosticData>()), Times.Never);
+
+                    performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorSaveStateTimeCounterWriter)).Set(actorSaveStateTimeCounterWriter);
+                }
+
+                [Fact]
+                public void LoadEmitsPerfCounter()
+                {
+                    sut.LoadActorStateFinish(startTime);
+
+                    Mock.Get(actorLoadStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(operationDurationMillis), Times.Once);
+                }
+
+                [Fact]
+                public void LoadEmitsNothingWhenCounterNull()
+                {
+                    performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorLoadStateTimeCounterWriter)).Set(null);
+
+                    sut.LoadActorStateFinish(startTime);
+
+                    Mock.Get(actorLoadStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+
+                    performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorLoadStateTimeCounterWriter)).Set(actorLoadStateTimeCounterWriter);
+                }
+            }
+
+            public class RequestProcessing : OnEvents
+            {
+                [Fact]
+                public void StartEmitsPerfCounter()
+                {
+                    sut.ActorRequestProcessingStart();
+
+                    Mock.Get(actorOutstandingRequestsCounterWriter).Verify(p => p.UpdateCounterValue(1), Times.Once);
+                }
+
+                [Fact]
+                public void StartEmitsNothingWhenCounterNull()
+                {
+                    performanceCounterProvider.Field<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorOutstandingRequestsCounterWriter)).Set(null);
+
+                    sut.ActorRequestProcessingStart();
+
+                    Mock.Get(actorOutstandingRequestsCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+
+                    performanceCounterProvider.Field<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorOutstandingRequestsCounterWriter)).Set(actorOutstandingRequestsCounterWriter);
+                }
+
+                [Fact]
+                public void EndEmitsPerfCounter()
+                {
+                    sut.ActorRequestProcessingFinish(startTime);
+
+                    Mock.Get(actorOutstandingRequestsCounterWriter).Verify(p => p.UpdateCounterValue(-1), Times.Once);
+                    Mock.Get(actorRequestProcessingTimeCounterWriter).Verify(p => p.UpdateCounterValue(operationDurationMillis), Times.Once);
+                }
+
+                [Fact]
+                public void EndEmitsNothingWhenCounterNull()
+                {
+                    performanceCounterProvider.Field<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorOutstandingRequestsCounterWriter)).Set(null);
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorRequestProcessingTimeCounterWriter)).Set(null);
+
+                    sut.ActorRequestProcessingFinish(startTime);
+
+                    Mock.Get(actorOutstandingRequestsCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorRequestProcessingTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+
+                    performanceCounterProvider.Field<FabricNumberOfItems64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorOutstandingRequestsCounterWriter)).Set(actorOutstandingRequestsCounterWriter);
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorRequestProcessingTimeCounterWriter)).Set(actorRequestProcessingTimeCounterWriter);
+                }
+            }
+
+            public class ActorLock : OnEvents
+            {
+                readonly long pendingMethodCalls = fuzzy.Int64();
+                readonly long pendingMethodCallsDelta = fuzzy.Int64();
+                readonly PendingActorMethodDiagnosticData pendingMethodData;
+
+                public ActorLock() => pendingMethodData = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = pendingMethodCalls, PendingActorMethodCallsDelta = pendingMethodCallsDelta };
+
+                [Fact]
+                public void ReleasedEmitsPerfCounter()
+                {
+                    sut.ReleaseActorLock(startTime);
+
+                    Mock.Get(actorLockHoldTimeCounterWriter).Verify(p => p.UpdateCounterValue(operationDurationMillis), Times.Once);
+                }
+
+                [Fact]
+                public void ReleasedEmitsNothingWhenCounterNull()
+                {
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLockHoldTimeCounterWriter)).Set(null);
+
+                    sut.ReleaseActorLock(startTime);
+
+                    Mock.Get(actorLockHoldTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLockHoldTimeCounterWriter)).Set(actorLockHoldTimeCounterWriter);
+                }
+
+                [Fact]
+                public void AcquiredEmitsPerfCounter()
+                {
+                    sut.AcquireActorLockFinish(pendingMethodData, startTime);
+
+                    Mock.Get(actorLockAcquireWaitTimeCounterWriter).Verify(p => p.UpdateCounterValue(operationDurationMillis), Times.Once);
+                    Mock.Get(actorLockContentionCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<PendingActorMethodDiagnosticData>(p => p.Equals(pendingMethodData))), Times.Once);
+                }
+
+                [Fact]
+                public void AcquiredEmitsNothingWhenCountersNull()
+                {
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLockAcquireWaitTimeCounterWriter)).Set(null);
+                    performanceCounterProvider.Field<ActorLockContentionCounterWriter>(nameof(performanceCounterProvider.actorLockContentionCounterWriter)).Set(null);
+
+                    sut.AcquireActorLockFinish(pendingMethodData, startTime);
+
+                    Mock.Get(actorLockAcquireWaitTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+                    Mock.Get(actorLockContentionCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<PendingActorMethodDiagnosticData>()), Times.Never);
+
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLockAcquireWaitTimeCounterWriter)).Set(actorLockAcquireWaitTimeCounterWriter);
+                    performanceCounterProvider.Field<ActorLockContentionCounterWriter>(nameof(performanceCounterProvider.actorLockContentionCounterWriter)).Set(actorLockContentionCounterWriter);
+                }
+            }
+
+            public class ActorActivatedAsync : OnEvents
+            {
+                [Fact]
+                public void EmitsPerfCounter()
+                {
+                    sut.ActorOnActivateAsyncFinish(startTime);
+
+                    Mock.Get(actorOnActivateAsyncTimeCounterWriter).Verify(p => p.UpdateCounterValue(operationDurationMillis), Times.Once);
+                }
+
+                [Fact]
+                public void ReleasedEmitsNothingWhenCounterNull()
+                {
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorOnActivateAsyncTimeCounterWriter)).Set(null);
+
+                    sut.ActorOnActivateAsyncFinish(startTime);
+
+                    Mock.Get(actorOnActivateAsyncTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
+
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorOnActivateAsyncTimeCounterWriter)).Set(actorOnActivateAsyncTimeCounterWriter);
+                }
+            }
+
+            public class ActorMethod : OnEvents
+            {
+                PerformanceCounterProvider.MethodSpecificCounterWriters methodCounters;
+                ActorMethodFrequencyCounterWriter actorMethodFrequencyCounterWriter;
+                ActorMethodExceptionFrequencyCounterWriter actorMethodExceptionFrequencyCounterWriter;
+                ActorMethodExecTimeCounterWriter actorMethodExecTimeCounterWriter;
+
+                readonly Exception exception = new Exception();
+                readonly ActorMethodDiagnosticData diagnosticData;
+
+                public ActorMethod()
+                {
+                    methodCounters = actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
+                    actorMethodFrequencyCounterWriter = methodCounters.ActorMethodFrequencyCounterWriter;
+                    actorMethodExceptionFrequencyCounterWriter = methodCounters.ActorMethodExceptionFrequencyCounterWriter;
+                    actorMethodExecTimeCounterWriter = methodCounters.ActorMethodExecTimeCounterWriter;
+                    diagnosticData = new ActorMethodDiagnosticData() { ActorId = actorId, Exception = exception, InterfaceMethodKey = interfaceMethodKey, RemotingListener = remotingListener, MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis) };
+                }
+
+                [Fact]
+                public void FinishEmitsPerfCounter()
+                {
+                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
+
+                    Mock.Get(actorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Once);
+                    Mock.Get(actorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(diagnosticData))), Times.Once);
+                    Mock.Get(actorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(diagnosticData))), Times.Once);
+                }
+
+                [Fact]
+                public void FinishEmitsNothingWhenCounterNull()
+                {
+                    methodCounters.Property<ActorMethodFrequencyCounterWriter>(nameof(methodCounters.ActorMethodFrequencyCounterWriter)).Set(null);
+                    methodCounters.Property<ActorMethodExceptionFrequencyCounterWriter>(nameof(methodCounters.ActorMethodExceptionFrequencyCounterWriter)).Set(null);
+                    methodCounters.Property<ActorMethodExecTimeCounterWriter>(nameof(methodCounters.ActorMethodExecTimeCounterWriter)).Set(null);
+
+                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
+
+                    Mock.Get(actorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Never);
+                    Mock.Get(actorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
+                    Mock.Get(actorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
+
+                    methodCounters.Property<ActorMethodFrequencyCounterWriter>(nameof(methodCounters.ActorMethodFrequencyCounterWriter)).Set(actorMethodFrequencyCounterWriter);
+                    methodCounters.Property<ActorMethodExceptionFrequencyCounterWriter>(nameof(methodCounters.ActorMethodExceptionFrequencyCounterWriter)).Set(actorMethodExceptionFrequencyCounterWriter);
+                    methodCounters.Property<ActorMethodExecTimeCounterWriter>(nameof(methodCounters.ActorMethodExecTimeCounterWriter)).Set(actorMethodExecTimeCounterWriter);
                 }
             }
         }
