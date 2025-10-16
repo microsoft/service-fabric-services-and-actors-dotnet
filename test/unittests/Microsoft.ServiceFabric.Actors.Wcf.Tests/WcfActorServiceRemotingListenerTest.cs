@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Moq;
 using Inspector;
 using Xunit;
@@ -15,7 +16,8 @@ using System.Collections.ObjectModel;
 using Microsoft.ServiceFabric.Actors.Remoting.V2.Wcf.Runtime;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Actors;
-using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Remoting.Wcf;
+using Microsoft.ServiceFabric.Actors.Remoting;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
 {
@@ -23,10 +25,23 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
     {
         public class Constructor
         {
+            protected Assembly MockAssemblyWithRemotingProviderAttribute =>
+                MockAssembly(new WcfActorRemotingProviderAttribute());
+
+            static Assembly MockAssembly(WcfActorRemotingProviderAttribute provider)
+            {
+                var assembly = new Mock<TestAssembly>();
+                Attribute[] attributes = new[] { provider };
+                assembly.Setup(_ => _.GetCustomAttributes(typeof(ActorRemotingProviderAttribute), It.IsAny<bool>())).Returns(attributes);
+                return assembly.Object;
+            }
+
             [Fact]
             public void CreatesWcfActorServiceRemotingListenerWithGivenExceptionConvertors()
             {
                 // Arrange
+                typeof(ActorRemotingProviderAttribute).Field<Assembly>().Set(this.MockAssemblyWithRemotingProviderAttribute);
+
                 var exceptionConvertors = new List<IExceptionConvertor> { new SystemExceptionConvertor() };
                 var settings = new WcfRemotingListenerSettings
                 {
@@ -86,14 +101,17 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Runtime.Tests
                 var actualSettings = actualSerializer.Field<IExceptionSerializerSettings>().Value;
                 Assert.Same(settings, actualSettings);
             }
+            
+            // Make Assembly concrete to enable mocking on NetFx
+            public class TestAssembly : Assembly { }
+
+            public interface IDummyActor : IActor { }
+
+            // Dummy actor type for proper ActorTypeInformation
+            class DummyActor : Actor, IDummyActor
+            {
+                public DummyActor(ActorService service, ActorId id) : base(service, id) { }
+            }
         }
-    }
-
-    public interface IDummyActor : IActor { }
-
-    // Dummy actor type for proper ActorTypeInformation
-    class DummyActor : Actor, IDummyActor
-    {
-        public DummyActor(ActorService service, ActorId id) : base(service, id) { }
     }
 }
