@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Diagnostics
+namespace Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete
 {
     using System;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -14,14 +14,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal MockDiagnosticsManager(ActorService actorService)
         {
-            this.diagnosticsEventManager = new DiagnosticsEventManager(actorService.MethodFriendlyNameBuilder);
+            diagnosticsEventManager = new DiagnosticsEventManager(actorService.MethodFriendlyNameBuilder);
         }
 
         DiagnosticsEventManager IDiagnosticsManager.DiagnosticsEventManager
         {
             get
             {
-                return this.diagnosticsEventManager;
+                return diagnosticsEventManager;
             }
         }
 

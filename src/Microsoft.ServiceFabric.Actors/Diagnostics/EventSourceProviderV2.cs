@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Fabric;
+using Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting;
 

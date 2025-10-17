@@ -12,6 +12,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
+    using Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete;
     using Microsoft.ServiceFabric.Actors.Query;
     using Microsoft.ServiceFabric.Services.Common;
     using Microsoft.ServiceFabric.Services.Remoting.V2;

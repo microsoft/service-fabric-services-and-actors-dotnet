@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Actors.Diagnostics
+namespace Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete
 {
     using System;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -19,28 +19,28 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         internal DiagnosticsManager(ActorService actorService)
         {
-            this.diagnosticsEventManager = new DiagnosticsEventManager(actorService.MethodFriendlyNameBuilder);
+            diagnosticsEventManager = new DiagnosticsEventManager(actorService.MethodFriendlyNameBuilder);
 
             // V2 providers are compatible with V1 provider
-            this.perfCounterProviderV2 = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
-            this.eventSourceProviderV2 = new EventSourceProviderV2(actorService.Context, actorService.ActorTypeInformation);
-            this.perfCounterProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
-            this.eventSourceProviderV2.RegisterWithDiagnosticsEventManager(this.diagnosticsEventManager);
+            perfCounterProviderV2 = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
+            eventSourceProviderV2 = new EventSourceProviderV2(actorService.Context, actorService.ActorTypeInformation);
+            perfCounterProviderV2.RegisterWithDiagnosticsEventManager(diagnosticsEventManager);
+            eventSourceProviderV2.RegisterWithDiagnosticsEventManager(diagnosticsEventManager);
         }
 
         DiagnosticsEventManager IDiagnosticsManager.DiagnosticsEventManager
         {
             get
             {
-                return this.diagnosticsEventManager;
+                return diagnosticsEventManager;
             }
         }
 
         void IDisposable.Dispose()
         {
-            if (this.perfCounterProviderV2 != null)
+            if (perfCounterProviderV2 != null)
             {
-                this.perfCounterProviderV2.Dispose();
+                perfCounterProviderV2.Dispose();
             }
         }
     }
