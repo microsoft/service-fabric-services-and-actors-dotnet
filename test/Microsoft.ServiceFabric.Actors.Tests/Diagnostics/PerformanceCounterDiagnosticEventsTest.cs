@@ -185,13 +185,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 [Fact]
                 public void LoadEmitsNothingWhenCounterNull()
                 {
-                    performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorLoadStateTimeCounterWriter)).Set(null);
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLoadStateTimeCounterWriter)).Set(null);
 
                     sut.LoadActorStateFinish(startTime);
 
                     Mock.Get(actorLoadStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
 
-                    performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorLoadStateTimeCounterWriter)).Set(actorLoadStateTimeCounterWriter);
+                    performanceCounterProvider.Field<FabricAverageCount64PerformanceCounterWriter>(nameof(performanceCounterProvider.actorLoadStateTimeCounterWriter)).Set(actorLoadStateTimeCounterWriter);
                 }
             }
 
