@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Extensions
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal static class ServiceParitionClientExtensions
     {
         private static readonly DataContractJsonSerializer ErrorSerializer = new DataContractJsonSerializer(typeof(ErrorResponse));

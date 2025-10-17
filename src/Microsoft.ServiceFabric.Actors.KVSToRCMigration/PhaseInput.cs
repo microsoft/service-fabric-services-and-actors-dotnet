@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Migration;
 
     [DataContract]
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class PhaseInput
     {
         private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(PhaseInput), new DataContractJsonSerializerSettings

@@ -15,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     /// <summary>
     /// Interface definition for migraiton operations./>.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal interface IMigrationOrchestrator
     {
         /// <summary>

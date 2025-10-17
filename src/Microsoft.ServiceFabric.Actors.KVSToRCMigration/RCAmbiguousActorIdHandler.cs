@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class RCAmbiguousActorIdHandler : AmbiguousActorIdHandlerBase
     {
         private IReliableCollectionsActorStateProviderInternal stateProvider;

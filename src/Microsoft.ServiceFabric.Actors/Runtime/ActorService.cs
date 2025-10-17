@@ -45,6 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private ReplicaRole replicaRole;
         private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
 
+        [Obsolete(DeprecationMessage.StateMigration)]
         private IMigrationOrchestrator migrationOrchestrator;
 
         /// <summary>
@@ -63,6 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory = null,
             IActorStateProvider stateProvider = null,
             ActorServiceSettings settings = null)
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             : this(
                 context,
                 actorTypeInfo,
@@ -71,9 +73,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 stateManagerFactory,
                 stateProvider,
                 settings)
+#pragma warning restore 618
         {
         }
 
+        [Obsolete(DeprecationMessage.StateMigration)]
         internal ActorService(
            StatefulServiceContext context,
            ActorTypeInformation actorTypeInfo,
@@ -97,6 +101,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
         }
 
+        [Obsolete(DeprecationMessage.StateMigration)]
         internal ActorService(
             StatefulServiceContext context,
             ActorTypeInformation actorTypeInfo,
@@ -198,6 +203,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #region Migration
+
+        [Obsolete(DeprecationMessage.StateMigration)]
         internal bool AreActorCallsAllowed
         {
             get
@@ -211,6 +218,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        [Obsolete(DeprecationMessage.StateMigration)]
         internal bool IsActorCallToBeForwarded
         {
             get
@@ -224,7 +232,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        [Obsolete(DeprecationMessage.StateMigration)]
         internal IMigrationOrchestrator MigrationOrchestrator { get => this.migrationOrchestrator; }
+
         #endregion Migration
 
         #region IActorService Members
@@ -337,11 +347,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         }
 
         #region Migration
+
+        [Obsolete(DeprecationMessage.StateMigration)]
         internal bool IsConfiguredForMigration()
         {
             return this.migrationOrchestrator != null;
         }
 
+        [Obsolete(DeprecationMessage.StateMigration)]
         internal void ThrowIfActorCallsDisallowed()
         {
             if (this.migrationOrchestrator != null)
@@ -349,6 +362,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 this.migrationOrchestrator.ThrowIfActorCallsDisallowed();
             }
         }
+
         #endregion Migration
 
         #region StatefulServiceBase Overrides
@@ -387,7 +401,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
             }
 
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             this.AddMigrationListener(serviceReplicaListeners);
+#pragma warning restore 618
 
             return serviceReplicaListeners;
         }
@@ -397,6 +413,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         /// <param name="serviceReplicaListeners">Existing listener list.</param>
         /// <remarks>To be used when CreateServiceReplicaListeners() is overriden by Custom implementation of Actor Service.</remarks>
+        [Obsolete(DeprecationMessage.StateMigration)]
         protected void AddMigrationListener(IList<ServiceReplicaListener> serviceReplicaListeners)
         {
             // Add migration endpoint
@@ -424,10 +441,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </remarks>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
             if (this.migrationOrchestrator != null)
             {
                 await this.migrationOrchestrator.StartMigrationAsync(false, cancellationToken);
             }
+#pragma warning restore 618
             else
             {
                 await this.ActorManager.StartLoadingRemindersAsync(cancellationToken);

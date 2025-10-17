@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
+    using System;
     using System.Fabric;
     using System.Runtime.Serialization;
 
@@ -13,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// </summary>
     [DataContract]
     [KnownType(typeof(FabricErrorCode))]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public class ErrorResponse
     {
         /// <summary>

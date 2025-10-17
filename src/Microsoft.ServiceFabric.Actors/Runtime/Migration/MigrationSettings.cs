@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     using Microsoft.ServiceFabric.Actors.Migration.Exceptions;
 
     [DataContract]
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class MigrationSettings
     {
         private static readonly string TraceType = typeof(MigrationSettings).ToString();

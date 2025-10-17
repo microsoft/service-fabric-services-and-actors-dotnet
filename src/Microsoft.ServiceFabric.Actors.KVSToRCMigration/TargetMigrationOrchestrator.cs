@@ -20,12 +20,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
-
+#pragma warning restore 618
     /// <summary>
     /// Orchestrator for Target(RC based) service.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class TargetMigrationOrchestrator : MigrationOrchestratorBase
     {
         private static readonly string TraceType = typeof(TargetMigrationOrchestrator).Name;

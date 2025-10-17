@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
 {
+    using System;
     using System.Reflection;
     using Microsoft.AspNetCore.Mvc.Controllers;
 
@@ -12,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     /// MigrationControllerFeatureProvider class to override IsController to be able
     /// to load internal migration controllers
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class MigrationControllerFeatureProvider : ControllerFeatureProvider
     {
         protected override bool IsController(TypeInfo typeInfo)

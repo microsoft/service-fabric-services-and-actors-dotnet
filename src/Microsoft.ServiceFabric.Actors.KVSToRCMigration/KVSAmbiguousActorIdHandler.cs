@@ -5,10 +5,12 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class KVSAmbiguousActorIdHandler : AmbiguousActorIdHandlerBase
     {
         private const string ActorStorageKeyPrefix = "Actor";

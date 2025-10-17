@@ -25,6 +25,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     /// Provides an implementation of <see cref="KVStoRCMigrationActorStateProvider"/> which
     /// uses <see cref="ReliableCollectionsActorStateProvider"/> to store and persist the actor state.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class KVStoRCMigrationActorStateProvider :
         IActorStateProvider, VolatileLogicalTimeManager.ISnapshotHandler, IActorStateProviderInternal
     {

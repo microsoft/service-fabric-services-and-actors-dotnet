@@ -16,11 +16,14 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.Runtime.Migration;
     using Microsoft.ServiceFabric.Data.Collections;
     using Microsoft.ServiceFabric.Services.Communication.Client;
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationUtility;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
     using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
+#pragma warning restore 618
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal abstract class MigrationPhaseWorkloadBase : IMigrationPhaseWorkload
     {
         private static readonly string TraceType = typeof(MigrationPhaseWorkloadBase).Name;
@@ -538,6 +541,6 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
                },
                "MigrationPhaseWorkloadBase.AddOrUpdateResultAsync",
                token);
-         }
+        }
     }
 }

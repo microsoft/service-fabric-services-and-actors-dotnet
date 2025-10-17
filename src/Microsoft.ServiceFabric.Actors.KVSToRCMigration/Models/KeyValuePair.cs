@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
 {
+    using System;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
@@ -14,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Models
     /// KeyValuePair
     /// </summary>
     [DataContract]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public class KeyValuePair
     {
         /// <summary>

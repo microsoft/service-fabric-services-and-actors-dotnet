@@ -10,6 +10,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Fabric;
     using System.Fabric.Health;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class PartitionHealthExceptionFilter
     {
         private const int MaxHealthDescriptionLength = (4 * 1024) - 1;

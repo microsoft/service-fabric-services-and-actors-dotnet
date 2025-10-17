@@ -3,11 +3,14 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
     /// <summary>
     /// Indicates actor service migration state.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     public enum MigrationState
     {
         /// <summary>

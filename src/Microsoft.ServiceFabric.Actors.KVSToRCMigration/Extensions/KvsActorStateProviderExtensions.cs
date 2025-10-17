@@ -20,6 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Services;
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.MigrationConstants;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal static class KvsActorStateProviderExtensions
     {
         public static readonly string TombstoneCleanupMessage = "KeyValueStoreReplicaSettings.DisableTombstoneCleanup is either not enabled or set to false";

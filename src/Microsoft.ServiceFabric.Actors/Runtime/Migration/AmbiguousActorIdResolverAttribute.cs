@@ -14,6 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime.Migration
     /// There can be more than one class annotated with this attribute. In that case, all the resolvers will be tried in order.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public sealed class AmbiguousActorIdResolverAttribute : Attribute
     {
         /// <summary>

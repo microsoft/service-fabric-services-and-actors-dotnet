@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration.Exceptions
     /// Exception to represent MigrationConfig provided is invalid.
     /// </summary>
     [Serializable]
+    [Obsolete(DeprecationMessage.StateMigration)]
     public sealed class InvalidMigrationConfigException : FabricException
     {
         /// <summary>

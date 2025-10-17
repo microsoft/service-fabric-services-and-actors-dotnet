@@ -7,8 +7,10 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
     using System.Threading;
     using System.Threading.Tasks;
+#pragma warning disable 618 // [Obsolete(DeprecationMessage.StateMigration)]
     using static Microsoft.ServiceFabric.Actors.KVSToRCMigration.PhaseInput;
     using static Microsoft.ServiceFabric.Actors.Migration.PhaseResult;
+#pragma warning restore 618
 
     /// <summary>
     /// Interface definition for workers.

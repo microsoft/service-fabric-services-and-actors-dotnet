@@ -5,12 +5,14 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
     /// ActorId Handler.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     public interface IAmbiguousActorIdHandler
     {
         /// <summary>

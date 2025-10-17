@@ -5,11 +5,13 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
+    using System;
     using System.Fabric;
     using Microsoft.ServiceFabric.Actors.Migration;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class DowntimeWorkload : MigrationPhaseWorkloadBase
     {
         public DowntimeWorkload(

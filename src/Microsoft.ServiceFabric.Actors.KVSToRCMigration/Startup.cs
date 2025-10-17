@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
 {
+    using System;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers;
     using Microsoft.ServiceFabric.Actors.KVSToRCMigration.Middleware;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class Startup
     {
         public Startup(IConfiguration configuration)

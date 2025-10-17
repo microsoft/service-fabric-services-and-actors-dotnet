@@ -6,6 +6,8 @@
     <AssemblyName>Microsoft.ServiceFabric.Actors.StateMigration.Tests</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <TargetFramework>net9.0</TargetFramework>
+    <!-- State migration APIs are obsolete and will be removed. -->
+    <NoWarn>618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />

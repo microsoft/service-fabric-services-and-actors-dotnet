@@ -23,6 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     /// <summary>
     /// Base class for migration orchestration.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal abstract class MigrationOrchestratorBase : IMigrationOrchestrator
     {
         private static readonly string TraceType = typeof(MigrationOrchestratorBase).Name;

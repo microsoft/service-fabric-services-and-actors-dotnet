@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal abstract class AmbiguousActorIdHandlerBase : IAmbiguousActorIdHandler
     {
         private ActorStateProviderHelper stateProviderHelper;

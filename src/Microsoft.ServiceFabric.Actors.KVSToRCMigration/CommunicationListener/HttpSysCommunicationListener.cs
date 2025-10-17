@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     /// <summary>
     /// An AspNetCore HttpSys server based communication listener for Service Fabric stateless or stateful service.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class HttpSysCommunicationListener : AspNetCoreCommunicationListener
     {
         private readonly string endpointName;

@@ -11,6 +11,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     /// <summary>
     /// Class containing Service Fabric related extension methods for Microsoft.AspNetCore.Hosting.IWebHostBuilder.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal static class WebHostBuilderServiceFabricExtensions
     {
         private static readonly string SettingName = "UseServiceFabricIntegration";

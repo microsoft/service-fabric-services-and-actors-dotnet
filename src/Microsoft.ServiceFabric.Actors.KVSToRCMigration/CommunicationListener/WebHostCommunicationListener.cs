@@ -13,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration
     using Microsoft.AspNetCore.Hosting.Server.Features;
     using Microsoft.ServiceFabric.Services.Communication.Runtime;
 
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class WebHostCommunicationListener : ICommunicationListener
     {
         private readonly Func<string, AspNetCoreCommunicationListener, IWebHost> build;

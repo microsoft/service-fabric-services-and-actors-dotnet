@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace Microsoft.ServiceFabric.Actors.KVSToRCMigration.Controllers
     /// Represents the controller class for KVS migration REST API.
     /// </summary>
     [Route("[controller]")]
+    [Obsolete(DeprecationMessage.StateMigration)]
     internal class KvsMigrationController : ControllerBase
     {
         private KvsActorStateProvider kvsActorStateProvider;

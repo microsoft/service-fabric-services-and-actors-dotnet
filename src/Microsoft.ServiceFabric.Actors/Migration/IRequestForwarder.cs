@@ -5,6 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Actors.Migration
 {
+    using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
@@ -12,6 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Migration
     /// <summary>
     /// Interface definition for forwardding actor requests if the current service cannot service the request.
     /// </summary>
+    [Obsolete(DeprecationMessage.StateMigration)]
     public interface IRequestForwarder
     {
         /// <summary>
