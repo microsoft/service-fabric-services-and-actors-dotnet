@@ -7,6 +7,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System.Collections.Generic;
     using System.Fabric;
+    using Microsoft.ServiceFabric.Actors.Diagnostics.Data;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting;
     using Microsoft.ServiceFabric.Services.Remoting.Description;
