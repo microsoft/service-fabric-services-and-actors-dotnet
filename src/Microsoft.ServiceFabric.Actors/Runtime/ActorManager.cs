@@ -155,7 +155,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken cancellationToken)
         {
             this.ThrowIfClosed();
-            this.ThrowIfMigrationInProgress();
 
             ExceptionDispatchInfo exceptionInfo = null;
             Exception exception = null;
@@ -279,7 +278,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             cancellationToken.ThrowIfCancellationRequested();
 
             this.ThrowIfClosed();
-            this.ThrowIfMigrationInProgress();
 
             var methodDispatcher = this.actorService.MethodDispatcherMapV2.GetDispatcher(interfaceId, methodId);
             var actorMethodName = methodDispatcher.GetMethodName(methodId);
@@ -306,15 +304,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public Task SubscribeAsync(ActorId actorId, int eventInterfaceId, IActorEventSubscriberProxy subscriber)
         {
-            this.ThrowIfMigrationInProgress();
-
             return this.eventManager.SubscribeAsync(actorId, eventInterfaceId, subscriber);
         }
 
         public Task UnsubscribeAsync(ActorId actorId, int eventInterfaceId, Guid subscriberId)
         {
-            this.ThrowIfMigrationInProgress();
-
             return this.eventManager.UnsubscribeAsync(actorId, eventInterfaceId, subscriberId);
         }
 
@@ -331,8 +325,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             TimeSpan period,
             bool saveState = true)
         {
-            this.ThrowIfMigrationInProgress();
-
             var reminder = new ActorReminder(actorId, this, reminderName, state, dueTime, period);
             await this.RegisterOrUpdateReminderAsync(reminder, dueTime, saveState);
 
@@ -359,7 +351,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public async Task UnregisterReminderAsync(string reminderName, ActorId actorId, bool removeFromStateProvider)
         {
             this.ThrowIfClosed();
-            this.ThrowIfMigrationInProgress();
 
             ActorTrace.Source.WriteInfoWithId(
                 TraceType,
@@ -401,16 +392,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public Task StartLoadingRemindersAsync(CancellationToken cancellationToken)
         {
-            this.ThrowIfMigrationInProgress();
-
             this.loadRemindersTask = this.LoadRemindersAsync(cancellationToken);
             return this.loadRemindersTask;
         }
 
         public async Task FireReminderAsync(ActorReminder reminder)
         {
-            this.ThrowIfMigrationInProgress();
-
             var rearmTimer = true;
 
             try
@@ -496,8 +483,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public async Task DeleteActorAsync(string callContext, ActorId actorId, CancellationToken cancellationToken)
         {
-            this.ThrowIfMigrationInProgress();
-
             ExceptionDispatchInfo exceptionInfo = null;
 
             if (!this.HasRemindersLoaded)
@@ -1066,11 +1051,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 throw new FabricNotPrimaryException();
             }
-        }
-
-        private void ThrowIfMigrationInProgress()
-        {
-            this.ActorService.ThrowIfActorCallsDisallowed();
         }
 
         private void DisposeDiagnosticsManager()
