@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using Microsoft.ServiceFabric.Actors.Diagnostics.Data;
 
     internal class DiagnosticsManagerActorContext
     {
