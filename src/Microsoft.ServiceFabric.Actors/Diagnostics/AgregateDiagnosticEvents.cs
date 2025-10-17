@@ -26,265 +26,141 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
         public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.AcquireActorLockFailed(diagnosticContext);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.AcquireActorLockFailed(diagnosticContext);
             }
         }
 
         public void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.AcquireActorLockStart(diagnosticContext);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.AcquireActorLockStart(diagnosticContext);
             }
         }
 
         public void ActorActivated(ActorId actorId)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorActivated(actorId);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorActivated(actorId);
             }
         }
 
         public void ActorChangeRole(ReplicaRole currentRole, ReplicaRole newRole)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorChangeRole(currentRole, newRole);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorChangeRole(currentRole, newRole);
             }
         }
 
         public void ActorDeactivated(ActorId actorId)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorDeactivated(actorId);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorDeactivated(actorId);
             }
         }
 
         public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorMethodFinish(startTime, actorId, interfaceMethodKey, e, remotingListener);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorMethodFinish(startTime, actorId, interfaceMethodKey, e, remotingListener);
             }
         }
 
         public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
             }
         }
 
         public void ActorOnActivateAsyncFinish(DateTime startTime)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorOnActivateAsyncFinish(startTime);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorOnActivateAsyncFinish(startTime);
             }
         }
 
         public void ActorOnActivateAsyncStart()
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorOnActivateAsyncStart();
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorOnActivateAsyncStart();
             }
         }
 
         public void ActorRequestProcessingFinish(DateTime startTime)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorRequestProcessingFinish(startTime);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorRequestProcessingFinish(startTime);
             }
         }
 
         public void ActorRequestProcessingStart()
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ActorRequestProcessingStart();
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ActorRequestProcessingStart();
             }
         }
 
         public void LoadActorStateFinish(DateTime startTime)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.LoadActorStateFinish(startTime);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.LoadActorStateFinish(startTime);
             }
         }
 
         public void LoadActorStateStart()
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.LoadActorStateStart();
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.LoadActorStateStart();
             }
         }
 
         public void ReleaseActorLock(DateTime startTime)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.ReleaseActorLock(startTime);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.ReleaseActorLock(startTime);
             }
         }
 
         public void SaveActorStateFinish(ActorId actorId, DateTime startTime)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.SaveActorStateFinish(actorId, startTime);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.SaveActorStateFinish(actorId, startTime);
             }
         }
 
         public void SaveActorStateStart(ActorId actorId)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.SaveActorStateStart(actorId);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.SaveActorStateStart(actorId);
             }
         }
 
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
-            try
+            foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                foreach (IDiagnosticEvents d in diagnosticEvents)
-                {
-                    d.AcquireActorLockFinish(diagnosticData, startTime);
-                }
-            }
-            catch
-            {
-                HandleException();
+                d.AcquireActorLockFinish(diagnosticData, startTime);
             }
         }
 
         public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void HandleException()
         {
             throw new NotImplementedException();
         }
