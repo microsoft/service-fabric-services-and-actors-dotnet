@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Common;
-using System.Threading.Tasks;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -29,10 +28,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         readonly IDiagnosticEvents sut;
 
-        protected PerformanceCounterDiagnosticEventsTest()
-        {
-            sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
-        }
+        protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
+
 
         public class Constructor : PerformanceCounterDiagnosticEventsTest
         {
@@ -132,21 +129,21 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     sut.ActorActivated(actorId);
                     sut.ActorDeactivated(actorId);
 
-                    Mock.Get(actorRequestProcessingTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorLockAcquireWaitTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorLockHoldTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorRequestDeserializationTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorResponseSerializationTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorOnActivateAsyncTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorLoadStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorOutstandingRequestsCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<long>()), Times.Never);
-                    Mock.Get(actorLockContentionCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<PendingActorMethodDiagnosticData>()), Times.Never);
-                    Mock.Get(actorSaveStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorStateDiagnosticData>()), Times.Never);
+                    Mock.Get(actorRequestProcessingTimeCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorLockAcquireWaitTimeCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorLockHoldTimeCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorRequestDeserializationTimeCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorResponseSerializationTimeCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorOnActivateAsyncTimeCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorLoadStateTimeCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorOutstandingRequestsCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorLockContentionCounterWriter).VerifyNoOtherCalls();
+                    Mock.Get(actorSaveStateTimeCounterWriter).VerifyNoOtherCalls();
                     foreach (var counterInstanceData in actorMethodCounterInstanceData.Values)
                     {
-                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Never);
-                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
-                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);
+                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodFrequencyCounterWriter).VerifyNoOtherCalls();
+                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodExceptionFrequencyCounterWriter).VerifyNoOtherCalls();
+                        Mock.Get(counterInstanceData.CounterWriters.ActorMethodExecTimeCounterWriter).VerifyNoOtherCalls();
 
                     }
                 }
@@ -365,22 +362,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     methodCounters.Property<ActorMethodExecTimeCounterWriter>(nameof(methodCounters.ActorMethodExecTimeCounterWriter)).Set(actorMethodExecTimeCounterWriter);
                 }
             }
-        }
-
-        private class TestActor : Actor, ITestActor
-        {
-            public TestActor(ActorService actorService, ActorId actorId) : base(actorService, actorId) { }
-
-            public Task TestMethod()
-            {
-                return Task.CompletedTask;
-            }
-        }
-
-        private interface ITestActor : IActor
-        {
-            public Task TestMethod();
-
         }
     }
 }
