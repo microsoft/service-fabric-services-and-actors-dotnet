@@ -16,12 +16,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
     [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR", Guid = "0e1ec353-9f02-55d7-fbb8-f3857458acbd")]
-    internal sealed class ActorFrameworkEventSource : ServiceFabricEventSource
+    internal class ActorFrameworkEventSource : ServiceFabricEventSource
     {
         internal static ActorFrameworkEventSource Writer { get; private set; } = new ActorFrameworkEventSource();
 
         [NonEvent]
-        internal void ReplicaChangeRoleToPrimary(ServiceContext serviceContext)
+        internal virtual void ReplicaChangeRoleToPrimary(ServiceContext serviceContext)
         {
             this.ReplicaChangeRoleToPrimary(
                 serviceContext.ReplicaOrInstanceId,
@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal void ReplicaChangeRoleFromPrimary(ServiceContext serviceContext)
+        internal virtual void ReplicaChangeRoleFromPrimary(ServiceContext serviceContext)
         {
             this.ReplicaChangeRoleFromPrimary(
                 serviceContext.ReplicaOrInstanceId,
@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal void ServiceInstanceOpen(ServiceContext serviceContext)
+        internal virtual void ServiceInstanceOpen(ServiceContext serviceContext)
         {
             this.ServiceInstanceOpen(
                 serviceContext.ReplicaOrInstanceId,
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal void ServiceInstanceClose(ServiceContext serviceContext)
+        internal virtual void ServiceInstanceClose(ServiceContext serviceContext)
         {
             this.ServiceInstanceClose(
                 serviceContext.ReplicaOrInstanceId,
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal void ActorActivated(
+        internal virtual void ActorActivated(
             string actorType,
             ActorId actorId,
             ServiceContext serviceContext)
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal void ActorDeactivated(
+        internal virtual void ActorDeactivated(
             string actorType,
             ActorId actorId,
             ServiceContext serviceContext)
@@ -111,13 +111,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal bool IsActorMethodStartEventEnabled()
+        internal virtual bool IsActorMethodStartEventEnabled()
         {
             return this.IsEnabled(EventLevel.Verbose, Keywords.ActorMethod);
         }
 
         [NonEvent]
-        internal void ActorMethodStart(
+        internal virtual void ActorMethodStart(
             string methodName,
             string methodSignature,
             string actorType,
@@ -140,13 +140,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal bool IsActorMethodStopEventEnabled()
+        internal virtual bool IsActorMethodStopEventEnabled()
         {
             return this.IsEnabled(EventLevel.Verbose, Keywords.ActorMethod);
         }
 
         [NonEvent]
-        internal void ActorMethodStop(
+        internal virtual void ActorMethodStop(
            long methodExecutionTimeTicks,
            string methodName,
            string methodSignature,
@@ -171,7 +171,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal void ActorMethodThrewException(
+        internal virtual void ActorMethodThrewException(
             string exception,
             long methodExecutionTimeTicks,
             string methodName,
@@ -198,13 +198,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal bool IsActorSaveStateStartEventEnabled()
+        internal virtual bool IsActorSaveStateStartEventEnabled()
         {
             return this.IsEnabled(EventLevel.Verbose, Keywords.ActorState);
         }
 
         [NonEvent]
-        internal void ActorSaveStateStart(
+        internal virtual void ActorSaveStateStart(
             string actorType,
             ActorId actorId,
             ServiceContext serviceContext)
@@ -223,13 +223,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal bool IsActorSaveStateStopEventEnabled()
+        internal virtual bool IsActorSaveStateStopEventEnabled()
         {
             return this.IsEnabled(EventLevel.Verbose, Keywords.ActorState);
         }
 
         [NonEvent]
-        internal void ActorSaveStateStop(
+        internal virtual void ActorSaveStateStop(
             long saveStateExecutionTimeTicks,
             string actorType,
             ActorId actorId,
@@ -250,13 +250,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [NonEvent]
-        internal bool IsPendingMethodCallsEventEnabled()
+        internal virtual bool IsPendingMethodCallsEventEnabled()
         {
             return this.IsEnabled(EventLevel.Verbose, Keywords.MetricActorMethodCallsWaitingForLock);
         }
 
         [NonEvent]
-        internal void ActorMethodCallsWaitingForLock(
+        internal virtual void ActorMethodCallsWaitingForLock(
             long countOfWaitingMethodCalls,
             string actorType,
             ActorId actorId,
@@ -277,7 +277,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [Event(13, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        internal void ActorTypeRegistered(
+        internal virtual void ActorTypeRegistered(
             string actorType,
             string customeActorServiceType,
             string nodeName)
@@ -290,7 +290,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
 
         [Event(14, Level = EventLevel.Error, Keywords = Keywords.Default)]
-        internal void ActorTypeRegistrationFailed(
+        internal virtual void ActorTypeRegistrationFailed(
             string exception,
             string actorType,
             string customeActorServiceType,
