@@ -32,6 +32,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
         {
             nameBuilder = new ActorMethodFriendlyNameBuilder(typeInfo);
             sut = new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, typeInfo);
+
+            Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStartEventEnabled()).Returns(true);
+            Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStopEventEnabled()).Returns(true);
+            Mock.Get(eventSource).Setup(eventSource => eventSource.IsPendingMethodCallsEventEnabled()).Returns(true);
         }
 
         public class Constructor : EventSourceDiagnosticEventsTest
@@ -108,6 +112,16 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             readonly DateTime endTime;
             readonly long operationDurationMillis = fuzzy.Int64().Between(100, 2000);
             readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2;
+            readonly string actorType;
+
+            public OnEvents()
+            {
+                actorType = typeInfo.ImplementationType.ToString();
+
+                startTime = DateTime.Now;
+                endTime = startTime + TimeSpan.FromMilliseconds(operationDurationMillis);
+                Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(endTime);
+            }
 
             public class WitnNoPerfCounters : OnEvents
             {
@@ -129,9 +143,117 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 }
             }
 
+            public class ChangeRole : OnEvents
+            {
+                [Fact]
+                public void WhenPrimaryTracesFromPrimaryChange()
+                {
+                    sut.ActorChangeRole(ReplicaRole.Primary, ReplicaRole.IdleSecondary);
+
+                    Mock.Get(eventSource).Verify(p => p.ReplicaChangeRoleFromPrimary(serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void WhenNotPrimaryTracesToPrimaryChange()
+                {
+                    sut.ActorChangeRole(ReplicaRole.IdleSecondary, ReplicaRole.Primary);
+
+                    Mock.Get(eventSource).Verify(p => p.ReplicaChangeRoleToPrimary(serviceContext), Times.Once);
+                }
+            }
+
+            public class ActorActivation : OnEvents
+            {
+                [Fact]
+                public void TracesActivation()
+                {
+                    sut.ActorActivated(actorId);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorActivated(actorType, actorId, serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void TracesDeactivation()
+                {
+                    sut.ActorDeactivated(actorId);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorDeactivated(actorType, actorId, serviceContext), Times.Once);
+                }
+            }
+
+            public class SaveState : OnEvents
+            {
+                readonly long ticks;
+
+                public SaveState() => ticks = TimeSpan.FromMilliseconds(operationDurationMillis).Ticks;
+
+                [Fact]
+                public void StartTraceIfEnabled()
+                {
+                    sut.SaveActorStateStart(actorId);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorSaveStateStart(actorType, actorId, serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void StartNoTraceIfDisabled()
+                {
+                    Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStartEventEnabled()).Returns(false);
+
+                    sut.SaveActorStateStart(actorId);
+
+                    Mock.Get(eventSource).Verify(p => p.IsActorSaveStateStartEventEnabled(), Times.Once);
+                    Mock.Get(eventSource).VerifyNoOtherCalls();
+                }
+
+                [Fact]
+                public void FinishTraceIfEnabled()
+                {
+                    sut.SaveActorStateFinish(actorId, startTime);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorSaveStateStop(ticks, actorType, actorId, serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void FinishNoTraceIfDisabled()
+                {
+                    Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStopEventEnabled()).Returns(false);
+
+                    sut.SaveActorStateFinish(actorId, startTime);
+
+                    Mock.Get(eventSource).Verify(p => p.IsActorSaveStateStopEventEnabled(), Times.Once);
+                    Mock.Get(eventSource).VerifyNoOtherCalls();
+                }
+            }
+
+            public class AcquireLock : OnEvents
+            {
+                readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData;
+
+                public AcquireLock() => pendingActorMethodDiagnosticData = new PendingActorMethodDiagnosticData() { PendingActorMethodCalls = fuzzy.Int64(), ActorId = actorId };
+
+
+                [Fact]
+                public void TracesIfEnabled()
+                {
+                    sut.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodCallsWaitingForLock(pendingActorMethodDiagnosticData.PendingActorMethodCalls, actorType, actorId, serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void DoesntTraceIfDisabled()
+                {
+                    Mock.Get(eventSource).Setup(eventSource => eventSource.IsPendingMethodCallsEventEnabled()).Returns(false);
+
+                    sut.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime);
+
+                    Mock.Get(eventSource).Verify(p => p.IsPendingMethodCallsEventEnabled(), Times.Once);
+                    Mock.Get(eventSource).VerifyNoOtherCalls();
+                }
+            }
+
 
         }
-
-
     }
 }

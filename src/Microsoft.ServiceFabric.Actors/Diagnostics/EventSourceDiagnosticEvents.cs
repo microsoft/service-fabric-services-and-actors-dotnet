@@ -62,7 +62,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (this.eventSource.IsPendingMethodCallsEventEnabled())
+            {
+                this.eventSource.ActorMethodCallsWaitingForLock(diagnosticData.PendingActorMethodCalls, this.actorType, diagnosticData.ActorId, this.serviceContext);
+            }
         }
 
         public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
@@ -77,17 +80,24 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorActivated(ActorId actorId)
         {
-            throw new NotImplementedException();
+            this.eventSource.ActorActivated(this.actorType, actorId, this.serviceContext);
         }
 
         public void ActorChangeRole(ReplicaRole currentRole, ReplicaRole newRole)
         {
-            throw new NotImplementedException();
+            if (newRole == ReplicaRole.Primary)
+            {
+                this.eventSource.ReplicaChangeRoleToPrimary(this.serviceContext);
+            }
+            else if (currentRole == ReplicaRole.Primary)
+            {
+                this.eventSource.ReplicaChangeRoleFromPrimary(this.serviceContext);
+            }
         }
 
         public void ActorDeactivated(ActorId actorId)
         {
-            throw new NotImplementedException();
+            this.eventSource.ActorDeactivated(this.actorType, actorId, this.serviceContext);
         }
 
         public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
@@ -137,12 +147,24 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void SaveActorStateFinish(ActorId actorId, DateTime startTime)
         {
-            throw new NotImplementedException();
+            if (this.eventSource.IsActorSaveStateStopEventEnabled())
+            {
+                var value = LongMillisecondsSinceStart(startTime);
+                var ticks = TimeSpan.FromMilliseconds(value).Ticks;
+                this.eventSource.ActorSaveStateStop(ticks, this.actorType, actorId, this.serviceContext);
+            }
         }
 
         public void SaveActorStateStart(ActorId actorId)
         {
-            throw new NotImplementedException();
+            if (this.eventSource.IsActorSaveStateStartEventEnabled())
+            {
+                this.eventSource.ActorSaveStateStart(this.actorType, actorId, this.serviceContext);
+            }
+        }
+        private long LongMillisecondsSinceStart(DateTime startTime)
+        {
+            return (long)(clock.UtcNow - startTime).TotalMilliseconds;
         }
     }
 }
