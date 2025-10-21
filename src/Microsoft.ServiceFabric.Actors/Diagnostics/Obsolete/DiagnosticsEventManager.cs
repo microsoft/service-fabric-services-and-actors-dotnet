@@ -54,13 +54,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete
 
         internal OnDiagnosticEvent<TimeSpan> OnLoadActorStateFinish { get; set; }
 
-        public static long GetInterfaceMethodKey(uint interfaceId, uint methodId)
-        {
-            var key = (ulong)methodId;
-            key = key | (ulong)interfaceId << 32;
-            return (long)key;
-        }
-
         internal void ActorRequestProcessingStart()
         {
             var callbacks = OnActorRequestProcessingStart;

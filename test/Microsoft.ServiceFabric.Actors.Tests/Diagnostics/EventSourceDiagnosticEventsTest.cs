@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Fabric;
 using Fuzzy;
 using Inspector;
@@ -36,6 +37,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStartEventEnabled()).Returns(true);
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStopEventEnabled()).Returns(true);
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsPendingMethodCallsEventEnabled()).Returns(true);
+            Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStartEventEnabled()).Returns(true);
+            Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStopEventEnabled()).Returns(true);
         }
 
         public class Constructor : EventSourceDiagnosticEventsTest
@@ -113,10 +116,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             readonly long operationDurationMillis = fuzzy.Int64().Between(100, 2000);
             readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2;
             readonly string actorType;
+            readonly long ticks;
 
             public OnEvents()
             {
                 actorType = typeInfo.ImplementationType.ToString();
+                ticks = TimeSpan.FromMilliseconds(operationDurationMillis).Ticks;
 
                 startTime = DateTime.Now;
                 endTime = startTime + TimeSpan.FromMilliseconds(operationDurationMillis);
@@ -183,10 +188,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
             public class SaveState : OnEvents
             {
-                readonly long ticks;
-
-                public SaveState() => ticks = TimeSpan.FromMilliseconds(operationDurationMillis).Ticks;
-
                 [Fact]
                 public void StartTraceIfEnabled()
                 {
@@ -251,6 +252,65 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                     Mock.Get(eventSource).Verify(p => p.IsPendingMethodCallsEventEnabled(), Times.Once);
                     Mock.Get(eventSource).VerifyNoOtherCalls();
                 }
+            }
+
+            public class Method : OnEvents
+            {
+                readonly Dictionary<long, ActorMethodInfo> actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
+                readonly Exception exception = Mock.Of<Exception>();
+
+                public Method()
+                {
+                    actorMethodInfo[interfaceMethodKey] = new ActorMethodInfo() { MethodName = fuzzy.String(), MethodSignature = fuzzy.String() };
+                    sut.Field<Dictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
+                }
+
+                [Fact]
+                public void StartTracesIfEnabled()
+                {
+                    sut.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodStart(actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void StartDoesntTraceIfDisabled()
+                {
+                    Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStartEventEnabled()).Returns(false);
+
+                    sut.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
+
+                    Mock.Get(eventSource).Verify(p => p.IsActorMethodStartEventEnabled(), Times.Once);
+                    Mock.Get(eventSource).VerifyNoOtherCalls();
+                }
+
+                [Fact]
+                public void FinishTracesIfEnabledAndNoException()
+                {
+                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, null, remotingListener);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodStop(ticks, actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void FinishTracesIfDisabledAndException()
+                {
+                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodThrewException(exception.ToString(), ticks, actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
+                }
+
+                [Fact]
+                public void FinishDoesntTraceIfDisabledAndNoException()
+                {
+                    Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStopEventEnabled()).Returns(false);
+
+                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, null, remotingListener);
+
+                    Mock.Get(eventSource).Verify(p => p.IsActorMethodStopEventEnabled(), Times.Once);
+                    Mock.Get(eventSource).VerifyNoOtherCalls();
+                }
+
             }
 
 

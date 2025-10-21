@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IClock clock;
         readonly string actorType;
         readonly ActorFrameworkEventSource eventSource;
-        Dictionary<long, ActorMethodInfo> actorMethodInfo;
+        readonly Dictionary<long, ActorMethodInfo> actorMethodInfo;
 
         public EventSourceDiagnosticEvents(ActorFrameworkEventSource eventSource, IClock clock, ServiceContext serviceContext, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
@@ -30,9 +30,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             actorType = typeInfo.ImplementationType.ToString();
         }
 
-        //private void InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
+        //private Dictionary<long, ActorMethodInfo> InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         //{
-        //    this.actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
+        //    var actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
 
         //    foreach (var actorInterfaceType in typeInfo.InterfaceTypes)
         //    {
@@ -53,6 +53,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         //            actorMethodInfo[key] = ami;
         //        }
         //    }
+        //    return actorMethodInfo;
         //}
 
         public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
@@ -102,12 +103,40 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
         {
-            throw new NotImplementedException();
+            var methodInfo = this.actorMethodInfo[interfaceMethodKey];
+
+            if (e != null)
+            {
+                this.eventSource.ActorMethodThrewException(
+                   e.ToString(),
+                   TicksSinceStart(startTime),
+                   methodInfo.MethodName,
+                   methodInfo.MethodSignature,
+                   this.actorType,
+                   actorId,
+                   this.serviceContext);
+                return;
+            }
+
+            if (this.eventSource.IsActorMethodStopEventEnabled())
+            {
+                this.eventSource.ActorMethodStop(
+                    TicksSinceStart(startTime),
+                    methodInfo.MethodName,
+                    methodInfo.MethodSignature,
+                    this.actorType,
+                    actorId,
+                    this.serviceContext);
+            }
         }
 
         public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
-            throw new NotImplementedException();
+            if (this.eventSource.IsActorMethodStartEventEnabled())
+            {
+                var methodInfo = this.actorMethodInfo[interfaceMethodKey];
+                this.eventSource.ActorMethodStart(methodInfo.MethodName, methodInfo.MethodSignature, this.actorType, actorId, this.serviceContext);
+            }
         }
 
         public void ActorOnActivateAsyncFinish(DateTime startTime)
@@ -149,9 +178,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             if (this.eventSource.IsActorSaveStateStopEventEnabled())
             {
-                var value = LongMillisecondsSinceStart(startTime);
-                var ticks = TimeSpan.FromMilliseconds(value).Ticks;
-                this.eventSource.ActorSaveStateStop(ticks, this.actorType, actorId, this.serviceContext);
+                this.eventSource.ActorSaveStateStop(TicksSinceStart(startTime), this.actorType, actorId, this.serviceContext);
             }
         }
 
@@ -162,9 +189,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 this.eventSource.ActorSaveStateStart(this.actorType, actorId, this.serviceContext);
             }
         }
-        private long LongMillisecondsSinceStart(DateTime startTime)
+        private long TicksSinceStart(DateTime startTime)
         {
-            return (long)(clock.UtcNow - startTime).TotalMilliseconds;
+            return TimeSpan.FromMilliseconds((long)(clock.UtcNow - startTime).TotalMilliseconds).Ticks;
         }
     }
 }

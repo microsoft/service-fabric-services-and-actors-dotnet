@@ -72,7 +72,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 };
 
                 var key =
-                    DiagnosticsEventManager.GetInterfaceMethodKey(
+                    Util.GetInterfaceMethodKey(
                         (uint)interfaceId,
                         (uint)actorInterfaceMethodDescription.Id);
                 actorMethodInfos[key] = ami;
