@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(endTime);
             }
 
-            public class WitnNoPerfCounters : OnEvents
+            public class WithNoTraces : OnEvents
             {
                 [Fact]
                 public void TracesNothingWhenNotNeeded()
