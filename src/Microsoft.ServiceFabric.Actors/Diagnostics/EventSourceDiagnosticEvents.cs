@@ -27,34 +27,35 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _ = nameBuilder ?? throw new ArgumentNullException(nameof(nameBuilder));
             _ = typeInfo ?? throw new ArgumentNullException(nameof(typeInfo));
-            actorType = typeInfo.ImplementationType.ToString();
+            this.actorType = typeInfo.ImplementationType.ToString();
+            this.actorMethodInfo = InitializeActorMethodInfo(nameBuilder, typeInfo);
         }
 
-        //private Dictionary<long, ActorMethodInfo> InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
-        //{
-        //    var actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
+        private Dictionary<long, ActorMethodInfo> InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
+        {
+            var actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
 
-        //    foreach (var actorInterfaceType in typeInfo.InterfaceTypes)
-        //    {
-        //        nameBuilder.GetActorInterfaceMethodDescriptionsV2(actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
-        //        foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
-        //        {
-        //            var methodInfo = actorInterfaceMethodDescription.MethodInfo;
-        //            var ami = new ActorMethodInfo()
-        //            {
-        //                MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
-        //                MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString(),
-        //            };
+            foreach (var actorInterfaceType in typeInfo.InterfaceTypes)
+            {
+                nameBuilder.GetActorInterfaceMethodDescriptionsV2(actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
+                foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
+                {
+                    var methodInfo = actorInterfaceMethodDescription.MethodInfo;
+                    var ami = new ActorMethodInfo()
+                    {
+                        MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
+                        MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString(),
+                    };
 
-        //            var key =
-        //                DiagnosticsEventManager.GetInterfaceMethodKey(
-        //                    (uint)interfaceId,
-        //                    (uint)actorInterfaceMethodDescription.Id);
-        //            actorMethodInfo[key] = ami;
-        //        }
-        //    }
-        //    return actorMethodInfo;
-        //}
+                    var key =
+                        Util.GetInterfaceMethodKey(
+                            (uint)interfaceId,
+                            (uint)actorInterfaceMethodDescription.Id);
+                    actorMethodInfo[key] = ami;
+                }
+            }
+            return actorMethodInfo;
+        }
 
         public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
         {
