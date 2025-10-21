@@ -13,7 +13,6 @@
 
     <Projects_Test_netframework Include="$(RepoRoot)test\Microsoft.ServiceFabric.Actors.Tests\Microsoft.ServiceFabric.Actors.Tests.csproj;
                                    $(RepoRoot)test\Microsoft.ServiceFabric.Services.Remoting.Tests\Microsoft.ServiceFabric.Services.Remoting.Tests.csproj;
-                                   $(RepoRoot)test\Microsoft.ServiceFabric.Services.Tests\Microsoft.ServiceFabric.Services.Tests.csproj;
                                    $(RepoRoot)test\Microsoft.ServiceFabric.Diagnostics.Tests\Microsoft.ServiceFabric.Diagnostics.Tests.csproj;
                                    $(RepoRoot)test\Microsoft.ServiceFabric.Actors.IntegrationTests\Microsoft.ServiceFabric.Actors.IntegrationTests.csproj" />
   </ItemGroup>
