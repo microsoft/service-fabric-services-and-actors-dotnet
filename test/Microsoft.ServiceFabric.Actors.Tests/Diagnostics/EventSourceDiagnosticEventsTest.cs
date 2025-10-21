@@ -66,7 +66,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 {
                     new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, null);
                 });
-                Assert.Equal("typeInformation", exception.ParamName);
+                Assert.Equal("typeInfo", exception.ParamName);
             }
 
             [Fact]
