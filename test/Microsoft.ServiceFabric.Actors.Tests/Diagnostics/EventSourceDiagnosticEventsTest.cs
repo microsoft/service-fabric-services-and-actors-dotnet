@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Fabric;
 using Fuzzy;
 using Inspector;
@@ -13,6 +14,7 @@ using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Moq;
+using Moq.Protected;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
@@ -144,6 +146,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                     sut.AcquireActorLockFinishPreProcess(diagnosticsManagerActorContext, startTime, actorId);
                     sut.ReleaseActorLock(startTime);
 
+                    Mock.Get(eventSource).Protected().Verify("OnEventCommand", Times.AtMostOnce(), ItExpr.IsAny<EventCommandEventArgs>());
                     Mock.Get(eventSource).VerifyNoOtherCalls();
                 }
             }
