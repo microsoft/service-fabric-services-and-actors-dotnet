@@ -9,6 +9,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     internal class ActorMethodInfo
     {
+        internal ActorMethodInfo() { }
+
         internal ActorMethodInfo(MethodInfo methodInfo)
         {
             MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name);
