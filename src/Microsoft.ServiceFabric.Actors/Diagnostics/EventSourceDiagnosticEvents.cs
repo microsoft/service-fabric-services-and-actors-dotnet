@@ -40,18 +40,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 nameBuilder.GetActorInterfaceMethodDescriptionsV2(actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
                 {
-                    var methodInfo = actorInterfaceMethodDescription.MethodInfo;
-                    var ami = new ActorMethodInfo()
-                    {
-                        MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name),
-                        MethodSignature = actorInterfaceMethodDescription.MethodInfo.ToString(),
-                    };
+                    var methodInfo = new ActorMethodInfo(actorInterfaceMethodDescription.MethodInfo);
+                    var interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id);
 
-                    var key =
-                        Util.GetInterfaceMethodKey(
-                            (uint)interfaceId,
-                            (uint)actorInterfaceMethodDescription.Id);
-                    actorMethodInfo[key] = ami;
+                    actorMethodInfo[interfaceMethodKey] = methodInfo;
                 }
             }
             return actorMethodInfo;
