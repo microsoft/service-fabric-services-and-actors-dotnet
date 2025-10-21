@@ -199,12 +199,5 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     this.serviceContext);
             }
         }
-
-        protected class ActorMethodInfo
-        {
-            internal string MethodName { get; set; }
-
-            internal string MethodSignature { get; set; }
-        }
     }
 }
