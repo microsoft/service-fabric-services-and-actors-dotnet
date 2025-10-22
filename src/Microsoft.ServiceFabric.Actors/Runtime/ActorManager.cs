@@ -17,6 +17,7 @@ using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Remoting;
+using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Common;
 using Microsoft.ServiceFabric.Services.Remoting;
@@ -38,6 +39,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly DiagnosticsEventManager diagnosticsEventManager;
         private readonly IActorEventManager eventManager;
         private IDiagnosticsManager diagnosticsManager;
+        private IDiagnosticEvents diagnosticEvents;
+        private IClock clock;
         private bool isClosed;
 
         private Timer gcTimer;
@@ -54,6 +57,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.activeActors = new ConcurrentDictionary<ActorId, ActorBase>();
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
+            this.clock = new SystemClock();
+
+            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation), clock);
+            var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
+            var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
+
+            this.diagnosticEvents = new AgregateDiagnosticEvents(registeredDiagnosticsEvents);
 
             // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
             bool restoreFlow = false;

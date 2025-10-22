@@ -4,10 +4,14 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Tests;
+using Microsoft.ServiceFabric.Diagnostics;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -18,10 +22,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// </summary>
     public class ActorManagerTests
     {
-        private const int ReminderCount = 10;
-        private readonly ActorId actorId;
-        private readonly ActorService actorService;
-        private ActorManager actorManager;
+        internal const int ReminderCount = 10;
+        internal readonly ActorId actorId;
+        internal readonly ActorService actorService;
+        internal ActorManager actorManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorManagerTests"/> class.
@@ -96,21 +100,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 UnregisterReminders();
                 VerifyNoReminderEntryForActor();
                 actorManager.Abort();
-            }
-
-            private void ResetActorManager()
-            {
-                ConsoleLogHelper.LogInfo("Resetting ActorManager...");
-                actorManager = new ActorManager(actorService);
-
-                actorManager.OpenAsync(null, CancellationToken.None).GetAwaiter().GetResult();
-                actorManager.StartLoadingRemindersAsync(CancellationToken.None).GetAwaiter().GetResult();
-
-                while (!actorManager.HasRemindersLoaded)
-                {
-                    ConsoleLogHelper.LogInfo("Waiting for reminders to load...");
-                    Task.Delay(TimeSpan.FromMilliseconds(100)).GetAwaiter().GetResult();
-                }
             }
 
             private void RegisterReminders()
@@ -190,7 +179,61 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     Thread.Sleep(TimeSpan.FromSeconds(1));
                 }
             }
+
+            private void ResetActorManager()
+            {
+                ConsoleLogHelper.LogInfo("Resetting ActorManager...");
+                actorManager = new ActorManager(actorService);
+
+                actorManager.OpenAsync(null, CancellationToken.None).GetAwaiter().GetResult();
+                actorManager.StartLoadingRemindersAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+                while (!actorManager.HasRemindersLoaded)
+                {
+                    ConsoleLogHelper.LogInfo("Waiting for reminders to load...");
+                    Task.Delay(TimeSpan.FromMilliseconds(100)).GetAwaiter().GetResult();
+                }
+            }
         }
+
+        public class DiagnosticEvents : ActorManagerTests
+        {
+            public DiagnosticEvents()
+            {
+                actorManager = new ActorManager(actorService);
+            }
+
+            public class Constructor : DiagnosticEvents
+            {
+                [Fact]
+                public void HasDiagnosticsEventsField()
+                {
+                    var field = actorManager.Field<IDiagnosticEvents>();
+
+                    Assert.IsType<AgregateDiagnosticEvents>(field.Value);
+                }
+
+                [Fact]
+                public void DiagnosticsEventsHasAllNeededEventsRegistered()
+                {
+                    var field = actorManager.Field<IDiagnosticEvents>().Value;
+                    var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
+
+                    Assert.Equal(2, registeredDiagnosticEvents.Count());
+                    Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
+                    Assert.IsType<EventSourceDiagnosticEvents>(registeredDiagnosticEvents.ToList()[1]);
+                }
+
+                [Fact]
+                public void HasClockField()
+                {
+                    var field = actorManager.Field<IClock>();
+
+                    Assert.IsAssignableFrom<SystemClock>(field.Value);
+                }
+            }
+        }
+
 
 
         public interface IMockActor : IActor
