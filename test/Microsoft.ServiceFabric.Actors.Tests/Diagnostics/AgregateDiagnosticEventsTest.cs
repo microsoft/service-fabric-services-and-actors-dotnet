@@ -192,6 +192,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public sealed class ActorLock : AgregateDiagnosticEventsTest
         {
+            readonly int pendingMethodCalls = fuzzy.Int32();
+
             [Fact]
             public void AcquireStartInvokesAllDiagnostics()
             {
@@ -199,6 +201,15 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockStart(diagnosticContext), Times.Once);
                 Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockStart(diagnosticContext), Times.Once);
+            }
+
+            [Fact]
+            public void AcquireStartIncrementsPendingMethodCalls()
+            {
+                diagnosticContext.PendingActorMethodCalls = pendingMethodCalls;
+                sut.AcquireActorLockStart(diagnosticContext);
+
+                Assert.Equal(pendingMethodCalls + 1, diagnosticContext.PendingActorMethodCalls);
             }
 
             [Fact]
@@ -211,6 +222,15 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
 
             [Fact]
+            public void AcquireFailedDecrementsPendingMethodCalls()
+            {
+                diagnosticContext.PendingActorMethodCalls = pendingMethodCalls;
+                sut.AcquireActorLockFailed(diagnosticContext);
+
+                Assert.Equal(pendingMethodCalls - 1, diagnosticContext.PendingActorMethodCalls);
+            }
+
+            [Fact]
             public void AcquireFinishInvokesAllDiagnostics()
             {
                 var startTime = DateTime.UtcNow;
@@ -218,6 +238,41 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
                 Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
+            }
+
+            [Fact]
+            public void AcquireFinishPreProcessInvokesAllDiagnostics()
+            {
+                diagnosticContext.PendingActorMethodCalls = pendingMethodCalls;
+                diagnosticContext.LastReportedPendingActorMethodCalls = pendingMethodCalls - 10;
+                var startTime = DateTime.UtcNow;
+                var expected = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = diagnosticContext.PendingActorMethodCalls - 1, PendingActorMethodCallsDelta = 9 };
+
+                sut.AcquireActorLockFinishPreProcess(diagnosticContext, startTime, actorId);
+
+                Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockFinish(It.Is<PendingActorMethodDiagnosticData>(p => p.Equals(expected)), startTime), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockFinish(It.Is<PendingActorMethodDiagnosticData>(p => p.Equals(expected)), startTime), Times.Once);
+            }
+
+            [Fact]
+            public void AcquireFinishPreProcessDecrementsPendingMethodCalls()
+            {
+                var startTime = DateTime.UtcNow;
+
+                diagnosticContext.PendingActorMethodCalls = pendingMethodCalls;
+                sut.AcquireActorLockFinishPreProcess(diagnosticContext, startTime, actorId);
+
+                Assert.Equal(pendingMethodCalls - 1, diagnosticContext.PendingActorMethodCalls);
+            }
+
+            [Fact]
+            public void AcquireFinishPreProcessUpdatesLastReportedMethodCalls()
+            {
+                diagnosticContext.PendingActorMethodCalls = pendingMethodCalls;
+                diagnosticContext.LastReportedPendingActorMethodCalls = 0;
+                sut.AcquireActorLockFinishPreProcess(diagnosticContext, DateTime.Now, actorId);
+
+                Assert.Equal(pendingMethodCalls - 1, diagnosticContext.LastReportedPendingActorMethodCalls);
             }
 
             [Fact]

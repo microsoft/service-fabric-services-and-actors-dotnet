@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
+using System.Threading;
 using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -26,6 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         }
         public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
         {
+            Interlocked.Decrement(ref diagnosticContext.PendingActorMethodCalls);
             foreach (IDiagnosticEvents d in diagnosticEvents)
             {
                 d.AcquireActorLockFailed(diagnosticContext);
@@ -34,6 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext)
         {
+            Interlocked.Increment(ref diagnosticContext.PendingActorMethodCalls);
             foreach (IDiagnosticEvents d in diagnosticEvents)
             {
                 d.AcquireActorLockStart(diagnosticContext);
@@ -162,7 +165,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
         {
-            throw new NotImplementedException();
+            var pendingActorMethodCalls = Interlocked.Decrement(ref diagnosticContext.PendingActorMethodCalls);
+            var delta = pendingActorMethodCalls - diagnosticContext.LastReportedPendingActorMethodCalls;
+            diagnosticContext.LastReportedPendingActorMethodCalls = diagnosticContext.PendingActorMethodCalls;
+
+            var diagnosticData = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = pendingActorMethodCalls, PendingActorMethodCallsDelta = delta };
+            AcquireActorLockFinish(diagnosticData, startTime);
         }
     }
 }

@@ -146,7 +146,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                     sut.AcquireActorLockFinishPreProcess(diagnosticsManagerActorContext, startTime, actorId);
                     sut.ReleaseActorLock(startTime);
 
-                    Mock.Get(eventSource).Protected().Verify("OnEventCommand", Times.AtMostOnce(), ItExpr.IsAny<EventCommandEventArgs>());
+                    // OnEventCommand gets called during listener registration, which happens on Linux
+                    Mock.Get(eventSource).Protected().Verify("OnEventCommand", Times.AtMostOnce(), It.IsAny<EventCommandEventArgs>());
                     Mock.Get(eventSource).VerifyNoOtherCalls();
                 }
             }

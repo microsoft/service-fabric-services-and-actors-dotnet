@@ -41,9 +41,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
                 {
                     var methodInfo = new ActorMethodInfo(actorInterfaceMethodDescription.MethodInfo);
-                    var interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id);
 
-                    actorMethodInfo[interfaceMethodKey] = methodInfo;
+                    actorMethodInfo[Util.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id)] = methodInfo;
                 }
             }
             return actorMethodInfo;
