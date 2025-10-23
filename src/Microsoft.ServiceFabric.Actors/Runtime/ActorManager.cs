@@ -175,13 +175,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             using (var actorUseScope = this.GetActor(actorId, createIfRequired, timerCall))
             {
                 var actor = actorUseScope.Actor;
+                var diagnosticContext = actor.DiagnosticsContext;
 
                 // ***
                 // START: CRITICAL CODE
                 // ***
 
-                // Emit diagnostic info - before acquiring actor lock
-                var lockAcquireStartTime = this.DiagnosticsEventManager.AcquireActorLockStart(actor);
+                var startTime = clock.UtcNow;
+                this.diagnosticEvents.AcquireActorLockStart(diagnosticContext);
+
                 ActorTrace.Source.WriteInfoWithId(
                     TraceType,
                     this.traceId,
@@ -201,7 +203,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 catch (Exception ex)
                 {
                     // Emit diagnostic info - failed to acquire actor lock
-                    this.DiagnosticsEventManager.AcquireActorLockFailed(actor);
+                    this.diagnosticEvents.AcquireActorLockFailed(diagnosticContext);
                     ActorTrace.Source.WriteWarningWithId(
                         TraceType,
                         this.traceId,
@@ -217,9 +219,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 try
                 {
                     // Emit diagnostic info - after acquiring actor lock
-                    lockAcquireFinishTime = this.DiagnosticsEventManager.AcquireActorLockFinish(
-                        actor,
-                        lockAcquireStartTime);
+                    this.diagnosticEvents.AcquireActorLockFinishPreProcess(diagnosticContext, startTime, actorId);
 
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,
@@ -259,7 +259,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 await actor.ConcurrencyLock.ReleaseContext(callContext);
 
                 // Emit diagnostic info - after releasing actor lock
-                this.DiagnosticsEventManager.ReleaseActorLock(lockAcquireFinishTime);
+                this.diagnosticEvents.ReleaseActorLock(startTime);
 
                 // ***
                 // END: CRITICAL CODE
@@ -796,9 +796,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
             CancellationToken innerCancellationToken)
         {
-            var actorInterfaceMethodKey =
-                Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
-            this.DiagnosticsEventManager.ActorMethodStart(actorInterfaceMethodKey, actor, RemotingListenerVersion.V2);
+            var startTime = clock.UtcNow;
+            var interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
+            this.diagnosticEvents.ActorMethodStart(actor.Id, interfaceMethodKey, RemotingListenerVersion.V2);
 
             Task<IServiceRemotingResponseMessageBody> dispatchTask;
             try
@@ -812,11 +812,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             catch (Exception e)
             {
-                this.DiagnosticsEventManager.ActorMethodFinish(
-                    actorInterfaceMethodKey,
-                    actor,
-                    e,
-                    RemotingListenerVersion.V2);
+                this.diagnosticEvents.ActorMethodFinish(startTime, actor.Id, Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), e, RemotingListenerVersion.V2);
                 throw;
             }
 
@@ -830,20 +826,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                     catch (Exception e)
                     {
-                        this.DiagnosticsEventManager.ActorMethodFinish(
-                            actorInterfaceMethodKey,
-                            actor,
-                            e,
-                            RemotingListenerVersion.V2);
+                        this.diagnosticEvents.ActorMethodFinish(startTime, actor.Id, Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), e, RemotingListenerVersion.V2);
                         throw;
                     }
 
-                    this.DiagnosticsEventManager.ActorMethodFinish(
-                        actorInterfaceMethodKey,
-                        actor,
-                        null,
-                        RemotingListenerVersion.V2);
-
+                    this.diagnosticEvents.ActorMethodFinish(startTime, actor.Id, Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), null, RemotingListenerVersion.V2);
                     return responseMsgBody;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);
@@ -955,7 +942,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             await this.OnPostActivateAsync(actor);
 
-            this.DiagnosticsEventManager.ActorActivated(actor);
+            this.diagnosticEvents.ActorActivated(actor.Id);
         }
 
         private void ArmGcTimer()
@@ -1052,7 +1039,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 await this.OnPostDeactivateAsync(actor);
 
-                this.DiagnosticsEventManager.ActorDeactivated(actor);
+                this.diagnosticEvents.ActorDeactivated(actor.Id);
             }
         }
 

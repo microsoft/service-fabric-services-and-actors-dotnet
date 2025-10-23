@@ -8,10 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
+using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -198,9 +200,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class DiagnosticEvents : ActorManagerTests
         {
+            readonly IFuzz fuzzy = new RandomFuzz();
+            readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
+            readonly IClock clock = Mock.Of<IClock>();
+            readonly DateTime startTime;
+            readonly DateTime endTime;
+            readonly string callContext;
+
             public DiagnosticEvents()
             {
                 actorManager = new ActorManager(actorService);
+                startTime = DateTime.Now;
+                endTime = startTime + TimeSpan.FromMilliseconds(fuzzy.Int32());
+
+                actorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                actorManager.Field<IClock>().Set(clock);
+                Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
+
+                callContext = fuzzy.String();
             }
 
             public class Constructor : DiagnosticEvents
@@ -230,6 +247,82 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     var field = actorManager.Field<IClock>();
 
                     Assert.IsAssignableFrom<SystemClock>(field.Value);
+                }
+            }
+
+            public class DispatchToActorAsync : DiagnosticEvents
+            {
+                [Fact]
+                public async Task EmitsDiagnosticsNoException()
+                {
+                    await actorManager.DispatchToActorAsync(
+                        actorId: actorId,
+                        actorMethodContext: new ActorMethodContext(),
+                        createIfRequired: true,
+                        (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
+                        callContext: callContext,
+                        timerCall: false,
+                        cancellationToken: CancellationToken.None);
+
+                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockStart(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
+                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFinishPreProcess(It.IsAny<DiagnosticsManagerActorContext>(), startTime, actorId), Times.Once);
+                    Mock.Get(diagnosticEvents).Verify(d => d.ReleaseActorLock(startTime), Times.Once);
+                }
+
+                [Fact]
+                public async Task EmitsDiagnosticsWhenException()
+                {
+                    await Assert.ThrowsAsync<NullReferenceException>(async () => await actorManager.DispatchToActorAsync(
+                            actorId: actorId,
+                            actorMethodContext: new ActorMethodContext(),
+                            createIfRequired: true,
+                            (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
+                            callContext: null,
+                            timerCall: false,
+                            cancellationToken: CancellationToken.None));
+
+                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockStart(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
+                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFailed(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
+                }
+            }
+
+            public class ActorActivate : DiagnosticEvents
+            {
+                [Fact]
+                public async Task EmitDiagnoticsWhenActorActivatedAsync()
+                {
+                    await actorManager.DispatchToActorAsync(
+                        actorId: actorId,
+                        actorMethodContext: new ActorMethodContext(),
+                        createIfRequired: true,
+                        (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
+                        callContext: callContext,
+                        timerCall: false,
+                        cancellationToken: CancellationToken.None);
+
+                    Mock.Get(diagnosticEvents).Verify(d => d.ActorActivated(actorId), Times.Once);
+                }
+
+                [Fact]
+                public async Task EmitDiagnoticsWhenActorDeactivatedAsync()
+                {
+                    await actorManager.DispatchToActorAsync(
+                        actorId: actorId,
+                        actorMethodContext: new ActorMethodContext(),
+                        createIfRequired: true,
+                        (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
+                        callContext: callContext,
+                        timerCall: false,
+                        cancellationToken: CancellationToken.None);
+                    await actorManager.StartLoadingRemindersAsync(CancellationToken.None);
+                    actorManager.GetActor(actorId, true, false).Actor.IsDummy = false;
+
+                    await actorManager.DeleteActorAsync(
+                        actorId: actorId,
+                        callContext: callContext,
+                        cancellationToken: CancellationToken.None);
+
+                    Mock.Get(diagnosticEvents).Verify(d => d.ActorDeactivated(actorId), Times.Once);
                 }
             }
         }
