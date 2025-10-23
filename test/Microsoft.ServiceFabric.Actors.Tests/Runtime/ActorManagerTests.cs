@@ -18,10 +18,6 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-
-    /// <summary>
-    /// Unit tests for ActorManager.
-    /// </summary>
     public class ActorManagerTests
     {
         internal const int ReminderCount = 10;
@@ -29,9 +25,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal readonly ActorService actorService;
         internal ActorManager actorManager;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ActorManagerTests"/> class.
-        /// </summary>
         public ActorManagerTests()
         {
             actorId = ActorId.CreateRandom();
@@ -43,10 +36,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class Remainder : ActorManagerTests
         {
-
-            /// <summary>
-            /// Verifies ActorManager close.
-            /// </summary>
             [Fact]
             public async Task VerifyClose()
             {
@@ -57,9 +46,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 VerifyNoReminders();
             }
 
-            /// <summary>
-            /// Verifieis aCtormanager abort.
-            /// </summary>
             [Fact]
             public void VerifyAbort()
             {
@@ -70,9 +56,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 VerifyNoRemindersWithRetry();
             }
 
-            /// <summary>
-            /// Verify FireReminder after close.
-            /// </summary>
             [Fact]
             public async Task VerifyFireReminderNoThrow()
             {
@@ -90,9 +73,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 await actorManager.FireReminderAsync(reminder);
             }
 
-            /// <summary>
-            /// Verifies that Actor entry frpom Reminders dictionary is removed, when last reminder for the actor is removed.
-            /// </summary>
             [Fact]
             public void VerifyNoReminderEntry()
             {
@@ -200,24 +180,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class DiagnosticEvents : ActorManagerTests
         {
-            readonly IFuzz fuzzy = new RandomFuzz();
+            readonly static IFuzz fuzzy = new RandomFuzz();
             readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
             readonly IClock clock = Mock.Of<IClock>();
-            readonly DateTime startTime;
-            readonly DateTime endTime;
-            readonly string callContext;
+            readonly DateTime startTime = DateTime.Now;
+            readonly string callContext = fuzzy.String();
 
             public DiagnosticEvents()
             {
                 actorManager = new ActorManager(actorService);
-                startTime = DateTime.Now;
-                endTime = startTime + TimeSpan.FromMilliseconds(fuzzy.Int32());
 
                 actorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
                 actorManager.Field<IClock>().Set(clock);
                 Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
-
-                callContext = fuzzy.String();
             }
 
             public class Constructor : DiagnosticEvents
@@ -262,7 +237,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
                         callContext: callContext,
                         timerCall: false,
-                        cancellationToken: CancellationToken.None);
+                        cancellationToken: TestContext.Current.CancellationToken);
 
                     Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockStart(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
                     Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFinishPreProcess(It.IsAny<DiagnosticsManagerActorContext>(), startTime, actorId), Times.Once);
@@ -279,7 +254,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
                             callContext: null,
                             timerCall: false,
-                            cancellationToken: CancellationToken.None));
+                            cancellationToken: TestContext.Current.CancellationToken));
 
                     Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockStart(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
                     Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFailed(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
@@ -298,7 +273,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
                         callContext: callContext,
                         timerCall: false,
-                        cancellationToken: CancellationToken.None);
+                        cancellationToken: TestContext.Current.CancellationToken);
 
                     Mock.Get(diagnosticEvents).Verify(d => d.ActorActivated(actorId), Times.Once);
                 }
@@ -313,43 +288,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         (actorBase, cancellationToken) => Task.FromResult((ActorReminder)null),
                         callContext: callContext,
                         timerCall: false,
-                        cancellationToken: CancellationToken.None);
+                        cancellationToken: TestContext.Current.CancellationToken);
                     await actorManager.StartLoadingRemindersAsync(CancellationToken.None);
                     actorManager.GetActor(actorId, true, false).Actor.IsDummy = false;
 
                     await actorManager.DeleteActorAsync(
                         actorId: actorId,
                         callContext: callContext,
-                        cancellationToken: CancellationToken.None);
+                        cancellationToken: TestContext.Current.CancellationToken);
 
                     Mock.Get(diagnosticEvents).Verify(d => d.ActorDeactivated(actorId), Times.Once);
                 }
-            }
-        }
-
-
-
-        public interface IMockActor : IActor
-        {
-            Task ActorMethodA();
-        }
-
-        internal class MockActor : Actor, IMockActor
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="MockActor"/> class.
-            /// </summary>
-            /// <param name="actorService">Actor Service.</param>
-            /// <param name="actorId">Actor Id.</param>
-            public MockActor(ActorService actorService, ActorId actorId)
-                : base(actorService, actorId)
-            {
-            }
-
-            /// <inheritdoc/>
-            public Task ActorMethodA()
-            {
-                throw new NotImplementedException();
             }
         }
     }

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Remoting;
+using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -30,15 +31,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         private const string TraceType = "ActorService";
 
-        private readonly ActorTypeInformation actorTypeInformation;
-        private readonly IActorStateProvider stateProvider;
-        private readonly ActorServiceSettings settings;
-        private readonly IActorActivator actorActivator;
-        private readonly ActorManagerAdapter actorManagerAdapter;
-        private readonly Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory;
-        private ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
-        private ReplicaRole replicaRole;
-        private Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
+        readonly ActorTypeInformation actorTypeInformation;
+        readonly IActorStateProvider stateProvider;
+        readonly ActorServiceSettings settings;
+        readonly IActorActivator actorActivator;
+        readonly ActorManagerAdapter actorManagerAdapter;
+        readonly Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory;
+        ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
+        ReplicaRole replicaRole;
+        Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
+        readonly IClock clock = new SystemClock();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -130,6 +132,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal IActorManager ActorManager
         {
             get { return this.actorManagerAdapter.ActorManager; }
+        }
+
+        internal IClock Clock
+        {
+            get { return this.clock; }
         }
 
         #region IActorService Members
@@ -343,7 +350,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorManagerAdapter.Abort();
         }
 
-#endregion
+        #endregion
         private static IActorStateManager DefaultActorStateManagerFactory(
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)

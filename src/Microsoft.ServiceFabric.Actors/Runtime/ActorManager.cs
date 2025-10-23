@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.activeActors = new ConcurrentDictionary<ActorId, ActorBase>();
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
-            this.clock = new SystemClock();
+            this.clock = actorService.Clock;
 
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation), clock);
             var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
@@ -96,6 +96,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public DiagnosticsEventManager DiagnosticsEventManager
         {
             get { return this.diagnosticsEventManager; }
+        }
+
+        public IDiagnosticEvents DiagnosticsEvents
+        {
+            get { return this.diagnosticEvents; }
         }
 
         public bool IsClosed
@@ -191,7 +196,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     actorId,
                     actorMethodContext.MethodName);
 
-                DateTime? lockAcquireFinishTime = null;
                 try
                 {
                     await

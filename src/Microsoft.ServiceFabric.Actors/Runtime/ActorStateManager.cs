@@ -12,21 +12,27 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.ServiceFabric.Actors.Diagnostics;
     using Microsoft.ServiceFabric.Data;
+    using Microsoft.ServiceFabric.Diagnostics;
     using Microsoft.ServiceFabric.Services.Common;
     using SR = Microsoft.ServiceFabric.Actors.SR;
 
     internal sealed class ActorStateManager : IActorStateManager
     {
-        private readonly IActorStateProvider stateProvider;
-        private readonly Dictionary<string, StateMetadata> stateChangeTracker;
-        private readonly ActorBase actor;
+        readonly IActorStateProvider stateProvider;
+        readonly Dictionary<string, StateMetadata> stateChangeTracker;
+        readonly ActorBase actor;
+        readonly IClock clock;
+        readonly IDiagnosticEvents diagnosticEvents;
 
         internal ActorStateManager(ActorBase actor, IActorStateProvider actorStateProvider)
         {
             this.actor = actor;
             this.stateProvider = actorStateProvider;
             this.stateChangeTracker = new Dictionary<string, StateMetadata>();
+            this.clock = actor.ActorService.Clock;
+            this.diagnosticEvents = actor.Manager.DiagnosticsEvents;
         }
 
         #region IActorStateManager Members
@@ -317,11 +323,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 if (stateChangeList.Count > 0)
                 {
-                    this.actor.Manager.DiagnosticsEventManager.SaveActorStateStart(this.actor);
+                    var startTime = clock.UtcNow;
+                    diagnosticEvents.SaveActorStateStart(this.actor.Id);
 
                     await this.stateProvider.SaveStateAsync(this.actor.Id, stateChangeList.AsReadOnly(), cancellationToken);
 
-                    this.actor.Manager.DiagnosticsEventManager.SaveActorStateFinish(this.actor);
+                    diagnosticEvents.SaveActorStateFinish(this.actor.Id, startTime);
                 }
 
                 foreach (var stateToRemove in statesToRemove)
@@ -348,7 +355,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             ConditionalValue<T> result;
 
-            this.actor.Manager.DiagnosticsEventManager.LoadActorStateStart(this.actor);
+            var startTime = clock.UtcNow;
+            diagnosticEvents.LoadActorStateStart();
 
             if (await this.stateProvider.ContainsStateAsync(this.actor.Id, stateName, cancellationToken))
             {
@@ -360,7 +368,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 result = new ConditionalValue<T>(false, default(T));
             }
 
-            this.actor.Manager.DiagnosticsEventManager.LoadActorStateFinish(this.actor);
+            diagnosticEvents.LoadActorStateFinish(startTime);
             return result;
         }
 
