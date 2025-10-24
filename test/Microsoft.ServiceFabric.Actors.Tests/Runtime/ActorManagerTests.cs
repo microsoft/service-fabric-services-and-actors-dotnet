@@ -186,17 +186,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             public Constructor() => sut = new ActorManager(actorService);
 
             [Fact]
-            public void HasDiagnosticsEventsField()
-            {
-                var field = sut.Field<IDiagnosticEvents>();
-
-                Assert.IsType<AgregateDiagnosticEvents>(field.Value);
-            }
-
-            [Fact]
             public void DiagnosticsEventsHasAllNeededEventsRegistered()
             {
-                var field = sut.Field<IDiagnosticEvents>().Value;
+                AgregateDiagnosticEvents field = (AgregateDiagnosticEvents)sut.Field<IDiagnosticEvents>().Value;
                 var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
 
                 Assert.Equal(2, registeredDiagnosticEvents.Count());
