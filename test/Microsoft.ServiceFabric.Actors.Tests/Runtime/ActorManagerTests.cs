@@ -178,6 +178,38 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
+        public class Constructor : DiagnosticEvents
+        {
+            public Constructor() => actorManager = new ActorManager(actorService);
+
+            [Fact]
+            public void HasDiagnosticsEventsField()
+            {
+                var field = actorManager.Field<IDiagnosticEvents>();
+
+                Assert.IsType<AgregateDiagnosticEvents>(field.Value);
+            }
+
+            [Fact]
+            public void DiagnosticsEventsHasAllNeededEventsRegistered()
+            {
+                var field = actorManager.Field<IDiagnosticEvents>().Value;
+                var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
+
+                Assert.Equal(2, registeredDiagnosticEvents.Count());
+                Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
+                Assert.IsType<EventSourceDiagnosticEvents>(registeredDiagnosticEvents.ToList()[1]);
+            }
+
+            [Fact]
+            public void HasClockField()
+            {
+                var field = actorManager.Field<IClock>();
+
+                Assert.IsAssignableFrom<SystemClock>(field.Value);
+            }
+        }
+
         public class DiagnosticEvents : ActorManagerTests
         {
             readonly static IFuzz fuzzy = new RandomFuzz();
@@ -193,36 +225,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 actorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
                 actorManager.Field<IClock>().Set(clock);
                 Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
-            }
-
-            public class Constructor : DiagnosticEvents
-            {
-                [Fact]
-                public void HasDiagnosticsEventsField()
-                {
-                    var field = actorManager.Field<IDiagnosticEvents>();
-
-                    Assert.IsType<AgregateDiagnosticEvents>(field.Value);
-                }
-
-                [Fact]
-                public void DiagnosticsEventsHasAllNeededEventsRegistered()
-                {
-                    var field = actorManager.Field<IDiagnosticEvents>().Value;
-                    var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
-
-                    Assert.Equal(2, registeredDiagnosticEvents.Count());
-                    Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
-                    Assert.IsType<EventSourceDiagnosticEvents>(registeredDiagnosticEvents.ToList()[1]);
-                }
-
-                [Fact]
-                public void HasClockField()
-                {
-                    var field = actorManager.Field<IClock>();
-
-                    Assert.IsAssignableFrom<SystemClock>(field.Value);
-                }
             }
 
             public class DispatchToActorAsync : DiagnosticEvents
