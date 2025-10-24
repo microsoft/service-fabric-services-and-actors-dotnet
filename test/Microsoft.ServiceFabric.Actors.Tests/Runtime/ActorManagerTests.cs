@@ -23,7 +23,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal const int ReminderCount = 10;
         internal readonly ActorId actorId;
         internal readonly ActorService actorService;
-        internal ActorManager actorManager;
 
         public ActorManagerTests()
         {
@@ -36,6 +35,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class Remainder : ActorManagerTests
         {
+            ActorManager actorManager;
+
             [Fact]
             public async Task VerifyClose()
             {
@@ -180,12 +181,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class Constructor : DiagnosticEvents
         {
-            public Constructor() => actorManager = new ActorManager(actorService);
+            ActorManager sut;
+
+            public Constructor() => sut = new ActorManager(actorService);
 
             [Fact]
             public void HasDiagnosticsEventsField()
             {
-                var field = actorManager.Field<IDiagnosticEvents>();
+                var field = sut.Field<IDiagnosticEvents>();
 
                 Assert.IsType<AgregateDiagnosticEvents>(field.Value);
             }
@@ -193,7 +196,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             [Fact]
             public void DiagnosticsEventsHasAllNeededEventsRegistered()
             {
-                var field = actorManager.Field<IDiagnosticEvents>().Value;
+                var field = sut.Field<IDiagnosticEvents>().Value;
                 var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
 
                 Assert.Equal(2, registeredDiagnosticEvents.Count());
@@ -204,7 +207,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             [Fact]
             public void HasClockField()
             {
-                var field = actorManager.Field<IClock>();
+                var field = sut.Field<IClock>();
 
                 Assert.IsAssignableFrom<SystemClock>(field.Value);
             }
@@ -212,6 +215,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class DiagnosticEvents : ActorManagerTests
         {
+            ActorManager actorManager;
+
             readonly static IFuzz fuzzy = new RandomFuzz();
             readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
             readonly IClock clock = Mock.Of<IClock>();
