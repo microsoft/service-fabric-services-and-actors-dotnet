@@ -25,10 +25,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
         }
 
-        public class OnRoleChange : ActorServiceTest
+        public class OnRoleChange : ActorServiceTest, IDisposable
         {
             readonly Func<ReplicaRole, CancellationToken, Task> sutMethod;
             readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
+            readonly Func<ActorService, IClock, IDiagnosticEvents> createDiagnosticEvents;
 
             public OnRoleChange()
             {
@@ -39,9 +40,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     null);
                 sutMethod = (Func<ReplicaRole, CancellationToken, Task>)Delegate.CreateDelegate(typeof(Func<ReplicaRole, CancellationToken, Task>), actorService, methodInfo);
 
+                createDiagnosticEvents = typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Value;
                 typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Set((actorService, clock) => diagnosticEvents);
+
                 var actorManager = new ActorManager(actorService);
                 actorService.Field<ActorManagerAdapter>().Value.ActorManager = actorManager;
+            }
+
+            public void Dispose()
+            {
+                typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Set(createDiagnosticEvents);
             }
 
             [Fact]
@@ -60,8 +68,5 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 Mock.Get(diagnosticEvents).Verify(d => d.ActorChangeRole(It.IsAny<ReplicaRole>(), ReplicaRole.IdleSecondary), Times.Once);
             }
         }
-
-
-
     }
 }
