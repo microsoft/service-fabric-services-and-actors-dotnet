@@ -5,21 +5,21 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Fabric;
+using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Moq;
-using Moq.Protected;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 {
-    public class EventSourceDiagnosticEventsTest
+    public class EventSourceDiagnosticEventsTest : IDisposable
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
@@ -33,6 +33,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
         public EventSourceDiagnosticEventsTest()
         {
+            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set((os) => false);
+
             nameBuilder = new ActorMethodFriendlyNameBuilder(typeInfo);
             sut = new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, typeInfo);
 
@@ -41,6 +43,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsPendingMethodCallsEventEnabled()).Returns(true);
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStartEventEnabled()).Returns(true);
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStopEventEnabled()).Returns(true);
+        }
+
+        public void Dispose()
+        {
+            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
         }
 
         public class Constructor : EventSourceDiagnosticEventsTest
@@ -146,8 +153,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                     sut.AcquireActorLockFinishPreProcess(diagnosticsManagerActorContext, startTime, actorId);
                     sut.ReleaseActorLock(startTime);
 
-                    // OnEventCommand gets called during listener registration, which happens on Linux
-                    Mock.Get(eventSource).Protected().Verify("OnEventCommand", Times.AtMostOnce(), ItExpr.IsAny<EventCommandEventArgs>());
                     Mock.Get(eventSource).VerifyNoOtherCalls();
                 }
             }
