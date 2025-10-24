@@ -14,7 +14,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
-using Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Actors.Remoting;
 using Microsoft.ServiceFabric.Diagnostics;
@@ -36,16 +35,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ActorMethodContext reminderMethodContext;
         private readonly ConcurrentDictionary<ActorId, ActorBase> activeActors;
         private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>> remindersByActorId;
-        private readonly DiagnosticsEventManager diagnosticsEventManager;
         private readonly IActorEventManager eventManager;
-        private IDiagnosticsManager diagnosticsManager;
         private bool isClosed;
 
         private readonly IDiagnosticEvents diagnosticEvents;
         private readonly IClock clock;
         private static Func<ActorService, IClock, IDiagnosticEvents> createDiagnosticEvents = (actorService, clock) =>
         {
-            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation), clock);
+            // TODO Dispose
+            var performanceCounterProvider = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
+            performanceCounterProvider.InitializeActorMethodInfo(actorService.MethodFriendlyNameBuilder);
+
+            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
             var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
             var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
 
@@ -59,8 +60,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             this.actorService = actorService;
             this.traceId = actorService.Context.TraceId;
-            this.diagnosticsManager = new DiagnosticsManager(actorService);
-            this.diagnosticsEventManager = this.diagnosticsManager.DiagnosticsEventManager;
             this.eventManager = new ActorEventManager(actorService.ActorTypeInformation);
             this.isClosed = false;
             this.activeActors = new ConcurrentDictionary<ActorId, ActorBase>();
@@ -96,11 +95,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public ActorService ActorService
         {
             get { return this.actorService; }
-        }
-
-        public DiagnosticsEventManager DiagnosticsEventManager
-        {
-            get { return this.diagnosticsEventManager; }
         }
 
         public IDiagnosticEvents DiagnosticsEvents
@@ -149,7 +143,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             await this.CleanupRemindersAsync();
-            this.DisposeDiagnosticsManager();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Closed.");
         }
@@ -161,7 +154,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             this.CleanupRemindersAsync().ContinueWith(t => t.Exception);
-            this.DisposeDiagnosticsManager();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Aborted.");
         }
@@ -1057,15 +1049,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (this.isClosed)
             {
                 throw new FabricNotPrimaryException();
-            }
-        }
-
-        private void DisposeDiagnosticsManager()
-        {
-            if (this.diagnosticsManager != null)
-            {
-                this.diagnosticsManager.Dispose();
-                this.diagnosticsManager = null;
             }
         }
 

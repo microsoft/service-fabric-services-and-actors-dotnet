@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Fabric.Common;
 using System.Reflection;
 using System.Text;
-using Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Remoting;
@@ -166,21 +165,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return this.actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
         }
 
-        internal void RegisterWithDiagnosticsEventManager(DiagnosticsEventManager diagnosticsEventManager)
-        {
-            this.InitializeActorMethodInfo(diagnosticsEventManager);
-
-            diagnosticsEventManager.OnActorMethodFinish += this.OnActorMethodFinish;
-            diagnosticsEventManager.OnPendingActorMethodCallsUpdated += this.OnPendingActorMethodCallsUpdated;
-            diagnosticsEventManager.OnSaveActorStateFinish += this.OnSaveActorStateFinish;
-            diagnosticsEventManager.OnActorRequestProcessingStart += this.OnActorRequestProcessingStart;
-            diagnosticsEventManager.OnActorRequestProcessingFinish += this.OnActorRequestProcessingFinish;
-            diagnosticsEventManager.OnActorLockAcquired += this.OnActorLockAcquired;
-            diagnosticsEventManager.OnActorLockReleased += this.OnActorLockReleased;
-            diagnosticsEventManager.OnActorOnActivateAsyncFinish += this.OnActorOnActivateAsyncFinish;
-            diagnosticsEventManager.OnLoadActorStateFinish += this.OnLoadActorStateFinish;
-        }
-
         protected Dictionary<long, CounterInstanceData> CreateActorMethodCounterInstanceData(
             List<KeyValuePair<long, MethodInfo>> methodInfoList,
             PerformanceCounterInstanceNameBuilder percCounterInstanceNameBuilder)
@@ -233,13 +217,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return methodInfoList;
         }
 
-        protected virtual void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        public virtual void InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder actorMethodFriendlyNameBuilder)
         {
             this.actorMethodCounterInstanceData = new Dictionary<long, CounterInstanceData>();
             var methodInfoList = new List<KeyValuePair<long, MethodInfo>>();
             foreach (var actorInterfaceType in this.ActorTypeInformation.InterfaceTypes)
             {
-                diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
+                actorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptions(
                     actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 methodInfoList.AddRange(this.GetMethodInfo(actorInterfaceMethodDescriptions, interfaceId));
             }

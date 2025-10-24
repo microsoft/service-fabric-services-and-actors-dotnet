@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.ServiceFabric.Actors.Diagnostics.Obsolete;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.Diagnostic;
@@ -57,16 +56,16 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             base.Dispose();
         }
 
-        protected override void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        public override void InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder actorMethodFriendlyNameBuilder)
         {
-            base.InitializeActorMethodInfo(diagnosticsEventManager);
+            base.InitializeActorMethodInfo(actorMethodFriendlyNameBuilder);
 
             this.actorMethodCounterInstanceDataV2 = new Dictionary<long, CounterInstanceData>();
 
             var methodInfoListV2 = new List<KeyValuePair<long, MethodInfo>>();
             foreach (var actorInterfaceType in this.ActorTypeInformation.InterfaceTypes)
             {
-                diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptionsV2(
+                actorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptionsV2(
                     actorInterfaceType,
                     out var interfaceIdV2,
                     out var actorInterfaceMethodDescriptions);
