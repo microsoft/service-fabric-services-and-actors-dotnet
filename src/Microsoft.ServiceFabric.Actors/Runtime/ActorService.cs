@@ -303,13 +303,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 this.actorManagerAdapter.ActorManager = new ActorManager(this);
                 await this.actorManagerAdapter.OpenAsync(this.Partition, cancellationToken);
-                this.ActorManager.DiagnosticsEventManager.ActorChangeRole(this.replicaRole, newRole);
+                this.ActorManager.DiagnosticsEvents.ActorChangeRole(this.replicaRole, newRole);
             }
             else
             {
-                if ((this.ActorManager != null) && (this.ActorManager.DiagnosticsEventManager != null))
+                if ((this.ActorManager != null) && (this.ActorManager.DiagnosticsEvents != null))
                 {
-                    this.ActorManager.DiagnosticsEventManager.ActorChangeRole(this.replicaRole, newRole);
+                    this.ActorManager.DiagnosticsEvents.ActorChangeRole(this.replicaRole, newRole);
                 }
 
                 await this.actorManagerAdapter.CloseAsync(cancellationToken);

@@ -39,9 +39,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly DiagnosticsEventManager diagnosticsEventManager;
         private readonly IActorEventManager eventManager;
         private IDiagnosticsManager diagnosticsManager;
-        private IDiagnosticEvents diagnosticEvents;
-        private IClock clock;
         private bool isClosed;
+
+        private readonly IDiagnosticEvents diagnosticEvents;
+        private readonly IClock clock;
+        private static Func<ActorService, IClock, IDiagnosticEvents> createDiagnosticEvents = (actorService, clock) =>
+        {
+            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation), clock);
+            var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
+            var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
+
+            return new AgregateDiagnosticEvents(registeredDiagnosticsEvents);
+        };
 
         private Timer gcTimer;
         private Task loadRemindersTask;
@@ -57,13 +66,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.activeActors = new ConcurrentDictionary<ActorId, ActorBase>();
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
+
             this.clock = actorService.Clock;
-
-            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation), clock);
-            var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
-            var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
-
-            this.diagnosticEvents = new AgregateDiagnosticEvents(registeredDiagnosticsEvents);
+            this.diagnosticEvents = createDiagnosticEvents(actorService, clock);
 
             // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
             bool restoreFlow = false;
