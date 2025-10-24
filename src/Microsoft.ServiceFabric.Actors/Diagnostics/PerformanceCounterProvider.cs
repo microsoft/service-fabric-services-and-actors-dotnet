@@ -354,29 +354,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return result;
         }
 
-        private void OnActorMethodFinish(ActorMethodDiagnosticData methodData)
-        {
-            var interfaceMethodKey = methodData.InterfaceMethodKey;
-
-            var counterWriters = this.GetMethodSpecificCounterWriters(interfaceMethodKey, methodData.RemotingListener);
-
-            // Call the counter writers to update the counter values
-            if (counterWriters.ActorMethodFrequencyCounterWriter != null)
-            {
-                counterWriters.ActorMethodFrequencyCounterWriter.UpdateCounterValue();
-            }
-
-            if (counterWriters.ActorMethodExceptionFrequencyCounterWriter != null)
-            {
-                counterWriters.ActorMethodExceptionFrequencyCounterWriter.UpdateCounterValue(methodData);
-            }
-
-            if (counterWriters.ActorMethodExecTimeCounterWriter != null)
-            {
-                counterWriters.ActorMethodExecTimeCounterWriter.UpdateCounterValue(methodData);
-            }
-        }
-
         private T CreateMethodCounterWriter<T>(
             string instanceName,
             Type counterWriterType,
@@ -397,96 +374,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
 
             return retVal;
-        }
-
-        private void OnPendingActorMethodCallsUpdated(PendingActorMethodDiagnosticData pendingMethodData)
-        {
-            if (this.actorLockContentionCounterWriter != null)
-            {
-                this.actorLockContentionCounterWriter.UpdateCounterValue(pendingMethodData);
-            }
-        }
-
-        private void OnSaveActorStateFinish(ActorStateDiagnosticData stateData)
-        {
-            if (this.actorSaveStateTimeCounterWriter != null)
-            {
-                this.actorSaveStateTimeCounterWriter.UpdateCounterValue(stateData);
-            }
-        }
-
-        private void OnActorRequestProcessingStart()
-        {
-            if (this.actorOutstandingRequestsCounterWriter != null)
-            {
-                this.actorOutstandingRequestsCounterWriter.UpdateCounterValue(1);
-            }
-        }
-
-        private void OnActorRequestProcessingFinish(TimeSpan processingTime)
-        {
-            if (this.actorOutstandingRequestsCounterWriter != null)
-            {
-                this.actorOutstandingRequestsCounterWriter.UpdateCounterValue(-1);
-            }
-
-            if (this.actorRequestProcessingTimeCounterWriter != null)
-            {
-                this.actorRequestProcessingTimeCounterWriter.UpdateCounterValue((long)processingTime
-                    .TotalMilliseconds);
-            }
-        }
-
-        private void OnActorLockAcquired(TimeSpan lockAcquireWaitTime)
-        {
-            if (this.actorLockAcquireWaitTimeCounterWriter != null)
-            {
-                this.actorLockAcquireWaitTimeCounterWriter.UpdateCounterValue((long)lockAcquireWaitTime
-                    .TotalMilliseconds);
-            }
-        }
-
-        private void OnActorLockReleased(TimeSpan lockHoldTime)
-        {
-            if (this.actorLockHoldTimeCounterWriter != null)
-            {
-                this.actorLockHoldTimeCounterWriter.UpdateCounterValue((long)lockHoldTime.TotalMilliseconds);
-            }
-        }
-
-        private void OnActorRequestDeserializationFinish(TimeSpan deserializationTime)
-        {
-            if (this.actorRequestDeserializationTimeCounterWriter != null)
-            {
-                this.actorRequestDeserializationTimeCounterWriter.UpdateCounterValue((long)deserializationTime
-                    .TotalMilliseconds);
-            }
-        }
-
-        private void OnActorResponseSerializationFinish(TimeSpan serializationTime)
-        {
-            if (this.actorResponseSerializationTimeCounterWriter != null)
-            {
-                this.actorResponseSerializationTimeCounterWriter.UpdateCounterValue((long)serializationTime
-                    .TotalMilliseconds);
-            }
-        }
-
-        private void OnActorOnActivateAsyncFinish(TimeSpan onActivateAsyncTime)
-        {
-            if (this.actorOnActivateAsyncTimeCounterWriter != null)
-            {
-                this.actorOnActivateAsyncTimeCounterWriter.UpdateCounterValue((long)onActivateAsyncTime
-                    .TotalMilliseconds);
-            }
-        }
-
-        private void OnLoadActorStateFinish(TimeSpan loadStateTime)
-        {
-            if (this.actorLoadStateTimeCounterWriter != null)
-            {
-                this.actorLoadStateTimeCounterWriter.UpdateCounterValue((long)loadStateTime.TotalMilliseconds);
-            }
         }
 
         private void LogCounterInstanceCreationResult(Type counterWriterType, string instanceName, Exception e)
