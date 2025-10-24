@@ -39,11 +39,11 @@ namespace Microsoft.ServiceFabric.Actors
             sut = new ActorServiceRemotingDispatcher(actorService, Mock.Of<IServiceRemotingMessageBodyFactory>());
         }
 
-        public class DiagnoticEvents : ActorServiceRemotingDispatcherTest
+        public class DiagnosticEvents : ActorServiceRemotingDispatcherTest
         {
             readonly Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>> handleActorMethodDispatchAsync;
 
-            public DiagnoticEvents()
+            public DiagnosticEvents()
             {
                 var method = sut.GetType().GetMethod("HandleActorMethodDispatchAsync",
                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
