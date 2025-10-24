@@ -27,8 +27,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class OnRoleChange : ActorServiceTest, IDisposable
         {
-            readonly Func<ReplicaRole, CancellationToken, Task> sutMethod;
             readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
+
+            readonly Func<ReplicaRole, CancellationToken, Task> sutMethod;
             readonly Func<ActorService, IClock, IDiagnosticEvents> createDiagnosticEvents;
 
             public OnRoleChange()
@@ -40,6 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     null);
                 sutMethod = (Func<ReplicaRole, CancellationToken, Task>)Delegate.CreateDelegate(typeof(Func<ReplicaRole, CancellationToken, Task>), actorService, methodInfo);
 
+                // store createDiagnosticEvents function in order to restore it in Dispose()
                 createDiagnosticEvents = typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Value;
                 typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Set((actorService, clock) => diagnosticEvents);
 
@@ -49,6 +51,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public void Dispose()
             {
+                // restore createDiagnosticEvents function
                 typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Set(createDiagnosticEvents);
             }
 

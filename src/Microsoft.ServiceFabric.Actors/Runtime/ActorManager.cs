@@ -50,7 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
             var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
 
-            return new AgregateDiagnosticEvents(registeredDiagnosticsEvents);
+            return new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
         };
 
         private Timer gcTimer;

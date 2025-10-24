@@ -188,7 +188,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             [Fact]
             public void DiagnosticsEventsHasAllNeededEventsRegistered()
             {
-                AgregateDiagnosticEvents field = (AgregateDiagnosticEvents)sut.Field<IDiagnosticEvents>().Value;
+                AggregatedDiagnosticEvents field = (AggregatedDiagnosticEvents)sut.Field<IDiagnosticEvents>().Value;
                 var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
 
                 Assert.Equal(2, registeredDiagnosticEvents.Count());

@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.traceSource = ActorEventSource.Instance;
             this.IsClosed = false;
-            this.diagnosticEvents = new AgregateDiagnosticEvents(Enumerable.Empty<IDiagnosticEvents>());
+            this.diagnosticEvents = new AggregatedDiagnosticEvents(Enumerable.Empty<IDiagnosticEvents>());
         }
 
         public bool IsClosed { get; private set; }

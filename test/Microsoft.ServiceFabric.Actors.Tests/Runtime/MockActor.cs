@@ -15,17 +15,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
     internal class MockActor : Actor, IMockActor
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MockActor"/> class.
-        /// </summary>
-        /// <param name="actorService">Actor Service.</param>
-        /// <param name="actorId">Actor Id.</param>
         public MockActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
         }
 
-        /// <inheritdoc/>
         public Task ActorMethodA()
         {
             throw new NotImplementedException();

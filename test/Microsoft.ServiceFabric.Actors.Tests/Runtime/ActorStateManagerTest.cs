@@ -19,24 +19,24 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     {
         readonly static IFuzz fuzzy = new RandomFuzz();
 
-        internal readonly ActorId actorId = ActorId.CreateRandom();
-        internal readonly ActorService actorService = TestMocksRepository.GetActorService<MockActor>();
+        readonly ActorStateManager sut;
 
         readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
         readonly IClock clock = Mock.Of<IClock>();
+
+        readonly ActorId actorId = fuzzy.ActorId();
         readonly DateTime startTime = DateTime.Now;
-        readonly ActorStateManager actorStateManager;
+        readonly ActorService actorService = TestMocksRepository.GetActorService<MockActor>();
 
         public ActorStateManagerTest()
         {
-            var friendlyNameBuilder = new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation);
-            actorService.InitializeInternal(friendlyNameBuilder);
-            actorService.Field<IClock>().Set(clock);
+            actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
+
+            sut = new ActorStateManager(new MockActor(actorService, actorId), new NullActorStateProvider());
 
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
-
-            actorStateManager = new ActorStateManager(new MockActor(actorService, actorId), new NullActorStateProvider());
-            actorStateManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+            actorService.Field<IClock>().Set(clock);
+            sut.Field<IDiagnosticEvents>().Set(diagnosticEvents);
         }
 
         public class State : ActorStateManagerTest
@@ -46,9 +46,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             [Fact]
             public async Task SaveEmitsDiagnostics()
             {
-                await actorStateManager.TryAddStateAsync(stateName, fuzzy.String(), TestContext.Current.CancellationToken);
+                await sut.TryAddStateAsync(stateName, fuzzy.String(), TestContext.Current.CancellationToken);
 
-                await actorStateManager.SaveStateAsync(TestContext.Current.CancellationToken);
+                await sut.SaveStateAsync(TestContext.Current.CancellationToken);
 
                 Mock.Get(diagnosticEvents).Verify(d => d.SaveActorStateStart(actorId), Times.Once);
                 Mock.Get(diagnosticEvents).Verify(d => d.SaveActorStateFinish(actorId, startTime), Times.Once);
@@ -57,11 +57,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             [Fact]
             public async Task TryGetEmitsDiagnostics()
             {
-                await actorStateManager.TryAddStateAsync(stateName, fuzzy.String(), TestContext.Current.CancellationToken);
-                await actorStateManager.SaveStateAsync(TestContext.Current.CancellationToken);
-                await actorStateManager.ClearCacheAsync(TestContext.Current.CancellationToken);
+                await sut.TryAddStateAsync(stateName, fuzzy.String(), TestContext.Current.CancellationToken);
+                await sut.SaveStateAsync(TestContext.Current.CancellationToken);
+                await sut.ClearCacheAsync(TestContext.Current.CancellationToken);
 
-                await actorStateManager.TryGetStateAsync<string>(stateName, TestContext.Current.CancellationToken);
+                await sut.TryGetStateAsync<string>(stateName, TestContext.Current.CancellationToken);
 
                 Mock.Get(diagnosticEvents).Verify(d => d.LoadActorStateStart(), Times.Once);
                 Mock.Get(diagnosticEvents).Verify(d => d.LoadActorStateFinish(startTime), Times.Once);

@@ -16,6 +16,5 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     internal interface ITestActor : IActor
     {
         public Task TestMethod();
-
     }
 }

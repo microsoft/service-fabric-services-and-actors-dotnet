@@ -20,13 +20,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     public class PerformanceCounterDiagnosticEventsTest
     {
-        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+        readonly static IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+
+        readonly IDiagnosticEvents sut;
+
+        readonly IClock clock = Mock.Of<IClock>();
 
         readonly static ActorTypeInformation actorTypeInfo = ActorTypeInformation.Get(typeof(TestActor));
         readonly PerformanceCounterProviderV2 performanceCounterProvider = new PerformanceCounterProviderV2(Guid.NewGuid(), actorTypeInfo);
-        readonly IClock clock = Mock.Of<IClock>();
-
-        readonly IDiagnosticEvents sut;
 
         protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
 
@@ -66,6 +67,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public class OnEvents : PerformanceCounterDiagnosticEventsTest
         {
+            readonly DiagnosticsManagerActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticsManagerActorContext>();
+
             readonly FabricAverageCount64PerformanceCounterWriter actorRequestProcessingTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
             readonly FabricAverageCount64PerformanceCounterWriter actorLockAcquireWaitTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
             readonly FabricAverageCount64PerformanceCounterWriter actorLockHoldTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
@@ -80,8 +83,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             readonly long interfaceMethodKey = fuzzy.Int64();
             readonly ActorId actorId = fuzzy.ActorId();
-            readonly DiagnosticsManagerActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticsManagerActorContext>();
-            readonly DateTime startTime;
+            readonly DateTime startTime = DateTime.Now;
             readonly DateTime endTime;
             readonly long operationDurationMillis = fuzzy.Int64().Between(100, 2000);
             readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2;
@@ -108,7 +110,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 performanceCounterProvider.Field<ActorLockContentionCounterWriter>(nameof(performanceCounterProvider.actorLockContentionCounterWriter)).Set(actorLockContentionCounterWriter);
                 performanceCounterProvider.Field<ActorSaveStateTimeCounterWriter>(nameof(performanceCounterProvider.actorSaveStateTimeCounterWriter)).Set(actorSaveStateTimeCounterWriter);
 
-                startTime = DateTime.Now;
                 endTime = startTime + TimeSpan.FromMilliseconds(operationDurationMillis);
                 Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(endTime);
             }
@@ -119,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 public void EmitsNothingWhenCountersNotNeeded()
                 {
                     sut.ActorOnActivateAsyncStart();
-                    sut.ActorMethodStart(actorId, interfaceMethodKey, Services.Remoting.RemotingListenerVersion.V2);
+                    sut.ActorMethodStart(actorId, interfaceMethodKey, RemotingListenerVersion.V2);
                     sut.LoadActorStateStart();
                     sut.SaveActorStateStart(actorId);
                     sut.AcquireActorLockStart(diagnosticsManagerActorContext);
@@ -139,12 +140,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     Mock.Get(actorOutstandingRequestsCounterWriter).VerifyNoOtherCalls();
                     Mock.Get(actorLockContentionCounterWriter).VerifyNoOtherCalls();
                     Mock.Get(actorSaveStateTimeCounterWriter).VerifyNoOtherCalls();
+
                     foreach (var counterInstanceData in actorMethodCounterInstanceData.Values)
                     {
                         Mock.Get(counterInstanceData.CounterWriters.ActorMethodFrequencyCounterWriter).VerifyNoOtherCalls();
                         Mock.Get(counterInstanceData.CounterWriters.ActorMethodExceptionFrequencyCounterWriter).VerifyNoOtherCalls();
                         Mock.Get(counterInstanceData.CounterWriters.ActorMethodExecTimeCounterWriter).VerifyNoOtherCalls();
-
                     }
                 }
             }
@@ -323,25 +324,26 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 ActorMethodExecTimeCounterWriter actorMethodExecTimeCounterWriter;
 
                 readonly Exception exception = new Exception();
-                readonly ActorMethodDiagnosticData diagnosticData;
 
                 public ActorMethod()
                 {
+                    // store references to counter writer Mocks for easier access
                     methodCounters = actorMethodCounterInstanceData[interfaceMethodKey].CounterWriters;
                     actorMethodFrequencyCounterWriter = methodCounters.ActorMethodFrequencyCounterWriter;
                     actorMethodExceptionFrequencyCounterWriter = methodCounters.ActorMethodExceptionFrequencyCounterWriter;
                     actorMethodExecTimeCounterWriter = methodCounters.ActorMethodExecTimeCounterWriter;
-                    diagnosticData = new ActorMethodDiagnosticData() { ActorId = actorId, Exception = exception, InterfaceMethodKey = interfaceMethodKey, RemotingListener = remotingListener, MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis) };
                 }
 
                 [Fact]
                 public void FinishEmitsPerfCounter()
                 {
+                    ActorMethodDiagnosticData expectedDiagnoticData = new ActorMethodDiagnosticData() { ActorId = actorId, Exception = exception, InterfaceMethodKey = interfaceMethodKey, RemotingListener = remotingListener, MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis) };
+
                     sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
 
                     Mock.Get(actorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Once);
-                    Mock.Get(actorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(diagnosticData))), Times.Once);
-                    Mock.Get(actorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(diagnosticData))), Times.Once);
+                    Mock.Get(actorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(expectedDiagnoticData))), Times.Once);
+                    Mock.Get(actorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(expectedDiagnoticData))), Times.Once);
                 }
 
                 [Fact]

@@ -21,15 +21,20 @@ namespace Microsoft.ServiceFabric.Actors
     public class ActorServiceRemotingDispatcherTest
     {
         readonly internal ActorServiceRemotingDispatcher sut;
+
         readonly internal IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
         readonly internal IClock clock = Mock.Of<IClock>();
+
+        readonly DateTime startTime = DateTime.Now;
 
         public ActorServiceRemotingDispatcherTest()
         {
             ActorService actorService = TestMocksRepository.GetActorService<MockActor>();
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
-            actorService.ActorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+
+            Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
             actorService.Field<IClock>().Set(clock);
+            actorService.ActorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
 
             sut = new ActorServiceRemotingDispatcher(actorService, Mock.Of<IServiceRemotingMessageBodyFactory>());
         }
@@ -37,12 +42,9 @@ namespace Microsoft.ServiceFabric.Actors
         public class DiagnoticEvents : ActorServiceRemotingDispatcherTest
         {
             readonly Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>> handleActorMethodDispatchAsync;
-            readonly DateTime startTime = DateTime.Now;
 
             public DiagnoticEvents()
             {
-                Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
-
                 var method = sut.GetType().GetMethod("HandleActorMethodDispatchAsync",
                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
                    null,

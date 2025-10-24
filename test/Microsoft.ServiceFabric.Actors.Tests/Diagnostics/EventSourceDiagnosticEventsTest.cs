@@ -23,16 +23,18 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
+        readonly IDiagnosticEvents sut;
+
         readonly IClock clock = Mock.Of<IClock>();
+        readonly ActorFrameworkEventSource eventSource = Mock.Of<ActorFrameworkEventSource>();
+
         readonly ActorTypeInformation typeInfo = ActorTypeInformation.Get(typeof(TestActor));
         readonly ActorMethodFriendlyNameBuilder nameBuilder;
         readonly ServiceContext serviceContext = fuzzy.ServiceContext();
-        readonly ActorFrameworkEventSource eventSource = Mock.Of<ActorFrameworkEventSource>();
-
-        readonly IDiagnosticEvents sut;
 
         public EventSourceDiagnosticEventsTest()
         {
+            // Prevent Linux specific code path in ServiceFabricEventSource as it is not a part of tested logic
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set((os) => false);
 
             nameBuilder = new ActorMethodFriendlyNameBuilder(typeInfo);
@@ -111,16 +113,17 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             [Fact]
             public void InitializedMethodInfos()
             {
-                // TODO
+                // TODO - implement
             }
         }
 
         public class OnEvents : EventSourceDiagnosticEventsTest
         {
+            readonly DiagnosticsManagerActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticsManagerActorContext>();
+
             readonly long interfaceMethodKey = fuzzy.Int64();
             readonly ActorId actorId = fuzzy.ActorId();
-            readonly DiagnosticsManagerActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticsManagerActorContext>();
-            readonly DateTime startTime;
+            readonly DateTime startTime = DateTime.Now;
             readonly DateTime endTime;
             readonly long operationDurationMillis = fuzzy.Int64().Between(100, 2000);
             readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2;
@@ -130,9 +133,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             public OnEvents()
             {
                 actorType = typeInfo.ImplementationType.ToString();
-                ticks = TimeSpan.FromMilliseconds(operationDurationMillis).Ticks;
 
-                startTime = DateTime.Now;
+                ticks = TimeSpan.FromMilliseconds(operationDurationMillis).Ticks;
                 endTime = startTime + TimeSpan.FromMilliseconds(operationDurationMillis);
                 Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(endTime);
             }
@@ -319,10 +321,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                     Mock.Get(eventSource).Verify(p => p.IsActorMethodStopEventEnabled(), Times.Once);
                     Mock.Get(eventSource).VerifyNoOtherCalls();
                 }
-
             }
-
-
         }
     }
 }

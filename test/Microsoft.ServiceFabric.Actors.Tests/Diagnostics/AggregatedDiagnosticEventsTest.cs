@@ -9,13 +9,14 @@ using System.Fabric;
 using System.Linq;
 using Fuzzy;
 using Inspector;
+using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    public abstract class AgregateDiagnosticEventsTest
+    public abstract class AggregatedDiagnosticEventsTest
     {
         internal interface ITestDiagnosticEvents : IDiagnosticEvents { }
 
@@ -27,34 +28,34 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IDiagnosticEvents anotherDiagnosticEvents = Mock.Of<ITestDiagnosticEvents>();
 
         readonly DiagnosticsManagerActorContext diagnosticContext = new DiagnosticsManagerActorContext();
-        readonly ActorId actorId = new ActorId(Guid.NewGuid());
+        readonly ActorId actorId = fuzzy.ActorId();
         readonly long interfaceMethodKey = fuzzy.Int64();
+        readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData = default;
         readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2_1;
-        readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData = default(PendingActorMethodDiagnosticData);
+        readonly protected DateTime startTime = fuzzy.DateTime();
 
-        public AgregateDiagnosticEventsTest() => sut = new AgregateDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, anotherDiagnosticEvents });
+        public AggregatedDiagnosticEventsTest() => sut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, anotherDiagnosticEvents });
 
-
-        public sealed class Constructor : AgregateDiagnosticEventsTest
+        public sealed class Constructor : AggregatedDiagnosticEventsTest
         {
             [Fact]
             public void ThrowsOnNullEventsList()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new AgregateDiagnosticEvents(null));
+                var exception = Assert.Throws<ArgumentNullException>(() => new AggregatedDiagnosticEvents(null));
                 Assert.Equal("diagnosticEvents", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnAnyNullEvents()
             {
-                var exception = Assert.Throws<ArgumentException>(() => new AgregateDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, null }));
+                var exception = Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, null }));
                 Assert.Equal("diagnosticEvents", exception.Message);
             }
 
             [Fact]
             public void AssignsEmptyEvent()
             {
-                var newSut = new AgregateDiagnosticEvents(new List<IDiagnosticEvents>());
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>());
 
                 Assert.NotNull(newSut.Field<IEnumerable<IDiagnosticEvents>>());
                 Assert.Empty(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value);
@@ -63,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void AssignsSingleEvent()
             {
-                var newSut = new AgregateDiagnosticEvents(new List<IDiagnosticEvents>() { diagnosticEvent });
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>() { diagnosticEvent });
 
                 Assert.NotNull(newSut.Field<IEnumerable<IDiagnosticEvents>>());
                 Assert.Single(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value);
@@ -80,7 +81,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public sealed class ActorRequestProcessing : AgregateDiagnosticEventsTest
+        public sealed class ActorRequestProcessing : AggregatedDiagnosticEventsTest
         {
             [Fact]
             public void StartInvokesAllDiagnostics()
@@ -94,7 +95,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void FinishInvokesAllDiagnostics()
             {
-                var startTime = DateTime.UtcNow;
                 sut.ActorRequestProcessingFinish(startTime);
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.ActorRequestProcessingFinish(startTime), Times.Once);
@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public sealed class ActorOnActivateAsync : AgregateDiagnosticEventsTest
+        public sealed class ActorOnActivateAsync : AggregatedDiagnosticEventsTest
         {
             [Fact]
             public void StartInvokesAllDiagnostics()
@@ -116,7 +116,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void FinishInvokesAllDiagnostics()
             {
-                var startTime = DateTime.UtcNow;
                 sut.ActorOnActivateAsyncFinish(startTime);
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.ActorOnActivateAsyncFinish(startTime), Times.Once);
@@ -124,7 +123,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public sealed class ActorMethod : AgregateDiagnosticEventsTest
+        public sealed class ActorMethod : AggregatedDiagnosticEventsTest
         {
 
             [Fact]
@@ -139,7 +138,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void FinishInvokesAllDiagnostics()
             {
-                var startTime = DateTime.UtcNow;
                 var exception = new InvalidOperationException(fuzzy.String());
 
                 sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
@@ -149,7 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public sealed class ActorStateLoad : AgregateDiagnosticEventsTest
+        public sealed class ActorStateLoad : AggregatedDiagnosticEventsTest
         {
             [Fact]
             public void StartInvokesAllDiagnostics()
@@ -163,7 +161,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void FinishInvokesAllDiagnostics()
             {
-                var startTime = DateTime.UtcNow;
                 sut.LoadActorStateFinish(startTime);
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.LoadActorStateFinish(startTime), Times.Once);
@@ -182,7 +179,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void SaveFinishInvokesAllDiagnostics()
             {
-                var startTime = DateTime.UtcNow;
                 sut.SaveActorStateFinish(actorId, startTime);
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.SaveActorStateFinish(actorId, startTime), Times.Once);
@@ -190,7 +186,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public sealed class ActorLock : AgregateDiagnosticEventsTest
+        public sealed class ActorLock : AggregatedDiagnosticEventsTest
         {
             readonly int pendingMethodCalls = fuzzy.Int32();
 
@@ -233,7 +229,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void AcquireFinishInvokesAllDiagnostics()
             {
-                var startTime = DateTime.UtcNow;
                 sut.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime);
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
@@ -245,7 +240,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 diagnosticContext.PendingActorMethodCalls = pendingMethodCalls;
                 diagnosticContext.LastReportedPendingActorMethodCalls = pendingMethodCalls - 10;
-                var startTime = DateTime.UtcNow;
                 var expected = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = diagnosticContext.PendingActorMethodCalls - 1, PendingActorMethodCallsDelta = 9 };
 
                 sut.AcquireActorLockFinishPreProcess(diagnosticContext, startTime, actorId);
@@ -257,8 +251,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void AcquireFinishPreProcessDecrementsPendingMethodCalls()
             {
-                var startTime = DateTime.UtcNow;
-
                 diagnosticContext.PendingActorMethodCalls = pendingMethodCalls;
                 sut.AcquireActorLockFinishPreProcess(diagnosticContext, startTime, actorId);
 
@@ -278,7 +270,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void ReleaseInvokesAllDiagnostics()
             {
-                var startTime = DateTime.UtcNow;
                 sut.ReleaseActorLock(startTime);
 
                 Mock.Get(diagnosticEvent).Verify(ds => ds.ReleaseActorLock(startTime), Times.Once);
@@ -286,7 +277,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public sealed class ActorLifecycle : AgregateDiagnosticEventsTest
+        public sealed class ActorLifecycle : AggregatedDiagnosticEventsTest
         {
             [Fact]
             public void ChangeRoleInvokesAllDiagnostics()
