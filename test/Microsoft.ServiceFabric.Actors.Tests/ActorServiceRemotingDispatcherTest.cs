@@ -1,0 +1,65 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Inspector;
+using Microsoft.ServiceFabric.Actors.Diagnostics;
+using Microsoft.ServiceFabric.Actors.Remoting.V2;
+using Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Actors.Tests;
+using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Services.Remoting.V2;
+using Moq;
+using Xunit;
+
+namespace Microsoft.ServiceFabric.Actors
+{
+    public class ActorServiceRemotingDispatcherTest
+    {
+        readonly internal ActorServiceRemotingDispatcher sut;
+        readonly internal IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
+        readonly internal IClock clock = Mock.Of<IClock>();
+
+        public ActorServiceRemotingDispatcherTest()
+        {
+            ActorService actorService = TestMocksRepository.GetActorService<MockActor>();
+            actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
+            actorService.ActorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+            actorService.Field<IClock>().Set(clock);
+
+            sut = new ActorServiceRemotingDispatcher(actorService, Mock.Of<IServiceRemotingMessageBodyFactory>());
+        }
+
+        public class DiagnoticEvents : ActorServiceRemotingDispatcherTest
+        {
+            readonly Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>> handleActorMethodDispatchAsync;
+            readonly DateTime startTime = DateTime.Now;
+
+            public DiagnoticEvents()
+            {
+                Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
+
+                var method = sut.GetType().GetMethod("HandleActorMethodDispatchAsync",
+                   System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                   null,
+                   new[] { typeof(IActorRemotingMessageHeaders), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken) },
+                   null);
+                handleActorMethodDispatchAsync = (Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>>)
+                    Delegate.CreateDelegate(typeof(Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>>), sut, method);
+            }
+
+            [Fact]
+            public void EmitDiagnosticsOnHandleActorMethodDispatchAsync1()
+            {
+                handleActorMethodDispatchAsync.Invoke(Mock.Of<IActorRemotingMessageHeaders>(), Mock.Of<IServiceRemotingRequestMessageBody>(), TestContext.Current.CancellationToken);
+
+                Mock.Get(diagnosticEvents).Verify(d => d.ActorRequestProcessingStart(), Times.Once);
+                Mock.Get(diagnosticEvents).Verify(d => d.ActorRequestProcessingFinish(startTime), Times.Once);
+            }
+        }
+    }
+}
