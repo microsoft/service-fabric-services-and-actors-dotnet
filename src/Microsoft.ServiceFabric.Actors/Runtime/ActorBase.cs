@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Common;
 
@@ -26,17 +27,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// <seealso cref="Actor"/>
     public abstract class ActorBase
     {
-        private const string TraceType = "ActorBase";
-        private readonly IActorManager actorManager;
-        private readonly ActorId actorId;
-        private readonly DiagnosticsManagerActorContext diagnosticsContext;
-        private readonly string traceId;
-        private List<IActorTimer> timers;
-        private volatile bool markedForDeletion;
+        const string TraceType = "ActorBase";
+        readonly IActorManager actorManager;
+        readonly ActorId actorId;
+        readonly DiagnosticsManagerActorContext diagnosticsContext;
+        readonly string traceId;
+        List<IActorTimer> timers;
+        volatile bool markedForDeletion;
+        readonly IClock clock;
 
         internal ActorBase(ActorService actorService, ActorId actorId)
         {
             this.actorManager = actorService.ActorManager;
+            this.clock = actorService.Clock;
             this.actorId = actorId;
 
             this.timers = null;
@@ -120,9 +123,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal async Task OnActivateInternalAsync()
         {
-            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncStart(this);
+            var startTime = clock.UtcNow;
+            this.Manager.DiagnosticsEvents.ActorOnActivateAsyncStart();
+
             await this.OnActivateAsync();
-            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncFinish(this);
+
+            this.Manager.DiagnosticsEvents.ActorOnActivateAsyncFinish(startTime);
 
             this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Activated");
         }

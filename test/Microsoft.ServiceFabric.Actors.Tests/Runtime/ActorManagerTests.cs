@@ -300,6 +300,26 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     Mock.Get(diagnosticEvents).Verify(d => d.ActorDeactivated(actorId), Times.Once);
                 }
             }
+
+            public class OnActivateInternAsync : DiagnosticEvents
+            {
+                readonly ActorBase sut;
+                public OnActivateInternAsync()
+                {
+                    sut = actorManager.GetActor(actorId, true, false).Actor;
+                    sut.Manager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                    sut.Field<IClock>().Set(clock);
+                }
+
+                [Fact]
+                public async Task OnActivateInternAsyncEmitsDiagnosticsAsync()
+                {
+                    await sut.OnActivateInternalAsync();
+
+                    Mock.Get(diagnosticEvents).Verify(d => d.ActorOnActivateAsyncStart(), Times.Once);
+                    Mock.Get(diagnosticEvents).Verify(d => d.ActorOnActivateAsyncFinish(startTime), Times.Once);
+                }
+            }
         }
     }
 }
