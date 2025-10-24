@@ -207,7 +207,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class DiagnosticEvents : ActorManagerTests
         {
-            ActorManager actorManager;
+            ActorManager sut;
 
             readonly static IFuzz fuzzy = new RandomFuzz();
             readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
@@ -217,10 +217,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public DiagnosticEvents()
             {
-                actorManager = new ActorManager(actorService);
+                sut = new ActorManager(actorService);
 
-                actorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
-                actorManager.Field<IClock>().Set(clock);
+                sut.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                sut.Field<IClock>().Set(clock);
                 Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
             }
 
@@ -229,7 +229,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 [Fact]
                 public async Task EmitsDiagnosticsNoException()
                 {
-                    await actorManager.DispatchToActorAsync(
+                    await sut.DispatchToActorAsync(
                         actorId: actorId,
                         actorMethodContext: new ActorMethodContext(),
                         createIfRequired: true,
@@ -246,7 +246,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 [Fact]
                 public async Task EmitsDiagnosticsWhenException()
                 {
-                    await Assert.ThrowsAsync<NullReferenceException>(async () => await actorManager.DispatchToActorAsync(
+                    await Assert.ThrowsAsync<NullReferenceException>(async () => await sut.DispatchToActorAsync(
                             actorId: actorId,
                             actorMethodContext: new ActorMethodContext(),
                             createIfRequired: true,
@@ -265,7 +265,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 [Fact]
                 public async Task EmitDiagnoticsWhenActorActivatedAsync()
                 {
-                    await actorManager.DispatchToActorAsync(
+                    await sut.DispatchToActorAsync(
                         actorId: actorId,
                         actorMethodContext: new ActorMethodContext(),
                         createIfRequired: true,
@@ -280,7 +280,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 [Fact]
                 public async Task EmitDiagnoticsWhenActorDeactivatedAsync()
                 {
-                    await actorManager.DispatchToActorAsync(
+                    await sut.DispatchToActorAsync(
                         actorId: actorId,
                         actorMethodContext: new ActorMethodContext(),
                         createIfRequired: true,
@@ -288,10 +288,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         callContext: callContext,
                         timerCall: false,
                         cancellationToken: TestContext.Current.CancellationToken);
-                    await actorManager.StartLoadingRemindersAsync(CancellationToken.None);
-                    actorManager.GetActor(actorId, true, false).Actor.IsDummy = false;
+                    await sut.StartLoadingRemindersAsync(CancellationToken.None);
+                    sut.GetActor(actorId, true, false).Actor.IsDummy = false;
 
-                    await actorManager.DeleteActorAsync(
+                    await sut.DeleteActorAsync(
                         actorId: actorId,
                         callContext: callContext,
                         cancellationToken: TestContext.Current.CancellationToken);
@@ -302,18 +302,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public class OnActivateInternAsync : DiagnosticEvents
             {
-                readonly ActorBase sut;
+                readonly ActorBase actor;
                 public OnActivateInternAsync()
                 {
-                    sut = actorManager.GetActor(actorId, true, false).Actor;
-                    sut.Manager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
-                    sut.Field<IClock>().Set(clock);
+                    actor = sut.GetActor(actorId, true, false).Actor;
+                    actor.Manager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                    actor.Field<IClock>().Set(clock);
                 }
 
                 [Fact]
                 public async Task OnActivateInternAsyncEmitsDiagnosticsAsync()
                 {
-                    await sut.OnActivateInternalAsync();
+                    await actor.OnActivateInternalAsync();
 
                     Mock.Get(diagnosticEvents).Verify(d => d.ActorOnActivateAsyncStart(), Times.Once);
                     Mock.Get(diagnosticEvents).Verify(d => d.ActorOnActivateAsyncFinish(startTime), Times.Once);
