@@ -32,10 +32,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
 
-            sut = new ActorStateManager(new MockActor(actorService, actorId), new NullActorStateProvider());
-
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
             actorService.Field<IClock>().Set(clock);
+
+            sut = new ActorStateManager(new MockActor(actorService, actorId), new NullActorStateProvider());
             sut.Field<IDiagnosticEvents>().Set(diagnosticEvents);
         }
 
