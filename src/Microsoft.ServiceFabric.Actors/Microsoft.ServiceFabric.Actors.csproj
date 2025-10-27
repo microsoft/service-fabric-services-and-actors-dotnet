@@ -30,11 +30,11 @@
     <Content Include="build/**" PackagePath="build" />
   </ItemGroup>
   <Target Name="PackageContent" Outputs="@(TfmSpecificPackageFile)">
-    <MSBuild Projects="..\FabActUtil\FabActUtil.csproj" Targets="_GetBuildOutputFilesWithTfm">
-      <Output TaskParameter="TargetOutputs" ItemName="TfmSpecificPackageFile" />
+    <MSBuild Projects="..\FabActUtil\FabActUtil.csproj" Targets="BuiltProjectOutputGroup">
+      <Output TaskParameter="TargetOutputs" ItemName="FabActUtilIntermediateOutput" />
     </MSBuild>
     <ItemGroup>
-      <TfmSpecificPackageFile>
+      <TfmSpecificPackageFile Include="@(FabActUtilIntermediateOutput->'%(FinalOutputPath)')">
         <PackagePath>build\$(TargetFramework)</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
