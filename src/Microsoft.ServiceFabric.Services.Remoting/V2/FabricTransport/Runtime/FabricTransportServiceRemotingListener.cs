@@ -3,6 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Fabric.Common;
@@ -132,7 +133,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 new ExceptionSerializer(svcExceptionConvertors, remotingSettings),
                 serviceContext.PartitionId,
                 serviceContext.ReplicaOrInstanceId,
-                new TimeSpanMeterProvider(serviceContext));
+                new NullMeterProvider<TimeSpan>());
 
             this.fabricTransportlistener = new FabricTransportListener(
                 remotingSettings.GetInternalSettings(),
