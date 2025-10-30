@@ -15,30 +15,35 @@ permissions:
   contents: read
 
 env:
-  DROP_DIR: drop
+  Configuration: Release
+  Artifacts: ${{ github.workspace }}/out
+  Logs: ${{ github.workspace }}/out/logs
 
 jobs:
   test-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
-      - run: dotnet build buildAll.proj
       - run: .\SkipStrongName.ps1
       - run: .\UninstallSfSdkFromGac.ps1
-      - run: dotnet test code.sln --configuration release --nologo --settings test\default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx
+      - run: dotnet build -bl:"$env:Logs/build.binLog"
+      - run: dotnet test --no-build --logger trx -bl:"$env:Logs/test.binLog"
+      - run: dotnet pack --no-build -bl:"$env:Logs/pack.binLog"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-windows
-          path: ${{ env.DROP_DIR }}
+          path: ${{ env.Artifacts }}
 
   test-linux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: dotnet test code.sln --configuration release --nologo --settings test/default.runsettings --results-directory ${{ env.DROP_DIR }} --logger trx --framework net9.0
+      - run: dotnet build -bl:"$Logs/build.binLog"
+      - run: dotnet test --no-build --logger trx --framework net9.0 -bl:"$Logs/test.binLog"
+      - run: dotnet pack --no-build -bl:"$Logs/pack.binLog"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-linux
-          path: ${{ env.DROP_DIR }}
+          path: ${{ env.Artifacts }}

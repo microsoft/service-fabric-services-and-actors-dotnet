@@ -14,7 +14,6 @@
   <PropertyGroup>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
-    <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('test'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <!-- Properties specific to certain TargetFrameworks -->
@@ -47,7 +46,8 @@
   <!-- Set Version numbers. These are used for generating Assemblies. -->
   <PropertyGroup>
     <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</Version>
+    <PackageVersionSuffix>-beta</PackageVersionSuffix>
+    <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)$(PackageVersionSuffix)</Version>
     <AssemblyFileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</AssemblyFileVersion>
     <FileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</FileVersion>
   </PropertyGroup>
@@ -58,5 +58,4 @@
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
   </PropertyGroup>
-  
 </Project>

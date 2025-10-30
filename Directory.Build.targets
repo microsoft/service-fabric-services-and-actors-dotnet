@@ -1,4 +1,18 @@
 <Project>
+
+  <!-- Common NuGet package settings -->
+  <PropertyGroup Condition="'$(IsPackable)' == ''">
+    <IsPackable Condition="'$(OutputType)' == 'Library'">true</IsPackable>
+    <IsPackable Condition="'$(OutputType)' == 'Exe'">false</IsPackable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsPackable)' == 'true'">
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
   <Target Name="UpdateTrxLogFileName" BeforeTargets="VSTest" Condition="'$(VSTestLogger)' == 'trx'" >
     <PropertyGroup>
       <!-- 

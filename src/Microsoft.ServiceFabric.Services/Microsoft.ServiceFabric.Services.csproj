@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" />
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
   </ItemGroup>
   <ItemGroup>
