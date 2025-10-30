@@ -26,9 +26,12 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
 
-  <!-- Enable /highentropyva flag -->
+  <!-- https://github.com/microsoft/binskim/blob/main/docs/BinSkimRules.md -->
   <PropertyGroup>
+    <!-- https://learn.microsoft.com/dotnet/csharp/language-reference/compiler-options/security#highentropyva -->
     <HighEntropyVA>true</HighEntropyVA>
+    <!-- https://learn.microsoft.com/dotnet/csharp/language-reference/compiler-options/advanced#checksumalgorithm -->
+    <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
   </PropertyGroup>
   
   <!-- Enable delay signing with Key.snk -->
