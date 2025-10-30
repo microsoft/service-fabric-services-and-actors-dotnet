@@ -50,7 +50,7 @@
   <PropertyGroup>
     <AssemblyVersion>6.0.0.0</AssemblyVersion>
     <PackageVersionSuffix>-beta</PackageVersionSuffix>
-    <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)$(PackageVersionSuffix)</Version>
+    <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion)$(PackageVersionSuffix).$(Revision)</Version>
     <AssemblyFileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</AssemblyFileVersion>
     <FileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</FileVersion>
   </PropertyGroup>
