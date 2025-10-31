@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Fabric.Common;
 using System.Reflection;
 using System.Text;
+using Microsoft.ServiceFabric.Actors.Diagnostics.PerformanceCounters;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Remoting;
