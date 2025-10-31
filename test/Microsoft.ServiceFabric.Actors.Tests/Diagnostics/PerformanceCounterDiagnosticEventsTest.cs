@@ -9,6 +9,7 @@ using System.Fabric;
 using System.Fabric.Common;
 using Fuzzy;
 using Inspector;
+using Microsoft.ServiceFabric.Actors.Diagnostics.PerformanceCounters;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
