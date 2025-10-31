@@ -26,7 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
         readonly IDiagnosticEvents sut;
 
         readonly IClock clock = Mock.Of<IClock>();
-        readonly ActorFrameworkEventSource eventSource = Mock.Of<ActorFrameworkEventSource>();
+        readonly ActorFrameworkEventSource eventSource;
 
         readonly ActorTypeInformation typeInfo = ActorTypeInformation.Get(typeof(TestActor));
         readonly ActorMethodFriendlyNameBuilder nameBuilder;
@@ -36,6 +36,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
         {
             // Prevent Linux specific code path in ServiceFabricEventSource as it is not a part of tested logic
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set((os) => false);
+            eventSource = Mock.Of<ActorFrameworkEventSource>();
 
             nameBuilder = new ActorMethodFriendlyNameBuilder(typeInfo);
             sut = new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, typeInfo);
@@ -49,6 +50,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
         public void Dispose()
         {
+            // Restore static field
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
         }
 
