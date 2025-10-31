@@ -12,10 +12,11 @@ using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class AggregatedDiagnosticEvents : IDiagnosticEvents
+    sealed class AggregatedDiagnosticEvents : IDiagnosticEvents
     {
         readonly IEnumerable<IDiagnosticEvents> diagnosticEvents;
-        public AggregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
+
+        internal AggregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
         {
             _ = diagnosticEvents ?? throw new ArgumentNullException(nameof(diagnosticEvents));
             if (diagnosticEvents.Any(d => d == null))
@@ -25,6 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             this.diagnosticEvents = diagnosticEvents;
         }
+
         public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
         {
             Interlocked.Decrement(ref diagnosticContext.PendingActorMethodCalls);

@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         Task ActorMethodA();
     }
 
-    internal class MockActor : Actor, IMockActor
+    sealed class MockActor : Actor, IMockActor
     {
         public MockActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)

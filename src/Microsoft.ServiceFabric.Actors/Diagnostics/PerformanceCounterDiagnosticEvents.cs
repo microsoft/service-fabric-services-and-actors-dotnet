@@ -10,7 +10,7 @@ using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
+    sealed class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
     {
         readonly PerformanceCounterProviderV2 performanceCounterProvider;
         readonly IClock clock;

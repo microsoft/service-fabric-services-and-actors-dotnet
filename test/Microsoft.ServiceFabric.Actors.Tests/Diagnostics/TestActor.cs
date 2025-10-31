@@ -3,7 +3,7 @@ using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class TestActor : Actor, ITestActor
+    sealed class TestActor : Actor, ITestActor
     {
         public TestActor(ActorService actorService, ActorId actorId) : base(actorService, actorId) { }
 

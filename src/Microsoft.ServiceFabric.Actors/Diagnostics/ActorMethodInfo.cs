@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class ActorMethodInfo
+    sealed class ActorMethodInfo
     {
         internal ActorMethodInfo() { }
 
