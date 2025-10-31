@@ -20,10 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             _ = diagnosticEvents ?? throw new ArgumentNullException(nameof(diagnosticEvents));
             if (diagnosticEvents.Any(d => d == null))
-            {
                 throw new ArgumentException(nameof(diagnosticEvents));
-            }
-
             this.diagnosticEvents = diagnosticEvents;
         }
 
