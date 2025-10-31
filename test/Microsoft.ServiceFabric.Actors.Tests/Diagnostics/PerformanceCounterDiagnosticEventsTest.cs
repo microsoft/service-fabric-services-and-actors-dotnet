@@ -48,20 +48,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void ThrowsOnNullProvider()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new PerformanceCounterDiagnosticEvents(null, clock);
-                });
+                var exception = Assert.Throws<ArgumentNullException>(() => new PerformanceCounterDiagnosticEvents(null, clock));
                 Assert.Equal("performanceCounterProvider", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullClock()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new PerformanceCounterDiagnosticEvents(performanceCounterProvider, null);
-                });
+                var exception = Assert.Throws<ArgumentNullException>(() => new PerformanceCounterDiagnosticEvents(performanceCounterProvider, null));
                 Assert.Equal("clock", exception.ParamName);
             }
         }

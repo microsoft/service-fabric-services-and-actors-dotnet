@@ -73,50 +73,35 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             [Fact]
             public void ThrowsOnNullTypeInfo()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, null);
-                });
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, null));
                 Assert.Equal("typeInfo", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullNameBuilder()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, null, typeInfo);
-                });
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, null, typeInfo));
                 Assert.Equal("nameBuilder", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullClock()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new EventSourceDiagnosticEvents(eventSource, null, serviceContext, nameBuilder, typeInfo);
-                });
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, null, serviceContext, nameBuilder, typeInfo));
                 Assert.Equal("clock", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullEventSource()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new EventSourceDiagnosticEvents(null, clock, serviceContext, nameBuilder, typeInfo);
-                });
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(null, clock, serviceContext, nameBuilder, typeInfo));
                 Assert.Equal("eventSource", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullServiceContext()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() =>
-                {
-                    new EventSourceDiagnosticEvents(eventSource, clock, null, nameBuilder, typeInfo);
-                });
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, clock, null, nameBuilder, typeInfo));
                 Assert.Equal("serviceContext", exception.ParamName);
             }
 
