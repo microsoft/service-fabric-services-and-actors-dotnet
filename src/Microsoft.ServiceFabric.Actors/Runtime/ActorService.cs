@@ -355,7 +355,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)
         {
-            return new ActorStateManager(actorBase, actorStateProvider);
+            return new ActorStateManager(actorBase, actorStateProvider, actorBase.ActorService.Clock, actorBase.Manager.DiagnosticsEvents);
         }
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)

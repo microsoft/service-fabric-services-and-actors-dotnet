@@ -108,7 +108,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             }
 
             [Fact]
-            public void InitializedMethodInfos()
+            public void InitializedMethodInfo()
             {
                 // TODO - implement
             }
@@ -251,7 +251,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 }
 
                 [Fact]
-                public void DoesntTraceIfDisabled()
+                public void DoesNotTraceIfDisabled()
                 {
                     Mock.Get(eventSource).Setup(eventSource => eventSource.IsPendingMethodCallsEventEnabled()).Returns(false);
 
