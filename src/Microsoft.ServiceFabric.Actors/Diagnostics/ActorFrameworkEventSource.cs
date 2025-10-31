@@ -11,10 +11,13 @@ using Microsoft.ServiceFabric.Diagnostics.Tracing;
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     // REMARKS:
-    // When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
+    // 1. When you apply EventAttribute attribute to an ETW event method defined on an EventSource-derived class,
     // you must call the WriteEvent method on the base class, passing the event ID, followed by the same
     // arguments as the defined method is passed. Details at:
     // https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventattribute(v=vs.110).aspx
+    // 2. This class is not intended to be inherited even though it is not sealed. 
+    // We kept this class unsealed and it's methods virtual in order to enable mocking of this class and verification of 
+    // method calls in the unit tests.
     [EventSource(Name = "Microsoft-ServiceFabric-Actors", LocalizationResources = "Microsoft.ServiceFabric.Actors.SR", Guid = "0e1ec353-9f02-55d7-fbb8-f3857458acbd")]
     internal class ActorFrameworkEventSource : ServiceFabricEventSource
     {
