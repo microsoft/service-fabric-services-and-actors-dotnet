@@ -150,9 +150,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 [Fact]
                 public void SaveEmitsPerfCounter()
                 {
+                    ActorStateDiagnosticData expectedDiagnoticData = new ActorStateDiagnosticData() { ActorId = actorId, OperationTime = TimeSpan.FromMilliseconds(operationDurationMillis) };
+
                     sut.SaveActorStateFinish(actorId, startTime);
 
-                    Mock.Get(actorSaveStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorStateDiagnosticData>(data => data.OperationTime.Value.TotalMilliseconds == operationDurationMillis && data.ActorId == actorId)), Times.Once);
+                    Mock.Get(actorSaveStateTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorStateDiagnosticData>(data => data.Equals(expectedDiagnoticData))), Times.Once);
                 }
 
                 [Fact]
