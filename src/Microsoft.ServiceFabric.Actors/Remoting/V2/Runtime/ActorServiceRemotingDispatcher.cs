@@ -25,9 +25,9 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
     /// </summary>
     public class ActorServiceRemotingDispatcher : ServiceRemotingMessageDispatcher
     {
-        private static readonly string TraceType = typeof(ActorServiceRemotingDispatcher).Name;
-        private ActorService actorService;
-        private ServiceRemotingCancellationHelper cancellationHelper;
+        static readonly string TraceType = typeof(ActorServiceRemotingDispatcher).Name;
+        readonly ActorService actorService;
+        readonly ServiceRemotingCancellationHelper cancellationHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorServiceRemotingDispatcher"/> class. This can dispatch messages to an actor service and
