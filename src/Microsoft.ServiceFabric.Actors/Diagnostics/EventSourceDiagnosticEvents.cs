@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         internal EventSourceDiagnosticEvents(ActorFrameworkEventSource eventSource, IClock clock, ServiceContext serviceContext, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
             this.eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
-            this.serviceContext = serviceContext;
+            this.serviceContext = serviceContext ?? throw new ArgumentNullException(nameof(serviceContext));
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _ = nameBuilder ?? throw new ArgumentNullException(nameof(nameBuilder));
             _ = typeInfo ?? throw new ArgumentNullException(nameof(typeInfo));

@@ -111,6 +111,16 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             }
 
             [Fact]
+            public void ThrowsOnNullServiceContext()
+            {
+                var exception = Assert.Throws<ArgumentNullException>(() =>
+                {
+                    new EventSourceDiagnosticEvents(eventSource, clock, null, nameBuilder, typeInfo);
+                });
+                Assert.Equal("serviceContext", exception.ParamName);
+            }
+
+            [Fact]
             public void InitializedMethodInfos()
             {
                 // TODO - implement
