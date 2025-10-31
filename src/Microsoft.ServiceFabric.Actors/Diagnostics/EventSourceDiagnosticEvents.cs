@@ -9,6 +9,7 @@ using System.Fabric;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Services.Remoting;
+using Microsoft.ServiceFabric.Services.Remoting.Description;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
@@ -28,17 +29,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             _ = nameBuilder ?? throw new ArgumentNullException(nameof(nameBuilder));
             _ = typeInfo ?? throw new ArgumentNullException(nameof(typeInfo));
             this.actorType = typeInfo.ImplementationType.ToString();
-            this.actorMethodInfo = InitializeActorMethodInfo(nameBuilder, typeInfo);
+            this.actorMethodInfo = BuildActorMethodInfo(nameBuilder, typeInfo);
         }
 
-        private Dictionary<long, ActorMethodInfo> InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
+        static Dictionary<long, ActorMethodInfo> BuildActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
             var actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
 
-            foreach (var actorInterfaceType in typeInfo.InterfaceTypes)
+            foreach (Type actorInterfaceType in typeInfo.InterfaceTypes)
             {
                 nameBuilder.GetActorInterfaceMethodDescriptionsV2(actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
-                foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
+                foreach (MethodDescription actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
                 {
                     var methodInfo = new ActorMethodInfo(actorInterfaceMethodDescription.MethodInfo);
 
@@ -55,9 +56,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
-            if (this.eventSource.IsPendingMethodCallsEventEnabled())
+            if (eventSource.IsPendingMethodCallsEventEnabled())
             {
-                this.eventSource.ActorMethodCallsWaitingForLock(diagnosticData.PendingActorMethodCalls, this.actorType, diagnosticData.ActorId, this.serviceContext);
+                eventSource.ActorMethodCallsWaitingForLock(diagnosticData.PendingActorMethodCalls, actorType, diagnosticData.ActorId, serviceContext);
             }
         }
 
@@ -73,61 +74,61 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorActivated(ActorId actorId)
         {
-            this.eventSource.ActorActivated(this.actorType, actorId, this.serviceContext);
+            eventSource.ActorActivated(actorType, actorId, serviceContext);
         }
 
         public void ActorChangeRole(ReplicaRole currentRole, ReplicaRole newRole)
         {
             if (newRole == ReplicaRole.Primary)
             {
-                this.eventSource.ReplicaChangeRoleToPrimary(this.serviceContext);
+                eventSource.ReplicaChangeRoleToPrimary(serviceContext);
             }
             else if (currentRole == ReplicaRole.Primary)
             {
-                this.eventSource.ReplicaChangeRoleFromPrimary(this.serviceContext);
+                eventSource.ReplicaChangeRoleFromPrimary(serviceContext);
             }
         }
 
         public void ActorDeactivated(ActorId actorId)
         {
-            this.eventSource.ActorDeactivated(this.actorType, actorId, this.serviceContext);
+            eventSource.ActorDeactivated(actorType, actorId, serviceContext);
         }
 
         public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
         {
-            var methodInfo = this.actorMethodInfo[interfaceMethodKey];
+            var methodInfo = actorMethodInfo[interfaceMethodKey];
 
             if (e != null)
             {
-                this.eventSource.ActorMethodThrewException(
+                eventSource.ActorMethodThrewException(
                    e.ToString(),
                    TicksSinceStart(startTime),
                    methodInfo.MethodName,
                    methodInfo.MethodSignature,
-                   this.actorType,
+                   actorType,
                    actorId,
-                   this.serviceContext);
+                   serviceContext);
                 return;
             }
 
-            if (this.eventSource.IsActorMethodStopEventEnabled())
+            if (eventSource.IsActorMethodStopEventEnabled())
             {
-                this.eventSource.ActorMethodStop(
+                eventSource.ActorMethodStop(
                     TicksSinceStart(startTime),
                     methodInfo.MethodName,
                     methodInfo.MethodSignature,
-                    this.actorType,
+                    actorType,
                     actorId,
-                    this.serviceContext);
+                    serviceContext);
             }
         }
 
         public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
         {
-            if (this.eventSource.IsActorMethodStartEventEnabled())
+            if (eventSource.IsActorMethodStartEventEnabled())
             {
-                var methodInfo = this.actorMethodInfo[interfaceMethodKey];
-                this.eventSource.ActorMethodStart(methodInfo.MethodName, methodInfo.MethodSignature, this.actorType, actorId, this.serviceContext);
+                var methodInfo = actorMethodInfo[interfaceMethodKey];
+                eventSource.ActorMethodStart(methodInfo.MethodName, methodInfo.MethodSignature, actorType, actorId, serviceContext);
             }
         }
 
@@ -168,17 +169,17 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void SaveActorStateFinish(ActorId actorId, DateTime startTime)
         {
-            if (this.eventSource.IsActorSaveStateStopEventEnabled())
+            if (eventSource.IsActorSaveStateStopEventEnabled())
             {
-                this.eventSource.ActorSaveStateStop(TicksSinceStart(startTime), this.actorType, actorId, this.serviceContext);
+                eventSource.ActorSaveStateStop(TicksSinceStart(startTime), actorType, actorId, serviceContext);
             }
         }
 
         public void SaveActorStateStart(ActorId actorId)
         {
-            if (this.eventSource.IsActorSaveStateStartEventEnabled())
+            if (eventSource.IsActorSaveStateStartEventEnabled())
             {
-                this.eventSource.ActorSaveStateStart(this.actorType, actorId, this.serviceContext);
+                eventSource.ActorSaveStateStart(actorType, actorId, serviceContext);
             }
         }
         private long TicksSinceStart(DateTime startTime)
