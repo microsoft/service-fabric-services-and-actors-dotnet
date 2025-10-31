@@ -269,7 +269,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
                 public Method()
                 {
-                    actorMethodInfo[interfaceMethodKey] = new ActorMethodInfo() { MethodName = fuzzy.String(), MethodSignature = fuzzy.String() };
+                    actorMethodInfo[interfaceMethodKey] = new ActorMethodInfo(fuzzy.String(), fuzzy.String());
                     sut.Field<Dictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
                 }
 
@@ -282,7 +282,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 }
 
                 [Fact]
-                public void StartDoesntTraceIfDisabled()
+                public void StartDoesNotTraceIfDisabled()
                 {
                     Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStartEventEnabled()).Returns(false);
 
@@ -309,7 +309,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 }
 
                 [Fact]
-                public void FinishDoesntTraceIfDisabledAndNoException()
+                public void FinishDoesNotTraceIfDisabledAndNoException()
                 {
                     Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStopEventEnabled()).Returns(false);
 

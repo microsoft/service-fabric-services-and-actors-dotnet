@@ -34,19 +34,20 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         static Dictionary<long, ActorMethodInfo> BuildActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
-            var actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
+            var actorMethodInfos = new Dictionary<long, ActorMethodInfo>();
 
             foreach (Type actorInterfaceType in typeInfo.InterfaceTypes)
             {
                 nameBuilder.GetActorInterfaceMethodDescriptionsV2(actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
                 foreach (MethodDescription actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
                 {
-                    var methodInfo = new ActorMethodInfo(actorInterfaceMethodDescription.MethodInfo);
+                    var methodInfo = actorInterfaceMethodDescription.MethodInfo;
+                    var actorMethodInfo = new ActorMethodInfo(string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name), methodInfo.ToString());
 
-                    actorMethodInfo[Util.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id)] = methodInfo;
+                    actorMethodInfos[Util.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id)] = actorMethodInfo;
                 }
             }
-            return actorMethodInfo;
+            return actorMethodInfos;
         }
 
         public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)

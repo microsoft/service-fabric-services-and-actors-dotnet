@@ -3,22 +3,21 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System.Reflection;
-
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     sealed class ActorMethodInfo
     {
-        internal ActorMethodInfo() { }
+        readonly string methodName;
+        readonly string methodSignature;
 
-        internal ActorMethodInfo(MethodInfo methodInfo)
+        internal ActorMethodInfo(string methodName, string methodSignature)
         {
-            MethodName = string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name);
-            MethodSignature = methodInfo.ToString();
+            this.methodName = methodName;
+            this.methodSignature = methodSignature;
         }
 
-        internal string MethodName { get; set; }
+        internal string MethodName => methodName;
 
-        internal string MethodSignature { get; set; }
+        internal string MethodSignature => methodSignature;
     }
 }
