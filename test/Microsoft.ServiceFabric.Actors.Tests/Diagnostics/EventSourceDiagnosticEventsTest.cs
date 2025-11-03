@@ -147,9 +147,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                     sut.ActorOnActivateAsyncFinish(startTime);
                     sut.LoadActorStateStart();
                     sut.LoadActorStateFinish(startTime);
-                    sut.AcquireActorLockStart(diagnosticsManagerActorContext);
-                    sut.AcquireActorLockFailed(diagnosticsManagerActorContext);
-                    sut.AcquireActorLockFinishPreProcess(diagnosticsManagerActorContext, startTime, actorId);
                     sut.ReleaseActorLock(startTime);
 
                     Mock.Get(eventSource).VerifyNoOtherCalls();

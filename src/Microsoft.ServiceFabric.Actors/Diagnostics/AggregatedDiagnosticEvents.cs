@@ -23,22 +23,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.diagnosticEvents = diagnosticEvents;
         }
 
-        public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
-        {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
-            {
-                d.AcquireActorLockFailed(diagnosticContext);
-            }
-        }
-
-        public void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext)
-        {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
-            {
-                d.AcquireActorLockStart(diagnosticContext);
-            }
-        }
-
         public void ActorActivated(ActorId actorId)
         {
             foreach (IDiagnosticEvents d in diagnosticEvents)
@@ -157,10 +141,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 d.AcquireActorLockFinish(diagnosticData, startTime);
             }
-        }
-
-        public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
-        {
         }
     }
 }

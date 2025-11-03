@@ -184,7 +184,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 // ***
 
                 var startTime = clock.UtcNow;
-                this.diagnosticEvents.AcquireActorLockStart(diagnosticContext);
+                diagnosticContext.IncremenetPendingActorMethodCalls();
 
                 ActorTrace.Source.WriteInfoWithId(
                     TraceType,
@@ -204,7 +204,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 catch (Exception ex)
                 {
                     // Emit diagnostic info - failed to acquire actor lock
-                    this.diagnosticEvents.AcquireActorLockFailed(diagnosticContext);
+                    diagnosticContext.DecremenetPendingActorMethodCalls();
+
                     ActorTrace.Source.WriteWarningWithId(
                         TraceType,
                         this.traceId,
@@ -220,7 +221,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 try
                 {
                     // Emit diagnostic info - after acquiring actor lock
-                    this.diagnosticEvents.AcquireActorLockFinish(new PendingActorMethodDiagnosticData(), startTime);
+                    var deltaMethodCalls = diagnosticContext.UpdateLastReportedActorMethodCalls();
+                    var diagnosticData = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = diagnosticContext.PendingActorMethodCalls, PendingActorMethodCallsDelta = deltaMethodCalls };
+                    this.diagnosticEvents.AcquireActorLockFinish(diagnosticData, startTime);
 
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,

@@ -31,12 +31,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         void SaveActorStateFinish(ActorId actorId, DateTime startTime);
 
-        void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext);
-
-        void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext);
-
-        void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId);
-
         void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime);
 
         void ReleaseActorLock(DateTime startTime);

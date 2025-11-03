@@ -21,11 +21,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
-        public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
-        {
-            // Intentionally left blank, since we don't track
-        }
-
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
             if (performanceCounterProvider.actorLockContentionCounterWriter != null)
@@ -36,16 +31,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 performanceCounterProvider.actorLockAcquireWaitTimeCounterWriter.UpdateCounterValue(LongMillisecondsSinceStart(startTime));
             }
-        }
-
-        public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
-        {
-            // Intentionally left blank, since we don't track
-        }
-
-        public void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext)
-        {
-            // Intentionally left blank, since we don't track
         }
 
         public void ActorActivated(ActorId actorId)

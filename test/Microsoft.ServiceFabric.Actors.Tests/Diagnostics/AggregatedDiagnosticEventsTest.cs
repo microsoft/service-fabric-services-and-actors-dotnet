@@ -188,26 +188,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public sealed class ActorLock : AggregatedDiagnosticEventsTest
         {
-            readonly int pendingMethodCalls = fuzzy.Int32();
-
-            [Fact]
-            public void AcquireStartInvokesAllDiagnostics()
-            {
-                sut.AcquireActorLockStart(diagnosticContext);
-
-                Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockStart(diagnosticContext), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockStart(diagnosticContext), Times.Once);
-            }
-
-            [Fact]
-            public void AcquireFailedInvokesAllDiagnostics()
-            {
-                sut.AcquireActorLockFailed(diagnosticContext);
-
-                Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockFailed(diagnosticContext), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockFailed(diagnosticContext), Times.Once);
-            }
-
             [Fact]
             public void AcquireFinishInvokesAllDiagnostics()
             {

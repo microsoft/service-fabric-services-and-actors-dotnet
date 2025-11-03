@@ -50,27 +50,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return actorMethodInfos;
         }
 
-        public void AcquireActorLockFailed(DiagnosticsManagerActorContext diagnosticContext)
-        {
-            // Intentionally left blank, since we don't track
-        }
-
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
             if (eventSource.IsPendingMethodCallsEventEnabled())
             {
                 eventSource.ActorMethodCallsWaitingForLock(diagnosticData.PendingActorMethodCalls, actorType, diagnosticData.ActorId, serviceContext);
             }
-        }
-
-        public void AcquireActorLockFinishPreProcess(DiagnosticsManagerActorContext diagnosticContext, DateTime startTime, ActorId actorId)
-        {
-            // Intentionally left blank, since we don't track
-        }
-
-        public void AcquireActorLockStart(DiagnosticsManagerActorContext diagnosticContext)
-        {
-            // Intentionally left blank, since we don't track
         }
 
         public void ActorActivated(ActorId actorId)

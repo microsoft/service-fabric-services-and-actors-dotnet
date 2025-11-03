@@ -118,9 +118,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     sut.ActorMethodStart(actorId, interfaceMethodKey, RemotingListenerVersion.V2);
                     sut.LoadActorStateStart();
                     sut.SaveActorStateStart(actorId);
-                    sut.AcquireActorLockStart(diagnosticsManagerActorContext);
-                    sut.AcquireActorLockFailed(diagnosticsManagerActorContext);
-                    sut.AcquireActorLockFinishPreProcess(diagnosticsManagerActorContext, startTime, actorId);
                     sut.ActorChangeRole(ReplicaRole.Primary, ReplicaRole.IdleSecondary);
                     sut.ActorActivated(actorId);
                     sut.ActorDeactivated(actorId);

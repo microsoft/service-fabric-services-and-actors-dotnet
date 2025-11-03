@@ -227,10 +227,18 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             public class DispatchToActorAsync : DiagnosticEvents
             {
                 readonly DiagnosticsManagerActorContext mockDiagnoticContext = Mock.Of<DiagnosticsManagerActorContext>();
+                readonly PendingActorMethodDiagnosticData actorMethodDiagnosticData;
+
+                readonly long pendingCalls = fuzzy.UInt32();
+                readonly long deltaCalls = fuzzy.UInt16();
 
                 public DispatchToActorAsync()
                 {
+                    Mock.Get(mockDiagnoticContext).Setup(diagnotic => diagnotic.UpdateLastReportedActorMethodCalls()).Returns(deltaCalls);
+                    Mock.Get(mockDiagnoticContext).Setup(diagnotic => diagnotic.PendingActorMethodCalls).Returns(pendingCalls);
                     sut.GetActor(actorId, true, false).Actor.Field<DiagnosticsManagerActorContext>().Set(mockDiagnoticContext);
+
+                    actorMethodDiagnosticData = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = pendingCalls, PendingActorMethodCallsDelta = deltaCalls };
                 }
 
                 [Fact]
@@ -245,8 +253,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         timerCall: false,
                         cancellationToken: TestContext.Current.CancellationToken);
 
-                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockStart(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
-                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFinish(It.IsAny<PendingActorMethodDiagnosticData>(), startTime), Times.Once);
+                    Mock.Get(mockDiagnoticContext).Verify(d => d.IncremenetPendingActorMethodCalls(), Times.Once);
+                    Mock.Get(mockDiagnoticContext).Verify(d => d.UpdateLastReportedActorMethodCalls(), Times.Once);
+                    Mock.Get(mockDiagnoticContext).Verify(d => d.DecremenetPendingActorMethodCalls(), Times.Never);
+
+                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFinish(It.Is<PendingActorMethodDiagnosticData>(data => data.Equals(actorMethodDiagnosticData)), startTime), Times.Once);
                     Mock.Get(diagnosticEvents).Verify(d => d.ReleaseActorLock(startTime), Times.Once);
                 }
 
@@ -262,8 +273,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                             timerCall: false,
                             cancellationToken: TestContext.Current.CancellationToken));
 
-                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockStart(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
-                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFailed(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
+                    Mock.Get(mockDiagnoticContext).Verify(d => d.IncremenetPendingActorMethodCalls(), Times.Once);
+                    Mock.Get(mockDiagnoticContext).Verify(d => d.DecremenetPendingActorMethodCalls(), Times.Once);
+                    Mock.Get(mockDiagnoticContext).Verify(d => d.UpdateLastReportedActorMethodCalls(), Times.Never);
                 }
             }
 

@@ -3,14 +3,31 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Threading;
+
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     internal class DiagnosticsManagerActorContext
     {
-#pragma warning disable SA1401 // Fields should be private. Used in Interlocked increment and decrement.
-        internal long PendingActorMethodCalls;
-#pragma warning restore SA1401 // Fields should be private
+        internal virtual long PendingActorMethodCalls => pendingActorMethodCalls;
 
-        internal long LastReportedPendingActorMethodCalls { get; set; }
+        internal long LastReportedPendingActorMethodCalls => lastReportedPendingActorMethodCalls;
+
+        long pendingActorMethodCalls;
+        long lastReportedPendingActorMethodCalls;
+
+        internal virtual void IncremenetPendingActorMethodCalls() { Interlocked.Increment(ref pendingActorMethodCalls); }
+
+        internal virtual void DecremenetPendingActorMethodCalls() { Interlocked.Decrement(ref pendingActorMethodCalls); }
+
+        internal virtual long UpdateLastReportedActorMethodCalls()
+        {
+            Interlocked.Decrement(ref pendingActorMethodCalls);
+
+            var delta = pendingActorMethodCalls - lastReportedPendingActorMethodCalls;
+            lastReportedPendingActorMethodCalls = pendingActorMethodCalls;
+
+            return delta;
+        }
     }
 }
