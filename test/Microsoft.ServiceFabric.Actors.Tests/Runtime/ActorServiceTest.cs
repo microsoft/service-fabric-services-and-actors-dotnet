@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     public class ActorServiceTest
     {
-        readonly ActorService actorService = TestMocksRepository.GetActorService<MockActor>();
+        readonly ActorService actorService = TestMocksRepository.GetActorService<TestActor>();
 
         public ActorServiceTest()
         {

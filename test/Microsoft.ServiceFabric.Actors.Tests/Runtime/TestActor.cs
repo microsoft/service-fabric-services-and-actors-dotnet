@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    internal interface IMockActor : IActor
+    internal interface ITestActor : IActor
     {
-        Task ActorMethodA();
+        Task TestMethod();
     }
 
-    sealed class MockActor : Actor, IMockActor
+    sealed class TestActor : Actor, ITestActor
     {
-        public MockActor(ActorService actorService, ActorId actorId)
+        public TestActor(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
         }
 
-        public Task ActorMethodA()
+        public Task TestMethod()
         {
             throw new NotImplementedException();
         }

@@ -25,14 +25,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         readonly ActorId actorId = fuzzy.ActorId();
         readonly DateTime startTime = DateTime.Now;
-        readonly ActorService actorService = TestMocksRepository.GetActorService<MockActor>();
+        readonly ActorService actorService = TestMocksRepository.GetActorService<TestActor>();
 
         public ActorStateManagerTest()
         {
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
 
-            sut = new ActorStateManager(new MockActor(actorService, actorId), new NullActorStateProvider(), diagnosticEvents);
+            sut = new ActorStateManager(new TestActor(actorService, actorId), new NullActorStateProvider(), diagnosticEvents);
         }
 
         public class State : ActorStateManagerTest

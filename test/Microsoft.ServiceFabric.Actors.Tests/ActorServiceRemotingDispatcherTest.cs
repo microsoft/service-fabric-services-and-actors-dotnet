@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors
 
         public ActorServiceRemotingDispatcherTest()
         {
-            ActorService actorService = TestMocksRepository.GetActorService<MockActor>();
+            ActorService actorService = TestMocksRepository.GetActorService<TestActor>();
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
 
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);

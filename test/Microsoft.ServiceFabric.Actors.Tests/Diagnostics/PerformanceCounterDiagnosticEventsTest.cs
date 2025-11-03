@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         readonly IClock clock = Mock.Of<IClock>();
 
-        readonly static ActorTypeInformation actorTypeInfo = ActorTypeInformation.Get(typeof(MockActor));
+        readonly static ActorTypeInformation actorTypeInfo = ActorTypeInformation.Get(typeof(TestActor));
         readonly PerformanceCounterProviderV2 performanceCounterProvider = new PerformanceCounterProviderV2(Guid.NewGuid(), actorTypeInfo);
 
         protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);

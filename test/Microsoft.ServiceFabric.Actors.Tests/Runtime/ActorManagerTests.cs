@@ -27,7 +27,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public ActorManagerTests()
         {
             actorId = ActorId.CreateRandom();
-            actorService = TestMocksRepository.GetActorService<MockActor>();
+            actorService = TestMocksRepository.GetActorService<TestActor>();
 
             var friendlyNameBuilder = new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation);
             actorService.InitializeInternal(friendlyNameBuilder);

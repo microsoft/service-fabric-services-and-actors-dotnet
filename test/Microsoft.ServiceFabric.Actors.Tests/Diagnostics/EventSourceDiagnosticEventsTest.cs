@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
         readonly IClock clock = Mock.Of<IClock>();
         readonly ActorFrameworkEventSource eventSource;
 
-        readonly ActorTypeInformation typeInfo = ActorTypeInformation.Get(typeof(MockActor));
+        readonly ActorTypeInformation typeInfo = ActorTypeInformation.Get(typeof(TestActor));
         readonly ActorMethodFriendlyNameBuilder nameBuilder;
         readonly ServiceContext serviceContext = fuzzy.ServiceContext();
 
