@@ -40,12 +40,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         private readonly IDiagnosticEvents diagnosticEvents;
         private readonly IClock clock;
-        private static Func<ActorService, IClock, IDiagnosticEvents> createDiagnosticEvents = (actorService, clock) =>
-        {
-            // TODO Dispose
-            var performanceCounterProvider = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
-            performanceCounterProvider.InitializeActorMethodInfo(actorService.MethodFriendlyNameBuilder);
+        private readonly PerformanceCounterProviderV2 performanceCounterProvider;
 
+        private static Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnosticEvents> createDiagnosticEvents = (actorService, clock, performanceCounterProvider) =>
+        {
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
             var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
             var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
@@ -67,7 +65,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
 
             this.clock = actorService.Clock;
-            this.diagnosticEvents = createDiagnosticEvents(actorService, clock);
+            performanceCounterProvider = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
+            performanceCounterProvider.InitializeActorMethodInfo(actorService.MethodFriendlyNameBuilder);
+
+            this.diagnosticEvents = createDiagnosticEvents(actorService, clock, performanceCounterProvider);
 
             // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
             bool restoreFlow = false;
@@ -143,6 +144,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             await this.CleanupRemindersAsync();
+            DisposeDiagnoticEvents();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Closed.");
         }
@@ -154,6 +156,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             this.CleanupRemindersAsync().ContinueWith(t => t.Exception);
+            DisposeDiagnoticEvents();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Aborted.");
         }
@@ -1052,6 +1055,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             if (this.isClosed)
             {
                 throw new FabricNotPrimaryException();
+            }
+        }
+        private void DisposeDiagnoticEvents()
+        {
+            if (this.performanceCounterProvider != null)
+            {
+                this.performanceCounterProvider.Dispose();
             }
         }
 

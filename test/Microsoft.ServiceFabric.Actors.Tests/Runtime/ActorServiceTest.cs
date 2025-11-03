@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
 
             readonly Func<ReplicaRole, CancellationToken, Task> sutMethod;
-            readonly Func<ActorService, IClock, IDiagnosticEvents> createDiagnosticEvents;
+            readonly Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnosticEvents> createDiagnosticEvents;
 
             public OnRoleChange()
             {
@@ -42,8 +42,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 sutMethod = (Func<ReplicaRole, CancellationToken, Task>)Delegate.CreateDelegate(typeof(Func<ReplicaRole, CancellationToken, Task>), actorService, methodInfo);
 
                 // store createDiagnosticEvents function in order to restore it in Dispose()
-                createDiagnosticEvents = typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Value;
-                typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Set((actorService, clock) => diagnosticEvents);
+                createDiagnosticEvents = typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnosticEvents>>().Value;
+                typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnosticEvents>>().Set((actorService, clock, performanceCounterProvider) => diagnosticEvents);
 
                 var actorManager = new ActorManager(actorService);
                 actorService.Field<ActorManagerAdapter>().Value.ActorManager = actorManager;
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             public void Dispose()
             {
                 // restore createDiagnosticEvents function
-                typeof(ActorManager).Field<Func<ActorService, IClock, IDiagnosticEvents>>().Set(createDiagnosticEvents);
+                typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnosticEvents>>().Set(createDiagnosticEvents);
             }
 
             [Fact]
