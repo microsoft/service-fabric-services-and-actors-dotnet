@@ -220,7 +220,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 try
                 {
                     // Emit diagnostic info - after acquiring actor lock
-                    this.diagnosticEvents.AcquireActorLockFinishPreProcess(diagnosticContext, startTime, actorId);
+                    this.diagnosticEvents.AcquireActorLockFinish(new PendingActorMethodDiagnosticData(), startTime);
 
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,

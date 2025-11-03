@@ -226,6 +226,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public class DispatchToActorAsync : DiagnosticEvents
             {
+                readonly DiagnosticsManagerActorContext mockDiagnoticContext = Mock.Of<DiagnosticsManagerActorContext>();
+
+                public DispatchToActorAsync()
+                {
+                    sut.GetActor(actorId, true, false).Actor.Field<DiagnosticsManagerActorContext>().Set(mockDiagnoticContext);
+                }
+
                 [Fact]
                 public async Task EmitsDiagnosticsNoException()
                 {
@@ -239,7 +246,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         cancellationToken: TestContext.Current.CancellationToken);
 
                     Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockStart(It.IsAny<DiagnosticsManagerActorContext>()), Times.Once);
-                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFinishPreProcess(It.IsAny<DiagnosticsManagerActorContext>(), startTime, actorId), Times.Once);
+                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFinish(It.IsAny<PendingActorMethodDiagnosticData>(), startTime), Times.Once);
                     Mock.Get(diagnosticEvents).Verify(d => d.ReleaseActorLock(startTime), Times.Once);
                 }
 
