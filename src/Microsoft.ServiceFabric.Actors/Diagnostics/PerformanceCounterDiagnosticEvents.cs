@@ -6,7 +6,6 @@
 using System;
 using System.Fabric;
 using Microsoft.ServiceFabric.Diagnostics;
-using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
@@ -70,7 +69,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey)
         {
             // Intentionally left blank, since we don't track
         }

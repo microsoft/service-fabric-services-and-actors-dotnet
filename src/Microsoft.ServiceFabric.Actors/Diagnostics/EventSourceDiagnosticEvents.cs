@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Fabric;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
-using Microsoft.ServiceFabric.Services.Remoting;
 using Microsoft.ServiceFabric.Services.Remoting.Description;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
@@ -109,7 +108,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey)
         {
             if (eventSource.IsActorMethodStartEventEnabled())
             {

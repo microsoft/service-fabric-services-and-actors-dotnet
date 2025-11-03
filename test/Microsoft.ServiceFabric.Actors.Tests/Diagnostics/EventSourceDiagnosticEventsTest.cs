@@ -275,7 +275,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 [Fact]
                 public void StartTracesIfEnabled()
                 {
-                    sut.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
+                    sut.ActorMethodStart(actorId, interfaceMethodKey);
 
                     Mock.Get(eventSource).Verify(p => p.ActorMethodStart(actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
                 }
@@ -285,7 +285,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 {
                     Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStartEventEnabled()).Returns(false);
 
-                    sut.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
+                    sut.ActorMethodStart(actorId, interfaceMethodKey);
 
                     Mock.Get(eventSource).Verify(p => p.IsActorMethodStartEventEnabled(), Times.Once);
                     Mock.Get(eventSource).VerifyNoOtherCalls();

@@ -129,10 +129,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void StartInvokesAllDiagnostics()
             {
-                sut.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
+                sut.ActorMethodStart(actorId, interfaceMethodKey);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey, remotingListener), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey, remotingListener), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey), Times.Once);
             }
 
             [Fact]

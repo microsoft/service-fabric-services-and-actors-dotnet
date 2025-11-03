@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
-using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
@@ -55,11 +54,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener)
+        public void ActorMethodStart(ActorId actorId, long interfaceMethodKey)
         {
             foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                d.ActorMethodStart(actorId, interfaceMethodKey, remotingListener);
+                d.ActorMethodStart(actorId, interfaceMethodKey);
             }
         }
 

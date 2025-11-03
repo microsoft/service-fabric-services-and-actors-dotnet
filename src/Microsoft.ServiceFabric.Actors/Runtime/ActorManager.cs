@@ -802,7 +802,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var startTime = clock.UtcNow;
             var interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
-            this.diagnosticEvents.ActorMethodStart(actor.Id, interfaceMethodKey, RemotingListenerVersion.V2);
+            this.diagnosticEvents.ActorMethodStart(actor.Id, interfaceMethodKey);
 
             Task<IServiceRemotingResponseMessageBody> dispatchTask;
             try

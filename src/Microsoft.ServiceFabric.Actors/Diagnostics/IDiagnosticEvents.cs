@@ -5,7 +5,6 @@
 
 using System;
 using System.Fabric;
-using Microsoft.ServiceFabric.Services.Remoting;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
@@ -19,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         void ActorOnActivateAsyncFinish(DateTime startTime);
 
-        void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener);
+        void ActorMethodStart(ActorId actorId, long interfaceMethodKey);
 
         void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime);
 

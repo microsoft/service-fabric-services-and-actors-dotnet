@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 public void EmitsNothingWhenCountersNotNeeded()
                 {
                     sut.ActorOnActivateAsyncStart();
-                    sut.ActorMethodStart(actorId, interfaceMethodKey, RemotingListenerVersion.V2);
+                    sut.ActorMethodStart(actorId, interfaceMethodKey);
                     sut.LoadActorStateStart();
                     sut.SaveActorStateStart(actorId);
                     sut.ActorChangeRole(ReplicaRole.Primary, ReplicaRole.IdleSecondary);
