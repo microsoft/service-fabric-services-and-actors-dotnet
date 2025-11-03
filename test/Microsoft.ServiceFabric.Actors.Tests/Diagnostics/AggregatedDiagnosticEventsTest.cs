@@ -10,7 +10,6 @@ using System.Linq;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Tests;
-using Microsoft.ServiceFabric.Services.Remoting;
 using Moq;
 using Xunit;
 
@@ -29,10 +28,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         readonly ActorId actorId = fuzzy.ActorId();
         readonly long interfaceMethodKey = fuzzy.Int64();
+        readonly protected DateTime startTime = fuzzy.DateTime();
         readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData = default;
         readonly ActorMethodDiagnosticData actorMethodDiagnosticData = default;
-        readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2_1;
-        readonly protected DateTime startTime = fuzzy.DateTime();
 
         public AggregatedDiagnosticEventsTest() => sut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, anotherDiagnosticEvents });
 
