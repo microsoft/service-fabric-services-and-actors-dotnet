@@ -26,12 +26,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         readonly IClock clock;
         readonly IDiagnosticEvents diagnosticEvents;
 
-        internal ActorStateManager(ActorBase actor, IActorStateProvider actorStateProvider, IClock clock, IDiagnosticEvents diagnosticEvents)
+        internal ActorStateManager(ActorBase actor, IActorStateProvider actorStateProvider, IDiagnosticEvents diagnosticEvents)
         {
             this.actor = actor;
             this.stateProvider = actorStateProvider;
             this.stateChangeTracker = new Dictionary<string, StateMetadata>();
-            this.clock = clock;
+            this.clock = new SystemClock();
             this.diagnosticEvents = diagnosticEvents;
         }
 

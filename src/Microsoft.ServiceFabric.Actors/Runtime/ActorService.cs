@@ -134,11 +134,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
-        internal IClock Clock
-        {
-            get { return this.clock; }
-        }
-
         #region IActorService Members
 
         /// <summary>
@@ -355,7 +350,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)
         {
-            return new ActorStateManager(actorBase, actorStateProvider, actorBase.ActorService.Clock, actorBase.Manager.DiagnosticsEvents);
+            return new ActorStateManager(actorBase, actorStateProvider, actorBase.Manager.DiagnosticsEvents);
         }
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)

@@ -32,7 +32,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
 
-
         public class Constructor : PerformanceCounterDiagnosticEventsTest
         {
             [Fact]
@@ -62,8 +61,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public class OnEvents : PerformanceCounterDiagnosticEventsTest
         {
-            readonly DiagnosticActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticActorContext>();
-
             readonly FabricAverageCount64PerformanceCounterWriter actorRequestProcessingTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
             readonly FabricAverageCount64PerformanceCounterWriter actorLockAcquireWaitTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
             readonly FabricAverageCount64PerformanceCounterWriter actorLockHoldTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
@@ -81,7 +78,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             readonly DateTime startTime = DateTime.Now;
             readonly DateTime endTime;
             readonly long operationDurationMillis = fuzzy.Int64().Between(100, 2000);
-            readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2;
 
             public OnEvents()
             {
@@ -318,8 +314,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 readonly ActorMethodExecTimeCounterWriter actorMethodExecTimeCounterWriter;
                 readonly ActorMethodDiagnosticData diagnoticData;
 
-                readonly Exception exception = new Exception();
-
                 public ActorMethod()
                 {
                     // store references to counter writer Mocks for easier access
@@ -328,7 +322,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorMethodExceptionFrequencyCounterWriter = methodCounters.ActorMethodExceptionFrequencyCounterWriter;
                     actorMethodExecTimeCounterWriter = methodCounters.ActorMethodExecTimeCounterWriter;
 
-                    diagnoticData = new ActorMethodDiagnosticData() { ActorId = actorId, Exception = exception, InterfaceMethodKey = interfaceMethodKey, RemotingListener = remotingListener, MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis) };
+                    diagnoticData = new ActorMethodDiagnosticData(actorId, interfaceMethodKey, new Exception(), RemotingListenerVersion.V2);
                 }
 
                 [Fact]

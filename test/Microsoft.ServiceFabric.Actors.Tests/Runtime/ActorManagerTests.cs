@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     public class ActorManagerTests
     {
-        internal const int ReminderCount = 10;
+        internal const int RemainderCount = 10;
         internal readonly ActorId actorId;
         internal readonly ActorService actorService;
 
@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 ConsoleLogHelper.LogInfo("Registering reminders...");
 
-                for (var i = 1; i <= ReminderCount; i++)
+                for (var i = 1; i <= RemainderCount; i++)
                 {
                     actorManager.RegisterOrUpdateReminderAsync(
                         actorId,
@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 ConsoleLogHelper.LogInfo("Unregistering reminders...");
 
-                for (var i = 1; i <= ReminderCount; i++)
+                for (var i = 1; i <= RemainderCount; i++)
                 {
                     actorManager.UnregisterReminderAsync(
                         "Reminder_" + i,
@@ -207,11 +207,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public class DiagnosticEvents : ActorManagerTests
         {
+            readonly static IFuzz fuzzy = new RandomFuzz();
+
             ActorManager sut;
 
-            readonly static IFuzz fuzzy = new RandomFuzz();
             readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
             readonly IClock clock = Mock.Of<IClock>();
+
             readonly DateTime startTime = DateTime.Now;
             readonly string callContext = fuzzy.String();
 
@@ -282,7 +284,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             public class ActorActivate : DiagnosticEvents
             {
                 [Fact]
-                public async Task EmitDiagnoticsWhenActorActivatedAsync()
+                public async Task EmitDiagnosticsWhenActorActivatedAsync()
                 {
                     await sut.DispatchToActorAsync(
                         actorId: actorId,
@@ -297,7 +299,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 }
 
                 [Fact]
-                public async Task EmitDiagnoticsWhenActorDeactivatedAsync()
+                public async Task EmitDiagnosticsWhenActorDeactivatedAsync()
                 {
                     await sut.DispatchToActorAsync(
                         actorId: actorId,

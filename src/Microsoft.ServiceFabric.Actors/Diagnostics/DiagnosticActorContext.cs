@@ -9,10 +9,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     internal class DiagnosticActorContext
     {
-        internal virtual long PendingActorMethodCalls => pendingActorMethodCalls;
-
-        internal long LastReportedPendingActorMethodCalls => lastReportedPendingActorMethodCalls;
-
         long pendingActorMethodCalls;
         long lastReportedPendingActorMethodCalls;
 
@@ -29,5 +25,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             return delta;
         }
+
+        internal virtual long PendingActorMethodCalls => pendingActorMethodCalls;
+        internal long LastReportedPendingActorMethodCalls => lastReportedPendingActorMethodCalls;
     }
 }

@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
 
-            this.clock = actorService.Clock;
+            this.clock = new SystemClock();
             performanceCounterProvider = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
             performanceCounterProvider.InitializeActorMethodInfo(actorService.MethodFriendlyNameBuilder);
 

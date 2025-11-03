@@ -37,8 +37,8 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             // Prevent Linux specific code path in ServiceFabricEventSource as it is not a part of tested logic
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set((os) => false);
             eventSource = Mock.Of<ActorFrameworkEventSource>();
-
             nameBuilder = new ActorMethodFriendlyNameBuilder(typeInfo);
+
             sut = new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, typeInfo);
 
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStartEventEnabled()).Returns(true);
@@ -116,14 +116,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
         public class OnEvents : EventSourceDiagnosticEventsTest
         {
-            readonly DiagnosticActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticActorContext>();
-
             readonly long interfaceMethodKey = fuzzy.Int64();
             readonly ActorId actorId = fuzzy.ActorId();
             readonly DateTime startTime = DateTime.Now;
             readonly DateTime endTime;
             readonly long operationDurationMillis = fuzzy.Int64().Between(100, 2000);
-            readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2;
             readonly string actorType;
             readonly long ticks;
 
@@ -238,7 +235,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
                 public AcquireLock() => pendingActorMethodDiagnosticData = new PendingActorMethodDiagnosticData() { PendingActorMethodCalls = fuzzy.Int64(), ActorId = actorId };
 
-
                 [Fact]
                 public void TracesIfEnabled()
                 {
@@ -269,7 +265,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                     actorMethodInfo[interfaceMethodKey] = new ActorMethodInfo(fuzzy.String(), fuzzy.String());
                     sut.Field<Dictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
 
-                    diagnosticData = new ActorMethodDiagnosticData() { ActorId = actorId, InterfaceMethodKey = interfaceMethodKey, Exception = null, RemotingListener = remotingListener };
+                    diagnosticData = new ActorMethodDiagnosticData() { ActorId = actorId, InterfaceMethodKey = interfaceMethodKey, Exception = null, RemotingListener = RemotingListenerVersion.V2 };
                 }
 
                 [Fact]

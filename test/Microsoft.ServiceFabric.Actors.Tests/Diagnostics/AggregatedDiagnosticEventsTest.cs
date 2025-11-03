@@ -123,7 +123,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public sealed class ActorMethod : AggregatedDiagnosticEventsTest
         {
-
             [Fact]
             public void StartInvokesAllDiagnostics()
             {

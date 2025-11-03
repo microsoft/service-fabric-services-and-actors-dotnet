@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Remoting.V2.Builder;
 using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
@@ -28,6 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         static readonly string TraceType = typeof(ActorServiceRemotingDispatcher).Name;
         readonly ActorService actorService;
         readonly ServiceRemotingCancellationHelper cancellationHelper;
+        readonly IClock clock;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorServiceRemotingDispatcher"/> class. This can dispatch messages to an actor service and
@@ -45,6 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         {
             this.actorService = actorService;
             this.cancellationHelper = new ServiceRemotingCancellationHelper(actorService.Context.TraceId);
+            this.clock = new SystemClock();
         }
 
         /// <summary>
@@ -117,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             IServiceRemotingRequestMessageBody msgBody,
             CancellationToken cancellationToken)
         {
-            var startTime = actorService.Clock.UtcNow;
+            var startTime = clock.UtcNow;
             IServiceRemotingResponseMessageBody retVal;
             this.actorService.ActorManager.DiagnosticsEvents.ActorRequestProcessingStart();
             try
@@ -146,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                 messageHeaders.ActorId,
                 messageHeaders.MethodName,
                 isCancellationRequested);
-            var startTime = actorService.Clock.UtcNow;
+            var startTime = clock.UtcNow;
             if (isCancellationRequested)
             {
                 await this.cancellationHelper.CancelRequestAsync(

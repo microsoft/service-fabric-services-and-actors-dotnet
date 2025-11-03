@@ -14,10 +14,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     sealed class EventSourceDiagnosticEvents : IDiagnosticEvents
     {
+        readonly ActorFrameworkEventSource eventSource;
         readonly ServiceContext serviceContext;
         readonly IClock clock;
         readonly string actorType;
-        readonly ActorFrameworkEventSource eventSource;
         readonly Dictionary<long, ActorMethodInfo> actorMethodInfo;
 
         internal EventSourceDiagnosticEvents(ActorFrameworkEventSource eventSource, IClock clock, ServiceContext serviceContext, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
