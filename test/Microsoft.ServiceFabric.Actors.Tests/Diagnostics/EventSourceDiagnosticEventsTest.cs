@@ -262,12 +262,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             public class Method : OnEvents
             {
                 readonly Dictionary<long, ActorMethodInfo> actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
-                readonly Exception exception = Mock.Of<Exception>();
+                ActorMethodDiagnosticData diagnosticData;
 
                 public Method()
                 {
                     actorMethodInfo[interfaceMethodKey] = new ActorMethodInfo(fuzzy.String(), fuzzy.String());
                     sut.Field<Dictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
+
+                    diagnosticData = new ActorMethodDiagnosticData() { ActorId = actorId, InterfaceMethodKey = interfaceMethodKey, Exception = null, RemotingListener = remotingListener };
                 }
 
                 [Fact]
@@ -292,7 +294,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 [Fact]
                 public void FinishTracesIfEnabledAndNoException()
                 {
-                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, null, remotingListener);
+                    sut.ActorMethodFinish(diagnosticData, startTime);
 
                     Mock.Get(eventSource).Verify(p => p.ActorMethodStop(ticks, actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
                 }
@@ -300,9 +302,11 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 [Fact]
                 public void FinishTracesIfDisabledAndException()
                 {
-                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
+                    diagnosticData.Exception = Mock.Of<Exception>();
 
-                    Mock.Get(eventSource).Verify(p => p.ActorMethodThrewException(exception.ToString(), ticks, actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
+                    sut.ActorMethodFinish(diagnosticData, startTime);
+
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodThrewException(diagnosticData.Exception.ToString(), ticks, actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
                 }
 
                 [Fact]
@@ -310,7 +314,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 {
                     Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStopEventEnabled()).Returns(false);
 
-                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, null, remotingListener);
+                    sut.ActorMethodFinish(diagnosticData, startTime);
 
                     Mock.Get(eventSource).Verify(p => p.IsActorMethodStopEventEnabled(), Times.Once);
                     Mock.Get(eventSource).VerifyNoOtherCalls();

@@ -80,19 +80,19 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             eventSource.ActorDeactivated(actorType, actorId, serviceContext);
         }
 
-        public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
+        public void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime)
         {
-            var methodInfo = actorMethodInfo[interfaceMethodKey];
+            var methodInfo = actorMethodInfo[actorMethodDiagnosticData.InterfaceMethodKey];
 
-            if (e != null)
+            if (actorMethodDiagnosticData.Exception != null)
             {
                 eventSource.ActorMethodThrewException(
-                   e.ToString(),
+                   actorMethodDiagnosticData.Exception.ToString(),
                    TicksSinceStart(startTime),
                    methodInfo.MethodName,
                    methodInfo.MethodSignature,
                    actorType,
-                   actorId,
+                   actorMethodDiagnosticData.ActorId,
                    serviceContext);
                 return;
             }
@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     methodInfo.MethodName,
                     methodInfo.MethodSignature,
                     actorType,
-                    actorId,
+                    actorMethodDiagnosticData.ActorId,
                     serviceContext);
             }
         }

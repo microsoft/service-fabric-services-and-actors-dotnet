@@ -47,11 +47,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
+        public void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime)
         {
             foreach (IDiagnosticEvents d in diagnosticEvents)
             {
-                d.ActorMethodFinish(startTime, actorId, interfaceMethodKey, e, remotingListener);
+                d.ActorMethodFinish(actorMethodDiagnosticData, startTime);
             }
         }
 

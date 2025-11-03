@@ -312,10 +312,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             public class ActorMethod : OnEvents
             {
-                PerformanceCounterProvider.MethodSpecificCounterWriters methodCounters;
-                ActorMethodFrequencyCounterWriter actorMethodFrequencyCounterWriter;
-                ActorMethodExceptionFrequencyCounterWriter actorMethodExceptionFrequencyCounterWriter;
-                ActorMethodExecTimeCounterWriter actorMethodExecTimeCounterWriter;
+                readonly PerformanceCounterProvider.MethodSpecificCounterWriters methodCounters;
+                readonly ActorMethodFrequencyCounterWriter actorMethodFrequencyCounterWriter;
+                readonly ActorMethodExceptionFrequencyCounterWriter actorMethodExceptionFrequencyCounterWriter;
+                readonly ActorMethodExecTimeCounterWriter actorMethodExecTimeCounterWriter;
+                readonly ActorMethodDiagnosticData diagnoticData;
 
                 readonly Exception exception = new Exception();
 
@@ -326,18 +327,18 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorMethodFrequencyCounterWriter = methodCounters.ActorMethodFrequencyCounterWriter;
                     actorMethodExceptionFrequencyCounterWriter = methodCounters.ActorMethodExceptionFrequencyCounterWriter;
                     actorMethodExecTimeCounterWriter = methodCounters.ActorMethodExecTimeCounterWriter;
+
+                    diagnoticData = new ActorMethodDiagnosticData() { ActorId = actorId, Exception = exception, InterfaceMethodKey = interfaceMethodKey, RemotingListener = remotingListener, MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis) };
                 }
 
                 [Fact]
                 public void FinishEmitsPerfCounter()
                 {
-                    ActorMethodDiagnosticData expectedDiagnoticData = new ActorMethodDiagnosticData() { ActorId = actorId, Exception = exception, InterfaceMethodKey = interfaceMethodKey, RemotingListener = remotingListener, MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis) };
-
-                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
+                    sut.ActorMethodFinish(diagnoticData, startTime);
 
                     Mock.Get(actorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Once);
-                    Mock.Get(actorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(expectedDiagnoticData))), Times.Once);
-                    Mock.Get(actorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(expectedDiagnoticData))), Times.Once);
+                    Mock.Get(actorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(diagnoticData))), Times.Once);
+                    Mock.Get(actorMethodExecTimeCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<ActorMethodDiagnosticData>(p => p.Equals(diagnoticData))), Times.Once);
                 }
 
                 [Fact]
@@ -347,7 +348,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     methodCounters.Property<ActorMethodExceptionFrequencyCounterWriter>(nameof(methodCounters.ActorMethodExceptionFrequencyCounterWriter)).Set(null);
                     methodCounters.Property<ActorMethodExecTimeCounterWriter>(nameof(methodCounters.ActorMethodExecTimeCounterWriter)).Set(null);
 
-                    sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
+                    sut.ActorMethodFinish(diagnoticData, startTime);
 
                     Mock.Get(actorMethodFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(), Times.Never);
                     Mock.Get(actorMethodExceptionFrequencyCounterWriter).Verify(p => p.UpdateCounterValue(It.IsAny<ActorMethodDiagnosticData>()), Times.Never);

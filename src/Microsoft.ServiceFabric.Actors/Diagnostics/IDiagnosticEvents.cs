@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         void ActorMethodStart(ActorId actorId, long interfaceMethodKey, RemotingListenerVersion remotingListener);
 
-        void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener);
+        void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime);
 
         void LoadActorStateStart();
 

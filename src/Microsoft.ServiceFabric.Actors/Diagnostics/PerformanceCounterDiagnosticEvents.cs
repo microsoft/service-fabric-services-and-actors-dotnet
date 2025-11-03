@@ -48,18 +48,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             // Intentionally left blank, since we don't track
         }
 
-        public void ActorMethodFinish(DateTime startTime, ActorId actorId, long interfaceMethodKey, Exception e, RemotingListenerVersion remotingListener)
+        public void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime)
         {
-            var counterWriters = performanceCounterProvider.GetMethodSpecificCounterWriters(interfaceMethodKey, remotingListener);
+            var counterWriters = performanceCounterProvider.GetMethodSpecificCounterWriters(actorMethodDiagnosticData.InterfaceMethodKey, actorMethodDiagnosticData.RemotingListener);
 
-            ActorMethodDiagnosticData methodData = new ActorMethodDiagnosticData()
-            {
-                ActorId = actorId,
-                Exception = e,
-                InterfaceMethodKey = interfaceMethodKey,
-                RemotingListener = remotingListener,
-                MethodExecutionTime = TimeSpan.FromMilliseconds(LongMillisecondsSinceStart(startTime))
-            };
+            actorMethodDiagnosticData.MethodExecutionTime = TimeSpan.FromMilliseconds(LongMillisecondsSinceStart(startTime));
 
             if (counterWriters.ActorMethodFrequencyCounterWriter != null)
             {
@@ -68,12 +61,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             if (counterWriters.ActorMethodExceptionFrequencyCounterWriter != null)
             {
-                counterWriters.ActorMethodExceptionFrequencyCounterWriter.UpdateCounterValue(methodData);
+                counterWriters.ActorMethodExceptionFrequencyCounterWriter.UpdateCounterValue(actorMethodDiagnosticData);
             }
 
             if (counterWriters.ActorMethodExecTimeCounterWriter != null)
             {
-                counterWriters.ActorMethodExecTimeCounterWriter.UpdateCounterValue(methodData);
+                counterWriters.ActorMethodExecTimeCounterWriter.UpdateCounterValue(actorMethodDiagnosticData);
             }
         }
 

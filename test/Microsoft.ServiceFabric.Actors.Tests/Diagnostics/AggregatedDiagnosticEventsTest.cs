@@ -27,10 +27,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IDiagnosticEvents diagnosticEvent = Mock.Of<IDiagnosticEvents>();
         readonly IDiagnosticEvents anotherDiagnosticEvents = Mock.Of<ITestDiagnosticEvents>();
 
-        readonly DiagnosticsManagerActorContext diagnosticContext = new DiagnosticsManagerActorContext();
         readonly ActorId actorId = fuzzy.ActorId();
         readonly long interfaceMethodKey = fuzzy.Int64();
         readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData = default;
+        readonly ActorMethodDiagnosticData actorMethodDiagnosticData = default;
         readonly RemotingListenerVersion remotingListener = RemotingListenerVersion.V2_1;
         readonly protected DateTime startTime = fuzzy.DateTime();
 
@@ -140,10 +140,10 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 var exception = new InvalidOperationException(fuzzy.String());
 
-                sut.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener);
+                sut.ActorMethodFinish(actorMethodDiagnosticData, startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodFinish(startTime, actorId, interfaceMethodKey, exception, remotingListener), Times.Once);
+                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodFinish(actorMethodDiagnosticData, startTime), Times.Once);
+                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodFinish(actorMethodDiagnosticData, startTime), Times.Once);
             }
         }
 
