@@ -116,7 +116,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
         public class OnEvents : EventSourceDiagnosticEventsTest
         {
-            readonly DiagnosticsManagerActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticsManagerActorContext>();
+            readonly DiagnosticActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticActorContext>();
 
             readonly long interfaceMethodKey = fuzzy.Int64();
             readonly ActorId actorId = fuzzy.ActorId();

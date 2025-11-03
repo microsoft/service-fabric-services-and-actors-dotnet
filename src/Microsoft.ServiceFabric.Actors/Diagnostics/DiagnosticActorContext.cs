@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class DiagnosticsManagerActorContext
+    internal class DiagnosticActorContext
     {
         internal virtual long PendingActorMethodCalls => pendingActorMethodCalls;
 

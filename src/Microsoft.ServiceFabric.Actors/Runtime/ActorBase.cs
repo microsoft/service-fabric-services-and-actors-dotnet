@@ -30,7 +30,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         const string TraceType = "ActorBase";
         readonly IActorManager actorManager;
         readonly ActorId actorId;
-        readonly DiagnosticsManagerActorContext diagnosticsContext;
+        readonly DiagnosticActorContext diagnosticsContext;
         readonly string traceId;
         List<IActorTimer> timers;
         volatile bool markedForDeletion;
@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.IsDirty = false;
             this.IsInitialized = false;
             this.IsDummy = false;
-            this.diagnosticsContext = new DiagnosticsManagerActorContext();
+            this.diagnosticsContext = new DiagnosticActorContext();
 
             this.traceId = this.Manager.GetActorTraceId(actorId);
             this.ConcurrencyLock = new ActorConcurrencyLock(this, this.ActorService.Settings.ActorConcurrencySettings);
@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal bool IsInitialized { get; set; }
 
-        internal DiagnosticsManagerActorContext DiagnosticsContext
+        internal DiagnosticActorContext DiagnosticsContext
         {
             get { return this.diagnosticsContext; }
         }

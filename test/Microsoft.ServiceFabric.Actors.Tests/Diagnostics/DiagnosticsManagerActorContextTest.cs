@@ -9,7 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly DiagnosticsManagerActorContext sut = new DiagnosticsManagerActorContext();
+        readonly DiagnosticActorContext sut = new DiagnosticActorContext();
 
         long pendingActorMethodCalls = fuzzy.Int64();
         long lastReportedPendingActorMethodCalls = fuzzy.Int32();

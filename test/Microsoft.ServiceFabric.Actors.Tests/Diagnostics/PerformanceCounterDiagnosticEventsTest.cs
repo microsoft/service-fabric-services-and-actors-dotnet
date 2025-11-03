@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public class OnEvents : PerformanceCounterDiagnosticEventsTest
         {
-            readonly DiagnosticsManagerActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticsManagerActorContext>();
+            readonly DiagnosticActorContext diagnosticsManagerActorContext = Mock.Of<DiagnosticActorContext>();
 
             readonly FabricAverageCount64PerformanceCounterWriter actorRequestProcessingTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
             readonly FabricAverageCount64PerformanceCounterWriter actorLockAcquireWaitTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();

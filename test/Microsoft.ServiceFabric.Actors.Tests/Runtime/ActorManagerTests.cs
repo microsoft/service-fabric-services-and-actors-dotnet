@@ -226,7 +226,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public class DispatchToActorAsync : DiagnosticEvents
             {
-                readonly DiagnosticsManagerActorContext mockDiagnoticContext = Mock.Of<DiagnosticsManagerActorContext>();
+                readonly DiagnosticActorContext mockDiagnoticContext = Mock.Of<DiagnosticActorContext>();
                 readonly PendingActorMethodDiagnosticData actorMethodDiagnosticData;
 
                 readonly long pendingCalls = fuzzy.UInt32();
@@ -236,7 +236,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     Mock.Get(mockDiagnoticContext).Setup(diagnotic => diagnotic.UpdateLastReportedActorMethodCalls()).Returns(deltaCalls);
                     Mock.Get(mockDiagnoticContext).Setup(diagnotic => diagnotic.PendingActorMethodCalls).Returns(pendingCalls);
-                    sut.GetActor(actorId, true, false).Actor.Field<DiagnosticsManagerActorContext>().Set(mockDiagnoticContext);
+                    sut.GetActor(actorId, true, false).Actor.Field<DiagnosticActorContext>().Set(mockDiagnoticContext);
 
                     actorMethodDiagnosticData = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = pendingCalls, PendingActorMethodCallsDelta = deltaCalls };
                 }
