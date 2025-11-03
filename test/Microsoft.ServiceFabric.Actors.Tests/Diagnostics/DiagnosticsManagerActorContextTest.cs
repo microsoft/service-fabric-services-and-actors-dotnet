@@ -1,41 +1,49 @@
+using System;
+using Fuzzy;
+using Inspector;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     public class DiagnosticsManagerActorContextTest
     {
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+
         readonly DiagnosticsManagerActorContext sut = new DiagnosticsManagerActorContext();
+
+        long pendingActorMethodCalls = fuzzy.Int64();
+        long lastReportedPendingActorMethodCalls = fuzzy.Int32();
+
+        public DiagnosticsManagerActorContextTest()
+        {
+            sut.Field<long>("pendingActorMethodCalls").Set(pendingActorMethodCalls);
+            sut.Field<long>("lastReportedPendingActorMethodCalls").Set(lastReportedPendingActorMethodCalls);
+        }
 
         [Fact]
         public void IncrementsPendingCalls()
         {
-            long expectedNewPendingCalls = sut.PendingActorMethodCalls + 1;
-
             sut.IncremenetPendingActorMethodCalls();
 
-            Assert.Equal(expectedNewPendingCalls, sut.PendingActorMethodCalls);
+            Assert.Equal(pendingActorMethodCalls + 1, sut.PendingActorMethodCalls);
         }
 
         [Fact]
         public void DecrementsPendingCalls()
         {
-            long expectedNewPendingCalls = sut.PendingActorMethodCalls - 1;
-
             sut.DecremenetPendingActorMethodCalls();
 
-            Assert.Equal(expectedNewPendingCalls, sut.PendingActorMethodCalls);
+            Assert.Equal(pendingActorMethodCalls - 1, sut.PendingActorMethodCalls);
         }
 
         [Fact]
         public void UpdatesLastReportedCallsAndReturnsDelta()
         {
-            long expectedNewLastReportedPendingCalls = sut.LastReportedPendingActorMethodCalls + 1;
-            sut.IncremenetPendingActorMethodCalls();
-
             var result = sut.UpdateLastReportedActorMethodCalls();
 
-            Assert.Equal(expectedNewLastReportedPendingCalls, sut.LastReportedPendingActorMethodCalls);
-            Assert.Equal(1, result);
+            Assert.Equal(pendingActorMethodCalls - 1, sut.LastReportedPendingActorMethodCalls);
+            Assert.Equal(pendingActorMethodCalls - 1, sut.PendingActorMethodCalls);
+            Assert.Equal(pendingActorMethodCalls - lastReportedPendingActorMethodCalls - 1, result);
         }
     }
 }
