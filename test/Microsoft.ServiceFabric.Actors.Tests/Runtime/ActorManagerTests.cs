@@ -116,7 +116,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             private void VerifyReminderPresence()
             {
-                for (var i = 1; i <= ReminderCount; i++)
+                for (var i = 1; i <= RemainderCount; i++)
                 {
                     actorManager.GetReminder("Reminder_" + i, actorId);
                 }
