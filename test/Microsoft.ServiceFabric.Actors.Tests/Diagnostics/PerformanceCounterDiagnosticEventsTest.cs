@@ -323,6 +323,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorMethodExecTimeCounterWriter = methodCounters.ActorMethodExecTimeCounterWriter;
 
                     diagnoticData = new ActorMethodDiagnosticData(actorId, interfaceMethodKey, new Exception(), RemotingListenerVersion.V2);
+                    diagnoticData.MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis);
                 }
 
                 [Fact]

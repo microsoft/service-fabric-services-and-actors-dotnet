@@ -33,10 +33,10 @@ namespace Microsoft.ServiceFabric.Actors
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
 
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
-            actorService.Field<IClock>().Set(clock);
             actorService.ActorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
 
             sut = new ActorServiceRemotingDispatcher(actorService, Mock.Of<IServiceRemotingMessageBodyFactory>());
+            sut.Field<IClock>().Set(clock);
         }
 
         public class DiagnosticEvents : ActorServiceRemotingDispatcherTest
