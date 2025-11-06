@@ -819,7 +819,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             catch (Exception e)
             {
-                this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData(actor.Id, Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), e, RemotingListenerVersion.V2), startTime);
+                this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                 throw;
             }
 
@@ -833,11 +833,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                     catch (Exception e)
                     {
-                        this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData(actor.Id, Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), e, RemotingListenerVersion.V2), startTime);
+                        this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                         throw;
                     }
 
-                    this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData(actor.Id, Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), null, RemotingListenerVersion.V2), startTime);
+                    this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = null, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                     return responseMsgBody;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);

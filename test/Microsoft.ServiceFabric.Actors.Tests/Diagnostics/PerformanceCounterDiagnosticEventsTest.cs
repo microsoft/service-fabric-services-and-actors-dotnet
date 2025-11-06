@@ -263,6 +263,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 {
                     sut.AcquireActorLockFinish(pendingMethodData, startTime);
 
+                    var test = actorLockAcquireWaitTimeCounterWriter.Field<FabricPerformanceCounter>("Counter").Value.GetValue();
+
                     Mock.Get(actorLockAcquireWaitTimeCounterWriter).Verify(p => p.UpdateCounterValue(operationDurationMillis), Times.Once);
                     Mock.Get(actorLockContentionCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<PendingActorMethodDiagnosticData>(p => p.Equals(pendingMethodData))), Times.Once);
                 }
@@ -322,7 +324,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorMethodExceptionFrequencyCounterWriter = methodCounters.ActorMethodExceptionFrequencyCounterWriter;
                     actorMethodExecTimeCounterWriter = methodCounters.ActorMethodExecTimeCounterWriter;
 
-                    diagnoticData = new ActorMethodDiagnosticData(actorId, interfaceMethodKey, new Exception(), RemotingListenerVersion.V2);
+                    diagnoticData = new ActorMethodDiagnosticData() { ActorId = actorId, InterfaceMethodKey = interfaceMethodKey, Exception = new Exception(), RemotingListener = RemotingListenerVersion.V2 };
                     diagnoticData.MethodExecutionTime = TimeSpan.FromMilliseconds(operationDurationMillis);
                 }
 
