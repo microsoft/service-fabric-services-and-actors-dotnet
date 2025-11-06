@@ -7,17 +7,13 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     sealed class ActorMethodInfo
     {
-        readonly string methodName;
-        readonly string methodSignature;
+        internal readonly string methodName;
+        internal readonly string methodSignature;
 
         internal ActorMethodInfo(string methodName, string methodSignature)
         {
             this.methodName = methodName;
             this.methodSignature = methodSignature;
         }
-
-        internal string MethodName => methodName;
-
-        internal string MethodSignature => methodSignature;
     }
 }

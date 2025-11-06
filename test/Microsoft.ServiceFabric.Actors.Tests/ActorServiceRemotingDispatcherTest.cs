@@ -39,19 +39,13 @@ namespace Microsoft.ServiceFabric.Actors
             sut.Field<IClock>().Set(clock);
         }
 
-        public class DiagnosticEvents : ActorServiceRemotingDispatcherTest
+        public class Diagnostics : ActorServiceRemotingDispatcherTest
         {
             readonly Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>> handleActorMethodDispatchAsync;
 
-            public DiagnosticEvents()
+            public Diagnostics()
             {
-                var method = sut.GetType().GetMethod("HandleActorMethodDispatchAsync",
-                   System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                   null,
-                   new[] { typeof(IActorRemotingMessageHeaders), typeof(IServiceRemotingRequestMessageBody), typeof(CancellationToken) },
-                   null);
-                handleActorMethodDispatchAsync = (Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>>)
-                    Delegate.CreateDelegate(typeof(Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>>), sut, method);
+                handleActorMethodDispatchAsync = sut.Method<Func<IActorRemotingMessageHeaders, IServiceRemotingRequestMessageBody, CancellationToken, Task<IServiceRemotingResponseMessageBody>>>("HandleActorMethodDispatchAsync");
             }
 
             [Fact]

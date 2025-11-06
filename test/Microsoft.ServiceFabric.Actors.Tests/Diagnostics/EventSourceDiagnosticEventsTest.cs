@@ -273,7 +273,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 {
                     sut.ActorMethodStart(actorId, interfaceMethodKey);
 
-                    Mock.Get(eventSource).Verify(p => p.ActorMethodStart(actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodStart(actorMethodInfo[interfaceMethodKey].methodName, actorMethodInfo[interfaceMethodKey].methodSignature, actorType, actorId, serviceContext), Times.Once);
                 }
 
                 [Fact]
@@ -292,7 +292,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 {
                     sut.ActorMethodFinish(diagnosticData, startTime);
 
-                    Mock.Get(eventSource).Verify(p => p.ActorMethodStop(ticks, actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodStop(ticks, actorMethodInfo[interfaceMethodKey].methodName, actorMethodInfo[interfaceMethodKey].methodSignature, actorType, actorId, serviceContext), Times.Once);
                 }
 
                 [Fact]
@@ -302,7 +302,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
                     sut.ActorMethodFinish(diagnosticData, startTime);
 
-                    Mock.Get(eventSource).Verify(p => p.ActorMethodThrewException(diagnosticData.Exception.ToString(), ticks, actorMethodInfo[interfaceMethodKey].MethodName, actorMethodInfo[interfaceMethodKey].MethodSignature, actorType, actorId, serviceContext), Times.Once);
+                    Mock.Get(eventSource).Verify(p => p.ActorMethodThrewException(diagnosticData.Exception.ToString(), ticks, actorMethodInfo[interfaceMethodKey].methodName, actorMethodInfo[interfaceMethodKey].methodSignature, actorType, actorId, serviceContext), Times.Once);
                 }
 
                 [Fact]

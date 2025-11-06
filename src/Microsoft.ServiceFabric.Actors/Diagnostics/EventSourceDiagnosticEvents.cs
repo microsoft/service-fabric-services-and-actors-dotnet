@@ -88,8 +88,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 eventSource.ActorMethodThrewException(
                    actorMethodDiagnosticData.Exception.ToString(),
                    TicksSinceStart(startTime),
-                   methodInfo.MethodName,
-                   methodInfo.MethodSignature,
+                   methodInfo.methodName,
+                   methodInfo.methodSignature,
                    actorType,
                    actorMethodDiagnosticData.ActorId,
                    serviceContext);
@@ -100,8 +100,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 eventSource.ActorMethodStop(
                     TicksSinceStart(startTime),
-                    methodInfo.MethodName,
-                    methodInfo.MethodSignature,
+                    methodInfo.methodName,
+                    methodInfo.methodSignature,
                     actorType,
                     actorMethodDiagnosticData.ActorId,
                     serviceContext);
@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             if (eventSource.IsActorMethodStartEventEnabled())
             {
                 var methodInfo = actorMethodInfo[interfaceMethodKey];
-                eventSource.ActorMethodStart(methodInfo.MethodName, methodInfo.MethodSignature, actorType, actorId, serviceContext);
+                eventSource.ActorMethodStart(methodInfo.methodName, methodInfo.methodSignature, actorType, actorId, serviceContext);
             }
         }
 
