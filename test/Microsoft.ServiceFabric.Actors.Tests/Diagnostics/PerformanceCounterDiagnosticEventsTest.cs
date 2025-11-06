@@ -263,8 +263,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 {
                     sut.AcquireActorLockFinish(pendingMethodData, startTime);
 
-                    var test = actorLockAcquireWaitTimeCounterWriter.Field<FabricPerformanceCounter>("Counter").Value.GetValue();
-
                     Mock.Get(actorLockAcquireWaitTimeCounterWriter).Verify(p => p.UpdateCounterValue(operationDurationMillis), Times.Once);
                     Mock.Get(actorLockContentionCounterWriter).Verify(p => p.UpdateCounterValue(It.Is<PendingActorMethodDiagnosticData>(p => p.Equals(pendingMethodData))), Times.Once);
                 }
