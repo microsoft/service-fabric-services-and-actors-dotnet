@@ -8,7 +8,7 @@ using System.Fabric;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal interface IDiagnosticEvents
+    internal interface IDiagnostics
     {
         void ActorRequestProcessingStart();
 

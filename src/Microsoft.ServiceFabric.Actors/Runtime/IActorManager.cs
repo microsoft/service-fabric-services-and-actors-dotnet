@@ -34,7 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// </summary>
         bool HasRemindersLoaded { get; }
 
-        IDiagnosticEvents DiagnosticsEvents { get; }
+        IDiagnostics DiagnosticsEvents { get; }
 
         #region Actor Manager Life Cycle
 

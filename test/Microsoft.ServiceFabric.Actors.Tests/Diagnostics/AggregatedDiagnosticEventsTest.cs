@@ -17,14 +17,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
     public abstract class AggregatedDiagnosticEventsTest
     {
-        internal interface ITestDiagnosticEvents : IDiagnosticEvents { }
+        internal interface ITestDiagnosticEvents : IDiagnostics { }
 
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly IDiagnosticEvents sut;
+        readonly IDiagnostics sut;
 
-        readonly IDiagnosticEvents diagnosticEvent = Mock.Of<IDiagnosticEvents>();
-        readonly IDiagnosticEvents anotherDiagnosticEvents = Mock.Of<ITestDiagnosticEvents>();
+        readonly IDiagnostics diagnosticEvent = Mock.Of<IDiagnostics>();
+        readonly IDiagnostics anotherDiagnosticEvents = Mock.Of<ITestDiagnosticEvents>();
 
         readonly ActorId actorId = fuzzy.ActorId();
         readonly long interfaceMethodKey = fuzzy.Int64();
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData = default;
         readonly ActorMethodDiagnosticData actorMethodDiagnosticData = default;
 
-        public AggregatedDiagnosticEventsTest() => sut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, anotherDiagnosticEvents });
+        public AggregatedDiagnosticEventsTest() => sut = new AggregatedDiagnosticEvents(new List<IDiagnostics> { diagnosticEvent, anotherDiagnosticEvents });
 
         public sealed class Constructor : AggregatedDiagnosticEventsTest
         {
@@ -46,36 +46,36 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void ThrowsOnAnyNullEvents()
             {
-                var exception = Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { diagnosticEvent, null }));
+                var exception = Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnostics> { diagnosticEvent, null }));
                 Assert.Equal("diagnosticEvents", exception.Message);
             }
 
             [Fact]
             public void AssignsEmptyEvent()
             {
-                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>());
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnostics>());
 
-                Assert.NotNull(newSut.Field<IEnumerable<IDiagnosticEvents>>());
-                Assert.Empty(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value);
+                Assert.NotNull(newSut.Field<IEnumerable<IDiagnostics>>());
+                Assert.Empty(newSut.Field<IEnumerable<IDiagnostics>>().Value);
             }
 
             [Fact]
             public void AssignsSingleEvent()
             {
-                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents>() { diagnosticEvent });
+                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnostics>() { diagnosticEvent });
 
-                Assert.NotNull(newSut.Field<IEnumerable<IDiagnosticEvents>>());
-                Assert.Single(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value);
-                Assert.IsAssignableFrom<IDiagnosticEvents>(newSut.Field<IEnumerable<IDiagnosticEvents>>().Value.First());
+                Assert.NotNull(newSut.Field<IEnumerable<IDiagnostics>>());
+                Assert.Single(newSut.Field<IEnumerable<IDiagnostics>>().Value);
+                Assert.IsAssignableFrom<IDiagnostics>(newSut.Field<IEnumerable<IDiagnostics>>().Value.First());
             }
 
             [Fact]
             public void AssignsMultipleEvent()
             {
-                Assert.NotNull(sut.Field<IEnumerable<IDiagnosticEvents>>());
-                Assert.Equal(2, sut.Field<IEnumerable<IDiagnosticEvents>>().Value.Count());
-                Assert.IsAssignableFrom<IDiagnosticEvents>(sut.Field<IEnumerable<IDiagnosticEvents>>().Value.First());
-                Assert.IsAssignableFrom<ITestDiagnosticEvents>(sut.Field<IEnumerable<IDiagnosticEvents>>().Value.Last());
+                Assert.NotNull(sut.Field<IEnumerable<IDiagnostics>>());
+                Assert.Equal(2, sut.Field<IEnumerable<IDiagnostics>>().Value.Count());
+                Assert.IsAssignableFrom<IDiagnostics>(sut.Field<IEnumerable<IDiagnostics>>().Value.First());
+                Assert.IsAssignableFrom<ITestDiagnosticEvents>(sut.Field<IEnumerable<IDiagnostics>>().Value.Last());
             }
         }
 

@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         readonly ActorStateManager sut;
 
-        readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
+        readonly IDiagnostics diagnosticEvents = Mock.Of<IDiagnostics>();
         readonly IClock clock = Mock.Of<IClock>();
 
         readonly ActorId actorId = fuzzy.ActorId();

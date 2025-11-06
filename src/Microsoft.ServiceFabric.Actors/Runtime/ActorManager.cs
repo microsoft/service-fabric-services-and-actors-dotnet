@@ -38,15 +38,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly IActorEventManager eventManager;
         private bool isClosed;
 
-        private readonly IDiagnosticEvents diagnosticEvents;
+        private readonly IDiagnostics diagnosticEvents;
         private readonly IClock clock;
         private readonly PerformanceCounterProviderV2 performanceCounterProvider;
 
-        private static Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnosticEvents> createDiagnosticEvents = (actorService, clock, performanceCounterProvider) =>
+        private static Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics> createDiagnosticEvents = (actorService, clock, performanceCounterProvider) =>
         {
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
             var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
-            var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
+            var registeredDiagnosticsEvents = new List<IDiagnostics> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
 
             return new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
         };
@@ -98,7 +98,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorService; }
         }
 
-        public IDiagnosticEvents DiagnosticsEvents
+        public IDiagnostics DiagnosticsEvents
         {
             get { return this.diagnosticEvents; }
         }
@@ -180,13 +180,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             using (var actorUseScope = this.GetActor(actorId, createIfRequired, timerCall))
             {
                 var actor = actorUseScope.Actor;
-                var diagnosticContext = actor.DiagnosticsContext;
+                var diagnosticContext = actor.Diagnostics;
 
                 // ***
                 // START: CRITICAL CODE
                 // ***
 
-                var startTime = clock.UtcNow;
+                DateTime startTime = clock.UtcNow;
                 diagnosticContext.IncremenetPendingActorMethodCalls();
 
                 ActorTrace.Source.WriteInfoWithId(
@@ -803,8 +803,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             IServiceRemotingMessageBodyFactory remotingMessageBodyFactory,
             CancellationToken innerCancellationToken)
         {
-            var startTime = clock.UtcNow;
-            var interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
+            DateTime startTime = clock.UtcNow;
+            long interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
             this.diagnosticEvents.ActorMethodStart(actor.Id, interfaceMethodKey);
 
             Task<IServiceRemotingResponseMessageBody> dispatchTask;

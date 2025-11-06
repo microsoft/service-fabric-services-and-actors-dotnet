@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
             IServiceRemotingRequestMessageBody msgBody,
             CancellationToken cancellationToken)
         {
-            var startTime = clock.UtcNow;
+            DateTime startTime = clock.UtcNow;
             IServiceRemotingResponseMessageBody retVal;
             this.actorService.ActorManager.DiagnosticsEvents.ActorRequestProcessingStart();
             try
@@ -149,7 +149,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                 messageHeaders.ActorId,
                 messageHeaders.MethodName,
                 isCancellationRequested);
-            var startTime = clock.UtcNow;
+            DateTime startTime = clock.UtcNow;
             if (isCancellationRequested)
             {
                 await this.cancellationHelper.CancelRequestAsync(

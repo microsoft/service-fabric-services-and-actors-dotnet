@@ -10,11 +10,11 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class AggregatedDiagnosticEvents : IDiagnosticEvents
+    sealed class AggregatedDiagnosticEvents : IDiagnostics
     {
-        readonly IEnumerable<IDiagnosticEvents> diagnosticEvents;
+        readonly IEnumerable<IDiagnostics> diagnosticEvents;
 
-        internal AggregatedDiagnosticEvents(IEnumerable<IDiagnosticEvents> diagnosticEvents)
+        internal AggregatedDiagnosticEvents(IEnumerable<IDiagnostics> diagnosticEvents)
         {
             _ = diagnosticEvents ?? throw new ArgumentNullException(nameof(diagnosticEvents));
             if (diagnosticEvents.Any(d => d == null))
@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorActivated(ActorId actorId)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorActivated(actorId);
             }
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorChangeRole(ReplicaRole currentRole, ReplicaRole newRole)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorChangeRole(currentRole, newRole);
             }
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorDeactivated(ActorId actorId)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorDeactivated(actorId);
             }
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorMethodFinish(actorMethodDiagnosticData, startTime);
             }
@@ -56,7 +56,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorMethodStart(ActorId actorId, long interfaceMethodKey)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorMethodStart(actorId, interfaceMethodKey);
             }
@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorOnActivateAsyncFinish(DateTime startTime)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorOnActivateAsyncFinish(startTime);
             }
@@ -72,7 +72,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorOnActivateAsyncStart()
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorOnActivateAsyncStart();
             }
@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorRequestProcessingFinish(DateTime startTime)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorRequestProcessingFinish(startTime);
             }
@@ -88,7 +88,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorRequestProcessingStart()
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ActorRequestProcessingStart();
             }
@@ -96,7 +96,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void LoadActorStateFinish(DateTime startTime)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.LoadActorStateFinish(startTime);
             }
@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void LoadActorStateStart()
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.LoadActorStateStart();
             }
@@ -112,7 +112,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ReleaseActorLock(DateTime startTime)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.ReleaseActorLock(startTime);
             }
@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void SaveActorStateFinish(ActorId actorId, DateTime startTime)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.SaveActorStateFinish(actorId, startTime);
             }
@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void SaveActorStateStart(ActorId actorId)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.SaveActorStateStart(actorId);
             }
@@ -136,7 +136,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
-            foreach (IDiagnosticEvents d in diagnosticEvents)
+            foreach (IDiagnostics d in diagnosticEvents)
             {
                 d.AcquireActorLockFinish(diagnosticData, startTime);
             }

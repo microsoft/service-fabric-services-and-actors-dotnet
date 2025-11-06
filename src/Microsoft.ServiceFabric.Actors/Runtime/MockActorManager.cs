@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ActorEventSource traceSource;
 
         private IActorEventManager eventManager;
-        private IDiagnosticEvents diagnosticEvents;
+        private IDiagnostics diagnosticEvents;
 
         internal MockActorManager(ActorService actorService)
         {
@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.traceSource = ActorEventSource.Instance;
             this.IsClosed = false;
-            this.diagnosticEvents = new AggregatedDiagnosticEvents(Enumerable.Empty<IDiagnosticEvents>());
+            this.diagnosticEvents = new AggregatedDiagnosticEvents(Enumerable.Empty<IDiagnostics>());
         }
 
         public bool IsClosed { get; private set; }
@@ -58,7 +58,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorService.StateProvider; }
         }
 
-        public IDiagnosticEvents DiagnosticsEvents { get => this.diagnosticEvents; }
+        public IDiagnostics DiagnosticsEvents { get => this.diagnosticEvents; }
 
         public Task OpenAsync(IServicePartition partition, CancellationToken cancellationToken)
         {

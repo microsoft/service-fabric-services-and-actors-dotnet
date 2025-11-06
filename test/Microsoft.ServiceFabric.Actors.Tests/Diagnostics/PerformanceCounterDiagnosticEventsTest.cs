@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     {
         readonly static IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly IDiagnosticEvents sut;
+        readonly IDiagnostics sut;
 
         readonly IClock clock = Mock.Of<IClock>();
 

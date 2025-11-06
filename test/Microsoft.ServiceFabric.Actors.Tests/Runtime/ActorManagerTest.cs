@@ -18,13 +18,13 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    public class ActorManagerTests
+    public class ActorManagerTest
     {
         internal const int RemainderCount = 10;
         internal readonly ActorId actorId;
         internal readonly ActorService actorService;
 
-        public ActorManagerTests()
+        public ActorManagerTest()
         {
             actorId = ActorId.CreateRandom();
             actorService = TestMocksRepository.GetActorService<TestActor>();
@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             actorService.InitializeInternal(friendlyNameBuilder);
         }
 
-        public class Remainder : ActorManagerTests
+        public class Remainder : ActorManagerTest
         {
             ActorManager actorManager;
 
@@ -188,8 +188,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             [Fact]
             public void DiagnosticsEventsHasAllNeededEventsRegistered()
             {
-                AggregatedDiagnosticEvents field = (AggregatedDiagnosticEvents)sut.Field<IDiagnosticEvents>().Value;
-                var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnosticEvents>>().Value;
+                AggregatedDiagnosticEvents field = (AggregatedDiagnosticEvents)sut.Field<IDiagnostics>().Value;
+                var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnostics>>().Value;
 
                 Assert.Equal(2, registeredDiagnosticEvents.Count());
                 Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
@@ -205,13 +205,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        public class DiagnosticEvents : ActorManagerTests
+        public class DiagnosticEvents : ActorManagerTest
         {
             readonly static IFuzz fuzzy = new RandomFuzz();
 
             ActorManager sut;
 
-            readonly IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
+            readonly IDiagnostics diagnosticEvents = Mock.Of<IDiagnostics>();
             readonly IClock clock = Mock.Of<IClock>();
 
             readonly DateTime startTime = DateTime.Now;
@@ -221,14 +221,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 sut = new ActorManager(actorService);
 
-                sut.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                sut.Field<IDiagnostics>().Set(diagnosticEvents);
                 sut.Field<IClock>().Set(clock);
                 Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
             }
 
             public class DispatchToActorAsync : DiagnosticEvents
             {
-                readonly DiagnosticActorContext mockDiagnoticContext = Mock.Of<DiagnosticActorContext>();
+                readonly DiagnosticsContext mockDiagnoticContext = Mock.Of<DiagnosticsContext>();
                 readonly PendingActorMethodDiagnosticData actorMethodDiagnosticData;
 
                 readonly long pendingCalls = fuzzy.UInt32();
@@ -238,7 +238,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     Mock.Get(mockDiagnoticContext).Setup(diagnotic => diagnotic.UpdateLastReportedActorMethodCalls()).Returns(deltaCalls);
                     Mock.Get(mockDiagnoticContext).Setup(diagnotic => diagnotic.PendingActorMethodCalls).Returns(pendingCalls);
-                    sut.GetActor(actorId, true, false).Actor.Field<DiagnosticActorContext>().Set(mockDiagnoticContext);
+                    sut.GetActor(actorId, true, false).Actor.Field<DiagnosticsContext>().Set(mockDiagnoticContext);
 
                     actorMethodDiagnosticData = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = pendingCalls, PendingActorMethodCallsDelta = deltaCalls };
                 }
@@ -327,7 +327,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 public OnActivateInternAsync()
                 {
                     actor = sut.GetActor(actorId, true, false).Actor;
-                    actor.Manager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                    actor.Manager.Field<IDiagnostics>().Set(diagnosticEvents);
                     actor.Field<IClock>().Set(clock);
                 }
 

@@ -12,7 +12,7 @@ using Microsoft.ServiceFabric.Services.Remoting.Description;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class EventSourceDiagnosticEvents : IDiagnosticEvents
+    sealed class EventSourceDiagnosticEvents : IDiagnostics
     {
         readonly ActorFrameworkEventSource eventSource;
         readonly ServiceContext serviceContext;

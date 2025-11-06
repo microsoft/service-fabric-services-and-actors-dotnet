@@ -9,7 +9,7 @@ using Microsoft.ServiceFabric.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class PerformanceCounterDiagnosticEvents : IDiagnosticEvents
+    sealed class PerformanceCounterDiagnosticEvents : IDiagnostics
     {
         readonly PerformanceCounterProviderV2 performanceCounterProvider;
         readonly IClock clock;

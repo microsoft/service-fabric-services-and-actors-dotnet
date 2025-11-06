@@ -5,16 +5,16 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    public class DiagnosticsManagerActorContextTest
+    public class DiagnosticsContextTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly DiagnosticActorContext sut = new DiagnosticActorContext();
+        readonly DiagnosticsContext sut = new DiagnosticsContext();
 
         long pendingActorMethodCalls = fuzzy.Int64();
         long lastReportedPendingActorMethodCalls = fuzzy.Int32();
 
-        public DiagnosticsManagerActorContextTest()
+        public DiagnosticsContextTest()
         {
             sut.Field<long>("pendingActorMethodCalls").Set(pendingActorMethodCalls);
             sut.Field<long>("lastReportedPendingActorMethodCalls").Set(lastReportedPendingActorMethodCalls);

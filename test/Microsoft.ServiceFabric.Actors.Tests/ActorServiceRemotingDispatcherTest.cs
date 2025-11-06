@@ -22,7 +22,7 @@ namespace Microsoft.ServiceFabric.Actors
     {
         readonly internal ActorServiceRemotingDispatcher sut;
 
-        readonly internal IDiagnosticEvents diagnosticEvents = Mock.Of<IDiagnosticEvents>();
+        readonly internal IDiagnostics diagnosticEvents = Mock.Of<IDiagnostics>();
         readonly internal IClock clock = Mock.Of<IClock>();
 
         readonly DateTime startTime = DateTime.Now;
@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Actors
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
 
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
-            actorService.ActorManager.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+            actorService.ActorManager.Field<IDiagnostics>().Set(diagnosticEvents);
 
             sut = new ActorServiceRemotingDispatcher(actorService, Mock.Of<IServiceRemotingMessageBodyFactory>());
             sut.Field<IClock>().Set(clock);

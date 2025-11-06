@@ -24,9 +24,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         readonly Dictionary<string, StateMetadata> stateChangeTracker;
         readonly ActorBase actor;
         readonly IClock clock;
-        readonly IDiagnosticEvents diagnosticEvents;
+        readonly IDiagnostics diagnosticEvents;
 
-        internal ActorStateManager(ActorBase actor, IActorStateProvider actorStateProvider, IDiagnosticEvents diagnosticEvents)
+        internal ActorStateManager(ActorBase actor, IActorStateProvider actorStateProvider, IDiagnostics diagnosticEvents)
         {
             this.actor = actor;
             this.stateProvider = actorStateProvider;
@@ -323,7 +323,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 if (stateChangeList.Count > 0)
                 {
-                    var startTime = clock.UtcNow;
+                    DateTime startTime = clock.UtcNow;
                     diagnosticEvents.SaveActorStateStart(this.actor.Id);
 
                     await this.stateProvider.SaveStateAsync(this.actor.Id, stateChangeList.AsReadOnly(), cancellationToken);
@@ -355,7 +355,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             ConditionalValue<T> result;
 
-            var startTime = clock.UtcNow;
+            DateTime startTime = clock.UtcNow;
             diagnosticEvents.LoadActorStateStart();
 
             if (await this.stateProvider.ContainsStateAsync(this.actor.Id, stateName, cancellationToken))
