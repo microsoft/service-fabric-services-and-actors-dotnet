@@ -34,12 +34,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public OnRoleChange()
             {
-                var methodInfo = actorService.GetType().GetMethod("OnChangeRoleAsync",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                    null,
-                    new[] { typeof(ReplicaRole), typeof(CancellationToken) },
-                    null);
-                sutMethod = (Func<ReplicaRole, CancellationToken, Task>)Delegate.CreateDelegate(typeof(Func<ReplicaRole, CancellationToken, Task>), actorService, methodInfo);
+                sutMethod = actorService.DeclaredBy(typeof(ActorService)).Method<Func<ReplicaRole, CancellationToken, Task>>("OnChangeRoleAsync");
 
                 // store createDiagnosticEvents function in order to restore it in Dispose()
                 createDiagnosticEvents = typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics>>().Value;
