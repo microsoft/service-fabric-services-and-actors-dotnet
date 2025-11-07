@@ -5,7 +5,6 @@
 
 using System;
 using System.Diagnostics.Tracing;
-using System.Fabric;
 using Fuzzy;
 using Xunit;
 
@@ -89,10 +88,10 @@ namespace Microsoft.ServiceFabric.Services
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
             test.EventPayload(3, "partitionId", partitionId);
             test.EventPayload(4, "replicaOrInstanceId", replicaOrInstanceId);
-            test.EventPayload(5, "serviceName", serviceName.GetHashCode().ToString());
-            test.EventPayload(6, "serviceTypeName", serviceTypeName.GetHashCode().ToString());
-            test.EventPayload(7, "applicationName", applicationName.GetHashCode().ToString());
-            test.EventPayload(8, "applicationTypeName", applicationTypeName.GetHashCode().ToString());
+            test.EventPayload(5, "serviceName", serviceName);
+            test.EventPayload(6, "serviceTypeName", serviceTypeName);
+            test.EventPayload(7, "applicationName", applicationName);
+            test.EventPayload(8, "applicationTypeName", applicationTypeName);
             test.EventPayload(9, "lifecycleEvent", lifecycleEvent);
             test.EventPayload(10, "serviceKind", serviceKind);
         }
@@ -124,10 +123,10 @@ namespace Microsoft.ServiceFabric.Services
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
             test.EventPayload(3, "partitionId", partitionId);
             test.EventPayload(4, "replicaId", replicaId);
-            test.EventPayload(5, "serviceName", serviceName.GetHashCode().ToString());
-            test.EventPayload(6, "serviceTypeName", serviceTypeName.GetHashCode().ToString());
-            test.EventPayload(7, "applicationName", applicationName.GetHashCode().ToString());
-            test.EventPayload(8, "applicationTypeName", applicationTypeName.GetHashCode().ToString());
+            test.EventPayload(5, "serviceName", serviceName);
+            test.EventPayload(6, "serviceTypeName", serviceTypeName);
+            test.EventPayload(7, "applicationName", applicationName);
+            test.EventPayload(8, "applicationTypeName", applicationTypeName);
             test.EventPayload(9, "communicationListenerType", communicationListenerType);
         }
 
@@ -160,10 +159,10 @@ namespace Microsoft.ServiceFabric.Services
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
             test.EventPayload(3, "partitionId", partitionId);
             test.EventPayload(4, "replicaId", replicaId);
-            test.EventPayload(5, "serviceName", serviceName.GetHashCode().ToString());
-            test.EventPayload(6, "serviceTypeName", serviceTypeName.GetHashCode().ToString());
-            test.EventPayload(7, "applicationName", applicationName.GetHashCode().ToString());
-            test.EventPayload(8, "applicationTypeName", applicationTypeName.GetHashCode().ToString());
+            test.EventPayload(5, "serviceName", serviceName);
+            test.EventPayload(6, "serviceTypeName", serviceTypeName);
+            test.EventPayload(7, "applicationName", applicationName);
+            test.EventPayload(8, "applicationTypeName", applicationTypeName);
             test.EventPayload(9, "isSecure", isSecure);
             test.EventPayload(10, "remotingVersion", remotingVersion);
             test.EventPayload(11, "communicationListenerType", communicationListenerType);

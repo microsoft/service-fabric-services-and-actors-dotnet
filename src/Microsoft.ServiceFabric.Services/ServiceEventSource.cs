@@ -65,10 +65,10 @@ namespace Microsoft.ServiceFabric.Services
                 runtimePlatform,
                 partitionId,
                 replicaOrInstanceId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
                 lifecycleEvent,
                 serviceKind);
         }
@@ -92,10 +92,10 @@ namespace Microsoft.ServiceFabric.Services
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
                 communicationListenerType);
         }
 
@@ -120,10 +120,10 @@ namespace Microsoft.ServiceFabric.Services
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
                 isSecure,
                 remotingVersion,
                 communicationListenerType);
