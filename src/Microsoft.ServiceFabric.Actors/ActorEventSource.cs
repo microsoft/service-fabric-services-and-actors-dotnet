@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors
 
         private const int ActorStateProviderUsageEventId = 5;
         private const int CustomActorServiceUsageEventId = 6;
-        private const int ActorReminderRegisterationEventId = 7;
+        private const int ActorReminderRegistrationEventId = 7;
 
         private const string ActorStateProviderUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Actors
         private const string CustomActorServiceUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, actorType = {3}, actorServiceType = {4}";
 
-        private const string ActorReminderRegisterationEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        private const string ActorReminderRegistrationEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
             "ownerActorId = {9}, reminderPeriod = {10}, reminderName = {11}";
@@ -88,7 +88,7 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         [NonEvent]
-        internal void ActorReminderRegisterationEventWrapper(
+        internal void ActorReminderRegistrationEventWrapper(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -102,7 +102,7 @@ namespace Microsoft.ServiceFabric.Actors
             string reminderPeriod,
             string reminderName)
         {
-            ActorReminderRegisterationEvent(
+            ActorReminderRegistrationEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -180,8 +180,8 @@ namespace Microsoft.ServiceFabric.Actors
                 actorServiceType);
         }
 
-        [Event(ActorReminderRegisterationEventId, Message = ActorReminderRegisterationEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void ActorReminderRegisterationEvent(
+        [Event(ActorReminderRegistrationEventId, Message = ActorReminderRegistrationEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void ActorReminderRegistrationEvent(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -196,7 +196,7 @@ namespace Microsoft.ServiceFabric.Actors
             string reminderName)
         {
             this.WriteEvent(
-                ActorReminderRegisterationEventId,
+                ActorReminderRegistrationEventId,
                 type,
                 clusterOsType,
                 runtimePlatform,

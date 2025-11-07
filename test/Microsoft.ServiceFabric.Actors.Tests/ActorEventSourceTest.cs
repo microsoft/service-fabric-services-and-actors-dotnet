@@ -119,11 +119,11 @@ namespace Microsoft.ServiceFabric.Actors
         }
 
         [Fact]
-        public void ActorReminderRegisterationEventWrapperPublishesExpectedEvent()
+        public void ActorReminderRegistrationEventWrapperPublishesExpectedEvent()
         {
             test.EnableEvents(EventLevel.LogAlways);
 
-            test.Instance.ActorReminderRegisterationEventWrapper(
+            test.Instance.ActorReminderRegistrationEventWrapper(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -141,7 +141,7 @@ namespace Microsoft.ServiceFabric.Actors
             Assert.Equal(7, test.Event.EventId);
             Assert.Equal(EventLevel.Informational, test.Event.Level);
             test.EventKeywords(ActorEventSource.Keywords.Default);
-            Assert.Equal("ActorReminderRegisterationEvent", test.Event.EventName);
+            Assert.Equal("ActorReminderRegistrationEvent", test.Event.EventName);
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);

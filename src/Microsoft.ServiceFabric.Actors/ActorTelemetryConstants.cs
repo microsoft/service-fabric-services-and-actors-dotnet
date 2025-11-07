@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Actors
         // Names of all the actor telemetry events.
         internal static readonly string ActorStateProviderUsageEventName = "TelemetryEvents.ActorStateProviderUsageEvent";
         internal static readonly string CustomActorServiceUsageEventName = "TelemetryEvents.CustomActorServiceUsageEvent";
-        internal static readonly string ActorReminderRegisterationEventName = "TelemetryEvents.ActorReminderRegisterationEvent";
+        internal static readonly string ActorReminderRegistrationEventName = "TelemetryEvents.ActorReminderRegistrationEvent";
 
         internal static readonly string ActorServiceKind = "ActorService";
     }
