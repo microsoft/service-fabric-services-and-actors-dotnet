@@ -5,9 +5,7 @@
 
 using System;
 using System.Diagnostics.Tracing;
-using System.Fabric;
 using Fuzzy;
-using Microsoft.ServiceFabric.Actors.Tests;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors
@@ -95,10 +93,10 @@ namespace Microsoft.ServiceFabric.Actors
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
             test.EventPayload(3, "partitionId", partitionId);
             test.EventPayload(4, "replicaId", replicaId);
-            test.EventPayload(5, "serviceName", serviceName.GetHashCode().ToString());
-            test.EventPayload(6, "serviceTypeName", serviceTypeName.GetHashCode().ToString());
-            test.EventPayload(7, "applicationName", applicationName.GetHashCode().ToString());
-            test.EventPayload(8, "applicationTypeName", applicationTypeName.GetHashCode().ToString());
+            test.EventPayload(5, "serviceName", serviceName);
+            test.EventPayload(6, "serviceTypeName", serviceTypeName);
+            test.EventPayload(7, "applicationName", applicationName);
+            test.EventPayload(8, "applicationTypeName", applicationTypeName);
             test.EventPayload(9, "stateProviderName", stateProviderName);
         }
 
@@ -122,8 +120,8 @@ namespace Microsoft.ServiceFabric.Actors
             test.EventPayload(0, "type", type);
             test.EventPayload(1, "clusterOsType", clusterOsType);
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
-            test.EventPayload(3, "actorType", actorType.GetHashCode().ToString());
-            test.EventPayload(4, "actorServiceType", actorServiceType.GetHashCode().ToString());
+            test.EventPayload(3, "actorType", actorType);
+            test.EventPayload(4, "actorServiceType", actorServiceType);
         }
 
         [Fact]
@@ -155,13 +153,13 @@ namespace Microsoft.ServiceFabric.Actors
             test.EventPayload(2, "runtimePlatform", runtimePlatform);
             test.EventPayload(3, "partitionId", partitionId);
             test.EventPayload(4, "replicaId", replicaId);
-            test.EventPayload(5, "serviceName", serviceName.GetHashCode().ToString());
-            test.EventPayload(6, "serviceTypeName", serviceTypeName.GetHashCode().ToString());
-            test.EventPayload(7, "applicationName", applicationName.GetHashCode().ToString());
-            test.EventPayload(8, "applicationTypeName", applicationTypeName.GetHashCode().ToString());
-            test.EventPayload(9, "ownerActorId", ownerActorId.GetHashCode().ToString());
+            test.EventPayload(5, "serviceName", serviceName);
+            test.EventPayload(6, "serviceTypeName", serviceTypeName);
+            test.EventPayload(7, "applicationName", applicationName);
+            test.EventPayload(8, "applicationTypeName", applicationTypeName);
+            test.EventPayload(9, "ownerActorId", ownerActorId);
             test.EventPayload(10, "reminderPeriod", reminderPeriod);
-            test.EventPayload(11, "reminderName", reminderName.GetHashCode().ToString());
+            test.EventPayload(11, "reminderName", reminderName);
         }
 
         [Fact]
