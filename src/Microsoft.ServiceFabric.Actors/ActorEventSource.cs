@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Actors
             string applicationTypeName,
             string stateProviderName)
         {
-            Instance.ActorStateProviderUsageEvent(
+            ActorStateProviderUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -110,7 +110,7 @@ namespace Microsoft.ServiceFabric.Actors
             string actorType,
             string actorServiceType)
         {
-            Instance.CustomActorServiceUsageEvent(
+            CustomActorServiceUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Actors
             string reminderPeriod,
             string reminderName)
         {
-            Instance.ActorReminderRegisterationEvent(
+            ActorReminderRegisterationEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
