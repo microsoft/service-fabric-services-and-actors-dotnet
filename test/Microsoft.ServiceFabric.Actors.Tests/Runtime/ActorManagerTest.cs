@@ -24,10 +24,16 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal readonly ActorId actorId;
         internal readonly ActorService actorService;
 
+        readonly IClock clock = Mock.Of<IClock>();
+        readonly DateTime startTime = DateTime.Now;
+
+
         public ActorManagerTest()
         {
             actorId = ActorId.CreateRandom();
             actorService = TestMocksRepository.GetActorService<TestActor>();
+            actorService.Field<IClock>().Set(clock);
+            Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
 
             var friendlyNameBuilder = new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation);
             actorService.InitializeInternal(friendlyNameBuilder);
@@ -103,7 +109,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             private void UnregisterReminders()
             {
-                ConsoleLogHelper.LogInfo("Unregistering reminders...");
+                ConsoleLogHelper.LogInfo("Unregistered reminders...");
 
                 for (var i = 1; i <= RemainderCount; i++)
                 {
@@ -166,7 +172,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             private void ResetActorManager()
             {
                 ConsoleLogHelper.LogInfo("Resetting ActorManager...");
-                actorManager = new ActorManager(actorService);
+                actorManager = new ActorManager(actorService, clock);
 
                 actorManager.OpenAsync(null, CancellationToken.None).GetAwaiter().GetResult();
                 actorManager.StartLoadingRemindersAsync(CancellationToken.None).GetAwaiter().GetResult();
@@ -183,7 +189,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             ActorManager sut;
 
-            public Constructor() => sut = new ActorManager(actorService);
+            public Constructor() => sut = new ActorManager(actorService, clock);
 
             [Fact]
             public void DiagnosticsEventsHasAllNeededEventsRegistered()
@@ -212,18 +218,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorManager sut;
 
             readonly IDiagnostics diagnosticEvents = Mock.Of<IDiagnostics>();
-            readonly IClock clock = Mock.Of<IClock>();
-
-            readonly DateTime startTime = DateTime.Now;
             readonly string callContext = fuzzy.String();
 
             public DiagnosticEvents()
             {
-                sut = new ActorManager(actorService);
+                sut = new ActorManager(actorService, clock);
 
                 sut.Field<IDiagnostics>().Set(diagnosticEvents);
-                sut.Field<IClock>().Set(clock);
-                Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
             }
 
             public class DispatchToActorAsync : DiagnosticEvents
@@ -328,7 +329,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     actor = sut.GetActor(actorId, true, false).Actor;
                     actor.Manager.Field<IDiagnostics>().Set(diagnosticEvents);
-                    actor.Field<IClock>().Set(clock);
                 }
 
                 [Fact]

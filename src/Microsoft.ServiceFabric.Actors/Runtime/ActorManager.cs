@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private Timer gcTimer;
         private Task loadRemindersTask;
 
-        internal ActorManager(ActorService actorService)
+        internal ActorManager(ActorService actorService, IClock clock)
         {
             this.actorService = actorService;
             this.traceId = actorService.Context.TraceId;
@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
 
-            this.clock = new SystemClock();
+            this.clock = clock;
             performanceCounterProvider = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
             performanceCounterProvider.InitializeActorMethodInfo(actorService.MethodFriendlyNameBuilder);
 

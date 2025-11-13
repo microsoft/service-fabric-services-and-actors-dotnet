@@ -47,7 +47,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
         {
             this.actorService = actorService;
             this.cancellationHelper = new ServiceRemotingCancellationHelper(actorService.Context.TraceId);
-            this.clock = new SystemClock();
+            this.clock = actorService.Clock;
         }
 
         /// <summary>

@@ -6,7 +6,6 @@
 using System;
 using System.Threading.Tasks;
 using Fuzzy;
-using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
@@ -33,8 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
 
-            sut = new ActorStateManager(new TestActor(actorService, actorId), new NullActorStateProvider(), diagnosticEvents);
-            sut.Field<IClock>().Set(clock);
+            sut = new ActorStateManager(new TestActor(actorService, actorId), new NullActorStateProvider(), diagnosticEvents, clock);
         }
 
         public class State : ActorStateManagerTest

@@ -134,6 +134,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorManagerAdapter.ActorManager; }
         }
 
+        internal IClock Clock
+        {
+            get { return this.clock; }
+        }
+
         #region IActorService Members
 
         /// <summary>
@@ -296,7 +301,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             if (newRole == ReplicaRole.Primary)
             {
-                this.actorManagerAdapter.ActorManager = new ActorManager(this);
+                this.actorManagerAdapter.ActorManager = new ActorManager(this, clock);
                 await this.actorManagerAdapter.OpenAsync(this.Partition, cancellationToken);
                 this.ActorManager.DiagnosticsEvents.ActorChangeRole(this.replicaRole, newRole);
             }
@@ -350,7 +355,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)
         {
-            return new ActorStateManager(actorBase, actorStateProvider, actorBase.Manager.DiagnosticsEvents);
+            return new ActorStateManager(actorBase, actorStateProvider, actorBase.Manager.DiagnosticsEvents, actorBase.ActorService.Clock);
         }
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)

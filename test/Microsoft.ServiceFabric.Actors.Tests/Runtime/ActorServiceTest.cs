@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 createDiagnosticEvents = typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics>>().Value;
                 typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics>>().Set((actorService, clock, performanceCounterProvider) => diagnosticEvents);
 
-                var actorManager = new ActorManager(actorService);
+                var actorManager = new ActorManager(actorService, Mock.Of<IClock>());
                 actorService.Field<ActorManagerAdapter>().Value.ActorManager = actorManager;
             }
 

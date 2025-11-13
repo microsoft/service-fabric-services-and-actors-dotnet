@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal ActorBase(ActorService actorService, ActorId actorId)
         {
             this.actorManager = actorService.ActorManager;
-            this.clock = new SystemClock();
+            this.clock = actorService.Clock;
             this.actorId = actorId;
 
             this.timers = null;
