@@ -4,8 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fuzzy;
@@ -25,6 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal readonly ActorService actorService;
 
         readonly IClock clock = Mock.Of<IClock>();
+        readonly IDiagnostics diagnostics = Mock.Of<IDiagnostics>();
         readonly DateTime startTime = DateTime.Now;
 
 
@@ -172,7 +171,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             private void ResetActorManager()
             {
                 ConsoleLogHelper.LogInfo("Resetting ActorManager...");
-                actorManager = new ActorManager(actorService, clock);
+                actorManager = new ActorManager(actorService, clock, diagnostics);
 
                 actorManager.OpenAsync(null, CancellationToken.None).GetAwaiter().GetResult();
                 actorManager.StartLoadingRemindersAsync(CancellationToken.None).GetAwaiter().GetResult();
@@ -185,46 +184,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
         }
 
-        public class Constructor : DiagnosticEvents
-        {
-            ActorManager sut;
-
-            public Constructor() => sut = new ActorManager(actorService, clock);
-
-            [Fact]
-            public void DiagnosticsEventsHasAllNeededEventsRegistered()
-            {
-                AggregatedDiagnosticEvents field = (AggregatedDiagnosticEvents)sut.Field<IDiagnostics>().Value;
-                var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnostics>>().Value;
-
-                Assert.Equal(2, registeredDiagnosticEvents.Count());
-                Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
-                Assert.IsType<EventSourceDiagnosticEvents>(registeredDiagnosticEvents.ToList()[1]);
-            }
-
-            [Fact]
-            public void HasClockField()
-            {
-                var field = sut.Field<IClock>();
-
-                Assert.IsAssignableFrom<SystemClock>(field.Value);
-            }
-        }
-
         public class DiagnosticEvents : ActorManagerTest
         {
             readonly static IFuzz fuzzy = new RandomFuzz();
 
             ActorManager sut;
 
-            readonly IDiagnostics diagnosticEvents = Mock.Of<IDiagnostics>();
             readonly string callContext = fuzzy.String();
 
             public DiagnosticEvents()
             {
-                sut = new ActorManager(actorService, clock);
-
-                sut.Field<IDiagnostics>().Set(diagnosticEvents);
+                sut = new ActorManager(actorService, clock, diagnostics);
             }
 
             public class DispatchToActorAsync : DiagnosticEvents
@@ -260,8 +230,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     Mock.Get(mockDiagnoticContext).Verify(d => d.UpdateLastReportedActorMethodCalls(), Times.Once);
                     Mock.Get(mockDiagnoticContext).Verify(d => d.DecremenetPendingActorMethodCalls(), Times.Never);
 
-                    Mock.Get(diagnosticEvents).Verify(d => d.AcquireActorLockFinish(It.Is<PendingActorMethodDiagnosticData>(data => data.Equals(actorMethodDiagnosticData)), startTime), Times.Once);
-                    Mock.Get(diagnosticEvents).Verify(d => d.ReleaseActorLock(startTime), Times.Once);
+                    Mock.Get(diagnostics).Verify(d => d.AcquireActorLockFinish(It.Is<PendingActorMethodDiagnosticData>(data => data.Equals(actorMethodDiagnosticData)), startTime), Times.Once);
+                    Mock.Get(diagnostics).Verify(d => d.ReleaseActorLock(startTime), Times.Once);
                 }
 
                 [Fact]
@@ -296,7 +266,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         timerCall: false,
                         cancellationToken: TestContext.Current.CancellationToken);
 
-                    Mock.Get(diagnosticEvents).Verify(d => d.ActorActivated(actorId), Times.Once);
+                    Mock.Get(diagnostics).Verify(d => d.ActorActivated(actorId), Times.Once);
                 }
 
                 [Fact]
@@ -318,7 +288,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                         callContext: callContext,
                         cancellationToken: TestContext.Current.CancellationToken);
 
-                    Mock.Get(diagnosticEvents).Verify(d => d.ActorDeactivated(actorId), Times.Once);
+                    Mock.Get(diagnostics).Verify(d => d.ActorDeactivated(actorId), Times.Once);
                 }
             }
 
@@ -328,7 +298,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 public OnActivateInternAsync()
                 {
                     actor = sut.GetActor(actorId, true, false).Actor;
-                    actor.Manager.Field<IDiagnostics>().Set(diagnosticEvents);
+                    actor.Manager.Field<IDiagnostics>().Set(diagnostics);
                 }
 
                 [Fact]
@@ -336,8 +306,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 {
                     await actor.OnActivateInternalAsync();
 
-                    Mock.Get(diagnosticEvents).Verify(d => d.ActorOnActivateAsyncStart(), Times.Once);
-                    Mock.Get(diagnosticEvents).Verify(d => d.ActorOnActivateAsyncFinish(startTime), Times.Once);
+                    Mock.Get(diagnostics).Verify(d => d.ActorOnActivateAsyncStart(), Times.Once);
+                    Mock.Get(diagnostics).Verify(d => d.ActorOnActivateAsyncFinish(startTime), Times.Once);
                 }
             }
         }

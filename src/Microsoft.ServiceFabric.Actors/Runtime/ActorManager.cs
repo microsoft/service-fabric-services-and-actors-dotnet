@@ -29,32 +29,22 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private const string TraceType = "ActorManager";
         private const string ReceiveReminderMethodName = "ReceiveReminderAsync";
 
-        private readonly string traceId;
-        private readonly ActorService actorService;
-        private readonly Random random = new Random();
-        private readonly ActorMethodContext reminderMethodContext;
-        private readonly ConcurrentDictionary<ActorId, ActorBase> activeActors;
-        private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>> remindersByActorId;
-        private readonly IActorEventManager eventManager;
-        private bool isClosed;
+        readonly string traceId;
+        readonly ActorService actorService;
+        readonly Random random = new Random();
+        readonly ActorMethodContext reminderMethodContext;
+        readonly ConcurrentDictionary<ActorId, ActorBase> activeActors;
+        readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>> remindersByActorId;
+        readonly IActorEventManager eventManager;
+        bool isClosed;
 
-        private readonly IDiagnostics diagnosticEvents;
-        private readonly IClock clock;
-        private readonly PerformanceCounterProviderV2 performanceCounterProvider;
-
-        private static Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics> createDiagnosticEvents = (actorService, clock, performanceCounterProvider) =>
-        {
-            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
-            var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, actorService.Context, actorService.MethodFriendlyNameBuilder, actorService.ActorTypeInformation);
-            var registeredDiagnosticsEvents = new List<IDiagnostics> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
-
-            return new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
-        };
+        readonly IDiagnostics diagnostics;
+        readonly IClock clock;
 
         private Timer gcTimer;
         private Task loadRemindersTask;
 
-        internal ActorManager(ActorService actorService, IClock clock)
+        internal ActorManager(ActorService actorService, IClock clock, IDiagnostics diagnostics)
         {
             this.actorService = actorService;
             this.traceId = actorService.Context.TraceId;
@@ -65,10 +55,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.reminderMethodContext = ActorMethodContext.CreateForReminder(ReceiveReminderMethodName);
 
             this.clock = clock;
-            performanceCounterProvider = new PerformanceCounterProviderV2(actorService.Context.PartitionId, actorService.ActorTypeInformation);
-            performanceCounterProvider.InitializeActorMethodInfo(actorService.MethodFriendlyNameBuilder);
-
-            this.diagnosticEvents = createDiagnosticEvents(actorService, clock, performanceCounterProvider);
+            this.diagnostics = diagnostics;
 
             // Don't capture the current ExecutionContext and its AsyncLocals onto the timer
             bool restoreFlow = false;
@@ -100,7 +87,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public IDiagnostics DiagnosticsEvents
         {
-            get { return this.diagnosticEvents; }
+            get { return this.diagnostics; }
         }
 
         public bool IsClosed
@@ -144,7 +131,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             await this.CleanupRemindersAsync();
-            DisposeDiagnoticEvents();
+            // TODO - handle dispose DisposeDiagnoticEvents();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Closed.");
         }
@@ -156,7 +143,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             this.CleanupRemindersAsync().ContinueWith(t => t.Exception);
-            DisposeDiagnoticEvents();
+            // TODO - handle dispose DisposeDiagnoticEvents();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Aborted.");
         }
@@ -226,7 +213,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     // Emit diagnostic info - after acquiring actor lock
                     var deltaMethodCalls = diagnosticContext.UpdateLastReportedActorMethodCalls();
                     var diagnosticData = new PendingActorMethodDiagnosticData() { ActorId = actorId, PendingActorMethodCalls = diagnosticContext.PendingActorMethodCalls, PendingActorMethodCallsDelta = deltaMethodCalls };
-                    this.diagnosticEvents.AcquireActorLockFinish(diagnosticData, startTime);
+                    this.diagnostics.AcquireActorLockFinish(diagnosticData, startTime);
 
                     ActorTrace.Source.WriteInfoWithId(
                         TraceType,
@@ -266,7 +253,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 await actor.ConcurrencyLock.ReleaseContext(callContext);
 
                 // Emit diagnostic info - after releasing actor lock
-                this.diagnosticEvents.ReleaseActorLock(startTime);
+                this.diagnostics.ReleaseActorLock(startTime);
 
                 // ***
                 // END: CRITICAL CODE
@@ -805,7 +792,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             DateTime startTime = clock.UtcNow;
             long interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
-            this.diagnosticEvents.ActorMethodStart(actor.Id, interfaceMethodKey);
+            this.diagnostics.ActorMethodStart(actor.Id, interfaceMethodKey);
 
             Task<IServiceRemotingResponseMessageBody> dispatchTask;
             try
@@ -819,7 +806,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             catch (Exception e)
             {
-                this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
+                this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                 throw;
             }
 
@@ -833,11 +820,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                     catch (Exception e)
                     {
-                        this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
+                        this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                         throw;
                     }
 
-                    this.diagnosticEvents.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = null, RemotingListener = RemotingListenerVersion.V2 }, startTime);
+                    this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = null, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                     return responseMsgBody;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);
@@ -949,7 +936,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             await this.OnPostActivateAsync(actor);
 
-            this.diagnosticEvents.ActorActivated(actor.Id);
+            this.diagnostics.ActorActivated(actor.Id);
         }
 
         private void ArmGcTimer()
@@ -1046,7 +1033,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
                 await this.OnPostDeactivateAsync(actor);
 
-                this.diagnosticEvents.ActorDeactivated(actor.Id);
+                this.diagnostics.ActorDeactivated(actor.Id);
             }
         }
 
@@ -1057,13 +1044,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw new FabricNotPrimaryException();
             }
         }
-        private void DisposeDiagnoticEvents()
-        {
-            if (this.performanceCounterProvider != null)
-            {
-                this.performanceCounterProvider.Dispose();
-            }
-        }
+        // TODO - handle dispose private void DisposeDiagnoticEvents()
+        //{
+        //    if (this.performanceCounterProvider != null)
+        //    {
+        //        this.performanceCounterProvider.Dispose();
+        //    }
+        //}
 
         private async Task CleanupRemindersAsync()
         {

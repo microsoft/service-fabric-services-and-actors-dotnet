@@ -4,7 +4,9 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Inspector;
@@ -25,29 +27,34 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
         }
 
-        public class OnRoleChange : ActorServiceTest, IDisposable
+        public class Constructor : ActorServiceTest
         {
-            readonly IDiagnostics diagnosticEvents = Mock.Of<IDiagnostics>();
+            [Fact]
+            public void DiagnosticsEventsHasAllNeededEventsRegistered()
+            {
+                AggregatedDiagnosticEvents field = (AggregatedDiagnosticEvents)actorService.Field<IDiagnostics>().Value;
+                var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnostics>>().Value;
+
+                Assert.Equal(2, registeredDiagnosticEvents.Count());
+                Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
+                Assert.IsType<EventSourceDiagnosticEvents>(registeredDiagnosticEvents.ToList()[1]);
+            }
+        }
+
+        public class OnRoleChange : ActorServiceTest
+        {
+            readonly IDiagnostics diagnostics = Mock.Of<IDiagnostics>();
 
             readonly Func<ReplicaRole, CancellationToken, Task> sutMethod;
-            readonly Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics> createDiagnosticEvents;
+            readonly Func<ServiceContext, ActorMethodFriendlyNameBuilder, ActorTypeInformation, IClock, PerformanceCounterProviderV2, IDiagnostics> createDiagnosticEvents;
 
             public OnRoleChange()
             {
+                actorService.Field<IDiagnostics>().Set(diagnostics);
                 sutMethod = actorService.DeclaredBy(typeof(ActorService)).Method<Func<ReplicaRole, CancellationToken, Task>>("OnChangeRoleAsync");
 
-                // store createDiagnosticEvents function in order to restore it in Dispose()
-                createDiagnosticEvents = typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics>>().Value;
-                typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics>>().Set((actorService, clock, performanceCounterProvider) => diagnosticEvents);
-
-                var actorManager = new ActorManager(actorService, Mock.Of<IClock>());
+                var actorManager = new ActorManager(actorService, Mock.Of<IClock>(), diagnostics);
                 actorService.Field<ActorManagerAdapter>().Value.ActorManager = actorManager;
-            }
-
-            public void Dispose()
-            {
-                // restore createDiagnosticEvents function
-                typeof(ActorManager).Field<Func<ActorService, IClock, PerformanceCounterProviderV2, IDiagnostics>>().Set(createDiagnosticEvents);
             }
 
             [Fact]
@@ -55,7 +62,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 sutMethod.Invoke(ReplicaRole.Primary, TestContext.Current.CancellationToken);
 
-                Mock.Get(diagnosticEvents).Verify(d => d.ActorChangeRole(It.IsAny<ReplicaRole>(), ReplicaRole.Primary), Times.Once);
+                Mock.Get(diagnostics).Verify(d => d.ActorChangeRole(It.IsAny<ReplicaRole>(), ReplicaRole.Primary), Times.Once);
             }
 
             [Fact]
@@ -63,7 +70,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 sutMethod.Invoke(ReplicaRole.IdleSecondary, TestContext.Current.CancellationToken);
 
-                Mock.Get(diagnosticEvents).Verify(d => d.ActorChangeRole(It.IsAny<ReplicaRole>(), ReplicaRole.IdleSecondary), Times.Once);
+                Mock.Get(diagnostics).Verify(d => d.ActorChangeRole(It.IsAny<ReplicaRole>(), ReplicaRole.IdleSecondary), Times.Once);
+            }
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
             }
         }
     }

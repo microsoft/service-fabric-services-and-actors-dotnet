@@ -40,7 +40,19 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         ActorMethodFriendlyNameBuilder methodFriendlyNameBuilder;
         ReplicaRole replicaRole;
         Remoting.V2.Runtime.ActorMethodDispatcherMap methodDispatcherMapV2;
+
         readonly IClock clock = new SystemClock();
+        readonly IDiagnostics diagnostics;
+        readonly PerformanceCounterProviderV2 performanceCounterProvider;
+
+        readonly static Func<ServiceContext, ActorMethodFriendlyNameBuilder, ActorTypeInformation, IClock, PerformanceCounterProviderV2, IDiagnostics> createDiagnosticEvents = (serviceContext, methodNameBuilder, actorTypeInformation, clock, performanceCounterProvider) =>
+        {
+            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
+            var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, serviceContext, methodNameBuilder, actorTypeInformation);
+            var registeredDiagnosticsEvents = new List<IDiagnostics> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
+
+            return new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActorService"/> class.
@@ -72,6 +84,10 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.actorManagerAdapter = new ActorManagerAdapter { ActorManager = new MockActorManager(this) };
             this.replicaRole = ReplicaRole.Unknown;
             this.methodFriendlyNameBuilder = new ActorMethodFriendlyNameBuilder(actorTypeInformation);
+
+            performanceCounterProvider = new PerformanceCounterProviderV2(context.PartitionId, actorTypeInfo);
+            performanceCounterProvider.InitializeActorMethodInfo(this.methodFriendlyNameBuilder);
+            this.diagnostics = createDiagnosticEvents(context, methodFriendlyNameBuilder, actorTypeInfo, clock, performanceCounterProvider);
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -137,6 +153,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal IClock Clock
         {
             get { return this.clock; }
+        }
+
+        internal IDiagnostics Diagnotics
+        {
+            get { return this.diagnostics; }
         }
 
         #region IActorService Members
@@ -301,7 +322,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             if (newRole == ReplicaRole.Primary)
             {
-                this.actorManagerAdapter.ActorManager = new ActorManager(this, clock);
+                this.actorManagerAdapter.ActorManager = new ActorManager(this, clock, diagnostics);
                 await this.actorManagerAdapter.OpenAsync(this.Partition, cancellationToken);
                 this.ActorManager.DiagnosticsEvents.ActorChangeRole(this.replicaRole, newRole);
             }
@@ -355,7 +376,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)
         {
-            return new ActorStateManager(actorBase, actorStateProvider, actorBase.Manager.DiagnosticsEvents, actorBase.ActorService.Clock);
+            return new ActorStateManager(actorBase, actorStateProvider, actorBase.ActorService.Diagnotics, actorBase.ActorService.Clock);
         }
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)
