@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Query;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
 
@@ -33,8 +32,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         /// Gets a value indicating whether reminders have finished loading for allt he actors in the partition.
         /// </summary>
         bool HasRemindersLoaded { get; }
-
-        IDiagnostics DiagnosticsEvents { get; }
 
         #region Actor Manager Life Cycle
 

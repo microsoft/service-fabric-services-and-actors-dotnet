@@ -85,11 +85,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.actorService; }
         }
 
-        public IDiagnostics DiagnosticsEvents
-        {
-            get { return this.diagnostics; }
-        }
-
         public bool IsClosed
         {
             get { return this.isClosed; }
@@ -131,7 +126,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             await this.CleanupRemindersAsync();
-            // TODO - handle dispose DisposeDiagnoticEvents();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Closed.");
         }
@@ -143,7 +137,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.isClosed = true;
 
             this.CleanupRemindersAsync().ContinueWith(t => t.Exception);
-            // TODO - handle dispose DisposeDiagnoticEvents();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.traceId, "Aborted.");
         }
@@ -1044,13 +1037,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 throw new FabricNotPrimaryException();
             }
         }
-        // TODO - handle dispose private void DisposeDiagnoticEvents()
-        //{
-        //    if (this.performanceCounterProvider != null)
-        //    {
-        //        this.performanceCounterProvider.Dispose();
-        //    }
-        //}
 
         private async Task CleanupRemindersAsync()
         {

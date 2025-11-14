@@ -298,7 +298,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 public OnActivateInternAsync()
                 {
                     actor = sut.GetActor(actorId, true, false).Actor;
-                    actor.Manager.Field<IDiagnostics>().Set(diagnostics);
+                    actor.Field<IDiagnostics>().Set(diagnostics);
                 }
 
                 [Fact]

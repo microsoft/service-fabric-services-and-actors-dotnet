@@ -31,12 +31,11 @@ namespace Microsoft.ServiceFabric.Actors
         {
             ActorService actorService = TestMocksRepository.GetActorService<TestActor>();
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
-
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
-            actorService.ActorManager.Field<IDiagnostics>().Set(diagnosticEvents);
 
             sut = new ActorServiceRemotingDispatcher(actorService, Mock.Of<IServiceRemotingMessageBodyFactory>());
             sut.Field<IClock>().Set(clock);
+            sut.Field<IDiagnostics>().Set(diagnosticEvents);
         }
 
         public class Diagnostics : ActorServiceRemotingDispatcherTest

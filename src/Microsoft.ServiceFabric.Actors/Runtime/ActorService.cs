@@ -150,7 +150,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             get { return this.clock; }
         }
 
-        internal IDiagnostics Diagnotics
+        internal IDiagnostics Diagnostics
         {
             get { return this.diagnostics; }
         }
@@ -319,13 +319,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 this.actorManagerAdapter.ActorManager = new ActorManager(this, clock, diagnostics);
                 await this.actorManagerAdapter.OpenAsync(this.Partition, cancellationToken);
-                this.ActorManager.DiagnosticsEvents.ActorChangeRole(this.replicaRole, newRole);
+                this.diagnostics.ActorChangeRole(this.replicaRole, newRole);
             }
             else
             {
-                if ((this.ActorManager != null) && (this.ActorManager.DiagnosticsEvents != null))
+                if ((this.diagnostics != null))
                 {
-                    this.ActorManager.DiagnosticsEvents.ActorChangeRole(this.replicaRole, newRole);
+                    this.diagnostics.ActorChangeRole(this.replicaRole, newRole);
                 }
 
                 await this.actorManagerAdapter.CloseAsync(cancellationToken);
@@ -372,7 +372,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorBase actorBase,
             IActorStateProvider actorStateProvider)
         {
-            return new ActorStateManager(actorBase, actorStateProvider, actorBase.ActorService.Diagnotics, actorBase.ActorService.Clock);
+            return new ActorStateManager(actorBase, actorStateProvider, actorBase.ActorService.Diagnostics, actorBase.ActorService.Clock);
         }
 
         private ActorBase DefaultActorFactory(ActorService actorService, ActorId actorId)
