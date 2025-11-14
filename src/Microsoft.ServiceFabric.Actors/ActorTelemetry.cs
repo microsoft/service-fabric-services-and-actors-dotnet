@@ -52,8 +52,8 @@ namespace Microsoft.ServiceFabric.Actors
         /// <param name="reminder"><see cref="ActorReminder"/> which tracks the actor reminder.</param>
         internal static void ActorReminderRegisterationEvent(StatefulServiceContext context, ActorReminder reminder)
         {
-            ActorEventSource.Instance.ActorReminderRegisterationEventWrapper(
-                ActorTelemetryConstants.ActorReminderRegisterationEventName,
+            ActorEventSource.Instance.ActorReminderRegistrationEventWrapper(
+                ActorTelemetryConstants.ActorReminderRegistrationEventName,
                 TelemetryConstants.OsType,
                 TelemetryConstants.RuntimePlatform,
                 context.PartitionId.ToString(),

@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.Actors
 
         private const int ActorStateProviderUsageEventId = 5;
         private const int CustomActorServiceUsageEventId = 6;
-        private const int ActorReminderRegisterationEventId = 7;
+        private const int ActorReminderRegistrationEventId = 7;
 
         private const string ActorStateProviderUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
@@ -31,41 +31,10 @@ namespace Microsoft.ServiceFabric.Actors
         private const string CustomActorServiceUsageEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, actorType = {3}, actorServiceType = {4}";
 
-        private const string ActorReminderRegisterationEventTraceFormat = "{0} : clusterOsType = {1}, " +
+        private const string ActorReminderRegistrationEventTraceFormat = "{0} : clusterOsType = {1}, " +
             "runtimePlatform = {2}, partitionId = {3}, replicaId = {4}, serviceName = {5}, " +
             "serviceTypeName = {6}, applicationName = {7}, applicationTypeName = {8}, " +
             "ownerActorId = {9}, reminderPeriod = {10}, reminderName = {11}";
-
-        #region Migration
-        private const string MigrationBaseFormat = "{0} : " +
-            "clusterOsType = {1}, " +
-            "runtimePlatform = {2}, " +
-            "partitionId = {3}, " +
-            "replicaId = {4}, " +
-            "serviceName = {5}, " +
-            "serviceTypeName = {6}, " +
-            "applicationName = {7}, " +
-            "applicationTypeName = {8}";
-
-        private const int MigrationStartEventId = 8;
-        private const string MigrationStartEventFormat = MigrationBaseFormat + ", settings = {9}";
-
-        private const int MigrationEndEventId = 9;
-        private const string MigrationEndEventFormat = MigrationBaseFormat + ", result = {9}";
-
-        private const int MigrationPhaseStartEventId = 10;
-        private const string MigrationPhaseStartEventFormat = MigrationBaseFormat + ", input = {9}";
-
-        private const int MigrationPhaseEndEventId = 11;
-        private const string MigrationPhaseEndEventFormat = MigrationBaseFormat + ", result = {9}";
-
-        private const int MigrationFailureEventId = 12;
-        private const string MigrationFailureEventFormat = MigrationBaseFormat + ", phase = {9}, errorMessage = {10}";
-
-        private const int MigrationAbortEventId = 13;
-        private const string MigrationAbortEventFormat = MigrationBaseFormat + ", userTriggered = {9}";
-
-        #endregion Migration
 
         /// <summary>
         /// Prevents a default instance of the <see cref="ActorEventSource" /> class from being created.
@@ -89,16 +58,16 @@ namespace Microsoft.ServiceFabric.Actors
             string applicationTypeName,
             string stateProviderName)
         {
-            Instance.ActorStateProviderUsageEvent(
+            ActorStateProviderUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
                 stateProviderName);
         }
 
@@ -110,16 +79,16 @@ namespace Microsoft.ServiceFabric.Actors
             string actorType,
             string actorServiceType)
         {
-            Instance.CustomActorServiceUsageEvent(
+            CustomActorServiceUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
-                actorType.GetHashCode().ToString(),
-                actorServiceType.GetHashCode().ToString());
+                actorType,
+                actorServiceType);
         }
 
         [NonEvent]
-        internal void ActorReminderRegisterationEventWrapper(
+        internal void ActorReminderRegistrationEventWrapper(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -133,213 +102,22 @@ namespace Microsoft.ServiceFabric.Actors
             string reminderPeriod,
             string reminderName)
         {
-            Instance.ActorReminderRegisterationEvent(
+            ActorReminderRegistrationEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
-                ownerActorId.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
+                ownerActorId,
                 reminderPeriod,
-                reminderName.GetHashCode().ToString());
+                reminderName);
         }
 
         #endregion
-
-        #region MigrationEvents
-        [Event(
-            MigrationStartEventId,
-            Message = MigrationStartEventFormat,
-            Level = EventLevel.Informational,
-            Keywords = Keywords.Default)]
-        internal void MigrationStartEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string settingsJson)
-        {
-            this.WriteEvent(
-                MigrationStartEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                settingsJson);
-        }
-
-        [Event(
-            MigrationEndEventId,
-            Message = MigrationEndEventFormat,
-            Level = EventLevel.Informational,
-            Keywords = Keywords.Default)]
-        internal void MigrationEndEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string resultJson)
-        {
-            this.WriteEvent(
-                MigrationEndEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                resultJson);
-        }
-
-        [Event(
-            MigrationPhaseStartEventId,
-            Message = MigrationPhaseStartEventFormat,
-            Level = EventLevel.Informational,
-            Keywords = Keywords.Default)]
-        internal void MigrationPhaseStartEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string inputJson)
-        {
-            this.WriteEvent(
-                MigrationPhaseStartEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                inputJson);
-        }
-
-        [Event(
-            MigrationPhaseEndEventId,
-            Message = MigrationPhaseEndEventFormat,
-            Level = EventLevel.Informational,
-            Keywords = Keywords.Default)]
-        internal void MigrationPhaseEndEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string resultJson)
-        {
-            this.WriteEvent(
-                MigrationPhaseEndEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                resultJson);
-        }
-
-        [Event(
-            MigrationFailureEventId,
-            Message = MigrationFailureEventFormat,
-            Level = EventLevel.Error,
-            Keywords = Keywords.Default)]
-        internal void MigrationFailureEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            string phase,
-            string errorMsg)
-        {
-            this.WriteEvent(
-                MigrationFailureEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                phase,
-                errorMsg);
-        }
-
-        [Event(
-            MigrationAbortEventId,
-            Message = MigrationAbortEventFormat,
-            Level = EventLevel.Informational,
-            Keywords = Keywords.Default)]
-        internal void MigrationAbortEvent(
-            string type,
-            string clusterOsType,
-            string runtimePlatform,
-            string partitionId,
-            string replicaId,
-            string serviceName,
-            string serviceTypeName,
-            string applicationName,
-            string applicationTypeName,
-            bool userTriggered)
-        {
-            this.WriteEvent(
-                MigrationAbortEventId,
-                type,
-                clusterOsType,
-                runtimePlatform,
-                partitionId,
-                replicaId,
-                serviceName,
-                serviceTypeName,
-                applicationName,
-                applicationTypeName,
-                userTriggered);
-        }
-
-        #endregion MigrationEvents
 
         #region Events
         [Event(InfoTextEventId, Message = TextEventFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
@@ -402,8 +180,8 @@ namespace Microsoft.ServiceFabric.Actors
                 actorServiceType);
         }
 
-        [Event(ActorReminderRegisterationEventId, Message = ActorReminderRegisterationEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void ActorReminderRegisterationEvent(
+        [Event(ActorReminderRegistrationEventId, Message = ActorReminderRegistrationEventTraceFormat, Level = EventLevel.Informational, Keywords = Keywords.Default)]
+        private void ActorReminderRegistrationEvent(
             string type,
             string clusterOsType,
             string runtimePlatform,
@@ -418,7 +196,7 @@ namespace Microsoft.ServiceFabric.Actors
             string reminderName)
         {
             this.WriteEvent(
-                ActorReminderRegisterationEventId,
+                ActorReminderRegistrationEventId,
                 type,
                 clusterOsType,
                 runtimePlatform,
