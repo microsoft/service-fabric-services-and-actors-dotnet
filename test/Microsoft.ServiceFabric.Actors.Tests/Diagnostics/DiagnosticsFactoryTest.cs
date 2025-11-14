@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly IDiagnosticsFactory sut;
+        readonly DiagnosticsFactory sut;
 
         internal readonly ServiceContext serviceContext = fuzzy.ServiceContext();
         internal readonly ActorTypeInformation typeInformation = ActorTypeInformation.Get(typeof(TestActor));

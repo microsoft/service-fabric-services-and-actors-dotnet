@@ -43,9 +43,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         readonly IClock clock = new SystemClock();
         readonly IDiagnostics diagnostics;
-        readonly IDiagnosticsFactory diganosticsFactory;
+        readonly DiagnosticsFactory diganosticsFactory;
 
-        static Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory> createDiagnosticFactory = (serviceContext, actorTypeInformation, methodNameBuilder) =>
+        static Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnosticFactory = (serviceContext, actorTypeInformation, methodNameBuilder) =>
         {
             return new DiagnosticsFactory(serviceContext, actorTypeInformation, methodNameBuilder);
         };
@@ -352,7 +352,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTelemetry.ActorServiceReplicaCloseEvent(this.ActorManager.ActorService.Context);
 
             await this.actorManagerAdapter.CloseAsync(cancellationToken);
-            ((DiagnosticsFactory)this.diganosticsFactory).Dispose();
+            this.diganosticsFactory.Dispose();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End close.");
         }

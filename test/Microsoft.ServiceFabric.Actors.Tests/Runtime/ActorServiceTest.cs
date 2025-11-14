@@ -28,23 +28,23 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
         }
 
-        public class DiagnosticsFactory : ActorServiceTest, IDisposable
+        public class Diagnostics : ActorServiceTest, IDisposable
         {
-            readonly Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory> createDiagnoticsFactory;
-            readonly Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>> mockCreateDiagnoticsFactory = new Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>();
-            readonly Diagnostics.DiagnosticsFactory diagnosticsFactory;
+            readonly Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnoticsFactory;
+            readonly Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>> mockCreateDiagnoticsFactory = new Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>();
+            readonly DiagnosticsFactory diagnosticsFactory;
 
             readonly StatefulServiceContext serviceContext = fuzzy.StatefulServiceContext();
             readonly ActorTypeInformation typeInformation = ActorTypeInformation.Get(typeof(TestActor));
 
             readonly ActorService sut;
 
-            public DiagnosticsFactory()
+            public Diagnostics()
             {
-                diagnosticsFactory = new Mock<Diagnostics.DiagnosticsFactory>(serviceContext, typeInformation, new ActorMethodFriendlyNameBuilder(typeInformation)).Object;
+                diagnosticsFactory = new Mock<DiagnosticsFactory>(serviceContext, typeInformation, new ActorMethodFriendlyNameBuilder(typeInformation)).Object;
 
-                this.createDiagnoticsFactory = typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>().Value;
-                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>().Set(mockCreateDiagnoticsFactory.Object);
+                this.createDiagnoticsFactory = typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Value;
+                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(mockCreateDiagnoticsFactory.Object);
                 mockCreateDiagnoticsFactory.Setup(_ => _.Invoke(It.IsAny<ServiceContext>(), It.IsAny<ActorTypeInformation>(), It.IsAny<ActorMethodFriendlyNameBuilder>())).Returns(diagnosticsFactory);
 
                 sut = new ActorService(serviceContext, typeInformation);
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public void Dispose()
             {
-                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>().Set(this.createDiagnoticsFactory);
+                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(this.createDiagnoticsFactory);
             }
 
             [Fact]

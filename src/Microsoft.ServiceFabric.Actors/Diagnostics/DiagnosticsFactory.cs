@@ -12,7 +12,7 @@ using Microsoft.ServiceFabric.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class DiagnosticsFactory : IDiagnosticsFactory, IDisposable
+    internal class DiagnosticsFactory : IDisposable
     {
         readonly PerformanceCounterProviderV2 performanceCounterProvider;
         readonly ServiceContext serviceContext;
