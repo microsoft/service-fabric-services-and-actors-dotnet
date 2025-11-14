@@ -190,7 +190,7 @@ namespace Microsoft.ServiceFabric.Actors.Remoting.V2.Runtime
                 }
                 finally
                 {
-                    this.actorService.Diagnostics.ActorRequestProcessingFinish(startTime);
+                    this.diagnostics.ActorRequestProcessingFinish(startTime);
                 }
 
                 // We are creating empty response headers so that ServiceRemotingServiceEvents can add headers if they needed.

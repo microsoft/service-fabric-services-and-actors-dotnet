@@ -35,13 +35,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         List<IActorTimer> timers;
         volatile bool markedForDeletion;
         readonly IClock clock;
-        readonly IDiagnostics diagnotics;
+        readonly IDiagnostics diagnostics;
 
         internal ActorBase(ActorService actorService, ActorId actorId)
         {
             this.actorManager = actorService.ActorManager;
             this.clock = actorService.Clock;
-            this.diagnotics = actorService.Diagnostics;
+            this.diagnostics = actorService.Diagnostics;
             this.actorId = actorId;
 
             this.timers = null;
@@ -126,11 +126,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         internal async Task OnActivateInternalAsync()
         {
             DateTime startTime = clock.UtcNow;
-            this.diagnotics.ActorOnActivateAsyncStart();
+            this.diagnostics.ActorOnActivateAsyncStart();
 
             await this.OnActivateAsync();
 
-            this.diagnotics.ActorOnActivateAsyncFinish(startTime);
+            this.diagnostics.ActorOnActivateAsyncFinish(startTime);
 
             this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Activated");
         }

@@ -88,7 +88,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void DisposesPerformanceCounterProvider()
             {
-                ((DiagnosticsFactory)sut).Dispose();
+                sut.Dispose();
 
                 mockPerformanceCounterProviderV2.Verify(p => p.Dispose(), Times.Once);
             }
