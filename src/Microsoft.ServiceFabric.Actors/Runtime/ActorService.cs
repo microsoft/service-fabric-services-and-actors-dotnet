@@ -45,7 +45,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         readonly IDiagnostics diagnostics;
         readonly DiagnosticsFactory diagnosticsFactory;
 
-        static readonly Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnosticFactory = (serviceContext, actorTypeInformation, methodNameBuilder) =>
+        static Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnosticFactory = (serviceContext, actorTypeInformation, methodNameBuilder) =>
         {
             return new DiagnosticsFactory(serviceContext, actorTypeInformation, methodNameBuilder);
         };
