@@ -43,15 +43,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         readonly IClock clock = new SystemClock();
         readonly IDiagnostics diagnostics;
-        readonly PerformanceCounterProviderV2 performanceCounterProvider;
+        readonly IDiagnosticsFactory diganosticsFactory;
 
-        readonly static Func<ServiceContext, ActorMethodFriendlyNameBuilder, ActorTypeInformation, IClock, PerformanceCounterProviderV2, IDiagnostics> createDiagnosticEvents = (serviceContext, methodNameBuilder, actorTypeInformation, clock, performanceCounterProvider) =>
+        static Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory> createDiagnosticFactory = (serviceContext, actorTypeInformation, methodNameBuilder) =>
         {
-            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
-            var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, serviceContext, methodNameBuilder, actorTypeInformation);
-            var registeredDiagnosticsEvents = new List<IDiagnostics> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
-
-            return new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
+            return new DiagnosticsFactory(serviceContext, actorTypeInformation, methodNameBuilder);
         };
 
         /// <summary>
@@ -85,9 +81,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.replicaRole = ReplicaRole.Unknown;
             this.methodFriendlyNameBuilder = new ActorMethodFriendlyNameBuilder(actorTypeInformation);
 
-            performanceCounterProvider = new PerformanceCounterProviderV2(context.PartitionId, actorTypeInfo);
-            performanceCounterProvider.InitializeActorMethodInfo(this.methodFriendlyNameBuilder);
-            this.diagnostics = createDiagnosticEvents(context, methodFriendlyNameBuilder, actorTypeInfo, clock, performanceCounterProvider);
+            this.diganosticsFactory = createDiagnosticFactory(context, actorTypeInfo, methodFriendlyNameBuilder);
+            this.diagnostics = this.diganosticsFactory.CreateDiagnostics(clock);
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -357,6 +352,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTelemetry.ActorServiceReplicaCloseEvent(this.ActorManager.ActorService.Context);
 
             await this.actorManagerAdapter.CloseAsync(cancellationToken);
+            ((DiagnosticsFactory)this.diganosticsFactory).Dispose();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End close.");
         }

@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             performanceCounterProvider.InitializeActorMethodInfo(this.friendlyNameBuilder);
         }
 
-        public IDiagnostics CreateDiagnostics(IClock clock)
+        public virtual IDiagnostics CreateDiagnostics(IClock clock)
         {
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
             var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, serviceContext, friendlyNameBuilder, typeInformation);
@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             performanceCounterProvider.Dispose();
         }

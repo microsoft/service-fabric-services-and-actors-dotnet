@@ -4,11 +4,10 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Tests;
@@ -20,6 +19,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 {
     public class ActorServiceTest
     {
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+
         readonly ActorService actorService = TestMocksRepository.GetActorService<TestActor>();
 
         public ActorServiceTest()
@@ -27,17 +28,46 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
         }
 
-        public class Constructor : ActorServiceTest
+        public class DiagnosticsFactory : ActorServiceTest, IDisposable
         {
-            [Fact]
-            public void DiagnosticsEventsHasAllNeededEventsRegistered()
-            {
-                AggregatedDiagnosticEvents field = (AggregatedDiagnosticEvents)actorService.Field<IDiagnostics>().Value;
-                var registeredDiagnosticEvents = field.Field<IEnumerable<IDiagnostics>>().Value;
+            readonly Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory> createDiagnoticsFactory;
+            readonly Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>> mockCreateDiagnoticsFactory = new Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>();
+            readonly Diagnostics.DiagnosticsFactory diagnosticsFactory;
 
-                Assert.Equal(2, registeredDiagnosticEvents.Count());
-                Assert.IsType<PerformanceCounterDiagnosticEvents>(registeredDiagnosticEvents.ToList()[0]);
-                Assert.IsType<EventSourceDiagnosticEvents>(registeredDiagnosticEvents.ToList()[1]);
+            readonly StatefulServiceContext serviceContext = fuzzy.StatefulServiceContext();
+            readonly ActorTypeInformation typeInformation = ActorTypeInformation.Get(typeof(TestActor));
+
+            readonly ActorService sut;
+
+            public DiagnosticsFactory()
+            {
+                diagnosticsFactory = new Mock<Diagnostics.DiagnosticsFactory>(serviceContext, typeInformation, new ActorMethodFriendlyNameBuilder(typeInformation)).Object;
+
+                this.createDiagnoticsFactory = typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>().Value;
+                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>().Set(mockCreateDiagnoticsFactory.Object);
+                mockCreateDiagnoticsFactory.Setup(_ => _.Invoke(It.IsAny<ServiceContext>(), It.IsAny<ActorTypeInformation>(), It.IsAny<ActorMethodFriendlyNameBuilder>())).Returns(diagnosticsFactory);
+
+                sut = new ActorService(serviceContext, typeInformation);
+            }
+
+            public void Dispose()
+            {
+                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, IDiagnosticsFactory>>().Set(this.createDiagnoticsFactory);
+            }
+
+            [Fact]
+            public void IsCreatedByConstructor()
+            {
+                mockCreateDiagnoticsFactory.Verify(d => d.Invoke(It.Is<ServiceContext>(c => c == serviceContext), It.Is<ActorTypeInformation>(i => i == typeInformation), It.IsAny<ActorMethodFriendlyNameBuilder>()), Times.Once);
+                Mock.Get(diagnosticsFactory).Verify(d => d.CreateDiagnostics(It.IsAny<IClock>()), Times.Once);
+            }
+
+            [Fact]
+            public void IsDisposedByOnCloseAsync()
+            {
+                sut.DeclaredBy(typeof(ActorService)).Method<Func<CancellationToken, Task>>("OnCloseAsync").Invoke(TestContext.Current.CancellationToken);
+
+                Mock.Get(diagnosticsFactory).Verify(d => d.Dispose(), Times.Once);
             }
         }
 
