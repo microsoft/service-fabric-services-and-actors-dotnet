@@ -26,7 +26,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         readonly IDiagnostics diagnostics = Mock.Of<IDiagnostics>();
         readonly DateTime startTime = DateTime.Now;
 
-
         public ActorManagerTest()
         {
             actorId = ActorId.CreateRandom();

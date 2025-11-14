@@ -43,9 +43,9 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         readonly IClock clock = new SystemClock();
         readonly IDiagnostics diagnostics;
-        readonly DiagnosticsFactory diganosticsFactory;
+        readonly DiagnosticsFactory diagnosticsFactory;
 
-        static Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnosticFactory = (serviceContext, actorTypeInformation, methodNameBuilder) =>
+        static readonly Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnosticFactory = (serviceContext, actorTypeInformation, methodNameBuilder) =>
         {
             return new DiagnosticsFactory(serviceContext, actorTypeInformation, methodNameBuilder);
         };
@@ -81,8 +81,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             this.replicaRole = ReplicaRole.Unknown;
             this.methodFriendlyNameBuilder = new ActorMethodFriendlyNameBuilder(actorTypeInformation);
 
-            this.diganosticsFactory = createDiagnosticFactory(context, actorTypeInfo, methodFriendlyNameBuilder);
-            this.diagnostics = this.diganosticsFactory.CreateDiagnostics(clock);
+            this.diagnosticsFactory = createDiagnosticFactory(context, actorTypeInfo, methodFriendlyNameBuilder);
+            this.diagnostics = this.diagnosticsFactory.CreateDiagnostics(clock);
 
             ActorTelemetry.ActorServiceInitializeEvent(
                 this.ActorManager.ActorService.Context,
@@ -323,11 +323,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             else
             {
-                if ((this.diagnostics != null))
-                {
-                    this.diagnostics.ActorChangeRole(this.replicaRole, newRole);
-                }
-
+                this.diagnostics.ActorChangeRole(this.replicaRole, newRole);
                 await this.actorManagerAdapter.CloseAsync(cancellationToken);
             }
 
@@ -352,7 +348,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTelemetry.ActorServiceReplicaCloseEvent(this.ActorManager.ActorService.Context);
 
             await this.actorManagerAdapter.CloseAsync(cancellationToken);
-            this.diganosticsFactory.Dispose();
+            this.diagnosticsFactory.Dispose();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End close.");
         }
