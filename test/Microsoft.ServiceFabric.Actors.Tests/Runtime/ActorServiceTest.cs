@@ -46,7 +46,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             readonly IDiagnostics diagnostics = Mock.Of<IDiagnostics>();
 
             readonly Func<ReplicaRole, CancellationToken, Task> sutMethod;
-            readonly Func<ServiceContext, ActorMethodFriendlyNameBuilder, ActorTypeInformation, IClock, PerformanceCounterProviderV2, IDiagnostics> createDiagnosticEvents;
 
             public OnRoleChange()
             {
@@ -71,11 +70,6 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                 sutMethod.Invoke(ReplicaRole.IdleSecondary, TestContext.Current.CancellationToken);
 
                 Mock.Get(diagnostics).Verify(d => d.ActorChangeRole(It.IsAny<ReplicaRole>(), ReplicaRole.IdleSecondary), Times.Once);
-            }
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
             }
         }
     }
