@@ -17,7 +17,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IMeter<long> actorLockContention;
         readonly IMeter<TimeSpan> acquireLockDuration;
         readonly IMeter<TimeSpan> releaseLockDuration;
-        readonly IMeter<long> pendingMethodLockCalls;
         readonly IMeter1D<long> methodExceptionCount;
         readonly IMeter1D<TimeSpan> methodExecutionDuration;
         readonly IMeter<TimeSpan> onActivateAsyncDuration;
@@ -34,7 +33,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.actorLockContention = longMeterProvider.CreateMeter("Actor", "ActorLockContention");
             this.acquireLockDuration = timeSpanProvider.CreateMeter("Actor", "AcquireLockDuration");
             this.releaseLockDuration = timeSpanProvider.CreateMeter("Actor", "ReleaseLockDuration");
-            this.pendingMethodLockCalls = longMeterProvider.CreateMeter("Actor", "PendingMethodLockCalls");
             this.methodExceptionCount = longMeterProvider.CreateMeter("Actor", "MethodExceptionCount", "MethodId");
             this.methodExecutionDuration = timeSpanProvider.CreateMeter("Actor", "MethodExecutionDuration", "MethodId");
             this.onActivateAsyncDuration = timeSpanProvider.CreateMeter("Actor", "OnActivateAsyncDuration");

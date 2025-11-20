@@ -61,7 +61,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 Mock.Get(mockLongMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "ActorLockContention")), Times.Once);
                 Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "AcquireLockDuration")), Times.Once);
                 Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "ReleaseLockDuration")), Times.Once);
-                Mock.Get(mockLongMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "PendingMethodLockCalls")), Times.Once);
                 Mock.Get(mockLongMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExceptionCount"), It.Is<string>(x => x == "MethodId")), Times.Once);
                 Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExecutionDuration"), It.Is<string>(x => x == "MethodId")), Times.Once);
                 Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "OnActivateAsyncDuration")), Times.Once);
@@ -76,7 +75,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             readonly IMeter<long> mockActorLockContention;
             readonly IMeter<TimeSpan> mockAcquireLockDuration;
             readonly IMeter<TimeSpan> mockReleaseLockDuration;
-            readonly IMeter<long> mockPendingMethodLockCalls;
             readonly IMeter1D<long> mockMethodExceptionCount;
             readonly IMeter1D<TimeSpan> mockMethodExecutionDuration;
             readonly IMeter<TimeSpan> mockOnActivateAsyncDuration;
@@ -95,7 +93,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 mockActorLockContention = sut.Field<IMeter<long>>("actorLockContention").Value;
                 mockAcquireLockDuration = sut.Field<IMeter<TimeSpan>>("acquireLockDuration").Value;
                 mockReleaseLockDuration = sut.Field<IMeter<TimeSpan>>("releaseLockDuration").Value;
-                mockPendingMethodLockCalls = sut.Field<IMeter<long>>("pendingMethodLockCalls").Value;
                 mockMethodExceptionCount = sut.Field<IMeter1D<long>>("methodExceptionCount").Value;
                 mockMethodExecutionDuration = sut.Field<IMeter1D<TimeSpan>>("methodExecutionDuration").Value;
                 mockOnActivateAsyncDuration = sut.Field<IMeter<TimeSpan>>("onActivateAsyncDuration").Value;
@@ -124,7 +121,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 Mock.Get(mockActorLockContention).VerifyNoOtherCalls();
                 Mock.Get(mockAcquireLockDuration).VerifyNoOtherCalls();
                 Mock.Get(mockReleaseLockDuration).VerifyNoOtherCalls();
-                Mock.Get(mockPendingMethodLockCalls).VerifyNoOtherCalls();
                 Mock.Get(mockMethodExceptionCount).VerifyNoOtherCalls();
                 Mock.Get(mockMethodExecutionDuration).VerifyNoOtherCalls();
                 Mock.Get(mockOnActivateAsyncDuration).VerifyNoOtherCalls();
