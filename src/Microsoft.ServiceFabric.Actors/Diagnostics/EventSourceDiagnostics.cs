@@ -12,7 +12,7 @@ using Microsoft.ServiceFabric.Services.Remoting.Description;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class EventSourceDiagnosticEvents : IDiagnostics
+    sealed class EventSourceDiagnostics : IDiagnostics
     {
         readonly ActorFrameworkEventSource eventSource;
         readonly ServiceContext serviceContext;
@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly string actorType;
         readonly Dictionary<long, ActorMethodInfo> actorMethodInfo;
 
-        internal EventSourceDiagnosticEvents(ActorFrameworkEventSource eventSource, IClock clock, ServiceContext serviceContext, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
+        internal EventSourceDiagnostics(ActorFrameworkEventSource eventSource, IClock clock, ServiceContext serviceContext, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
             this.eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
             this.serviceContext = serviceContext ?? throw new ArgumentNullException(nameof(serviceContext));

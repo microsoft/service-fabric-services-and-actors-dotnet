@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    public abstract class AggregatedDiagnosticEventsTest
+    public abstract class AggregatedDiagnosticsTest
     {
         internal interface ITestDiagnosticEvents : IDiagnostics { }
 
@@ -23,8 +23,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         readonly IDiagnostics sut;
 
-        readonly IDiagnostics diagnosticEvent = Mock.Of<IDiagnostics>();
-        readonly IDiagnostics anotherDiagnosticEvents = Mock.Of<ITestDiagnosticEvents>();
+        readonly IDiagnostics diagnostics = Mock.Of<IDiagnostics>();
+        readonly IDiagnostics anotherDiagnostics = Mock.Of<ITestDiagnosticEvents>();
 
         readonly ActorId actorId = fuzzy.ActorId();
         readonly long interfaceMethodKey = fuzzy.Int64();
@@ -32,28 +32,28 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly PendingActorMethodDiagnosticData pendingActorMethodDiagnosticData = default;
         readonly ActorMethodDiagnosticData actorMethodDiagnosticData = default;
 
-        public AggregatedDiagnosticEventsTest() => sut = new AggregatedDiagnosticEvents(new List<IDiagnostics> { diagnosticEvent, anotherDiagnosticEvents });
+        public AggregatedDiagnosticsTest() => sut = new AggregatedDiagnostics(new List<IDiagnostics> { diagnostics, anotherDiagnostics });
 
-        public sealed class Constructor : AggregatedDiagnosticEventsTest
+        public sealed class Constructor : AggregatedDiagnosticsTest
         {
             [Fact]
             public void ThrowsOnNullEventsList()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new AggregatedDiagnosticEvents(null));
+                var exception = Assert.Throws<ArgumentNullException>(() => new AggregatedDiagnostics(null));
                 Assert.Equal("diagnosticEvents", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnAnyNullEvents()
             {
-                var exception = Assert.Throws<ArgumentException>(() => new AggregatedDiagnosticEvents(new List<IDiagnostics> { diagnosticEvent, null }));
+                var exception = Assert.Throws<ArgumentException>(() => new AggregatedDiagnostics(new List<IDiagnostics> { diagnostics, null }));
                 Assert.Equal("diagnosticEvents", exception.Message);
             }
 
             [Fact]
             public void AssignsEmptyEvent()
             {
-                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnostics>());
+                var newSut = new AggregatedDiagnostics(new List<IDiagnostics>());
 
                 Assert.NotNull(newSut.Field<IEnumerable<IDiagnostics>>());
                 Assert.Empty(newSut.Field<IEnumerable<IDiagnostics>>().Value);
@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void AssignsSingleEvent()
             {
-                var newSut = new AggregatedDiagnosticEvents(new List<IDiagnostics>() { diagnosticEvent });
+                var newSut = new AggregatedDiagnostics(new List<IDiagnostics>() { diagnostics });
 
                 Assert.NotNull(newSut.Field<IEnumerable<IDiagnostics>>());
                 Assert.Single(newSut.Field<IEnumerable<IDiagnostics>>().Value);
@@ -79,15 +79,15 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public sealed class ActorRequestProcessing : AggregatedDiagnosticEventsTest
+        public sealed class ActorRequestProcessing : AggregatedDiagnosticsTest
         {
             [Fact]
             public void StartInvokesAllDiagnostics()
             {
                 sut.ActorRequestProcessingStart();
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorRequestProcessingStart(), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorRequestProcessingStart(), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorRequestProcessingStart(), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorRequestProcessingStart(), Times.Once);
             }
 
             [Fact]
@@ -95,20 +95,20 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.ActorRequestProcessingFinish(startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorRequestProcessingFinish(startTime), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorRequestProcessingFinish(startTime), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorRequestProcessingFinish(startTime), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorRequestProcessingFinish(startTime), Times.Once);
             }
         }
 
-        public sealed class ActorOnActivateAsync : AggregatedDiagnosticEventsTest
+        public sealed class ActorOnActivateAsync : AggregatedDiagnosticsTest
         {
             [Fact]
             public void StartInvokesAllDiagnostics()
             {
                 sut.ActorOnActivateAsyncStart();
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorOnActivateAsyncStart(), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorOnActivateAsyncStart(), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorOnActivateAsyncStart(), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorOnActivateAsyncStart(), Times.Once);
             }
 
             [Fact]
@@ -116,20 +116,20 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.ActorOnActivateAsyncFinish(startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorOnActivateAsyncFinish(startTime), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorOnActivateAsyncFinish(startTime), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorOnActivateAsyncFinish(startTime), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorOnActivateAsyncFinish(startTime), Times.Once);
             }
         }
 
-        public sealed class ActorMethod : AggregatedDiagnosticEventsTest
+        public sealed class ActorMethod : AggregatedDiagnosticsTest
         {
             [Fact]
             public void StartInvokesAllDiagnostics()
             {
                 sut.ActorMethodStart(actorId, interfaceMethodKey);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorMethodStart(actorId, interfaceMethodKey), Times.Once);
             }
 
             [Fact]
@@ -139,20 +139,20 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
                 sut.ActorMethodFinish(actorMethodDiagnosticData, startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorMethodFinish(actorMethodDiagnosticData, startTime), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorMethodFinish(actorMethodDiagnosticData, startTime), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorMethodFinish(actorMethodDiagnosticData, startTime), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorMethodFinish(actorMethodDiagnosticData, startTime), Times.Once);
             }
         }
 
-        public sealed class ActorStateLoad : AggregatedDiagnosticEventsTest
+        public sealed class ActorStateLoad : AggregatedDiagnosticsTest
         {
             [Fact]
             public void StartInvokesAllDiagnostics()
             {
                 sut.LoadActorStateStart();
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.LoadActorStateStart(), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.LoadActorStateStart(), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.LoadActorStateStart(), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.LoadActorStateStart(), Times.Once);
             }
 
             [Fact]
@@ -160,8 +160,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.LoadActorStateFinish(startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.LoadActorStateFinish(startTime), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.LoadActorStateFinish(startTime), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.LoadActorStateFinish(startTime), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.LoadActorStateFinish(startTime), Times.Once);
             }
 
             [Fact]
@@ -169,8 +169,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.SaveActorStateStart(actorId);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.SaveActorStateStart(actorId), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.SaveActorStateStart(actorId), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.SaveActorStateStart(actorId), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.SaveActorStateStart(actorId), Times.Once);
             }
 
             [Fact]
@@ -178,20 +178,20 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.SaveActorStateFinish(actorId, startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.SaveActorStateFinish(actorId, startTime), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.SaveActorStateFinish(actorId, startTime), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.SaveActorStateFinish(actorId, startTime), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.SaveActorStateFinish(actorId, startTime), Times.Once);
             }
         }
 
-        public sealed class ActorLock : AggregatedDiagnosticEventsTest
+        public sealed class ActorLock : AggregatedDiagnosticsTest
         {
             [Fact]
             public void AcquireFinishInvokesAllDiagnostics()
             {
                 sut.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.AcquireActorLockFinish(pendingActorMethodDiagnosticData, startTime), Times.Once);
             }
 
             [Fact]
@@ -199,12 +199,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.ReleaseActorLock(startTime);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ReleaseActorLock(startTime), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ReleaseActorLock(startTime), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ReleaseActorLock(startTime), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ReleaseActorLock(startTime), Times.Once);
             }
         }
 
-        public sealed class ActorLifecycle : AggregatedDiagnosticEventsTest
+        public sealed class ActorLifecycle : AggregatedDiagnosticsTest
         {
             [Fact]
             public void ChangeRoleInvokesAllDiagnostics()
@@ -214,8 +214,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
                 sut.ActorChangeRole(currentRole, newRole);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorChangeRole(currentRole, newRole), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorChangeRole(currentRole, newRole), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorChangeRole(currentRole, newRole), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorChangeRole(currentRole, newRole), Times.Once);
             }
 
             [Fact]
@@ -223,8 +223,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.ActorActivated(actorId);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorActivated(actorId), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorActivated(actorId), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorActivated(actorId), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorActivated(actorId), Times.Once);
             }
 
             [Fact]
@@ -232,8 +232,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 sut.ActorDeactivated(actorId);
 
-                Mock.Get(diagnosticEvent).Verify(ds => ds.ActorDeactivated(actorId), Times.Once);
-                Mock.Get(anotherDiagnosticEvents).Verify(ds => ds.ActorDeactivated(actorId), Times.Once);
+                Mock.Get(diagnostics).Verify(ds => ds.ActorDeactivated(actorId), Times.Once);
+                Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorDeactivated(actorId), Times.Once);
             }
         }
     }

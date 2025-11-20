@@ -9,12 +9,12 @@ using Microsoft.ServiceFabric.Diagnostics;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class PerformanceCounterDiagnosticEvents : IDiagnostics
+    sealed class PerformanceCounterDiagnostics : IDiagnostics
     {
         readonly PerformanceCounterProviderV2 performanceCounterProvider;
         readonly IClock clock;
 
-        internal PerformanceCounterDiagnosticEvents(PerformanceCounterProviderV2 performanceCounterProvider, IClock clock)
+        internal PerformanceCounterDiagnostics(PerformanceCounterProviderV2 performanceCounterProvider, IClock clock)
         {
             this.performanceCounterProvider = performanceCounterProvider ?? throw new ArgumentNullException(nameof(performanceCounterProvider));
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));

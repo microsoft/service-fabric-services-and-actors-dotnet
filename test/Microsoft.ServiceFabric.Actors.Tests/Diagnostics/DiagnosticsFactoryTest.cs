@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void CreatesAggregatedDiagnostics()
             {
-                Assert.IsAssignableFrom<AggregatedDiagnosticEvents>(diagnostics);
+                Assert.IsAssignableFrom<AggregatedDiagnostics>(diagnostics);
             }
 
             [Fact]
@@ -120,7 +120,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 var perfCounterDiagnotics = diagnostics.Field<IEnumerable<IDiagnostics>>().Value.First();
 
-                Assert.IsAssignableFrom<PerformanceCounterDiagnosticEvents>(perfCounterDiagnotics);
+                Assert.IsAssignableFrom<PerformanceCounterDiagnostics>(perfCounterDiagnotics);
                 Assert.Equal(sut.Field<PerformanceCounterProviderV2>().Value, perfCounterDiagnotics.Field<PerformanceCounterProviderV2>().Value);
                 Assert.Equal(clock, perfCounterDiagnotics.Field<IClock>().Value);
             }
@@ -130,7 +130,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 var eventSourceDiagnostics = diagnostics.Field<IEnumerable<IDiagnostics>>().Value.Last();
 
-                Assert.IsAssignableFrom<EventSourceDiagnosticEvents>(eventSourceDiagnostics);
+                Assert.IsAssignableFrom<EventSourceDiagnostics>(eventSourceDiagnostics);
                 Assert.Equal(ActorFrameworkEventSource.Writer, eventSourceDiagnostics.Field<ActorFrameworkEventSource>().Value);
                 Assert.Equal(serviceContext, eventSourceDiagnostics.Field<ServiceContext>().Value);
                 Assert.Equal(clock, eventSourceDiagnostics.Field<IClock>().Value);

@@ -19,7 +19,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 {
-    public class EventSourceDiagnosticEventsTest : IDisposable
+    public class EventSourceDiagnosticsTest : IDisposable
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
@@ -32,14 +32,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
         readonly ActorMethodFriendlyNameBuilder nameBuilder;
         readonly ServiceContext serviceContext = fuzzy.ServiceContext();
 
-        public EventSourceDiagnosticEventsTest()
+        public EventSourceDiagnosticsTest()
         {
             // Prevent Linux specific code path in ServiceFabricEventSource as it is not a part of tested logic
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set((os) => false);
             eventSource = Mock.Of<ActorFrameworkEventSource>();
             nameBuilder = new ActorMethodFriendlyNameBuilder(typeInfo);
 
-            sut = new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, typeInfo);
+            sut = new EventSourceDiagnostics(eventSource, clock, serviceContext, nameBuilder, typeInfo);
 
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStartEventEnabled()).Returns(true);
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorSaveStateStopEventEnabled()).Returns(true);
@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
         }
 
-        public class Constructor : EventSourceDiagnosticEventsTest
+        public class Constructor : EventSourceDiagnosticsTest
         {
             [Fact]
             public void WithParametersSetsValue()
@@ -75,35 +75,35 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             [Fact]
             public void ThrowsOnNullTypeInfo()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, nameBuilder, null));
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnostics(eventSource, clock, serviceContext, nameBuilder, null));
                 Assert.Equal("typeInfo", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullNameBuilder()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, clock, serviceContext, null, typeInfo));
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnostics(eventSource, clock, serviceContext, null, typeInfo));
                 Assert.Equal("nameBuilder", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullClock()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, null, serviceContext, nameBuilder, typeInfo));
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnostics(eventSource, null, serviceContext, nameBuilder, typeInfo));
                 Assert.Equal("clock", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullEventSource()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(null, clock, serviceContext, nameBuilder, typeInfo));
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnostics(null, clock, serviceContext, nameBuilder, typeInfo));
                 Assert.Equal("eventSource", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullServiceContext()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnosticEvents(eventSource, clock, null, nameBuilder, typeInfo));
+                var exception = Assert.Throws<ArgumentNullException>(() => new EventSourceDiagnostics(eventSource, clock, null, nameBuilder, typeInfo));
                 Assert.Equal("serviceContext", exception.ParamName);
             }
 
@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             }
         }
 
-        public class OnEvents : EventSourceDiagnosticEventsTest
+        public class OnEvents : EventSourceDiagnosticsTest
         {
             readonly long interfaceMethodKey = fuzzy.Int64();
             readonly ActorId actorId = fuzzy.ActorId();

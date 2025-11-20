@@ -19,7 +19,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    public class PerformanceCounterDiagnosticEventsTest
+    public class PerformanceCounterDiagnosticsTest
     {
         readonly static IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
@@ -30,9 +30,9 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly static ActorTypeInformation actorTypeInfo = ActorTypeInformation.Get(typeof(TestActor));
         readonly PerformanceCounterProviderV2 performanceCounterProvider = new PerformanceCounterProviderV2(Guid.NewGuid(), actorTypeInfo);
 
-        protected PerformanceCounterDiagnosticEventsTest() => sut = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
+        protected PerformanceCounterDiagnosticsTest() => sut = new PerformanceCounterDiagnostics(performanceCounterProvider, clock);
 
-        public class Constructor : PerformanceCounterDiagnosticEventsTest
+        public class Constructor : PerformanceCounterDiagnosticsTest
         {
             [Fact]
             public void WithParametersSetsValue()
@@ -47,19 +47,19 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             [Fact]
             public void ThrowsOnNullProvider()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new PerformanceCounterDiagnosticEvents(null, clock));
+                var exception = Assert.Throws<ArgumentNullException>(() => new PerformanceCounterDiagnostics(null, clock));
                 Assert.Equal("performanceCounterProvider", exception.ParamName);
             }
 
             [Fact]
             public void ThrowsOnNullClock()
             {
-                var exception = Assert.Throws<ArgumentNullException>(() => new PerformanceCounterDiagnosticEvents(performanceCounterProvider, null));
+                var exception = Assert.Throws<ArgumentNullException>(() => new PerformanceCounterDiagnostics(performanceCounterProvider, null));
                 Assert.Equal("clock", exception.ParamName);
             }
         }
 
-        public class OnEvents : PerformanceCounterDiagnosticEventsTest
+        public class OnEvents : PerformanceCounterDiagnosticsTest
         {
             readonly FabricAverageCount64PerformanceCounterWriter actorRequestProcessingTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();
             readonly FabricAverageCount64PerformanceCounterWriter actorLockAcquireWaitTimeCounterWriter = Mock.Of<FabricAverageCount64PerformanceCounterWriter>();

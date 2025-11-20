@@ -31,11 +31,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public virtual IDiagnostics CreateDiagnostics(IClock clock)
         {
-            var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(performanceCounterProvider, clock);
-            var eventSourceDiagnosticEvents = new EventSourceDiagnosticEvents(ActorFrameworkEventSource.Writer, clock, serviceContext, friendlyNameBuilder, typeInformation);
-            var registeredDiagnosticsEvents = new List<IDiagnostics> { performanceCounterDiagnosticEvents, eventSourceDiagnosticEvents };
+            var performanceCounterDiagnostics = new PerformanceCounterDiagnostics(performanceCounterProvider, clock);
+            var eventSourceDiagnostics = new EventSourceDiagnostics(ActorFrameworkEventSource.Writer, clock, serviceContext, friendlyNameBuilder, typeInformation);
+            var registeredDiagnostics = new List<IDiagnostics> { performanceCounterDiagnostics, eventSourceDiagnostics };
 
-            return new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
+            return new AggregatedDiagnostics(registeredDiagnostics);
         }
 
         public virtual void Dispose()

@@ -10,11 +10,11 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class AggregatedDiagnosticEvents : IDiagnostics
+    sealed class AggregatedDiagnostics : IDiagnostics
     {
         readonly IEnumerable<IDiagnostics> diagnosticEvents;
 
-        internal AggregatedDiagnosticEvents(IEnumerable<IDiagnostics> diagnosticEvents)
+        internal AggregatedDiagnostics(IEnumerable<IDiagnostics> diagnosticEvents)
         {
             _ = diagnosticEvents ?? throw new ArgumentNullException(nameof(diagnosticEvents));
             if (diagnosticEvents.Any(d => d == null))
