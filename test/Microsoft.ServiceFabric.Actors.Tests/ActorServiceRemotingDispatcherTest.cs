@@ -13,12 +13,13 @@ using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors
 {
-    public class ActorServiceRemotingDispatcherTest
+    public class ActorServiceRemotingDispatcherTest : MockedMetricsTest
     {
         readonly internal ActorServiceRemotingDispatcher sut;
 

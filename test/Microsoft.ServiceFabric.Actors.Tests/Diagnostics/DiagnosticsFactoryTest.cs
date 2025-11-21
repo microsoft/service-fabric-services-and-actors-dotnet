@@ -121,7 +121,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             {
                 var compositeDiagnotics = diagnostics.Field<IEnumerable<IDiagnostics>>().Value;
 
-                Assert.Equal(2, compositeDiagnotics.Count());
+                Assert.Equal(3, compositeDiagnotics.Count());
             }
 
             [Fact]

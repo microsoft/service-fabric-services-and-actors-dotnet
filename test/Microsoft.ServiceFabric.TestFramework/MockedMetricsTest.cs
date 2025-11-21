@@ -25,7 +25,7 @@ namespace Microsoft.ServiceFabric.TestFramework
         /// Implementation of <see cref="MeterProvider{TValueType}"/> for long integer metrics.
         /// Creates meters for recording long integer telemetry values with various dimension configurations.
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
             typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);

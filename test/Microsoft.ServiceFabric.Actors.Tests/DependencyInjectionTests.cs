@@ -12,45 +12,23 @@ namespace Microsoft.ServiceFabric.Actors.Tests
     using FluentAssertions;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Microsoft.ServiceFabric.TestFramework;
     using Xunit;
 
-    /// <summary>
-    /// Tests for Dependency Injection.
-    /// </summary>
-    public class DependencyInjectionTests
+    public class DependencyInjectionTests : MockedMetricsTest
     {
-        /// <summary>
-        /// Mock Actor Interface.
-        /// </summary>
         public interface IMockActor : IActor
         {
-            /// <summary>
-            /// Mock Actor method.
-            /// </summary>
-            /// <returns>A task.</returns>
             Task ActorMethodA();
         }
 
-        /// <summary>
-        /// Mock actor Event.
-        /// </summary>
         public interface IMockActorEvent : IActorEvents
         {
-            /// <summary>
-            /// Mock event A.
-            /// </summary>
             void MockActorEventA();
 
-            /// <summary>
-            /// Mock event B.
-            /// </summary>
-            /// <param name="id">Actor Id</param>
             void MockActorEventB(ActorId id);
         }
 
-        /// <summary>
-        /// Verify mockability for ACtors.
-        /// </summary>
         [Fact]
         public async Task VerifyActorMockability()
         {
@@ -82,25 +60,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             mockActor.VerifyActorEventMockability();
         }
 
-        /// <summary>
-        /// Test Mock Actor.
-        /// </summary>
         internal class MockActor : Actor, IMockActor, IActorEventPublisher<IMockActorEvent>, IRemindable
         {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="MockActor"/> class.
-            /// </summary>
-            /// <param name="actorService">Actor Service.</param>
-            /// <param name="actorId">Actor Id.</param>
             public MockActor(ActorService actorService, ActorId actorId)
                 : base(actorService, actorId)
             {
             }
 
-            /// <summary>
-            /// Verify mocking of ActorState.
-            /// </summary>
-            /// <returns>A task.</returns>
             public async Task VerifyActorStateMockabilityAsync()
             {
                 // Try to cover all code path for ActorStateManager to ensure they are mockable.
@@ -148,10 +114,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 await this.StateManager.ClearCacheAsync();
             }
 
-            /// <summary>
-            /// Verify mocks for Reminders.
-            /// </summary>
-            /// <returns>A task.</returns>
             public async Task VerifyRemiderMockabilityAsync()
             {
                 Action action = () => this.GetReminder("NonExistingReminder");
@@ -170,9 +132,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 action.Should().Throw<ReminderNotFoundException>("reminder was removed and doesn't exist.");
             }
 
-            /// <summary>
-            /// Verify Timer mocks.
-            /// </summary>
             public void VerifyTimerMockability()
             {
                 var actorTimer = TestMocksRepository.GetMockActorTimer();
@@ -184,9 +143,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 action.Should().NotThrow("unregistering an existing timer shouldn't throw");
             }
 
-            /// <summary>
-            /// Verify Mocks for ActorEvents.
-            /// </summary>
             public void VerifyActorEventMockability()
             {
                 IMockActorEvent actorEvent = null;
@@ -200,13 +156,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests
                 action.Should().NotThrow("actorEvent.MockActorEventB() verification");
             }
 
-            /// <inheritdoc/>
             public Task ActorMethodA()
             {
                 throw new NotImplementedException();
             }
-
-            /// <inheritdoc/>
             public Task ReceiveReminderAsync(string reminderName, byte[] context, TimeSpan dueTime, TimeSpan period)
             {
                 throw new NotImplementedException();
