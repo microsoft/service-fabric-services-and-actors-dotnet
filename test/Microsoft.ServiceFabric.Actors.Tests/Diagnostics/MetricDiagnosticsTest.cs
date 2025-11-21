@@ -171,7 +171,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 }
 
                 [Fact]
-                public void FinishWithoutExceptionDNotObserveExceptionFrequency()
+                public void FinishWithoutExceptionDoNotObserveExceptionFrequency()
                 {
                     sut.ActorMethodFinish(new ActorMethodDiagnosticData(), startTime);
 
