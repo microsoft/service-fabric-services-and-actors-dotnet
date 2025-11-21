@@ -41,14 +41,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             sut.InitializeInternal(new ActorMethodFriendlyNameBuilder(sut.ActorTypeInformation));
         }
 
+        public override void Dispose()
+        {
+            base.Dispose();
+            typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(this.createDiagnosticsFactory);
+        }
+
         public class Diagnostics : ActorServiceTest
         {
-            public override void Dispose()
-            {
-                base.Dispose();
-                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(this.createDiagnosticsFactory);
-            }
-
             [Fact]
             public void IsCreatedByConstructor()
             {
