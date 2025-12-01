@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             var performanceCounterDiagnostics = new PerformanceCounterDiagnostics(performanceCounterProvider, clock);
             var eventSourceDiagnostics = new EventSourceDiagnostics(ActorFrameworkEventSource.Writer, clock, serviceContext, friendlyNameBuilder, typeInformation);
-            var metricDiagnostics = new MetricDiagnostics(longMeterProvider, timeSpanMeterProvider, clock);
+            var metricDiagnostics = new MetricDiagnostics(longMeterProvider, timeSpanMeterProvider, clock, friendlyNameBuilder, typeInformation);
             var registeredDiagnostics = new IDiagnostics[] { performanceCounterDiagnostics, eventSourceDiagnostics, metricDiagnostics };
 
             return new AggregatedDiagnostics(registeredDiagnostics);

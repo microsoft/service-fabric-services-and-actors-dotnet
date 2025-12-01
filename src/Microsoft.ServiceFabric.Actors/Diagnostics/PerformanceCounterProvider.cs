@@ -206,7 +206,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             foreach (var actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
             {
                 var kvp = new KeyValuePair<long, MethodInfo>(
-                    Util.GetInterfaceMethodKey(
+                    ActorMethodInfoUtil.GetInterfaceMethodKey(
                         (uint)interfaceId,
                         (uint)actorInterfaceMethodDescription.Id),
                     actorInterfaceMethodDescription.MethodInfo);

@@ -4,7 +4,9 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Fabric;
+using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
@@ -19,28 +21,34 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IMeter<long> pendingMethodCalls;
         readonly IMeter<TimeSpan> acquireLockDuration;
         readonly IMeter<TimeSpan> releaseLockDuration;
-        readonly IMeter1D<long> methodExceptionCount;
-        readonly IMeter1D<TimeSpan> methodExecutionDuration;
+        readonly IMeter2D<long> methodExceptionCount;
+        readonly IMeter2D<TimeSpan> methodExecutionDuration;
         readonly IMeter<TimeSpan> onActivateAsyncDuration;
         readonly IMeter<TimeSpan> requestProcessingDuration;
         readonly IMeter<TimeSpan> loadStateDuration;
         readonly IMeter<TimeSpan> saveStateDuration;
 
-        public MetricDiagnostics(IMeterProvider<long> longMeterProvider, IMeterProvider<TimeSpan> timeSpanProvider, IClock clock)
+        readonly Dictionary<long, ActorMethodInfo> actorMethodInfo;
+
+        public MetricDiagnostics(IMeterProvider<long> longMeterProvider, IMeterProvider<TimeSpan> timeSpanProvider, IClock clock, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
             _ = longMeterProvider ?? throw new ArgumentNullException(nameof(longMeterProvider));
             _ = timeSpanProvider ?? throw new ArgumentNullException(nameof(timeSpanProvider));
+            _ = nameBuilder ?? throw new ArgumentNullException(nameof(nameBuilder));
+            _ = typeInfo ?? throw new ArgumentNullException(nameof(typeInfo));
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
             this.pendingMethodCalls = longMeterProvider.CreateMeter(ActorMetricsNamespace, "PendingMethodCalls");
             this.acquireLockDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "AcquireLockDuration");
             this.releaseLockDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "ReleaseLockDuration");
-            this.methodExceptionCount = longMeterProvider.CreateMeter(ActorMetricsNamespace, "MethodExceptionCount", "MethodId");
-            this.methodExecutionDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "MethodExecutionDuration", "MethodId");
+            this.methodExceptionCount = longMeterProvider.CreateMeter(ActorMetricsNamespace, "MethodExceptionCount", "MethodName", "MethodSigniture");
+            this.methodExecutionDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "MethodExecutionDuration", "MethodName", "MethodSigniture");
             this.onActivateAsyncDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "OnActivateAsyncDuration");
             this.requestProcessingDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "RequestProcessingDuration");
             this.loadStateDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "LoadStateDuration");
             this.saveStateDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "SaveStateDuration");
+
+            this.actorMethodInfo = ActorMethodInfoUtil.BuildActorMethodInfo(nameBuilder, typeInfo);
         }
 
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
@@ -66,11 +74,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime)
         {
-            methodExecutionDuration.Record(clock.UtcNow - startTime, actorMethodDiagnosticData.MethodId.ToString());
+            var methodInfo = actorMethodInfo[actorMethodDiagnosticData.InterfaceMethodKey];
+            methodExecutionDuration.Record(clock.UtcNow - startTime, methodInfo.methodName, methodInfo.methodSignature);
 
             if (actorMethodDiagnosticData.Exception != null)
             {
-                methodExceptionCount.Record(1, actorMethodDiagnosticData.MethodId.ToString());
+                methodExceptionCount.Record(1, methodInfo.methodName, methodInfo.methodSignature);
             }
         }
 
