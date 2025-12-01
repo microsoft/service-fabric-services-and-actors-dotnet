@@ -25,7 +25,30 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
         readonly IMeterProvider<TimeSpan> mockTimeSpanMeterProvider = new Mock<IMeterProvider<TimeSpan>>() { DefaultValue = DefaultValue.Mock }.Object;
         readonly IMeterProvider<long> mockLongMeterProvider = new Mock<IMeterProvider<long>>() { DefaultValue = DefaultValue.Mock }.Object;
 
-        public MetricDiagnosticsTest() => sut = new MetricDiagnostics(mockLongMeterProvider, mockTimeSpanMeterProvider, clock);
+        readonly IMeter<long> pendingMethodCalls = Mock.Of<IMeter<long>>();
+        readonly IMeter<TimeSpan> acquireLockDuration = Mock.Of<IMeter<TimeSpan>>();
+        readonly IMeter<TimeSpan> releaseLockDuration = Mock.Of<IMeter<TimeSpan>>();
+        readonly IMeter1D<long> methodExceptionCount = Mock.Of<IMeter1D<long>>();
+        readonly IMeter1D<TimeSpan> methodExecutionDuration = Mock.Of<IMeter1D<TimeSpan>>();
+        readonly IMeter<TimeSpan> onActivateAsyncDuration = Mock.Of<IMeter<TimeSpan>>();
+        readonly IMeter<TimeSpan> requestProcessingDuration = Mock.Of<IMeter<TimeSpan>>();
+        readonly IMeter<TimeSpan> loadStateDuration = Mock.Of<IMeter<TimeSpan>>();
+        readonly IMeter<TimeSpan> saveStateDuration = Mock.Of<IMeter<TimeSpan>>();
+
+        public MetricDiagnosticsTest()
+        {
+            Mock.Get(mockLongMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "PendingMethodCalls"))).Returns(pendingMethodCalls);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "AcquireLockDuration"))).Returns(acquireLockDuration);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "ReleaseLockDuration"))).Returns(releaseLockDuration);
+            Mock.Get(mockLongMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExceptionCount"), It.Is<string>(x => x == "MethodId"))).Returns(methodExceptionCount);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExecutionDuration"), It.Is<string>(x => x == "MethodId"))).Returns(methodExecutionDuration);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "OnActivateAsyncDuration"))).Returns(onActivateAsyncDuration);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "RequestProcessingDuration"))).Returns(requestProcessingDuration);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "LoadStateDuration"))).Returns(loadStateDuration);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "SaveStateDuration"))).Returns(saveStateDuration);
+
+            sut = new MetricDiagnostics(mockLongMeterProvider, mockTimeSpanMeterProvider, clock);
+        }
 
         protected bool DurationsApproximatelyEqual(TimeSpan timeSpan, double durationMilliseconds)
         {
@@ -58,15 +81,15 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             [Fact]
             public void WithParametersCreatesMeters()
             {
-                Mock.Get(mockLongMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "PendingMethodCalls")), Times.Once);
-                Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "AcquireLockDuration")), Times.Once);
-                Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "ReleaseLockDuration")), Times.Once);
-                Mock.Get(mockLongMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExceptionCount"), It.Is<string>(x => x == "MethodId")), Times.Once);
-                Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExecutionDuration"), It.Is<string>(x => x == "MethodId")), Times.Once);
-                Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "OnActivateAsyncDuration")), Times.Once);
-                Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "RequestProcessingDuration")), Times.Once);
-                Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "LoadStateDuration")), Times.Once);
-                Mock.Get(mockTimeSpanMeterProvider).Verify(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "SaveStateDuration")), Times.Once);
+                Assert.Equal(pendingMethodCalls, sut.Field<IMeter<long>>("pendingMethodCalls").Value);
+                Assert.Equal(acquireLockDuration, sut.Field<IMeter<TimeSpan>>("acquireLockDuration").Value);
+                Assert.Equal(releaseLockDuration, sut.Field<IMeter<TimeSpan>>("releaseLockDuration").Value);
+                Assert.Equal(methodExceptionCount, sut.Field<IMeter1D<long>>("methodExceptionCount").Value);
+                Assert.Equal(methodExecutionDuration, sut.Field<IMeter1D<TimeSpan>>("methodExecutionDuration").Value);
+                Assert.Equal(onActivateAsyncDuration, sut.Field<IMeter<TimeSpan>>("onActivateAsyncDuration").Value);
+                Assert.Equal(requestProcessingDuration, sut.Field<IMeter<TimeSpan>>("requestProcessingDuration").Value);
+                Assert.Equal(loadStateDuration, sut.Field<IMeter<TimeSpan>>("loadStateDuration").Value);
+                Assert.Equal(saveStateDuration, sut.Field<IMeter<TimeSpan>>("saveStateDuration").Value);
             }
         }
 
