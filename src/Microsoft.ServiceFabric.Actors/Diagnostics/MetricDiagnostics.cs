@@ -15,14 +15,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
     sealed class MetricDiagnostics : IDiagnostics
     {
         private const string ActorMetricsNamespace = "Actor";
+        private const string NoneException = "None";
 
         readonly IClock clock;
 
         readonly IMeter<long> pendingMethodCalls;
         readonly IMeter<TimeSpan> acquireLockDuration;
         readonly IMeter<TimeSpan> releaseLockDuration;
-        readonly IMeter2D<long> methodExceptionCount;
-        readonly IMeter2D<TimeSpan> methodExecutionDuration;
+        readonly IMeter3D<TimeSpan> methodExecutionDuration;
         readonly IMeter<TimeSpan> onActivateAsyncDuration;
         readonly IMeter<TimeSpan> requestProcessingDuration;
         readonly IMeter<TimeSpan> loadStateDuration;
@@ -41,8 +41,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             this.pendingMethodCalls = longMeterProvider.CreateMeter(ActorMetricsNamespace, "PendingMethodCalls");
             this.acquireLockDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "AcquireLockDuration");
             this.releaseLockDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "ReleaseLockDuration");
-            this.methodExceptionCount = longMeterProvider.CreateMeter(ActorMetricsNamespace, "MethodExceptionCount", "MethodName", "MethodSigniture");
-            this.methodExecutionDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "MethodExecutionDuration", "MethodName", "MethodSigniture");
+            this.methodExecutionDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "MethodExecutionDuration", "MethodName", "MethodSigniture", "Exception");
             this.onActivateAsyncDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "OnActivateAsyncDuration");
             this.requestProcessingDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "RequestProcessingDuration");
             this.loadStateDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "LoadStateDuration");
@@ -75,12 +74,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         public void ActorMethodFinish(ActorMethodDiagnosticData actorMethodDiagnosticData, DateTime startTime)
         {
             var methodInfo = actorMethodInfo[actorMethodDiagnosticData.InterfaceMethodKey];
-            methodExecutionDuration.Record(clock.UtcNow - startTime, methodInfo.methodName, methodInfo.methodSignature);
-
-            if (actorMethodDiagnosticData.Exception != null)
-            {
-                methodExceptionCount.Record(1, methodInfo.methodName, methodInfo.methodSignature);
-            }
+            methodExecutionDuration.Record(clock.UtcNow - startTime, methodInfo.methodName, methodInfo.methodSignature, actorMethodDiagnosticData.Exception != null ? actorMethodDiagnosticData.Exception.GetType().Name : NoneException);
         }
 
         public void ActorMethodStart(ActorId actorId, long interfaceMethodKey)

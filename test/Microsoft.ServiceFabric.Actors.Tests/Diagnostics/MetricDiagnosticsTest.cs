@@ -32,8 +32,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
         readonly IMeter<long> pendingMethodCalls = Mock.Of<IMeter<long>>();
         readonly IMeter<TimeSpan> acquireLockDuration = Mock.Of<IMeter<TimeSpan>>();
         readonly IMeter<TimeSpan> releaseLockDuration = Mock.Of<IMeter<TimeSpan>>();
-        readonly IMeter2D<long> methodExceptionCount = Mock.Of<IMeter2D<long>>();
-        readonly IMeter2D<TimeSpan> methodExecutionDuration = Mock.Of<IMeter2D<TimeSpan>>();
+        readonly IMeter3D<TimeSpan> methodExecutionDuration = Mock.Of<IMeter3D<TimeSpan>>();
         readonly IMeter<TimeSpan> onActivateAsyncDuration = Mock.Of<IMeter<TimeSpan>>();
         readonly IMeter<TimeSpan> requestProcessingDuration = Mock.Of<IMeter<TimeSpan>>();
         readonly IMeter<TimeSpan> loadStateDuration = Mock.Of<IMeter<TimeSpan>>();
@@ -44,8 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             Mock.Get(mockLongMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "PendingMethodCalls"))).Returns(pendingMethodCalls);
             Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "AcquireLockDuration"))).Returns(acquireLockDuration);
             Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "ReleaseLockDuration"))).Returns(releaseLockDuration);
-            Mock.Get(mockLongMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExceptionCount"), It.Is<string>(x => x == "MethodName"), It.Is<string>(x => x == "MethodSigniture"))).Returns(methodExceptionCount);
-            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExecutionDuration"), It.Is<string>(x => x == "MethodName"), It.Is<string>(x => x == "MethodSigniture"))).Returns(methodExecutionDuration);
+            Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "MethodExecutionDuration"), It.Is<string>(x => x == "MethodName"), It.Is<string>(x => x == "MethodSigniture"), It.Is<string>(x => x == "Exception"))).Returns(methodExecutionDuration);
             Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "OnActivateAsyncDuration"))).Returns(onActivateAsyncDuration);
             Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "RequestProcessingDuration"))).Returns(requestProcessingDuration);
             Mock.Get(mockTimeSpanMeterProvider).Setup(x => x.CreateMeter(It.Is<string>(x => x == "Actor"), It.Is<string>(x => x == "LoadStateDuration"))).Returns(loadStateDuration);
@@ -107,6 +105,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             readonly long interfaceMethodKey = fuzzy.Int64();
             readonly string methodName = fuzzy.String();
             readonly string methodSigniture = fuzzy.String();
+            readonly Exception exception = new Exception();
 
             public OnEvents()
             {
@@ -135,7 +134,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 Mock.Get(pendingMethodCalls).VerifyNoOtherCalls();
                 Mock.Get(acquireLockDuration).VerifyNoOtherCalls();
                 Mock.Get(releaseLockDuration).VerifyNoOtherCalls();
-                Mock.Get(methodExceptionCount).VerifyNoOtherCalls();
                 Mock.Get(methodExecutionDuration).VerifyNoOtherCalls();
                 Mock.Get(onActivateAsyncDuration).VerifyNoOtherCalls();
                 Mock.Get(requestProcessingDuration).VerifyNoOtherCalls();
@@ -177,9 +175,9 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 [Fact]
                 public void FinishWithExceptionObserveExceptionFrequency()
                 {
-                    sut.ActorMethodFinish(new ActorMethodDiagnosticData() { Exception = new Exception(), InterfaceMethodKey = interfaceMethodKey }, startTime);
+                    sut.ActorMethodFinish(new ActorMethodDiagnosticData() { Exception = exception, InterfaceMethodKey = interfaceMethodKey }, startTime);
 
-                    Mock.Get(methodExceptionCount).Verify(x => x.Record(It.Is<long>(d => d == 1), It.Is<string>(m => m == methodName), It.Is<string>(m => m == methodSigniture)), Times.Once);
+                    Mock.Get(methodExecutionDuration).Verify(x => x.Record(It.Is<TimeSpan>(d => DurationsApproximatelyEqual(d, durationMilliseconds)), It.Is<string>(m => m == methodName), It.Is<string>(m => m == methodSigniture), It.Is<string>(m => m == exception.GetType().Name)), Times.Once);
                 }
 
                 [Fact]
@@ -187,15 +185,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 {
                     sut.ActorMethodFinish(new ActorMethodDiagnosticData() { InterfaceMethodKey = interfaceMethodKey }, startTime);
 
-                    Mock.Get(methodExceptionCount).VerifyNoOtherCalls();
-                }
-
-                [Fact]
-                public void FinishObserveExecutionDuration()
-                {
-                    sut.ActorMethodFinish(new ActorMethodDiagnosticData() { Exception = new Exception(), InterfaceMethodKey = interfaceMethodKey }, startTime);
-
-                    Mock.Get(methodExecutionDuration).Verify(x => x.Record(It.Is<TimeSpan>(d => DurationsApproximatelyEqual(d, durationMilliseconds)), It.Is<string>(m => m == methodName), It.Is<string>(m => m == methodSigniture)), Times.Once);
+                    Mock.Get(methodExecutionDuration).Verify(x => x.Record(It.Is<TimeSpan>(d => DurationsApproximatelyEqual(d, durationMilliseconds)), It.Is<string>(m => m == methodName), It.Is<string>(m => m == methodSigniture), It.Is<string>(m => m == "None")), Times.Once);
                 }
             }
 
