@@ -10,11 +10,13 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class MetricDiagnostics : IDiagnostics
+    sealed class MetricDiagnostics : IDiagnostics
     {
+        private const string ActorMetricsNamespace = "Actor";
+
         readonly IClock clock;
 
-        readonly IMeter<long> actorLockContention;
+        readonly IMeter<long> pendingMethodCalls;
         readonly IMeter<TimeSpan> acquireLockDuration;
         readonly IMeter<TimeSpan> releaseLockDuration;
         readonly IMeter1D<long> methodExceptionCount;
@@ -30,20 +32,20 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             _ = timeSpanProvider ?? throw new ArgumentNullException(nameof(timeSpanProvider));
             this.clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
-            this.actorLockContention = longMeterProvider.CreateMeter("Actor", "ActorLockContention");
-            this.acquireLockDuration = timeSpanProvider.CreateMeter("Actor", "AcquireLockDuration");
-            this.releaseLockDuration = timeSpanProvider.CreateMeter("Actor", "ReleaseLockDuration");
-            this.methodExceptionCount = longMeterProvider.CreateMeter("Actor", "MethodExceptionCount", "MethodId");
-            this.methodExecutionDuration = timeSpanProvider.CreateMeter("Actor", "MethodExecutionDuration", "MethodId");
-            this.onActivateAsyncDuration = timeSpanProvider.CreateMeter("Actor", "OnActivateAsyncDuration");
-            this.requestProcessingDuration = timeSpanProvider.CreateMeter("Actor", "RequestProcessingDuration");
-            this.loadStateDuration = timeSpanProvider.CreateMeter("Actor", "LoadStateDuration");
-            this.saveStateDuration = timeSpanProvider.CreateMeter("Actor", "SaveStateDuration");
+            this.pendingMethodCalls = longMeterProvider.CreateMeter(ActorMetricsNamespace, "PendingMethodCalls");
+            this.acquireLockDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "AcquireLockDuration");
+            this.releaseLockDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "ReleaseLockDuration");
+            this.methodExceptionCount = longMeterProvider.CreateMeter(ActorMetricsNamespace, "MethodExceptionCount", "MethodId");
+            this.methodExecutionDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "MethodExecutionDuration", "MethodId");
+            this.onActivateAsyncDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "OnActivateAsyncDuration");
+            this.requestProcessingDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "RequestProcessingDuration");
+            this.loadStateDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "LoadStateDuration");
+            this.saveStateDuration = timeSpanProvider.CreateMeter(ActorMetricsNamespace, "SaveStateDuration");
         }
 
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)
         {
-            actorLockContention.Record(diagnosticData.PendingActorMethodCalls);
+            pendingMethodCalls.Record(diagnosticData.PendingActorMethodCalls);
             acquireLockDuration.Record(clock.UtcNow - startTime);
         }
 

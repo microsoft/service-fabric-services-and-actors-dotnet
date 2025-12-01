@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
@@ -13,7 +12,7 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class DiagnosticsFactory : IDisposable
+    class DiagnosticsFactory : IDisposable
     {
         readonly ServiceContext serviceContext;
         readonly ActorTypeInformation typeInformation;
@@ -40,7 +39,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             var performanceCounterDiagnostics = new PerformanceCounterDiagnostics(performanceCounterProvider, clock);
             var eventSourceDiagnostics = new EventSourceDiagnostics(ActorFrameworkEventSource.Writer, clock, serviceContext, friendlyNameBuilder, typeInformation);
             var metricDiagnostics = new MetricDiagnostics(longMeterProvider, timeSpanMeterProvider, clock);
-            var registeredDiagnostics = new List<IDiagnostics> { performanceCounterDiagnostics, eventSourceDiagnostics, metricDiagnostics };
+            var registeredDiagnostics = new IDiagnostics[] { performanceCounterDiagnostics, eventSourceDiagnostics, metricDiagnostics };
 
             return new AggregatedDiagnostics(registeredDiagnostics);
         }

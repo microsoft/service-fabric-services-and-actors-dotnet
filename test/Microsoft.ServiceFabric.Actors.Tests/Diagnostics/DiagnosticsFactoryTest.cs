@@ -83,12 +83,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public class LifeCycle : DiagnosticsFactoryTest
+        public class Dispose : DiagnosticsFactoryTest
         {
             readonly Guid guid = Guid.NewGuid();
             readonly Mock<PerformanceCounterProviderV2> mockPerformanceCounterProviderV2;
 
-            public LifeCycle()
+            public Dispose()
             {
                 mockPerformanceCounterProviderV2 = new Mock<PerformanceCounterProviderV2>(guid, typeInformation);
                 sut.Field<PerformanceCounterProviderV2>().Set(mockPerformanceCounterProviderV2.Object);
@@ -147,7 +147,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
 
             [Fact]
-            public void CreatesPerformanceCounterEventsThird()
+            public void CreatesMetricsEventsThird()
             {
                 var metricsDiagnostics = diagnostics.Field<IEnumerable<IDiagnostics>>().Value.ToList()[2];
 
