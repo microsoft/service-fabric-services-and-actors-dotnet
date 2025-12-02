@@ -116,7 +116,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
                 Dictionary<long, ActorMethodInfo> actorMethodInfo = new Dictionary<long, ActorMethodInfo>();
                 actorMethodInfo[interfaceMethodKey] = new ActorMethodInfo(methodName, methodSigniture);
-                sut.Field<Dictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
+                sut.Field<IReadOnlyDictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
             }
 
             [Fact]
