@@ -12,7 +12,7 @@
     <MajorVersion Condition="'$(MSBuildProjectName)' == 'Microsoft.ServiceFabric.Diagnostics'">12</MajorVersion>
     <MinorVersion>0</MinorVersion>
     <BuildVersion>0</BuildVersion>
-    <Revision>15</Revision>
+    <Revision>16</Revision>
 
   </PropertyGroup>
 </Project>
