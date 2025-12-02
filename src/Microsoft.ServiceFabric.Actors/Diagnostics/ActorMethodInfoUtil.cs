@@ -5,12 +5,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.Description;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class ActorMethodInfoUtil
+    static class ActorMethodInfoUtil
     {
         internal static long GetInterfaceMethodKey(uint interfaceId, uint methodId)
         {
@@ -19,7 +20,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             return (long)key;
         }
 
-        internal static Dictionary<long, ActorMethodInfo> BuildActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
+        internal static IReadOnlyDictionary<long, ActorMethodInfo> BuildActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
             var actorMethodInfos = new Dictionary<long, ActorMethodInfo>();
 
@@ -34,7 +35,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                     actorMethodInfos[GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id)] = actorMethodInfo;
                 }
             }
-            return actorMethodInfos;
+
+            return new ReadOnlyDictionary<long, ActorMethodInfo>(actorMethodInfos);
         }
     }
 }

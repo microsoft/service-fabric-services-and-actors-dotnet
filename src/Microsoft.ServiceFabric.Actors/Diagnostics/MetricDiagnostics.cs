@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IMeter<TimeSpan> loadStateDuration;
         readonly IMeter<TimeSpan> saveStateDuration;
 
-        readonly Dictionary<long, ActorMethodInfo> actorMethodInfo;
+        readonly IReadOnlyDictionary<long, ActorMethodInfo> actorMethodInfo;
 
         public MetricDiagnostics(IMeterProvider<long> longMeterProvider, IMeterProvider<TimeSpan> timeSpanProvider, IClock clock, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {

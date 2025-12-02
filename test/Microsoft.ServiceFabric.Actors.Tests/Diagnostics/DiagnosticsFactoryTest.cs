@@ -83,12 +83,12 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
         }
 
-        public class LifeCycle : DiagnosticsFactoryTest
+        public class DisposeTest : DiagnosticsFactoryTest
         {
             readonly Guid guid = Guid.NewGuid();
             readonly Mock<PerformanceCounterProviderV2> mockPerformanceCounterProviderV2;
 
-            public LifeCycle()
+            public DisposeTest()
             {
                 mockPerformanceCounterProviderV2 = new Mock<PerformanceCounterProviderV2>(guid, typeInformation);
                 sut.Field<PerformanceCounterProviderV2>().Set(mockPerformanceCounterProviderV2.Object);

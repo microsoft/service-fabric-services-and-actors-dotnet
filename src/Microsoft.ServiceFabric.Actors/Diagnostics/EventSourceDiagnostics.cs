@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IClock clock;
         readonly string actorType;
 
-        readonly Dictionary<long, ActorMethodInfo> actorMethodInfo;
+        readonly IReadOnlyDictionary<long, ActorMethodInfo> actorMethodInfo;
 
         internal EventSourceDiagnostics(ActorFrameworkEventSource eventSource, IClock clock, ServiceContext serviceContext, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
