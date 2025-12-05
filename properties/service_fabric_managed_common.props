@@ -7,7 +7,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <TreatWarningsAsErrors Condition=" '$(Configuration)' == 'Release' ">true</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
-    <NoWarn></NoWarn>
     <Platforms>AnyCPU</Platforms>
     <!-- Temporarily disable platform warnings until WindowsFabric assemblies are changed from net8.0-windows to net8.0 -->
     <NoWarn>CA1416</NoWarn>
@@ -17,7 +16,6 @@
   <PropertyGroup>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
-    <DocumentationFile Condition="!$(MSBuildProjectDirectory.Contains('test'))">$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
   <!-- Properties specific to certain TargetFrameworks -->
@@ -30,9 +28,12 @@
     <DebugType>full</DebugType>
   </PropertyGroup>
 
-  <!-- Enable /highentropyva flag -->
+  <!-- https://github.com/microsoft/binskim/blob/main/docs/BinSkimRules.md -->
   <PropertyGroup>
+    <!-- https://learn.microsoft.com/dotnet/csharp/language-reference/compiler-options/security#highentropyva -->
     <HighEntropyVA>true</HighEntropyVA>
+    <!-- https://learn.microsoft.com/dotnet/csharp/language-reference/compiler-options/advanced#checksumalgorithm -->
+    <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
   </PropertyGroup>
   
   <!-- Enable delay signing with Key.snk -->
@@ -50,7 +51,8 @@
   <!-- Set Version numbers. These are used for generating Assemblies. -->
   <PropertyGroup>
     <AssemblyVersion>6.0.0.0</AssemblyVersion>
-    <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</Version>
+    <PackageVersionSuffix>-beta</PackageVersionSuffix>
+    <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion)$(PackageVersionSuffix).$(Revision)</Version>
     <AssemblyFileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</AssemblyFileVersion>
     <FileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</FileVersion>
   </PropertyGroup>
@@ -61,5 +63,4 @@
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
   </PropertyGroup>
-  
 </Project>

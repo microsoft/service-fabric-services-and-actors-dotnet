@@ -3,6 +3,7 @@
   <PropertyGroup>
     <ProjectGuid>{F6E091C3-9136-4058-91CF-57CDF383DF74}</ProjectGuid>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <PropertyGroup>
@@ -12,17 +13,6 @@
     -->
     <OutputType Condition="'$(TargetFramework)' == 'net462'">Exe</OutputType>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Condition="'$(TargetFramework)' == 'net462'" Include="Microsoft.ServiceFabric.Actors_netframework.targets">
-      <Link>Microsoft.ServiceFabric.Actors.targets</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Condition="'$(TargetFramework)' == 'net8.0'" Include="Microsoft.ServiceFabric.Actors_netcore.targets">
-      <Link>Microsoft.ServiceFabric.Actors.targets</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>

@@ -74,5 +74,11 @@ namespace Microsoft.ServiceFabric
             mock.SetupGet(_ => _.Name).Returns(fuzzy.String());
             return mock.Object;
         }
+
+        public static double Double(this IFuzz fuzzy, int minValue, int maxValue)
+        {
+            var integer = fuzzy.Int64().Minimum(minValue).Maximum(maxValue - 1);
+            return integer + new Random().NextDouble();
+        }
     }
 }

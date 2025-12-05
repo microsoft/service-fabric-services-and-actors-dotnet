@@ -9,6 +9,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Fabric;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Diagnostics;
@@ -22,17 +23,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         private readonly ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>> remindersByActorId;
         private readonly ActorEventSource traceSource;
 
-        private IDiagnosticsManager diagnosticsManager;
         private IActorEventManager eventManager;
+        private IDiagnostics diagnostics;
 
         internal MockActorManager(ActorService actorService)
         {
             this.actorService = actorService;
-            this.diagnosticsManager = new MockDiagnosticsManager(actorService);
             this.eventManager = new MockActorEventManager(actorService.ActorTypeInformation);
             this.remindersByActorId = new ConcurrentDictionary<ActorId, ConcurrentDictionary<string, ActorReminder>>();
             this.traceSource = ActorEventSource.Instance;
             this.IsClosed = false;
+            this.diagnostics = new AggregatedDiagnostics(Enumerable.Empty<IDiagnostics>());
         }
 
         public bool IsClosed { get; private set; }
@@ -52,15 +53,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public ActorEventSource TraceSource => this.traceSource;
 
-        public DiagnosticsEventManager DiagnosticsEventManager
-        {
-            get { return this.diagnosticsManager.DiagnosticsEventManager; }
-        }
-
         private IActorStateProvider StateProvider
         {
             get { return this.actorService.StateProvider; }
         }
+
+        public IDiagnostics DiagnosticsEvents { get => this.diagnostics; }
 
         public Task OpenAsync(IServicePartition partition, CancellationToken cancellationToken)
         {

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Common;
 
@@ -26,24 +27,28 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     /// <seealso cref="Actor"/>
     public abstract class ActorBase
     {
-        private const string TraceType = "ActorBase";
-        private readonly IActorManager actorManager;
-        private readonly ActorId actorId;
-        private readonly DiagnosticsManagerActorContext diagnosticsContext;
-        private readonly string traceId;
-        private List<IActorTimer> timers;
-        private volatile bool markedForDeletion;
+        const string TraceType = "ActorBase";
+        readonly IActorManager actorManager;
+        readonly ActorId actorId;
+        readonly DiagnosticsContext diagnosticsContext;
+        readonly string traceId;
+        List<IActorTimer> timers;
+        volatile bool markedForDeletion;
+        readonly IClock clock;
+        readonly IDiagnostics diagnostics;
 
         internal ActorBase(ActorService actorService, ActorId actorId)
         {
             this.actorManager = actorService.ActorManager;
+            this.clock = actorService.Clock;
+            this.diagnostics = actorService.Diagnostics;
             this.actorId = actorId;
 
             this.timers = null;
             this.IsDirty = false;
             this.IsInitialized = false;
             this.IsDummy = false;
-            this.diagnosticsContext = new DiagnosticsManagerActorContext();
+            this.diagnosticsContext = new DiagnosticsContext();
 
             this.traceId = this.Manager.GetActorTraceId(actorId);
             this.ConcurrencyLock = new ActorConcurrencyLock(this, this.ActorService.Settings.ActorConcurrencySettings);
@@ -99,7 +104,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal bool IsInitialized { get; set; }
 
-        internal DiagnosticsManagerActorContext DiagnosticsContext
+        internal DiagnosticsContext Diagnostics
         {
             get { return this.diagnosticsContext; }
         }
@@ -120,9 +125,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         internal async Task OnActivateInternalAsync()
         {
-            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncStart(this);
+            DateTime startTime = clock.UtcNow;
+            this.diagnostics.ActorOnActivateAsyncStart();
+
             await this.OnActivateAsync();
-            this.Manager.DiagnosticsEventManager.ActorOnActivateAsyncFinish(this);
+
+            this.diagnostics.ActorOnActivateAsyncFinish(startTime);
 
             this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Activated");
         }

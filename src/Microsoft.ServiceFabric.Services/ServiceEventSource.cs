@@ -59,16 +59,16 @@ namespace Microsoft.ServiceFabric.Services
             string lifecycleEvent,
             string serviceKind)
         {
-            Instance.ServiceLifecycleEvent(
+            ServiceLifecycleEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
                 partitionId,
                 replicaOrInstanceId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
                 lifecycleEvent,
                 serviceKind);
         }
@@ -86,16 +86,16 @@ namespace Microsoft.ServiceFabric.Services
             string applicationTypeName,
             string communicationListenerType)
         {
-            Instance.CommunicationListenerUsageEvent(
+            CommunicationListenerUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
                 communicationListenerType);
         }
 
@@ -114,16 +114,16 @@ namespace Microsoft.ServiceFabric.Services
             string remotingVersion,
             string communicationListenerType)
         {
-            Instance.ServiceRemotingUsageEvent(
+            ServiceRemotingUsageEvent(
                 type,
                 clusterOsType,
                 runtimePlatform,
                 partitionId,
                 replicaId,
-                serviceName.GetHashCode().ToString(),
-                serviceTypeName.GetHashCode().ToString(),
-                applicationName.GetHashCode().ToString(),
-                applicationTypeName.GetHashCode().ToString(),
+                serviceName,
+                serviceTypeName,
+                applicationName,
+                applicationTypeName,
                 isSecure,
                 remotingVersion,
                 communicationListenerType);

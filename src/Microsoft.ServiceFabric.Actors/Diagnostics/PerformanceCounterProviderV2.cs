@@ -56,16 +56,16 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             base.Dispose();
         }
 
-        internal override void InitializeActorMethodInfo(DiagnosticsEventManager diagnosticsEventManager)
+        public override void InitializeActorMethodInfo(ActorMethodFriendlyNameBuilder actorMethodFriendlyNameBuilder)
         {
-            base.InitializeActorMethodInfo(diagnosticsEventManager);
+            base.InitializeActorMethodInfo(actorMethodFriendlyNameBuilder);
 
             this.actorMethodCounterInstanceDataV2 = new Dictionary<long, CounterInstanceData>();
 
             var methodInfoListV2 = new List<KeyValuePair<long, MethodInfo>>();
             foreach (var actorInterfaceType in this.ActorTypeInformation.InterfaceTypes)
             {
-                diagnosticsEventManager.ActorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptionsV2(
+                actorMethodFriendlyNameBuilder.GetActorInterfaceMethodDescriptionsV2(
                     actorInterfaceType,
                     out var interfaceIdV2,
                     out var actorInterfaceMethodDescriptions);

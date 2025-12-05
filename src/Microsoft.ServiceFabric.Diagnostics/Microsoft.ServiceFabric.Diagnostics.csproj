@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-      <TargetFrameworks>net8.0;net462</TargetFrameworks>
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>$(AssemblyName).Internal</PackageId>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" />
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
   </ItemGroup>
 </Project>

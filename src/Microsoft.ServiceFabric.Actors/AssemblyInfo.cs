@@ -22,3 +22,4 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("ActorMigrationTestRcActorService" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.StateMigration.Tests" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Actors.Wcf.Tests" + PublicKey)]
+[assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]

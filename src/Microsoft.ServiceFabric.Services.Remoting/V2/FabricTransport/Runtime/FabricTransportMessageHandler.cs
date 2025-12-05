@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics.Metrics;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.FabricTransport.V2;
 using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
@@ -34,7 +35,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             IServiceRemotingMessageSerializersManager serializersManager,
             ExceptionSerializer exceptionConvertorHandler,
             Guid partitionId,
-            long replicaOrInstanceId)
+            long replicaOrInstanceId,
+            IMeterProvider<TimeSpan> meterProvider)
         {
             this.remotingMessageHandler = remotingMessageHandler;
             this.serializersManager = serializersManager;
@@ -45,10 +47,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             this.clock = new SystemClock();
 
-
             this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId);
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(serviceRemotingPerformanceCounterProvider, this.clock);
-            var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents };
+            var telemetryDiagnosticEvents = new TelemetryDiagnosticEvents(meterProvider, this.clock);
+
+            var registeredDiagnosticsEvents = new List<IDiagnosticEvents> { performanceCounterDiagnosticEvents, telemetryDiagnosticEvents };
             this.diagnosticEvents = new AggregatedDiagnosticEvents(registeredDiagnosticsEvents);
         }
 
@@ -56,7 +59,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             FabricTransportRequestContext requestContext,
             FabricTransportMessage fabricTransportMessage)
         {
-            var operationStartTime = clock.UtcNow;
+            DateTime operationStartTime = clock.UtcNow;
             diagnosticEvents.OnRequestResponseBegin();
 
             IServiceRemotingRequestMessage remotingRequestMessage = null;
@@ -143,7 +146,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var responseSerializer =
                 this.serializersManager.GetResponseBodySerializer(interfaceId);
 
-            var operationStartTime = clock.UtcNow;
+            DateTime operationStartTime = clock.UtcNow;
             diagnosticEvents.OnCreateTransportMessageBegin();
 
             var responseMsgBody = responseSerializer.Serialize(retval.GetBody());
@@ -168,7 +171,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             var msgBodySerializer =
                  this.serializersManager.GetRequestBodySerializer(deSerializedHeader.InterfaceId);
 
-            var operationStartTime = clock.UtcNow;
+            DateTime operationStartTime = clock.UtcNow;
             diagnosticEvents.OnRemotingRequestBegin();
 
             IServiceRemotingRequestMessageBody deserializedMsg;
