@@ -43,6 +43,8 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("BackupCopier" + TestKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Data.Impl" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Data.Impl" + TestKey)]
+[assembly: InternalsVisibleTo("System.Fabric.Common.Test" + PublicKey)]
+[assembly: InternalsVisibleTo("System.Fabric.Common.Test" + TestKey)]
 
 [assembly: InternalsVisibleTo("FabricIS.parallel" + PublicKey)]
 [assembly: InternalsVisibleTo("FabricIS.parallel" + TestKey)]
