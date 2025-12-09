@@ -10,11 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.ServiceFabric.Actors.Tests;
+using Microsoft.ServiceFabric.TestFramework;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    public class ActorConcurrencyLockTests
+    public class ActorConcurrencyLockTests : MockedMetricsTest
     {
         private static string currentContext = Guid.Empty.ToString();
 

@@ -784,7 +784,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             CancellationToken innerCancellationToken)
         {
             DateTime startTime = clock.UtcNow;
-            long interfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
+            long interfaceMethodKey = ActorMethodInfoUtil.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId);
             this.diagnostics.ActorMethodStart(actor.Id, interfaceMethodKey);
 
             Task<IServiceRemotingResponseMessageBody> dispatchTask;
@@ -799,7 +799,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
             catch (Exception e)
             {
-                this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
+                this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = interfaceMethodKey, Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                 throw;
             }
 
@@ -813,11 +813,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
                     }
                     catch (Exception e)
                     {
-                        this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
+                        this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = interfaceMethodKey, Exception = e, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                         throw;
                     }
 
-                    this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = Util.GetInterfaceMethodKey((uint)interfaceId, (uint)methodId), Exception = null, RemotingListener = RemotingListenerVersion.V2 }, startTime);
+                    this.diagnostics.ActorMethodFinish(new ActorMethodDiagnosticData() { ActorId = actor.Id, InterfaceMethodKey = interfaceMethodKey, Exception = null, RemotingListener = RemotingListenerVersion.V2 }, startTime);
                     return responseMsgBody;
                 },
                 TaskContinuationOptions.ExecuteSynchronously);

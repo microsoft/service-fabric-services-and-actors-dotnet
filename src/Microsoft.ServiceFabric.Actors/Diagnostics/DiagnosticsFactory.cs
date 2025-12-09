@@ -4,20 +4,23 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    internal class DiagnosticsFactory : IDisposable
+    class DiagnosticsFactory : IDisposable
     {
-        readonly PerformanceCounterProviderV2 performanceCounterProvider;
         readonly ServiceContext serviceContext;
         readonly ActorTypeInformation typeInformation;
         readonly ActorMethodFriendlyNameBuilder friendlyNameBuilder;
+
+        readonly PerformanceCounterProviderV2 performanceCounterProvider;
+        readonly IMeterProvider<TimeSpan> timeSpanMeterProvider;
+        readonly IMeterProvider<long> longMeterProvider;
 
         public DiagnosticsFactory(ServiceContext serviceContext, ActorTypeInformation typeInformation, ActorMethodFriendlyNameBuilder friendlyNameBuilder)
         {
@@ -27,13 +30,18 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
             performanceCounterProvider = new PerformanceCounterProviderV2(serviceContext.PartitionId, typeInformation);
             performanceCounterProvider.InitializeActorMethodInfo(this.friendlyNameBuilder);
+
+            // TODO: Stop using NullMeters when native metrics are integrated
+            timeSpanMeterProvider = new NullMeterProvider<TimeSpan>();
+            longMeterProvider = new NullMeterProvider<long>();
         }
 
         public virtual IDiagnostics CreateDiagnostics(IClock clock)
         {
             var performanceCounterDiagnostics = new PerformanceCounterDiagnostics(performanceCounterProvider, clock);
             var eventSourceDiagnostics = new EventSourceDiagnostics(ActorFrameworkEventSource.Writer, clock, serviceContext, friendlyNameBuilder, typeInformation);
-            var registeredDiagnostics = new List<IDiagnostics> { performanceCounterDiagnostics, eventSourceDiagnostics };
+            var metricDiagnostics = new MetricDiagnostics(longMeterProvider, timeSpanMeterProvider, clock, friendlyNameBuilder, typeInformation);
+            var registeredDiagnostics = new IDiagnostics[] { performanceCounterDiagnostics, eventSourceDiagnostics, metricDiagnostics };
 
             return new AggregatedDiagnostics(registeredDiagnostics);
         }

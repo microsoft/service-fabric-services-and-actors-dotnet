@@ -10,6 +10,7 @@ This repo builds the following packages:
  - Microsoft.ServiceFabric.Services.Wcf
  - Microsoft.ServiceFabric.Actors
  - Microsoft.ServiceFabric.Actors.Wcf
+ - Microsoft.ServiceFabric.Diagnostics
 
 For more Service Fabric open source projects, visit the Service Fabric [home repo](https://github.com/microsoft/service-fabric).
 
@@ -21,7 +22,18 @@ Each project is a normal C# Visual Studio 2022 project. At minimum, you need [MS
 We recommend installing [Visual Studio 2022](https://www.visualstudio.com/vs/) which will set you up with all the .NET build tools and allow you to open the solution files. Community Edition is free and can be used to build everything here.
 
 ### Build
-To build everything and generate NuGet packages, run the **build.ps1** script. NuGet packages will be dropped in a *drop* directory at the repo root.
+To build everything run:
+
+```pwsh
+dotnet build
+```
+
+To build everything and generate NuGet packages run:
+
+```pwsh
+dotnet build -c Release
+dotnet pack
+```
 
 Each project can also be built individually directly through Visual Studio or by running the solution file through MSBuild.
 

@@ -4,17 +4,19 @@
 // ------------------------------------------------------------
 
 using System;
+using System.Fabric;
 using System.Threading.Tasks;
 using Fuzzy;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    public class ActorStateManagerTest
+    public class ActorStateManagerTest : MockedMetricsTest
     {
         readonly static IFuzz fuzzy = new RandomFuzz();
 
@@ -25,14 +27,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         readonly ActorId actorId = fuzzy.ActorId();
         readonly DateTime startTime = DateTime.Now;
-        readonly ActorService actorService = TestMocksRepository.GetActorService<TestActor>();
+        readonly StatefulServiceContext statefulServiceContext = fuzzy.StatefulServiceContext();
 
         public ActorStateManagerTest()
         {
-            actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
             Mock.Get(clock).Setup(clock => clock.UtcNow).Returns(startTime);
 
-            sut = new ActorStateManager(new TestActor(actorService, actorId), new NullActorStateProvider(), diagnosticEvents, clock);
+            var mockedActorService = new Mock<ActorService>(statefulServiceContext, ActorTypeInformation.Get(typeof(TestActor)), null, null, null, null).Object;
+            sut = new ActorStateManager(new TestActor(mockedActorService, actorId), new NullActorStateProvider(), diagnosticEvents, clock);
         }
 
         public class State : ActorStateManagerTest

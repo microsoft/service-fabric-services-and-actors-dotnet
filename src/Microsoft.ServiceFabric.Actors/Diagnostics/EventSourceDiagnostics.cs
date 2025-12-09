@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Fabric;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
-using Microsoft.ServiceFabric.Services.Remoting.Description;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
@@ -18,7 +17,8 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly ServiceContext serviceContext;
         readonly IClock clock;
         readonly string actorType;
-        readonly Dictionary<long, ActorMethodInfo> actorMethodInfo;
+
+        readonly IReadOnlyDictionary<long, ActorMethodInfo> actorMethodInfo;
 
         internal EventSourceDiagnostics(ActorFrameworkEventSource eventSource, IClock clock, ServiceContext serviceContext, ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
         {
@@ -28,25 +28,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             _ = nameBuilder ?? throw new ArgumentNullException(nameof(nameBuilder));
             _ = typeInfo ?? throw new ArgumentNullException(nameof(typeInfo));
             this.actorType = typeInfo.ImplementationType.ToString();
-            this.actorMethodInfo = BuildActorMethodInfo(nameBuilder, typeInfo);
-        }
-
-        static Dictionary<long, ActorMethodInfo> BuildActorMethodInfo(ActorMethodFriendlyNameBuilder nameBuilder, ActorTypeInformation typeInfo)
-        {
-            var actorMethodInfos = new Dictionary<long, ActorMethodInfo>();
-
-            foreach (Type actorInterfaceType in typeInfo.InterfaceTypes)
-            {
-                nameBuilder.GetActorInterfaceMethodDescriptionsV2(actorInterfaceType, out var interfaceId, out var actorInterfaceMethodDescriptions);
-                foreach (MethodDescription actorInterfaceMethodDescription in actorInterfaceMethodDescriptions)
-                {
-                    var methodInfo = actorInterfaceMethodDescription.MethodInfo;
-                    var actorMethodInfo = new ActorMethodInfo(string.Concat(methodInfo.DeclaringType.Name, ".", methodInfo.Name), methodInfo.ToString());
-
-                    actorMethodInfos[Util.GetInterfaceMethodKey((uint)interfaceId, (uint)actorInterfaceMethodDescription.Id)] = actorMethodInfo;
-                }
-            }
-            return actorMethodInfos;
+            this.actorMethodInfo = ActorMethodInfoUtil.BuildActorMethodInfo(nameBuilder, typeInfo);
         }
 
         public void AcquireActorLockFinish(PendingActorMethodDiagnosticData diagnosticData, DateTime startTime)

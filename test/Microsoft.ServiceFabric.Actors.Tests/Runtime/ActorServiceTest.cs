@@ -10,51 +10,45 @@ using System.Threading.Tasks;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
-using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    public class ActorServiceTest
+    public class ActorServiceTest : MockedMetricsTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        readonly ActorService actorService = TestMocksRepository.GetActorService<TestActor>();
+        readonly ActorService sut;
+
+        readonly StatefulServiceContext serviceContext = fuzzy.StatefulServiceContext();
+        readonly ActorTypeInformation typeInformation = ActorTypeInformation.Get(typeof(TestActor));
+        readonly Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnosticsFactory;
+        readonly Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>> mockCreateDiagnosticsFactory = new Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>();
+        readonly DiagnosticsFactory diagnosticsFactory;
 
         public ActorServiceTest()
         {
-            actorService.InitializeInternal(new ActorMethodFriendlyNameBuilder(actorService.ActorTypeInformation));
+            diagnosticsFactory = new Mock<DiagnosticsFactory>(serviceContext, typeInformation, new ActorMethodFriendlyNameBuilder(typeInformation)).Object;
+
+            this.createDiagnosticsFactory = typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Value;
+            typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(mockCreateDiagnosticsFactory.Object);
+            mockCreateDiagnosticsFactory.Setup(_ => _.Invoke(It.IsAny<ServiceContext>(), It.IsAny<ActorTypeInformation>(), It.IsAny<ActorMethodFriendlyNameBuilder>())).Returns(diagnosticsFactory);
+
+            sut = new ActorService(serviceContext, typeInformation);
+            sut.InitializeInternal(new ActorMethodFriendlyNameBuilder(sut.ActorTypeInformation));
         }
 
-        public class Diagnostics : ActorServiceTest, IDisposable
+        public override void Dispose()
         {
-            readonly Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory> createDiagnosticsFactory;
-            readonly Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>> mockCreateDiagnosticsFactory = new Mock<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>();
-            readonly DiagnosticsFactory diagnosticsFactory;
+            base.Dispose();
+            typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(this.createDiagnosticsFactory);
+        }
 
-            readonly StatefulServiceContext serviceContext = fuzzy.StatefulServiceContext();
-            readonly ActorTypeInformation typeInformation = ActorTypeInformation.Get(typeof(TestActor));
-
-            readonly ActorService sut;
-
-            public Diagnostics()
-            {
-                diagnosticsFactory = new Mock<DiagnosticsFactory>(serviceContext, typeInformation, new ActorMethodFriendlyNameBuilder(typeInformation)).Object;
-
-                this.createDiagnosticsFactory = typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Value;
-                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(mockCreateDiagnosticsFactory.Object);
-                mockCreateDiagnosticsFactory.Setup(_ => _.Invoke(It.IsAny<ServiceContext>(), It.IsAny<ActorTypeInformation>(), It.IsAny<ActorMethodFriendlyNameBuilder>())).Returns(diagnosticsFactory);
-
-                sut = new ActorService(serviceContext, typeInformation);
-            }
-
-            public void Dispose()
-            {
-                typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(this.createDiagnosticsFactory);
-            }
-
+        public class Diagnostics : ActorServiceTest
+        {
             [Fact]
             public void IsCreatedByConstructor()
             {
@@ -79,11 +73,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             public OnRoleChange()
             {
-                actorService.Field<IDiagnostics>().Set(diagnostics);
-                sutMethod = actorService.DeclaredBy(typeof(ActorService)).Method<Func<ReplicaRole, CancellationToken, Task>>("OnChangeRoleAsync");
+                sut.Field<IDiagnostics>().Set(diagnostics);
+                sutMethod = sut.DeclaredBy(typeof(ActorService)).Method<Func<ReplicaRole, CancellationToken, Task>>("OnChangeRoleAsync");
 
-                var actorManager = new ActorManager(actorService, Mock.Of<IClock>(), diagnostics);
-                actorService.Field<ActorManagerAdapter>().Value.ActorManager = actorManager;
+                var actorManager = new ActorManager(sut, Mock.Of<IClock>(), diagnostics);
+                sut.Field<ActorManagerAdapter>().Value.ActorManager = actorManager;
             }
 
             [Fact]

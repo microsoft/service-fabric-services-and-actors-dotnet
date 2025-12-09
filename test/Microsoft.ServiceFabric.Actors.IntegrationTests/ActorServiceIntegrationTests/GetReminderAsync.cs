@@ -1,18 +1,19 @@
-using Fuzzy;
-using Microsoft.ServiceFabric.Actors.Query;
-using Microsoft.ServiceFabric.Actors.Runtime;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Fuzzy;
+using Microsoft.ServiceFabric.Actors.Query;
+using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.ServiceFabric.TestFramework;
+using Moq;
 using Xunit;
 using Xunit.Internal;
 
 namespace Microsoft.ServiceFabric.Actors.ActorServiceIntegrationTests
 {
-    public class GetRemindersAsync
+    public class GetRemindersAsync : MockedMetricsTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz();
 

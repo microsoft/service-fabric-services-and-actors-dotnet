@@ -11,12 +11,13 @@ using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
 {
-    public class ActorManagerTest
+    public class ActorManagerTest : MockedMetricsTest
     {
         internal const int RemainderCount = 10;
         internal readonly ActorId actorId;

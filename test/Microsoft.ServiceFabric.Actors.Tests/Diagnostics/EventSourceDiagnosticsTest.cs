@@ -263,7 +263,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 public Method()
                 {
                     actorMethodInfo[interfaceMethodKey] = new ActorMethodInfo(fuzzy.String(), fuzzy.String());
-                    sut.Field<Dictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
+                    sut.Field<IReadOnlyDictionary<long, ActorMethodInfo>>().Set(actorMethodInfo);
 
                     diagnosticData = new ActorMethodDiagnosticData() { ActorId = actorId, InterfaceMethodKey = interfaceMethodKey, Exception = null, RemotingListener = RemotingListenerVersion.V2 };
                 }
