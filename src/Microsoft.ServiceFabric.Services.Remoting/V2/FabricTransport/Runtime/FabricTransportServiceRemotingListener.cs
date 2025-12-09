@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
                 new ExceptionSerializer(svcExceptionConvertors, remotingSettings),
                 serviceContext.PartitionId,
                 serviceContext.ReplicaOrInstanceId,
-                new NullMeterProvider<TimeSpan>());
+                new TimeSpanMeterProvider(serviceContext));
 
             this.fabricTransportlistener = new FabricTransportListener(
                 remotingSettings.GetInternalSettings(),
