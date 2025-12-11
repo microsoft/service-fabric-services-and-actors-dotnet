@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>788378DE-D58E-3914-CE90-3498F7365C4F</ProjectGuid>
-    <TargetFrameworks>net9.0;net472</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net472</TargetFrameworks>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />

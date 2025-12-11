@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: dotnet build -bl:"$Logs/build.binLog"
-      - run: dotnet test --no-build --logger trx --framework net9.0 -bl:"$Logs/test.binLog"
+      - run: dotnet test --no-build --logger trx --framework net10.0 -bl:"$Logs/test.binLog"
       - run: dotnet pack --no-build -bl:"$Logs/pack.binLog"
       - uses: actions/upload-artifact@v4
         if: always()
