@@ -31,7 +31,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             performanceCounterProvider = new PerformanceCounterProviderV2(serviceContext.PartitionId, typeInformation);
             performanceCounterProvider.InitializeActorMethodInfo(this.friendlyNameBuilder);
 
-            // TODO: Stop using NullMeters when native metrics are integrated
             timeSpanMeterProvider = new TimeSpanMeterProvider(serviceContext);
             longMeterProvider = new Int64MeterProvider(serviceContext);
         }
