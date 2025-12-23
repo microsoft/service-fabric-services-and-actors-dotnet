@@ -11,7 +11,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
-using Microsoft.ServiceFabric.FabricTransport.V2;
+using Microsoft.ServiceFabric.FabricTransport;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Messaging.Test

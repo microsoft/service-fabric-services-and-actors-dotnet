@@ -6,7 +6,7 @@
 using System;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
+namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
     [GeneratedComClass]
     sealed partial class FabricTransportClientConnectionEventHandlerBroker :

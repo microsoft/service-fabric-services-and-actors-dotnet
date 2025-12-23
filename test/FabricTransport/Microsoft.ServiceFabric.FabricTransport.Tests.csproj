@@ -15,7 +15,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\FabricTransport.V2\Microsoft.ServiceFabric.FabricTransport.V2.csproj" />
     <ProjectReference Include="$(RepoRoot)src\FabricTransport\Microsoft.ServiceFabric.FabricTransport.csproj" />
   </ItemGroup>
   <ItemGroup>

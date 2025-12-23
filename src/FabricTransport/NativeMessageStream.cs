@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2
+namespace Microsoft.ServiceFabric.FabricTransport
 {
     internal class NativeMessageStream  : Stream
     {

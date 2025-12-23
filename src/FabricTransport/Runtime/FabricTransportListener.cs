@@ -10,9 +10,8 @@ using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.FabricTransport.Runtime;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
+namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     internal class FabricTransportListener : IDisposable
     {

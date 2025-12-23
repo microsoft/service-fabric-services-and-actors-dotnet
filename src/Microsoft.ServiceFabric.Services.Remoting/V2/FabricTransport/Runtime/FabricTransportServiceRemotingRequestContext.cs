@@ -6,7 +6,7 @@
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 {
     using System.Globalization;
-    using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
+    using Microsoft.ServiceFabric.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
 

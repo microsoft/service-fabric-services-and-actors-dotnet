@@ -8,7 +8,7 @@ using System.Fabric.Common;
 using System.Fabric.Interop;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
+namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     [GeneratedComClass]
     sealed partial class FabricTransportConnectionHandlerBroker : NativeFabricTransport.IFabricTransportConnectionHandler

@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
-    <ProjectReference Include="..\FabricTransport.V2\Microsoft.ServiceFabric.FabricTransport.V2.csproj" />
     <ProjectReference Include="..\FabricTransport\Microsoft.ServiceFabric.FabricTransport.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
     <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />

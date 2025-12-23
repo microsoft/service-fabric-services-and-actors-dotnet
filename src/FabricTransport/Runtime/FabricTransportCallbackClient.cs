@@ -6,7 +6,7 @@
 using System;
 using System.Fabric.Interop;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
+namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     internal class FabricTransportCallbackClient : IDisposable
     {

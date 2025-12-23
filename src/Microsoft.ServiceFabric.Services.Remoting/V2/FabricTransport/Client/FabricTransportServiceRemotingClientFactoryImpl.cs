@@ -11,14 +11,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.FabricTransport.V2;
-    using Microsoft.ServiceFabric.FabricTransport.V2.Client;
+    using Microsoft.ServiceFabric.FabricTransport;
+    using Microsoft.ServiceFabric.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
     using Microsoft.ServiceFabric.Services.Remoting.Client;
     using Microsoft.ServiceFabric.Services.Remoting.FabricTransport;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
-    using SR = Microsoft.ServiceFabric.Services.Remoting.SR;
 
     internal class FabricTransportServiceRemotingClientFactoryImpl : CommunicationClientFactoryBase<FabricTransportServiceRemotingClient>
     {

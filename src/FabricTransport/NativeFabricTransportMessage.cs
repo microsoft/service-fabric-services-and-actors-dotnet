@@ -10,7 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2
+namespace Microsoft.ServiceFabric.FabricTransport
 {
     [GeneratedComClass]
     sealed partial class NativeFabricTransportMessage : NativeFabricTransport.IFabricTransportMessage

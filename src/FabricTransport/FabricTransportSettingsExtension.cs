@@ -7,9 +7,9 @@ using System;
 using System.Fabric;
 using System.Fabric.Interop;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2
+namespace Microsoft.ServiceFabric.FabricTransport
 {
-    internal static class FabricTransportSettingsExtension
+    static class FabricTransportSettingsExtension
     {
         internal static IntPtr ToNativeV2(this FabricTransportSettings transportSettings, PinCollection pin)
         {

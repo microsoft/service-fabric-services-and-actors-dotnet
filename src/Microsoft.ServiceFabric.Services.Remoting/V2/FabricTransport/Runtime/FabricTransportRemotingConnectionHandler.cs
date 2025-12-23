@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.FabricTransport.V2.Runtime;
+    using Microsoft.ServiceFabric.FabricTransport.Runtime;
 
     internal class FabricTransportRemotingConnectionHandler : IFabricTransportConnectionHandler
     {

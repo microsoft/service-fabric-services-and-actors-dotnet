@@ -15,7 +15,7 @@ using REMOTING_REQUEST_ID = System.Guid;
 #endif
 using static System.Fabric.Interop.NativeCommon;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2
+namespace Microsoft.ServiceFabric.FabricTransport
 {
     static partial class NativeFabricTransport
     {

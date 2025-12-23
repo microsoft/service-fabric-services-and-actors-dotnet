@@ -11,9 +11,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using static Microsoft.ServiceFabric.FabricTransport.V2.NativeFabricTransport;
+using static Microsoft.ServiceFabric.FabricTransport.NativeFabricTransport;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2.Client
+namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
     internal class FabricTransportClient : IDisposable
     {

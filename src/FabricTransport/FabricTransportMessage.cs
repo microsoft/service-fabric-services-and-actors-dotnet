@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Fabric.Interop;
 using System.IO;
-using static Microsoft.ServiceFabric.FabricTransport.V2.NativeFabricTransport;
+using static Microsoft.ServiceFabric.FabricTransport.NativeFabricTransport;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2
+namespace Microsoft.ServiceFabric.FabricTransport
 {
     internal class FabricTransportMessage : IDisposable
     {

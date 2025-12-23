@@ -7,7 +7,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client
 {
     using System;
     using System.Fabric;
-    using Microsoft.ServiceFabric.FabricTransport.V2.Client;
+    using Microsoft.ServiceFabric.FabricTransport.Client;
     using Microsoft.ServiceFabric.Services.Communication.Client;
 
     internal class FabricTransportRemotingClientEventHandler : IFabricTransportClientEventHandler

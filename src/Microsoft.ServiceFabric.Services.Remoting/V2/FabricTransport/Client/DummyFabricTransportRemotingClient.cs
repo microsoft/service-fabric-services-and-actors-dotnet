@@ -6,7 +6,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.FabricTransport.V2.Client;
+using Microsoft.ServiceFabric.FabricTransport.Client;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Client;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Client

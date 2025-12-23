@@ -7,9 +7,9 @@ using System;
 using System.Fabric.Interop;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using static Microsoft.ServiceFabric.FabricTransport.V2.NativeFabricTransport;
+using static Microsoft.ServiceFabric.FabricTransport.NativeFabricTransport;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2
+namespace Microsoft.ServiceFabric.FabricTransport
 {
     [GeneratedComClass]
     sealed partial class NativeFabricTransportMessageDisposer : IFabricTransportMessageDisposer

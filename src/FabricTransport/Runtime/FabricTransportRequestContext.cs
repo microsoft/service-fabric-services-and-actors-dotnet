@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.ServiceFabric.FabricTransport.V2.Runtime
+namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     internal class FabricTransportRequestContext
     {
