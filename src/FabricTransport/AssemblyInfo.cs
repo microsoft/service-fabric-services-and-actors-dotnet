@@ -8,4 +8,4 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Services.Remoting" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.FabricTransport.V2" + PublicKey)]
-[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.FabricTransport.Test" + PublicKey)]
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.FabricTransport.Tests" + PublicKey)]
