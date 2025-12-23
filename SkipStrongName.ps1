@@ -16,6 +16,8 @@ $assemblies = # Keep the list sorted with VSCode / Sort Lines Ascending
     "Microsoft.ServiceFabric.AspNetCore",
     "Microsoft.ServiceFabric.Diagnostics.Tests",
     "Microsoft.ServiceFabric.Diagnostics",
+    "Microsoft.ServiceFabric.FabricTransport.Tests",
+    "Microsoft.ServiceFabric.FabricTransport",
     "Microsoft.ServiceFabric.Services.Remoting.Tests",
     "Microsoft.ServiceFabric.Services.Remoting",
     "Microsoft.ServiceFabric.Services.Tests",

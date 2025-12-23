@@ -1,16 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{BA2E8FE4-2970-40D4-BA55-5415E84C7B50}</ProjectGuid>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
-    <Reference Include="System.ServiceModel" />
+    <PackageReference Include="Microsoft.ServiceFabric" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Wcf\Microsoft.ServiceFabric.Services.Wcf.csproj" />
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">
