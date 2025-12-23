@@ -28,9 +28,8 @@
         <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
         <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-        <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.520-beta" />
-        <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.520-beta" />
-        <PackageVersion Include="Microsoft.ServiceFabric.FabricTransport.Internal" Version="9.0.520-beta" />
+        <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.714-beta" />
+        <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.714-beta" />
         <PackageVersion Include="Moq" Version="4.20.72" />
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" /> <!-- Transitive dependency -->
         <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" /> <!-- Transitive dependency -->
