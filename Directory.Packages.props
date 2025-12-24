@@ -16,13 +16,17 @@
         <PackageVersion Include="FluentAssertions" Version="6.12.0" />
         <PackageVersion Include="Fuzzy" Version="0.1.18" />
         <PackageVersion Include="Inspector" Version="0.1.30" />
-        <PackageVersion Include="Microsoft.AspNetCore.Diagnostics" Version="2.1.1" />
-        <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
-        <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.1.34" /> <!-- Transitive dependency -->
-        <PackageVersion Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.1" />
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
-        <PackageVersion Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.1.12" />
+        <PackageVersion Include="Microsoft.AspNetCore.Diagnostics" Version="2.3.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.3.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.3.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="2.3.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.3.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.6" /> <!-- Secure version of Microsoft.AspNetCore.Server.Kestrel dependency -->
+        <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" /> <!-- Double write -->
         <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.12" />
+        <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
         <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.520-beta" />
         <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.520-beta" />
@@ -33,6 +37,8 @@
         <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
         <PackageVersion Include="System.Drawing.Common" Version="8.0.8" /> <!-- Transitive dependency -->
         <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" /> <!-- Transitive dependency -->
+        <PackageVersion Include="System.IO.Pipelines" Version="8.0.0" /> <!-- Transitive dependecy -->
+        <PackageVersion Include="System.Memory" Version="4.6.3" /> <!-- Double write -->
         <PackageVersion Include="System.Net.Http.WinHttpHandler" Version="8.0.0" />
         <PackageVersion Include="System.Reflection.Emit" Version="4.7.0" />
         <PackageVersion Include="System.Reflection.Emit.ILGeneration" Version="4.7.0" />
@@ -42,8 +48,9 @@
         <PackageVersion Include="System.Security.Cryptography.Xml" Version="8.0.1" /> <!-- Transitive dependency -->
         <PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" /> <!-- Transitive dependency -->
         <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" /> <!-- Transitive dependency -->
-        <PackageVersion Include="xunit.v3" Version="3.1.0" />
-        <PackageVersion Include="xunit.v3.assert" Version="3.1.0" />
+        <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.0" /> <!-- Double write -->
+        <PackageVersion Include="xunit.v3" Version="3.2.1" />
+        <PackageVersion Include="xunit.v3.assert" Version="3.2.1" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     </ItemGroup>
   </Project>
