@@ -12,7 +12,7 @@
 
   <!-- Assembly name, title and documentation -->
   <PropertyGroup>
-    <RootNamespace>$(AssemblyName)</RootNamespace>
+    <RootNamespace Condition="'$(RootNamespace)' == ''">$(AssemblyName)</RootNamespace>
     <AssemblyTitle>$(AssemblyName)</AssemblyTitle>
   </PropertyGroup>
 
