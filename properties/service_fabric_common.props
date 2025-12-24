@@ -4,15 +4,12 @@
     <RepoRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), .gitignore))\</RepoRoot>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">minimal</RequestedVerbosity>
 
-    <!-- Version for binaries, nuget packages generated from this repo. -->
     <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
-    <MajorVersion Condition="'$(MSBuildProjectName)' != 'Microsoft.ServiceFabric.Diagnostics'">9</MajorVersion>
-    <!-- Major Version for Microsoft.ServiceFabric.Diagnostics binary - Bump together with normal MajorVersion -->
     <!-- We migrated Diagnostics package from WindowsFabric repo and we need to keep the versioning consistent -->
-    <MajorVersion Condition="'$(MSBuildProjectName)' == 'Microsoft.ServiceFabric.Diagnostics'">12</MajorVersion>
+    <MajorVersion>12</MajorVersion>
     <MinorVersion>0</MinorVersion>
     <BuildVersion>0</BuildVersion>
-    <Revision>19</Revision>
+    <Revision>20</Revision>
 
   </PropertyGroup>
 </Project>

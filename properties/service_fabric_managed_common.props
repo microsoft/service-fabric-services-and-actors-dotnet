@@ -48,7 +48,7 @@
 
   <!-- Set Version numbers. These are used for generating Assemblies. -->
   <PropertyGroup>
-    <AssemblyVersion>6.0.0.0</AssemblyVersion>
+    <AssemblyVersion>$(MajorVersion).0.0.0</AssemblyVersion>
     <PackageVersionSuffix>-beta</PackageVersionSuffix>
     <Version>$(MajorVersion).$(MinorVersion).$(BuildVersion)$(PackageVersionSuffix).$(Revision)</Version>
     <AssemblyFileVersion>$(MajorVersion).$(MinorVersion).$(BuildVersion).$(Revision)</AssemblyFileVersion>
