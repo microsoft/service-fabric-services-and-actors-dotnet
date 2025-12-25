@@ -17,6 +17,20 @@ Please be sure to follow the usual process for submitting PRs:
 
 We reserve the right to close PRs that are not making progress. If no changes are made for 7 days, we'll close the PR. Closed PRs can be reopened again later and work can resume.
 
+#### Install pre-requisites
+
+```
+init.cmd
+```
+
+#### Build
+
+You can build `code.sln` or individual projects with `dotnet`, Visual Studio or Visual Studio Code.
+
+Binaries in the build are delay signed, these are fully signed in the official builds released by Microsoft. To use the binaries or to run unit tests from the build of this repository, strong name validation needs to be skipped for these assemblies. This can be done by running the `SkipStrongName.ps1` script available in the root of the repository.
+
+For branches, please see [Branching Information](CONTRIBUTING.md#BranchingInformation)
+
 ### <a name="BranchingInformation"></a>Branching Information
 All development for future releases happen in the develop branch.
 A new branch is forked off of develop branch for each release to stabilize it before final release. (eg. release_4.0 branch represents the 4.0.* release).
