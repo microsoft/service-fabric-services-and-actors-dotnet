@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{014D5847-39F5-4660-B385-82EDFBA06CD9}</ProjectGuid>   
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackageContent</TargetsForTfmSpecificContentInPackage>

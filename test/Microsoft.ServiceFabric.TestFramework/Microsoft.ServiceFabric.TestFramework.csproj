@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{B8F12A3E-4C5D-4F6A-8B7C-9D1E2F3A4B5C}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric</RootNamespace>
     <TargetFrameworks>net8.0;net472</TargetFrameworks>
     <IsPackable>false</IsPackable>

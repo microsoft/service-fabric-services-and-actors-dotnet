@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{ECB3825D-B309-4C76-A20D-76544459F611}</ProjectGuid>
     <RootNamespace>Microsoft.ServiceFabric.Services</RootNamespace>
     <TargetFrameworks>net10.0;net9.0;net8.0;net472</TargetFrameworks>
     <OutputType>Exe</OutputType>
