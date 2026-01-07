@@ -11,9 +11,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Services\Microsoft.ServiceFabric.Services.csproj" />
+    <ProjectReference Include="..\Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
+    <ProjectReference Include="..\Services.Remoting\Microsoft.ServiceFabric.Services.Remoting.csproj" />
+    <ProjectReference Include="..\Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">

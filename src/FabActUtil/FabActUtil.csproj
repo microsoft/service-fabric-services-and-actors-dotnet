@@ -13,7 +13,7 @@
     <OutputType Condition="'$(TargetFramework)' == 'net462'">Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
+    <ProjectReference Include="..\Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">

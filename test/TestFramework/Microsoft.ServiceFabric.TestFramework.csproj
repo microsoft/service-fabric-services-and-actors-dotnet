@@ -13,7 +13,7 @@
     <PackageReference Include="xunit.v3.assert" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\Constants\Microsoft.ServiceFabric.Constants.csproj" />
-    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
+    <ProjectReference Include="..\..\src\Constants\Microsoft.ServiceFabric.Constants.csproj" />
+    <ProjectReference Include="..\..\src\Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
   </ItemGroup>
 </Project>

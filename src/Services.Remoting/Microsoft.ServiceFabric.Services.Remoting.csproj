@@ -1,15 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
-    <Reference Include="System.ServiceModel" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+    <PackageReference Include="System.Reflection.Emit.ILGeneration" />
+    <PackageReference Include="System.Reflection.Emit" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Services.Wcf\Microsoft.ServiceFabric.Services.Wcf.csproj" />
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
+    <ProjectReference Include="..\FabricTransport\Microsoft.ServiceFabric.FabricTransport.csproj" />
+    <ProjectReference Include="..\Diagnostics\Microsoft.ServiceFabric.Diagnostics.csproj" />
+    <ProjectReference Include="..\Services\Microsoft.ServiceFabric.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="SR.Designer.cs">

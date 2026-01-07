@@ -13,7 +13,7 @@
     <PackageReference Include="xunit.v3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors\Microsoft.ServiceFabric.Actors.csproj" />
-    <ProjectReference Include="$(RepoRoot)test\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
+    <ProjectReference Include="..\..\src\Actors\Microsoft.ServiceFabric.Actors.csproj" />
+    <ProjectReference Include="..\TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
   </ItemGroup>
 </Project>

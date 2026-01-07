@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <RootNamespace>Microsoft.ServiceFabric.Actors.Wcf</RootNamespace>
+    <RootNamespace>Microsoft.ServiceFabric.Services.Wcf</RootNamespace>
     <IsTestProject Condition="'$(TargetFramework)' != 'net472'">false</IsTestProject>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Exe</OutputType>
@@ -11,17 +11,15 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Fuzzy" />
     <PackageReference Include="Inspector" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
+    <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="xunit.v3" />
-    <PackageReference Include="xunit.runner.visualstudio">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(RepoRoot)src\Microsoft.ServiceFabric.Actors.Wcf\Microsoft.ServiceFabric.Actors.Wcf.csproj" />
-    <ProjectReference Include="$(RepoRoot)test\Microsoft.ServiceFabric.TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
+    <ProjectReference Include="..\..\src\Services.Wcf\Microsoft.ServiceFabric.Services.Wcf.csproj" />
+    <ProjectReference Include="..\TestFramework\Microsoft.ServiceFabric.TestFramework.csproj" />
   </ItemGroup>
 </Project>
