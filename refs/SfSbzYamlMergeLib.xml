@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SfSbzYamlMergeLib</name>
+    </assembly>
+    <members>
+        <member name="T:SfSbzYamlMergeUtils.ResourceInformation">
+            <summary>
+            Represents information about resource as read from yaml files.
+            </summary>
+        </member>
+        <member name="P:SfSbzYamlMergeUtils.ResourceInformation.Kind">
+            <summary>
+            Gets or sets Resource Kind.
+            </summary>
+        </member>
+        <member name="P:SfSbzYamlMergeUtils.ResourceInformation.Name">
+            <summary>
+            Gets or sets Name of Resource to create.
+            </summary>
+        </member>
+        <member name="T:SfSbzYamlMergeUtils.ResourceDeploymentInformation">
+            <summary>
+            Represents Deployment information for a resource for deploying to Service Fabric cluster.
+            </summary>
+        </member>
+        <member name="P:SfSbzYamlMergeUtils.ResourceDeploymentInformation.Kind">
+            <summary>
+            Gets or sets Resource Kind.
+            </summary>
+        </member>
+        <member name="P:SfSbzYamlMergeUtils.ResourceDeploymentInformation.Name">
+            <summary>
+            Gets or sets Name of Resource to create.
+            </summary>
+        </member>
+        <member name="P:SfSbzYamlMergeUtils.ResourceDeploymentInformation.FullyQualifiedResourceName">
+            <summary>
+            Gets or sets full qualified name which would include the hiearachy order for Hierarchical resources.
+            </summary>
+        </member>
+        <member name="P:SfSbzYamlMergeUtils.ResourceDeploymentInformation.ApiVersion">
+            <summary>
+            Gets or sets Api version to use for making REST call to local cluster.
+            </summary>
+        </member>
+        <member name="T:SfSbzYamlMergeUtils.SfSbzYamlMergeLib">
+            <summary>
+            Generates merged json resource descriptions from partial yaml files.
+            </summary>
+        </member>
+        <member name="F:SfSbzYamlMergeUtils.SfSbzYamlMergeLib.resourceCreationOrder">
+            <summary>
+            Specifies order of creation of individual resources:
+              - Secret
+              - SecretValue
+              - Volume
+              - Network
+              - Gateway
+              - Application
+            </summary>
+        </member>
+        <member name="M:SfSbzYamlMergeUtils.SfSbzYamlMergeLib.GenerateMergedDescriptions(System.String[],System.String,System.String,System.String,SfSbzYamlMergeUtils.OutputType,System.String,System.String)">
+            <summary>
+            Utility function to take in yaml input files and generate the output description files based on the output format
+            </summary>
+            <param name="inputFileNames">Yaml file list</param>        
+            <param name="outputPath">Dir output path</param>
+            <param name="parameterFilePath">Path to file containing parameter values to be replaced in the yamls. Values to be parameterised are specified in yaml files as "[parameters('ParamName')]"</param>
+            <param name="secretsParameterFilePath">Path to file containing secrets parameter values to be replaced in the yamls. Values to be parameterised are specified in yaml files as "[parameters('ParamName')]"</param>
+            <param name="outputFormat">Output format SF_SBZ_YAML/SF_SBZ_JSON/SF_SBZ_RP_JSON</param>
+            <param name="fileNamePrefix">Prefix of the generated file</param>
+            <param name="region">Region</param>
+            <returns>Success/Failure</returns>
+        </member>
+        <member name="M:SfSbzYamlMergeUtils.SfSbzYamlMergeLib.LoadAndMergePartialDocuments(System.String[])">
+             <summary>
+            Loads partial yaml documents groups them, by resource kind and name and merges them.
+             </summary>
+             <returns>Returns merged documents</returns>
+        </member>
+        <member name="M:SfSbzYamlMergeUtils.SfSbzYamlMergeLib.SaveAllMergedDocuments(System.Action{SfSbzYamlMergeUtils.ResourceDeploymentInformation,YamlDotNet.RepresentationModel.YamlDocument,System.String},System.Collections.Generic.IDictionary{SfSbzYamlMergeUtils.ResourceInformation,YamlDotNet.RepresentationModel.YamlDocument},System.String)">
+            <summary>
+            Saves merged yaml documents as per the resource creation order using the provided delegate.
+            </summary>
+            <param name="saveMergedDocumentFunc"></param>
+            <param name="resourceMergedDocumentMap"></param>
+            <param name="fileNamePrefix"></param>
+        </member>
+        <member name="T:SfSbzYamlMergeUtils.OutputType">
+            <summary>
+            The type of the merged document to output.
+            </summary>
+        </member>
+        <member name="F:SfSbzYamlMergeUtils.OutputType.SF_SBZ_YAML">
+            <summary>
+            This value indicates a merged YAML document as per Service Fabric Application Model v2 schema.
+            </summary>
+        </member>
+        <member name="F:SfSbzYamlMergeUtils.OutputType.SF_SBZ_JSON">
+            <summary>
+            This value indicates a merged JSON document as per Service Fabric Application Model v2 schema.
+            </summary>
+        </member>
+        <member name="F:SfSbzYamlMergeUtils.OutputType.SF_SBZ_RP_JSON">
+            <summary>
+            This value indicates a merged JSON document as per SeaBreeze Resource Manager schema.
+            </summary>
+        </member>
+        <member name="T:SfSbzYamlMergeUtils.ToolSettings">
+            <summary>
+            Represents settings for this tool.
+            </summary>
+        </member>
+        <member name="P:SfSbzYamlMergeUtils.ToolSettings.PrimitiveProperties">
+            <summary>
+            Gets or sets Primitive proeprties info.
+            </summary>
+        </member>
+        <member name="M:SfSbzYamlMergeUtils.ToolSettings.Load">
+            <summary>
+            Loads settings for the tool.
+            </summary>
+            <returns>Tools Settings.</returns>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.Swagger.Tools.ArmDocumentGenerator">
+            <summary>
+            Creates the ARM document describing service fabric resources based on the provided service fabric resource document.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.Swagger.Tools.ArmDocumentGenerator.BeginWriteArmDocument(Newtonsoft.Json.JsonTextWriter)">
+            <summary>
+            Writes the begining data
+            {
+               "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+               "contentVersion": "1.0.0.0",
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.Swagger.Tools.ArmDocumentGenerator.ProcessResourceRefs(Newtonsoft.Json.Linq.JObject,System.String)">
+            <summary>
+            Fixes ResourceRefs in provided properties JObject.
+            </summary>
+            <param name="jObject">JObject representing the properties of the resource.</param>
+            <param name="schemaVersion">Schema Version</param>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.Swagger.Tools.ArmDocumentGenerator.ProcessResourceRefsForGateway(Newtonsoft.Json.Linq.JObject,System.String)">
+            <summary>
+            Fixes ResourceRefs in provided JObject for Gateway.
+            </summary>
+            <param name="jObject">JObject representing the properties of the gateway resource.</param>
+            <param name="schemaVersion">Schema Version</param>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.Swagger.Tools.ArmParameter">
+            <summary>
+            Class representing parameter to be added in arm json.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.Swagger.Tools.Metadata">
+            <summary>
+            Class representing metadata to be added about an arm parameter.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.Swagger.Tools.Schema">
+            <summary>
+            Contains Schema ,apping information.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Swagger.Tools.Schema.SchemaVersionRpApiVersionMap">
+            <summary>
+            SchemaVersion to RP api version map.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Swagger.Tools.Schema.SchemaVersionFabricApiVersionMap">
+            <summary>
+            SchemaVersion to Service Fabric api version map.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Swagger.Tools.Schema.SFSeabreezeResourceMap">
+            <summary>
+            Service Fabric to Mesh Resource Mao
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Swagger.Tools.Schema.SchemaVersionSupportedResourcesKindMap">
+            <summary>
+            Map for SchemaVersion and supported Resource Kinds in Service Fabric runtime.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Swagger.Tools.Schema.HierarchichalSbzResourceNameBuilderMap">
+            <summary>
+            Map for hierarchical Mesh resource names.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Swagger.Tools.Schema.SchemaVersionSupportedResourcesTypeMap">
+            <summary>
+            Map for SchemaVersion and supported Resource Types map in Mesh.
+            </summary>
+        </member>
+    </members>
+</doc>

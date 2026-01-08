@@ -1,0 +1,439 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.ServiceFabric.YamlUtils</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.ServiceFabric.Yaml2Json.PrimitivePropertyInfo">
+            <summary>
+            Provides the information about the primitive data type in the YAML document. This information
+            is used in converting the YAML to JSON. The primitive data types are outputed in the JSON
+            document without the quotes.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Yaml2Json.PrimitivePropertyInfo.path">
+            <summary>
+            Gets or sets the path for the primitive property.
+            </summary>
+            <remarks>
+            The path is an XPath like notation to identify the location of primitive property in the YAML document.
+            The path specification starts at the root and continues downward following the matching named properties
+            of the object. The specifications must skip over and not include the sequence or array nodes.
+            </remarks>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.Yaml2Json.PrimitivePropertyInfo.type">
+            <summary>
+            Gets or sets the type of the primitive property.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.Yaml2Json.PrimitiveType">
+            <summary>
+            Represents the primitive data type in the YAML document.
+            This information is used in converting the YAML document to JSON document.
+            It helps the converter to emit the right JSON syntax (without the quotes) for these primitive types.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ServiceFabric.Yaml2Json.PrimitiveType.Integer">
+            <summary>
+            The primitive type is an integer.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ServiceFabric.Yaml2Json.PrimitiveType.Boolean">
+            <summary>
+            The primitive type is a boolean.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ServiceFabric.Yaml2Json.PrimitiveType.Double">
+            <summary>
+            The primitive type is a double.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.Yaml2Json.Yaml2Json">
+            <summary>
+            A utility for converting YAML files to JSON file.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.Yaml2Json.Yaml2Json.ToJson(YamlDotNet.RepresentationModel.YamlMappingNode,System.String,System.Collections.Generic.IList{Microsoft.ServiceFabric.Yaml2Json.PrimitivePropertyInfo})">
+            <summary>
+            Converts supplied YAML object to JSON.
+            </summary>
+            <param name="yamlNode">The YAML object to be converted to JSON.</param>
+            <param name="outputPropertyFilter">Name of the property whose contents needs to be returned. If this argument is not specified or is null, the entire object contents are returned.</param>
+            <param name="primitiveProperties">List of primitive properties and their types. This is needed as YAML does not differentiate between string and primitive values, but JSON format does.</param>
+            <returns>A JSON representation of the supplied YAML object.</returns>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlMerge.PartialDocument">
+            <summary>
+            Represents a partial YAML document that needs to be merged with other partial
+            YAML documents using the structural merge approach.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlMerge.PartialDocument.#ctor(System.String,YamlDotNet.RepresentationModel.YamlDocument)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ServiceFabric.YamlMerge.PartialDocument"/> class.
+            </summary>
+            <param name="name">The name of the document.</param>
+            <param name="document">The partial YAML document.</param>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlMerge.PartialDocument.Name">
+            <summary>
+            Gets the name of the partial YAML document.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlMerge.PartialDocument.Document">
+            <summary>
+            Gets the partial YAML document.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlMerge.PartialYamlObject">
+            <summary>
+            Represents a partial YAML object that needs to be merged with other
+            partial YAML objects using the structural merge approach.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlMerge.PartialYamlObject.#ctor(System.String,YamlDotNet.RepresentationModel.YamlMappingNode)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ServiceFabric.YamlMerge.PartialYamlObject"/> class.
+            </summary>
+            <param name="name">The name of the partial YAML object. This name is used in the error message to identify the partial object.</param>
+            <param name="node">The YAML mapping node representing the partial object.</param>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlMerge.PartialYamlObject.Name">
+            <summary>
+            Gets the name of the partial YAML object.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlMerge.PartialYamlObject.Node">
+            <summary>
+            Gets the contents of the partial YAML object.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlMerge.YamlMerge">
+             <summary>
+             Performs a structural merge of multiple YAML objects in the order in which they are specified.
+             </summary>
+             <remarks>
+             As an example, the following two Yaml content would result in the merge below.
+            
+             Yaml-1:
+             <code>
+                 application:
+                     name: myApp
+                     description: This is my application
+             </code>
+            
+             Yaml-2:
+             <code>
+                 application:
+                     name: myApp
+                     services:
+                         - name: myService
+                           codePackages:
+             </code>
+            
+             Merged:
+             <code>
+                 application:
+                     name: myApp
+                     description: This is my application
+                     services:
+                         - name: myService
+                           codePackages:
+             </code>
+             </remarks>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlMerge.YamlMerge.Merge(System.Collections.Generic.IList{Microsoft.ServiceFabric.YamlMerge.PartialDocument},System.String,System.String)">
+            <summary>
+            Performs a structural merge of the partial YAML objects and returns a merged document.
+            The merge is performed in the order in which the documents are specified.
+            </summary>
+            <param name="partialDocuments">The list of partial documents to merge.</param>
+            <param name="objectIdentifier">The identifier property for the root mapping node.</param>
+            <param name="objectPrimaryKey">The name of the primary key of the object whose value must be same in all partials.</param>
+            <returns>A merged Yaml document.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlMerge.YamlMerge.Merge">
+            <summary>
+            Performs a structural merge of the partial YAML objects and returns a merged document.
+            The merge is performed in the order in which the documents are specified.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlPath.YamlMappingNodeSelector">
+            <summary>
+            A selector of <see cref="T:YamlDotNet.RepresentationModel.YamlMappingNode"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlMappingNodeSelector.#ctor(System.String,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector)">
+            <summary>
+             Initializes a new instance of the <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlMappingNodeSelector"/> class.
+            </summary>
+            <param name="name">Name of the child node to be selected.</param>
+            <param name="next">Next <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector"/> selector.</param>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlMappingNodeSelector.TryParse(System.String,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector@)">
+            <summary>
+            Try to parse the mapping node selector from the specified path component.
+            </summary>
+            <param name="token">The YAML path component.</param>
+            <param name="previousSelector">Previous selector which will become the next selector for this selector as the path is parsed from bottoms up.</param>
+            <param name="currentSelector">Current selector that is parsed.</param>
+            <returns>true if the path component can be parsed in to a selector, otherwise false.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlMappingNodeSelector.SelectFromChildren(YamlDotNet.RepresentationModel.YamlNode)">
+            <summary>
+            Selects a child based on the selection criteria.
+            </summary>
+            <param name="node">Node whose child needs to be selected as per the selection criteria of this selector.</param>
+            <returns><see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> if the child node is found, otherwise null.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlMappingNodeSelector.GetSelectionPathComponent">
+            <summary>
+            Gets the string representation of the selection criteria.
+            </summary>
+            <returns>A string representation of the selection criteria</returns>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector">
+            <summary>
+            Describes a base selector of <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.#ctor(System.String,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector)">
+            <summary>
+             Initializes a new instance of the <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector"/> class.
+            </summary>
+            <param name="name">Name of the child node to be selected.</param>
+            <param name="next">Next <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector"/> selector.</param>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.Name">
+            <summary>
+            Gets the name of the child node to be selected.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.Next">
+            <summary>
+            Gets the selector for the next child node.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.Select(YamlDotNet.RepresentationModel.YamlDocument)">
+            <summary>
+            Select a <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> from the specified
+            <see cref="T:YamlDotNet.RepresentationModel.YamlDocument"/>  as per this selection criteria.
+            </summary>
+            <param name="document">A YAML document node.</param>
+            <returns>A <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> matching the selection criteria if found, otherwise null.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.Select(YamlDotNet.RepresentationModel.YamlNode)">
+            <summary>
+            Select a <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> from the specified
+            <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/>  as per this selection criteria.
+            </summary>
+            <param name="node">A YAML node.</param>
+            <returns>A <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> matching the selection criteria if found, otherwise null.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.TrySelect(YamlDotNet.RepresentationModel.YamlDocument,YamlDotNet.RepresentationModel.YamlNode@)">
+            <summary>
+             Tries to select a <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> from the specified
+            <see cref="T:YamlDotNet.RepresentationModel.YamlDocument"/>  as per this selection criteria.
+            </summary>
+            <param name="document">A YAML document.</param>
+            <param name="selectedNode">A <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> matching the selection criteria if found, otherwise null.</param>
+            <returns>true if the selection was found, otherwise false.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.TrySelect(YamlDotNet.RepresentationModel.YamlNode,YamlDotNet.RepresentationModel.YamlNode@)">
+            <summary>
+             Tries to select a <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> from the specified
+            <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/>  as per this selection criteria.
+            </summary>
+            <param name="node">A YAML node.</param>
+            <param name="selectedNode">A <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> matching the selection criteria if found, otherwise null.</param>
+            <returns>true if the selection was found, otherwise false.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.GetSelectionPath">
+            <summary>
+            Gets the string representation of the selection criteria.
+            </summary>
+            <returns>A string representation of the selection criteria</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.SelectFromChildren(YamlDotNet.RepresentationModel.YamlNode)">
+            <summary>
+            Selects a child based on the selection criteria.
+            </summary>
+            <param name="node">Node whose child needs to be selected as per the selection criteria of this selector.</param>
+            <returns><see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> if the child node is found, otherwise null.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector.GetSelectionPathComponent">
+            <summary>
+            Gets the string representation of the selection criteria.
+            </summary>
+            <returns>A string representation of the selection criteria</returns>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlPath.YamlPath">
+            <summary>
+            Provides a selection of <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> using a path.
+            </summary>
+            <remarks>
+            The path is a string representation of selection path in the <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> tree.
+            Each element of the path is separated  by ':'. The scalar YAML node is identified by '@' prefix.
+            Element of a sequenced YAML node can be identified by using the indexer property like '[0]'.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlPath.SelectSingleNode(YamlDotNet.RepresentationModel.YamlNode,System.String)">
+            <summary>
+            Select a <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> that is a child of this node using the specified YAML path.
+            </summary>
+            <param name="node">The node whose child needs to be located using the provided YAML path.</param>
+            <param name="yamlPath">The path to identifying the child node.</param>
+            <returns>A child <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> located as per the specified YAML path or null if the node is not found.</returns>
+            <exception cref="T:System.ArgumentException">If provided path is not a valid path.</exception>
+            <remarks>
+            The provided path is parsed as <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector"/>.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlPath.TrySelectSingleNode(YamlDotNet.RepresentationModel.YamlNode,System.String,YamlDotNet.RepresentationModel.YamlNode@)">
+            <summary>
+            Select a <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> that is a child of this node using the specified YAML path.
+            </summary>
+            <param name="node">The node whose child needs to be located using the provided YAML path.</param>
+            <param name="yamlPath">The path to identifying the child node.</param>
+            <param name="selectedNode">A <see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> matching the selection criteria if found, otherwise null.</param>
+            <returns>true if the selection was found, otherwise false.</returns>
+            <remarks>
+            The provided path is parsed as <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector"/>.
+            </remarks>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlPath.YamlScalarNodeSelector">
+            <summary>
+            A selector of <see cref="T:YamlDotNet.RepresentationModel.YamlScalarNode"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlScalarNodeSelector.#ctor(System.String)">
+            <summary>
+             Initializes a new instance of the <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlScalarNodeSelector"/> class.
+            </summary>
+            <param name="name">Name of the child node to be selected.</param>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlScalarNodeSelector.TryParse(System.String,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector@)">
+            <summary>
+            Try to parse the scalar node selector from the specified path component.
+            </summary>
+            <param name="token">The YAML path component.</param>
+            <param name="previousSelector">Previous selector which will become the next selector for this selector as the path is parsed from bottoms up.</param>
+            <param name="currentSelector">Current selector that is parsed.</param>
+            <returns>true if the path component can be parsed in to a selector, otherwise false.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlScalarNodeSelector.SelectFromChildren(YamlDotNet.RepresentationModel.YamlNode)">
+            <summary>
+            Selects a child based on the selection criteria.
+            </summary>
+            <param name="node">Node whose child needs to be selected as per the selection criteria of this selector.</param>
+            <returns><see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> if the child node is found, otherwise null.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlScalarNodeSelector.GetSelectionPathComponent">
+            <summary>
+            Gets the string representation of the selection criteria.
+            </summary>
+            <returns>A string representation of the selection criteria</returns>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlPath.YamlSequencedNodeSelector">
+            <summary>
+            A selector of <see cref="T:YamlDotNet.RepresentationModel.YamlSequenceNode"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlSequencedNodeSelector.#ctor(System.String,System.Int32,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector)">
+            <summary>
+             Initializes a new instance of the <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlSequencedNodeSelector"/> class.
+            </summary>
+            <param name="name">Name of the child node to be selected.</param>
+            <param name="index">Index of the child to be selected in the sequence.</param>
+            <param name="next">Next <see cref="T:Microsoft.ServiceFabric.YamlPath.YamlNodeSelector"/> selector.</param>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlPath.YamlSequencedNodeSelector.Index">
+            <summary>
+            Gets the index of the sequenced child node.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlSequencedNodeSelector.TryParse(System.String,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector,Microsoft.ServiceFabric.YamlPath.YamlNodeSelector@)">
+            <summary>
+            Try to parse the sequenced node selector from the specified path component.
+            </summary>
+            <param name="token">The YAML path component.</param>
+            <param name="nextSelector">Previous selector which will become the next selector for this selector as the path is parsed from bottoms up.</param>
+            <param name="parsedSelector">Current selector that is parsed.</param>
+            <returns>true if the path component can be parsed in to a selector, otherwise false.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlSequencedNodeSelector.SelectFromChildren(YamlDotNet.RepresentationModel.YamlNode)">
+            <summary>
+            Selects a child based on the selection criteria.
+            </summary>
+            <param name="node">Node whose child needs to be selected as per the selection criteria of this selector.</param>
+            <returns><see cref="T:YamlDotNet.RepresentationModel.YamlNode"/> if the child node is found, otherwise null.</returns>
+        </member>
+        <member name="M:Microsoft.ServiceFabric.YamlPath.YamlSequencedNodeSelector.GetSelectionPathComponent">
+            <summary>
+            Gets the string representation of the selection criteria.
+            </summary>
+            <returns>A string representation of the selection criteria</returns>
+        </member>
+        <member name="T:Microsoft.ServiceFabric.YamlUtilsSR">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_FailedToFindChild">
+            <summary>
+              Looks up a localized string similar to Failed to find path {0} under node {1}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_FailedToParseYamlPath">
+            <summary>
+              Looks up a localized string similar to Failed to parse &apos;{0}&apos; as &apos;{1}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_YamlMerge_InputDocumentDoesNotContainObject">
+            <summary>
+              Looks up a localized string similar to The input document &apos;{0}&apos; must have a single YAML document containing a root node must be an object..
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_YamlMerge_InputDocumentDoesNotContainSpecifiedObject">
+            <summary>
+              Looks up a localized string similar to The input document &apos;{0}&apos; must have a single YAML document containing a root node that must be an object with a single property &apos;{1}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_YamlMerge_ObjectDoesNotHavePrimaryKey">
+            <summary>
+              Looks up a localized string similar to The following object in the input document &apos;{0}&apos; does not have required property &apos;{1}&apos;. {2}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_YamlMerge_ObjectPrimaryKeyDifferent">
+            <summary>
+              Looks up a localized string similar to The following object in the input document &apos;{0}&apos; have a different value for the identifier property &apos;{1}&apos; than other documents. Values of primary identifier property must be same in all partial objects. {2}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_YamlMerge_ObjectPrimaryKeyNotScalar">
+            <summary>
+              Looks up a localized string similar to The following object in the input document &apos;{0}&apos; have property &apos;{1}&apos; but it is not scalar. The object must have scalar property &apos;{1}&apos; as an identifier. {2}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_YamlMerge_SrcAndDestNodeTypesAreDifferent">
+            <summary>
+              Looks up a localized string similar to The following node in the input document &apos;{0}&apos; is of type &apos;{1}&apos; whereas of type &apos;{2}&apos; in other input document(s). {3}.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ServiceFabric.YamlUtilsSR.Error_YamlMerge_UnsupportedNodeType">
+            <summary>
+              Looks up a localized string similar to The following node in the input document &apos;{0}&apos; is of type &apos;{1}&apos; which is not supported. {2}.
+            </summary>
+        </member>
+    </members>
+</doc>
