@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\properties\service_fabric_managed_netstandard.props" />
+  <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
+  <PropertyGroup>
+    <AssemblyName>Microsoft.ServiceFabric.Powershell.Http</AssemblyName>
+    <RootNamespace>Microsoft.ServiceFabric.Powershell.Http</RootNamespace>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0 " />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
+    <PackageReference Include="YamlDotNet" Version="8.1.2" />
+  </ItemGroup>  
+  <ItemGroup>
+    <Reference Include="SfSbzYamlMergeLib">
+      <HintPath>$(RepoRoot)refs\SfSbzYamlMergeLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ServiceFabric.YamlUtils">
+      <HintPath>$(RepoRoot)refs\Microsoft.ServiceFabric.YamlUtils.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Client.Http\Microsoft.ServiceFabric.Client.Http.csproj" />
+  </ItemGroup>  
+  <ItemGroup>
+    <Compile Update="Resource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>  
+  <ItemGroup>
+    <EmbeddedResource Update="Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>  
+  <ItemGroup>
+    <None Update="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http-Help.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="manifest\Microsoft.ServiceFabric.Powershell.Http.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>  
+</Project>
