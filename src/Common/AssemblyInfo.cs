@@ -6,4 +6,5 @@
 using System.Runtime.CompilerServices;
 using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 
+[assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Client" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Client.Http" + PublicKey)]

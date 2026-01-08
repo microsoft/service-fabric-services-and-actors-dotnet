@@ -1,53 +1,102 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\properties\service_fabric_managed_netstandard.props" />
-  <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Microsoft.ServiceFabric.Powershell.Http</AssemblyName>
-    <RootNamespace>Microsoft.ServiceFabric.Powershell.Http</RootNamespace>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+    <!--
+      PowerShell modules have different folder structure than NuGet packages. Also, even though they can be downloaded
+      from PSGallery as .nupkg files, the Publish-Module command requires a directory path instead of a package file.
+      We use the built-in NuGet.Build.Tasks.Pack.targets to prepare a directory suitable for publishing the module.
+      https://learn.microsoft.com/en-us/nuget/reference/msbuild-targets#advanced-extension-points-to-create-customized-package
+    -->
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GetFrameworkSpecificPowerShellModuleFiles</TargetsForTfmSpecificContentInPackage>
+    <!-- 
+      We still create a .nupkg for re-packaging of this module in the WindowsFabric repo with DSTS support for SAWDrop.
+      This is not a valid NuGet package, so we need to disable some options and checks.
+    -->
+    <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Don't create standard lib folder in the package -->
+    <NoWarn>$(NoWarn);NU5100</NoWarn> <!-- Disable warnings assemblies not inside the lib folder -->
+    <NoWarn>$(NoWarn);NU5128</NoWarn> <!-- Disable warnings about mismatch between target frameworks and folder names -->
+    <!-- 
+      Don't generate a symbols package.
+      ADO feeds don't support them and the internal pipeline publishes symbols directly from bin.
+    -->
+    <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0 " />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
-    <PackageReference Include="YamlDotNet" Version="8.1.2" />
-  </ItemGroup>  
-  <ItemGroup>
-    <Reference Include="SfSbzYamlMergeLib">
-      <HintPath>$(RepoRoot)refs\SfSbzYamlMergeLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.ServiceFabric.YamlUtils">
-      <HintPath>$(RepoRoot)refs\Microsoft.ServiceFabric.YamlUtils.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\Client.Http\Microsoft.ServiceFabric.Client.Http.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Client.Http\Microsoft.ServiceFabric.Client.Http.csproj" />
+    <PackageReference Include="Microsoft.Identity.Client"/>
+    <PackageReference Include="Microsoft.Win32.Registry" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="PowerShellStandard.Library" />
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>  
+  <ItemGroup>
+    <Reference Include="..\..\refs\SfSbzYamlMergeLib.dll" />
+    <Reference Include="..\..\refs\Microsoft.ServiceFabric.YamlUtils.dll" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="Resource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
-  </ItemGroup>  
-  <ItemGroup>
     <EmbeddedResource Update="Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>  
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <Content>
+      <!-- Content files should be copied to output directory for signing -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- Unsigned content files should not be included in the module/package -->
+      <Pack>false</Pack>
+    </Content>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <None Update="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http-Help.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="manifest\Microsoft.ServiceFabric.Powershell.Http.psd1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>  
+    <Content Link="Microsoft.ServiceFabric.Powershell.Http.psd1" Include="manifest\Microsoft.ServiceFabric.Powershell.Http.psd1" />
+    <Content Link="Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml" Include="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml" />
+    <Content Link="Microsoft.ServiceFabric.Powershell.Http-Help.xml" Include="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http-Help.xml" />
+  </ItemGroup>
+  <Target Name="DonNotBuildProjectReferencesWhenGettingReferenceCopyLocalPaths"
+    BeforeTargets="ResolveProjectReferences" Condition="'$(_IsPacking)' == 'true'">
+    <PropertyGroup>
+      <BuildProjectReferences>false</BuildProjectReferences>
+    </PropertyGroup>
+  </Target>
+  <Target Name="DeterminePowerShellFramework">
+    <PropertyGroup>
+      <PowerShellFramework Condition="'$(TargetFramework)' == 'netstandard2.0'">netstandard</PowerShellFramework>
+      <PowerShellFramework Condition="'$(TargetFramework)' == 'net462'">netframework</PowerShellFramework>
+    </PropertyGroup>
+  </Target>
+  <Target Name="GetFrameworkSpecificPowerShellModuleFiles" Outputs="@(TfmSpecificPackageFile)"
+    DependsOnTargets="BuiltProjectOutputGroup;ReferenceCopyLocalPathsOutputGroup;DeterminePowerShellFramework">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml" />
+      <TfmSpecificPackageFile Include="$(OutputPath)Microsoft.ServiceFabric.Powershell.Http-Help.xml" />
+      <TfmSpecificPackageFile Include="@(ReferenceCopyLocalPathsOutputGroupOutput)" />
+      <TfmSpecificPackageFile Include="@(BuiltProjectOutputGroupOutput)" />
+      <TfmSpecificPackageFile PackagePath="$(PowerShellFramework)" />
+      <!-- Don't include symbols and doc comments files in the module. -->
+      <TfmSpecificPackageFile Remove="@(TfmSpecificPackageFile)"
+        Condition="'%(TfmSpecificPackageFile.OriginalItemSpec)' != '' and '%(Identity)' != $([MSBuild]::NormalizePath('%(TfmSpecificPackageFile.OriginalItemSpec)'))" />
+    </ItemGroup>
+  </Target>
+  <Target Name="CopyPowerShellModuleToOutputPath" BeforeTargets="GenerateNuSpec" DependsOnTargets="$(GenerateNuspecDependsOn)">
+    <PropertyGroup>
+      <ModuleOutputPath>$(PackageOutputPath)$(PackageId).$(PackageVersion)</ModuleOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <!--
+        We only need one of the two identical signed .psd1 files.
+        Other files are provided by the GetFrameworkSpecificPowerShellModuleFiles target that $(GenerateNuspecDependsOn).
+      -->
+      <_PackageFiles Include="$(OutputPath)net462\Microsoft.ServiceFabric.Powershell.Http.psd1" PackagePath="/" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_PackageFiles)"
+      DestinationFiles="@(_PackageFiles->'$(ModuleOutputPath)\%(PackagePath)\%(Filename)%(Extension)')" />
+  </Target>
 </Project>

@@ -27,11 +27,14 @@
         <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.12" />
         <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
         <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
+        <PackageVersion Include="Microsoft.Identity.Client" Version="4.61.3" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
         <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.714-beta" />
         <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.714-beta" />
+        <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageVersion Include="Moq" Version="4.20.72" />
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" /> <!-- Transitive dependency -->
+        <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
         <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" /> <!-- Transitive dependency -->
         <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
         <PackageVersion Include="System.Drawing.Common" Version="8.0.8" /> <!-- Transitive dependency -->
@@ -51,5 +54,6 @@
         <PackageVersion Include="xunit.v3" Version="3.2.1" />
         <PackageVersion Include="xunit.v3.assert" Version="3.2.1" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+        <PackageVersion Include="YamlDotNet" Version="8.1.2" />
     </ItemGroup>
   </Project>

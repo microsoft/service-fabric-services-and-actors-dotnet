@@ -12,23 +12,27 @@
     <Project Path="src/AspNetCore.HttpSys/Microsoft.ServiceFabric.AspNetCore.HttpSys.csproj" />
     <Project Path="src/AspNetCore.Kestrel/Microsoft.ServiceFabric.AspNetCore.Kestrel.csproj" />
     <Project Path="src/AspNetCore/Microsoft.ServiceFabric.AspNetCore.csproj" />
+    <Project Path="src/Client.Http/Microsoft.ServiceFabric.Client.Http.csproj" />
+    <Project Path="src/Client/Microsoft.ServiceFabric.Client.csproj" />
+    <Project Path="src/Common/Microsoft.ServiceFabric.Common.csproj" />
     <Project Path="src/Constants/Microsoft.ServiceFabric.Constants.csproj" />
     <Project Path="src/Diagnostics/Microsoft.ServiceFabric.Diagnostics.csproj" />
     <Project Path="src/FabActUtil/FabActUtil.csproj" />
     <Project Path="src/FabricTransport/Microsoft.ServiceFabric.FabricTransport.csproj" />
+    <Project Path="src/Powershell.Http/Microsoft.ServiceFabric.Powershell.Http.csproj" />
     <Project Path="src/Services.Remoting/Microsoft.ServiceFabric.Services.Remoting.csproj" />
     <Project Path="src/Services.Wcf/Microsoft.ServiceFabric.Services.Wcf.csproj" />
     <Project Path="src/Services/Microsoft.ServiceFabric.Services.csproj" />
   </Folder>
   <Folder Name="/test/">
-    <Project Path="test/AspNetCore/Microsoft.ServiceFabric.AspNetCore.Tests.csproj" />
     <Project Path="test/Actors.Integration/Microsoft.ServiceFabric.Actors.IntegrationTests.csproj" />
-    <Project Path="test/Actors/Microsoft.ServiceFabric.Actors.Tests.csproj" />
     <Project Path="test/Actors.Wcf/Microsoft.ServiceFabric.Actors.Wcf.Tests.csproj" />
+    <Project Path="test/Actors/Microsoft.ServiceFabric.Actors.Tests.csproj" />
+    <Project Path="test/AspNetCore/Microsoft.ServiceFabric.AspNetCore.Tests.csproj" />
     <Project Path="test/Diagnostics/Microsoft.ServiceFabric.Diagnostics.Tests.csproj" />
     <Project Path="test/Services.Remoting/Microsoft.ServiceFabric.Services.Remoting.Tests.csproj" />
-    <Project Path="test/Services/Microsoft.ServiceFabric.Services.Tests.csproj" />
     <Project Path="test/Services.Wcf/Microsoft.ServiceFabric.Services.Wcf.Tests.csproj" />
+    <Project Path="test/Services/Microsoft.ServiceFabric.Services.Tests.csproj" />
     <Project Path="test/TestFramework/Microsoft.ServiceFabric.TestFramework.csproj" />
   </Folder>
 </Solution>

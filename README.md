@@ -1,22 +1,29 @@
-# Azure/service-fabric-services-and-actors-dotnet
+# Service Fabric .NET Libraries
 
-Reliable Services and Reliable Actors are Service Fabric application frameworks for building highly-scalable distributed cloud applications.
+.NET libraries for building and managing [Service Fabric](https://learn.microsoft.com/azure/service-fabric) services.
 
-Reliable Services is a light-weight framework for writing services that integrate with the Service Fabric platform and benefit from the full set of platform features. Built on top of Reliable Services, the Reliable Actor framework is an application framework that implements the Virtual Actor model, based on the actor design pattern. More information on Service Fabric programming models can be found in the [Service Fabric documentation](https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-choose-framework).
-
-This repo builds the following packages:
+This repository is a hope of the following NuGet packages:
  - [Microsoft.ServiceFabric.Actors](https://www.nuget.org/packages/Microsoft.ServiceFabric.Actors)
  - [Microsoft.ServiceFabric.Actors.Wcf](https://www.nuget.org/packages/Microsoft.ServiceFabric.Actors.Wcf)
  - [Microsoft.ServiceFabric.AspNetCore.Abstractions](https://www.nuget.org/packages/Microsoft.ServiceFabric.AspNetCore.Abstractions)
  - [Microsoft.ServiceFabric.AspNetCore.Configuration](https://www.nuget.org/packages/Microsoft.ServiceFabric.AspNetCore.Configuration)
  - [Microsoft.ServiceFabric.AspNetCore.HttpSys](https://www.nuget.org/packages/Microsoft.ServiceFabric.AspNetCore.HttpSys)
  - [Microsoft.ServiceFabric.AspNetCore.Kestrel](https://www.nuget.org/packages/Microsoft.ServiceFabric.AspNetCore.Kestrel)
+ - [Microsoft.ServiceFabric.Client.Http](https://www.nuget.org/packages/Microsoft.ServiceFabric.Client.Http)
  - [Microsoft.ServiceFabric.Diagnostics.Internal](https://www.nuget.org/packages/Microsoft.ServiceFabric.Diagnostics.Internal)
  - [Microsoft.ServiceFabric.Services](https://www.nuget.org/packages/Microsoft.ServiceFabric.Services)
  - [Microsoft.ServiceFabric.Services.Remoting](https://www.nuget.org/packages/Microsoft.ServiceFabric.Services.Remoting)
  - [Microsoft.ServiceFabric.Services.Wcf](https://www.nuget.org/packages/Microsoft.ServiceFabric.Services.Wcf)
 
-For more Service Fabric open source projects, visit the Service Fabric [home repo](https://github.com/microsoft/service-fabric).
+and PowerShell modules:
+ - [Microsoft.ServiceFabric.Powershell.Http](https://www.powershellgallery.com/packages/Microsoft.ServiceFabric.Powershell.Http) 
+
+## Getting Started
+
+Follow a [tutorial](https://learn.microsoft.com/azure/service-fabric/service-fabric-quickstart-dotnet) to deploy your
+first Service Fabric cluster and .NET service. Learn more about the options for building Service Fabric services in the
+[product documentation](https://docs.microsoft.com/azure/service-fabric/service-fabric-choose-framework).
+
 
 ## Releases and Support
 Official releases from Microsoft of the NuGet packages in this repo are released directly to NuGet and Web Platform Installer. Get the latest official release [here](http://www.microsoft.com/web/handlers/webpi.ashx?command=getinstallerredirect&appid=MicrosoftAzure-ServiceFabric-VS2015).

@@ -1,21 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\properties\service_fabric_managed_netstandard.props" />
-  <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Microsoft.ServiceFabric.Client.Http</AssemblyName>
-    <RootNamespace>Microsoft.ServiceFabric.Client.Http</RootNamespace>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>  
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Common\Microsoft.ServiceFabric.Common.csproj" />
+    <ProjectReference Include="..\Client\Microsoft.ServiceFabric.Client.csproj" />
+    <ProjectReference Include="..\Common\Microsoft.ServiceFabric.Common.csproj" />
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.ServiceFabric.Client\Microsoft.ServiceFabric.Client.csproj" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\SR.Designer.cs">

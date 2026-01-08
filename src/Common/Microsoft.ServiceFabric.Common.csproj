@@ -1,13 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\properties\service_fabric_managed_netstandard.props" />
-  <Import Project="..\..\properties\service_fabric_managed_stylecop.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Microsoft.ServiceFabric.Common</AssemblyName>
-    <RootNamespace>Microsoft.ServiceFabric.Common</RootNamespace>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Update="Resources\SR.Designer.cs">
       <DesignTime>True</DesignTime>
