@@ -2,12 +2,12 @@
 # Everything in the external/packages directory as nuget packages are restored here.
 /nuget/restored_packages/*
 
-# Build generated files in src
-/src/**/objd/**/*
-/src/**/obj/**/*
-/src/**/bin/**/*
-/src/**/gen/**/*
-/src/**/*.nuspec
+# Build generated files
+**/objd/**/*
+**/obj/**/*
+**/bin/**/*
+**/gen/**/*
+**/out/**/*
 
 # MSBuild's log file
 msbuild.log
