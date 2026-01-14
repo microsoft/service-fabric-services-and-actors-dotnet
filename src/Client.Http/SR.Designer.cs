@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Client.Http.Resources {
+namespace Microsoft.ServiceFabric {
     using System;
     
     
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class SR {
@@ -39,7 +39,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.ServiceFabric.Client.Http.Resources.SR", typeof(SR).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.ServiceFabric.SR", typeof(SR).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,11 +61,56 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Provided client certificate doesn&apos;t contain a private key, please provie a client cert with private key..
+        /// </summary>
+        internal static string ClientCertDoesntContainPrivateKey {
+            get {
+                return ResourceManager.GetString("ClientCertDoesntContainPrivateKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to AADTokenHandler cannot be created for SecuritySettings of type {0}.
         /// </summary>
         internal static string ErrorAADTokenHandlerIncorrectSecuritySettings {
             get {
                 return ResourceManager.GetString("ErrorAADTokenHandlerIncorrectSecuritySettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application name must begin with fabric..
+        /// </summary>
+        internal static string ErrorAppNameDoesntBeginWithFabric {
+            get {
+                return ResourceManager.GetString("ErrorAppNameDoesntBeginWithFabric", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application name begins with fabric://, it cannot have authority name in it..
+        /// </summary>
+        internal static string ErrorAppNameHasAuthorityName {
+            get {
+                return ResourceManager.GetString("ErrorAppNameHasAuthorityName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application name has invalid characters, It cannot have following invalid characters {0}..
+        /// </summary>
+        internal static string ErrorAppNameHasInvalidChars {
+            get {
+                return ResourceManager.GetString("ErrorAppNameHasInvalidChars", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application name cannot have a trailing &quot;/&quot;..
+        /// </summary>
+        internal static string ErrorAppNameHasTrailingSlash {
+            get {
+                return ResourceManager.GetString("ErrorAppNameHasTrailingSlash", resourceCulture);
             }
         }
         
@@ -124,7 +169,16 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The provided collection cannot be empty..
+        ///   Looks up a localized string similar to Cluster endpoint is not provided. Collection must have atleast one endpoint..
+        /// </summary>
+        internal static string ErrorClusterEndpointNotProvided {
+            get {
+                return ResourceManager.GetString("ErrorClusterEndpointNotProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Provided collection cannot be empty..
         /// </summary>
         internal static string ErrorCollectionCannotBeEmpty {
             get {
@@ -147,6 +201,24 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         internal static string ErrorConnectionClosed {
             get {
                 return ResourceManager.GetString("ErrorConnectionClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DSTS option is not supported in the current configuration. Its supported only in internal Service Fabric tooling drops..
+        /// </summary>
+        internal static string ErrorDstsNotSupported {
+            get {
+                return ResourceManager.GetString("ErrorDstsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} cannot be an empty list..
+        /// </summary>
+        internal static string ErrorEmptyList {
+            get {
+                return ResourceManager.GetString("ErrorEmptyList", resourceCulture);
             }
         }
         
@@ -223,11 +295,83 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value must be less than or equal to {0}..
+        /// </summary>
+        internal static string ErrorLessThanInclusiveMax {
+            get {
+                return ResourceManager.GetString("ErrorLessThanInclusiveMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value must be greater than or equal to {0}..
+        /// </summary>
+        internal static string ErrorLessThanInclusiveMin {
+            get {
+                return ResourceManager.GetString("ErrorLessThanInclusiveMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service replica did not publish an address for listener with name name &apos;{0}&apos;..
+        /// </summary>
+        internal static string ErrorListenerNotFound {
+            get {
+                return ResourceManager.GetString("ErrorListenerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to claimsToken cannot be null or empty string or consist only of whitespaces..
+        /// </summary>
+        internal static string ErrorLocalClaims {
+            get {
+                return ResourceManager.GetString("ErrorLocalClaims", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The requested resource/content/path does not exist on the server..
         /// </summary>
         internal static string ErrorMessageHTTP404 {
             get {
                 return ResourceManager.GetString("ErrorMessageHTTP404", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NameDescription must begin with fabric..
+        /// </summary>
+        internal static string ErrorNameDoesntBeginWithFabric {
+            get {
+                return ResourceManager.GetString("ErrorNameDoesntBeginWithFabric", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NameDescription begins with fabric://, it cannot have authority name in it..
+        /// </summary>
+        internal static string ErrorNameHasAuthorityName {
+            get {
+                return ResourceManager.GetString("ErrorNameHasAuthorityName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NameDescription has invalid characters, It cannot have following invalid characters {0}..
+        /// </summary>
+        internal static string ErrorNameHasInvalidChars {
+            get {
+                return ResourceManager.GetString("ErrorNameHasInvalidChars", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NameDescription cannot have a trailing &quot;/&quot;..
+        /// </summary>
+        internal static string ErrorNameHasTrailingSlash {
+            get {
+                return ResourceManager.GetString("ErrorNameHasTrailingSlash", resourceCulture);
             }
         }
         
@@ -246,6 +390,15 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         internal static string ErrorNullResponse {
             get {
                 return ResourceManager.GetString("ErrorNullResponse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value must be between {0} and {1}..
+        /// </summary>
+        internal static string ErrorOutOfInclusiveRange {
+            get {
+                return ResourceManager.GetString("ErrorOutOfInclusiveRange", resourceCulture);
             }
         }
         
@@ -273,6 +426,60 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         internal static string ErrorRemoteServerCertValidation {
             get {
                 return ResourceManager.GetString("ErrorRemoteServerCertValidation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Service Fabric object has been closed. Attempting to use the object after it has been closed is not allowed..
+        /// </summary>
+        internal static string ErrorServiceFabricObjectClosed {
+            get {
+                return ResourceManager.GetString("ErrorServiceFabricObjectClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Service Fabric object has not been opened..
+        /// </summary>
+        internal static string ErrorServiceFabricObjectNotOpen {
+            get {
+                return ResourceManager.GetString("ErrorServiceFabricObjectNotOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service name must begin with fabric..
+        /// </summary>
+        internal static string ErrorServiceNameDoesntBeginWithFabric {
+            get {
+                return ResourceManager.GetString("ErrorServiceNameDoesntBeginWithFabric", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service name begins with fabric://, it cannot have authority name in it..
+        /// </summary>
+        internal static string ErrorServiceNameHasAuthorityName {
+            get {
+                return ResourceManager.GetString("ErrorServiceNameHasAuthorityName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service name has invalid characters, It cannot have following invalid characters {0}..
+        /// </summary>
+        internal static string ErrorServiceNameHasInvalidChars {
+            get {
+                return ResourceManager.GetString("ErrorServiceNameHasInvalidChars", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service name cannot have a trailing &quot;/&quot;..
+        /// </summary>
+        internal static string ErrorServiceNameHasTrailingSlash {
+            get {
+                return ResourceManager.GetString("ErrorServiceNameHasTrailingSlash", resourceCulture);
             }
         }
         
@@ -331,11 +538,29 @@ namespace Microsoft.ServiceFabric.Client.Http.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cluster endpoint in collection cannot be null..
+        /// </summary>
+        internal static string ErrorUrlCannotBeNull {
+            get {
+                return ResourceManager.GetString("ErrorUrlCannotBeNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cluster http management endpoint url scheme doesn&apos;t match with SecuritySettings type. Url scheme is {0}, expected as per security settings is {1}..
         /// </summary>
         internal static string ErrorUrlScheme {
             get {
                 return ResourceManager.GetString("ErrorUrlScheme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All management endponts must have same url scheme.
+        /// </summary>
+        internal static string ErrorUrlSchemeMismatch {
+            get {
+                return ResourceManager.GetString("ErrorUrlSchemeMismatch", resourceCulture);
             }
         }
         

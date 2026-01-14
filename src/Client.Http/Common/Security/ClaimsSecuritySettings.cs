@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using Microsoft.ServiceFabric.Common.Resources;
 
 namespace Microsoft.ServiceFabric.Common.Security
 {

@@ -25,29 +25,25 @@ namespace Microsoft.ServiceFabric.Common
         internal static void ThrowIfOutOfInclusiveRange(this int value, string name, int minValue, int maxValue)
         {
             if (value < minValue && value > maxValue)
-                throw new ArgumentOutOfRangeException(name, value, string.Format(Resources.SR.ErrorOutOfInclusiveRange, minValue, maxValue));
+                throw new ArgumentOutOfRangeException(name, value, string.Format(SR.ErrorOutOfInclusiveRange, minValue, maxValue));
         }
 
         internal static void ThrowIfLessThan(this int value, string name, int minValue)
         {
             if (value < minValue)
-                throw new ArgumentOutOfRangeException(name, value, string.Format(Resources.SR.ErrorLessThanInclusiveMin, minValue));
+                throw new ArgumentOutOfRangeException(name, value, string.Format(SR.ErrorLessThanInclusiveMin, minValue));
         }
 
         internal static void ThrowIfOutOfInclusiveRange(this long value, string name, long minValue, long maxValue)
         {
             if (value < minValue && value > maxValue)
-            {
-                throw new ArgumentOutOfRangeException(name, value, string.Format(Resources.SR.ErrorOutOfInclusiveRange, minValue, maxValue));
-            }
+                throw new ArgumentOutOfRangeException(name, value, string.Format(SR.ErrorOutOfInclusiveRange, minValue, maxValue));
         }
 
         internal static void ThrowIfLessThan(this long value, string name, long minValue)
         {
             if (value < minValue)
-            {
-                throw new ArgumentOutOfRangeException(name, value, string.Format(Resources.SR.ErrorLessThanInclusiveMin, minValue));
-            }
+                throw new ArgumentOutOfRangeException(name, value, string.Format(SR.ErrorLessThanInclusiveMin, minValue));
         }
     }
 }

@@ -5,7 +5,6 @@
 
 using System;
 using System.Security.Cryptography.X509Certificates;
-using Microsoft.ServiceFabric.Common.Resources;
 
 namespace Microsoft.ServiceFabric.Common.Security
 {

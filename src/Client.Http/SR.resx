@@ -117,9 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ClientCertDoesntContainPrivateKey" xml:space="preserve">
+    <value>Provided client certificate doesn't contain a private key, please provie a client cert with private key.</value>
+  </data>
   <data name="ErrorAADTokenHandlerIncorrectSecuritySettings" xml:space="preserve">
     <value>AADTokenHandler cannot be created for SecuritySettings of type {0}</value>
     <comment>Current SecuritySettingsType</comment>
+  </data>
+  <data name="ErrorAppNameDoesntBeginWithFabric" xml:space="preserve">
+    <value>Application name must begin with fabric.</value>
+  </data>
+  <data name="ErrorAppNameHasAuthorityName" xml:space="preserve">
+    <value>Application name begins with fabric://, it cannot have authority name in it.</value>
+  </data>
+  <data name="ErrorAppNameHasInvalidChars" xml:space="preserve">
+    <value>Application name has invalid characters, It cannot have following invalid characters {0}.</value>
+  </data>
+  <data name="ErrorAppNameHasTrailingSlash" xml:space="preserve">
+    <value>Application name cannot have a trailing "/".</value>
   </data>
   <data name="ErrorCannotCallRefreshSecuritySettingsBeforeConfiguring" xml:space="preserve">
     <value>Cannot refresh security settings before configuring security.</value>
@@ -130,6 +145,9 @@
   <data name="ErrorCannotConfigureSecurityAgain" xml:space="preserve">
     <value>Cannot configure security again, use RefreshSecuritySettings if intended to refresh settings.</value>
   </data>
+  <data name="ErrorCanNotDeserializeResponseFromServer" xml:space="preserve">
+    <value>Failed to deserialize json response from server.</value>
+  </data>
   <data name="ErrorClaimsTokenHandlerIncorrectSecuritySettings" xml:space="preserve">
     <value>ClaimsTokenHandler cannot be created for SecuritySettings of type {0}</value>
     <comment>Current SecuritySettingsType</comment>
@@ -137,14 +155,23 @@
   <data name="ErrorClientCredentialsInvalid" xml:space="preserve">
     <value>Authorization error, invalid client credentials.</value>
   </data>
+  <data name="ErrorClusterEndpointNotProvided" xml:space="preserve">
+    <value>Cluster endpoint is not provided. Collection must have atleast one endpoint.</value>
+  </data>
   <data name="ErrorCollectionCannotBeEmpty" xml:space="preserve">
-    <value>The provided collection cannot be empty.</value>
+    <value>Provided collection cannot be empty.</value>
   </data>
   <data name="ErrorConnectionAlreadyOpened" xml:space="preserve">
     <value>The connection has already been opened.</value>
   </data>
   <data name="ErrorConnectionClosed" xml:space="preserve">
     <value>The connection has been closed or has not been opened.</value>
+  </data>
+  <data name="ErrorDstsNotSupported" xml:space="preserve">
+    <value>DSTS option is not supported in the current configuration. Its supported only in internal Service Fabric tooling drops.</value>
+  </data>
+  <data name="ErrorEmptyList" xml:space="preserve">
+    <value>{0} cannot be an empty list.</value>
   </data>
   <data name="ErrorExpectedObjectOfTypeFormatString" xml:space="preserve">
     <value>Expected an object of type '{0}'.</value>
@@ -173,11 +200,41 @@
   <data name="ErrorInvalidResourceUri" xml:space="preserve">
     <value>Invalid resource uri {0}</value>
   </data>
+  <data name="ErrorLessThanInclusiveMax" xml:space="preserve">
+    <value>Value must be less than or equal to {0}.</value>
+  </data>
+  <data name="ErrorLessThanInclusiveMin" xml:space="preserve">
+    <value>Value must be greater than or equal to {0}.</value>
+  </data>
+  <data name="ErrorListenerNotFound" xml:space="preserve">
+    <value>Service replica did not publish an address for listener with name name '{0}'.</value>
+  </data>
+  <data name="ErrorLocalClaims" xml:space="preserve">
+    <value>claimsToken cannot be null or empty string or consist only of whitespaces.</value>
+  </data>
+  <data name="ErrorMessageHTTP404" xml:space="preserve">
+    <value>The requested resource/content/path does not exist on the server.</value>
+  </data>
+  <data name="ErrorNameDoesntBeginWithFabric" xml:space="preserve">
+    <value>NameDescription must begin with fabric.</value>
+  </data>
+  <data name="ErrorNameHasAuthorityName" xml:space="preserve">
+    <value>NameDescription begins with fabric://, it cannot have authority name in it.</value>
+  </data>
+  <data name="ErrorNameHasInvalidChars" xml:space="preserve">
+    <value>NameDescription has invalid characters, It cannot have following invalid characters {0}.</value>
+  </data>
+  <data name="ErrorNameHasTrailingSlash" xml:space="preserve">
+    <value>NameDescription cannot have a trailing "/".</value>
+  </data>
   <data name="ErrorNullDelegateHandler" xml:space="preserve">
     <value>Handlers specified in delegate handlers list cannot be null.</value>
   </data>
   <data name="ErrorNullResponse" xml:space="preserve">
     <value>Null response received from server for the request.</value>
+  </data>
+  <data name="ErrorOutOfInclusiveRange" xml:space="preserve">
+    <value>Value must be between {0} and {1}.</value>
   </data>
   <data name="ErrorPartitionKeyNotFoundFormatString" xml:space="preserve">
     <value>Unable to find the provided partition key '{0}' for service '{1}'</value>
@@ -188,6 +245,24 @@
   </data>
   <data name="ErrorRemoteServerCertValidation" xml:space="preserve">
     <value>The remote certificate is invalid according to the validation procedure.</value>
+  </data>
+  <data name="ErrorServiceFabricObjectClosed" xml:space="preserve">
+    <value>The Service Fabric object has been closed. Attempting to use the object after it has been closed is not allowed.</value>
+  </data>
+  <data name="ErrorServiceFabricObjectNotOpen" xml:space="preserve">
+    <value>The Service Fabric object has not been opened.</value>
+  </data>
+  <data name="ErrorServiceNameDoesntBeginWithFabric" xml:space="preserve">
+    <value>Service name must begin with fabric.</value>
+  </data>
+  <data name="ErrorServiceNameHasAuthorityName" xml:space="preserve">
+    <value>Service name begins with fabric://, it cannot have authority name in it.</value>
+  </data>
+  <data name="ErrorServiceNameHasInvalidChars" xml:space="preserve">
+    <value>Service name has invalid characters, It cannot have following invalid characters {0}.</value>
+  </data>
+  <data name="ErrorServiceNameHasTrailingSlash" xml:space="preserve">
+    <value>Service name cannot have a trailing "/".</value>
   </data>
   <data name="ErrorTimeoutOutOfRange" xml:space="preserve">
     <value>The server timeout must be greater than zero.</value>
@@ -210,16 +285,16 @@
     <value>Unable to look up listener named '{0}'</value>
     <comment>ListenerNameDescription</comment>
   </data>
+  <data name="ErrorUrlCannotBeNull" xml:space="preserve">
+    <value>Cluster endpoint in collection cannot be null.</value>
+  </data>
   <data name="ErrorUrlScheme" xml:space="preserve">
     <value>Cluster http management endpoint url scheme doesn't match with SecuritySettings type. Url scheme is {0}, expected as per security settings is {1}.</value>
   </data>
+  <data name="ErrorUrlSchemeMismatch" xml:space="preserve">
+    <value>All management endponts must have same url scheme</value>
+  </data>
   <data name="ServerErrorNoMeaningFulResponse" xml:space="preserve">
     <value>Server returned error while processing the request, but did not provide a meaningful error response. Response Error Code {0}</value>
-  </data>
-  <data name="ErrorCanNotDeserializeResponseFromServer" xml:space="preserve">
-    <value>Failed to deserialize json response from server.</value>
-  </data>
-  <data name="ErrorMessageHTTP404" xml:space="preserve">
-    <value>The requested resource/content/path does not exist on the server.</value>
   </data>
 </root>

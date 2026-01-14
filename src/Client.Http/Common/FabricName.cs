@@ -5,7 +5,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.ServiceFabric.Common.Resources;
 
 namespace Microsoft.ServiceFabric.Common
 {

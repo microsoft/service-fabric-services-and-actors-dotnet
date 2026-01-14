@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Client.Resources;
 using Microsoft.ServiceFabric.Common.Exceptions;
 using Microsoft.ServiceFabric.Common.Security;
 

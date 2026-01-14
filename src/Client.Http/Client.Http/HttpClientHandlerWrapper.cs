@@ -5,7 +5,6 @@
 
 using System;
 using System.Net.Http;
-using Microsoft.ServiceFabric.Client.Http.Resources;
 using Microsoft.ServiceFabric.Common.Security;
 
 namespace Microsoft.ServiceFabric.Client.Http

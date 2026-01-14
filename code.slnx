@@ -13,8 +13,6 @@
     <Project Path="src/AspNetCore.Kestrel/Microsoft.ServiceFabric.AspNetCore.Kestrel.csproj" />
     <Project Path="src/AspNetCore/Microsoft.ServiceFabric.AspNetCore.csproj" />
     <Project Path="src/Client.Http/Microsoft.ServiceFabric.Client.Http.csproj" />
-    <Project Path="src/Client/Microsoft.ServiceFabric.Client.csproj" />
-    <Project Path="src/Common/Microsoft.ServiceFabric.Common.csproj" />
     <Project Path="src/Constants/Microsoft.ServiceFabric.Constants.csproj" />
     <Project Path="src/Diagnostics/Microsoft.ServiceFabric.Diagnostics.csproj" />
     <Project Path="src/FabActUtil/FabActUtil.csproj" />

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Client.Resources;
 using Microsoft.ServiceFabric.Common.Security;
 
 namespace Microsoft.ServiceFabric.Client

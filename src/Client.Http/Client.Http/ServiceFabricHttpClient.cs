@@ -14,7 +14,6 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Client.Exceptions;
-using Microsoft.ServiceFabric.Client.Http.Resources;
 using Microsoft.ServiceFabric.Client.Http.Serialization;
 using Microsoft.ServiceFabric.Common;
 using Microsoft.ServiceFabric.Common.Exceptions;

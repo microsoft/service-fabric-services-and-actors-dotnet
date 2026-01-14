@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.ServiceFabric.Client.Http.Resources;
 
 namespace Microsoft.ServiceFabric.Client.Http
 {

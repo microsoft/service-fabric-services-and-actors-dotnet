@@ -6,7 +6,6 @@
 using System;
 using System.Linq;
 using System.Net.Http;
-using Microsoft.ServiceFabric.Client.Http.Resources;
 
 namespace Microsoft.ServiceFabric.Client.Http
 {
