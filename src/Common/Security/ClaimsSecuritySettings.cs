@@ -3,11 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using Microsoft.ServiceFabric.Common.Resources;
+
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-    using Microsoft.ServiceFabric.Common.Resources;
-    
     /// <summary>
     /// Represents the claim based security credential acquired from STS (security token service).
     /// </summary>
@@ -22,13 +22,11 @@ namespace Microsoft.ServiceFabric.Common.Security
             : base(SecurityType.Claims)
         {
             if (string.IsNullOrWhiteSpace(claimsToken))
-            {
                 throw new ArgumentException(SR.ErrorLocalClaims);
-            }
 
             remoteX509SecuritySettings.ThrowIfNull(nameof(remoteX509SecuritySettings));
-            this.ClaimsToken = claimsToken;
-            this.RemoteX509SecuritySettings = remoteX509SecuritySettings;
+            ClaimsToken = claimsToken;
+            RemoteX509SecuritySettings = remoteX509SecuritySettings;
         }
 
         /// <summary>
@@ -39,7 +37,7 @@ namespace Microsoft.ServiceFabric.Common.Security
             : base(SecurityType.Claims)
         {
             remoteX509SecuritySettings.ThrowIfNull(nameof(remoteX509SecuritySettings));
-            this.RemoteX509SecuritySettings = remoteX509SecuritySettings;
+            RemoteX509SecuritySettings = remoteX509SecuritySettings;
         }
 
         /// <summary>

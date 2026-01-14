@@ -3,12 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Common
 {
-    using System;
-    using System.Linq;
-    using Microsoft.ServiceFabric.Common.Resources;
-
     /// <summary>
     /// Represents a Service Fabric application name.
     /// </summary>

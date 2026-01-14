@@ -3,25 +3,25 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Client.Resources;
+using Microsoft.ServiceFabric.Common.Security;
+
 namespace Microsoft.ServiceFabric.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Client.Resources;
-    using Microsoft.ServiceFabric.Common.Security;
-
     /// <summary>
     /// A Builder for IServiceFabricClient
     /// </summary>
     public class ServiceFabricClientBuilder
     {
-        private const string ServiceFabricHttpClientAssemblyName = "Microsoft.ServiceFabric.Client.Http";
-        private const string ServiceFabricHttpClientTypeName = "Microsoft.ServiceFabric.Client.Http.ServiceFabricHttpClient,Microsoft.ServiceFabric.Client.Http";
-        private bool securitySettingsAlreadySpecified;
-        private SecurityType securityType = SecurityType.None;
+        const string ServiceFabricHttpClientTypeName = "Microsoft.ServiceFabric.Client.Http.ServiceFabricHttpClient,Microsoft.ServiceFabric.Client.Http";
+        bool securitySettingsAlreadySpecified;
+        SecurityType securityType = SecurityType.None;
         
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceFabricClientBuilder"/> class.
@@ -58,25 +58,19 @@ namespace Microsoft.ServiceFabric.Client
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to cancel the async operation.</param>
         /// <returns>IMplementation of <see cref="IServiceFabricClient"/>.</returns>
-        public Task<IServiceFabricClient> BuildAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IServiceFabricClient> BuildAsync(CancellationToken cancellationToken = default)
         {
-            if (this.Endpoints == null || this.Endpoints.Count == 0)
-            {
+            if (Endpoints == null || Endpoints.Count == 0)
                 throw new InvalidOperationException(SR.ErrorClusterEndpointNotProvided);
-            }
 
             // Since this builder can be used to create other implementations of IServiceFabricClient, its generic and
             // should use reflection to create ServiceFabricHttpClient.
             // Make ServiceFabricHttpClient the default implementation.
             // If more client implementaions are added in future, Extension methods on the IServiceFabricClientBuilder (eg. UseTcp()) can be used to indicate the client type (a ClientType enum can be added here) which needs to be created.
-            object[] args =
-                {
-                    this,
-                    cancellationToken,
-                };
+            object[] args = { this, cancellationToken };
 
             var type = Type.GetType(ServiceFabricHttpClientTypeName);
-            var method = type.GetMethod("CreateAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            MethodInfo method = type.GetMethod("CreateAsync", BindingFlags.NonPublic | BindingFlags.Static);
             return (Task<IServiceFabricClient>)method.Invoke(null, args);
         }
 
@@ -87,14 +81,12 @@ namespace Microsoft.ServiceFabric.Client
         /// <returns>Returns an IServiceFabricClientBuilder.</returns>
         public ServiceFabricClientBuilder UseAzureActiveDirectorySecurity(Func<CancellationToken, Task<SecuritySettings>> securitySettings)
         {
-            if (this.securitySettingsAlreadySpecified && !this.securityType.Equals(SecurityType.Claims))
-            {
-                throw new InvalidOperationException($"Security has already been configured with {this.securityType}.");
-            }
+            if (securitySettingsAlreadySpecified && !securityType.Equals(SecurityType.Claims))
+                throw new InvalidOperationException($"Security has already been configured with {securityType}.");
 
-            this.securityType = SecurityType.Claims;
-            this.securitySettingsAlreadySpecified = true;
-            this.SecuritySettings = securitySettings;
+            securityType = SecurityType.Claims;
+            securitySettingsAlreadySpecified = true;
+            SecuritySettings = securitySettings;
             return this;
         }
 
@@ -111,14 +103,12 @@ namespace Microsoft.ServiceFabric.Client
         /// </remarks>
         public ServiceFabricClientBuilder UseClaimsSecurity(Func<CancellationToken, Task<SecuritySettings>> securitySettings)
         {
-            if (this.securitySettingsAlreadySpecified && !this.securityType.Equals(SecurityType.Claims))
-            {
-                throw new InvalidOperationException($"Security has already been configured with {this.securityType}.");
-            }
+            if (securitySettingsAlreadySpecified && !securityType.Equals(SecurityType.Claims))
+                throw new InvalidOperationException($"Security has already been configured with {securityType}.");
 
-            this.securityType = SecurityType.Claims;
-            this.SecuritySettings = securitySettings;
-            this.securitySettingsAlreadySpecified = true;
+            securityType = SecurityType.Claims;
+            SecuritySettings = securitySettings;
+            securitySettingsAlreadySpecified = true;
             return this;
         }
 
@@ -128,14 +118,12 @@ namespace Microsoft.ServiceFabric.Client
         /// <returns>Returns an IServiceFabricClientBuilder.</returns>
         public ServiceFabricClientBuilder UseWindowsSecurity()
         {
-            if (this.securitySettingsAlreadySpecified && !this.securityType.Equals(SecurityType.Windows))
-            {
-                throw new InvalidOperationException($"Security has already been configured with {this.securityType}.");
-            }
+            if (securitySettingsAlreadySpecified && !securityType.Equals(SecurityType.Windows))
+                throw new InvalidOperationException($"Security has already been configured with {securityType}.");
 
-            this.securityType = SecurityType.Windows;
-            this.SecuritySettings = (ct) => Task.FromResult<SecuritySettings>(new WindowsSecuritySettings());
-            this.securitySettingsAlreadySpecified = true;
+            securityType = SecurityType.Windows;
+            SecuritySettings = (ct) => Task.FromResult<SecuritySettings>(new WindowsSecuritySettings());
+            securitySettingsAlreadySpecified = true;
             return this;
         }
 
@@ -146,14 +134,12 @@ namespace Microsoft.ServiceFabric.Client
         /// <returns>Returns an IServiceFabricClientBuilder.</returns>
         public ServiceFabricClientBuilder UseX509Security(Func<CancellationToken, Task<SecuritySettings>> securitySettings)
         {
-            if (this.securitySettingsAlreadySpecified && !this.securityType.Equals(SecurityType.X509))
-            {
-                throw new InvalidOperationException($"Security has already been configured with {this.securityType}.");
-            }
+            if (securitySettingsAlreadySpecified && !securityType.Equals(SecurityType.X509))
+                throw new InvalidOperationException($"Security has already been configured with {securityType}.");
 
-            this.securityType = SecurityType.X509;
-            this.SecuritySettings = securitySettings;
-            this.securitySettingsAlreadySpecified = true;
+            securityType = SecurityType.X509;
+            SecuritySettings = securitySettings;
+            securitySettingsAlreadySpecified = true;
             return this;
         }
 
@@ -165,11 +151,9 @@ namespace Microsoft.ServiceFabric.Client
         public ServiceFabricClientBuilder UseEndpoints(params Uri[] clusterEndpoints)
         {
             if (clusterEndpoints.Length == 0)
-            {
                 throw new ArgumentException(SR.ErrorClusterEndpointNotProvided, nameof(clusterEndpoints));
-            }
 
-            this.Endpoints = clusterEndpoints.ToList();
+            Endpoints = clusterEndpoints.ToList();
             return this;
         }
 
@@ -180,7 +164,7 @@ namespace Microsoft.ServiceFabric.Client
         /// <returns>The <see cref="ServiceFabricClientBuilder"/></returns>
         public ServiceFabricClientBuilder ConfigureClientSettings(Action<ClientSettings> configureClientSettings)
         {
-            configureClientSettings.Invoke(this.ClientSettings);
+            configureClientSettings.Invoke(ClientSettings);
             return this;
         }
     }

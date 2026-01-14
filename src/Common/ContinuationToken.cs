@@ -3,10 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Common
 {
-    using System;
-
     /// <summary>
     /// A token that is used in paged data queries to move to the next page of data.
     /// </summary>
@@ -17,21 +17,19 @@ namespace Microsoft.ServiceFabric.Common
         /// </summary>
         public static readonly ContinuationToken Empty = new ContinuationToken(string.Empty);
 
-        private readonly string continuationToken;
+        readonly string continuationToken;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Microsoft.ServiceFabric.Common.ContinuationToken"/> class.
         /// </summary>
         /// <param name="token">token used to retrieve the next set of available results.</param>
-        public ContinuationToken(string token)
-        {
-            this.continuationToken = token;
-        }
+        public ContinuationToken(string token) =>
+            continuationToken = token;
 
         /// <summary>
         /// Gets a value indicating whether a paged data operation has more data available on the server.
         /// </summary>
-        public bool Next => !string.IsNullOrEmpty(this.continuationToken);
+        public bool Next => !string.IsNullOrEmpty(continuationToken);
 
         /// <summary>
         /// Determines if this ContinuationToken instance is equal to another instance.
@@ -41,11 +39,8 @@ namespace Microsoft.ServiceFabric.Common
         public bool Equals(ContinuationToken other)
         {
             if (other == null)
-            {
                 return false;
-            }
-
-            return this.continuationToken.Equals(other?.continuationToken);
+            return continuationToken.Equals(other?.continuationToken);
         }
 
         /// <summary>
@@ -56,14 +51,10 @@ namespace Microsoft.ServiceFabric.Common
         public override bool Equals(object other)
         {
             if (other == null)
-            {
                 return false;
-            }
 
             if (other is ContinuationToken)
-            {
-                return this.Equals((ContinuationToken)other);
-            }
+                return Equals((ContinuationToken)other);
 
             return false;
         }
@@ -72,18 +63,12 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets the hash code of this instance.
         /// </summary>
         /// <returns>An integer hash of this instance's value.</returns>
-        public override int GetHashCode()
-        {
-            return this.continuationToken.GetHashCode();
-        }
+        public override int GetHashCode() => continuationToken.GetHashCode();
 
         /// <summary>
         /// Gets the string value of this object
         /// </summary>
         /// <returns>A string representing this object's value</returns>
-        public override string ToString()
-        {
-            return this.continuationToken;
-        }
+        public override string ToString() => continuationToken;
     }
 }

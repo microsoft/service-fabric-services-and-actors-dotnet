@@ -5,14 +5,8 @@
 
 namespace Microsoft.ServiceFabric.Client
 {
-    /// <summary>
-    /// Contains Constant string values used by the library.
-    /// </summary>
-    internal class Constants
+    static class Constants
     {
-        /// <summary>
-        /// Constant string default api version for resources.
-        /// </summary>
-        public const string DefaultApiVersionForResources = "6.4-preview";
+        internal const string DefaultApiVersionForResources = "6.4-preview";
     }
 }

@@ -5,7 +5,7 @@
 
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    internal static class Constants
+    static class Constants
     {
         internal static readonly string ApplicationNamePropertyName = "ApplicationName";
         internal static readonly string ClusterConnectionVariableName = "SFHttpClusterConnection";

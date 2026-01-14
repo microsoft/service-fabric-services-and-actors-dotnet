@@ -3,10 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Common
 {
-    using System;
-
     /// <summary>
     /// Identifier for a service replica.
     /// </summary>
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <value>Instance of <see cref="ReplicaId"/> class whose value is 0.</value>
         public static readonly ReplicaId Empty = new ReplicaId(0);
 
-        private readonly long? id;
+        readonly long? id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplicaId"/> class by using the value represented by the specified long.
@@ -43,8 +43,8 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="replicaId1">The first object to compare.</param>
         /// <param name="replicaId2">The second object to compare</param>
         /// <returns>true if replicaId1 and replicaId2 are equal; otherwise, false.</returns>
-        public static bool operator ==(ReplicaId replicaId1, ReplicaId replicaId2)
-            => replicaId1 is null ? replicaId2 is null : replicaId1.Equals(replicaId2);
+        public static bool operator ==(ReplicaId replicaId1, ReplicaId replicaId2) =>
+            replicaId1 is null ? replicaId2 is null : replicaId1.Equals(replicaId2);
 
         /// <summary>
         /// Indicates whether the values of two specified <see cref="ReplicaId"/> objects are not equal.
@@ -52,8 +52,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="replicaId1">The first object to compare.</param>
         /// <param name="replicaId2">The second object to compare</param>
         /// <returns>true if replicaId1 and replicaId2 are not equal; otherwise, false.</returns>
-        public static bool operator !=(ReplicaId replicaId1, ReplicaId replicaId2)
-            => !(replicaId1 == replicaId2);
+        public static bool operator !=(ReplicaId replicaId1, ReplicaId replicaId2) => !(replicaId1 == replicaId2);
 
         /// <summary>
         /// Creates a ReplicaId class instance using the string representation of the long passed in as argument.
@@ -66,7 +65,7 @@ namespace Microsoft.ServiceFabric.Common
         /// Returns a string representation of the value of this instance.
         /// </summary>
         /// <returns>string representation of the value of this instance.</returns>
-        public override string ToString() => this.id.ToString();
+        public override string ToString() => id.ToString();
 
         /// <summary>
         /// Returns a value indicating whether this instance and a specified <see cref="ReplicaId"/> object represent the same value.        
@@ -76,11 +75,8 @@ namespace Microsoft.ServiceFabric.Common
         public bool Equals(ReplicaId other)
         {
             if (other is null)
-            {
                 return false;
-            }
-
-            return this.id.Equals(other.id);
+            return id.Equals(other.id);
         }
 
         /// <summary>
@@ -91,17 +87,14 @@ namespace Microsoft.ServiceFabric.Common
         public override bool Equals(object other)
         {
             if (other is null)
-            {
                 return false;
-            }
-
-            return (other is ReplicaId) && this.Equals((ReplicaId)other);
+            return (other is ReplicaId) && Equals((ReplicaId)other);
         }
 
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>The hash code for this instance.</returns>
-        public override int GetHashCode() => this.id.GetHashCode();
+        public override int GetHashCode() => id.GetHashCode();
     }
 }

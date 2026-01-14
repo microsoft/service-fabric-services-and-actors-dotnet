@@ -3,11 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Runtime.Serialization;
+
 namespace Microsoft.ServiceFabric.Common.Exceptions
 {
-    using System;
-    using System.Runtime.Serialization;
-
     /// <summary>
     /// Exception for service fabric operations.
     /// </summary>
@@ -15,7 +15,7 @@ namespace Microsoft.ServiceFabric.Common.Exceptions
     public class ServiceFabricException : Exception
     {
         /// <summary>
-        /// <para>Initializes a new instance of <see cref="ServiceFabricException" /> class with error code <see cref="FabricErrorCodes.UNKNOWN"/>.</para>
+        /// Initializes a new instance of <see cref="ServiceFabricException" /> class with error code <see cref="FabricErrorCodes.UNKNOWN"/>.
         /// </summary>
         public ServiceFabricException() 
             : this(FabricErrorCodes.UNKNOWN, false)
@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Common.Exceptions
         }
 
         /// <summary>
-        /// <para>Initializes a new instance of <see cref="ServiceFabricException" /> class with error code <see cref="FabricErrorCodes.UNKNOWN"/> and a specified error message.</para>
+        /// Initializes a new instance of <see cref="ServiceFabricException" /> class with error code <see cref="FabricErrorCodes.UNKNOWN"/> and a specified error message.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         public ServiceFabricException(string message) 
@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Common.Exceptions
         }
 
         /// <summary>
-        /// <para>Initializes a new instance of <see cref="ServiceFabricException" /> class with a specified error code.</para>
+        /// Initializes a new instance of <see cref="ServiceFabricException" /> class with a specified error code.
         /// </summary>
         /// <param name="errorCode">The error code associated with the exception.</param>
         /// <param name="isTransient">True, if the exception is to be treated as an transient exception.</param>
@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Common.Exceptions
         }
 
         /// <summary>
-        /// <para>Initializes a new instance of <see cref="ServiceFabricException" /> class with specified error message and error code.</para>
+        /// Initializes a new instance of <see cref="ServiceFabricException" /> class with specified error message and error code.
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="errorCode">The error code associated with the exception.</param>
@@ -74,12 +74,12 @@ namespace Microsoft.ServiceFabric.Common.Exceptions
         public ServiceFabricException(string message, Exception inner, FabricErrorCodes errorCode, bool isTransient)
             : base(message, inner)
         {
-            this.ErrorCode = errorCode;
-            this.IsTransient = isTransient;
+            ErrorCode = errorCode;
+            IsTransient = isTransient;
         }
-                
+
         /// <summary>
-        /// <para>Initializes a new instance of <see cref="ServiceFabricException" /> class from a serialized object data, with a specified context.</para>
+        /// Initializes a new instance of <see cref="ServiceFabricException" /> class from a serialized object data, with a specified context.
         /// </summary>
         /// <param name="info">The <see cref="System.Runtime.Serialization.SerializationInfo" /> object that contains serialized object data of the exception being thrown.</param>
         /// <param name="context">The <see cref="System.Runtime.Serialization.StreamingContext" /> object that contains contextual information about the source or destination. The context parameter is reserved for future use and can be null.</param>
@@ -88,8 +88,8 @@ namespace Microsoft.ServiceFabric.Common.Exceptions
         {
             if (info != null)
             {
-                this.ErrorCode = (FabricErrorCodes)info.GetValue(nameof(this.ErrorCode), typeof(FabricErrorCodes));
-                this.IsTransient = info.GetBoolean(nameof(this.IsTransient));
+                ErrorCode = (FabricErrorCodes)info.GetValue(nameof(ErrorCode), typeof(FabricErrorCodes));
+                IsTransient = info.GetBoolean(nameof(IsTransient));
             }
         }
 
@@ -112,8 +112,8 @@ namespace Microsoft.ServiceFabric.Common.Exceptions
 
             if (info != null)
             {
-                info.AddValue(nameof(this.ErrorCode), this.ErrorCode);
-                info.AddValue(nameof(this.IsTransient), this.IsTransient);
+                info.AddValue(nameof(ErrorCode), ErrorCode);
+                info.AddValue(nameof(IsTransient), IsTransient);
             }
         }
     }

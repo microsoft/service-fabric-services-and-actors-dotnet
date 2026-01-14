@@ -5,29 +5,11 @@
 
 namespace Microsoft.ServiceFabric.Client.Http
 {
-    /// <summary>
-    /// Contains Constant string values used by the library.
-    /// </summary>
-    internal class Constants
+    static class Constants
     {
-        /// <summary>
-        /// Constant string for request id in header.
-        /// </summary>
-        public const string ServiceFabricHttpRequestIdHeaderName = "X-ServiceFabricRequestId";
-
-        /// <summary>
-        /// Constant string for client type in header.
-        /// </summary>
-        public const string ServiceFabricHttpClientTypeHeaderName = "X-ServiceFabricClientType";
-
-        /// <summary>
-        /// Constant string default api version for resources.
-        /// </summary>
-        public const string DefaultApiVersionForResources = "6.4-preview";
-
-        /// <summary>
-        /// Constant string for client type in header.
-        /// </summary>
-        public const string ClientlibClientTypeHeaderValue = "CSharpClientlib";
+        internal const string ServiceFabricHttpRequestIdHeaderName = "X-ServiceFabricRequestId";
+        internal const string ServiceFabricHttpClientTypeHeaderName = "X-ServiceFabricClientType";
+        internal const string DefaultApiVersionForResources = "6.4-preview";
+        internal const string ClientlibClientTypeHeaderValue = "CSharpClientlib";
     }
 }

@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.ServiceFabric.Common.Resources;
+
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-    using System.Security.Cryptography.X509Certificates;
-    using Microsoft.ServiceFabric.Common.Resources;
-
     /// <summary>
     /// Specifies the security settings that are based upon X509 certificates.
     /// </summary>
@@ -26,12 +26,10 @@ namespace Microsoft.ServiceFabric.Common.Security
             remoteX509SecuritySettings.ThrowIfNull(nameof(remoteX509SecuritySettings));
 
             if (!clientCertificate.HasPrivateKey)
-            {
                 throw new InvalidOperationException(SR.ClientCertDoesntContainPrivateKey);
-            }
 
-            this.ClientCertificate = clientCertificate;
-            this.RemoteX509SecuritySettings = remoteX509SecuritySettings;
+            ClientCertificate = clientCertificate;
+            RemoteX509SecuritySettings = remoteX509SecuritySettings;
         }
 
         /// <summary>

@@ -3,15 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Client.Exceptions;
+using Microsoft.ServiceFabric.Common;
+using Microsoft.ServiceFabric.Common.Exceptions;
+
 namespace Microsoft.ServiceFabric.Client
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Client.Exceptions;
-    using Microsoft.ServiceFabric.Common;
-    using Microsoft.ServiceFabric.Common.Exceptions;
-
     /// <summary>
     /// Interface containing methods for performing MeshSecretsClient operations.
     /// </summary>
@@ -42,6 +42,6 @@ namespace Microsoft.ServiceFabric.Client
             string secretValueResourceName,
             string jsonDescription,
             string apiVersion = Constants.DefaultApiVersionForResources,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

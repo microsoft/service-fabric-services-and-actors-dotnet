@@ -3,113 +3,65 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Xml;
+using Newtonsoft.Json;
+
 namespace Microsoft.ServiceFabric.Client.Http
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Xml;
-    using Newtonsoft.Json;
-
-    /// <summary>
-    /// Defines extension methods for JsonReader.
-    /// </summary>
-    internal static class JsonReaderExtensions
+    static class JsonReaderExtensions
     {
-        /// <summary>
-        /// Moves the json reader token to next content.
-        /// </summary>
-        /// <param name="reader">The JsonReader.</param>
-        public static void MoveToContent(this JsonReader reader)
+        internal static void MoveToContent(this JsonReader reader)
         {
             while ((reader.TokenType == JsonToken.Comment || reader.TokenType == JsonToken.None) && reader.Read())
             {
             }
         }
 
-        /// <summary>
-        /// Reads StartObject token, throws if its not.
-        /// </summary>
-        /// <param name="reader">The JsonReader.</param>
-        public static void ReadStartObject(this JsonReader reader)
+        internal static void ReadStartObject(this JsonReader reader)
         {
             reader.MoveToContent();
             if (reader.TokenType != JsonToken.StartObject)
-            {
                 throw new JsonReaderException($"Unexpected JsonToken {reader.TokenType}.");
-            }
-
             reader.Read();
         }
 
-        /// <summary>
-        /// Reads EndObject token, throws if its not.
-        /// </summary>
-        /// <param name="reader">The JsonReader.</param>
-        public static void ReadEndObject(this JsonReader reader)
+        internal static void ReadEndObject(this JsonReader reader)
         {
             reader.MoveToContent();
             if (reader.TokenType != JsonToken.EndObject)
-            {
                 throw new JsonReaderException($"Unexpected JsonToken {reader.TokenType}.");
-            }
-
             reader.Read();
         }
 
-        /// <summary>
-        /// Reads StartArray token, throws if its not.
-        /// </summary>
-        /// <param name="reader">The JsonReader.</param>
-        public static void ReadStartArray(this JsonReader reader)
+        internal static void ReadStartArray(this JsonReader reader)
         {
             reader.MoveToContent();
             if (reader.TokenType != JsonToken.StartArray)
-            {
                 throw new JsonReaderException($"Unexpected JsonToken {reader.TokenType}.");
-            }
-
             reader.Read();
         }
 
-        /// <summary>
-        /// Reads EndArray token, throws if its not.
-        /// </summary>
-        /// <param name="reader">The JsonReader.</param>
-        public static void ReadEndArray(this JsonReader reader)
+        internal static void ReadEndArray(this JsonReader reader)
         {
             reader.MoveToContent();
             if (reader.TokenType != JsonToken.EndArray)
-            {
                 throw new JsonReaderException($"Unexpected JsonToken {reader.TokenType}.");
-            }
-
             reader.Read();
         }
 
-        /// <summary>
-        /// Reads PropertyName token, throws if its not.
-        /// </summary>
-        /// <param name="reader">The JsonReader.</param>
-        /// <returns>NameDescription of property.</returns>
-        public static string ReadPropertyName(this JsonReader reader)
+        internal static string ReadPropertyName(this JsonReader reader)
         {
             if (reader.TokenType != JsonToken.PropertyName)
-            {
                 throw new JsonReaderException($"Error reading Property NameDescription from Json, unexpected JsonToken {reader.TokenType}.");
-            }
-
-            var propName = reader.Value?.ToString();
+            string propName = reader.Value?.ToString();
             reader.Read();
             return propName;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="string"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="string" /></returns>
-        public static string ReadValueAsString(this JsonReader reader)
+        internal static string ReadValueAsString(this JsonReader reader)
         {
             string value = null;
             switch (reader.TokenType)
@@ -123,10 +75,7 @@ namespace Microsoft.ServiceFabric.Client.Http
                 case JsonToken.Date:
                     var formattable = reader.Value as IFormattable;
                     if (formattable != null)
-                    {
                         value = formattable.ToString();
-                    }
-
                     break;
                 case JsonToken.Null:
                     // value is initialized to null
@@ -139,12 +88,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="bool"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="bool" /></returns>
-        public static bool? ReadValueAsBool(this JsonReader reader)
+        internal static bool? ReadValueAsBool(this JsonReader reader)
         {
             bool? value = null;
 
@@ -167,12 +111,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="int"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="int" /></returns>
-        public static int? ReadValueAsInt(this JsonReader reader)
+        internal static int? ReadValueAsInt(this JsonReader reader)
         {
             int? value = null;
 
@@ -198,12 +137,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="byte"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="int" /></returns>
-        public static byte ReadValueAsByte(this JsonReader reader)
+        internal static byte ReadValueAsByte(this JsonReader reader)
         {
             // byte is int in json.
             int value;
@@ -226,12 +160,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return (byte)value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="long"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="long" /></returns>
-        public static long? ReadValueAsLong(this JsonReader reader)
+        internal static long? ReadValueAsLong(this JsonReader reader)
         {
             long? value = null;
 
@@ -254,12 +183,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="double"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="double" /></returns>
-        public static double? ReadValueAsDouble(this JsonReader reader)
+        internal static double? ReadValueAsDouble(this JsonReader reader)
         {
             double? value = null;
 
@@ -282,12 +206,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="System.DateTime"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="System.DateTime" /></returns>
-        public static DateTime? ReadValueAsDateTime(this JsonReader reader)
+        internal static DateTime? ReadValueAsDateTime(this JsonReader reader)
         {
             // DateTime is a string in ISO8601 format
             DateTime? value = null;
@@ -332,12 +251,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="System.TimeSpan"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="System.TimeSpan" /></returns>
-        public static TimeSpan? ReadValueAsTimeSpan(this JsonReader reader)
+        internal static TimeSpan? ReadValueAsTimeSpan(this JsonReader reader)
         {
             // TimeSpan is a string in ISO8601 format
             TimeSpan? value = null;
@@ -371,21 +285,14 @@ namespace Microsoft.ServiceFabric.Client.Http
                     break;
 
                 default:
-                    {
-                        throw new JsonReaderException($"Error reading TimeSpan. Unexpected token: {reader.TokenType}.");
-                    }
+                    throw new JsonReaderException($"Error reading TimeSpan. Unexpected token: {reader.TokenType}.");
             }
 
             reader.Read();
             return value;
         }
 
-        /// <summary>
-        /// Gets the value of current JSON token as <see cref="System.Guid"/> and moves to next token".
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        /// <returns>A <see cref="System.Guid" /></returns>
-        public static Guid? ReadValueAsGuid(this JsonReader reader)
+        internal static Guid? ReadValueAsGuid(this JsonReader reader)
         {
             Guid? value = null;
 
@@ -405,28 +312,14 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Skips a property value.
-        /// </summary>
-        /// <param name="reader">Json reader.</param>
-        public static void SkipPropertyValue(this JsonReader reader)
+        internal static void SkipPropertyValue(this JsonReader reader)
         {
             if (reader.TokenType.Equals(JsonToken.StartObject) || reader.TokenType.Equals(JsonToken.StartArray))
-            {
                 reader.Skip();
-            }
-
             reader.Read();
         }
 
-        /// <summary>
-        /// Reads a json array.
-        /// </summary>
-        /// <typeparam name="T">Type of list elements.</typeparam>
-        /// <param name="reader">The JsonReader object.</param>
-        /// <param name="deserializerFunc">Func to deserialize T.</param>
-        /// <returns>Returns the List of T.</returns>
-        public static List<T> ReadList<T>(this JsonReader reader, Func<JsonReader, T> deserializerFunc)
+        internal static List<T> ReadList<T>(this JsonReader reader, Func<JsonReader, T> deserializerFunc)
         {
             // handle null.
             if (reader.TokenType == JsonToken.Null)
@@ -442,11 +335,9 @@ namespace Microsoft.ServiceFabric.Client.Http
             {
                 // handle empty array.
                 if (reader.TokenType == JsonToken.EndArray)
-                {
                     break;
-                }
 
-                var item = deserializerFunc(reader);
+                T item = deserializerFunc(reader);
                 value.Add(item);
             }
             while (reader.TokenType != JsonToken.EndArray);
@@ -455,14 +346,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return value;
         }
 
-        /// <summary>
-        /// Reads a Dictionary from json.
-        /// </summary>
-        /// <typeparam name="T">Type of Dictionary values.</typeparam>
-        /// <param name="reader">The JsonReader object.</param>
-        /// <param name="deserializerFunc">Func to deserialize T.</param>
-        /// <returns>Returns the dictionary.</returns>
-        public static Dictionary<string, T> ReadDictionary<T>(this JsonReader reader, Func<JsonReader, T> deserializerFunc)
+        internal static Dictionary<string, T> ReadDictionary<T>(this JsonReader reader, Func<JsonReader, T> deserializerFunc)
         {
             // handle null.
             if (reader.TokenType == JsonToken.Null)
@@ -478,13 +362,11 @@ namespace Microsoft.ServiceFabric.Client.Http
             {
                 // handle empty dictionary.
                 if (reader.TokenType == JsonToken.EndObject)
-                {
                     break;
-                }
 
                 // key is propertyName, read property value and move to next token.
-                var key = reader.ReadPropertyName();
-                var value = deserializerFunc(reader);
+                string key = reader.ReadPropertyName();
+                T value = deserializerFunc(reader);
                 dict.Add(key, value);
             }
             while (reader.TokenType != JsonToken.EndObject);
@@ -493,17 +375,9 @@ namespace Microsoft.ServiceFabric.Client.Http
             return dict;
         }
 
-        /// <summary>
-        /// Deserializes Json representing of type T.
-        /// </summary>
-        /// <typeparam name="T">Type to deserialize into.</typeparam>
-        /// <param name="reader">Json Reader.</param>
-        /// <param name="getFromJsonPropertiesFunc">Delegate to parse json properties for type T.</param>
-        /// <returns>Deserialized object of type T. returns default(T) if Json Token represented by reader is null
-        /// OR its an empty Json.</returns>
-        public static T Deserialize<T>(this JsonReader reader, Func<JsonReader, T> getFromJsonPropertiesFunc)
+        internal static T Deserialize<T>(this JsonReader reader, Func<JsonReader, T> getFromJsonPropertiesFunc)
         {
-            var obj = default(T);
+            T obj = default;
 
             // handle null.
             if (reader.TokenType.Equals(JsonToken.Null))
@@ -515,9 +389,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             // Handle JsonReader created over stream of length 0.
             reader.MoveToContent();
             if (reader.TokenType.Equals(JsonToken.None))
-            {
                 return obj;
-            }
 
             // handle Empty Json.
             reader.ReadStartObject();
@@ -533,14 +405,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             return obj;
         }
 
-        /// <summary>
-        /// Parses type T from string value
-        /// </summary>
-        /// <typeparam name="T">Type T to parse value as.</typeparam>
-        /// <param name="value">value to parse.</param>
-        /// <param name="parseFunc">Parse Function.</param>
-        /// <returns>Parsed value.</returns>
-        private static T ParseAsType<T>(string value, Func<string, T> parseFunc)
+        static T ParseAsType<T>(string value, Func<string, T> parseFunc)
         {
             T result;
 
@@ -550,21 +415,13 @@ namespace Microsoft.ServiceFabric.Client.Http
             }
             catch (Exception ex)
             {
-                throw new JsonReaderException(
-                    $"Error converting string to {typeof(T)}, string value to be converted is {value}", ex);
+                throw new JsonReaderException($"Error converting string to {typeof(T)}, string value to be converted is {value}", ex);
             }
 
             return result;
         }
 
-        /// <summary>
-        /// Parses type T from string value
-        /// </summary>
-        /// <typeparam name="T">Type T to parse value as.</typeparam>
-        /// <param name="value">value to parse.</param>
-        /// <param name="parseFunc">Parse Function.</param>
-        /// <returns>Parsed value.</returns>
-        private static T ParseAsTypeWithInvariantCulture<T>(string value, Func<string, CultureInfo, T> parseFunc)
+        static T ParseAsTypeWithInvariantCulture<T>(string value, Func<string, CultureInfo, T> parseFunc)
         {
             T result;
 
@@ -574,8 +431,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             }
             catch (Exception ex)
             {
-                throw new JsonReaderException(
-                    $"Error converting string to {typeof(T)}, string value to be converted is {value}", ex);
+                throw new JsonReaderException($"Error converting string to {typeof(T)}, string value to be converted is {value}", ex);
             }
 
             return result;

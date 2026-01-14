@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.IO;
+using System.Management.Automation;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.IO;
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Client;
-
     /// <summary>
     /// Creates mesh secret resource in service fabric cluster.
     /// </summary>
@@ -41,24 +41,18 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <inheritdoc />
         protected override void ProcessRecordInternal()
         {
-            var secretResourceInfo = this.ServiceFabricClient.MeshSecrets.GetAsync(this.SecretResourceName, this.CancellationToken).GetAwaiter().GetResult();
-
+            SecretResourceDescription secretResourceInfo = ServiceFabricClient.MeshSecrets.GetAsync(SecretResourceName, CancellationToken).GetAwaiter().GetResult();
             if (secretResourceInfo != null)
-            {
                 throw new InvalidOperationException("Specified mesh secret already exists in cluster. If you want to update it use Update-SFMeshSecret");
-            }
 
-            var jsonDescription = this.JsonDescription;
+            string jsonDescription = JsonDescription;
+            if (ParameterSetName.Equals("jsonfile"))
+                jsonDescription = File.ReadAllText(ResourceDescriptionFile);
 
-            if (this.ParameterSetName.Equals("jsonfile"))
-            {
-                jsonDescription = File.ReadAllText(this.ResourceDescriptionFile);
-            }
-
-            this.ServiceFabricClient.MeshSecrets.CreateOrUpdateAsync(
-                secretResourceName: this.SecretResourceName,
-                jsonDescription: jsonDescription,
-                cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
+            ServiceFabricClient.MeshSecrets.CreateOrUpdateAsync(
+                SecretResourceName,
+                jsonDescription,
+                cancellationToken: CancellationToken).GetAwaiter().GetResult();
         }
     }
 }

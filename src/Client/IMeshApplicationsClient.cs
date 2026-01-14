@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-namespace Microsoft.ServiceFabric.Client
-{    
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Common;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Common;
 
+namespace Microsoft.ServiceFabric.Client
+{
     /// <summary>
     /// Interface containing methods for performing ApplicationResourceClient operations.
     /// </summary>
@@ -34,6 +34,6 @@ namespace Microsoft.ServiceFabric.Client
             string applicationResourceName,
             string jsonDescription,
             string apiVersion = Constants.DefaultApiVersionForResources,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

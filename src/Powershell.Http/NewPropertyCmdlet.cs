@@ -3,13 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Management.Automation;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Common;
-
     /// <summary>
     /// Creates or updates a Service Fabric property.
     /// </summary>
@@ -93,42 +92,20 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         protected override void ProcessRecordInternal()
         {
             PropertyValue propertyValue = null;
-            if (this.Binary.IsPresent)
-            {
-                propertyValue = new BinaryPropertyValue(
-                    data: this.BinaryData);
-            }
-            else if (this.Int64.IsPresent)
-            {
-                propertyValue = new Int64PropertyValue(
-                    data: this.Data);
-            }
-            else if (this.Double.IsPresent)
-            {
-                propertyValue = new DoublePropertyValue(
-                    data: double.Parse(this.Data));
-            }
-            else if (this.String.IsPresent)
-            {
-                propertyValue = new StringPropertyValue(
-                    data: this.Data);
-            }
-            else if (this.Guid.IsPresent)
-            {
-                propertyValue = new GuidPropertyValue(
-                    data: new Guid(this.Data));
-            }
+            if (Binary.IsPresent)
+                propertyValue = new BinaryPropertyValue(BinaryData);
+            else if (Int64.IsPresent)
+                propertyValue = new Int64PropertyValue(Data);
+            else if (Double.IsPresent)
+                propertyValue = new DoublePropertyValue(double.Parse(Data));
+            else if (String.IsPresent)
+                propertyValue = new StringPropertyValue(Data);
+            else if (Guid.IsPresent)
+                propertyValue = new GuidPropertyValue(new Guid(Data));
 
-            var propertyDescription = new PropertyDescription(
-            propertyName: this.PropertyName,
-            value: propertyValue,
-            customTypeId: this.CustomTypeId);
+            var propertyDescription = new PropertyDescription(PropertyName, propertyValue, CustomTypeId);
 
-            this.ServiceFabricClient.Properties.PutPropertyAsync(
-                nameId: this.NameId,
-                propertyDescription: propertyDescription,
-                serverTimeout: this.ServerTimeout,
-                cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
+            ServiceFabricClient.Properties.PutPropertyAsync(NameId, propertyDescription, ServerTimeout, CancellationToken).GetAwaiter().GetResult();
 
             Console.WriteLine("Success!");
         }

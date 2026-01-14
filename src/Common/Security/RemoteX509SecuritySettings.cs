@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.ServiceFabric.Common.Resources;
+
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.ServiceFabric.Common.Resources;
-
     /// <summary>
     /// Represents X509 certificate security settings of remote machine.
     /// </summary>
@@ -24,17 +24,13 @@ namespace Microsoft.ServiceFabric.Common.Security
         public RemoteX509SecuritySettings(IList<X509Name> remoteX509Names, bool ignoreCrlOfflineError = false)
         {
             if (remoteX509Names == null)
-            {
                 throw new ArgumentNullException(nameof(remoteX509Names));
-            }
 
             if (!remoteX509Names.Any())
-            {
                 throw new ArgumentException(string.Format(SR.ErrorEmptyList, nameof(remoteX509Names)));
-            }
 
-            this.RemoteX509Names = remoteX509Names;
-            this.IgnoreCrlOfflineError = ignoreCrlOfflineError;
+            RemoteX509Names = remoteX509Names;
+            IgnoreCrlOfflineError = ignoreCrlOfflineError;
         }
 
         /// <summary>
@@ -46,17 +42,13 @@ namespace Microsoft.ServiceFabric.Common.Security
         public RemoteX509SecuritySettings(IList<string> remoteCertThumbprints, bool ignoreCrlOfflineError = false)
         {
             if (remoteCertThumbprints == null)
-            {
                 throw new ArgumentNullException(nameof(remoteCertThumbprints));
-            }
 
             if (!remoteCertThumbprints.Any())
-            {
                 throw new ArgumentException(string.Format(SR.ErrorEmptyList, nameof(remoteCertThumbprints)));
-            }
 
-            this.RemoteCertThumbprints = remoteCertThumbprints.Select(x => x.Replace(" ", string.Empty)).ToList();
-            this.IgnoreCrlOfflineError = ignoreCrlOfflineError;
+            RemoteCertThumbprints = remoteCertThumbprints.Select(x => x.Replace(" ", string.Empty)).ToList();
+            IgnoreCrlOfflineError = ignoreCrlOfflineError;
         }
 
         /// <summary>

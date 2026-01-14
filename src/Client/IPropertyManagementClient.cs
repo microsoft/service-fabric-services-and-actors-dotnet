@@ -3,15 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Client.Exceptions;
+using Microsoft.ServiceFabric.Common;
+using Microsoft.ServiceFabric.Common.Exceptions;
+
 namespace Microsoft.ServiceFabric.Client
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Client.Exceptions;
-    using Microsoft.ServiceFabric.Common;
-    using Microsoft.ServiceFabric.Common.Exceptions;
-
     /// <summary>
     /// Interface containing methods for performing PropertyManagementClient operations.
     /// </summary>
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Client
     {
         /// <summary>
         /// Returns whether the Service Fabric name exists.
-        /// </summary>        
+        /// </summary>
         /// <param name ="nameId">The Service Fabric name, without the 'fabric:' URI scheme.</param>
         /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
@@ -35,6 +35,6 @@ namespace Microsoft.ServiceFabric.Client
         Task<bool> NameExistsAsync(
             string nameId,
             long? serverTimeout = 60,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

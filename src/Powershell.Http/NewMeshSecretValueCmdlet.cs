@@ -3,13 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.IO;
+using System.Management.Automation;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.IO;
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Client;
-
     /// <summary>
     /// Adds the specified value as a new version of the specified secret resource.
     /// </summary>
@@ -49,18 +47,15 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <inheritdoc />
         protected override void ProcessRecordInternal()
         {
-            var jsonDescription = this.JsonDescription;
+            string jsonDescription = JsonDescription;
+            if (ParameterSetName.Equals("jsonfile"))
+                jsonDescription = File.ReadAllText(ResourceDescriptionFile);
 
-            if (this.ParameterSetName.Equals("jsonfile"))
-            {
-                jsonDescription = File.ReadAllText(this.ResourceDescriptionFile);
-            }
-
-            this.ServiceFabricClient.MeshSecretValues.AddValueAsync(
-                secretResourceName: this.SecretResourceName,
-                secretValueResourceName: this.SecretValueResourceName,
-                jsonDescription: jsonDescription,
-                cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
+            ServiceFabricClient.MeshSecretValues.AddValueAsync(
+                SecretResourceName,
+                SecretValueResourceName,
+                jsonDescription,
+                cancellationToken: CancellationToken).GetAwaiter().GetResult();
         }
     }
 }

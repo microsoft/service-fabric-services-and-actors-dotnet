@@ -3,15 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Client.Exceptions;
+using Microsoft.ServiceFabric.Common;
+using Microsoft.ServiceFabric.Common.Exceptions;
+
 namespace Microsoft.ServiceFabric.Client
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Client.Exceptions;
-    using Microsoft.ServiceFabric.Common;
-    using Microsoft.ServiceFabric.Common.Exceptions;
-
     /// <summary>
     /// Interface containing methods for performing ImageStoreClient operataions.
     /// </summary>
@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Client
             byte[] fileContentsToUpload,
             string pathInImageStore,
             long? serverTimeout = 60,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Uploads a file chunk to the image store relative path.
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.Client
             long endBytePosition,
             long length,
             long? serverTimeout = 60,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Uploads application package to Service Fabric image store after compressing all sub-directories under the service directory.
@@ -114,8 +114,8 @@ namespace Microsoft.ServiceFabric.Client
         Task UploadApplicationPackageAsync(
             string applicationPackagePath,
             bool compressPackage = false,
-            string applicationPackagePathInImageStore = default(string),
+            string applicationPackagePathInImageStore = default,
             long? serverTimeout = 60,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

@@ -3,36 +3,33 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Identity.Client;
+using Microsoft.ServiceFabric.Client;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Identity.Client;
-    using Microsoft.ServiceFabric.Client;
-    using Microsoft.ServiceFabric.Common;
-
-    /// <summary>
-    /// Contains methods for getting credentials from AAD and loading X509 certificates.
-    /// </summary>
-    internal class CredentialsUtil
+    static class CredentialsUtil
     {
-        public static async Task<string> GetAccessTokenAsync(AadMetadata aad, CancellationToken cancellationToken)
+        internal static async Task<string> GetAccessTokenAsync(AadMetadata aad, CancellationToken cancellationToken)
         {
-            var pca = PublicClientApplicationBuilder.Create(aad.Client).WithAuthority(aad.Authority).Build();
-            var account = await pca.GetAccountAsync(aad.Client);
+            IPublicClientApplication pca = PublicClientApplicationBuilder.Create(aad.Client).WithAuthority(aad.Authority).Build();
+            IAccount account = await pca.GetAccountAsync(aad.Client);
             var scopes = new string[] { $"{aad.Cluster}/.default" };
             try
             {
-                var silentAuthResult = await pca.AcquireTokenSilent(scopes, account).ExecuteAsync();
+                AuthenticationResult silentAuthResult = await pca.AcquireTokenSilent(scopes, account).ExecuteAsync();
                 return silentAuthResult.AccessToken;
             }
             catch (MsalUiRequiredException)
             {
                 try
                 {
-                    var interactiveAuthResult = await pca.AcquireTokenInteractive(scopes).WithAccount(account).ExecuteAsync();
+                    AuthenticationResult interactiveAuthResult = await pca.AcquireTokenInteractive(scopes).WithAccount(account).ExecuteAsync();
                     return interactiveAuthResult.AccessToken;
                 }
                 catch (Exception ex)
@@ -42,7 +39,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     Console.WriteLine("Attempting Device Code Login");
                     try
                     {
-                        var deviceCodeAuthResult = await pca.AcquireTokenWithDeviceCode(scopes, deviceCodeResult =>
+                        AuthenticationResult deviceCodeAuthResult = await pca.AcquireTokenWithDeviceCode(scopes, deviceCodeResult =>
                         {
                             // This will print the message on the console which tells the user where to go sign-in using
                             // a separate browser and the code to enter once they sign in.
@@ -69,22 +66,18 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             }
         }
 
-        public static X509Certificate2 GetCertificate(StoreLocation storeLocation, string storeName, object findValue, X509FindType findType)
+        internal static X509Certificate2 GetCertificate(StoreLocation storeLocation, string storeName, object findValue, X509FindType findType)
         {
             var store = new X509Store(storeName, storeLocation);
             store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-            var collection = store.Certificates;
-            var ret = collection.Find(findType, findValue, false);
-
+            X509Certificate2Collection collection = store.Certificates;
+            X509Certificate2Collection ret = collection.Find(findType, findValue, false);
             if (ret.Count > 0)
-            {
                 return ret[0];
-            }
-
             return null;
         }
 
-        public static Task<string> GetAccessTokenDstsAsync(TokenServiceMetadata metadata, CancellationToken cancellationToken)
+        internal static Task<string> GetAccessTokenDstsAsync(TokenServiceMetadata metadata, CancellationToken cancellationToken)
         {
             return DstsTokenHelper.GetAccessTokenFromDstsAsync(metadata, true, cancellationToken);
         }

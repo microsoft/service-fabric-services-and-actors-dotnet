@@ -5,29 +5,23 @@
 
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
     /// <summary>
-    ///   <para>Enumerates how communication is protected.</para>
+    /// Enumerates how communication is protected.
     /// </summary>
     public enum ProtectionLevel
     {
         /// <summary>
-        ///   <para>Not protected.</para>
+        /// Not protected.
         /// </summary>
         None = 0,
 
         /// <summary>
-        ///   <para>Only integrity is protected.</para>
+        /// Only integrity is protected.
         /// </summary>
         Sign = 1,
 
         /// <summary>
-        ///   <para>Both confidentiality and integrity are protected.</para>
+        /// Both confidentiality and integrity are protected.
         /// </summary>
         EncryptAndSign = 2,
     }

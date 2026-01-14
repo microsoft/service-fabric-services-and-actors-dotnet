@@ -3,11 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Management.Automation;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.Management.Automation;
-
     /// <summary>
     /// Uploads application package to image store.
     /// </summary>
@@ -18,21 +18,13 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// Gets or sets the application package path.
         /// </summary>
         [Parameter(Mandatory = true, ValueFromPipelineByPropertyName = true, Position = 0)]
-        public string ApplicationPackagePath
-        {
-            get;
-            set;
-        }
+        public string ApplicationPackagePath { get; set; }
 
         /// <summary>
         /// Gets or sets the application package path in image store.
         /// </summary>
         [Parameter(Mandatory = false, ValueFromPipelineByPropertyName = true)]
-        public string ApplicationPackagePathInImageStore
-        {
-            get;
-            set;
-        }
+        public string ApplicationPackagePathInImageStore { get; set; }
 
         /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the
@@ -47,7 +39,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         {
             try
             {
-                this.ServiceFabricClient.ImageStore.UploadApplicationPackageAsync(this.ApplicationPackagePath, false, this.ApplicationPackagePathInImageStore, this.ServerTimeout, this.CancellationToken).GetAwaiter().GetResult();
+                ServiceFabricClient.ImageStore.UploadApplicationPackageAsync(ApplicationPackagePath, false, ApplicationPackagePathInImageStore, ServerTimeout, CancellationToken).GetAwaiter().GetResult();
                 Console.WriteLine("Success!");
             }
             catch (Exception ex)

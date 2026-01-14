@@ -3,14 +3,14 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Management.Automation;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Common;
-
     /// <summary>
     /// Starts upgrading an application in the Service Fabric cluster.
     /// </summary>
@@ -54,7 +54,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// 'UnmonitoredManual', 'Monitored'
         /// </summary>
         [Parameter(Mandatory = false, Position = 5)]
-        public UpgradeMode? RollingUpgradeMode { get; set; } = Common.UpgradeMode.UnmonitoredAuto;
+        public UpgradeMode? RollingUpgradeMode { get; set; } = UpgradeMode.UnmonitoredAuto;
 
         /// <summary>
         /// Gets or sets UpgradeReplicaSetCheckTimeoutInSeconds. The maximum amount of time to block processing of an upgrade
@@ -204,40 +204,41 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         protected override void ProcessRecordInternal()
         {
             var monitoringPolicyDescription = new MonitoringPolicyDescription(
-            failureAction: this.FailureAction,
-            healthCheckWaitDurationInMilliseconds: this.HealthCheckWaitDurationInMilliseconds,
-            healthCheckStableDurationInMilliseconds: this.HealthCheckStableDurationInMilliseconds,
-            healthCheckRetryTimeoutInMilliseconds: this.HealthCheckRetryTimeoutInMilliseconds,
-            upgradeTimeoutInMilliseconds: this.UpgradeTimeoutInMilliseconds,
-            upgradeDomainTimeoutInMilliseconds: this.UpgradeDomainTimeoutInMilliseconds);
+                FailureAction,
+                HealthCheckWaitDurationInMilliseconds,
+                HealthCheckStableDurationInMilliseconds,
+                HealthCheckRetryTimeoutInMilliseconds,
+                UpgradeTimeoutInMilliseconds,
+                UpgradeDomainTimeoutInMilliseconds);
 
             var serviceTypeHealthPolicy = new ServiceTypeHealthPolicy(
-            maxPercentUnhealthyPartitionsPerService: this.MaxPercentUnhealthyPartitionsPerService,
-            maxPercentUnhealthyReplicasPerPartition: this.MaxPercentUnhealthyReplicasPerPartition,
-            maxPercentUnhealthyServices: this.MaxPercentUnhealthyServices);
+                MaxPercentUnhealthyPartitionsPerService,
+                MaxPercentUnhealthyReplicasPerPartition,
+                MaxPercentUnhealthyServices);
 
             var applicationHealthPolicy = new ApplicationHealthPolicy(
-            considerWarningAsError: this.ConsiderWarningAsError,
-            maxPercentUnhealthyDeployedApplications: this.MaxPercentUnhealthyDeployedApplications,
-            defaultServiceTypeHealthPolicy: serviceTypeHealthPolicy,
-            serviceTypeHealthPolicyMap: this.ServiceTypeHealthPolicyMap);
+                ConsiderWarningAsError,
+                MaxPercentUnhealthyDeployedApplications,
+                serviceTypeHealthPolicy,
+                ServiceTypeHealthPolicyMap);
 
             var applicationUpgradeDescription = new ApplicationUpgradeDescription(
-            name: $"fabric:/{this.ApplicationId}",
-            targetApplicationTypeVersion: this.TargetApplicationTypeVersion,
-            parameters: this.Parameters?.ToDictionary<string, string>(),
-            upgradeKind: this.UpgradeKind,
-            rollingUpgradeMode: this.RollingUpgradeMode,
-            upgradeReplicaSetCheckTimeoutInSeconds: this.UpgradeReplicaSetCheckTimeoutInSeconds,
-            forceRestart: this.ForceRestart,
-            monitoringPolicy: monitoringPolicyDescription,
-            applicationHealthPolicy: applicationHealthPolicy);
+                $"fabric:/{ApplicationId}",
+                TargetApplicationTypeVersion,
+                UpgradeKind,
+                Parameters?.ToDictionary<string, string>(),
+                RollingUpgradeMode,
+                UpgradeReplicaSetCheckTimeoutInSeconds,
+                ForceRestart,
+                UpgradeSortOrder.Default,
+                monitoringPolicyDescription,
+                applicationHealthPolicy);
 
-            this.ServiceFabricClient.Applications.StartApplicationUpgradeAsync(
-                applicationId: this.ApplicationId,
-                applicationUpgradeDescription: applicationUpgradeDescription,
-                serverTimeout: this.ServerTimeout,
-                cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
+            ServiceFabricClient.Applications.StartApplicationUpgradeAsync(
+                ApplicationId,
+                applicationUpgradeDescription,
+                ServerTimeout,
+                CancellationToken).GetAwaiter().GetResult();
 
             Console.WriteLine("Success!");
         }

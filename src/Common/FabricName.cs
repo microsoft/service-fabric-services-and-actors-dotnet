@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Linq;
+using Microsoft.ServiceFabric.Common.Resources;
+
 namespace Microsoft.ServiceFabric.Common
 {
-    using System;
-    using System.Linq;
-    using Microsoft.ServiceFabric.Common.Resources;
-
     /// <summary>
     /// Represents a Service Fabric name.
     /// </summary>
@@ -19,7 +19,7 @@ namespace Microsoft.ServiceFabric.Common
         /// </summary>
         public const string InvalidCharacters = @"?#[]+$<>\^|%";
 
-        private readonly Uri uri;
+        readonly Uri uri;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricName"/> class by using the value represented by the specified string.
@@ -53,26 +53,18 @@ namespace Microsoft.ServiceFabric.Common
             ////  4. trailing "/", empty segments.
 
             if (InvalidCharacters.ToCharArray().Any(x => name.AbsolutePath.Contains(x)))
-            {
                 throw new ArgumentException(string.Format(SR.ErrorAppNameHasInvalidChars, InvalidCharacters), nameof(name));
-            }
 
             if (name.AbsolutePath.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-            {
                 throw new ArgumentException(SR.ErrorNameHasTrailingSlash, nameof(name));
-            }
 
             if (!name.Scheme.Equals("fabric", StringComparison.OrdinalIgnoreCase))
-            {
                 throw new ArgumentException(SR.ErrorNameDoesntBeginWithFabric, nameof(name));
-            }
 
             if (!name.Authority.Equals(string.Empty, StringComparison.OrdinalIgnoreCase))
-            {
                 throw new ArgumentException(SR.ErrorNameHasAuthorityName, nameof(name));
-            }
 
-            this.uri = name;
+            uri = name;
         }
 
         /// <summary>
@@ -103,14 +95,13 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="name1">The first object to compare.</param>
         /// <param name="name2">The second object to compare</param>
         /// <returns>true if name1 and name2 are not equal; otherwise, false.</returns>
-        public static bool operator !=(FabricName name1, FabricName name2)
-            => !(name1 == name2);
+        public static bool operator !=(FabricName name1, FabricName name2) => !(name1 == name2);
 
         /// <summary>
         /// Returns a string representation of the value of this instance.
         /// </summary>
         /// <returns>string representation of the value of this instance.</returns>
-        public override string ToString() => this.uri.ToString();
+        public override string ToString() => uri.ToString();
 
         /// <summary>
         /// Returns a value indicating whether this instance and a specified object represent the same value.
@@ -120,11 +111,8 @@ namespace Microsoft.ServiceFabric.Common
         public bool Equals(FabricName other)
         {
             if (other is null)
-            {
                 return false;
-            }
-
-            return this.uri.Equals(other?.uri);
+            return uri.Equals(other?.uri);
         }
 
         /// <summary>
@@ -135,26 +123,20 @@ namespace Microsoft.ServiceFabric.Common
         public override bool Equals(object other)
         {
             if (other is null)
-            {
                 return false;
-            }
-
-            return (other is FabricName) && this.uri.Equals(((FabricName)other)?.uri);
+            return (other is FabricName) && uri.Equals(((FabricName)other)?.uri);
         }
 
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>The hash code for this instance.</returns>
-        public override int GetHashCode() => this.uri.GetHashCode();
+        public override int GetHashCode() => uri.GetHashCode();
 
         /// <summary>
         /// Returns the name without the 'fabric:' URI scheme.
         /// </summary>
         /// <returns>FabricName without the 'fabric:' URI scheme.</returns>
-        public string GetId()
-        {
-            return Uri.EscapeUriString(this.uri.ToString().Replace("fabric:/", string.Empty));
-        }
+        public string GetId() => Uri.EscapeUriString(uri.ToString().Replace("fabric:/", string.Empty));
     }
 }

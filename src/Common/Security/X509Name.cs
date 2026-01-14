@@ -3,41 +3,39 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-
     /// <summary>
-    ///   <para>A type to identify X509 certificate with subject common name or DNS name</para>
+    /// A type to identify X509 certificate with subject common name or DNS name
     /// </summary>
     public class X509Name
     {
         /// <summary>
-        ///   <para>Initializes a new instance of the <see cref="X509Name"/> class that identifies an X509 certificate</para>
+        /// Initializes a new instance of the <see cref="X509Name"/> class that identifies an X509 certificate
         /// </summary>
         /// <param name="name">
-        ///   <para>Subject common name or DNS name of X509 certificate</para>
+        /// Subject common name or DNS name of X509 certificate
         /// </param>
         /// <param name="issuerCertThumbprint">
-        ///   <para>Certificate thumbprint to identify issuer. Default value is null which means that issuer thumbprint will not be verified.
-        ///   for the certificate found with the common name. A Comma delimited string can be used to verify against multiple certificate issuer thumbprints</para>
+        /// Certificate thumbprint to identify issuer. Default value is null which means that issuer thumbprint will not be verified.
+        /// for the certificate found with the common name. A Comma delimited string can be used to verify against multiple certificate issuer thumbprints
         /// </param>
         public X509Name(string name, string issuerCertThumbprint = null)
         {
             name.ThrowIfNull(nameof(name));
-            this.Name = name;
+            Name = name;
 
             if (issuerCertThumbprint != null)
-            {
-                this.IssuerCertThumbprint = issuerCertThumbprint.Replace(" ", string.Empty);
-            }
+                IssuerCertThumbprint = issuerCertThumbprint.Replace(" ", string.Empty);
         }
 
         /// <summary>
         /// Gets the subject common name or DNS name of X509 certificate.
         /// </summary>
         /// <value>
-        ///   <para>Subject common name or DNS name of X509 certificate</para>
+        /// Subject common name or DNS name of X509 certificate
         /// </value>
         public string Name { get; }
 
@@ -45,74 +43,59 @@ namespace Microsoft.ServiceFabric.Common.Security
         /// Gets the certificate thumbprint to identify issuer. This can additionally be a comma delimited string of multiple issuer certificate thumbprints
         /// </summary>
         /// <value>
-        ///   <para>Certificate thumbprint to identify issuer</para>
+        /// Certificate thumbprint to identify issuer
         /// </value>
         public string IssuerCertThumbprint { get; }
 
         /// <summary>
-        ///   <para>Determines whether the specified object is equal to the current object</para>
+        /// Determines whether the specified object is equal to the current object
         /// </summary>
         /// <param name="obj">
-        ///   <para>The object to compare with the current object</para>
+        /// The object to compare with the current object
         /// </param>
         /// <returns>
-        ///   <para>Returns true if the objects are equal, false otherwise.</para>
+        /// Returns true if the objects are equal, false otherwise.
         /// </returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as X509Name);
-        }
+        public override bool Equals(object obj) => Equals(obj as X509Name);
 
         /// <summary>
-        ///   <para>Compute hash code</para>
+        /// Compute hash code
         /// </summary>
         /// <returns>
-        ///   <para>Returns <see cref="int" /> representing the hash code.</para>
+        /// Returns <see cref="int" /> representing the hash code.
         /// </returns>
-        public override int GetHashCode()
-        {
-            return this.Name.ToLower().GetHashCode() ^ this.IssuerCertThumbprint.ToLower().GetHashCode();
-        }
+        public override int GetHashCode() =>
+            Name.ToLower().GetHashCode() ^ IssuerCertThumbprint.ToLower().GetHashCode();
 
         /// <summary>
-        ///   <para>Determines whether the specified object is equal to the current object</para>
+        /// Determines whether the specified object is equal to the current object
         /// </summary>
         /// <param name="other">
-        ///   <para>The object to compare with the current object</para>
+        /// The object to compare with the current object
         /// </param>
         /// <returns>
-        ///   <para>Returns true if the objects are equal, false otherwise.</para>
+        /// Returns true if the objects are equal, false otherwise.
         /// </returns>
         public bool Equals(X509Name other)
         {
             if (other == null)
-            {
                 return false;
-            }
 
-            if (object.ReferenceEquals(this, other))
-            {
+            if (ReferenceEquals(this, other))
                 return true;
-            }
 
-            if (this.GetType() != other.GetType())
-            {
+            if (GetType() != other.GetType())
                 return false;
-            }
 
-            if (this.Name.Equals(other.Name, StringComparison.OrdinalIgnoreCase))
+            if (Name.Equals(other.Name, StringComparison.OrdinalIgnoreCase))
             {
-                if (this.IssuerCertThumbprint == null && other.IssuerCertThumbprint == null)
-                {
+                if (IssuerCertThumbprint == null && other.IssuerCertThumbprint == null)
                     return true;
-                }
-                else if (this.IssuerCertThumbprint != null && other.IssuerCertThumbprint != null)
-                {
-                    return this.IssuerCertThumbprint.Equals(other.IssuerCertThumbprint, StringComparison.OrdinalIgnoreCase);
-                }
+                else if (IssuerCertThumbprint != null && other.IssuerCertThumbprint != null)
+                    return IssuerCertThumbprint.Equals(other.IssuerCertThumbprint, StringComparison.OrdinalIgnoreCase);
             }
 
-            return false;               
+            return false;
         }
     }
 }

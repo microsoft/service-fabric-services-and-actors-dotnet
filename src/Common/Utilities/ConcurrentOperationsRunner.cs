@@ -3,46 +3,39 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Threading.Tasks;
+
 namespace Microsoft.ServiceFabric.Common.Utilities
 {
-    using System;
-    using System.Threading.Tasks;
-
-    internal class ConcurrentOperationsRunner<T>
+    sealed class ConcurrentOperationsRunner<T>
     {
-        private readonly Func<T, Task> runOperation;
-        private readonly TryGetNextOperationParameters tryGetNextOperationParameters;
-        private readonly int concurrencyCount;
+        readonly Func<T, Task> runOperation;
+        readonly TryGetNextOperationParameters tryGetNextOperationParameters;
+        readonly int concurrencyCount;
 
-        public ConcurrentOperationsRunner(
-            Func<T, Task> runOperation,
-            TryGetNextOperationParameters tryGetNextOperationParameters,
-            int concurrencyCount)
+        internal ConcurrentOperationsRunner(Func<T, Task> runOperation, TryGetNextOperationParameters tryGetNextOperationParameters, int concurrencyCount)
         {
             this.runOperation = runOperation;
             this.tryGetNextOperationParameters = tryGetNextOperationParameters;
             this.concurrencyCount = concurrencyCount;
         }
 
-        public delegate bool TryGetNextOperationParameters(out T parameters);
+        internal delegate bool TryGetNextOperationParameters(out T parameters);
 
-        public async Task RunAll()
+        internal async Task RunAll()
         {
-            var concurrentOperations = new Task[this.concurrencyCount];
-            for (var i = 0; i < this.concurrencyCount; i++)
-            {
-                concurrentOperations[i] = this.RunOperationsSerially();
-            }
+            var concurrentOperations = new Task[concurrencyCount];
+            for (var i = 0; i < concurrencyCount; i++)
+                concurrentOperations[i] = RunOperationsSerially();
 
             await Task.WhenAll(concurrentOperations);
         }
 
-        private async Task RunOperationsSerially()
+        async Task RunOperationsSerially()
         {
-            while (this.tryGetNextOperationParameters(out var parameters))
-            {
-                await this.runOperation(parameters);
-            }
+            while (tryGetNextOperationParameters(out T parameters))
+                await runOperation(parameters);
         }
     }
 }

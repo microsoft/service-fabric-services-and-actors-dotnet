@@ -3,11 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Management.Automation;
+using Microsoft.ServiceFabric.Client;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Client;
-
     /// <summary>
     /// Cmdlet to test connection to Service Fabric cluster. 
     /// </summary>
@@ -17,8 +17,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <inheritdoc />
         protected override void ProcessRecordInternal()
         {
-            var client = (IServiceFabricClient)this.SessionState.PSVariable.GetValue(Constants.ClusterConnectionVariableName);
-            this.WriteObject(client != null);
+            var client = (IServiceFabricClient)SessionState.PSVariable.GetValue(Constants.ClusterConnectionVariableName);
+            WriteObject(client != null);
         }
     }
 }

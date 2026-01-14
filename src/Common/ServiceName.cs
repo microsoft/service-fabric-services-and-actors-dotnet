@@ -3,12 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Common
 {
-    using System;
-    using System.Linq;
-    using Microsoft.ServiceFabric.Common.Resources;
-
     /// <summary>
     /// Represents a Service Fabric Service name.
     /// </summary>
@@ -18,7 +16,7 @@ namespace Microsoft.ServiceFabric.Common
         /// Initializes a new instance of the <see cref="ServiceName"/> class by using the value represented by the specified string.
         /// </summary>
         /// <param name="serviceName">A string for the service name.</param>
-        public ServiceName(string serviceName) 
+        public ServiceName(string serviceName)
             : this(new Uri(serviceName.CheckNotNull(nameof(serviceName))))
         {
         }
@@ -27,7 +25,7 @@ namespace Microsoft.ServiceFabric.Common
         /// Initializes a new instance of the <see cref="ServiceName"/> class by using the value represented by the specified uri.
         /// </summary>
         /// <param name="serviceUri">A uri for the service name.</param>
-        public ServiceName(Uri serviceUri) 
+        public ServiceName(Uri serviceUri)
             : base(serviceUri.CheckNotNull(nameof(serviceUri)))
         {
         }

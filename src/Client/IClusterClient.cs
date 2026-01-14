@@ -3,16 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Client.Exceptions;
-    using Microsoft.ServiceFabric.Common;
-    using Microsoft.ServiceFabric.Common.Exceptions;
-
     /// <summary>
     /// Interface containing methods for performing ClusterClient operations.
     /// </summary>
@@ -28,7 +24,7 @@ namespace Microsoft.ServiceFabric.Client
         /// <returns>The connection string used by the image store</returns>
         Task<string> GetImageStoreConnectionStringAsync(
             long? serverTimeout = 60,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the Metadata for the Token Service. For internal use only by Service Fabric tooling.
@@ -40,6 +36,6 @@ namespace Microsoft.ServiceFabric.Client
         /// <returns>Gets the Metadata for the Token Service.</returns>
         Task<TokenServiceMetadata> GetTokenServiceMetadtaAsync(
             long? serverTimeout = 60,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

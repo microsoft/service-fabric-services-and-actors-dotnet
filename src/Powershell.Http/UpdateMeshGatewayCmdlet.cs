@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.IO;
+using System.Management.Automation;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.IO;
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Client;
-
     /// <summary>
     /// Updates mesh gateway resource in service fabric cluster.
     /// </summary>
@@ -41,24 +41,18 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <inheritdoc />
         protected override void ProcessRecordInternal()
         {
-            var gatewayResourceInfo = this.ServiceFabricClient.MeshGateways.GetAsync(this.GatewayResourceName, this.CancellationToken).GetAwaiter().GetResult();
-
+            GatewayResourceDescription gatewayResourceInfo = ServiceFabricClient.MeshGateways.GetAsync(GatewayResourceName, CancellationToken).GetAwaiter().GetResult();
             if (gatewayResourceInfo == null)
-            {
                 throw new InvalidOperationException("Specified mesh gateway doesn't exist in cluster.");
-            }
 
-            var jsonDescription = this.JsonDescription;
+            string jsonDescription = JsonDescription;
+            if (ParameterSetName.Equals("jsonfile"))
+                jsonDescription = File.ReadAllText(ResourceDescriptionFile);
 
-            if (this.ParameterSetName.Equals("jsonfile"))
-            {
-                jsonDescription = File.ReadAllText(this.ResourceDescriptionFile);
-            }
-
-            this.ServiceFabricClient.MeshGateways.CreateOrUpdateAsync(
-                gatewayResourceName: this.GatewayResourceName,
-                jsonDescription: jsonDescription,
-                cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
+            ServiceFabricClient.MeshGateways.CreateOrUpdateAsync(
+                GatewayResourceName,
+                jsonDescription,
+                cancellationToken: CancellationToken).GetAwaiter().GetResult();
         }
     }
 }

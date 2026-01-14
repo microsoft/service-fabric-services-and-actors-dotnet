@@ -3,56 +3,38 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Client.Http.Resources;
+using Microsoft.ServiceFabric.Common.Security;
+
 namespace Microsoft.ServiceFabric.Client.Http
 {
-    using System;
-    using System.Net.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Client.Http.Resources;
-    using Microsoft.ServiceFabric.Common.Security;
-
-    /// <summary>
-    /// Bearer Token Handler for ClaimsSecuritySettings
-    /// </summary>
-    internal class ClaimsTokenHandler : IBearerTokenHandler
+    sealed class ClaimsTokenHandler : IBearerTokenHandler
     {
-        private string token;
+        string token;
 
-        /// <inheritdoc />
-        public virtual Task InitializeTokenAsync(SecuritySettings securitySettings, CancellationToken cancellationToken)
+        Task IBearerTokenHandler.InitializeTokenAsync(SecuritySettings securitySettings, CancellationToken cancellationToken)
         {
             if (securitySettings is ClaimsSecuritySettings claimsSecuritySettings)
-            {
-                this.token = claimsSecuritySettings.ClaimsToken;
-            }
+                token = claimsSecuritySettings.ClaimsToken;
             else
-            {
                 throw new InvalidOperationException(string.Format(SR.ErrorClaimsTokenHandlerIncorrectSecuritySettings, securitySettings.GetType().Name));
-            }
-
             return Task.CompletedTask;
         }
 
-        /// <inheritdoc />
-        public virtual Task RefreshTokenAsync(SecuritySettings securitySettings, CancellationToken cancellationToken)
+        Task IBearerTokenHandler.RefreshTokenAsync(SecuritySettings securitySettings, CancellationToken cancellationToken)
         {
             if (securitySettings is ClaimsSecuritySettings claimsSecuritySettings)
-            {
-                this.token = claimsSecuritySettings.ClaimsToken;
-            }
+                token = claimsSecuritySettings.ClaimsToken;
             else
-            {
                 throw new InvalidOperationException(string.Format(SR.ErrorClaimsTokenHandlerIncorrectSecuritySettings, securitySettings.GetType().Name));
-            }
-
             return Task.CompletedTask;
         }
 
-        /// <inheritdoc />
-        public void AddTokenToRequest(HttpRequestMessage request)
-        {
-            request.Headers.Add("Authorization", this.token);
-        }
+        void IBearerTokenHandler.AddTokenToRequest(HttpRequestMessage request) =>
+            request.Headers.Add("Authorization", token);
     }
 }

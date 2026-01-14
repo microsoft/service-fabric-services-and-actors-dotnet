@@ -5,12 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Specifies the security settings for Windows credentials.
     /// </summary>

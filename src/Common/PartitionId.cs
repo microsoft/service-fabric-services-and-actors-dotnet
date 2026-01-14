@@ -3,10 +3,10 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Common
 {
-    using System;
-
     /// <summary>
     /// Identifier for a service partition.
     /// </summary>
@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <value>Instance of <see cref="PartitionId"/> class whose value is an empty GUID.</value>
         public static readonly PartitionId Empty = new PartitionId(Guid.Empty);
 
-        private readonly Guid? id;
+        readonly Guid? id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartitionId"/> class by using the value represented by the specified GUID.
@@ -43,8 +43,8 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="partitionId1">The first object to compare.</param>z
         /// <param name="partitionId2">The second object to compare</param>
         /// <returns>true if partitionId1 and partitionId2 are equal; otherwise, false.</returns>
-        public static bool operator ==(PartitionId partitionId1, PartitionId partitionId2)
-            => partitionId1 is null ? partitionId2 is null : partitionId1.Equals(partitionId2);
+        public static bool operator ==(PartitionId partitionId1, PartitionId partitionId2) =>
+            partitionId1 is null ? partitionId2 is null : partitionId1.Equals(partitionId2);
 
         /// <summary>
         /// Indicates whether the values of two specified <see cref="PartitionId"/> objects are not equal.
@@ -52,8 +52,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="partitionId1">The first object to compare.</param>
         /// <param name="partitionId2">The second object to compare</param>
         /// <returns>true if partitionId1 and partitionId2 are not equal; otherwise, false.</returns>
-        public static bool operator !=(PartitionId partitionId1, PartitionId partitionId2)
-            => !(partitionId1 == partitionId2);
+        public static bool operator !=(PartitionId partitionId1, PartitionId partitionId2) => !(partitionId1 == partitionId2);
 
         /// <summary>
         /// Creates a PartitionId class instance using the string representation of the GUID passed in as argument.
@@ -66,7 +65,7 @@ namespace Microsoft.ServiceFabric.Common
         /// Returns a string representation of the value of this instance.
         /// </summary>
         /// <returns>string representation of the value of this instance.</returns>
-        public override string ToString() => this.id.ToString();
+        public override string ToString() => id.ToString();
 
         /// <summary>
         /// Returns a value indicating whether this instance and a specified <see cref="PartitionId"/> object represent the same value.
@@ -76,11 +75,8 @@ namespace Microsoft.ServiceFabric.Common
         public bool Equals(PartitionId other)
         {
             if (other is null)
-            {
                 return false;
-            }
-
-            return this.id.Equals(other.id);
+            return id.Equals(other.id);
         }
 
         /// <summary>
@@ -91,17 +87,14 @@ namespace Microsoft.ServiceFabric.Common
         public override bool Equals(object other)
         {
             if (other is null)
-            {
                 return false;
-            }
-
-            return (other is PartitionId) && this.Equals((PartitionId)other);
+            return (other is PartitionId) && Equals((PartitionId)other);
         }
 
         /// <summary>
         /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>The hash code for this instance.</returns>
-        public override int GetHashCode() => this.id.GetHashCode();
+        public override int GetHashCode() => id.GetHashCode();
     }
 }

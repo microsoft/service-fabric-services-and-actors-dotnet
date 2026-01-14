@@ -3,13 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Common.Resources;
-
     /// <summary>
     /// Represents the claim based security credential acquired from Azure Active Directory.
     /// </summary>
@@ -23,7 +22,7 @@ namespace Microsoft.ServiceFabric.Common.Security
         /// <param name="remoteX509SecuritySettings">Security settings to verify remote X509 certificate.</param>
         public AzureActiveDirectorySecuritySettings(string claimsToken, RemoteX509SecuritySettings remoteX509SecuritySettings)
             : base(claimsToken, remoteX509SecuritySettings)
-        {            
+        {
         }
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace Microsoft.ServiceFabric.Common.Security
             : base(remoteX509SecuritySettings)
         {
             getClaimsToken.ThrowIfNull(nameof(getClaimsToken));
-            this.GetClaimsToken = getClaimsToken;
+            GetClaimsToken = getClaimsToken;
         }
 
         /// <summary>

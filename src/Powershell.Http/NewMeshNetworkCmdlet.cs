@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.IO;
+using System.Management.Automation;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.IO;
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Client;
-
     /// <summary>
     /// Creates mesh network resource in service fabric cluster.
     /// </summary>
@@ -41,24 +41,19 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <inheritdoc />
         protected override void ProcessRecordInternal()
         {
-            var networkResourceInfo = this.ServiceFabricClient.MeshNetworks.GetAsync(this.NetworkResourceName, this.CancellationToken).GetAwaiter().GetResult();
+            NetworkResourceDescription networkResourceInfo = ServiceFabricClient.MeshNetworks.GetAsync(NetworkResourceName, CancellationToken).GetAwaiter().GetResult();
 
             if (networkResourceInfo != null)
-            {
                 throw new InvalidOperationException("Specified mesh network already exists in cluster. If you want to update it, use Update-SFMeshNetwork");
-            }
 
-            var jsonDescription = this.JsonDescription;
+            string jsonDescription = JsonDescription;
+            if (ParameterSetName.Equals("jsonfile"))
+                jsonDescription = File.ReadAllText(ResourceDescriptionFile);
 
-            if (this.ParameterSetName.Equals("jsonfile"))
-            {
-                jsonDescription = File.ReadAllText(this.ResourceDescriptionFile);
-            }
-
-            this.ServiceFabricClient.MeshNetworks.CreateOrUpdateAsync(
-                networkResourceName: this.NetworkResourceName,
-                jsonDescription: jsonDescription,
-                cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
+            ServiceFabricClient.MeshNetworks.CreateOrUpdateAsync(
+                NetworkResourceName,
+                jsonDescription,
+                cancellationToken: CancellationToken).GetAwaiter().GetResult();
         }
     }
 }

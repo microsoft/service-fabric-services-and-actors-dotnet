@@ -8,7 +8,7 @@ namespace Microsoft.ServiceFabric.Common
     /// <summary>
     /// Token Service metadata used for secured connection to cluster. For internal use only by Service Fabric tooling.
     /// </summary>
-    public partial class TokenServiceMetadata
+    public class TokenServiceMetadata
     {
         /// <summary>
         /// Initializes a new instance of the TokenServiceMetadata class.
@@ -16,14 +16,11 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="metadata">The metadata for the secure token service.</param>
         /// <param name="serviceName">The Service Name.</param>
         /// <param name="serviceDnsName">The Service Dns name.</param>
-        public TokenServiceMetadata(
-            string metadata = default(string),
-            string serviceName = default(string),
-            string serviceDnsName = default(string))
+        public TokenServiceMetadata(string metadata = default, string serviceName = default, string serviceDnsName = default)
         {
-            this.Metadata = metadata;
-            this.ServiceName = serviceName;
-            this.ServiceDnsName = serviceDnsName;
+            Metadata = metadata;
+            ServiceName = serviceName;
+            ServiceDnsName = serviceDnsName;
         }
 
         /// <summary>

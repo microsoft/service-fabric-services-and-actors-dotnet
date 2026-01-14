@@ -3,18 +3,18 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Client.Resources;
+using Microsoft.ServiceFabric.Common.Exceptions;
+using Microsoft.ServiceFabric.Common.Security;
+
 namespace Microsoft.ServiceFabric.Client
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Client.Resources;
-    using Microsoft.ServiceFabric.Common.Exceptions;
-    using Microsoft.ServiceFabric.Common.Security;
-
     /// <summary>
     /// Represents the base class for the Service Fabric client.
     /// </summary>
@@ -32,19 +32,13 @@ namespace Microsoft.ServiceFabric.Client
             ClientSettings clientSettings = null)
         {
             if (clusterEndpoints == null)
-            {
                 throw new ArgumentNullException(nameof(clusterEndpoints));
-            }
 
             if (clusterEndpoints.Count == 0)
-            {
                 throw new ArgumentException(SR.ErrorClusterEndpointNotProvided, nameof(clusterEndpoints));
-            }
 
             if (clusterEndpoints.Any(url => url == null))
-            {
                 throw new ArgumentException(SR.ErrorUrlCannotBeNull, nameof(clusterEndpoints));
-            }
 
             this.ClusterEndpoints = clusterEndpoints;
 

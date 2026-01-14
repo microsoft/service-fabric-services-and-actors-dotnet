@@ -3,12 +3,12 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Microsoft.ServiceFabric.Common.Security
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Represents the claim based security credential acquired from Dsts secure token service..
     /// </summary>
@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Common.Security
             : base(remoteX509SecuritySettings)
         {
             getClaimsToken.ThrowIfNull(nameof(getClaimsToken));
-            this.GetClaimsToken = getClaimsToken;
+            GetClaimsToken = getClaimsToken;
         }
 
         /// <summary>

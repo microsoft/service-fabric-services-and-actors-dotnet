@@ -3,24 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using Newtonsoft.Json;
+
 namespace Microsoft.ServiceFabric.Client.Http.Serialization
 {
-    using Microsoft.ServiceFabric.Common;
-    using Newtonsoft.Json;
-
-    /// <summary>
-    /// Converter for StringConverter.
-    /// </summary>
-    internal class StringConverter
+    static class StringConverter
     {
-        /// <summary>
-        /// Returns the JSON representation of the object.
-        /// </summary>
-        /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
-        /// <param name="value">The object to serialize to JSON.</param>
-        public static void Serialize(JsonWriter writer, string value)
-        {
+        internal static void Serialize(JsonWriter writer, string value) =>
             writer.WriteValue(value.ToString());
-        }
     }
 }

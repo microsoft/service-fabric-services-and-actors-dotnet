@@ -3,13 +3,13 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+using System.IO;
+using System.Management.Automation;
+using Microsoft.ServiceFabric.Common;
+
 namespace Microsoft.ServiceFabric.Powershell.Http
 {
-    using System;
-    using System.IO;
-    using System.Management.Automation;
-    using Microsoft.ServiceFabric.Client;
-
     /// <summary>
     /// Updates mesh volume resource in service fabric cluster.
     /// </summary>
@@ -41,24 +41,18 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <inheritdoc />
         protected override void ProcessRecordInternal()
         {
-            var volumeResourceInfo = this.ServiceFabricClient.MeshVolumes.GetAsync(this.VolumeResourceName, cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
-
+            VolumeResourceDescription volumeResourceInfo = ServiceFabricClient.MeshVolumes.GetAsync(VolumeResourceName, cancellationToken: CancellationToken).GetAwaiter().GetResult();
             if (volumeResourceInfo == null)
-            {
                 throw new InvalidOperationException("Specified volume resource doesn't exists in cluster.");
-            }
 
-            var jsonDescription = this.JsonDescription;
+            string jsonDescription = JsonDescription;
+            if (ParameterSetName.Equals("jsonfile"))
+                jsonDescription = File.ReadAllText(ResourceDescriptionFile);
 
-            if (this.ParameterSetName.Equals("jsonfile"))
-            {
-                jsonDescription = File.ReadAllText(this.ResourceDescriptionFile);
-            }
-
-            this.ServiceFabricClient.MeshVolumes.CreateOrUpdateAsync(
-                volumeResourceName: this.VolumeResourceName,
-                jsonDescription: jsonDescription,
-                cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
+            ServiceFabricClient.MeshVolumes.CreateOrUpdateAsync(
+                VolumeResourceName,
+                jsonDescription,
+                cancellationToken: CancellationToken).GetAwaiter().GetResult();
         }
     }
 }
