@@ -42,8 +42,8 @@ namespace Microsoft.ServiceFabric.Common
         /// - InstanceRestartWaitDuration - Indicates the InstanceCloseDelayDuration property is set. The value is 32768.
         /// - DropSourceReplicaOnMove - Indicates the DropSourceReplicaOnMove property is set. The value is 65536.
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
-        /// - TagsForPlacement - Indicates the TagsForPlacement property is set. The value is 1048576.
-        /// - TagsForRunning - Indicates the TagsForRunning property is set. The value is 2097152.
+        /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
+        /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
         /// </param>
         /// <param name="placementConstraints">The placement constraints as a string. Placement constraints are boolean
         /// expressions on node properties and allow for restricting a service to particular nodes based on the service
@@ -59,8 +59,8 @@ namespace Microsoft.ServiceFabric.Common
         /// </param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceDnsName">The DNS name of the service.</param>
-        /// <param name="tagsForPlacement">Tags for placement of this service.</param>
-        /// <param name="tagsForRunning">Tags for running of this service.</param>
+        /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
+        /// <param name="repartitionDescription">The repartition description as an object.</param>
         /// <param name="instanceCount">The instance count.</param>
         /// <param name="minInstanceCount">MinInstanceCount is the minimum number of instances that must be up to meet the
         /// EnsureAvailability safety check during operations like upgrade or deactivate node.
@@ -106,8 +106,8 @@ namespace Microsoft.ServiceFabric.Common
             MoveCost? defaultMoveCost = default(MoveCost?),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             string serviceDnsName = default(string),
-            NodeTagsDescription tagsForPlacement = default(NodeTagsDescription),
-            NodeTagsDescription tagsForRunning = default(NodeTagsDescription),
+            ServiceTags serviceTags = default(ServiceTags),
+            RepartitionSchemeDescription repartitionDescription = default(RepartitionSchemeDescription),
             int? instanceCount = default(int?),
             int? minInstanceCount = default(int?),
             int? minInstancePercentage = default(int?),
@@ -124,8 +124,8 @@ namespace Microsoft.ServiceFabric.Common
                 defaultMoveCost,
                 scalingPolicies,
                 serviceDnsName,
-                tagsForPlacement,
-                tagsForRunning)
+                serviceTags,
+                repartitionDescription)
         {
             instanceCount?.ThrowIfLessThan("instanceCount", -1);
             this.InstanceCount = instanceCount;

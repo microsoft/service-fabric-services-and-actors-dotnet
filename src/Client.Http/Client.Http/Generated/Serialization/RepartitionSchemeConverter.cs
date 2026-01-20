@@ -12,27 +12,27 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Converter for <see cref="CompressionStrategy" />.
+    /// Converter for <see cref="RepartitionScheme" />.
     /// </summary>
-    internal class CompressionStrategyConverter
+    internal class RepartitionSchemeConverter
     {
         /// <summary>
         /// Gets the enum value by reading string value from reader.
         /// </summary>
         /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from, reader must be placed at first property.</param>
         /// <returns>The enum Value.</returns>
-        public static CompressionStrategy? Deserialize(JsonReader reader)
+        public static RepartitionScheme? Deserialize(JsonReader reader)
         {
             var value = reader.ReadValueAsString();
-            var obj = default(CompressionStrategy);
+            var obj = default(RepartitionScheme);
 
-            if (string.Compare(value, "ZIP", StringComparison.OrdinalIgnoreCase) == 0)
+            if (string.Compare(value, "Invalid", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = CompressionStrategy.ZIP;
+                obj = RepartitionScheme.Invalid;
             }
-            else if (string.Compare(value, "ZSTANDARD", StringComparison.OrdinalIgnoreCase) == 0)
+            else if (string.Compare(value, "Named", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                obj = CompressionStrategy.ZSTANDARD;
+                obj = RepartitionScheme.Named;
             }
 
             return obj;
@@ -43,18 +43,18 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         /// </summary>
         /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="value">The object to serialize to JSON.</param>
-        public static void Serialize(JsonWriter writer, CompressionStrategy? value)
+        public static void Serialize(JsonWriter writer, RepartitionScheme? value)
         {
             switch (value)
             {
-                case CompressionStrategy.ZIP:
-                    writer.WriteStringValue("ZIP");
+                case RepartitionScheme.Invalid:
+                    writer.WriteStringValue("Invalid");
                     break;
-                case CompressionStrategy.ZSTANDARD:
-                    writer.WriteStringValue("ZSTANDARD");
+                case RepartitionScheme.Named:
+                    writer.WriteStringValue("Named");
                     break;
                 default:
-                    throw new ArgumentException($"Invalid value {value.ToString()} for enum type CompressionStrategy");
+                    throw new ArgumentException($"Invalid value {value.ToString()} for enum type RepartitionScheme");
             }
         }
     }

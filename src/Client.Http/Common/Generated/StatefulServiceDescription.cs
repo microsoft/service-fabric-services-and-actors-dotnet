@@ -48,8 +48,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="serviceDnsName">The DNS name of the service. It requires the DNS system service to be enabled in
         /// Service Fabric cluster.</param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
-        /// <param name="tagsRequiredToPlace">Tags for placement of this service.</param>
-        /// <param name="tagsRequiredToRun">Tags for running of this service.</param>
+        /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
         /// <param name="flags">Flags indicating whether other properties are set. Each of the associated properties
         /// corresponds to a flag, specified below, which, if set, indicate that the property is specified.
         /// This property can be a combination of those flags obtained using bitwise 'OR' operator.
@@ -74,7 +73,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="dropSourceReplicaOnMove">Indicates whether to drop source Secondary replica even if the target replica
         /// has not finished build. If desired behavior is to drop it as soon as possible the value of this property is true,
         /// if not it is false.</param>
-        /// <param name="replicaLifecycleDescription">Defines how replicas of this service will behave during ther
+        /// <param name="replicaLifecycleDescription">Defines how replicas of this service will behave during their
         /// lifecycle.</param>
         /// <param name="auxiliaryReplicaCount">The auxiliary replica count as a number. To use Auxiliary replicas, the
         /// following must be true: AuxiliaryReplicaCount &lt; (TargetReplicaSetSize+1)/2 and TargetReplicaSetSize >=3.</param>
@@ -97,8 +96,7 @@ namespace Microsoft.ServiceFabric.Common
             ServicePackageActivationMode? servicePackageActivationMode = default(ServicePackageActivationMode?),
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
-            NodeTagsDescription tagsRequiredToPlace = default(NodeTagsDescription),
-            NodeTagsDescription tagsRequiredToRun = default(NodeTagsDescription),
+            ServiceTags serviceTags = default(ServiceTags),
             int? flags = default(int?),
             long? replicaRestartWaitDurationSeconds = default(long?),
             long? quorumLossWaitDurationSeconds = default(long?),
@@ -124,8 +122,7 @@ namespace Microsoft.ServiceFabric.Common
                 servicePackageActivationMode,
                 serviceDnsName,
                 scalingPolicies,
-                tagsRequiredToPlace,
-                tagsRequiredToRun)
+                serviceTags)
         {
             targetReplicaSetSize.ThrowIfNull(nameof(targetReplicaSetSize));
             minReplicaSetSize.ThrowIfNull(nameof(minReplicaSetSize));
@@ -210,7 +207,7 @@ namespace Microsoft.ServiceFabric.Common
         public bool? DropSourceReplicaOnMove { get; }
 
         /// <summary>
-        /// Gets defines how replicas of this service will behave during ther lifecycle.
+        /// Gets defines how replicas of this service will behave during their lifecycle.
         /// </summary>
         public ReplicaLifecycleDescription ReplicaLifecycleDescription { get; }
 

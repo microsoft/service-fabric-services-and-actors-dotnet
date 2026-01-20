@@ -47,8 +47,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var servicePackageActivationMode = default(ServicePackageActivationMode?);
             var serviceDnsName = default(string);
             var scalingPolicies = default(IEnumerable<ScalingPolicyDescription>);
-            var tagsRequiredToPlace = default(NodeTagsDescription);
-            var tagsRequiredToRun = default(NodeTagsDescription);
+            var serviceTags = default(ServiceTags);
             var instanceCount = default(int?);
             var minInstanceCount = default(int?);
             var minInstancePercentage = default(int?);
@@ -116,13 +115,9 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     scalingPolicies = reader.ReadList(ScalingPolicyDescriptionConverter.Deserialize);
                 }
-                else if (string.Compare("TagsRequiredToPlace", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Compare("ServiceTags", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    tagsRequiredToPlace = NodeTagsDescriptionConverter.Deserialize(reader);
-                }
-                else if (string.Compare("TagsRequiredToRun", propName, StringComparison.OrdinalIgnoreCase) == 0)
-                {
-                    tagsRequiredToRun = NodeTagsDescriptionConverter.Deserialize(reader);
+                    serviceTags = ServiceTagsConverter.Deserialize(reader);
                 }
                 else if (string.Compare("InstanceCount", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
@@ -174,8 +169,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 servicePackageActivationMode: servicePackageActivationMode,
                 serviceDnsName: serviceDnsName,
                 scalingPolicies: scalingPolicies,
-                tagsRequiredToPlace: tagsRequiredToPlace,
-                tagsRequiredToRun: tagsRequiredToRun,
+                serviceTags: serviceTags,
                 instanceCount: instanceCount,
                 minInstanceCount: minInstanceCount,
                 minInstancePercentage: minInstancePercentage,
@@ -246,14 +240,9 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 writer.WriteEnumerableProperty(obj.ScalingPolicies, "ScalingPolicies", ScalingPolicyDescriptionConverter.Serialize);
             }
 
-            if (obj.TagsRequiredToPlace != null)
+            if (obj.ServiceTags != null)
             {
-                writer.WriteProperty(obj.TagsRequiredToPlace, "TagsRequiredToPlace", NodeTagsDescriptionConverter.Serialize);
-            }
-
-            if (obj.TagsRequiredToRun != null)
-            {
-                writer.WriteProperty(obj.TagsRequiredToRun, "TagsRequiredToRun", NodeTagsDescriptionConverter.Serialize);
+                writer.WriteProperty(obj.ServiceTags, "ServiceTags", ServiceTagsConverter.Serialize);
             }
 
             if (obj.MinInstanceCount != null)

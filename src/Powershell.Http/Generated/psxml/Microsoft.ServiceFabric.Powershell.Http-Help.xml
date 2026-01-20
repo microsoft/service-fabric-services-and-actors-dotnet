@@ -7147,24 +7147,24 @@
                 <maml:name>TagsRequiredToPlace</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Tags for placement of this service.
+                    
                     </maml:para>
                 </maml:Description>
-            <command:parameterValue required="false">NodeTagsDescription</command:parameterValue>
+            <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>
                 <dev:type>
-                    <maml:name>NodeTagsDescription</maml:name>
+                    <maml:name>IEnumerable&lt;string&gt;</maml:name>
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="23">
                 <maml:name>TagsRequiredToRun</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Tags for running of this service.
+                    
                     </maml:para>
                 </maml:Description>
-            <command:parameterValue required="false">NodeTagsDescription</command:parameterValue>
+            <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>
                 <dev:type>
-                    <maml:name>NodeTagsDescription</maml:name>
+                    <maml:name>IEnumerable&lt;string&gt;</maml:name>
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="24">
@@ -7253,7 +7253,7 @@
                 <maml:name>ReplicaLifecycleDescription</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Defines how replicas of this service will behave during ther lifecycle.
+                    Defines how replicas of this service will behave during their lifecycle.
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="false">ReplicaLifecycleDescription</command:parameterValue>
@@ -7564,6 +7564,12 @@
                 <command:syntaxItem>
                     <maml:name>Update-SFService</maml:name>
                 <command:parameter required="false">
+                        <maml:name>NamesToAdd</maml:name>
+                </command:parameter>
+                <command:parameter required="false">
+                        <maml:name>NamesToRemove</maml:name>
+                </command:parameter>
+                <command:parameter required="false">
                         <maml:name>TargetReplicaSetSize</maml:name>
                 </command:parameter>
                 <command:parameter required="false">
@@ -7596,6 +7602,12 @@
                 </command:syntaxItem>
                 <command:syntaxItem>
                     <maml:name>Update-SFService</maml:name>
+                <command:parameter required="false">
+                        <maml:name>NamesToAdd</maml:name>
+                </command:parameter>
+                <command:parameter required="false">
+                        <maml:name>NamesToRemove</maml:name>
+                </command:parameter>
                 <command:parameter required="false">
                         <maml:name>InstanceCount</maml:name>
                 </command:parameter>
@@ -7662,8 +7674,8 @@
                     - InstanceRestartWaitDuration - Indicates the InstanceCloseDelayDuration property is set. The value is 32768.
                     - DropSourceReplicaOnMove - Indicates the DropSourceReplicaOnMove property is set. The value is 65536.
                     - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
-                    - TagsForPlacement - Indicates the TagsForPlacement property is set. The value is 1048576.
-                    - TagsForRunning - Indicates the TagsForRunning property is set. The value is 2097152.
+                    - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
+                    - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
                     
                     </maml:para>
                 </maml:Description>
@@ -7760,30 +7772,54 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="9">
-                <maml:name>TagsForPlacement</maml:name>
+                <maml:name>TagsRequiredToPlace</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Tags for placement of this service.
+                    
                     </maml:para>
                 </maml:Description>
-            <command:parameterValue required="false">NodeTagsDescription</command:parameterValue>
+            <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>
                 <dev:type>
-                    <maml:name>NodeTagsDescription</maml:name>
+                    <maml:name>IEnumerable&lt;string&gt;</maml:name>
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="10">
-                <maml:name>TagsForRunning</maml:name>
+                <maml:name>TagsRequiredToRun</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Tags for running of this service.
+                    
                     </maml:para>
                 </maml:Description>
-            <command:parameterValue required="false">NodeTagsDescription</command:parameterValue>
+            <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>
                 <dev:type>
-                    <maml:name>NodeTagsDescription</maml:name>
+                    <maml:name>IEnumerable&lt;string&gt;</maml:name>
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="11">
+                <maml:name>NamesToAdd</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Dynamic array for the names of the partitions to add.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>
+                <dev:type>
+                    <maml:name>IEnumerable&lt;string&gt;</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="12">
+                <maml:name>NamesToRemove</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Dynamic array for the names of the partitions to remove.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">IEnumerable&lt;string&gt;</command:parameterValue>
+                <dev:type>
+                    <maml:name>IEnumerable&lt;string&gt;</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="13">
                 <maml:name>TargetReplicaSetSize</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7795,7 +7831,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="12">
+            <command:parameter required="false" position="14">
                 <maml:name>MinReplicaSetSize</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7807,7 +7843,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="13">
+            <command:parameter required="false" position="15">
                 <maml:name>ReplicaRestartWaitDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7819,7 +7855,7 @@
                     <maml:name>string</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="14">
+            <command:parameter required="false" position="16">
                 <maml:name>QuorumLossWaitDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7831,7 +7867,7 @@
                     <maml:name>string</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="15">
+            <command:parameter required="false" position="17">
                 <maml:name>StandByReplicaKeepDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7843,7 +7879,7 @@
                     <maml:name>string</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="16">
+            <command:parameter required="false" position="18">
                 <maml:name>ServicePlacementTimeLimitSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7855,7 +7891,7 @@
                     <maml:name>string</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="17">
+            <command:parameter required="false" position="19">
                 <maml:name>DropSourceReplicaOnMove</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7867,11 +7903,11 @@
                     <maml:name>bool?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="18">
+            <command:parameter required="false" position="20">
                 <maml:name>ReplicaLifecycleDescription</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Defines how replicas of this service will behave during ther lifecycle.
+                    Defines how replicas of this service will behave during their lifecycle.
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="false">ReplicaLifecycleDescription</command:parameterValue>
@@ -7879,7 +7915,7 @@
                     <maml:name>ReplicaLifecycleDescription</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="19">
+            <command:parameter required="false" position="21">
                 <maml:name>AuxiliaryReplicaCount</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7891,7 +7927,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="20">
+            <command:parameter required="false" position="22">
                 <maml:name>ServiceSensitivityDescription</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7903,7 +7939,7 @@
                     <maml:name>ServiceSensitivityDescription</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="21">
+            <command:parameter required="false" position="23">
                 <maml:name>InstanceCount</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7915,7 +7951,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="22">
+            <command:parameter required="false" position="24">
                 <maml:name>MinInstanceCount</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7930,7 +7966,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="23">
+            <command:parameter required="false" position="25">
                 <maml:name>MinInstancePercentage</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7945,7 +7981,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="24">
+            <command:parameter required="false" position="26">
                 <maml:name>InstanceCloseDelayDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7964,7 +8000,7 @@
                     <maml:name>string</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="25">
+            <command:parameter required="false" position="27">
                 <maml:name>InstanceLifecycleDescription</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7976,7 +8012,7 @@
                     <maml:name>InstanceLifecycleDescription</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="26">
+            <command:parameter required="false" position="28">
                 <maml:name>InstanceRestartWaitDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7991,7 +8027,7 @@
                     <maml:name>string</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="27">
+            <command:parameter required="false" position="29">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -11994,69 +12030,69 @@
             </command:parameters>
     </command:command>
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
-        <command:details>
-            <command:name>Restore-SFReplica</command:name>
-            <command:verb>Restore</command:verb>
-            <command:noun>Replica</command:noun>
+            <command:details>
+                <command:name>Restore-SFReplica</command:name>
+                <command:verb>Restore</command:verb>
+                <command:noun>Replica</command:noun>
+                <maml:description>
+                    <maml:para>Recovers a ToBeRemoved replica by reopening the stateful service replica.</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
             <maml:description>
-                <maml:para>Recovers a ToBeRemoved replica by reopening the stateful service replica.</maml:para>
+                <maml:para>Recovers a ToBeRemoved replica by reopening the stateful service replica. Use this if the partition is stuck in quorum loss in order to prevent data loss. In the event of Quorum Loss, customers should restore all soft deleted (ToBeRemoved) replicas using this API. Service Fabric automatically determines which replicas to retain to restore quorum. This command has no effect on replicas which are not in the ToBeRemoved state.</maml:para>
             </maml:description>
-        </command:details>
-        <command:syntax>
-        </command:syntax>
-        <maml:description>
-            <maml:para>Recovers a ToBeRemoved replica by reopening the stateful service replica. Use this if the partition is stuck in quorum loss in order to prevent data loss. In the event of Quorum Loss, customers should restore all soft deleted (ToBeRemoved) replicas using this API. Service Fabric automatically determines which replicas to retain to restore quorum. This command has no effect on replicas which are not in the ToBeRemoved state.</maml:para>
-        </maml:description>
-        <command:parameters>
-        <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="0">
-            <maml:name>NodeName</maml:name>
-            <maml:Description>
-                <maml:para>
-                The name of the node.
-                </maml:para>
-            </maml:Description>
-        <command:parameterValue required="true">NodeName</command:parameterValue>
-            <dev:type>
+            <command:parameters>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="0">
                 <maml:name>NodeName</maml:name>
-            </dev:type>
-        </command:parameter>
-        <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="1">
-            <maml:name>PartitionId</maml:name>
-            <maml:Description>
-                <maml:para>
-                The identity of the partition.
-                </maml:para>
-            </maml:Description>
-        <command:parameterValue required="true">PartitionId</command:parameterValue>
-            <dev:type>
+                <maml:Description>
+                    <maml:para>
+                    The name of the node.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">NodeName</command:parameterValue>
+                <dev:type>
+                    <maml:name>NodeName</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="1">
                 <maml:name>PartitionId</maml:name>
-            </dev:type>
-        </command:parameter>
-        <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="2">
-            <maml:name>ReplicaId</maml:name>
-            <maml:Description>
-                <maml:para>
-                The identifier of the replica.
-                </maml:para>
-            </maml:Description>
-        <command:parameterValue required="true">ReplicaId</command:parameterValue>
-            <dev:type>
+                <maml:Description>
+                    <maml:para>
+                    The identity of the partition.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">PartitionId</command:parameterValue>
+                <dev:type>
+                    <maml:name>PartitionId</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="2">
                 <maml:name>ReplicaId</maml:name>
-            </dev:type>
-        </command:parameter>
-        <command:parameter required="false" position="3">
-            <maml:name>ServerTimeout</maml:name>
-            <maml:Description>
-                <maml:para>
-                The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
-                </maml:para>
-            </maml:Description>
-        <command:parameterValue required="false">long?</command:parameterValue>
-            <dev:type>
-                <maml:name>long?</maml:name>
-            </dev:type>
-        </command:parameter>
-        </command:parameters>
+                <maml:Description>
+                    <maml:para>
+                    The identifier of the replica.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">ReplicaId</command:parameterValue>
+                <dev:type>
+                    <maml:name>ReplicaId</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="3">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
     </command:command>
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
             <command:details>

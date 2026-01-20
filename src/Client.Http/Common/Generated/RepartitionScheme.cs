@@ -6,18 +6,19 @@
 namespace Microsoft.ServiceFabric.Common
 {
     /// <summary>
-    /// Defines values for CompressionStrategy.
+    /// Defines values for RepartitionScheme.
     /// </summary>
-    public enum CompressionStrategy
+    public enum RepartitionScheme
     {
         /// <summary>
-        /// Use ZIP compression for backups.
+        /// Indicates the partition kind is invalid. All Service Fabric enumerations have the invalid type. The value is zero.
         /// </summary>
-        ZIP,
+        Invalid,
 
         /// <summary>
-        /// Use Zstandard compression for backups, which provides better compression ratios.
+        /// Indicates that the partition is based on string names, and is a NamedPartitionSchemeDescription object. The value
+        /// is 1.
         /// </summary>
-        ZSTANDARD,
+        Named,
     }
 }

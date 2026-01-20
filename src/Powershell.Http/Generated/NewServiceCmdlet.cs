@@ -219,16 +219,14 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public IEnumerable<ScalingPolicyDescription> ScalingPolicies { get; set; }
 
         /// <summary>
-        /// Gets or sets TagsRequiredToPlace. Tags for placement of this service.
         /// </summary>
         [Parameter(Mandatory = false, Position = 24)]
-        public NodeTagsDescription TagsRequiredToPlace { get; set; }
+        public IEnumerable<string> TagsRequiredToPlace { get; set; }
 
         /// <summary>
-        /// Gets or sets TagsRequiredToRun. Tags for running of this service.
         /// </summary>
         [Parameter(Mandatory = false, Position = 25)]
-        public NodeTagsDescription TagsRequiredToRun { get; set; }
+        public IEnumerable<string> TagsRequiredToRun { get; set; }
 
         /// <summary>
         /// Gets or sets Flags. Flags indicating whether other properties are set. Each of the associated properties
@@ -299,7 +297,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public bool? DropSourceReplicaOnMove { get; set; }
 
         /// <summary>
-        /// Gets or sets ReplicaLifecycleDescription. Defines how replicas of this service will behave during ther lifecycle.
+        /// Gets or sets ReplicaLifecycleDescription. Defines how replicas of this service will behave during their lifecycle.
         /// </summary>
         [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_Named__Stateful_")]
         [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_Singleton__Stateful_")]
@@ -421,6 +419,11 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     highKey: this.HighKey);
             }
 
+            // Hand-coded to avoid compiler errors in generated code
+            var serviceTags = new ServiceTags(
+                tagsRequiredToPlace: this.TagsRequiredToPlace,
+                tagsRequiredToRun: this.TagsRequiredToRun);
+
             ServiceDescription serviceDescription = null;
             if (this.Stateful.IsPresent)
             {
@@ -442,8 +445,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     servicePackageActivationMode: this.ServicePackageActivationMode,
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
-                    tagsRequiredToPlace: this.TagsRequiredToPlace,
-                    tagsRequiredToRun: this.TagsRequiredToRun,
+                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
                     flags: this.Flags,
                     replicaRestartWaitDurationSeconds: this.ReplicaRestartWaitDurationSeconds,
                     quorumLossWaitDurationSeconds: this.QuorumLossWaitDurationSeconds,
@@ -472,8 +474,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     servicePackageActivationMode: this.ServicePackageActivationMode,
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
-                    tagsRequiredToPlace: this.TagsRequiredToPlace,
-                    tagsRequiredToRun: this.TagsRequiredToRun,
+                    serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
                     minInstanceCount: this.MinInstanceCount,
                     minInstancePercentage: this.MinInstancePercentage,
                     flags: this.Flags,

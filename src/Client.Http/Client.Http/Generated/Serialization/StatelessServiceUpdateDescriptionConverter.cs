@@ -41,8 +41,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var defaultMoveCost = default(MoveCost?);
             var scalingPolicies = default(IEnumerable<ScalingPolicyDescription>);
             var serviceDnsName = default(string);
-            var tagsForPlacement = default(NodeTagsDescription);
-            var tagsForRunning = default(NodeTagsDescription);
+            var serviceTags = default(ServiceTags);
+            var repartitionDescription = default(RepartitionSchemeDescription);
             var instanceCount = default(int?);
             var minInstanceCount = default(int?);
             var minInstancePercentage = default(int?);
@@ -85,13 +85,13 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     serviceDnsName = reader.ReadValueAsString();
                 }
-                else if (string.Compare("TagsForPlacement", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Compare("ServiceTags", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    tagsForPlacement = NodeTagsDescriptionConverter.Deserialize(reader);
+                    serviceTags = ServiceTagsConverter.Deserialize(reader);
                 }
-                else if (string.Compare("TagsForRunning", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Compare("RepartitionDescription", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    tagsForRunning = NodeTagsDescriptionConverter.Deserialize(reader);
+                    repartitionDescription = RepartitionSchemeDescriptionConverter.Deserialize(reader);
                 }
                 else if (string.Compare("InstanceCount", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
@@ -133,8 +133,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 defaultMoveCost: defaultMoveCost,
                 scalingPolicies: scalingPolicies,
                 serviceDnsName: serviceDnsName,
-                tagsForPlacement: tagsForPlacement,
-                tagsForRunning: tagsForRunning,
+                serviceTags: serviceTags,
+                repartitionDescription: repartitionDescription,
                 instanceCount: instanceCount,
                 minInstanceCount: minInstanceCount,
                 minInstancePercentage: minInstancePercentage,
@@ -189,14 +189,14 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 writer.WriteProperty(obj.ServiceDnsName, "ServiceDnsName", JsonWriterExtensions.WriteStringValue);
             }
 
-            if (obj.TagsForPlacement != null)
+            if (obj.ServiceTags != null)
             {
-                writer.WriteProperty(obj.TagsForPlacement, "TagsForPlacement", NodeTagsDescriptionConverter.Serialize);
+                writer.WriteProperty(obj.ServiceTags, "ServiceTags", ServiceTagsConverter.Serialize);
             }
 
-            if (obj.TagsForRunning != null)
+            if (obj.RepartitionDescription != null)
             {
-                writer.WriteProperty(obj.TagsForRunning, "TagsForRunning", NodeTagsDescriptionConverter.Serialize);
+                writer.WriteProperty(obj.RepartitionDescription, "RepartitionDescription", RepartitionSchemeDescriptionConverter.Serialize);
             }
 
             if (obj.InstanceCount != null)
