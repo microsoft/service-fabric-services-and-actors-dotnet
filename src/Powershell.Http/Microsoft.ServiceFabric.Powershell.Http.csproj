@@ -15,10 +15,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Don't create standard lib folder in the package -->
     <NoWarn>$(NoWarn);NU5100</NoWarn> <!-- Disable warnings assemblies not inside the lib folder -->
     <NoWarn>$(NoWarn);NU5128</NoWarn> <!-- Disable warnings about mismatch between target frameworks and folder names -->
-    <!-- 
-      Don't generate a symbols package.
-      ADO feeds don't support them and the internal pipeline publishes symbols directly from bin.
-    -->
+    <!-- Don't generate a symbols package. ADO feeds don't support them and the internal pipeline publishes symbols directly from bin. -->
     <IncludeSymbols>false</IncludeSymbols>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
@@ -49,10 +46,8 @@
   </ItemGroup>
   <ItemDefinitionGroup>
     <Content>
-      <!-- Content files should be copied to output directory for signing -->
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <!-- Unsigned content files should not be included in the module/package -->
-      <Pack>false</Pack>
+      <Pack>false</Pack> <!-- Don't pack unsigned content files -->
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> <!-- for signing -->
     </Content>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -60,43 +55,33 @@
     <Content Link="Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml" Include="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml" />
     <Content Link="Microsoft.ServiceFabric.Powershell.Http-Help.xml" Include="Generated\psxml\Microsoft.ServiceFabric.Powershell.Http-Help.xml" />
   </ItemGroup>
-  <Target Name="DonNotBuildProjectReferencesWhenGettingReferenceCopyLocalPaths"
-    BeforeTargets="ResolveProjectReferences" Condition="'$(_IsPacking)' == 'true'">
+
+  <Target Name="PublishAllDependenciesAfterBuildForSigning" AfterTargets="Build" DependsOnTargets="Publish" Condition="'$(TargetFramework)' != ''" />
+
+  <Target Name="DonNotBuildReferencesWhenPackingSignedFiles" BeforeTargets="ResolveProjectReferences" Condition="'$(_IsPacking)' == 'true'">
     <PropertyGroup>
       <BuildProjectReferences>false</BuildProjectReferences>
     </PropertyGroup>
   </Target>
-  <Target Name="DeterminePowerShellFramework">
+
+  <Target Name="GetFrameworkSpecificPowerShellModuleFiles" Outputs="@(TfmSpecificPackageFile)" DependsOnTargets="PublishItemsOutputGroup">
     <PropertyGroup>
       <PowerShellFramework Condition="'$(TargetFramework)' == 'netstandard2.0'">netstandard</PowerShellFramework>
       <PowerShellFramework Condition="'$(TargetFramework)' == 'net462'">netframework</PowerShellFramework>
     </PropertyGroup>
-  </Target>
-  <Target Name="GetFrameworkSpecificPowerShellModuleFiles" Outputs="@(TfmSpecificPackageFile)"
-    DependsOnTargets="BuiltProjectOutputGroup;ReferenceCopyLocalPathsOutputGroup;DeterminePowerShellFramework">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)Microsoft.ServiceFabric.Powershell.Http.Format.ps1xml" />
-      <TfmSpecificPackageFile Include="$(OutputPath)Microsoft.ServiceFabric.Powershell.Http-Help.xml" />
-      <TfmSpecificPackageFile Include="@(ReferenceCopyLocalPathsOutputGroupOutput)" />
-      <TfmSpecificPackageFile Include="@(BuiltProjectOutputGroupOutput)" />
-      <TfmSpecificPackageFile PackagePath="$(PowerShellFramework)" />
-      <!-- Don't include symbols and doc comments files in the module. -->
-      <TfmSpecificPackageFile Remove="@(TfmSpecificPackageFile)"
-        Condition="'%(TfmSpecificPackageFile.OriginalItemSpec)' != '' and '%(Identity)' != $([MSBuild]::NormalizePath('%(TfmSpecificPackageFile.OriginalItemSpec)'))" />
+      <TfmSpecificPackageFile Include="@(PublishItemsOutputGroupOutputs->'%(OutputPath)')" PackagePath="$(PowerShellFramework)"
+        Condition="'%(PublishItemsOutputGroupOutputs.ExcludeFromSingleFile)' != 'true' and '%(PublishItemsOutputGroupOutputs.Extension)' != '.psd1'" />
     </ItemGroup>
   </Target>
+
   <Target Name="CopyPowerShellModuleToOutputPath" BeforeTargets="GenerateNuSpec" DependsOnTargets="$(GenerateNuspecDependsOn)">
     <PropertyGroup>
       <ModuleOutputPath>$(PackageOutputPath)$(PackageId).$(PackageVersion)</ModuleOutputPath>
     </PropertyGroup>
     <ItemGroup>
-      <!--
-        We only need one of the two identical signed .psd1 files.
-        Other files are provided by the GetFrameworkSpecificPowerShellModuleFiles target that $(GenerateNuspecDependsOn).
-      -->
       <_PackageFiles Include="$(OutputPath)net462\Microsoft.ServiceFabric.Powershell.Http.psd1" PackagePath="/" />
     </ItemGroup>
-    <Copy SourceFiles="@(_PackageFiles)"
-      DestinationFiles="@(_PackageFiles->'$(ModuleOutputPath)\%(PackagePath)\%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(_PackageFiles)" DestinationFiles="@(_PackageFiles->'$(ModuleOutputPath)\%(PackagePath)\%(Filename)%(Extension)')" />
   </Target>
 </Project>
