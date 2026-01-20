@@ -27,11 +27,6 @@
     <PackageReference Include="Microsoft.Win32.Registry" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="PowerShellStandard.Library" />
-    <PackageReference Include="YamlDotNet" />
-  </ItemGroup>  
-  <ItemGroup>
-    <Reference Include="..\..\refs\SfSbzYamlMergeLib.dll" />
-    <Reference Include="..\..\refs\Microsoft.ServiceFabric.YamlUtils.dll" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resource.Designer.cs">

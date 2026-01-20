@@ -131,60 +131,6 @@ namespace Microsoft.ServiceFabric.Client
         IEventsStoreClient EventsStore { get; }
 
         /// <summary>
-        /// Gets ApplicationResource Client to perform management operations on application resources.
-        /// </summary>
-        /// <returns>The <see cref="IMeshApplicationsClient"/></returns>
-        IMeshApplicationsClient MeshApplications { get; }
-
-        /// <summary>
-        /// Gets VolumeResource Client to perform management operations on volume resources.
-        /// </summary>
-        /// <returns>The <see cref="IMeshVolumesClient"/></returns>
-        IMeshVolumesClient MeshVolumes { get; }
-
-        /// <summary>
-        /// Gets MeshSecrets Client to perform management operations on Secret resources.
-        /// </summary>
-        /// <returns>The <see cref="IMeshSecretsClient"/></returns>
-        IMeshSecretsClient MeshSecrets { get; }
-
-        /// <summary>
-        /// Gets MeshSecretValues Client to perform management operations for Secret Values.
-        /// </summary>
-        /// <returns>The <see cref="IMeshSecretsClient"/></returns>
-        IMeshSecretValuesClient MeshSecretValues { get; }
-
-        /// <summary>
-        /// Gets MeshGateways Client to perform management operations for Gateways.
-        /// </summary>
-        /// <returns>The <see cref="IMeshGatewaysClient"/></returns>
-        IMeshGatewaysClient MeshGateways { get; }
-
-        /// <summary>
-        /// Gets MeshNetworks Client to perform management operations for Networks.
-        /// </summary>
-        /// <returns>The <see cref="IMeshNetworksClient"/></returns>
-        IMeshNetworksClient MeshNetworks { get; }
-
-        /// <summary>
-        /// Gets MeshServices Client to perform management operations for Services.
-        /// </summary>
-        /// <returns>The <see cref="IMeshServicesClient"/></returns>
-        IMeshServicesClient MeshServices { get; }
-
-        /// <summary>
-        /// Gets MeshServiceReplicas Client to perform management operations for Service Replicas.
-        /// </summary>
-        /// <returns>The <see cref="IMeshServiceReplicasClient"/></returns>
-        IMeshServiceReplicasClient MeshServiceReplicas { get; }
-
-        /// <summary>
-        /// Gets MeshCodePackages to perform management operations for Service code packages.
-        /// </summary>
-        /// <returns>The <see cref="IMeshServiceReplicasClient"/></returns>
-        IMeshCodePackagesClient MeshCodePackages { get; }
-
-        /// <summary>
         /// Sends an HTTP get request to cluster http gateway.
         /// </summary>
         /// <param name="requestFunc">Func to create HttpRequest to send.</param>
