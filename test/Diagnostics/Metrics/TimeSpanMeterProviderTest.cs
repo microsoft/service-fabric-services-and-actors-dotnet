@@ -10,12 +10,13 @@ using System.Linq;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
-    public class TimeSpanMeterProviderTest : MockedMetricsTest
+    public class TimeSpanMeterProviderTest : FabricTelemetryDllFixture
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
