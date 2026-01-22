@@ -1,4 +1,5 @@
 <Project>
+  <!-- Set properties that require well-known properties not available in Directory.Build.props -->
 
   <!-- Common NuGet package settings -->
   <PropertyGroup Condition="'$(IsPackable)' == ''">
@@ -11,6 +12,11 @@
     <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Publish dependencies to the build output for signing -->
+    <PublishDir>$(OutputPath)</PublishDir>
   </PropertyGroup>
 
   <Target Name="UpdateTrxLogFileName" BeforeTargets="VSTest" Condition="'$(VSTestLogger)' == 'trx'" >

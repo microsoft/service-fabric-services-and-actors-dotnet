@@ -1,6 +1,11 @@
 <Project>
   <PropertyGroup>
-    <!-- Place all build outputs in the root of the repository instead of nested project directories -->
+    <!-- 
+      Place all build outputs in the root of the repository instead of nested project directories to
+      - speed up git clean operations,
+      - reduce the number of files to be signed by the official builds,
+      - detect transitive dependency conflicts as double-writes in the MSBuild structured .binlog.
+    -->
     <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
     <VSTestResultsDirectory>$(MSBuildThisFileDirectory)out\tests\</VSTestResultsDirectory>
