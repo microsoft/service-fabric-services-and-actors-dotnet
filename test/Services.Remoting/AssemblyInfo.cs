@@ -13,7 +13,6 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
 [assembly: CaptureConsole]
 
-// Mock calls to FabricTelemetry.dll to prevent failures relating to this
 [assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTelemetryDllFixture))]
 
 [assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]
