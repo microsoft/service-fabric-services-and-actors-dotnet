@@ -4,28 +4,24 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Threading.Tasks;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
-using Xunit;
 
 namespace Microsoft.ServiceFabric.TestFramework
 {
-    public class FabricTelemetryDllFixture : IAsyncLifetime
+    public class FabricTelemetryDllFixture : IDisposable
     {
-        public async ValueTask InitializeAsync()
+        public FabricTelemetryDllFixture()
         {
             typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object);
             typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object);
-            await Task.CompletedTask;
         }
 
-        public async ValueTask DisposeAsync()
+        public virtual void Dispose()
         {
             typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
             typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
-            await Task.CompletedTask;
         }
     }
 }
