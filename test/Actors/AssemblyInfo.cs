@@ -15,7 +15,7 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: CaptureConsole]
 
 // Mock calls to FabricTelemetry.dll to prevent failures relating to this
-[assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.TelemetryApiFixture))]
+[assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTelemetryDllFixture))]
 
 // Used to test mocks
 [assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]

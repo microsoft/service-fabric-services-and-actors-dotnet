@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.TestFramework
 {
-    public class TelemetryApiFixture : IAsyncLifetime
+    public class FabricTelemetryDllFixture : IAsyncLifetime
     {
         public async ValueTask InitializeAsync()
         {
