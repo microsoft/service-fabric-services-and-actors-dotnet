@@ -13,7 +13,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
     /// <summary>
     /// Validate and assess the impact of a code or configuration version update of a Service Fabric cluster.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Confirm, "SFClusterUpgrade")]
+    [Cmdlet(VerbsLifecycle.Confirm, "SFClusterUpgrade")] // Hand-coded to avoid compiler error in generated code
     public partial class ValidateClusterUpgradeCmdlet : CommonCmdletBase
     {
         /// <summary>

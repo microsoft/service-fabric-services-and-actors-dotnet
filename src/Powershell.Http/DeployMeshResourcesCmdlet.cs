@@ -30,7 +30,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             Secret,
             SecretValue,
             Network,
-            Gateway,
             Unknown,
         }
 
@@ -92,10 +91,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
 
                     case ResourceType.Network:
                         client.MeshNetworks.CreateOrUpdateAsync(resource.Name, resource.Description.ToString(), resource.ApiVersion, this.CancellationToken).GetAwaiter().GetResult();
-                        break;
-
-                    case ResourceType.Gateway:
-                        client.MeshGateways.CreateOrUpdateAsync(resource.Name, resource.Description.ToString(), resource.ApiVersion, this.CancellationToken).GetAwaiter().GetResult();
                         break;
 
                     default:

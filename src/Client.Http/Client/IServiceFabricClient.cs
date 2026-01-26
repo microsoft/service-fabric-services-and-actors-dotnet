@@ -155,12 +155,6 @@ namespace Microsoft.ServiceFabric.Client
         IMeshSecretValuesClient MeshSecretValues { get; }
 
         /// <summary>
-        /// Gets MeshGateways Client to perform management operations for Gateways.
-        /// </summary>
-        /// <returns>The <see cref="IMeshGatewaysClient"/></returns>
-        IMeshGatewaysClient MeshGateways { get; }
-
-        /// <summary>
         /// Gets MeshNetworks Client to perform management operations for Networks.
         /// </summary>
         /// <returns>The <see cref="IMeshNetworksClient"/></returns>

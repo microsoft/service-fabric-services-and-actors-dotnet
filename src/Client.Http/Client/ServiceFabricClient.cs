@@ -119,9 +119,6 @@ namespace Microsoft.ServiceFabric.Client
         public IMeshNetworksClient MeshNetworks { get; protected set; }
 
         /// <inheritdoc/>
-        public IMeshGatewaysClient MeshGateways { get; protected set; }
-
-        /// <inheritdoc/>
         public IMeshServicesClient MeshServices { get; protected set; }
 
         /// <inheritdoc/>

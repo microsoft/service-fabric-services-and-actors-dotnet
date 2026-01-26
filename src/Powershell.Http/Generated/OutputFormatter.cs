@@ -766,29 +766,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <summary>
         /// Overloaded ToString function for formatting the output on the console.
         /// </summary>
-        /// <param name="gatewayResourceDescription"> Object of type GatewayResourceDescription </param>
-        /// <returns>
-        /// Returns formatted string.
-        /// </returns>
-        public static string ToString(GatewayResourceDescription gatewayResourceDescription)
-        {
-            var strBuilder = new StringBuilder();
-
-            strBuilder.Append(string.Format(CultureInfo.CurrentCulture, "{0} : {1}", "Name", gatewayResourceDescription.Name));
-            strBuilder.Append(Environment.NewLine);
-            strBuilder.Append(string.Format(CultureInfo.CurrentCulture, "{0} : {1}", "Description", gatewayResourceDescription.Properties.Description));
-            strBuilder.Append(Environment.NewLine);
-            strBuilder.Append(string.Format(CultureInfo.CurrentCulture, "{0} : {1}", "Status", gatewayResourceDescription.Properties.Status));
-            strBuilder.Append(Environment.NewLine);
-            strBuilder.Append(string.Format(CultureInfo.CurrentCulture, "{0} : {1}", "StatusDetails", gatewayResourceDescription.Properties.StatusDetails));
-            strBuilder.Append(Environment.NewLine);
-
-            return strBuilder.ToString();
-        }
-
-        /// <summary>
-        /// Overloaded ToString function for formatting the output on the console.
-        /// </summary>
         /// <param name="serviceResourceDescription"> Object of type ServiceResourceDescription </param>
         /// <returns>
         /// Returns formatted string.
@@ -896,7 +873,6 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             { typeof(SecretResourceDescription), new Func<SecretResourceDescription, string>(ToString) },
             { typeof(VolumeResourceDescription), new Func<VolumeResourceDescription, string>(ToString) },
             { typeof(NetworkResourceDescription), new Func<NetworkResourceDescription, string>(ToString) },
-            { typeof(GatewayResourceDescription), new Func<GatewayResourceDescription, string>(ToString) },
             { typeof(ServiceResourceDescription), new Func<ServiceResourceDescription, string>(ToString) },
             { typeof(ServiceReplicaDescription), new Func<ServiceReplicaDescription, string>(ToString) },
             { typeof(ApplicationResourceDescription), new Func<ApplicationResourceDescription, string>(ToString) },

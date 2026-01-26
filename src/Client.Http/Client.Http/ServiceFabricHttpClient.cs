@@ -568,7 +568,6 @@ namespace Microsoft.ServiceFabric.Client.Http
             MeshSecrets = new MeshSecretsClient(this);
             MeshSecretValues = new MeshSecretValuesClient(this);
             MeshNetworks = new MeshNetworksClient(this);
-            MeshGateways = new MeshGatewaysClient(this);
             MeshServices = new MeshServicesClient(this);
             MeshServiceReplicas = new MeshServiceReplicasClient(this);
             MeshCodePackages = new MeshCodePackagesClient(this);
