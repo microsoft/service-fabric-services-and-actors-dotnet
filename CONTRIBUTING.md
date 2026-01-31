@@ -1,42 +1,69 @@
-## Contributing code and content
-We welcome all forms of contributions from the community. Please read the following guidelines to maximize the chances of your PR being merged.
+# Code
 
-### Reporting security issues and bugs
-Security issues and bugs should be reported privately, via email, to the Microsoft Security Response Center (MSRC)  secure@microsoft.com. You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Further information, including the MSRC PGP key, can be found in the [Security TechCenter](https://technet.microsoft.com/en-us/security/ff852094.aspx).
-
-### Other discussions
-For general "how-to" and guidance questions about using Service Fabric to build and run applications, please use [Stack Overflow](http://stackoverflow.com/questions/tagged/azure-service-fabric) tagged with `azure-service-fabric`.
-
-### Development process
-Please be sure to follow the usual process for submitting PRs:
-
- - Fork the repo
- - Create a pull request into correct branch (see branching information below).
- - Make sure your PR title is descriptive
- - Include a link back to an open issue in the PR description
-
-We reserve the right to close PRs that are not making progress. If no changes are made for 7 days, we'll close the PR. Closed PRs can be reopened again later and work can resume.
-
-#### Install pre-requisites
-
+## Clone
 ```
-init.cmd
+git clone https://github.com/microsoft/service-fabric-dotnet.git
+cd ./service-fabric-dotnet
 ```
 
-#### Build
+## Install pre-requisites
 
-You can build `code.sln` or individual projects with `dotnet`, Visual Studio or Visual Studio Code.
+### Windows
+```
+sudo ./init.cmd
+```
 
-Binaries in the build are delay signed, these are fully signed in the official builds released by Microsoft. To use the binaries or to run unit tests from the build of this repository, strong name validation needs to be skipped for these assemblies. This can be done by running the `SkipStrongName.ps1` script available in the root of the repository.
+### Ubuntu
+```
+chmod +x ./init.sh
+sudo ./init.sh
+```
 
-For branches, please see [Branching Information](CONTRIBUTING.md#BranchingInformation)
+## dotnet
 
-### <a name="BranchingInformation"></a>Branching Information
-All development for future releases happen in the develop branch.
-A new branch is forked off of develop branch for each release to stabilize it before final release. (eg. release_4.0 branch represents the 4.0.* release).
-A bug fix in an already released version is made both to its release branch and to develop branch so that its available in refresh of the release and for future new releases.
+You can run `dotnet` commands in the root of the repo for all projects in the `code.slnx`. You can also run `dotnet`
+in a directory containing a specific project you're interested in. For example, `cd test/Services.Remoting` if you want
+to build and test only the `Microsoft.ServiceFabric.Services.Remoting.Tests.csproj` and its dependencies.
 
-### Contributor License Agreement
-Before you submit a pull request, a bot will prompt you to sign the [Microsoft Contributor License Agreement](https://cla.microsoft.com/). This needs to be done only once for any Microsoft-sponsored open source project - if you've signed the Microsoft CLA for any project sponsored by Microsoft, then you are good to go for all the repos sponsored by Microsoft.
+## Build
+```
+dotnet build
+```
 
- > **Important**: Note that there are **two** different CLAs commonly used by Microsoft projects: [Microsoft CLA](https://cla.microsoft.com/) and [.NET Foundation CLA](https://cla2.dotnetfoundation.org/). Service Fabric open source projects use the [Microsoft](https://cla.microsoft.com/) CLA. The .NET Foundation is treated as a separate entity, so if you've signed the .NET Foundation CLA in the past, you will still need to sign the Microsoft CLA to contribute to Service Fabric open source projects.
+## Test
+```
+dotnet test -c Release -f net10.0
+```
+The Remoting tests have known failures in the `Debug` configuration, so we use the `--configuration` parameter to run
+`Release` tests for all projects. This parameter can be omitted to run `Debug` tests for a specific project.
+
+On Linux, we specify the `--framework` parameter explicitly to avoid `net472` tests failures.
+This parameter can be omitted on Windows.
+
+On Windows, strong name verification must be disabled to avoid `net472` test failures.
+Run `init.cmd` or `SkipStrongName.ps1` if you encounter them.
+
+## Pack
+```
+dotnet pack
+```
+NuGet packages and PowerShell modules are produced in the [out/packages](./out/packages) directory.
+
+# Pull Requests
+
+## Service Fabric Engineers
+- Find an existing or submit a new [work item](https://dev.azure.com/msazure/One/_backlogs/backlog/Service%20Fabric%20Programming%20Model/Backlog%20items)
+  to discuss your idea with us first.
+- Join the [service-fabric-write](https://repos.opensource.microsoft.com/orgs/microsoft/teams/service-fabric-write) team.
+- Create a branch called `user/{youraccount}/{youproposal}` in your local clone.
+
+## External Contributors
+- Find an existing or submit a new [issue](https://github.com/microsoft/service-fabric-dotnet/issues) to discuss your idea with us first.
+- Sign the [Microsoft Contributor License Agreement](https://cla.microsoft.com/).
+- [Fork](https://docs.github.com/articles/fork-a-repo) this repository and implement your proposal in the fork.
+
+## All Contributors
+- Create a [draft pull request](https://docs.github.com/articles/creating-a-pull-request) and make sure the validation
+  build completes successfully.
+- Link the pull request from the work item/issue you've created.
+- Publish the pull request and tag the person you were discussing it to review it.
