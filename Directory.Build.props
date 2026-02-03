@@ -1,5 +1,11 @@
 <Project>
   <PropertyGroup>
+    <!--
+      Use latest C# version available with the current .NET SDK.
+      https://learn.microsoft.com/dotnet/csharp/language-reference/configure-language-version
+    -->
+    <LangVersion>latestMajor</LangVersion>
+
     <!-- 
       Place all build outputs in the root of the repository instead of nested project directories to
       - speed up git clean operations,

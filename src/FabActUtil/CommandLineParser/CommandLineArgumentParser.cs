@@ -144,9 +144,9 @@ namespace FabActUtil.CommandLineParser
 
                         builder.Append(":{");
                         var first = true;
-                        foreach (var field in valueType.GetFields())
+                        foreach (FieldInfo @field in valueType.GetFields())
                         {
-                            if (field.IsStatic)
+                            if (@field.IsStatic)
                             {
                                 if (first)
                                 {
@@ -157,7 +157,7 @@ namespace FabActUtil.CommandLineParser
                                     builder.Append('|');
                                 }
 
-                                builder.Append(field.Name);
+                                builder.Append(@field.Name);
                             }
                         }
 
