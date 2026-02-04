@@ -1,4 +1,4 @@
-Service Fabric Reliable Services and Reliable Actors
+Service Fabric .NET Libraries
 
 Copyright (c) Microsoft Corporation
 
