@@ -1,0 +1,95 @@
+// ------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
+// ------------------------------------------------------------
+
+namespace Microsoft.ServiceFabric.Client.Http.Serialization
+{
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.ServiceFabric.Common;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
+    /// <summary>
+    /// Converter for <see cref="FailoverManagerManagerInformation" />.
+    /// </summary>
+    internal class FailoverManagerManagerInformationConverter
+    {
+        /// <summary>
+        /// Deserializes the JSON representation of the object.
+        /// </summary>
+        /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from.</param>
+        /// <returns>The object Value.</returns>
+        internal static FailoverManagerManagerInformation Deserialize(JsonReader reader)
+        {
+            return reader.Deserialize(GetFromJsonProperties);
+        }
+
+        /// <summary>
+        /// Gets the object from Json properties.
+        /// </summary>
+        /// <param name="reader">The <see cref="T: Newtonsoft.Json.JsonReader" /> to read from, reader must be placed at first property.</param>
+        /// <returns>The object Value.</returns>
+        internal static FailoverManagerManagerInformation GetFromJsonProperties(JsonReader reader)
+        {
+            var nodeName = default(NodeName);
+            var nodeId = default(NodeId);
+            var nodeInstanceId = default(long?);
+
+            do
+            {
+                var propName = reader.ReadPropertyName();
+                if (string.Compare("NodeName", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    nodeName = NodeNameConverter.Deserialize(reader);
+                }
+                else if (string.Compare("NodeId", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    nodeId = NodeIdConverter.Deserialize(reader);
+                }
+                else if (string.Compare("NodeInstanceId", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    nodeInstanceId = reader.ReadValueAsLong();
+                }
+                else
+                {
+                    reader.SkipPropertyValue();
+                }
+            }
+            while (reader.TokenType != JsonToken.EndObject);
+
+            return new FailoverManagerManagerInformation(
+                nodeName: nodeName,
+                nodeId: nodeId,
+                nodeInstanceId: nodeInstanceId);
+        }
+
+        /// <summary>
+        /// Serializes the object to JSON.
+        /// </summary>
+        /// <param name="writer">The <see cref="T: Newtonsoft.Json.JsonWriter" /> to write to.</param>
+        /// <param name="obj">The object to serialize to JSON.</param>
+        internal static void Serialize(JsonWriter writer, FailoverManagerManagerInformation obj)
+        {
+            // Required properties are always serialized, optional properties are serialized when not null.
+            writer.WriteStartObject();
+            if (obj.NodeName != null)
+            {
+                writer.WriteProperty(obj.NodeName, "NodeName", NodeNameConverter.Serialize);
+            }
+
+            if (obj.NodeId != null)
+            {
+                writer.WriteProperty(obj.NodeId, "NodeId", NodeIdConverter.Serialize);
+            }
+
+            if (obj.NodeInstanceId != null)
+            {
+                writer.WriteProperty(obj.NodeInstanceId, "NodeInstanceId", JsonWriterExtensions.WriteLongValue);
+            }
+
+            writer.WriteEndObject();
+        }
+    }
+}
