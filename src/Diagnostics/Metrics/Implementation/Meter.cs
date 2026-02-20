@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
@@ -37,30 +38,52 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             recordAction.Invoke(value, customDimensionCount, customDimension1, customDimension2, customDimension3);
         }
 
-        private void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
+        unsafe private void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
         {
             if (customDimensionCount < 0 || customDimensionCount > 3)
             {
                 throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
             }
 
-            var allDimensionArray = new string[systemDimensionValues.Length + customDimensionCount];
-            systemDimensionValues.CopyTo(allDimensionArray, 0);
+            int totalDimensionCount = systemDimensionValues.Length + customDimensionCount;
 
-            if (customDimensionCount > 0)
-            {
-                allDimensionArray[systemDimensionValues.Length] = customDimension1;
-            }
-            if (customDimensionCount > 1)
-            {
-                allDimensionArray[systemDimensionValues.Length + 1] = customDimension2;
-            }
-            if (customDimensionCount > 2)
-            {
-                allDimensionArray[systemDimensionValues.Length + 2] = customDimension3;
-            }
+            GCHandle* allDimensionPins = stackalloc GCHandle[totalDimensionCount];
+            IntPtr* allDimensionValuesPointers = stackalloc IntPtr[totalDimensionCount];
 
-            fabricMeter.Record(value, (uint)allDimensionArray.Length, allDimensionArray);
+            try
+            {
+                for (int i = 0; i < systemDimensionValues.Length; i++)
+                {
+                    allDimensionPins[i] = GCHandle.Alloc(systemDimensionValues[i], GCHandleType.Pinned);
+                    allDimensionValuesPointers[i] = allDimensionPins[i].AddrOfPinnedObject();
+                }
+
+                if (customDimensionCount > 0)
+                {
+                    allDimensionPins[systemDimensionValues.Length] = GCHandle.Alloc(customDimension1, GCHandleType.Pinned);
+                    allDimensionValuesPointers[systemDimensionValues.Length] = allDimensionPins[systemDimensionValues.Length].AddrOfPinnedObject();
+                }
+                if (customDimensionCount > 1)
+                {
+                    allDimensionPins[systemDimensionValues.Length + 1] = GCHandle.Alloc(customDimension2, GCHandleType.Pinned);
+                    allDimensionValuesPointers[systemDimensionValues.Length + 1] = allDimensionPins[systemDimensionValues.Length + 1].AddrOfPinnedObject();
+                }
+                if (customDimensionCount > 2)
+                {
+                    allDimensionPins[systemDimensionValues.Length + 2] = GCHandle.Alloc(customDimension3, GCHandleType.Pinned);
+                    allDimensionValuesPointers[systemDimensionValues.Length + 2] = allDimensionPins[systemDimensionValues.Length + 2].AddrOfPinnedObject();
+                }
+
+                fabricMeter.Record(value, (uint)totalDimensionCount, (IntPtr)allDimensionValuesPointers);
+            }
+            finally
+            {
+                for (int i = 0; i < totalDimensionCount; i++)
+                {
+                    if (allDimensionPins[i].IsAllocated)
+                        allDimensionPins[i].Free();
+                }
+            }
         }
     }
 }

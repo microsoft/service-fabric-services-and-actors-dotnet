@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Moq;
@@ -104,40 +105,70 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public void CallsNativeMeterRecordWithZeroCustomDimensionsAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.ToArray();
+                Mock.Get(fabricMeter)
+                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 0, customDimension1, customDimension2, customDimension3);
 
-                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
             }
 
             [Fact]
             public void CallsNativeMeterRecordWithOnCustomDimensionAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1 }).ToArray();
+                Mock.Get(fabricMeter)
+                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 1, customDimension1, customDimension2, customDimension3);
 
-                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
             }
 
             [Fact]
             public void CallsNativeMeterRecordWithTwoCustomDimensionsAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2 }).ToArray();
+                Mock.Get(fabricMeter)
+                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 2, customDimension1, customDimension2, customDimension3);
 
-                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
             }
 
             [Fact]
             public void CallsNativeMeterRecordWithThreeCustomDimensionsAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2, customDimension3 }).ToArray();
+                Mock.Get(fabricMeter)
+                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
 
-                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.Is<string[]>(arr => arr.SequenceEqual(expectedArray))), Times.Once);
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
+            }
+
+            unsafe private static bool StringPointersAreExpected(IntPtr stringPtr, uint ptrLength, string[] expectedStrings)
+            {
+                if (ptrLength != expectedStrings.Length)
+                {
+                    return false;
+                }
+
+                IntPtr* stringsPtr = (IntPtr*)stringPtr;
+                string[] convertedStrings = new string[ptrLength];
+
+                for (int i = 0; i < ptrLength; i++)
+                {
+                    convertedStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
+                }
+
+                return convertedStrings.SequenceEqual(expectedStrings);
             }
         }
 

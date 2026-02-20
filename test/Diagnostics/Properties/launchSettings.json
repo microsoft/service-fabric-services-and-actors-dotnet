@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Microsoft.ServiceFabric.Diagnostics.Tests": {
+      "commandName": "Project",
+      "nativeDebugging": true,
+      "hotReloadEnabled": false
+    }
+  }
+}
