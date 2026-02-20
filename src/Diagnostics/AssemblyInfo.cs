@@ -23,6 +23,7 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("NodeAgentSFUtilityTest" + TestKey)]
 [assembly: InternalsVisibleTo("TelemetryLibTest" + TestKey)]
 [assembly: InternalsVisibleTo("EventsValidationTest" + PublicKey)]
+[assembly: InternalsVisibleTo("FabricTelemetryApp" + PublicKey)]
 [assembly: InternalsVisibleTo("AzureFilesVolumePlugin" + PublicKey)]
 [assembly: InternalsVisibleTo("AzureFilesVolumePluginSetup" + PublicKey)]
 [assembly: InternalsVisibleTo("SFVolumeDiskDebugAgentCommon" + PublicKey)]
