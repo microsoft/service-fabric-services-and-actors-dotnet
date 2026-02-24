@@ -132,12 +132,12 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             this.diagnostics.ActorOnActivateAsyncFinish(startTime);
 
-            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Activated");
+            this.Manager.TraceSource.WriteNoiseWithId(TraceType, this.traceId, "Activated");
         }
 
         internal virtual async Task OnDeactivateInternalAsync()
         {
-            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Deactivating ...");
+            this.Manager.TraceSource.WriteNoiseWithId(TraceType, this.traceId, "Deactivating ...");
             if (this.timers != null)
             {
                 var toDispose = this.timers.ToArray();
@@ -150,7 +150,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             await this.OnDeactivateAsync();
-            this.Manager.TraceSource.WriteInfoWithId(TraceType, this.traceId, "Deactivated");
+            this.Manager.TraceSource.WriteNoiseWithId(TraceType, this.traceId, "Deactivated");
         }
 
         internal void OnInvokeFailedInternal()
