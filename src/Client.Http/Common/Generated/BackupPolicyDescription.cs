@@ -44,7 +44,7 @@ namespace Microsoft.ServiceFabric.Common
             RetentionPolicyDescription retentionPolicy = default(RetentionPolicyDescription),
             CompressionType? compressionType = default(CompressionType?),
             QuickRecovery? quickRecovery = default(QuickRecovery?),
-            Validation? validation = default(Validation?))
+            BackupValidation? validation = default(BackupValidation?))
         {
             name.ThrowIfNull(nameof(name));
             autoRestoreOnDataLoss.ThrowIfNull(nameof(autoRestoreOnDataLoss));
@@ -115,6 +115,6 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets specifies whether the backups taken need to be validated or not. Default is Disabled. Possible values include:
         /// 'Disabled', 'Enabled'
         /// </summary>
-        public Validation? Validation { get; }
+        public BackupValidation? Validation { get; }
     }
 }

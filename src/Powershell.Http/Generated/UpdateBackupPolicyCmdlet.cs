@@ -283,7 +283,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// Possible values include: 'Disabled', 'Enabled'
         /// </summary>
         [Parameter(Mandatory = false, Position = 27)]
-        public Validation? Validation { get; set; }
+        public BackupValidation? Validation { get; set; }
 
         /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the

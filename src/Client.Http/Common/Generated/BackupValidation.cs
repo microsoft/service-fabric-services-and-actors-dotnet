@@ -6,9 +6,9 @@
 namespace Microsoft.ServiceFabric.Common
 {
     /// <summary>
-    /// Defines values for Validation.
+    /// Defines values for BackupValidation.
     /// </summary>
-    public enum Validation
+    public enum BackupValidation
     {
         /// <summary>
         /// Backup validation is disabled. Backups taken will not be validated.
