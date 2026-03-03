@@ -88,6 +88,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 fabricMeter.Record(value, (uint)totalDimensionCount, (IntPtr)allDimensionValuesPointers);
             }
+            catch (Exception)
+            {
+                throw;
+            }
             finally
             {
                 for (int i = 0; i < totalDimensionCount; i++)
