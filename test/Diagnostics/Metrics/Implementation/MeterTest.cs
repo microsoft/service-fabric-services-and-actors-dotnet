@@ -102,6 +102,19 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
+            public void ThrowsExceptionIfCustomDimensionIsExpectedButNull()
+            {
+                Assert.Throws<ArgumentException>(() =>
+                    sutMethod.Invoke(value, 1, null, null, null));
+                Assert.Throws<ArgumentException>(() =>
+                    sutMethod.Invoke(value, 1, null, customDimension2, customDimension3));
+                Assert.Throws<ArgumentException>(() =>
+                    sutMethod.Invoke(value, 2, customDimension1, null, customDimension3));
+                Assert.Throws<ArgumentException>(() =>
+                    sutMethod.Invoke(value, 3, customDimension1, customDimension2, null));
+            }
+
+            [Fact]
             public void CallsNativeMeterRecordWithZeroCustomDimensionsAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.ToArray();

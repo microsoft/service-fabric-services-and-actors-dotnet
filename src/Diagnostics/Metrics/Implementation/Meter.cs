@@ -35,16 +35,28 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         protected void Record(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
         {
+            if (customDimensionCount < 0 || customDimensionCount > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
+            }
+            if (customDimension3 == null && customDimensionCount == 3)
+            {
+                throw new ArgumentException(nameof(customDimension3));
+            }
+            if (customDimension2 == null && customDimensionCount >= 2)
+            {
+                throw new ArgumentException(nameof(customDimension2));
+            }
+            if (customDimension1 == null && customDimensionCount >= 1)
+            {
+                throw new ArgumentException(nameof(customDimension1));
+            }
+
             recordAction.Invoke(value, customDimensionCount, customDimension1, customDimension2, customDimension3);
         }
 
         unsafe private void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
         {
-            if (customDimensionCount < 0 || customDimensionCount > 3)
-            {
-                throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
-            }
-
             int totalDimensionCount = systemDimensionValues.Length + customDimensionCount;
 
             GCHandle* allDimensionPins = stackalloc GCHandle[totalDimensionCount];
