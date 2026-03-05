@@ -101,17 +101,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                     sutMethod.Invoke(value, fuzzy.Int32().Minimum(4), customDimension1, customDimension2, customDimension3));
             }
 
-            [Fact]
-            public void ThrowsExceptionIfCustomDimensionIsExpectedButNull()
+            [Theory]
+            [InlineData(null, "DimensionValue", "DimensionValue")]
+            [InlineData("DimensionValue", null, "DimensionValue")]
+            [InlineData("DimensionValue", "DimensionValue", null)]
+            [InlineData("DimensionValue", null, null)]
+            [InlineData(null, "DimensionValue", null)]
+            [InlineData(null, null, "DimensionValue")]
+            [InlineData(null, null, null)]
+            public void ThrowsExceptionIfCustomDimensionIsExpectedButNull(string customDimension1, string customDimension2, string customDimension3)
             {
-                Assert.Throws<ArgumentException>(() =>
-                    sutMethod.Invoke(value, 1, null, null, null));
-                Assert.Throws<ArgumentException>(() =>
-                    sutMethod.Invoke(value, 1, null, customDimension2, customDimension3));
-                Assert.Throws<ArgumentException>(() =>
-                    sutMethod.Invoke(value, 2, customDimension1, null, customDimension3));
-                Assert.Throws<ArgumentException>(() =>
-                    sutMethod.Invoke(value, 3, customDimension1, customDimension2, null));
+                Assert.Throws<ArgumentException>(() => sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3));
             }
 
             [Fact]
