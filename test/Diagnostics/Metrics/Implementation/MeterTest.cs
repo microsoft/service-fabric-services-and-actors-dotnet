@@ -67,6 +67,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             readonly string customDimension1 = fuzzy.String();
             readonly string customDimension2 = fuzzy.String();
             readonly string customDimension3 = fuzzy.String();
+            private string[] recordedArray;
 
             readonly Method<Action<long, int, string, string, string>> sutMethod;
             readonly Action<long, int, string, string, string> mockRecordAction = Mock.Of<Action<long, int, string, string, string>>();
@@ -75,6 +76,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 sut = new MeterImplementation(fabricMeter, systemDimensions);
                 sutMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
+
+                // capture strings emitted to IFabricMeter.Record for assertion in tests
+                Mock.Get(fabricMeter)
+                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = CaputreStringPointers(stringPtrs, count));
             }
 
             [Fact]
@@ -118,70 +124,57 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public void CallsNativeMeterRecordWithZeroCustomDimensionsAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.ToArray();
-                Mock.Get(fabricMeter)
-                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 0, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
+                Assert.Equal(expectedArray, recordedArray);
             }
 
             [Fact]
             public void CallsNativeMeterRecordWithOnCustomDimensionAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1 }).ToArray();
-                Mock.Get(fabricMeter)
-                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 1, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
+                Assert.Equal(expectedArray, recordedArray);
             }
 
             [Fact]
             public void CallsNativeMeterRecordWithTwoCustomDimensionsAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2 }).ToArray();
-                Mock.Get(fabricMeter)
-                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 2, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
+                Assert.Equal(expectedArray, recordedArray);
             }
 
             [Fact]
             public void CallsNativeMeterRecordWithThreeCustomDimensionsAndAllSystemDimensions()
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2, customDimension3 }).ToArray();
-                Mock.Get(fabricMeter)
-                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => Assert.True(StringPointersAreExpected(stringPtrs, count, expectedArray)));
 
                 sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
+                Assert.Equal(expectedArray, recordedArray);
             }
 
-            unsafe private static bool StringPointersAreExpected(IntPtr stringPtr, uint ptrLength, string[] expectedStrings)
+            unsafe private static string[] CaputreStringPointers(IntPtr arrayPtr, uint arrayLength)
             {
-                if (ptrLength != expectedStrings.Length)
+                IntPtr* stringsPtr = (IntPtr*)arrayPtr;
+                string[] capuredStrings = new string[arrayLength];
+
+                for (int i = 0; i < arrayLength; i++)
                 {
-                    return false;
+                    capuredStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
                 }
 
-                IntPtr* stringsPtr = (IntPtr*)stringPtr;
-                string[] convertedStrings = new string[ptrLength];
-
-                for (int i = 0; i < ptrLength; i++)
-                {
-                    convertedStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
-                }
-
-                return convertedStrings.SequenceEqual(expectedStrings);
+                return capuredStrings;
             }
         }
 
