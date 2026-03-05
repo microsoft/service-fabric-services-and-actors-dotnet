@@ -16201,7 +16201,7 @@
                 <maml:name>Validation</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Specifies whether the backups taken need to be validated or not. Default is Disabled. Possible values include: 'Disabled', 'Enabled'
+                    Specifies whether the backups taken need to be validated or not. Possible values include: 'Disabled', 'Enabled'
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="false">BackupValidation?</command:parameterValue>
@@ -16915,7 +16915,7 @@
                 <maml:name>Validation</maml:name>
                 <maml:Description>
                     <maml:para>
-                    Specifies whether the backups taken need to be validated or not. Default is Disabled. Possible values include: 'Disabled', 'Enabled'
+                    Specifies whether the backups taken need to be validated or not. Possible values include: 'Disabled', 'Enabled'
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="false">BackupValidation?</command:parameterValue>

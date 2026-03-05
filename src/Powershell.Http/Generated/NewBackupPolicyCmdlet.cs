@@ -273,8 +273,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public QuickRecovery? QuickRecovery { get; set; }
 
         /// <summary>
-        /// Gets or sets Validation. Specifies whether the backups taken need to be validated or not. Default is Disabled.
-        /// Possible values include: 'Disabled', 'Enabled'
+        /// Gets or sets Validation. Specifies whether the backups taken need to be validated or not. Possible values include:
+        /// 'Disabled', 'Enabled'
         /// </summary>
         [Parameter(Mandatory = false, Position = 26)]
         public BackupValidation? Validation { get; set; }
