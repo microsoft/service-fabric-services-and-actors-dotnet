@@ -67,23 +67,22 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 for (int i = 0; i < systemDimensionValues.Length; i++)
                 {
                     allDimensionPins[i] = GCHandle.Alloc(systemDimensionValues[i], GCHandleType.Pinned);
-                    allDimensionValuesPointers[i] = allDimensionPins[i].AddrOfPinnedObject();
                 }
 
                 if (customDimensionCount > 0)
-                {
                     allDimensionPins[systemDimensionValues.Length] = GCHandle.Alloc(customDimension1, GCHandleType.Pinned);
-                    allDimensionValuesPointers[systemDimensionValues.Length] = allDimensionPins[systemDimensionValues.Length].AddrOfPinnedObject();
-                }
+
                 if (customDimensionCount > 1)
-                {
                     allDimensionPins[systemDimensionValues.Length + 1] = GCHandle.Alloc(customDimension2, GCHandleType.Pinned);
-                    allDimensionValuesPointers[systemDimensionValues.Length + 1] = allDimensionPins[systemDimensionValues.Length + 1].AddrOfPinnedObject();
-                }
+
                 if (customDimensionCount > 2)
-                {
                     allDimensionPins[systemDimensionValues.Length + 2] = GCHandle.Alloc(customDimension3, GCHandleType.Pinned);
-                    allDimensionValuesPointers[systemDimensionValues.Length + 2] = allDimensionPins[systemDimensionValues.Length + 2].AddrOfPinnedObject();
+
+
+                for (int i = 0; i < totalDimensionCount; i++)
+                {
+                    // for strings, AddrOfPinnedObject() returns a pointer to the first character - https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.gchandle.addrofpinnedobject
+                    allDimensionValuesPointers[i] = allDimensionPins[i].AddrOfPinnedObject();
                 }
 
                 fabricMeter.Record(value, (uint)totalDimensionCount, (IntPtr)allDimensionValuesPointers);
