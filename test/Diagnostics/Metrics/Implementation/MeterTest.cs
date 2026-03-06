@@ -6,9 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
+using Microsoft.ServiceFabric.Diagnostics.Tests.Metrics.Implementation;
 using Moq;
 using Xunit;
 
@@ -16,10 +16,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     public abstract class MeterTest
     {
+        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
         readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
-
-        static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         public class Constructor : MeterTest
         {
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var expectedSystemDimensions = new List<string>();
                 Meter meter = new MeterImplementation(fabricMeter, expectedSystemDimensions);
-                var expectedRecordAction = meter.Private().Method<Action<long, int, string, string, string>>();
+                var expectedRecordAction = meter.Protected().Method<Action<long, int, string, string, string>>();
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
                 Assert.Equal(expectedSystemDimensions, meter.Field<string[]>().Value);
@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public void SetsAllFields()
             {
                 Meter meter = new MeterImplementation(fabricMeter, systemDimensions);
-                var expectedRecordAction = meter.Private().Method<Action<long, int, string, string, string>>();
+                var expectedRecordAction = meter.Protected().Method<Action<long, int, string, string, string>>();
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
                 Assert.Equal(systemDimensions, meter.Field<string[]>().Value);
@@ -77,13 +77,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public Record()
             {
                 sut = new MeterImplementation(fabricMeter, systemDimensions);
-                oldSutMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
+                oldSutMethod = sut.Public().Method<Action<long, int, string, string, string>>();
                 sutMethod = sut.Protected().Method<Action<long>>();
 
-                // capture strings emitted to IFabricMeter.RecordOld for assertion in tests
+                // capture strings emitted to IFabricMeter.Record for assertion in tests
                 Mock.Get(fabricMeter)
                     .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = CaputreStringPointers(stringPtrs, count));
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaputreStringPointers(stringPtrs, count));
             }
 
             [Fact]
@@ -94,20 +94,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 oldSutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(mockRecordAction).Verify(a => a.Invoke(value, 3, customDimension1, customDimension2, customDimension3), Times.Once);
-            }
-
-            [Fact]
-            public void OLDThrowsExceptionIfNumberOfCustomDimenionsNegative()
-            {
-                Assert.Throws<ArgumentOutOfRangeException>(() =>
-                    oldSutMethod.Invoke(value, fuzzy.Int32().Maximum(-1), customDimension1, customDimension2, customDimension3));
-            }
-
-            [Fact]
-            public void OLDThrowsExceptionIfNumberOfCustomDimenionsHigherThanSupported()
-            {
-                Assert.Throws<ArgumentOutOfRangeException>(() =>
-                    oldSutMethod.Invoke(value, fuzzy.Int32().Minimum(4), customDimension1, customDimension2, customDimension3));
             }
 
             [Theory]
@@ -136,26 +122,28 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 Assert.Equal(expectedArray, recordedArray);
             }
 
-            unsafe private static string[] CaputreStringPointers(IntPtr arrayPtr, uint arrayLength)
-            {
-                IntPtr* stringsPtr = (IntPtr*)arrayPtr;
-                string[] capuredStrings = new string[arrayLength];
-
-                for (int i = 0; i < arrayLength; i++)
-                {
-                    capuredStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
-                }
-
-                return capuredStrings;
-            }
-
             public class RecordViaNative : Record
             {
                 readonly Method<Action<long, int, string, string, string>> sutNativeMethod;
 
                 public RecordViaNative()
                 {
-                    sutNativeMethod = sut.Private().Method<Action<long, int, string, string, string>>();
+                    sutNativeMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
+                }
+
+
+                [Fact]
+                public void ThrowsExceptionIfNumberOfCustomDimensionsNegative()
+                {
+                    Assert.Throws<ArgumentOutOfRangeException>(() =>
+                        sutNativeMethod.Invoke(value, fuzzy.Int32().Maximum(-1), customDimension1, customDimension2, customDimension3));
+                }
+
+                [Fact]
+                public void ThrowsExceptionIfNumberOfCustomDimensionsHigherThanSupported()
+                {
+                    Assert.Throws<ArgumentOutOfRangeException>(() =>
+                        sutNativeMethod.Invoke(value, fuzzy.Int32().Minimum(4), customDimension1, customDimension2, customDimension3));
                 }
 
                 [Fact]
@@ -206,7 +194,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
         }
 
-        class MeterImplementation : Meter
+        private class MeterImplementation : Meter
         {
             public MeterImplementation(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
         }

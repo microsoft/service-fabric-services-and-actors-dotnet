@@ -19,10 +19,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         internal Meter(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues)
         {
-            if (systemDimensionValues == null)
-            {
-                throw new ArgumentNullException(nameof(systemDimensionValues));
-            }
+            _ = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
             this.systemDimensionValues = systemDimensionValues.ToArray();
             this.recordAction = RecordViaNative;
@@ -33,7 +30,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             return (long)Math.Round(value.TotalMilliseconds);
         }
 
-        protected void RecordOld(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
+        public void RecordOld(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
         {
             if (customDimensionCount < 0 || customDimensionCount > 3)
             {
@@ -60,8 +57,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             recordAction.Invoke(value, 0, null, null, null);
         }
 
-        unsafe private void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
+        unsafe protected void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
         {
+            if (customDimensionCount < 0 || customDimensionCount > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
+            }
+
             int totalDimensionCount = systemDimensionValues.Length + customDimensionCount;
 
             GCHandle* allDimensionPins = stackalloc GCHandle[totalDimensionCount];
