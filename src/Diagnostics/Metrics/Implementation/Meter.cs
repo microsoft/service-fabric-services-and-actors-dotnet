@@ -12,8 +12,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class Meter
     {
-        private readonly Action<long, int, string, string, string> recordAction;
-
         protected readonly string[] systemDimensionValues;
         protected readonly IFabricMeter fabricMeter;
 
@@ -22,13 +20,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             _ = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
             this.systemDimensionValues = systemDimensionValues.ToArray();
-            this.recordAction = RecordViaNative;
         }
 
         protected void Record(long value)
         {
-            recordAction.Invoke(value, 0, null, null, null);
+            RecordViaNative(value, 0, null, null, null);
         }
+
         protected long ConvertTimeSpanToLong(TimeSpan value)
         {
             return (long)Math.Round(value.TotalMilliseconds);
