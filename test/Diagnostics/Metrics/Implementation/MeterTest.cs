@@ -63,42 +63,51 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         {
             readonly Meter sut;
 
+            protected string[] recordedArray;
+
             readonly long value = fuzzy.Int64();
             readonly string customDimension1 = fuzzy.String();
             readonly string customDimension2 = fuzzy.String();
             readonly string customDimension3 = fuzzy.String();
 
-            readonly Method<Action<long, int, string, string, string>> sutMethod;
+            readonly Method<Action<long, int, string, string, string>> oldSutMethod;
+            readonly Method<Action<long>> sutMethod;
             readonly Action<long, int, string, string, string> mockRecordAction = Mock.Of<Action<long, int, string, string, string>>();
 
             public Record()
             {
                 sut = new MeterImplementation(fabricMeter, systemDimensions);
-                sutMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
+                oldSutMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
+                sutMethod = sut.Protected().Method<Action<long>>();
+
+                // capture strings emitted to IFabricMeter.RecordOld for assertion in tests
+                Mock.Get(fabricMeter)
+                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = CaputreStringPointers(stringPtrs, count));
             }
 
             [Fact]
-            public void CallsRecordAction()
+            public void OLDCallsRecordAction()
             {
                 sut.Private().Field<Action<long, int, string, string, string>>().Set(mockRecordAction);
 
-                sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
+                oldSutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(mockRecordAction).Verify(a => a.Invoke(value, 3, customDimension1, customDimension2, customDimension3), Times.Once);
             }
 
             [Fact]
-            public void ThrowsExceptionIfNumberOfCustomDimenionsNegative()
+            public void OLDThrowsExceptionIfNumberOfCustomDimenionsNegative()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() =>
-                    sutMethod.Invoke(value, fuzzy.Int32().Maximum(-1), customDimension1, customDimension2, customDimension3));
+                    oldSutMethod.Invoke(value, fuzzy.Int32().Maximum(-1), customDimension1, customDimension2, customDimension3));
             }
 
             [Fact]
-            public void ThrowsExceptionIfNumberOfCustomDimenionsHigherThanSupported()
+            public void OLDThrowsExceptionIfNumberOfCustomDimenionsHigherThanSupported()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() =>
-                    sutMethod.Invoke(value, fuzzy.Int32().Minimum(4), customDimension1, customDimension2, customDimension3));
+                    oldSutMethod.Invoke(value, fuzzy.Int32().Minimum(4), customDimension1, customDimension2, customDimension3));
             }
 
             [Theory]
@@ -109,25 +118,44 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [InlineData(null, "DimensionValue", null)]
             [InlineData(null, null, "DimensionValue")]
             [InlineData(null, null, null)]
-            public void ThrowsExceptionIfCustomDimensionIsExpectedButNull(string customDimension1, string customDimension2, string customDimension3)
+            public void OLDThrowsExceptionIfCustomDimensionIsExpectedButNull(string customDimension1, string customDimension2, string customDimension3)
             {
-                Assert.Throws<ArgumentException>(() => sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3));
+                Assert.Throws<ArgumentException>(() => oldSutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3));
+            }
+
+            // NEW TESTS
+
+            [Fact]
+            public void CallsRecordAction()
+            {
+                var expectedArray = systemDimensions.ToArray();
+
+                sutMethod.Invoke(value);
+
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
+                Assert.Equal(expectedArray, recordedArray);
+            }
+
+            unsafe private static string[] CaputreStringPointers(IntPtr arrayPtr, uint arrayLength)
+            {
+                IntPtr* stringsPtr = (IntPtr*)arrayPtr;
+                string[] capuredStrings = new string[arrayLength];
+
+                for (int i = 0; i < arrayLength; i++)
+                {
+                    capuredStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
+                }
+
+                return capuredStrings;
             }
 
             public class RecordViaNative : Record
             {
-                private string[] recordedArray;
-
                 readonly Method<Action<long, int, string, string, string>> sutNativeMethod;
 
                 public RecordViaNative()
                 {
                     sutNativeMethod = sut.Private().Method<Action<long, int, string, string, string>>();
-
-                    // capture strings emitted to IFabricMeter.Record for assertion in tests
-                    Mock.Get(fabricMeter)
-                        .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                        .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = CaputreStringPointers(stringPtrs, count));
                 }
 
                 [Fact]
@@ -174,18 +202,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                     Assert.Equal(expectedArray, recordedArray);
                 }
 
-                unsafe private static string[] CaputreStringPointers(IntPtr arrayPtr, uint arrayLength)
-                {
-                    IntPtr* stringsPtr = (IntPtr*)arrayPtr;
-                    string[] capuredStrings = new string[arrayLength];
 
-                    for (int i = 0; i < arrayLength; i++)
-                    {
-                        capuredStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
-                    }
-
-                    return capuredStrings;
-                }
             }
         }
 

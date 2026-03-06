@@ -33,7 +33,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             return (long)Math.Round(value.TotalMilliseconds);
         }
 
-        protected void Record(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
+        protected void RecordOld(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
         {
             if (customDimensionCount < 0 || customDimensionCount > 3)
             {
@@ -53,6 +53,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             recordAction.Invoke(value, customDimensionCount, customDimension1, customDimension2, customDimension3);
+        }
+
+        protected void Record(long value)
+        {
+            recordAction.Invoke(value, 0, null, null, null);
         }
 
         unsafe private void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
