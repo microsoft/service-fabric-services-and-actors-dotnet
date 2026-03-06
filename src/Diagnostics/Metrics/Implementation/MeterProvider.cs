@@ -26,7 +26,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 this.systemDimensionNames = new[]
                 {
-                    nameof(ServiceContext.ReplicaOrInstanceId),
                     nameof(ServiceContext.PartitionId),
                     nameof(ServiceContext.ServiceTypeName),
                     nameof(ServiceContext.ServiceName),
@@ -36,7 +35,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 this.systemDimensionValues = new[]
                 {
-                    serviceContext.ReplicaOrInstanceId.ToString(),
                     serviceContext.PartitionId.ToString(),
                     serviceContext.ServiceTypeName,
                     serviceContext.ServiceName.ToString(),

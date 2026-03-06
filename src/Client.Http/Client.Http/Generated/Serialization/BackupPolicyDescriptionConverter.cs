@@ -41,6 +41,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var retentionPolicy = default(RetentionPolicyDescription);
             var compressionType = default(CompressionType?);
             var quickRecovery = default(QuickRecovery?);
+            var validation = default(BackupValidation?);
 
             do
             {
@@ -77,6 +78,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     quickRecovery = QuickRecoveryConverter.Deserialize(reader);
                 }
+                else if (string.Compare("Validation", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    validation = BackupValidationConverter.Deserialize(reader);
+                }
                 else
                 {
                     reader.SkipPropertyValue();
@@ -92,7 +97,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 storage: storage,
                 retentionPolicy: retentionPolicy,
                 compressionType: compressionType,
-                quickRecovery: quickRecovery);
+                quickRecovery: quickRecovery,
+                validation: validation);
         }
 
         /// <summary>
@@ -111,6 +117,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             writer.WriteProperty(obj.Storage, "Storage", BackupStorageDescriptionConverter.Serialize);
             writer.WriteProperty(obj.CompressionType, "CompressionType", CompressionTypeConverter.Serialize);
             writer.WriteProperty(obj.QuickRecovery, "QuickRecovery", QuickRecoveryConverter.Serialize);
+            writer.WriteProperty(obj.Validation, "Validation", BackupValidationConverter.Serialize);
             if (obj.RetentionPolicy != null)
             {
                 writer.WriteProperty(obj.RetentionPolicy, "RetentionPolicy", RetentionPolicyDescriptionConverter.Serialize);

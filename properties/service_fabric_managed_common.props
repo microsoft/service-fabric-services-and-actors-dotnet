@@ -41,11 +41,6 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <!-- Use C# 11.0 features -->
-  <PropertyGroup>
-    <LangVersion>11.0</LangVersion>
-  </PropertyGroup>
-
   <!-- Set Version numbers. These are used for generating Assemblies. -->
   <PropertyGroup>
     <AssemblyVersion>$(MajorVersion).0.0.0</AssemblyVersion>
