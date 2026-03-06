@@ -16198,6 +16198,18 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="23">
+                <maml:name>Validation</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies whether the backups taken need to be validated or not. Possible values include: 'Disabled', 'Enabled'
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">BackupValidation?</command:parameterValue>
+                <dev:type>
+                    <maml:name>BackupValidation?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="24">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -16209,7 +16221,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="24">
+            <command:parameter required="false" position="25">
                 <maml:name>ValidateConnection</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -16900,6 +16912,18 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="24">
+                <maml:name>Validation</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies whether the backups taken need to be validated or not. Possible values include: 'Disabled', 'Enabled'
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">BackupValidation?</command:parameterValue>
+                <dev:type>
+                    <maml:name>BackupValidation?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="25">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -16911,7 +16935,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="25">
+            <command:parameter required="false" position="26">
                 <maml:name>ValidateConnection</maml:name>
                 <maml:Description>
                     <maml:para>

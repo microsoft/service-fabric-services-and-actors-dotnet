@@ -279,18 +279,25 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public QuickRecovery? QuickRecovery { get; set; }
 
         /// <summary>
+        /// Gets or sets Validation. Specifies whether the backups taken need to be validated or not. Possible values include:
+        /// 'Disabled', 'Enabled'
+        /// </summary>
+        [Parameter(Mandatory = false, Position = 27)]
+        public BackupValidation? Validation { get; set; }
+
+        /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 27)]
+        [Parameter(Mandatory = false, Position = 28)]
         public long? ServerTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets ValidateConnection. Specifies whether to validate the storage connection and credentials before
         /// creating or updating the backup policies.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 28)]
+        [Parameter(Mandatory = false, Position = 29)]
         public bool? ValidateConnection { get; set; }
 
         /// <inheritdoc/>
@@ -361,7 +368,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             storage: backupStorageDescription,
             retentionPolicy: retentionPolicyDescription,
             compressionType: this.CompressionType,
-            quickRecovery: this.QuickRecovery);
+            quickRecovery: this.QuickRecovery,
+            validation: this.Validation);
 
             this.ServiceFabricClient.BackupRestore.UpdateBackupPolicyAsync(
                 backupPolicyDescription: backupPolicyDescription,
