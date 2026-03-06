@@ -12,14 +12,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class Meter
     {
-        protected readonly string[] systemDimensionValues;
         protected readonly IFabricMeter fabricMeter;
+
+        protected readonly IEnumerable<string> systemDimensionValues;
+        protected readonly int systemDimensionCount;
 
         internal Meter(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues)
         {
             _ = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
-            this.systemDimensionValues = systemDimensionValues.ToArray();
+            this.systemDimensionValues = systemDimensionValues;
+            this.systemDimensionCount = systemDimensionValues.Count();
         }
 
         protected void Record(long value)
@@ -39,29 +42,30 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
             }
 
-            int totalDimensionCount = systemDimensionValues.Length + customDimensionCount;
+            int totalDimensionCount = systemDimensionCount + customDimensionCount;
 
             GCHandle* allDimensionPins = stackalloc GCHandle[totalDimensionCount];
             IntPtr* allDimensionValuesPointers = stackalloc IntPtr[totalDimensionCount];
 
             try
             {
-                for (int i = 0; i < systemDimensionValues.Length; i++)
+                int i = 0;
+                foreach (string systemDimensionValue in systemDimensionValues)
                 {
-                    allDimensionPins[i] = GCHandle.Alloc(systemDimensionValues[i], GCHandleType.Pinned);
+                    allDimensionPins[i++] = GCHandle.Alloc(systemDimensionValue, GCHandleType.Pinned);
                 }
 
                 if (customDimensionCount > 0)
-                    allDimensionPins[systemDimensionValues.Length] = GCHandle.Alloc(customDimension1, GCHandleType.Pinned);
+                    allDimensionPins[i++] = GCHandle.Alloc(customDimension1, GCHandleType.Pinned);
 
                 if (customDimensionCount > 1)
-                    allDimensionPins[systemDimensionValues.Length + 1] = GCHandle.Alloc(customDimension2, GCHandleType.Pinned);
+                    allDimensionPins[i++] = GCHandle.Alloc(customDimension2, GCHandleType.Pinned);
 
                 if (customDimensionCount > 2)
-                    allDimensionPins[systemDimensionValues.Length + 2] = GCHandle.Alloc(customDimension3, GCHandleType.Pinned);
+                    allDimensionPins[i++] = GCHandle.Alloc(customDimension3, GCHandleType.Pinned);
 
 
-                for (int i = 0; i < totalDimensionCount; i++)
+                for (i = 0; i < totalDimensionCount; i++)
                 {
                     // for strings, AddrOfPinnedObject() returns a pointer to the first character - https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.gchandle.addrofpinnedobject
                     allDimensionValuesPointers[i] = allDimensionPins[i].AddrOfPinnedObject();
