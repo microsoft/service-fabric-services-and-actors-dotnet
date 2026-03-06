@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Fuzzy;
 using Inspector;
+using Microsoft.ServiceFabric.Diagnostics.Tests.Metrics.Implementation;
 using Moq;
 using Xunit;
 
@@ -40,16 +41,25 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         {
             readonly long value = fuzzy.Int64();
 
-            readonly Action<long, int, string, string, string> mockRecordAction = Mock.Of<Action<long, int, string, string, string>>();
+            protected string[] recordedArray;
 
-            public Record() => sut.Private().Field<Action<long, int, string, string, string>>().Set(mockRecordAction);
+            public Record()
+            {
+                // capture strings emitted to IFabricMeter.Record for assertion in tests
+                Mock.Get(fabricMeter)
+                    .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaputreStringPointers(stringPtrs, count));
+            }
 
             [Fact]
             public void InvokesBaseRecord()
             {
+                var expectedArray = systemDimensions.ToArray();
+
                 sut.Record(value);
 
-                Mock.Get(mockRecordAction).Verify(m => m.Invoke(value, 0, null, null, null), Times.Once);
+                Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
+                Assert.Equal(expectedArray, recordedArray);
             }
         }
     }
