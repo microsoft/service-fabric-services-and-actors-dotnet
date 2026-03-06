@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         public void Record(TimeSpan value)
         {
-            base.Record(ConvertTimeSpanToLong(value));
+            Record(ConvertTimeSpanToLong(value));
         }
     }
 }

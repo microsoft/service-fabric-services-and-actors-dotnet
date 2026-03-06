@@ -8,13 +8,13 @@ using System.Collections.Generic;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    sealed class TimeSpanMeter3D : Meter, IMeter3D<TimeSpan>
+    sealed class TimeSpanMeter3D : Meter3D, IMeter3D<TimeSpan>
     {
         internal TimeSpanMeter3D(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
         public void Record(TimeSpan value, string dimension1, string dimension2, string dimension3)
         {
-            base.RecordOld(ConvertTimeSpanToLong(value), 3, dimension1, dimension2, dimension3);
+            Record(ConvertTimeSpanToLong(value), dimension1, dimension2, dimension3);
         }
     }
 }

@@ -7,13 +7,13 @@ using System.Collections.Generic;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    sealed class Int64Meter1D : Meter, IMeter1D<long>
+    sealed class Int64Meter1D : Meter1D, IMeter1D<long>
     {
         internal Int64Meter1D(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
-        public void Record(long value, string dimension1)
+        public new void Record(long value, string dimension1)
         {
-            base.RecordOld(value, 1, dimension1);
+            base.Record(value, dimension1);
         }
     }
 }

@@ -25,36 +25,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             this.recordAction = RecordViaNative;
         }
 
-        protected long ConvertTimeSpanToLong(TimeSpan value)
-        {
-            return (long)Math.Round(value.TotalMilliseconds);
-        }
-
-        public void RecordOld(long value, int customDimensionCount = 0, string customDimension1 = null, string customDimension2 = null, string customDimension3 = null)
-        {
-            if (customDimensionCount < 0 || customDimensionCount > 3)
-            {
-                throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
-            }
-            if (customDimension3 == null && customDimensionCount == 3)
-            {
-                throw new ArgumentException(nameof(customDimension3));
-            }
-            if (customDimension2 == null && customDimensionCount >= 2)
-            {
-                throw new ArgumentException(nameof(customDimension2));
-            }
-            if (customDimension1 == null && customDimensionCount >= 1)
-            {
-                throw new ArgumentException(nameof(customDimension1));
-            }
-
-            recordAction.Invoke(value, customDimensionCount, customDimension1, customDimension2, customDimension3);
-        }
-
         protected void Record(long value)
         {
             recordAction.Invoke(value, 0, null, null, null);
+        }
+        protected long ConvertTimeSpanToLong(TimeSpan value)
+        {
+            return (long)Math.Round(value.TotalMilliseconds);
         }
 
         unsafe protected void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
