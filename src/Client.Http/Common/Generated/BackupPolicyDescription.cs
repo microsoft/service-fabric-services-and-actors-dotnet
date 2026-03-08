@@ -33,6 +33,8 @@ namespace Microsoft.ServiceFabric.Common
         /// Possible values include: 'CLUSTER_DEFINED', 'ZIP', 'ZSTANDARD'</param>
         /// <param name="quickRecovery">Specifies the quick recovery strategy for this backup policy. Default is Disabled.
         /// Possible values include: 'Disabled', 'FromPrimary'</param>
+        /// <param name="validation">Specifies whether the backups taken need to be validated or not. Possible values include:
+        /// 'Disabled', 'Enabled'</param>
         public BackupPolicyDescription(
             string name,
             bool? autoRestoreOnDataLoss,
@@ -41,7 +43,8 @@ namespace Microsoft.ServiceFabric.Common
             BackupStorageDescription storage,
             RetentionPolicyDescription retentionPolicy = default(RetentionPolicyDescription),
             CompressionType? compressionType = default(CompressionType?),
-            QuickRecovery? quickRecovery = default(QuickRecovery?))
+            QuickRecovery? quickRecovery = default(QuickRecovery?),
+            BackupValidation? validation = default(BackupValidation?))
         {
             name.ThrowIfNull(nameof(name));
             autoRestoreOnDataLoss.ThrowIfNull(nameof(autoRestoreOnDataLoss));
@@ -57,6 +60,7 @@ namespace Microsoft.ServiceFabric.Common
             this.RetentionPolicy = retentionPolicy;
             this.CompressionType = compressionType;
             this.QuickRecovery = quickRecovery;
+            this.Validation = validation;
         }
 
         /// <summary>
@@ -106,5 +110,11 @@ namespace Microsoft.ServiceFabric.Common
         /// 'Disabled', 'FromPrimary'
         /// </summary>
         public QuickRecovery? QuickRecovery { get; }
+
+        /// <summary>
+        /// Gets specifies whether the backups taken need to be validated or not. Possible values include: 'Disabled',
+        /// 'Enabled'
+        /// </summary>
+        public BackupValidation? Validation { get; }
     }
 }

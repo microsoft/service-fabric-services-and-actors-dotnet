@@ -2143,6 +2143,36 @@
     </command:command>
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
             <command:details>
+                <command:name>Get-SFFailoverManagerManagerInformation</command:name>
+                <command:verb>Get</command:verb>
+                <command:noun>FailoverManagerManagerInformation</command:noun>
+                <maml:description>
+                    <maml:para>Get the information about the Failover Manager Manager (FMM).</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
+            <maml:description>
+                <maml:para>Get the information about the Failover Manager Manager (FMM).
+                </maml:para>
+            </maml:description>
+            <command:parameters>
+            <command:parameter required="false" position="0">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
+    </command:command>
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+            <command:details>
                 <command:name>Get-SFClusterLoad</command:name>
                 <command:verb>Get</command:verb>
                 <command:noun>ClusterLoad</command:noun>
@@ -16198,6 +16228,18 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="23">
+                <maml:name>Validation</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies whether the backups taken need to be validated or not. Possible values include: 'Disabled', 'Enabled'
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">BackupValidation?</command:parameterValue>
+                <dev:type>
+                    <maml:name>BackupValidation?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="24">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -16209,7 +16251,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="24">
+            <command:parameter required="false" position="25">
                 <maml:name>ValidateConnection</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -16900,6 +16942,18 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="24">
+                <maml:name>Validation</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies whether the backups taken need to be validated or not. Possible values include: 'Disabled', 'Enabled'
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">BackupValidation?</command:parameterValue>
+                <dev:type>
+                    <maml:name>BackupValidation?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="25">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -16911,7 +16965,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="25">
+            <command:parameter required="false" position="26">
                 <maml:name>ValidateConnection</maml:name>
                 <maml:Description>
                     <maml:para>
