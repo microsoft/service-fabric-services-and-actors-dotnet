@@ -773,6 +773,33 @@ namespace Microsoft.ServiceFabric.Client.Http
         }
 
         /// <inheritdoc />
+        public Task<FailoverManagerManagerInformation> GetFailoverManagerManagerInformationAsync(
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            serverTimeout?.ThrowIfOutOfInclusiveRange("serverTimeout", 1, 4294967295);
+            var requestId = Guid.NewGuid().ToString();
+            var url = "$/GetFailoverManagerManagerInformation";
+            var queryParams = new List<string>();
+            
+            // Append to queryParams if not null.
+            serverTimeout?.AddToQueryParameters(queryParams, $"timeout={serverTimeout}");
+            queryParams.Add("api-version=11.4");
+            url += "?" + string.Join("&", queryParams);
+            
+            HttpRequestMessage RequestFunc()
+            {
+                var request = new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Get,
+                };
+                return request;
+            }
+
+            return this.httpClient.SendAsyncGetResponse(RequestFunc, url, FailoverManagerManagerInformationConverter.Deserialize, requestId, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public Task<ClusterLoadInfo> GetClusterLoadAsync(
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken))
