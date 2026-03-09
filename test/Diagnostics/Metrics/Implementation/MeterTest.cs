@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         public class Constructor : MeterTest
         {
             [Fact]
-            public void ThrowsArgumentNullExceptionWhenMeterNameIsNull()
+            public void ThrowsArgumentNullExceptionWhenFabricMeterIsNull()
             {
                 var exception = Xunit.Record.Exception(() => new Mock<Meter>(null, systemDimensions).Object);
                 Assert.IsType<ArgumentNullException>(exception.InnerException);
