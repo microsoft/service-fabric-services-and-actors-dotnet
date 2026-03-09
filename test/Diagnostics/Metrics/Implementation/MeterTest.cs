@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tests.Metrics.Implementation;
@@ -96,11 +95,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             readonly string customDimension2 = fuzzy.String();
             readonly string customDimension3 = fuzzy.String();
 
-            readonly Method<Action<long, int, string, string, string>> sutNativeMethod;
+            readonly Method<Action<long, int, string, string, string>> sutMethod;
 
             public RecordViaNative()
             {
-                sutNativeMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
+                sutMethod = sut.Protected().Method<Action<long, int, string, string, string>>();
             }
 
 
@@ -108,14 +107,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public void ThrowsExceptionIfNumberOfCustomDimensionsNegative()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() =>
-                    sutNativeMethod.Invoke(value, fuzzy.Int32().Maximum(-1), customDimension1, customDimension2, customDimension3));
+                    sutMethod.Invoke(value, fuzzy.Int32().Maximum(-1), customDimension1, customDimension2, customDimension3));
             }
 
             [Fact]
             public void ThrowsExceptionIfNumberOfCustomDimensionsHigherThanSupported()
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() =>
-                    sutNativeMethod.Invoke(value, fuzzy.Int32().Minimum(4), customDimension1, customDimension2, customDimension3));
+                    sutMethod.Invoke(value, fuzzy.Int32().Minimum(4), customDimension1, customDimension2, customDimension3));
             }
 
             [Fact]
@@ -123,7 +122,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var expectedArray = systemDimensions.ToArray();
 
-                sutNativeMethod.Invoke(value, 0, customDimension1, customDimension2, customDimension3);
+                sutMethod.Invoke(value, 0, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
                 Assert.Equal(expectedArray, recordedArray);
@@ -134,7 +133,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1 }).ToArray();
 
-                sutNativeMethod.Invoke(value, 1, customDimension1, customDimension2, customDimension3);
+                sutMethod.Invoke(value, 1, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
                 Assert.Equal(expectedArray, recordedArray);
@@ -145,7 +144,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2 }).ToArray();
 
-                sutNativeMethod.Invoke(value, 2, customDimension1, customDimension2, customDimension3);
+                sutMethod.Invoke(value, 2, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
                 Assert.Equal(expectedArray, recordedArray);
@@ -156,7 +155,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2, customDimension3 }).ToArray();
 
-                sutNativeMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
+                sutMethod.Invoke(value, 3, customDimension1, customDimension2, customDimension3);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
                 Assert.Equal(expectedArray, recordedArray);
