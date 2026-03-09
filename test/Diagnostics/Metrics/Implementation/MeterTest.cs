@@ -58,7 +58,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
                 Assert.Equal(Array.Empty<string>(), meter.Field<IReadOnlyCollection<string>>().Value);
-                Assert.Equal(0, meter.Field<int>().Value);
             }
 
             [Fact]
@@ -66,7 +65,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 Assert.Same(fabricMeter, sut.Field<IFabricMeter>().Value);
                 Assert.Equal(systemDimensions, sut.Field<IReadOnlyCollection<string>>().Value);
-                Assert.Equal(systemDimensions.Count, sut.Field<int>().Value);
             }
         }
 

@@ -14,14 +14,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         protected readonly IFabricMeter fabricMeter;
 
         protected readonly IReadOnlyCollection<string> systemDimensionValues;
-        protected readonly int systemDimensionCount;
 
         internal Meter(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues)
         {
             _ = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
             this.systemDimensionValues = systemDimensionValues;
-            this.systemDimensionCount = systemDimensionValues.Count;
         }
 
         protected void Record(long value)
@@ -41,7 +39,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
             }
 
-            int totalDimensionCount = systemDimensionCount + customDimensionCount;
+            int totalDimensionCount = systemDimensionValues.Count + customDimensionCount;
 
             GCHandle* allDimensionPins = stackalloc GCHandle[totalDimensionCount];
             IntPtr* allDimensionValuesPointers = stackalloc IntPtr[totalDimensionCount];
