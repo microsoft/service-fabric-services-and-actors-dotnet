@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     sealed class TimeSpanMeter1D : Meter1D, IMeter1D<TimeSpan>
     {
-        internal TimeSpanMeter1D(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
+        internal TimeSpanMeter1D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
         public void Record(TimeSpan value, string dimension1)
         {

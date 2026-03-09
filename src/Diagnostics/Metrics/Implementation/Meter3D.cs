@@ -5,7 +5,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class Meter3D : Meter
     {
-        internal Meter3D(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
+        internal Meter3D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
         protected void Record(long value, string customDimension1, string customDimension2, string customDimension3)
         {

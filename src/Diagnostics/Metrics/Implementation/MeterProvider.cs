@@ -12,8 +12,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class MeterProvider<TValueType> : IMeterProvider<TValueType>
     {
-        readonly IEnumerable<string> systemDimensionNames;
-        protected readonly IEnumerable<string> systemDimensionValues;
+        readonly IReadOnlyList<string> systemDimensionNames;
+        protected readonly IReadOnlyList<string> systemDimensionValues;
         protected readonly IFabricMeterProvider fabricMeterProvider;
 
         private static Func<IFabricMeterProvider> createFabricMeterProvider = NativeTelemetry.FabricCreateMeterProvider;
@@ -44,14 +44,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
             else
             {
-                this.systemDimensionNames = Enumerable.Empty<string>();
-                this.systemDimensionValues = Enumerable.Empty<string>();
+                this.systemDimensionNames = Array.Empty<string>();
+                this.systemDimensionValues = Array.Empty<string>();
             }
         }
 
         protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IEnumerable<string> additionalDimensions)
         {
-            var allDimensionsList = new List<string>(systemDimensionNames.Count() + additionalDimensions.Count());
+            var allDimensionsList = new List<string>(systemDimensionNames.Count + additionalDimensions.Count());
 
             allDimensionsList.AddRange(systemDimensionNames);
             allDimensionsList.AddRange(additionalDimensions);

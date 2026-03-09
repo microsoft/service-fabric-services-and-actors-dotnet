@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
@@ -14,15 +13,15 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         protected readonly IFabricMeter fabricMeter;
 
-        protected readonly IEnumerable<string> systemDimensionValues;
+        protected readonly IReadOnlyCollection<string> systemDimensionValues;
         protected readonly int systemDimensionCount;
 
-        internal Meter(IFabricMeter fabricMeter, IEnumerable<string> systemDimensionValues)
+        internal Meter(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues)
         {
             _ = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
             this.systemDimensionValues = systemDimensionValues;
-            this.systemDimensionCount = systemDimensionValues.Count();
+            this.systemDimensionCount = systemDimensionValues.Count;
         }
 
         protected void Record(long value)

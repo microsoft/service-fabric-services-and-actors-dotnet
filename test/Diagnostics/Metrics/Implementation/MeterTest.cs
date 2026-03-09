@@ -54,10 +54,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void SetsAllFieldsWhenSystemDimensionsAreEmpty()
             {
-                Meter meter = new Mock<Meter>(fabricMeter, Enumerable.Empty<string>()).Object;
+                Meter meter = new Mock<Meter>(fabricMeter, Array.Empty<string>()).Object;
 
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Equal(Enumerable.Empty<string>(), meter.Field<IEnumerable<string>>().Value);
+                Assert.Equal(Array.Empty<string>(), meter.Field<IReadOnlyCollection<string>>().Value);
                 Assert.Equal(0, meter.Field<int>().Value);
             }
 
@@ -65,7 +65,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public void SetsAllFields()
             {
                 Assert.Same(fabricMeter, sut.Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensions, sut.Field<IEnumerable<string>>().Value);
+                Assert.Equal(systemDimensions, sut.Field<IReadOnlyCollection<string>>().Value);
                 Assert.Equal(systemDimensions.Count, sut.Field<int>().Value);
             }
         }

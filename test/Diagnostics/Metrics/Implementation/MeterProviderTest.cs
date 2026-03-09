@@ -36,8 +36,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var sut = new TestMeterProvider<int>(serviceContext);
 
-                var actualSystemDimensionNames = (string[])sut.Private().Field<IEnumerable<string>>().Value;
-                var actualSystemDimensionValues = (string[])sut.Protected().Field<IEnumerable<string>>().Value;
+                var actualSystemDimensionNames = (string[])sut.Private().Field<IReadOnlyList<string>>().Value;
+                var actualSystemDimensionValues = (string[])sut.Protected().Field<IReadOnlyList<string>>().Value;
 
                 Assert.Equal(serviceContext.PartitionId.ToString(), actualSystemDimensionValues[0]);
                 Assert.Equal(serviceContext.ServiceTypeName, actualSystemDimensionValues[1]);
@@ -57,8 +57,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var sut = new TestMeterProvider<int>(null);
 
-                var actualSystemDimensionNames = sut.Private().Field<IEnumerable<string>>().Value;
-                var actualSystemDimensionValues = sut.Protected().Field<IEnumerable<string>>().Value;
+                var actualSystemDimensionNames = sut.Private().Field<IReadOnlyList<string>>().Value;
+                var actualSystemDimensionValues = sut.Protected().Field<IReadOnlyList<string>>().Value;
 
                 Assert.Empty(actualSystemDimensionValues);
                 Assert.Empty(actualSystemDimensionNames);
