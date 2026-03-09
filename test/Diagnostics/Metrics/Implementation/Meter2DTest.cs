@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Fuzzy;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Tests.Metrics.Implementation
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     public abstract class Meter2DTest
     {
@@ -52,7 +51,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Tests.Metrics.Implementation
                 // capture strings emitted to IFabricMeter.Record for assertion in tests
                 Mock.Get(fabricMeter)
                     .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaputreStringPointers(stringPtrs, count));
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaptureStringPointers(stringPtrs, count));
             }
 
             [Fact]

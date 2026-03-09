@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Fuzzy;
 using Inspector;
-using Microsoft.ServiceFabric.Diagnostics.Tests.Metrics.Implementation;
 using Moq;
 using Xunit;
 
@@ -52,7 +51,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 // capture strings emitted to IFabricMeter.Record for assertion in tests
                 Mock.Get(fabricMeter)
                     .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaputreStringPointers(stringPtrs, count));
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaptureStringPointers(stringPtrs, count));
             }
 
             [Fact]

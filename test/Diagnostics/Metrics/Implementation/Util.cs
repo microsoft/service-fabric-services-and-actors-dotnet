@@ -1,21 +1,21 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.ServiceFabric.Diagnostics.Tests.Metrics.Implementation
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     internal class Util
     {
-        unsafe internal static string[] CaputreStringPointers(IntPtr arrayPtr, uint arrayLength)
+        unsafe internal static string[] CaptureStringPointers(IntPtr arrayPtr, uint arrayLength)
         {
             IntPtr* stringsPtr = (IntPtr*)arrayPtr;
-            string[] capuredStrings = new string[arrayLength];
+            string[] capturedStrings = new string[arrayLength];
 
             for (int i = 0; i < arrayLength; i++)
             {
-                capuredStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
+                capturedStrings[i] = Marshal.PtrToStringUni(stringsPtr[i]);
             }
 
-            return capuredStrings;
+            return capturedStrings;
         }
     }
 }
