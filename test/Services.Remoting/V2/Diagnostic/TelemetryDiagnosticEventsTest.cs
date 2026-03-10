@@ -109,5 +109,29 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
                 Mock.Get(mockResponseSerializationTime).Verify(x => x.Record(It.Is<TimeSpan>(ts => Math.Abs(ts.TotalMilliseconds - durationMilliseconds) < 0.0001)), Times.Once);
             }
         }
+
+        public class Dispose : TelemetryDiagnosticEventsTest
+        {
+            readonly IMeter<TimeSpan> mockRequestProcessingTime;
+            readonly IMeter<TimeSpan> mockRequestDeserializationTime;
+            readonly IMeter<TimeSpan> mockResponseSerializationTime;
+
+            public Dispose()
+            {
+                mockRequestProcessingTime = sut.Field<IMeter<TimeSpan>>("requestProcessingTime").Value;
+                mockRequestDeserializationTime = sut.Field<IMeter<TimeSpan>>("requestDeserializationTime").Value;
+                mockResponseSerializationTime = sut.Field<IMeter<TimeSpan>>("responseSerializationTime").Value;
+            }
+
+            [Fact]
+            public void DisposesAllMeters()
+            {
+                sut.Dispose();
+
+                Mock.Get(mockRequestProcessingTime).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(mockRequestDeserializationTime).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(mockResponseSerializationTime).Verify(m => m.Dispose(), Times.Once);
+            }
+        }
     }
 }

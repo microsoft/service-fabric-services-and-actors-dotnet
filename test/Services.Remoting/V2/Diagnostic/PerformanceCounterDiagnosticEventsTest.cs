@@ -243,5 +243,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                     .Set(requestDeserializationTimeCounterWriter);
             }
         }
+
+        public class Dispose : PerformanceCounterDiagnosticEventsTest
+        {
+            [Fact]
+            public void DoesNotThrow()
+            {
+                sut.Dispose();
+            }
+        }
     }
 }

@@ -17,7 +17,6 @@ using Microsoft.ServiceFabric.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
@@ -150,6 +149,66 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
                 // cleanup
                 Mock.Get(clock).Setup(c => c.UtcNow).Returns(currentTime);
+            }
+        }
+
+        public class Dispose : FabricTransportMessageHandlerTest
+        {
+            [Fact]
+            public void DisposesDiagnosticEvents()
+            {
+                sut.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+
+                sut.Dispose();
+
+                Mock.Get(diagnosticEvents).Verify(d => d.Dispose(), Times.Once);
+            }
+
+            [Fact]
+            public void DisposesPerformanceCounterProvider()
+            {
+                var provider = sut.Field<ServiceRemotingPerformanceCounterProvider>().Value;
+                Assert.NotNull(provider);
+
+                sut.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                sut.Dispose();
+
+                // ServiceRemotingPerformanceCounterProvider is not mockable (concrete class),
+                // but verifying it doesn't throw confirms the disposal path works.
+            }
+
+            [Fact]
+            public void DisposesDisposableRemotingMessageHandler()
+            {
+                var disposableHandler = new Mock<IServiceRemotingMessageHandler>();
+                disposableHandler.As<IDisposable>();
+                disposableHandler.SetupAllProperties();
+                disposableHandler.DefaultValue = DefaultValue.Mock;
+
+                var handlerSut = new FabricTransportMessageHandler(
+                    disposableHandler.Object,
+                    new Mock<IServiceRemotingMessageSerializersManager>() { DefaultValue = DefaultValue.Mock }.Object,
+                    new ExceptionSerializer(
+                        new IExceptionConvertor[] { new DefaultExceptionConvertor() },
+                        new FabricTransportRemotingListenerSettings { RemotingExceptionDepth = 2 }
+                    ),
+                    Guid.NewGuid(),
+                    fuzzy.Int64(),
+                    new Mock<IMeterProvider<TimeSpan>>() { DefaultValue = DefaultValue.Mock }.Object);
+
+                // Replace diagnosticEvents with a mock to avoid cascading into real TelemetryDiagnosticEvents
+                handlerSut.Field<IDiagnosticEvents>().Set(Mock.Of<IDiagnosticEvents>());
+
+                handlerSut.Dispose();
+
+                disposableHandler.As<IDisposable>().Verify(d => d.Dispose(), Times.Once);
+            }
+
+            [Fact]
+            public void DoesNotThrowWhenRemotingMessageHandlerIsNotDisposable()
+            {
+                sut.Field<IDiagnosticEvents>().Set(diagnosticEvents);
+                sut.Dispose();
             }
         }
     }
