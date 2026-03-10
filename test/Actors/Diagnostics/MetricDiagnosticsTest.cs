@@ -231,5 +231,23 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             }
         }
 
+        public class Dispose : MetricDiagnosticsTest
+        {
+            [Fact]
+            public void DisposesAllMeters()
+            {
+                sut.Dispose();
+
+                Mock.Get(pendingMethodCalls).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(acquireLockDuration).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(releaseLockDuration).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(methodExecutionDuration).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(onActivateAsyncDuration).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(requestProcessingDuration).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(loadStateDuration).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(saveStateDuration).Verify(m => m.Dispose(), Times.Once);
+            }
+        }
+
     }
 }

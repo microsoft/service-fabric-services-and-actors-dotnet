@@ -355,5 +355,14 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 }
             }
         }
+
+        public class Dispose : PerformanceCounterDiagnosticsTest
+        {
+            [Fact]
+            public void DoesNotThrow()
+            {
+                sut.Dispose();
+            }
+        }
     }
 }

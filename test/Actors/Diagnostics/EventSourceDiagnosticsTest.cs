@@ -311,5 +311,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
                 }
             }
         }
+
+        public class DisposeMethod : EventSourceDiagnosticsTest
+        {
+            [Fact]
+            public void DoesNotThrow()
+            {
+                sut.Dispose();
+            }
+        }
     }
 }
