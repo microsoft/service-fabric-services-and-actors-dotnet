@@ -149,6 +149,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 eventSource.ActorSaveStateStart(actorType, actorId, serviceContext);
             }
         }
+        public void Dispose()
+        {
+            // No resources to release
+        }
+
         private long TicksSinceStart(DateTime startTime)
         {
             return TimeSpan.FromMilliseconds((long)(clock.UtcNow - startTime).TotalMilliseconds).Ticks;

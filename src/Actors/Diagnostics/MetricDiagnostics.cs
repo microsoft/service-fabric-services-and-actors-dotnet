@@ -12,7 +12,7 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class MetricDiagnostics : IDiagnostics, IDisposable
+    sealed class MetricDiagnostics : IDiagnostics
     {
         private const string ActorMetricsNamespace = "Actor";
         private const string NoneException = "None";

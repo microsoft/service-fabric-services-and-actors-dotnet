@@ -7,7 +7,7 @@ using System;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    interface IDiagnosticEvents
+    interface IDiagnosticEvents : IDisposable
     {
         void OnRequestResponseBegin();
         void OnRequestResponseEnd(DateTime startTime);

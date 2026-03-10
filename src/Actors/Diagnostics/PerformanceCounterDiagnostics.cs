@@ -141,6 +141,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             // Intentionally left blank, since we don't track
         }
 
+        public void Dispose()
+        {
+            // No resources to release
+        }
+
         private long LongMillisecondsSinceStart(DateTime startTime)
         {
             return (long)(clock.UtcNow - startTime).TotalMilliseconds;

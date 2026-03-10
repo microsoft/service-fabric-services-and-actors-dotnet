@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class AggregatedDiagnosticEvents : IDiagnosticEvents, IDisposable
+    internal class AggregatedDiagnosticEvents : IDiagnosticEvents
     {
         readonly IEnumerable<IDiagnosticEvents> diagnosticEvents;
 
@@ -73,10 +73,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         {
             foreach (IDiagnosticEvents diagnosticEvent in diagnosticEvents)
             {
-                if (diagnosticEvent is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
+                diagnosticEvent.Dispose();
             }
         }
     }

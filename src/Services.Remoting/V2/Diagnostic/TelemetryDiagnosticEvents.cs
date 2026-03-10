@@ -9,7 +9,7 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class TelemetryDiagnosticEvents : IDiagnosticEvents, IDisposable
+    internal class TelemetryDiagnosticEvents : IDiagnosticEvents
     {
         readonly IClock clock;
 

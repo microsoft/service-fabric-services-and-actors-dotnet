@@ -68,10 +68,14 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
             }
         }
 
+        public void Dispose()
+        {
+            // No resources to release
+        }
+
         private long CalculateMillisecondsSince(DateTime startTime)
         {
             return (long)Math.Round((clock.UtcNow - startTime).TotalMilliseconds);
         }
-
     }
 }

@@ -239,26 +239,23 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
         public sealed class Dispose : AggregatedDiagnosticsTest
         {
-            internal interface IDisposableDiagnostics : IDiagnostics, IDisposable { }
-
             [Fact]
-            public void DisposesDisposableChildren()
+            public void DisposesAllChildren()
             {
-                var disposableChild = Mock.Of<IDisposableDiagnostics>();
-                var nonDisposableChild = Mock.Of<IDiagnostics>();
+                var child1 = Mock.Of<IDiagnostics>();
+                var child2 = Mock.Of<IDiagnostics>();
 
-                var aggregated = new AggregatedDiagnostics(new List<IDiagnostics> { disposableChild, nonDisposableChild });
+                var aggregated = new AggregatedDiagnostics(new List<IDiagnostics> { child1, child2 });
                 aggregated.Dispose();
 
-                Mock.Get(disposableChild).Verify(d => d.Dispose(), Times.Once);
+                Mock.Get(child1).Verify(d => d.Dispose(), Times.Once);
+                Mock.Get(child2).Verify(d => d.Dispose(), Times.Once);
             }
 
             [Fact]
-            public void DoesNotThrowWhenNoDisposableChildren()
+            public void DoesNotThrowWhenEmpty()
             {
-                var nonDisposableChild = Mock.Of<IDiagnostics>();
-
-                var aggregated = new AggregatedDiagnostics(new List<IDiagnostics> { nonDisposableChild });
+                var aggregated = new AggregatedDiagnostics(new List<IDiagnostics>());
                 aggregated.Dispose();
             }
         }

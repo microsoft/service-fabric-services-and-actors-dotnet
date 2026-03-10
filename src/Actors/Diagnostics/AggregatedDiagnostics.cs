@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class AggregatedDiagnostics : IDiagnostics, IDisposable
+    sealed class AggregatedDiagnostics : IDiagnostics
     {
         readonly IEnumerable<IDiagnostics> diagnosticEvents;
 
@@ -146,10 +146,7 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         {
             foreach (IDiagnostics d in diagnosticEvents)
             {
-                if (d is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
+                d.Dispose();
             }
         }
     }
