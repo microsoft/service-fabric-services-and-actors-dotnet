@@ -22,8 +22,6 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         readonly IMeterProvider<TimeSpan> timeSpanMeterProvider;
         readonly IMeterProvider<long> longMeterProvider;
 
-        AggregatedDiagnostics createdDiagnostics;
-
         public DiagnosticsFactory(ServiceContext serviceContext, ActorTypeInformation typeInformation, ActorMethodFriendlyNameBuilder friendlyNameBuilder)
         {
             this.serviceContext = serviceContext ?? throw new ArgumentNullException(nameof(serviceContext));
@@ -44,13 +42,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             var metricDiagnostics = new MetricDiagnostics(longMeterProvider, timeSpanMeterProvider, clock, friendlyNameBuilder, typeInformation);
             var registeredDiagnostics = new IDiagnostics[] { performanceCounterDiagnostics, eventSourceDiagnostics, metricDiagnostics };
 
-            createdDiagnostics = new AggregatedDiagnostics(registeredDiagnostics);
-            return createdDiagnostics;
+            return new AggregatedDiagnostics(registeredDiagnostics);
         }
 
         public virtual void Dispose()
         {
-            createdDiagnostics?.Dispose();
             performanceCounterProvider.Dispose();
             timeSpanMeterProvider.Dispose();
             longMeterProvider.Dispose();

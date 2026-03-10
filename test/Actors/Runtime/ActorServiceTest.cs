@@ -31,7 +31,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
         public ActorServiceTest()
         {
-            diagnosticsFactory = new Mock<DiagnosticsFactory>(serviceContext, typeInformation, new ActorMethodFriendlyNameBuilder(typeInformation)).Object;
+            diagnosticsFactory = new Mock<DiagnosticsFactory>(serviceContext, typeInformation, new ActorMethodFriendlyNameBuilder(typeInformation)) { DefaultValue = DefaultValue.Mock }.Object;
 
             this.createDiagnosticsFactory = typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Value;
             typeof(ActorService).Field<Func<ServiceContext, ActorTypeInformation, ActorMethodFriendlyNameBuilder, DiagnosticsFactory>>().Set(mockCreateDiagnosticsFactory.Object);
@@ -58,8 +58,11 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             [Fact]
             public void IsDisposedByOnCloseAsync()
             {
+                var diagnostics = sut.Field<IDiagnostics>();
+
                 sut.DeclaredBy(typeof(ActorService)).Method<Func<CancellationToken, Task>>("OnCloseAsync").Invoke(TestContext.Current.CancellationToken);
 
+                Mock.Get(diagnostics.Value).Verify(d => d.Dispose(), Times.Once);
                 Mock.Get(diagnosticsFactory).Verify(d => d.Dispose(), Times.Once);
             }
         }
