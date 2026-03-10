@@ -3,13 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
     /// Provides factory methods for creating telemetry meters with different number of dimensions.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded. Currently intended to support integer and timespan meters.</typeparam>
-    interface IMeterProvider<TValueType>
+    interface IMeterProvider<TValueType> : IDisposable
     {
         /// <summary>
         /// Creates a meter for recording telemetry values without dimensions.

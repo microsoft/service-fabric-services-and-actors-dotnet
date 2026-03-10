@@ -236,5 +236,31 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
                 Mock.Get(anotherDiagnostics).Verify(ds => ds.ActorDeactivated(actorId), Times.Once);
             }
         }
+
+        public sealed class Dispose : AggregatedDiagnosticsTest
+        {
+            internal interface IDisposableDiagnostics : IDiagnostics, IDisposable { }
+
+            [Fact]
+            public void DisposesDisposableChildren()
+            {
+                var disposableChild = Mock.Of<IDisposableDiagnostics>();
+                var nonDisposableChild = Mock.Of<IDiagnostics>();
+
+                var aggregated = new AggregatedDiagnostics(new List<IDiagnostics> { disposableChild, nonDisposableChild });
+                aggregated.Dispose();
+
+                Mock.Get(disposableChild).Verify(d => d.Dispose(), Times.Once);
+            }
+
+            [Fact]
+            public void DoesNotThrowWhenNoDisposableChildren()
+            {
+                var nonDisposableChild = Mock.Of<IDiagnostics>();
+
+                var aggregated = new AggregatedDiagnostics(new List<IDiagnostics> { nonDisposableChild });
+                aggregated.Dispose();
+            }
+        }
     }
 }

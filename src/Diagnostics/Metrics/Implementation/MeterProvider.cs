@@ -60,6 +60,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensions.Length, allDimensions);
         }
 
+        /// <summary>
+        /// Releases the native COM resources held by this meter provider.
+        /// </summary>
+        public void Dispose()
+        {
+            // TODO: Release the fabricMeterProvider COM object
+        }
+
         public abstract IMeter<TValueType> CreateMeter(string metricNamespace, string name);
         public abstract IMeter1D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name);
         public abstract IMeter2D<TValueType> CreateMeter(string metricNamespace, string name, string dimension1Name, string dimension2Name);

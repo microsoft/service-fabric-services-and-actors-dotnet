@@ -3,13 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
     /// Defines a one-dimensional meter for recording telemetry values with a single dimension.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
-    interface IMeter1D<TValueType>
+    interface IMeter1D<TValueType> : IDisposable
     {
         /// <summary>
         /// Records a telemetry value with one dimension.

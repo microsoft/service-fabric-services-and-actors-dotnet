@@ -12,7 +12,7 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
 namespace Microsoft.ServiceFabric.Actors.Diagnostics
 {
-    sealed class MetricDiagnostics : IDiagnostics
+    sealed class MetricDiagnostics : IDiagnostics, IDisposable
     {
         private const string ActorMetricsNamespace = "Actor";
         private const string NoneException = "None";
@@ -125,6 +125,18 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
         public void SaveActorStateStart(ActorId actorId)
         {
             // Intentionally left blank, since we don't track
+        }
+
+        public void Dispose()
+        {
+            pendingMethodCalls.Dispose();
+            acquireLockDuration.Dispose();
+            releaseLockDuration.Dispose();
+            methodExecutionDuration.Dispose();
+            onActivateAsyncDuration.Dispose();
+            requestProcessingDuration.Dispose();
+            loadStateDuration.Dispose();
+            saveStateDuration.Dispose();
         }
     }
 }

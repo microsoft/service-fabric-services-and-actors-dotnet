@@ -9,7 +9,7 @@ using Microsoft.ServiceFabric.Diagnostics.Metrics;
 
 namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
 {
-    internal class TelemetryDiagnosticEvents : IDiagnosticEvents
+    internal class TelemetryDiagnosticEvents : IDiagnosticEvents, IDisposable
     {
         readonly IClock clock;
 
@@ -55,6 +55,13 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic
         public void OnRequestResponseEnd(DateTime startTime)
         {
             requestProcessingTime.Record(clock.UtcNow - startTime);
+        }
+
+        public void Dispose()
+        {
+            requestProcessingTime.Dispose();
+            requestDeserializationTime.Dispose();
+            responseSerializationTime.Dispose();
         }
     }
 }

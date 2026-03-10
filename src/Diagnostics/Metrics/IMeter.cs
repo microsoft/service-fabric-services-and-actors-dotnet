@@ -3,13 +3,15 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
+using System;
+
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 {
     /// <summary>
     /// Defines a meter for recording telemetry values.
     /// </summary>
     /// <typeparam name="TValueType">The type of the value to be recorded.</typeparam>
-    interface IMeter<TValueType>
+    interface IMeter<TValueType> : IDisposable
     {
         /// <summary>
         /// Records a telemetry value.

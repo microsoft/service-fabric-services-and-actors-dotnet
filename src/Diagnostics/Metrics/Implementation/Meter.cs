@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
-    abstract class Meter
+    abstract class Meter : IDisposable
     {
         protected readonly IFabricMeter fabricMeter;
 
@@ -20,6 +20,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             _ = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
             this.systemDimensionValues = systemDimensionValues;
+        }
+
+        /// <summary>
+        /// Releases the native COM resources held by this meter.
+        /// </summary>
+        public void Dispose()
+        {
+            // TODO: Release the fabricMeter COM object
         }
 
         protected void Record(long value)

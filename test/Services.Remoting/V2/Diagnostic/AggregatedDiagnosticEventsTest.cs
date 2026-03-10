@@ -204,5 +204,31 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             }
         }
 
+        public class Dispose : AggregatedDiagnosticEventsTest
+        {
+            internal interface IDisposableDiagnosticEvents : IDiagnosticEvents, IDisposable { }
+
+            [Fact]
+            public void DisposesDisposableChildren()
+            {
+                var disposableChild = Mock.Of<IDisposableDiagnosticEvents>();
+                var nonDisposableChild = Mock.Of<IDiagnosticEvents>();
+
+                var aggregated = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { disposableChild, nonDisposableChild });
+                aggregated.Dispose();
+
+                Mock.Get(disposableChild).Verify(d => d.Dispose(), Times.Once);
+            }
+
+            [Fact]
+            public void DoesNotThrowWhenNoDisposableChildren()
+            {
+                var nonDisposableChild = Mock.Of<IDiagnosticEvents>();
+
+                var aggregated = new AggregatedDiagnosticEvents(new List<IDiagnosticEvents> { nonDisposableChild });
+                aggregated.Dispose();
+            }
+        }
+
     }
 }

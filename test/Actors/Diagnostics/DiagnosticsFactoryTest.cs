@@ -101,6 +101,45 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
 
                 mockPerformanceCounterProviderV2.Verify(p => p.Dispose(), Times.Once);
             }
+
+            [Fact]
+            public void DisposesMeterProviders()
+            {
+                var mockTimeSpanProvider = new Mock<IMeterProvider<TimeSpan>>() { DefaultValue = DefaultValue.Mock };
+                var mockLongProvider = new Mock<IMeterProvider<long>>() { DefaultValue = DefaultValue.Mock };
+                sut.Field<IMeterProvider<TimeSpan>>().Set(mockTimeSpanProvider.Object);
+                sut.Field<IMeterProvider<long>>().Set(mockLongProvider.Object);
+
+                sut.Dispose();
+
+                mockTimeSpanProvider.Verify(p => p.Dispose(), Times.Once);
+                mockLongProvider.Verify(p => p.Dispose(), Times.Once);
+            }
+
+            [Fact]
+            public void DisposesCreatedDiagnostics()
+            {
+                var mockTimeSpanProvider = new Mock<IMeterProvider<TimeSpan>>() { DefaultValue = DefaultValue.Mock };
+                var mockLongProvider = new Mock<IMeterProvider<long>>() { DefaultValue = DefaultValue.Mock };
+                sut.Field<IMeterProvider<TimeSpan>>().Set(mockTimeSpanProvider.Object);
+                sut.Field<IMeterProvider<long>>().Set(mockLongProvider.Object);
+
+                sut.CreateDiagnostics(Mock.Of<IClock>());
+
+                var createdDiagnostics = sut.Field<AggregatedDiagnostics>().Value;
+                Assert.NotNull(createdDiagnostics);
+
+                sut.Dispose();
+
+                // After disposal, the MetricDiagnostics inside AggregatedDiagnostics should have been disposed.
+                // We verify that the meters created by the mock providers had Dispose called.
+                var metricDiagnostics = createdDiagnostics.Field<IEnumerable<IDiagnostics>>().Value
+                    .OfType<MetricDiagnostics>().Single();
+
+                // MetricDiagnostics disposes its meters; verify via the mock meter objects
+                Mock.Get(metricDiagnostics.Field<IMeter<long>>().Value).Verify(m => m.Dispose(), Times.Once);
+                Mock.Get(metricDiagnostics.Field<IMeter<TimeSpan>>("acquireLockDuration").Value).Verify(m => m.Dispose(), Times.Once);
+            }
         }
 
         public class CreateDiagnostics : DiagnosticsFactoryTest

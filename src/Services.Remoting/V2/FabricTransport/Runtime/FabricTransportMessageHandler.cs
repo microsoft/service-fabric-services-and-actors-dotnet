@@ -29,6 +29,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
         private IDiagnosticEvents diagnosticEvents;
         readonly IClock clock;
         readonly ServiceRemotingPerformanceCounterProvider serviceRemotingPerformanceCounterProvider;
+        readonly IMeterProvider<TimeSpan> meterProvider;
 
         public FabricTransportMessageHandler(
             IServiceRemotingMessageHandler remotingMessageHandler,
@@ -47,6 +48,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
 
             this.clock = new SystemClock();
 
+            this.meterProvider = meterProvider;
             this.serviceRemotingPerformanceCounterProvider = new ServiceRemotingPerformanceCounterProvider(this.partitionId, this.replicaOrInstanceId);
             var performanceCounterDiagnosticEvents = new PerformanceCounterDiagnosticEvents(serviceRemotingPerformanceCounterProvider, this.clock);
             var telemetryDiagnosticEvents = new TelemetryDiagnosticEvents(meterProvider, this.clock);
@@ -115,6 +117,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime
             {
                 serviceRemotingPerformanceCounterProvider.Dispose();
             }
+            if (this.diagnosticEvents is IDisposable disposableDiagnostics)
+            {
+                disposableDiagnostics.Dispose();
+            }
+            meterProvider.Dispose();
         }
 
         private FabricTransportMessage CreateFabricTransportExceptionMessage(Exception ex)

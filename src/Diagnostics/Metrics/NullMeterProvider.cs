@@ -28,5 +28,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
         {
             return new NullMeter3D<TValueType>();
         }
+
+        public void Dispose() { }
     }
 }
