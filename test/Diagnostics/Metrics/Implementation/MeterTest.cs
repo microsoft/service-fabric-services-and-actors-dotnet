@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Fuzzy;
 using Inspector;
 using Moq;
@@ -40,14 +41,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void ThrowsArgumentNullExceptionWhenFabricMeterIsNull()
             {
-                var exception = Xunit.Record.Exception(() => new Mock<Meter>(null, systemDimensions).Object);
+                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter1D>(null, systemDimensions).Object);
                 Assert.IsType<ArgumentNullException>(exception.InnerException);
             }
 
             [Fact]
             public void ThrowsArgumentNullExceptionWhenSystemDimensionsAreNull()
             {
-                var exception = Xunit.Record.Exception(() => new Mock<Meter>(fabricMeter, null).Object);
+                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter1D>(fabricMeter, null).Object);
                 Assert.IsType<ArgumentNullException>(exception.InnerException);
             }
 
