@@ -77,7 +77,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsFabricMeterWithCombinedDimensions()
             {
-                var expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = systemDimensions.ToArray();
 
                 sutMethod.Invoke(value);
 
@@ -117,7 +117,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsNativeMeterRecordWithZeroCustomDimensionsAndAllSystemDimensions()
             {
-                var expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = systemDimensions.ToArray();
 
                 sutMethod.Invoke(value, 0, dimension1Value, dimension2Value, dimension3Value);
 
@@ -128,7 +128,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsNativeMeterRecordWithOnCustomDimensionAndAllSystemDimensions()
             {
-                var expectedArray = systemDimensions.Concat(new[] { dimension1Value }).ToArray();
+                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value }).ToArray();
 
                 sutMethod.Invoke(value, 1, dimension1Value, dimension2Value, dimension3Value);
 
@@ -139,7 +139,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsNativeMeterRecordWithTwoCustomDimensionsAndAllSystemDimensions()
             {
-                var expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value }).ToArray();
+                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value }).ToArray();
 
                 sutMethod.Invoke(value, 2, dimension1Value, dimension2Value, dimension3Value);
 
@@ -150,7 +150,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsNativeMeterRecordWithThreeCustomDimensionsAndAllSystemDimensions()
             {
-                var expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value, dimension3Value }).ToArray();
+                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value, dimension3Value }).ToArray();
 
                 sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value);
 

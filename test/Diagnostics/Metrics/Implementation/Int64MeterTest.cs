@@ -53,7 +53,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsFabricMeterWithCombinedDimensions()
             {
-                var expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = systemDimensions.ToArray();
 
                 sut.Record(value);
 
