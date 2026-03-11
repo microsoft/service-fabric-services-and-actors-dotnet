@@ -45,9 +45,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
             protected string[] recordedArray;
             readonly long value = fuzzy.Int64();
-            readonly string customDimension1 = fuzzy.String();
-            readonly string customDimension2 = fuzzy.String();
-            readonly string customDimension3 = fuzzy.String();
+            readonly string dimension1Value = fuzzy.String();
+            readonly string dimension2Value = fuzzy.String();
+            readonly string dimension3Value = fuzzy.String();
 
             public Record()
             {
@@ -63,25 +63,25 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void CallsRecordAction()
             {
-                var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2, customDimension3 }).ToArray();
+                var expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value, dimension3Value }).ToArray();
 
-                sutMethod.Invoke(value, customDimension1, customDimension2, customDimension3);
+                sutMethod.Invoke(value, dimension1Value, dimension2Value, dimension3Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
                 Assert.Equal(expectedArray, recordedArray);
             }
 
             [Theory]
-            [InlineData(null, "customDimension2", "customDimension3")]
-            [InlineData("customDimension1", null, "customDimension3")]
-            [InlineData("customDimension1", "customDimension2", null)]
-            [InlineData("customDimension1", null, null)]
-            [InlineData(null, "customDimension2", null)]
-            [InlineData(null, null, "customDimension3")]
+            [InlineData(null, "dimension2Value", "dimension3Value")]
+            [InlineData("dimension1Value", null, "dimension3Value")]
+            [InlineData("dimension1Value", "dimension2Value", null)]
+            [InlineData("dimension1Value", null, null)]
+            [InlineData(null, "dimension2Value", null)]
+            [InlineData(null, null, "dimension3Value")]
             [InlineData(null, null, null)]
-            public void ThrowsExceptionIfCustomDimensionIsNull(string customDimension1, string customDimension2, string customDimension3)
+            public void ThrowsExceptionIfCustomDimensionIsNull(string dimension1Value, string dimension2Value, string dimension3Value)
             {
-                Assert.Throws<ArgumentNullException>(() => sutMethod.Invoke(value, customDimension1, customDimension2, customDimension3));
+                Assert.Throws<ArgumentNullException>(() => sutMethod.Invoke(value, dimension1Value, dimension2Value, dimension3Value));
             }
         }
     }

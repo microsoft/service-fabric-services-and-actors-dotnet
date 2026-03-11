@@ -40,9 +40,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         public class Record : Int64Meter3DTest
         {
             readonly long value = fuzzy.Int64();
-            readonly string customDimension1 = fuzzy.String();
-            readonly string customDimension2 = fuzzy.String();
-            readonly string customDimension3 = fuzzy.String();
+            readonly string dimension1Value = fuzzy.String();
+            readonly string dimension2Value = fuzzy.String();
+            readonly string dimension3Value = fuzzy.String();
 
             protected string[] recordedArray;
 
@@ -57,9 +57,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void InvokesBaseRecord()
             {
-                var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2, customDimension3 }).ToArray();
+                var expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value, dimension3Value }).ToArray();
 
-                sut.Record(value, customDimension1, customDimension2, customDimension3);
+                sut.Record(value, dimension1Value, dimension2Value, dimension3Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
                 Assert.Equal(expectedArray, recordedArray);

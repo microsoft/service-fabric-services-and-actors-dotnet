@@ -41,8 +41,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         {
             readonly TimeSpan value = fuzzy.TimeSpan();
             readonly long longValue;
-            readonly string customDimension1 = fuzzy.String();
-            readonly string customDimension2 = fuzzy.String();
+            readonly string dimension1Value = fuzzy.String();
+            readonly string dimension2Value = fuzzy.String();
 
             protected string[] recordedArray;
 
@@ -59,9 +59,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void InvokesBaseRecord()
             {
-                var expectedArray = systemDimensions.Concat(new[] { customDimension1, customDimension2 }).ToArray();
+                var expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value }).ToArray();
 
-                sut.Record(value, customDimension1, customDimension2);
+                sut.Record(value, dimension1Value, dimension2Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(longValue, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
                 Assert.Equal(expectedArray, recordedArray);

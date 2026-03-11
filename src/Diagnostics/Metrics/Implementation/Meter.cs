@@ -17,9 +17,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         internal Meter(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues)
         {
-            _ = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
+            this.systemDimensionValues = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
-            this.systemDimensionValues = systemDimensionValues;
         }
 
         protected void Record(long value)
@@ -32,54 +31,50 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             return (long)Math.Round(value.TotalMilliseconds);
         }
 
-        unsafe protected void RecordViaNative(long value, int customDimensionCount, string customDimension1, string customDimension2, string customDimension3)
+        unsafe protected void RecordViaNative(long value, int customDimensionCount, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             if (customDimensionCount < 0 || customDimensionCount > 3)
             {
                 throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
             }
 
-            int totalDimensionCount = systemDimensionValues.Count + customDimensionCount;
+            int dimensionCount = systemDimensionValues.Count + customDimensionCount;
 
-            GCHandle* allDimensionPins = stackalloc GCHandle[totalDimensionCount];
-            IntPtr* allDimensionValuesPointers = stackalloc IntPtr[totalDimensionCount];
+            GCHandle* dimensionPins = stackalloc GCHandle[dimensionCount];
+            IntPtr* dimensionValuesPointers = stackalloc IntPtr[dimensionCount];
 
             try
             {
                 int i = 0;
                 foreach (string systemDimensionValue in systemDimensionValues)
                 {
-                    allDimensionPins[i++] = GCHandle.Alloc(systemDimensionValue, GCHandleType.Pinned);
+                    dimensionPins[i++] = GCHandle.Alloc(systemDimensionValue, GCHandleType.Pinned);
                 }
 
                 if (customDimensionCount > 0)
-                    allDimensionPins[i++] = GCHandle.Alloc(customDimension1, GCHandleType.Pinned);
+                    dimensionPins[i++] = GCHandle.Alloc(dimension1Value, GCHandleType.Pinned);
 
                 if (customDimensionCount > 1)
-                    allDimensionPins[i++] = GCHandle.Alloc(customDimension2, GCHandleType.Pinned);
+                    dimensionPins[i++] = GCHandle.Alloc(dimension2Value, GCHandleType.Pinned);
 
                 if (customDimensionCount > 2)
-                    allDimensionPins[i++] = GCHandle.Alloc(customDimension3, GCHandleType.Pinned);
+                    dimensionPins[i++] = GCHandle.Alloc(dimension3Value, GCHandleType.Pinned);
 
 
-                for (i = 0; i < totalDimensionCount; i++)
+                for (i = 0; i < dimensionCount; i++)
                 {
                     // for strings, AddrOfPinnedObject() returns a pointer to the first character - https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.gchandle.addrofpinnedobject
-                    allDimensionValuesPointers[i] = allDimensionPins[i].AddrOfPinnedObject();
+                    dimensionValuesPointers[i] = dimensionPins[i].AddrOfPinnedObject();
                 }
 
-                fabricMeter.Record(value, (uint)totalDimensionCount, (IntPtr)allDimensionValuesPointers);
-            }
-            catch (Exception)
-            {
-                throw;
+                fabricMeter.Record(value, (uint)dimensionCount, (IntPtr)dimensionValuesPointers);
             }
             finally
             {
-                for (int i = 0; i < totalDimensionCount; i++)
+                for (int i = 0; i < dimensionCount; i++)
                 {
-                    if (allDimensionPins[i].IsAllocated)
-                        allDimensionPins[i].Free();
+                    if (dimensionPins[i].IsAllocated)
+                        dimensionPins[i].Free();
                 }
             }
         }

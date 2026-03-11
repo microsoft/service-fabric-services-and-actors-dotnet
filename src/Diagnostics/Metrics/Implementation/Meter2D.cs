@@ -12,11 +12,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         internal Meter2D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
-        protected void Record(long value, string customDimension1, string customDimension2)
+        protected void Record(long value, string dimension1Value, string dimension2Value)
         {
-            _ = customDimension1 ?? throw new ArgumentNullException(nameof(customDimension1));
-            _ = customDimension2 ?? throw new ArgumentNullException(nameof(customDimension2));
-            base.RecordViaNative(value, 2, customDimension1, customDimension2, null);
+            _ = dimension1Value ?? throw new ArgumentNullException(nameof(dimension1Value));
+            _ = dimension2Value ?? throw new ArgumentNullException(nameof(dimension2Value));
+            base.RecordViaNative(value, 2, dimension1Value, dimension2Value, null);
         }
     }
 }
