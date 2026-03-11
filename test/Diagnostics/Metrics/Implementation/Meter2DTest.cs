@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsRecordAction()
+            public void InvokesBaseRecord()
             {
                 var expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value }).ToArray();
 
