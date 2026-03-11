@@ -42,14 +42,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             readonly long value = fuzzy.Int64();
             readonly string dimension1Value = fuzzy.String();
 
-            protected string[] recordedArray;
+            protected string[] actualDimensions;
 
             public Record()
             {
                 // capture strings emitted to IFabricMeter.Record for assertion in tests
                 Mock.Get(fabricMeter)
                     .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaptureStringPointers(stringPtrs, count));
+                    .Callback<long, uint, IntPtr>((value, count, stringPtrs) => actualDimensions = Util.CaptureStringPointers(stringPtrs, count));
             }
 
             [Fact]
@@ -60,7 +60,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sut.Record(value, dimension1Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
-                Assert.Equal(expectedArray, recordedArray);
+                Assert.Equal(expectedArray, actualDimensions);
             }
         }
     }

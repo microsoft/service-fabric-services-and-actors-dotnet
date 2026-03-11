@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
         readonly long value = fuzzy.Int64();
 
-        protected string[] recordedArray;
+        protected string[] actualDimensions;
 
         public MeterTest()
         {
@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             // capture strings emitted to IFabricMeter.Record for assertion in tests
             Mock.Get(fabricMeter)
                 .Setup(m => m.Record(It.IsAny<long>(), It.IsAny<uint>(), It.IsAny<IntPtr>()))
-                .Callback<long, uint, IntPtr>((value, count, stringPtrs) => recordedArray = Util.CaptureStringPointers(stringPtrs, count));
+                .Callback<long, uint, IntPtr>((value, count, stringPtrs) => actualDimensions = Util.CaptureStringPointers(stringPtrs, count));
         }
 
         public class Constructor : MeterTest
@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sutMethod.Invoke(value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
-                Assert.Equal(expectedArray, recordedArray);
+                Assert.Equal(expectedArray, actualDimensions);
             }
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sutMethod.Invoke(value, 0, dimension1Value, dimension2Value, dimension3Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
-                Assert.Equal(expectedArray, recordedArray);
+                Assert.Equal(expectedArray, actualDimensions);
             }
 
             [Fact]
@@ -133,7 +133,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sutMethod.Invoke(value, 1, dimension1Value, dimension2Value, dimension3Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
-                Assert.Equal(expectedArray, recordedArray);
+                Assert.Equal(expectedArray, actualDimensions);
             }
 
             [Fact]
@@ -144,7 +144,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sutMethod.Invoke(value, 2, dimension1Value, dimension2Value, dimension3Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
-                Assert.Equal(expectedArray, recordedArray);
+                Assert.Equal(expectedArray, actualDimensions);
             }
 
             [Fact]
@@ -155,7 +155,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value);
 
                 Mock.Get(fabricMeter).Verify(m => m.Record(value, (uint)expectedArray.Length, It.IsAny<IntPtr>()), Times.Once);
-                Assert.Equal(expectedArray, recordedArray);
+                Assert.Equal(expectedArray, actualDimensions);
             }
         }
     }
