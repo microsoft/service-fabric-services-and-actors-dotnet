@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         internal Int64Meter3D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
-        public new void Record(long value, string dimension1, string dimension2, string dimension3)
+        void IMeter3D<long>.Record(long value, string dimension1, string dimension2, string dimension3)
         {
             base.Record(value, dimension1, dimension2, dimension3);
         }

@@ -12,7 +12,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         internal TimeSpanMeter1D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
 
-        public void Record(TimeSpan value, string dimension1Value)
+        void IMeter1D<TimeSpan>.Record(TimeSpan value, string dimension1Value)
         {
             Record(ConvertTimeSpanToLong(value), dimension1Value);
         }
