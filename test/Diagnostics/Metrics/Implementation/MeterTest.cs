@@ -75,7 +75,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public Record() => sutMethod = sut.Protected().Method<Action<long>>();
 
             [Fact]
-            public void InvokesBaseRecord()
+            public void CallsFabricMeterWithCombinedDimensions()
             {
                 var expectedArray = systemDimensions.ToArray();
 

@@ -55,7 +55,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void InvokesBaseRecord()
+            public void CallsFabricMeterWithCombinedDimensions()
             {
                 var expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value, dimension3Value }).ToArray();
 
