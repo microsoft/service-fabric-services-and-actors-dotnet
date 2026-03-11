@@ -26,14 +26,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void ThrowsArgumentNullExceptionWhenMeterIsNull()
             {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter1D>(null, systemDimensions).Object);
+                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter2D>(null, systemDimensions).Object);
                 Assert.IsType<ArgumentNullException>(exception.InnerException);
             }
 
             [Fact]
             public void ThrowsArgumentNullExceptionWhenSystemDimensionsAreNull()
             {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter1D>(fabricMeter, null).Object);
+                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter2D>(fabricMeter, null).Object);
                 Assert.IsType<ArgumentNullException>(exception.InnerException);
             }
         }
