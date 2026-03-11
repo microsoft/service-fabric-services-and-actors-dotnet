@@ -60,6 +60,12 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("System.Fabric.Replicator.Test" + TestKey)]
 [assembly: InternalsVisibleTo("System.Fabric.Store.Test" + PublicKey)]
 [assembly: InternalsVisibleTo("System.Fabric.Store.Test" + TestKey)]
+[assembly: InternalsVisibleTo("System.Fabric.Collections.Test" + PublicKey)]
+[assembly: InternalsVisibleTo("System.Fabric.Collections.Test" + TestKey)]
+[assembly: InternalsVisibleTo("System.Fabric.ReplicatorStack.Test" + PublicKey)]
+[assembly: InternalsVisibleTo("System.Fabric.ReplicatorStack.Test" + TestKey)]
+[assembly: InternalsVisibleTo("System.Fabric.KtlLogicalLogBuffer.Test" + PublicKey)]
+[assembly: InternalsVisibleTo("System.Fabric.KtlLogicalLogBuffer.Test" + TestKey)]
 
 [assembly: InternalsVisibleTo("FabricIS.parallel" + PublicKey)]
 [assembly: InternalsVisibleTo("FabricIS.parallel" + TestKey)]
