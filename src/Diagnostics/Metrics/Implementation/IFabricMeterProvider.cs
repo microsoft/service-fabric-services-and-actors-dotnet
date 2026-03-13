@@ -7,10 +7,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-#if !NET
-using GeneratedComInterfaceAttribute = System.Runtime.InteropServices.ComImportAttribute;
-#endif
-
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     [GeneratedComInterface]
