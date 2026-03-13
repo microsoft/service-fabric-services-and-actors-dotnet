@@ -28,6 +28,7 @@
     <Project Path="test/Actors/Microsoft.ServiceFabric.Actors.Tests.csproj" />
     <Project Path="test/AspNetCore/Microsoft.ServiceFabric.AspNetCore.Tests.csproj" />
     <Project Path="test/Diagnostics/Microsoft.ServiceFabric.Diagnostics.Tests.csproj" />
+    <Project Path="test/FabricTransport/Microsoft.ServiceFabric.FabricTransport.Tests.csproj" />
     <Project Path="test/Services.Remoting/Microsoft.ServiceFabric.Services.Remoting.Tests.csproj" />
     <Project Path="test/Services.Wcf/Microsoft.ServiceFabric.Services.Wcf.Tests.csproj" />
     <Project Path="test/Services/Microsoft.ServiceFabric.Services.Tests.csproj" />
