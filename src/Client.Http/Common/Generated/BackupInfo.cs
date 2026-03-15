@@ -28,6 +28,13 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="epochOfLastBackupRecord">Epoch of the last record in this backup.</param>
         /// <param name="lsnOfLastBackupRecord">LSN of the last record in this backup.</param>
         /// <param name="creationTimeUtc">The date time when this backup was taken.</param>
+        /// <param name="lastValidationDateTime">The date time when this backup was last validated.</param>
+        /// <param name="validationResult">The overall validation result for this backup. Possible values include: 'None',
+        /// 'Success', 'ChecksumMismatchFailure', 'BackupChainMissingFailure'
+        /// 
+        /// Overall validation result for this backup.
+        /// 
+        /// </param>
         /// <param name="serviceManifestVersion">Manifest Version of the service this partition backup belongs to.</param>
         /// <param name="failureError">Denotes the failure encountered in getting backup point information.</param>
         public BackupInfo(
@@ -41,6 +48,8 @@ namespace Microsoft.ServiceFabric.Common
             Epoch epochOfLastBackupRecord = default(Epoch),
             string lsnOfLastBackupRecord = default(string),
             DateTime? creationTimeUtc = default(DateTime?),
+            DateTime? lastValidationDateTime = default(DateTime?),
+            BackupValidationResult? validationResult = default(BackupValidationResult?),
             string serviceManifestVersion = default(string),
             FabricErrorError failureError = default(FabricErrorError))
         {
@@ -54,6 +63,8 @@ namespace Microsoft.ServiceFabric.Common
             this.EpochOfLastBackupRecord = epochOfLastBackupRecord;
             this.LsnOfLastBackupRecord = lsnOfLastBackupRecord;
             this.CreationTimeUtc = creationTimeUtc;
+            this.LastValidationDateTime = lastValidationDateTime;
+            this.ValidationResult = validationResult;
             this.ServiceManifestVersion = serviceManifestVersion;
             this.FailureError = failureError;
         }
@@ -109,6 +120,19 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets the date time when this backup was taken.
         /// </summary>
         public DateTime? CreationTimeUtc { get; }
+
+        /// <summary>
+        /// Gets the date time when this backup was last validated.
+        /// </summary>
+        public DateTime? LastValidationDateTime { get; }
+
+        /// <summary>
+        /// Gets the overall validation result for this backup. Possible values include: 'None', 'Success',
+        /// 'ChecksumMismatchFailure', 'BackupChainMissingFailure'
+        /// 
+        /// Overall validation result for this backup.
+        /// </summary>
+        public BackupValidationResult? ValidationResult { get; }
 
         /// <summary>
         /// Gets manifest Version of the service this partition backup belongs to.
