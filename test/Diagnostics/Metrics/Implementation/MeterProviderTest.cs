@@ -75,7 +75,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public DisposeTest() =>
                 typeof(MeterProvider<int>).Field<Func<object, int>>().Set(finalReleaseComObject);
 
-            override public void Dispose()
+            public override void Dispose()
             {
                 base.Dispose();
 

@@ -101,18 +101,11 @@ namespace Microsoft.ServiceFabric.Actors.Diagnostics
             }
 
             [Fact]
-            public void DisposesPerformanceCounterProvider()
+            public void DisposesAllDependencies()
             {
                 sut.Dispose();
 
                 performanceCounterProviderV2.Verify(p => p.Dispose(), Times.Once);
-            }
-
-            [Fact]
-            public void DisposesMeterProviders()
-            {
-                sut.Dispose();
-
                 timeSpanProvider.Verify(p => p.Dispose(), Times.Once);
                 longProvider.Verify(p => p.Dispose(), Times.Once);
             }
