@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="epochOfLastBackupRecord">Epoch of the last record in this backup.</param>
         /// <param name="lsnOfLastBackupRecord">LSN of the last record in this backup.</param>
         /// <param name="creationTimeUtc">The date time when this backup was taken.</param>
-        /// <param name="lastValidationDateTime">The date time when this backup was last validated.</param>
+        /// <param name="validationTimeUtc">The date time when this backup was last validated.</param>
         /// <param name="validationResult">The overall validation result for this backup. Possible values include: 'None',
         /// 'Success', 'ChecksumMismatchFailure', 'BackupChainMissingFailure'
         /// 
@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.Common
             Epoch epochOfLastBackupRecord = default(Epoch),
             string lsnOfLastBackupRecord = default(string),
             DateTime? creationTimeUtc = default(DateTime?),
-            DateTime? lastValidationDateTime = default(DateTime?),
+            DateTime? validationTimeUtc = default(DateTime?),
             BackupValidationResult? validationResult = default(BackupValidationResult?),
             string serviceManifestVersion = default(string),
             FabricErrorError failureError = default(FabricErrorError))
@@ -63,7 +63,7 @@ namespace Microsoft.ServiceFabric.Common
             this.EpochOfLastBackupRecord = epochOfLastBackupRecord;
             this.LsnOfLastBackupRecord = lsnOfLastBackupRecord;
             this.CreationTimeUtc = creationTimeUtc;
-            this.LastValidationDateTime = lastValidationDateTime;
+            this.ValidationTimeUtc = validationTimeUtc;
             this.ValidationResult = validationResult;
             this.ServiceManifestVersion = serviceManifestVersion;
             this.FailureError = failureError;
@@ -124,7 +124,7 @@ namespace Microsoft.ServiceFabric.Common
         /// <summary>
         /// Gets the date time when this backup was last validated.
         /// </summary>
-        public DateTime? LastValidationDateTime { get; }
+        public DateTime? ValidationTimeUtc { get; }
 
         /// <summary>
         /// Gets the overall validation result for this backup. Possible values include: 'None', 'Success',

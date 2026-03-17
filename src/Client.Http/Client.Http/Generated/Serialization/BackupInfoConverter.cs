@@ -43,7 +43,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var epochOfLastBackupRecord = default(Epoch);
             var lsnOfLastBackupRecord = default(string);
             var creationTimeUtc = default(DateTime?);
-            var lastValidationDateTime = default(DateTime?);
+            var validationTimeUtc = default(DateTime?);
             var validationResult = default(BackupValidationResult?);
             var serviceManifestVersion = default(string);
             var failureError = default(FabricErrorError);
@@ -91,9 +91,9 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     creationTimeUtc = reader.ReadValueAsDateTime();
                 }
-                else if (string.Compare("LastValidationDateTime", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Compare("ValidationTimeUtc", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    lastValidationDateTime = reader.ReadValueAsDateTime();
+                    validationTimeUtc = reader.ReadValueAsDateTime();
                 }
                 else if (string.Compare("ValidationResult", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
@@ -125,7 +125,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 epochOfLastBackupRecord: epochOfLastBackupRecord,
                 lsnOfLastBackupRecord: lsnOfLastBackupRecord,
                 creationTimeUtc: creationTimeUtc,
-                lastValidationDateTime: lastValidationDateTime,
+                validationTimeUtc: validationTimeUtc,
                 validationResult: validationResult,
                 serviceManifestVersion: serviceManifestVersion,
                 failureError: failureError);
@@ -187,9 +187,9 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 writer.WriteProperty(obj.CreationTimeUtc, "CreationTimeUtc", JsonWriterExtensions.WriteDateTimeValue);
             }
 
-            if (obj.LastValidationDateTime != null)
+            if (obj.ValidationTimeUtc != null)
             {
-                writer.WriteProperty(obj.LastValidationDateTime, "LastValidationDateTime", JsonWriterExtensions.WriteDateTimeValue);
+                writer.WriteProperty(obj.ValidationTimeUtc, "ValidationTimeUtc", JsonWriterExtensions.WriteDateTimeValue);
             }
 
             if (obj.ServiceManifestVersion != null)
