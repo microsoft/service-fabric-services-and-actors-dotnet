@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <Import Project="$(EnvironmentConfig)" />
+  <Import Project="$(SRCROOT)\properties\service_fabric_managed_prod.props" />
+  <PropertyGroup>
+    <ProjectGuid>{78E96697-CB1E-4158-8DD1-DE0471A18D2D}</ProjectGuid>
+    <AssemblyName>Microsoft.ServiceFabric.Data.Interfaces.V2</AssemblyName>
+    <AssemblyDescription>Microsoft Azure Service Fabric Data Interfaces V2</AssemblyDescription>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <!-- the root namespace is used by the resource generator - do not change it -->
+    <RootNamespace>Microsoft.ServiceFabric.Data</RootNamespace>
+    <OutputType>Library</OutputType>
+    <!-- this must be static. todo: move to separate repo bug/6079488 -->
+    <AssemblyVersion>5.0.0.0</AssemblyVersion>
+    <!-- Public SDK assembly must be AnyCPU to work on both AMD and ARM -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Microsoft.ServiceFabric.Data.Interfaces\_friends.cs" />
+    <Compile Include="IReliableDictionary3.cs" />
+    <Compile Include="IReliableDictionary4.cs" />
+    <Compile Include="IReliableDictionaryExtensions.cs" />
+    <Compile Include="OrdinalString.cs" />
+    <Compile Include="ReliableStateManagerReplicatorSettings2.cs" />
+    <Compile Include="VersionedKey.cs" />
+    <Compile Include="VersionedKeyValuePair.cs" />
+    <Compile Include="IReliableStateManager2.cs" />
+    <Compile Include="TransactionSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Api\Dlls\System.Fabric\System.Fabric.csproj" />
+    <ProjectReference Include="..\Microsoft.ServiceFabric.Data.Interfaces\Microsoft.ServiceFabric.Data.Interfaces.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="$(PkgSystem_Runtime_CompilerServices_Unsafe)\lib\net462\System.Runtime.CompilerServices.Unsafe.dll" />
+  </ItemGroup>
+  <Import Project="$(SRCROOT)\properties\service_fabric_managed.targets" />
+</Project>
