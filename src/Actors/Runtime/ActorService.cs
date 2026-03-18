@@ -348,8 +348,8 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTelemetry.ActorServiceReplicaCloseEvent(this.ActorManager.ActorService.Context);
 
             await this.actorManagerAdapter.CloseAsync(cancellationToken);
-            this.diagnostics.Dispose();
-            this.diagnosticsFactory.Dispose();
+
+            DisposeDiagnostics();
 
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "End close.");
         }
@@ -362,6 +362,14 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             ActorTrace.Source.WriteInfoWithId(TraceType, this.Context.TraceId, "Abort.");
 
             this.actorManagerAdapter.Abort();
+
+            DisposeDiagnostics();
+        }
+
+        void DisposeDiagnostics()
+        {
+            diagnostics.Dispose();
+            diagnosticsFactory.Dispose();
         }
 
         #endregion
