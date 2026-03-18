@@ -14,7 +14,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
     internal interface IActorStateProviderInternal
     {
         /// <summary>
-        /// Gets TraceType used for tracing.
+        /// Gets traceType used for tracing.
         /// </summary>
         string TraceType { get; }
 
