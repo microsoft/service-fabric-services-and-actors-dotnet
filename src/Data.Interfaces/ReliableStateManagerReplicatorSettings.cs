@@ -244,7 +244,7 @@ namespace Microsoft.ServiceFabric.Data
         /// <returns>The throttling threshold.</returns>
         public int? ThrottlingThresholdFactor { get; set; }
 
-#if !DotNetCoreClr
+#if NETFRAMEWORK
         // 12529905 - Disable new configuration for LogTruncationIntervalSeconds in CoreCLR
         /// <summary>
         /// Gets or sets a time interval at which log truncation will be initiated
@@ -396,7 +396,7 @@ namespace Microsoft.ServiceFabric.Data
                 builder.AppendFormat("SlowApiMonitoringDuration = {0}" + Environment.NewLine, this.SlowApiMonitoringDuration);
             }
 
-#if !DotNetCoreClr
+#if NETFRAMEWORK
             // 12529905 - Disable new configuration for LogTruncationIntervalSeconds in CoreCLR
             if (this.LogTruncationIntervalSeconds.HasValue)
             {
@@ -514,7 +514,7 @@ namespace Microsoft.ServiceFabric.Data
                 areEqual = old.SlowApiMonitoringDuration.HasValue && (old.SlowApiMonitoringDuration == updated.SlowApiMonitoringDuration);
             }
 
-#if !DotNetCoreClr
+#if NETFRAMEWORK
             // 12529905 - Disable new configuration for LogTruncationIntervalSeconds in CoreCLR
             if (areEqual && updated.LogTruncationIntervalSeconds.HasValue)
             {

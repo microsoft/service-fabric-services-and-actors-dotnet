@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <RootNamespace>Microsoft.ServiceFabric.Data</RootNamespace>
+  </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\Data.Interfaces\Microsoft.ServiceFabric.Data.Interfaces.csproj" />
+  </ItemGroup>
+</Project>

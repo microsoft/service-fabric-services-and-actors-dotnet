@@ -29,7 +29,6 @@
         <PackageVersion Include="Microsoft.Identity.Client" Version="4.61.3" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
         <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.892-beta" />
-        <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.892-beta" />
         <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageVersion Include="Moq" Version="4.20.72" />
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" /> <!-- Transitive dependency -->

@@ -85,7 +85,7 @@ namespace Microsoft.ServiceFabric.Data
             configuration = configuration ?? new ReliableStateManagerConfiguration();
 
             string assemblyPath = FabricEnvironment.GetCodePath();
-#if DotNetCoreClr
+#if NET
             assemblyPath = Path.Combine(assemblyPath, "NS_12");
 #endif
             assemblyPath = Path.Combine(assemblyPath, "Microsoft.ServiceFabric.Data.Impl.dll");

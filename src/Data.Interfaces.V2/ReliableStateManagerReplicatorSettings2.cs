@@ -233,7 +233,7 @@ namespace Microsoft.ServiceFabric.Data
                 areEqual = this.SlowApiMonitoringDuration.HasValue && (this.SlowApiMonitoringDuration == updated.SlowApiMonitoringDuration);
             }
 
-#if !DotNetCoreClr
+#if NETFRAMEWORK
             // 12529905 - Disable new configuration for LogTruncationIntervalSeconds in CoreCLR
             if (areEqual && updated.LogTruncationIntervalSeconds.HasValue)
             {
