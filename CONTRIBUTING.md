@@ -49,6 +49,10 @@ dotnet pack
 ```
 NuGet packages and PowerShell modules are produced in the [out/packages](./out/packages) directory.
 
+# Understand
+
+Agent- and human-readable instructions are available in the [.github](.github/) folder.
+
 # Pull Requests
 
 ## Service Fabric Engineers
