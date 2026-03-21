@@ -31,6 +31,7 @@
         <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.892-beta" />
         <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageVersion Include="Moq" Version="4.20.72" />
+        <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" /> <!-- Transitive dependency -->
         <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
         <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" /> <!-- Transitive dependency -->

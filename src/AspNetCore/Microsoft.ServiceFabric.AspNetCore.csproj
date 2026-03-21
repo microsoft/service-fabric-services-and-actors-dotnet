@@ -5,11 +5,10 @@
     <PackageId>$(AssemblyName).Abstractions</PackageId>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
-  <ItemGroup Condition="'$(TargetFramework)' != 'net462'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <PackageReference Include="Microsoft.AspNetCore.Hosting"/>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)' != 'net462'" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Condition="'$(TargetFramework)' == 'net462'"/>
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />

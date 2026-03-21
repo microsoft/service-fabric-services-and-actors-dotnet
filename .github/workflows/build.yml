@@ -23,13 +23,15 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - run: .\SkipStrongName.ps1
       - run: .\UninstallSfSdkFromGac.ps1
       - run: dotnet build -bl:"$env:Logs/build.binLog"
       - run: dotnet test --no-build --logger trx -bl:"$env:Logs/test.binLog"
       - run: dotnet pack --no-build -bl:"$env:Logs/pack.binLog"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: test-windows
@@ -38,13 +40,15 @@ jobs:
   test-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - run: dotnet build -bl:"$Logs/build.binLog"
       - run: dotnet test --no-build --logger trx --framework net8.0 -bl:"$Logs/test-net8.binLog"
       - run: dotnet test --no-build --logger trx --framework net9.0 -bl:"$Logs/test-net9.binLog"
       - run: dotnet test --no-build --logger trx --framework net10.0 -bl:"$Logs/test-net10.binLog"
       - run: dotnet pack --no-build -bl:"$Logs/pack.binLog"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: test-linux

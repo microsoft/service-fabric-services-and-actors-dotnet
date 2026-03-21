@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
   <ItemGroup>
