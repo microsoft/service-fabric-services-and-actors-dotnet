@@ -444,5 +444,35 @@ namespace Microsoft.ServiceFabric.Common
         /// FABRIC_E_CERTIFICATE_NOT_FOUND.
         /// </summary>
         FABRIC_E_CERTIFICATE_NOT_FOUND,
+
+        /// <summary>
+        /// FABRIC_E_SERVICE_ALREADY_IN_REQUESTED_STATE.
+        /// </summary>
+        FABRIC_E_SERVICE_ALREADY_IN_REQUESTED_STATE,
+
+        /// <summary>
+        /// FABRIC_E_SERVICE_DISABLE_IN_PROGRESS.
+        /// </summary>
+        FABRIC_E_SERVICE_DISABLE_IN_PROGRESS,
+
+        /// <summary>
+        /// FABRIC_E_DISABLE_ENABLE_SERVICE_FEATURE_DISABLED.
+        /// </summary>
+        FABRIC_E_DISABLE_ENABLE_SERVICE_FEATURE_DISABLED,
+
+        /// <summary>
+        /// FABRIC_E_MAX_ALLOWED_DISABLED_SERVICES_REACHED.
+        /// </summary>
+        FABRIC_E_MAX_ALLOWED_DISABLED_SERVICES_REACHED,
+
+        /// <summary>
+        /// FABRIC_E_SERVICE_DISABLED.
+        /// </summary>
+        FABRIC_E_SERVICE_DISABLED,
+
+        /// <summary>
+        /// FABRIC_E_OPERATION_FAILED_SERVICE_PURGED.
+        /// </summary>
+        FABRIC_E_OPERATION_FAILED_SERVICE_PURGED,
     }
 }

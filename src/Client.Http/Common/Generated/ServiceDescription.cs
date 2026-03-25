@@ -46,6 +46,9 @@ namespace Microsoft.ServiceFabric.Common
         /// Service Fabric cluster.</param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
+        /// <param name="isCreateAsDisabled">Indicates whether the service should be created in a disabled state. When set to
+        /// true, the service is created without placing any replicas or instances. The service stays disabled until you
+        /// explicitly enable it. The default value is false.</param>
         protected ServiceDescription(
             ServiceName serviceName,
             string serviceTypeName,
@@ -62,7 +65,8 @@ namespace Microsoft.ServiceFabric.Common
             ServicePackageActivationMode? servicePackageActivationMode = default(ServicePackageActivationMode?),
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
-            ServiceTags serviceTags = default(ServiceTags))
+            ServiceTags serviceTags = default(ServiceTags),
+            bool? isCreateAsDisabled = false)
         {
             serviceName.ThrowIfNull(nameof(serviceName));
             serviceTypeName.ThrowIfNull(nameof(serviceTypeName));
@@ -84,6 +88,7 @@ namespace Microsoft.ServiceFabric.Common
             this.ServiceDnsName = serviceDnsName;
             this.ScalingPolicies = scalingPolicies;
             this.ServiceTags = serviceTags;
+            this.IsCreateAsDisabled = isCreateAsDisabled;
         }
 
         /// <summary>
@@ -169,6 +174,13 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets service tags collections for placement and running of the service.
         /// </summary>
         public ServiceTags ServiceTags { get; }
+
+        /// <summary>
+        /// Gets indicates whether the service should be created in a disabled state. When set to true, the service is created
+        /// without placing any replicas or instances. The service stays disabled until you explicitly enable it. The default
+        /// value is false.
+        /// </summary>
+        public bool? IsCreateAsDisabled { get; }
 
         /// <summary>
         /// Gets the kind of service (Stateless or Stateful).

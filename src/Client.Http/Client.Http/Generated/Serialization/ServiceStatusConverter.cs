@@ -50,6 +50,14 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             {
                 obj = ServiceStatus.Failed;
             }
+            else if (string.Compare(value, "Disabling", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = ServiceStatus.Disabling;
+            }
+            else if (string.Compare(value, "Disabled", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = ServiceStatus.Disabled;
+            }
 
             return obj;
         }
@@ -80,6 +88,12 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                     break;
                 case ServiceStatus.Failed:
                     writer.WriteStringValue("Failed");
+                    break;
+                case ServiceStatus.Disabling:
+                    writer.WriteStringValue("Disabling");
+                    break;
+                case ServiceStatus.Disabled:
+                    writer.WriteStringValue("Disabled");
                     break;
                 default:
                     throw new ArgumentException($"Invalid value {value.ToString()} for enum type ServiceStatus");
