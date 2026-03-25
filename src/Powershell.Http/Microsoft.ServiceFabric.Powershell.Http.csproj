@@ -25,10 +25,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Client"/>
     <PackageReference Include="Microsoft.Win32.Registry" />
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="PowerShellStandard.Library" />
     <PackageReference Include="YamlDotNet" />
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="..\..\refs\SfSbzYamlMergeLib.dll" />
     <Reference Include="..\..\refs\Microsoft.ServiceFabric.YamlUtils.dll" />

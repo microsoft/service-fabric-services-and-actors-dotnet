@@ -3,13 +3,5 @@
   <PropertyGroup>
     <RepoRoot>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), .gitignore))\</RepoRoot>
     <RequestedVerbosity Condition=" '$(RequestedVerbosity)' == '' ">minimal</RequestedVerbosity>
-
-    <!-- TODO: Versions numbers are changed here manually for now, Integrate this with GitVersion. -->
-    <!-- We migrated Diagnostics package from WindowsFabric repo and we need to keep the versioning consistent -->
-    <MajorVersion>12</MajorVersion>
-    <MinorVersion>0</MinorVersion>
-    <BuildVersion>0</BuildVersion>
-    <Revision>28</Revision>
-
   </PropertyGroup>
 </Project>

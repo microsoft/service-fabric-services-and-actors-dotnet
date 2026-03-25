@@ -8,6 +8,9 @@
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Actors\Microsoft.ServiceFabric.Actors.csproj" />
     <ProjectReference Include="..\Services.Wcf\Microsoft.ServiceFabric.Services.Wcf.csproj" />
   </ItemGroup>

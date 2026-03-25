@@ -13,6 +13,9 @@
     <OutputType Condition="'$(TargetFramework)' == 'net462'">Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Actors\Microsoft.ServiceFabric.Actors.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -3,11 +3,10 @@
     <TargetFrameworks>net462;net8.0</TargetFrameworks>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
-  <ItemGroup Condition="'$(TargetFramework)' != 'net462'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <PackageReference Include="Microsoft.Extensions.Configuration"/>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)' != 'net462'" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Condition="'$(TargetFramework)' == 'net462'" />
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Services\Microsoft.ServiceFabric.Services.csproj" />
