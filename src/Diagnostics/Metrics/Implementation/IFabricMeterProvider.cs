@@ -19,6 +19,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     partial interface IFabricMeterProvider
     {
         [return: MarshalUsing(typeof(UniqueComInterfaceMarshaller<IFabricMeter>))]
-        IFabricMeter CreateMeter([MarshalAs(UnmanagedType.LPWStr)] string metricNamespace, [MarshalAs(UnmanagedType.LPWStr)] string name, uint count, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionNames);
+        IFabricMeter CreateMeter([MarshalAs(UnmanagedType.LPWStr)] string metricNamespace, [MarshalAs(UnmanagedType.LPWStr)] string name, uint count, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionNames, uint fixedDimensionCount, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] fixedDimensionValues);
     }
 }

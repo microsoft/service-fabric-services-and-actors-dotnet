@@ -1,7 +1,5 @@
-// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -26,28 +24,28 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
             if (serviceContext != null)
             {
-                systemDimensionNames = new[]
-                {
+                systemDimensionNames =
+                [
                     nameof(ServiceContext.PartitionId),
                     nameof(ServiceContext.ServiceTypeName),
                     nameof(ServiceContext.ServiceName),
                     nameof(ServiceContext.CodePackageActivationContext.ApplicationName),
                     nameof(ServiceContext.CodePackageActivationContext.ApplicationTypeName)
-                };
+                ];
 
-                systemDimensionValues = new[]
-                {
+                systemDimensionValues =
+                [
                     serviceContext.PartitionId.ToString(),
                     serviceContext.ServiceTypeName,
                     serviceContext.ServiceName.ToString(),
                     serviceContext.CodePackageActivationContext.ApplicationName,
                     serviceContext.CodePackageActivationContext.ApplicationTypeName
-                };
+                ];
             }
             else
             {
-                systemDimensionNames = Array.Empty<string>();
-                systemDimensionValues = Array.Empty<string>();
+                systemDimensionNames = [];
+                systemDimensionValues = [];
             }
         }
 
@@ -56,15 +54,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         protected IFabricMeter CreateNativeMeter(string metricNamespace, string metricName, IEnumerable<string> additionalDimensions)
         {
             if (IsDisposed())
-                throw new ObjectDisposedException(nameof(MeterProvider<TValueType>));
+                throw new ObjectDisposedException(nameof(MeterProvider<>));
 
-            var allDimensionsList = new List<string>(systemDimensionNames.Count + additionalDimensions.Count());
+            var allDimensionsNameList = new List<string>(systemDimensionNames.Count + additionalDimensions.Count());
 
-            allDimensionsList.AddRange(systemDimensionNames);
-            allDimensionsList.AddRange(additionalDimensions);
+            allDimensionsNameList.AddRange(systemDimensionNames);
+            allDimensionsNameList.AddRange(additionalDimensions);
 
-            string[] allDimensions = allDimensionsList.ToArray();
-            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensions.Length, allDimensions);
+            string[] allDimensions = [.. allDimensionsNameList];
+            string[] fixedDimensionsValues = [.. systemDimensionValues];
+
+            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensions.Length, allDimensions, (uint)fixedDimensionsValues.Length, fixedDimensionsValues);
         }
 
         public void Dispose()
