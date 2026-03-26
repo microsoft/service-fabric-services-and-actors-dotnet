@@ -18,6 +18,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     partial interface IFabricMeter
     {
-        void Record(long value, uint count, IntPtr dimensionValues);
+        void Record(long value, uint variableDimensionCount, IntPtr variableDimensionValues);
     }
 }
