@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric.Interop;
-using System.Linq;
 using System.Reflection;
 using Fuzzy;
 using Inspector;
@@ -78,9 +77,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public Record() => sutMethod = sut.Protected().Method<Action<long>>();
 
             [Fact]
-            public void CallsFabricMeterWithCombinedDimensions()
+            public void CallsFabricMeterWithNoDimensions()
             {
-                string[] expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = [];
 
                 sutMethod.Invoke(value);
 
@@ -139,9 +138,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 Assert.Throws<ArgumentOutOfRangeException>(() => sutMethod.Invoke(value, fuzzy.Int32().Minimum(4), dimension1Value, dimension2Value, dimension3Value));
 
             [Fact]
-            public void CallsNativeMeterRecordWithZeroCustomDimensionsAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithZeroCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = [];
 
                 sutMethod.Invoke(value, 0, dimension1Value, dimension2Value, dimension3Value);
 
@@ -150,9 +149,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsNativeMeterRecordWithOnCustomDimensionAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithOneCustomDimension()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value }).ToArray();
+                string[] expectedArray = [dimension1Value];
 
                 sutMethod.Invoke(value, 1, dimension1Value, dimension2Value, dimension3Value);
 
@@ -161,9 +160,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsNativeMeterRecordWithTwoCustomDimensionsAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithTwoCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value }).ToArray();
+                string[] expectedArray = [dimension1Value, dimension2Value];
 
                 sutMethod.Invoke(value, 2, dimension1Value, dimension2Value, dimension3Value);
 
@@ -172,9 +171,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsNativeMeterRecordWithThreeCustomDimensionsAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithThreeCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value, dimension3Value }).ToArray();
+                string[] expectedArray = [dimension1Value, dimension2Value, dimension3Value];
 
                 sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value);
 

@@ -54,9 +54,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsFabricMeterWithCombinedDimensions()
+            public void CallsFabricMeterWithNoDimensions()
             {
-                string[] expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = [];
 
                 sut.Record(value);
 

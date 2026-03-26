@@ -1,7 +1,5 @@
-// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
@@ -46,18 +44,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             if (customDimensionCount < 0 || customDimensionCount > 3)
                 throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
 
-            int dimensionCount = systemDimensionValues.Count + customDimensionCount;
-
-            GCHandle* dimensionPins = stackalloc GCHandle[dimensionCount];
-            IntPtr* dimensionValuesPointers = stackalloc IntPtr[dimensionCount];
+            GCHandle* dimensionPins = stackalloc GCHandle[customDimensionCount];
+            IntPtr* dimensionValuesPointers = stackalloc IntPtr[customDimensionCount];
 
             try
             {
                 int i = 0;
-                foreach (string systemDimensionValue in systemDimensionValues)
-                {
-                    dimensionPins[i++] = GCHandle.Alloc(systemDimensionValue, GCHandleType.Pinned);
-                }
 
                 if (customDimensionCount > 0)
                     dimensionPins[i++] = GCHandle.Alloc(dimension1Value, GCHandleType.Pinned);
@@ -69,17 +61,17 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                     dimensionPins[i++] = GCHandle.Alloc(dimension3Value, GCHandleType.Pinned);
 
 
-                for (i = 0; i < dimensionCount; i++)
+                for (i = 0; i < customDimensionCount; i++)
                 {
                     // for strings, AddrOfPinnedObject() returns a pointer to the first character - https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.gchandle.addrofpinnedobject
                     dimensionValuesPointers[i] = dimensionPins[i].AddrOfPinnedObject();
                 }
 
-                fabricMeter.Record(value, (uint)dimensionCount, (IntPtr)dimensionValuesPointers);
+                fabricMeter.Record(value, (uint)customDimensionCount, (IntPtr)dimensionValuesPointers);
             }
             finally
             {
-                for (int i = 0; i < dimensionCount; i++)
+                for (int i = 0; i < customDimensionCount; i++)
                 {
                     if (dimensionPins[i].IsAllocated)
                         dimensionPins[i].Free();

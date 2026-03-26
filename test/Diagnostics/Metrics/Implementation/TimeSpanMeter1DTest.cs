@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Fuzzy;
 using Inspector;
 using Moq;
@@ -56,9 +55,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsFabricMeterWithCombinedDimensions()
+            public void CallsFabricMeterWithCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value }).ToArray();
+                string[] expectedArray = [dimension1Value];
 
                 sut.Record(value, dimension1Value);
 
