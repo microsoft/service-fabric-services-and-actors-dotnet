@@ -1,11 +1,18 @@
 {
     "cSpell.words": [
         "accessibilities",
+        "cref",
         "DSTS",
+        "inheritdoc",
+        "langword",
         "nameof",
         "Nerdbank",
         "netframework",
         "netstandard",
-        "resx"
+        "paramref",
+        "resx",
+        "seealso",
+        "typeparam",
+        "typeparamref"
     ]
 }
