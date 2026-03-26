@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>Microsoft.ServiceFabric.Actors.Wcf</RootNamespace>
-    <IsTestProject Condition="!$([MSBuild]::IsOSPlatform('Windows'))">false</IsTestProject>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472</TargetFrameworks>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />

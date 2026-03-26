@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net472' And !$([MSBuild]::IsOSPlatform('Windows'))">
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+</Project>
