@@ -4,13 +4,11 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class Meter3D : Meter
     {
-        internal Meter3D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
+        internal Meter3D(IFabricMeter fabricMeter) : base(fabricMeter) { }
 
         protected void Record(long value, string dimension1Value, string dimension2Value, string dimension3Value)
         {

@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using Fuzzy;
 using Inspector;
 using Moq;
@@ -18,12 +17,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         // Constructor parameters
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
-        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
 
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        public TimeSpanMeter3DTest() => sut = new TimeSpanMeter3D(fabricMeter, systemDimensions);
+        public TimeSpanMeter3DTest() => sut = new TimeSpanMeter3D(fabricMeter);
 
         public class Class : TimeSpanMeter3DTest
         {
@@ -32,7 +30,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var meter = (Meter)sut;
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensions, meter.Field<IReadOnlyCollection<string>>().Value);
             }
         }
 

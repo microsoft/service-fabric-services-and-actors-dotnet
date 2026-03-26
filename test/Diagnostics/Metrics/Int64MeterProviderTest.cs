@@ -56,7 +56,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensionNames.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensionNames)), (uint)fixedDimensionValues.Length, It.Is<string[]>(arr => arr.SequenceEqual(fixedDimensionValues))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter)meter).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((Int64Meter)meter).Field<IReadOnlyCollection<string>>().Value);
             }
 
             [Fact]
@@ -69,7 +68,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensionNames.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensionNames)), (uint)fixedDimensionValues.Length, It.Is<string[]>(arr => arr.SequenceEqual(fixedDimensionValues))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter1D)meter1D).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((Int64Meter1D)meter1D).Field<IReadOnlyCollection<string>>().Value);
             }
 
             [Fact]
@@ -82,7 +80,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensionNames.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensionNames)), (uint)fixedDimensionValues.Length, It.Is<string[]>(arr => arr.SequenceEqual(fixedDimensionValues))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter2D)meter2D).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((Int64Meter2D)meter2D).Field<IReadOnlyCollection<string>>().Value);
             }
 
             [Fact]
@@ -95,7 +92,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
 
                 Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensionNames.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensionNames)), (uint)fixedDimensionValues.Length, It.Is<string[]>(arr => arr.SequenceEqual(fixedDimensionValues))), Times.Once);
                 Assert.Same(fabricMeter, ((Int64Meter3D)meter3D).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((Int64Meter3D)meter3D).Field<IReadOnlyCollection<string>>().Value);
             }
         }
     }

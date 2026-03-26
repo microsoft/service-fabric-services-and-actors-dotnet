@@ -1,10 +1,7 @@
-// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric.Interop;
 using System.Reflection;
 using Fuzzy;
@@ -22,14 +19,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
-        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
         readonly long value = fuzzy.Int64();
 
         protected string[] actualDimensions;
 
         public MeterTest()
         {
-            sut = new Mock<Meter>(fabricMeter, systemDimensions).Object;
+            sut = new Mock<Meter>(fabricMeter).Object;
 
             // capture strings emitted to IFabricMeter.Record for assertion in tests
             Mock.Get(fabricMeter)
@@ -42,31 +38,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void ThrowsArgumentNullExceptionWhenFabricMeterIsNull()
             {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter>(null, systemDimensions).Object);
-                Assert.IsType<ArgumentNullException>(exception.InnerException);
+                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter>(null).Object);
+                _ = Assert.IsType<ArgumentNullException>(exception.InnerException);
             }
 
             [Fact]
-            public void ThrowsArgumentNullExceptionWhenSystemDimensionsAreNull()
-            {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter>(fabricMeter, null).Object);
-                Assert.IsType<ArgumentNullException>(exception.InnerException);
-            }
-
-            [Fact]
-            public void SetsAllFieldsWhenSystemDimensionsAreEmpty()
-            {
-                Meter meter = new Mock<Meter>(fabricMeter, Array.Empty<string>()).Object;
-
-                Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Equal(Array.Empty<string>(), meter.Field<IReadOnlyCollection<string>>().Value);
-            }
-
-            [Fact]
-            public void SetsAllFields()
+            public void SetsFabricMeterField()
             {
                 Assert.Same(fabricMeter, sut.Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensions, sut.Field<IReadOnlyCollection<string>>().Value);
             }
         }
 
@@ -187,7 +166,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 sut.Dispose();
 
-                Assert.Throws<ObjectDisposedException>(() => sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value));
+                _ = Assert.Throws<ObjectDisposedException>(() => sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value));
             }
         }
     }

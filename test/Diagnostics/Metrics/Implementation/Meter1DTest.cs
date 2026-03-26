@@ -1,10 +1,7 @@
-// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Fuzzy;
 using Inspector;
@@ -18,22 +15,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
-        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
 
         public class Constructor : Meter1DTest
         {
             [Fact]
             public void ThrowsArgumentNullExceptionWhenMeterIsNull()
             {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter1D>(null, systemDimensions).Object);
-                Assert.IsType<ArgumentNullException>(exception.InnerException);
-            }
-
-            [Fact]
-            public void ThrowsArgumentNullExceptionWhenSystemDimensionsAreNull()
-            {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter1D>(fabricMeter, null).Object);
-                Assert.IsType<ArgumentNullException>(exception.InnerException);
+                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter1D>(null).Object);
+                _ = Assert.IsType<ArgumentNullException>(exception.InnerException);
             }
         }
 
@@ -49,7 +38,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
             public Record()
             {
-                sut = new Mock<Meter1D>(fabricMeter, systemDimensions).Object;
+                sut = new Mock<Meter1D>(fabricMeter).Object;
                 sutMethod = sut.Protected().Method<Action<long, string>>();
 
                 // capture strings emitted to IFabricMeter.Record for assertion in tests
@@ -70,10 +59,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void ThrowsExceptionIfCustomDimensionIsNull()
-            {
-                Assert.Throws<ArgumentNullException>(() => sutMethod.Invoke(value, null));
-            }
+            public void ThrowsExceptionIfCustomDimensionIsNull() => Assert.Throws<ArgumentNullException>(() => sutMethod.Invoke(value, null));
         }
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Fabric.Interop;
 using System.Runtime.InteropServices;
 
@@ -10,15 +9,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class Meter : IDisposable
     {
-        protected readonly IReadOnlyCollection<string> systemDimensionValues;
-
         IFabricMeter fabricMeter;
 
         static Func<object, int> finalReleaseComObject = Utility.FinalReleaseComObject;
 
-        internal Meter(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues)
+        internal Meter(IFabricMeter fabricMeter)
         {
-            this.systemDimensionValues = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
         }
 
