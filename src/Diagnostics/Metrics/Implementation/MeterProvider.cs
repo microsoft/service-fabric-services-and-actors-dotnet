@@ -63,10 +63,10 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             allDimensionsNameList.AddRange(systemDimensionNames);
             allDimensionsNameList.AddRange(additionalDimensions);
 
-            string[] allDimensions = [.. allDimensionsNameList];
+            string[] allDimensionNames = [.. allDimensionsNameList];
             string[] fixedDimensionsValues = [.. systemDimensionValues];
 
-            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensions.Length, allDimensions, (uint)fixedDimensionsValues.Length, fixedDimensionsValues);
+            return fabricMeterProvider.CreateMeter(metricNamespace, metricName, (uint)allDimensionNames.Length, allDimensionNames, (uint)fixedDimensionsValues.Length, fixedDimensionsValues);
         }
 
         public void Dispose()
