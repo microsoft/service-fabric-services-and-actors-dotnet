@@ -88,17 +88,6 @@ projects. We omit the `Microsoft.ServiceFabric` prefix and the `Tests` suffix fr
 - Read and follow the guidelines codified in the [.editorconfig](../.editorconfig) before writing or reviewing code
   - Pay attention to the `file_header_template` setting; existing files may have legacy headers that differ from the template
 
-### Documentation
-- Add doc-comments for public APIs only
-- Do not add doc-comments to internal or private members
-- Do not add optional doc-comment sections unless they contain distinct information. For example, don't add a `<value>`
-  section for a property if it already has the same information in the `<summary>` section. Also, don't add `<param>` sections
-  for a function if they re-state the information already obvious from the respective parameter names and types.
-- Use tags and attributes [valid for C#](https://learn.microsoft.com/dotnet/csharp/language-reference/xmldoc/recommended-tags);
-  Don't use undocumented tags like `<cref name="...">` or incorrect attributes.
-- Don't use redundant `<para>` tags. They are needed only when the parent section, such as `<remarks>` contains multiple
-  paragraphs.
-
 ## Build Conventions
 
 - **Central package management**: All package versions defined in `Directory.Packages.props`
