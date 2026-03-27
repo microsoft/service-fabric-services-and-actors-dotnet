@@ -1,0 +1,15 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+
+jobs:
+  copilot-setup-steps:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: .\SkipStrongName.ps1
+      - run: .\UninstallSfSdkFromGac.ps1
+      - run: dotnet restore

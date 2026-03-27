@@ -4,8 +4,15 @@ This repository contains the Service Fabric .NET libraries.
 
 ## Quick Reference
 
-- **Build**: `dotnet build`
-- **Test**: `dotnet test -c Release -f net10.0`
+- **Restore**: `dotnet restore`
+  - Restore packages the beginning to reduce subsequent build times
+- **Build**: `dotnet build -c Release --no-restore`
+  - Build specific projects to reduce build time
+- **Test**: `dotnet test -c Release --no-build`
+  - Run tests for specific projects to reduce test execution time
+  - We have known test failures in `Debug` configuration
+  - Run tests with `-f net472` and/or `-f net10.0` to speed up change verification
+  - Run all tests on all frameworks before considering the change completed
 - **Pack**: `dotnet pack` (output: `out/packages/`)
 - **Prerequisites**: Run `init.cmd` (Windows) or `init.sh` (Linux) first
 - See [CONTRIBUTING.md](../CONTRIBUTING.md) for full setup instructions
