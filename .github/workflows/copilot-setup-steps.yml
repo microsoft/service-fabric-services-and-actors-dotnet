@@ -13,6 +13,8 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - run: .\SkipStrongName.ps1
-      - run: .\UninstallSfSdkFromGac.ps1
+      - run: |
+          .\SkipStrongName.ps1
+          .\UninstallSfSdkFromGac.ps1
+        shell: pwsh # CCA uses Bash on Windows by default
       - run: dotnet restore
