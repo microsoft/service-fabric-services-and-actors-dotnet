@@ -70,7 +70,8 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [InlineData(null, "dimension2Value", null)]
             [InlineData(null, null, "dimension3Value")]
             [InlineData(null, null, null)]
-            public void ThrowsExceptionIfCustomDimensionIsNull(string dimension1Value, string dimension2Value, string dimension3Value) => Assert.Throws<ArgumentNullException>(() => sutMethod.Invoke(value, dimension1Value, dimension2Value, dimension3Value));
+            public void ThrowsExceptionIfCustomDimensionIsNull(string dimension1Value, string dimension2Value, string dimension3Value) =>
+                Assert.Throws<ArgumentNullException>(() => sutMethod.Invoke(value, dimension1Value, dimension2Value, dimension3Value));
         }
     }
 }

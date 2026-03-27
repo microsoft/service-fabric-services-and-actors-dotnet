@@ -35,41 +35,41 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         bool IsDisposed() => fabricMeter == null;
 
-        protected unsafe void RecordViaNative(long value, int customDimensionCount, string dimension1Value, string dimension2Value, string dimension3Value)
+        protected unsafe void RecordViaNative(long value, int variableDimensionCount, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             if (IsDisposed())
                 throw new ObjectDisposedException(nameof(Meter));
-            if (customDimensionCount < 0 || customDimensionCount > 3)
-                throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
+            if (variableDimensionCount < 0 || variableDimensionCount > 3)
+                throw new ArgumentOutOfRangeException(nameof(variableDimensionCount));
 
-            GCHandle* dimensionPins = stackalloc GCHandle[customDimensionCount];
-            IntPtr* dimensionValuesPointers = stackalloc IntPtr[customDimensionCount];
+            GCHandle* dimensionPins = stackalloc GCHandle[variableDimensionCount];
+            IntPtr* dimensionValuesPointers = stackalloc IntPtr[variableDimensionCount];
 
             try
             {
                 int i = 0;
 
-                if (customDimensionCount > 0)
+                if (variableDimensionCount > 0)
                     dimensionPins[i++] = GCHandle.Alloc(dimension1Value, GCHandleType.Pinned);
 
-                if (customDimensionCount > 1)
+                if (variableDimensionCount > 1)
                     dimensionPins[i++] = GCHandle.Alloc(dimension2Value, GCHandleType.Pinned);
 
-                if (customDimensionCount > 2)
+                if (variableDimensionCount > 2)
                     dimensionPins[i++] = GCHandle.Alloc(dimension3Value, GCHandleType.Pinned);
 
 
-                for (i = 0; i < customDimensionCount; i++)
+                for (i = 0; i < variableDimensionCount; i++)
                 {
                     // for strings, AddrOfPinnedObject() returns a pointer to the first character - https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.gchandle.addrofpinnedobject
                     dimensionValuesPointers[i] = dimensionPins[i].AddrOfPinnedObject();
                 }
 
-                fabricMeter.Record(value, (uint)customDimensionCount, (IntPtr)dimensionValuesPointers);
+                fabricMeter.Record(value, (uint)variableDimensionCount, (IntPtr)dimensionValuesPointers);
             }
             finally
             {
-                for (int i = 0; i < customDimensionCount; i++)
+                for (int i = 0; i < variableDimensionCount; i++)
                 {
                     if (dimensionPins[i].IsAllocated)
                         dimensionPins[i].Free();
