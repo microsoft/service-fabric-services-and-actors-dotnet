@@ -5,7 +5,7 @@ This repository contains the Service Fabric .NET libraries.
 ## Quick Reference
 
 - **Restore**: `dotnet restore`
-  - Restore packages the beginning to reduce subsequent build times
+  - Restore packages at the beginning to reduce subsequent build times
 - **Build**: `dotnet build -c Release --no-restore`
   - Build specific projects to reduce build time
 - **Test**: `dotnet test -c Release --no-build`
