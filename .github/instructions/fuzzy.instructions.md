@@ -1,4 +1,5 @@
 ---
+description: "Use when writing or reviewing tests."
 applyTo: "test/**"
 ---
 
@@ -15,7 +16,7 @@ applyTo: "test/**"
   - `examples/ListExample.cs`
   - `examples/StringExample.cs`
   - `examples/TimeSpanExample.cs`
-- Make sure the test project has a `<ProjectReference Include="Fuzzy"/>`
+- Make sure the test project has a `<PackageReference Include="Fuzzy"/>`
 - Check for Service Fabric-specific extensions in the `test/TestFramework/IFuzzExtensions.cs`.
 - Place project-specific extensions in the individual test projects, like `test/Services/IFuzzExtensions.cs`.
 

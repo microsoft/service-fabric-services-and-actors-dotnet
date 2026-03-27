@@ -1,4 +1,5 @@
 ---
+description: "Use when writing or reviewing tests."
 applyTo: "test/**"
 ---
 # Test Conventions

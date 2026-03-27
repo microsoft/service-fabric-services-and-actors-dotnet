@@ -1,4 +1,5 @@
 ---
+description: "Use when writing or reviewing tests."
 applyTo: "test/**"
 ---
 
@@ -13,7 +14,7 @@ applyTo: "test/**"
   - `examples/ParameterExample.cs`
   - `examples/PropertyAccessExample.cs`
   - `examples/TypeAccessExample.cs`
-- Make sure the test project has a `<ProjectReference Include="Inspector"/>`
+- Make sure the test project has a `<PackageReference Include="Inspector"/>`
 
 ## API Cheat-Sheet
 ```csharp
