@@ -248,23 +248,6 @@ when inputs of the same type are needed by different test classes. You can also 
 needed once if it helps to reduce complexity of the test setup. Use extensions in the `TestFramework` project for types
 needed by multiple test projects.
 
-## Use Moq for mocking
-
-Use [Moq](https://github.com/devlooped/moq) to stub or observe behavior of dependencies external to the component being
-tested.
-
-```csharp
-// Simple mock (most cases)
-readonly ICommunicationListener listener = Mock.Of<ICommunicationListener>();
-
-// Mock needing configuration
-readonly IServiceInstance instance = new Mock<IServiceInstance> { DefaultValue = DefaultValue.Mock }.Object;
-
-// Setup and verify via Mock.Get
-Mock.Get(listener).Setup(l => l.OpenAsync(It.IsAny<CancellationToken>())).ReturnsAsync("endpoint");
-Mock.Get(listener).Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once);
-```
-
 ## Use xUnit Assertions
 
 Use the most specific xUnit `Assert.*` methods:

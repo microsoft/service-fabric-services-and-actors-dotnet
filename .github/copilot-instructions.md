@@ -101,3 +101,23 @@ projects. We omit the `Microsoft.ServiceFabric` prefix and the `Tests` suffix fr
 - **C# version**: `latestMajor` (set in `Directory.Build.props`)
 - **Assembly signing**: Delay-signed with `properties/Key.snk`
 - **Conditional compilation**: `#if NET` for .NET Core code, `#if NETFRAMEWORK` for .NET Framework code
+
+## COM Interop Conventions
+
+- Product code must work identically on `net462` (legacy COM interop) and `net8.0+` (ComWrappers/`[GeneratedComInterface]`).
+  Prefer a single implementation over `#if`-separated code paths.
+- For COM method parameters that contain strings or string arrays, prefer passing a blittable struct via `IntPtr` rather
+  than using `[MarshalAs]` attributes. Marshalling attributes behave differently between legacy COM and ComWrappers,
+  but a blittable `IntPtr` passes through both runtimes without any marshalling.
+- Define native structs with `[StructLayout(LayoutKind.Sequential, Pack = 8)]` using only `IntPtr` and `uint` fields.
+  Include an `IntPtr Reserved` field for future extensibility (allowing `_EX1`, `_EX2` extensions).
+- Use `GCHandle.Alloc(value, GCHandleType.Pinned)` + `stackalloc` to pin strings and build pointer arrays on the caller
+  side. See `Meter.RecordViaNative` and `MeterProvider.CreateNativeMeter` for the canonical pattern.
+- Do not use `PinCollection` for new code unless the interop call requires it for other reasons.
+
+## Instruction File Conventions
+
+- Keep instruction files in `.github/instructions/` focused on a single topic.
+- When an instruction file grows beyond ~250 lines, split it by topic into separate files.
+- Name files after the topic they cover, e.g., `moq.instructions.md`, `fuzzy.instructions.md`.
+- Each file should have YAML frontmatter with an `applyTo` pattern scoping it to relevant files.
