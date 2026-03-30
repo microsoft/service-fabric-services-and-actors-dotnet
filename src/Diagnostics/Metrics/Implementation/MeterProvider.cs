@@ -84,16 +84,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 for (int i = 0; i < fixedDimValues.Length; i++)
                     fixedValuePtrs[i] = pins[2 + allDimensionNames.Length + i].AddrOfPinnedObject();
 
-                var description = new FABRIC_METER_DESCRIPTION
-                {
-                    Namespace = pins[0].AddrOfPinnedObject(),
-                    Name = pins[1].AddrOfPinnedObject(),
-                    TotalDimensionsCount = (uint)allDimensionNames.Length,
-                    DimensionNames = (IntPtr)dimensionNamePtrs,
-                    FixedDimensionCount = (uint)fixedDimValues.Length,
-                    FixedDimensionValues = (IntPtr)fixedValuePtrs,
-                    Reserved = IntPtr.Zero
-                };
+                FABRIC_METER_DESCRIPTION description;
+                description.Namespace = pins[0].AddrOfPinnedObject();
+                description.Name = pins[1].AddrOfPinnedObject();
+                description.TotalDimensionsCount = (uint)allDimensionNames.Length;
+                description.DimensionNames = (IntPtr)dimensionNamePtrs;
+                description.FixedDimensionCount = (uint)fixedDimValues.Length;
+                description.FixedDimensionValues = (IntPtr)fixedValuePtrs;
+                description.Reserved = IntPtr.Zero;
 
                 return fabricMeterProvider.CreateMeter((IntPtr)(&description));
             }
