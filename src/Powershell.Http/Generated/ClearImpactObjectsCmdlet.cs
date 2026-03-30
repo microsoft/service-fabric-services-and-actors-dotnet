@@ -42,14 +42,14 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public ImpactApprovalStatus? StatusFilter { get; set; }
 
         /// <summary>
-        /// Gets or sets KindFilter. Only clear impact objects of this operation kind (e.g., Restart, Remove, Add). Possible
-        /// values include: 'Unknown', 'Restart', 'Remove', 'Add'
+        /// Gets or sets OperationFilter. Only clear impact objects of this operation kind (e.g., Restart, Remove, Add).
+        /// Possible values include: 'Unknown', 'Restart', 'Remove', 'Add'
         /// 
-        /// The type of operation associated with the impacted instances (e.g., restarting, removing, or adding the impacted
+        /// The type of operation associated with the impacted instances (e.g., restart, removal, or addition of an impacted
         /// instance).
         /// </summary>
         [Parameter(Mandatory = false, Position = 3)]
-        public ImpactOperationKind? KindFilter { get; set; }
+        public ImpactOperationKind? OperationFilter { get; set; }
 
         /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the
@@ -73,7 +73,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             idFilter: this.IdFilter,
             typeFilter: this.TypeFilter,
             statusFilter: this.StatusFilter,
-            kindFilter: this.KindFilter);
+            operationFilter: this.OperationFilter);
 
             if (((this.Force != null) && this.Force) || this.ShouldContinue(string.Empty, string.Empty))
             {

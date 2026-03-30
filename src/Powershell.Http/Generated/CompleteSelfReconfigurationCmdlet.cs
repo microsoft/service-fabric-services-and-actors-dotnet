@@ -11,7 +11,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
     using Microsoft.ServiceFabric.Common;
 
     /// <summary>
-    /// Force-completes a stuck self-reconfiguration on a partition.
+    /// Forces completion of a stuck self-reconfiguration on a partition.
     /// </summary>
     [Cmdlet(VerbsLifecycle.Complete, "SFSelfReconfiguration")]
     public partial class CompleteSelfReconfigurationCmdlet : CommonCmdletBase

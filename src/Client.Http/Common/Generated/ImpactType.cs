@@ -16,22 +16,22 @@ namespace Microsoft.ServiceFabric.Common
         Unknown,
 
         /// <summary>
-        /// Impact is related to node deactivation.
+        /// The impact is related to a node deactivation.
         /// </summary>
         NodeDeactivation,
 
         /// <summary>
-        /// Impact is related to an application upgrade.
+        /// The impact is related to an application upgrade.
         /// </summary>
         ApplicationUpgrade,
 
         /// <summary>
-        /// Impact is related to a fabric upgrade.
+        /// The impact is related to a fabric upgrade.
         /// </summary>
         FabricUpgrade,
 
         /// <summary>
-        /// Impact is related to a partition.
+        /// The impact is related to a partition.
         /// </summary>
         Partition,
     }

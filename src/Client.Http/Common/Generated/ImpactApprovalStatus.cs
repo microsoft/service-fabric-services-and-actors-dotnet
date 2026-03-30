@@ -11,17 +11,17 @@ namespace Microsoft.ServiceFabric.Common
     public enum ImpactApprovalStatus
     {
         /// <summary>
-        /// No approval status.
+        /// No approval status has been set.
         /// </summary>
         None,
 
         /// <summary>
-        /// The impact is in nominal state.
+        /// The impact is in a nominal state.
         /// </summary>
         Nominal,
 
         /// <summary>
-        /// The impact is waiting for approval.
+        /// The impact is awaiting approval.
         /// </summary>
         WaitingForApproval,
 

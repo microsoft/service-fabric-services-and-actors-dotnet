@@ -13,8 +13,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
     /// <summary>
     /// Approves or acts on an impact approval object.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Start, "SFImpactAction")]
-    public partial class StartImpactActionCmdlet : CommonCmdletBase
+    [Cmdlet(VerbsCommon.New, "SFImpactAction")]
+    public partial class NewImpactActionCmdlet : CommonCmdletBase
     {
         /// <summary>
         /// Gets or sets ImpactId. The unique ID (GUID) of the impact approval object to act on.
@@ -40,7 +40,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// <inheritdoc/>
         protected override void ProcessRecordInternal()
         {
-            this.ServiceFabricClient.Cluster.StartImpactActionAsync(
+            this.ServiceFabricClient.Cluster.InvokeImpactActionAsync(
                 impactId: this.ImpactId,
                 impactActionKind: this.ImpactActionKind,
                 serverTimeout: this.ServerTimeout,

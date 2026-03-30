@@ -36,7 +36,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var idFilter = default(Guid?);
             var typeFilter = default(ImpactType?);
             var statusFilter = default(ImpactApprovalStatus?);
-            var kindFilter = default(ImpactOperationKind?);
+            var operationFilter = default(ImpactOperationKind?);
 
             do
             {
@@ -53,9 +53,9 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     statusFilter = ImpactApprovalStatusConverter.Deserialize(reader);
                 }
-                else if (string.Compare("KindFilter", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                else if (string.Compare("OperationFilter", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    kindFilter = ImpactOperationKindConverter.Deserialize(reader);
+                    operationFilter = ImpactOperationKindConverter.Deserialize(reader);
                 }
                 else
                 {
@@ -68,7 +68,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 idFilter: idFilter,
                 typeFilter: typeFilter,
                 statusFilter: statusFilter,
-                kindFilter: kindFilter);
+                operationFilter: operationFilter);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             writer.WriteStartObject();
             writer.WriteProperty(obj.TypeFilter, "TypeFilter", ImpactTypeConverter.Serialize);
             writer.WriteProperty(obj.StatusFilter, "StatusFilter", ImpactApprovalStatusConverter.Serialize);
-            writer.WriteProperty(obj.KindFilter, "KindFilter", ImpactOperationKindConverter.Serialize);
+            writer.WriteProperty(obj.OperationFilter, "OperationFilter", ImpactOperationKindConverter.Serialize);
             if (obj.IdFilter != null)
             {
                 writer.WriteProperty(obj.IdFilter, "IdFilter", JsonWriterExtensions.WriteGuidValue);

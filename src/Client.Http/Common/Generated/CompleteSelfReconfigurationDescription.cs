@@ -9,10 +9,10 @@ namespace Microsoft.ServiceFabric.Common
     using System.Collections.Generic;
 
     /// <summary>
-    /// Parameters for force-completing a stuck self-reconfiguration on a partition.
+    /// Parameters for forcing completion of a stuck self-reconfiguration on a partition.
     /// Use this when a self-reconfiguring service has a pending reconfiguration that
     /// is not making forward progress. Only activation-state reconfigurations (e.g.,
-    /// replica coming up or going down) can be completed; role-transition
+    /// a replica coming up or going down) can be completed; role-transition
     /// reconfigurations (e.g., Primary/Secondary swap) are not supported.
     /// The RequestSequenceNumber and ReportId values must match.
     /// </summary>

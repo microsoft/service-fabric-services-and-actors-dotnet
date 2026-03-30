@@ -611,7 +611,7 @@ namespace Microsoft.ServiceFabric.Client
             CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Force-completes a stuck self-reconfiguration on a partition.
+        /// Forces completion of a stuck self-reconfiguration on a partition.
         /// </summary>
         /// <remarks>
         /// Forces the Failover Manager to complete a self-reconfiguration that is stuck
@@ -620,14 +620,14 @@ namespace Microsoft.ServiceFabric.Client
         /// Self-reconfiguring services manage their own replica configuration. When a
         /// reconfiguration gets stuck (e.g., the service never reports completion), all
         /// operations requiring reconfiguration on that partition (node repair, deactivation,
-        /// replica moves) are blocked indefinitely. This API unblocks them by force-completing
-        /// the pending reconfiguration.
+        /// replica moves) are blocked indefinitely. This API unblocks them by forcing
+        /// completion of the pending reconfiguration.
         /// 
         /// Only activation-state reconfigurations are supported (replica coming up/going down).
         /// Role-transition reconfigurations (Primary/Secondary swap) are not supported.
         /// </remarks>
         /// <param name ="completeSelfReconfigurationDescription">The parameters identifying the stuck self-reconfiguration to
-        /// force-complete.</param>
+        /// complete.</param>
         /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.</param>

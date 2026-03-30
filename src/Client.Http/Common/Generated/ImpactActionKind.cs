@@ -11,12 +11,12 @@ namespace Microsoft.ServiceFabric.Common
     public enum ImpactActionKind
     {
         /// <summary>
-        /// The action kind is unknown.
+        /// Reserved default value. Do not use.
         /// </summary>
         Unknown,
 
         /// <summary>
-        /// Approve the impact.
+        /// Approves the impact, unblocking the associated operation.
         /// </summary>
         Approve,
     }

@@ -31,22 +31,22 @@ namespace Microsoft.ServiceFabric.Common
         /// 
         /// The current approval state of an impact object in the Failover Manager.
         /// </param>
-        /// <param name="kindFilter">Only clear impact objects of this operation kind (e.g., Restart, Remove, Add). Possible
-        /// values include: 'Unknown', 'Restart', 'Remove', 'Add'
+        /// <param name="operationFilter">Only clear impact objects of this operation kind (e.g., Restart, Remove, Add).
+        /// Possible values include: 'Unknown', 'Restart', 'Remove', 'Add'
         /// 
-        /// The type of operation associated with the impacted instances (e.g., restarting, removing, or adding the impacted
+        /// The type of operation associated with the impacted instances (e.g., restart, removal, or addition of an impacted
         /// instance).
         /// </param>
         public ImpactSelector(
             Guid? idFilter = default(Guid?),
             ImpactType? typeFilter = default(ImpactType?),
             ImpactApprovalStatus? statusFilter = default(ImpactApprovalStatus?),
-            ImpactOperationKind? kindFilter = default(ImpactOperationKind?))
+            ImpactOperationKind? operationFilter = default(ImpactOperationKind?))
         {
             this.IdFilter = idFilter;
             this.TypeFilter = typeFilter;
             this.StatusFilter = statusFilter;
-            this.KindFilter = kindFilter;
+            this.OperationFilter = operationFilter;
         }
 
         /// <summary>
@@ -75,9 +75,9 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets only clear impact objects of this operation kind (e.g., Restart, Remove, Add). Possible values include:
         /// 'Unknown', 'Restart', 'Remove', 'Add'
         /// 
-        /// The type of operation associated with the impacted instances (e.g., restarting, removing, or adding the impacted
+        /// The type of operation associated with the impacted instances (e.g., restart, removal, or addition of an impacted
         /// instance).
         /// </summary>
-        public ImpactOperationKind? KindFilter { get; }
+        public ImpactOperationKind? OperationFilter { get; }
     }
 }
