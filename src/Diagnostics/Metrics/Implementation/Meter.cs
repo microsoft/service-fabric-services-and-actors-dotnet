@@ -69,11 +69,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
             finally
             {
-                for (int i = 0; i < variableDimensionCount; i++)
-                {
-                    if (dimensionPins[i].IsAllocated)
-                        dimensionPins[i].Free();
-                }
+                Interop.Free(dimensionPins, variableDimensionCount);
             }
         }
     }

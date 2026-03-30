@@ -99,9 +99,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
             finally
             {
-                for (int i = 0; i < totalPins; i++)
-                    if (pins[i].IsAllocated)
-                        pins[i].Free();
+                Interop.Free(pins, totalPins);
             }
         }
 
