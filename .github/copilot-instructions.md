@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions for Service Fabric .NET SDK
 
-This repository contains the Service Fabric .NET libraries.
+Always read the [knowledge instructions](./instructions/knowledge.instructions.md) at the start of a session.
 
 ## Quick Reference
 

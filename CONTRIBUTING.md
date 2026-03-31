@@ -25,9 +25,19 @@ You can run `dotnet` commands in the root of the repo for all projects in the `c
 in a directory containing a specific project you're interested in. For example, `cd test/Services.Remoting` if you want
 to build and test only the `Microsoft.ServiceFabric.Services.Remoting.Tests.csproj` and its dependencies.
 
-## Build
+## Restore
+
+Restore local tools and packages.
 ```
-dotnet build
+dotnet tool restore
+dotnet restore
+```
+
+## Build
+
+Speed up build by skipping restore and building specific projects you're modifying, typically a test project.
+```
+dotnet build --no-restore
 ```
 
 ## Test
@@ -37,11 +47,8 @@ dotnet test -c Release -f net10.0
 The Remoting tests have known failures in the `Debug` configuration, so we use the `--configuration` parameter to run
 `Release` tests for all projects. This parameter can be omitted to run `Debug` tests for a specific project.
 
-On Linux, we specify the `--framework` parameter explicitly to avoid `net472` tests failures.
-This parameter can be omitted on Windows.
-
 On Windows, strong name verification must be disabled to avoid `net472` test failures.
-Run `init.cmd` or `SkipStrongName.ps1` if you encounter them.
+Run `init.cmd` or `eng\SkipStrongName.ps1` if you encounter them.
 
 ## Pack
 ```
@@ -49,9 +56,48 @@ dotnet pack
 ```
 NuGet packages and PowerShell modules are produced in the [out/packages](./out/packages) directory.
 
-# Understand
+## Integrate
 
-Agent- and human-readable instructions are available in the [.github](.github/) folder.
+You can build and test both Runtime and SDK packages locally.
+
+### Build the Runtime First
+
+```powershell
+cd C:\Src
+git clone https://msazure@dev.azure.com/msazure/One/_git/WindowsFabric
+cd C:\Src\WindowsFabric
+.\init.ps1 # Restore
+sfbuild -DevBuild $false # Pack
+```
+
+### Build SDK packages with local Runtime packages
+
+Open a separate, non-CoreXT shell.
+```powershell
+cd C:\Src\service-fabric-dotnet
+.\eng\ReferenceLocalRuntimePackages.ps1
+dotnet restore
+dotnet pack -c Debug
+```
+
+### Build Runtime packages with local SDK packages
+
+Use the same CoreXT shell you built the Runtime initially.
+```powershell
+cd C:\Src\WindowsFabric
+..\service-fabric-dotnet\eng\ReferenceLocalSdkPackages.ps1
+.\init.ps1 # Restore
+sfbuild -DevBuild $false # Pack
+```
+
+### Note
+
+You must repeat the `Reference` and `Restore` steps above when switching between the SDK and the Runtime builds to make
+sure you're building with latest package versions and assemblies.
+- Packages must be removed from the cache because version numbers may not change for every local build.
+- Package references must be updated because local versions may change based on branch names and commit history.
+- The CoreXT shell changes the NuGet package cache location for any projects built from it.
+- Building the SDK projects within the CoreXT shell is not supported and may not work.
 
 # Pull Requests
 
@@ -67,7 +113,8 @@ Agent- and human-readable instructions are available in the [.github](.github/) 
 - [Fork](https://docs.github.com/articles/fork-a-repo) this repository and implement your proposal in the fork.
 
 ## All Contributors
-- Create a [draft pull request](https://docs.github.com/articles/creating-a-pull-request) and make sure the validation
-  build completes successfully.
+- Create a [draft pull request](https://docs.github.com/articles/creating-a-pull-request).
+- Make sure the validation build completes successfully.
 - Link the pull request from the work item/issue you've created.
-- Publish the pull request and tag the person you were discussing it to review it.
+- Publish the pull request and address the Copilot review feedback.
+- Tag the person you were discussing your proposal to review the PR.

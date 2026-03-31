@@ -4,4 +4,4 @@ winget install Microsoft.DotNet.Runtime.8
 winget install Microsoft.DotNet.Runtime.9
 winget install Microsoft.DotNet.SDK.10
 
-pwsh SkipStrongName.ps1
+pwsh eng\SkipStrongName.ps1
