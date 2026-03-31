@@ -11,7 +11,7 @@ function GetRuntimePackagesPath([string] $runtimeRoot, [switch] $release) {
     [string] $path = Join-Path $runtimeRoot "out\packages\PublicSDK\$flavor-amd64"
 
     if (-not (Test-Path $path)) {
-        Write-Error "Runtime packages not found at '$path'. Build the runtime first: 'cd '$runtimeRoot' && .\init.ps1 && sfbuild'."
+        Write-Error "Runtime packages not found at '$path'. Build the runtime first: cd `"$runtimeRoot`" && .\init.ps1 && sfbuild."
     }
     return $path
 }
