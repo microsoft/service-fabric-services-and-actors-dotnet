@@ -30,7 +30,7 @@ $ErrorActionPreference = 'Stop'
 
 . (Join-Path $PSScriptRoot 'NuGetHelpers.ps1')
 
-[string] $RuntimeRoot = ValidateDirectoryParameter $RuntimeRoot 'RuntimeRoot'
+$RuntimeRoot = ValidateDirectoryParameter $RuntimeRoot 'RuntimeRoot'
 [string] $SdkRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 [string[]] $RuntimePackages = @(
     'Microsoft.ServiceFabric'
