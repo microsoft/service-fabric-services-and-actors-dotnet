@@ -50,18 +50,22 @@ function Main {
 }
 
 function GetRuntimePackageVersion([string] $packagesPath, [string] $packageName) {
-    [System.IO.FileInfo] $pkg = Get-ChildItem $packagesPath -Filter "$packageName.*.nupkg" |
-        Where-Object { $_.Name -notmatch '\.symbols\.' } |
-        Select-Object -First 1
-    if (-not $pkg) {
+    [System.IO.FileInfo[]] $packages = @(Get-ChildItem $packagesPath -Filter "$packageName.*.nupkg" |
+        Where-Object { $_.Name -notmatch '\.symbols\.' })
+    if ($packages.Count -eq 0) {
         Write-Error "Package '$packageName' not found in '$packagesPath'."
     }
-    if ($pkg.BaseName -match '^(.+?)\.(\d+\.\d+\.\d+-.+)$') {
+    if ($packages.Count -gt 1) {
+        Write-Error ("Multiple versions of '$packageName' found in '$packagesPath':`n  " +
+            ($packages.Name -join "`n  ") +
+            "`nDo a clean build of the runtime to produce a single version.")
+    }
+    if ($packages[0].BaseName -match '^(.+?)\.(\d+\.\d+\.\d+-.+)$') {
         [string] $version = $Matches[2]
         Write-Host "  $packageName`: $version"
         return $version
     }
-    Write-Error "Could not determine version from '$($pkg.Name)'."
+    Write-Error "Could not determine version from '$($packages[0].Name)'."
 }
 
 function UpdateRuntimePackageVersions([string] $propsPath, [string] $packagesPath) {
