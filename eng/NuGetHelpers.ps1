@@ -1,7 +1,7 @@
 function ValidateDirectoryParameter([string] $path, [string] $parameterName) {
     [string] $fullPath = [System.IO.Path]::GetFullPath($path)
-    if (-not (Test-Path $fullPath)) {
-        Write-Error "Specify -$parameterName explicitly because the default '$fullPath' doesn't exist."
+    if (-not (Test-Path -Path $fullPath -PathType Container)) {
+        Write-Error "Specify -$parameterName explicitly because the default directory '$fullPath' doesn't exist or is not a directory."
     }
     return $fullPath
 }
