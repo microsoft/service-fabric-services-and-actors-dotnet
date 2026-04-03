@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,6 +73,22 @@ public class RegisterReminderAsync
             Assert.True(reminderResult.IsValid());
 
             Assert.True(await signal.WaitAsync(signalTimeout, TestContext.Current.CancellationToken), "Reminder callback was not invoked");
+
+            Func<ActorBase, CancellationToken, Task<ActorReminder>> unregister = async (actorBase, cancellationToken) =>
+            {
+                await ((ITestableActor)actorBase).UnregisterReminderAsync(reminderResult);
+                return reminderResult;
+            };
+
+            await actorService.ActorManager.DispatchToActorAsync(
+                actorId: new ActorId("TestableActor1"),
+                actorMethodContext: new ActorMethodContext(),
+                createIfRequired: true,
+                unregister,
+                callContext: "TestCallContext",
+                timerCall: false,
+                cancellationToken: new CancellationToken());
+
             Assert.Equal(expectedReminderName, actualReminderName);
             Assert.Equal(expectedActorMethodName, actualActorMethodName);
             Assert.Equal(expectedActorCallType, actualActorCallType);
@@ -87,6 +104,7 @@ public class RegisterReminderAsync
 
             TimeSpan reminderDueTime = TimeSpan.FromSeconds(2);
             TimeSpan reminderPeriod = TimeSpan.FromSeconds(1);
+            TimeSpan tolerance = TimeSpan.FromSeconds(5);
 
             using var signal = new SemaphoreSlim(0);
 
@@ -102,6 +120,8 @@ public class RegisterReminderAsync
 
             ActorService actorService = await TestableActorService.GetActorService<TestableActor>(actorFactory);
 
+            var stopwatch = Stopwatch.StartNew();
+
             IActorReminder reminderResult = await actorService.ActorManager.DispatchToActorAsync(
                 actorId: new ActorId("TestableActor2"),
                 actorMethodContext: new ActorMethodContext(),
@@ -112,7 +132,28 @@ public class RegisterReminderAsync
                 cancellationToken: new CancellationToken());
 
             Assert.True(await signal.WaitAsync(signalTimeout, TestContext.Current.CancellationToken), "Reminder was not invoked after due time");
+            TimeSpan firstCallbackElapsed = stopwatch.Elapsed;
+
             Assert.True(await signal.WaitAsync(signalTimeout, TestContext.Current.CancellationToken), "Reminder was not invoked after period");
+            TimeSpan secondCallbackElapsed = stopwatch.Elapsed;
+
+            Func<ActorBase, CancellationToken, Task<IActorReminder>> unregister = async (actorBase, cancellationToken) =>
+            {
+                await ((ITestableActor)actorBase).UnregisterReminderAsync(reminderResult);
+                return reminderResult;
+            };
+
+            await actorService.ActorManager.DispatchToActorAsync(
+                actorId: new ActorId("TestableActor2"),
+                actorMethodContext: new ActorMethodContext(),
+                createIfRequired: true,
+                unregister,
+                callContext: "TestCallContext",
+                timerCall: false,
+                cancellationToken: new CancellationToken());
+
+            Assert.InRange(firstCallbackElapsed, reminderDueTime, reminderDueTime + tolerance);
+            Assert.InRange(secondCallbackElapsed - firstCallbackElapsed, reminderPeriod, reminderPeriod + tolerance);
         }
     }
 
