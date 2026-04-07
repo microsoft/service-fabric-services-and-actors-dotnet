@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric.Description;
 using System.Threading;
 using FluentAssertions;
@@ -33,20 +32,6 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         private const string DefaultPathPrefix = "PathPrefix";
         private const int DefaultExpectedPort = 0;
         private string urlFromListenerToBuildFunc;
-
-        /// <summary>
-        /// Gets strings for the Host Type - GenericHost.
-        /// </summary>
-        public static IEnumerable<object[]> HostTypes
-        {
-            get
-            {
-                return new List<object[]>
-                {
-                    new object[] { "GenericHost" },
-                };
-            }
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether WebHost/GenericHost was started/stopped.

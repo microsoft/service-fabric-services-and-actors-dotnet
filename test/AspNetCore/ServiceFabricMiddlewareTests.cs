@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -49,32 +48,16 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         }
 
         /// <summary>
-        /// Gets strings for the Host Type - GenericHost.
-        /// </summary>
-        public static IEnumerable<object[]> HostTypes
-        {
-            get
-            {
-                return new List<object[]>
-                {
-                    new object[] { "GenericHost" },
-                };
-            }
-        }
-
-        /// <summary>
-        /// Verify ErrorCode 410 is returned from Middleware, when UrlSuffix in Middleware doesn't match with what listener used
+        /// Verify ErrorCode 410is returned from Middleware, when UrlSuffix in Middleware doesn't match with what listener used
         /// when constructing url before returning to Naming Service.
         /// </summary>
-        /// <param name="hostType">The type of host used to create the listener.</param>
         /// <returns>A <see cref="Task"/> tracking asynchronous test completion.</returns>
-        [Theory]
-        [MemberData(nameof(HostTypes))]
-        public async Task VerifyReturnCode410(string hostType)
+        [Fact]
+        public async Task VerifyReturnCode410()
         {
             var nextCalled = false;
 
-            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext(), hostType);
+            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext());
             this.listener.ConfigureToUseUniqueServiceUrl();
             var middleware = new ServiceFabricMiddleware(
                 (httpContext) =>
@@ -94,12 +77,10 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         /// <summary>
         /// Verify next RequestDelegate invocation when Path is valid.
         /// </summary>
-        /// <param name="hostType">The type of host used to create the listener.</param>
-        [Theory]
-        [MemberData(nameof(HostTypes))]
-        public void VerifyNextInvocationWithUrlSuffix(string hostType)
+        [Fact]
+        public void VerifyNextInvocationWithUrlSuffix()
         {
-            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext(), hostType);
+            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext());
 
             // configure listener useUniqueServiceUrl
             this.listener.ConfigureToUseUniqueServiceUrl();
@@ -109,12 +90,10 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         /// <summary>
         /// Verify next RequestDelegate invocation when Path is valid.
         /// </summary>
-        /// <param name="hostType">The type of host used to create the listener.</param>
-        [Theory]
-        [MemberData(nameof(HostTypes))]
-        public void VerifyNextInvocatioWithoutUrlSuffix(string hostType)
+        [Fact]
+        public void VerifyNextInvocatioWithoutUrlSuffix()
         {
-            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext(), hostType);
+            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext());
 
             // do not configure listener useUniqueServiceUrl
             this.VerifyNextInvocation();
@@ -123,12 +102,10 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         /// <summary>
         /// Verify Path and PathBase in next RequestDelegate invocation.
         /// </summary>
-        /// <param name="hostType">The type of host used to create the listener.</param>
-        [Theory]
-        [MemberData(nameof(HostTypes))]
-        public void VerifyPathsInNextInvocationWithUrlSuffix(string hostType)
+        [Fact]
+        public void VerifyPathsInNextInvocationWithUrlSuffix()
         {
-            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext(), hostType);
+            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext());
 
             // configure listener useUniqueServiceUrl
             // In this case urlSuffix will be /PArtitionId/ReplicaId
@@ -139,12 +116,10 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         /// <summary>
         /// Verify Path and PathBase in next RequestDelegate invocation.
         /// </summary>
-        /// <param name="hostType">The type of host used to create the listener.</param>
-        [Theory]
-        [MemberData(nameof(HostTypes))]
-        public void VerifyPathsInNextInvocationWithoutUrlSuffix(string hostType)
+        [Fact]
+        public void VerifyPathsInNextInvocationWithoutUrlSuffix()
         {
-            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext(), hostType);
+            this.listener = this.CreateListener(TestMocksRepository.GetMockStatelessServiceContext());
 
             // do not configure listener useUniqueServiceUrl
             // In this case urlSuffix will be empty
@@ -245,7 +220,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             return mockHost.Object;
         }
 
-        private KestrelCommunicationListener CreateListener(StatelessServiceContext context, string hostType)
+        private KestrelCommunicationListener CreateListener(StatelessServiceContext context)
         {
             return new KestrelCommunicationListener(context, (uri, listen) => this.IHostBuildFunc(uri, listen));
         }
