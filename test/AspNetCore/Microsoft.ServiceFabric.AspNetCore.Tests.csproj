@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <!-- TODO Fix https://aka.ms/aspnet/deprecate/008 and remove -->
-    <WarningsNotAsErrors>ASPDEPR008</WarningsNotAsErrors>
+    <!-- Continue IWebHost support until its removed from ASP.NET Core https://aka.ms/aspnet/deprecate/008 -->
+    <NoWarn Condition="'$(TargetFramework)' == 'net10.0'">ASPDEPR008</NoWarn>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
