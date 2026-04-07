@@ -37,7 +37,7 @@ dotnet restore
 
 Speed up build by skipping restore and building specific projects you're modifying, typically a test project.
 ```
-dotnet build --no-restore
+dotnet build -graph --no-restore
 ```
 
 ## Test
