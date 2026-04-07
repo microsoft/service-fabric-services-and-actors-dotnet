@@ -8,7 +8,6 @@ using System.Fabric;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.TestFramework;
 using Xunit;
@@ -52,7 +51,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             try
             {
                 await result;
-                actor.IsDirty.Should().BeFalse("ReentrancyGuard IsDirty should be set to false");
+                Assert.False(actor.IsDirty, "ReentrancyGuard IsDirty should be set to false");
             }
             finally
             {
@@ -69,15 +68,15 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.LogicalCallContext);
             var context = Guid.NewGuid().ToString();
             await guard.Acquire(context, null, CancellationToken.None);
-            guard.Test_CurrentContext.Should().Be(context);
-            guard.Test_CurrentCount.Should().Be(1);
+            Assert.Equal(context, guard.Test_CurrentContext);
+            Assert.Equal(1, guard.Test_CurrentCount);
 
             Action action = () => guard.ReleaseContext(Guid.NewGuid().ToString()).Wait();
-            action.Should().Throw<AggregateException>();
+            Assert.Throws<AggregateException>(action);
 
             await guard.ReleaseContext(context);
-            guard.Test_CurrentContext.Should().NotBe(context);
-            guard.Test_CurrentCount.Should().Be(0);
+            Assert.NotEqual(context, guard.Test_CurrentContext);
+            Assert.Equal(0, guard.Test_CurrentCount);
         }
 
         [Fact]
@@ -87,20 +86,20 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             var guard = this.CreateAndInitializeReentrancyGuard(actor, ActorReentrancyMode.Disallowed);
             var context = Guid.NewGuid().ToString();
             await guard.Acquire(context, null, CancellationToken.None);
-            guard.Test_CurrentContext.Should().Be(context);
-            guard.Test_CurrentCount.Should().Be(1);
+            Assert.Equal(context, guard.Test_CurrentContext);
+            Assert.Equal(1, guard.Test_CurrentCount);
 
             Action action = () => guard.Acquire(context, null, CancellationToken.None).Wait();
-            action.Should().Throw<AggregateException>();
+            Assert.Throws<AggregateException>(action);
 
             await guard.ReleaseContext(context);
-            guard.Test_CurrentContext.Should().NotBe(context);
-            guard.Test_CurrentCount.Should().Be(0);
+            Assert.NotEqual(context, guard.Test_CurrentContext);
+            Assert.Equal(0, guard.Test_CurrentCount);
         }
 
         private static Task<bool> ReplacementHandler(ActorBase actor)
         {
-            actor.IsDirty.Should().BeTrue("Expect actor to be in dirty state when handler invoked");
+            Assert.True(actor.IsDirty, "Expect actor to be in dirty state when handler invoked");
             actor.IsDirty = false;
             return Task.FromResult(true);
         }
@@ -109,17 +108,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         {
             var test = Guid.NewGuid().ToString();
             guard.Acquire(test, null, CancellationToken.None).Wait();
-            guard.Test_CurrentCount.Should().Be(1);
+            Assert.Equal(1, guard.Test_CurrentCount);
             currentContext = test;
             for (var i = 0; i < 10; i++)
             {
                 var testContext = test + ":" + Guid.NewGuid().ToString();
                 guard.Acquire(testContext, null, CancellationToken.None).Wait();
-                testContext.Should().StartWith(currentContext, "Call context Prefix Matching ");
+                Assert.StartsWith(currentContext, testContext);
                 guard.ReleaseContext(testContext).Wait();
             }
 
-            guard.Test_CurrentCount.Should().Be(1);
+            Assert.Equal(1, guard.Test_CurrentCount);
             guard.ReleaseContext(test).Wait();
         }
 

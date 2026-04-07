@@ -7,7 +7,6 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
 {
     using System;
     using System.Text;
-    using FluentAssertions;
     using Microsoft.ServiceFabric.Services.Remoting.V2;
     using Microsoft.ServiceFabric.Services.Remoting.V2.Messaging;
     using Xunit;
@@ -26,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             var headers = new ServiceRemotingResponseMessageHeader();
             var serializer = new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager());
             var serializedHeader = serializer.SerializeResponseHeader(headers);
-            serializedHeader.Should().BeNull();
+            Assert.Null(serializedHeader);
         }
 
         /// <summary>
@@ -40,8 +39,8 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests
             headers.AddHeader("CustomHeader", Encoding.ASCII.GetBytes(data));
             var serializer = new ServiceRemotingMessageHeaderSerializer(new BufferPoolManager());
             var serializedHeader = serializer.SerializeResponseHeader(headers);
-            serializedHeader.Should().NotBeNull();
-            serializedHeader.GetSendBuffer().Count.Should().BeGreaterThan(0);
+            Assert.NotNull(serializedHeader);
+            Assert.True(serializedHeader.GetSendBuffer().Count > 0);
         }
     }
 }

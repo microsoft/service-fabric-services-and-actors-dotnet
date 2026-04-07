@@ -4,7 +4,6 @@
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Fuzzy" />
     <PackageReference Include="Inspector" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" />
