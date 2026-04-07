@@ -114,7 +114,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             {
                 var testContext = test + ":" + Guid.NewGuid().ToString();
                 guard.Acquire(testContext, null, CancellationToken.None).Wait();
-                Assert.StartsWith(currentContext, testContext);
+                Assert.StartsWith(currentContext, testContext); // Call context Prefix Matching
                 guard.ReleaseContext(testContext).Wait();
             }
 

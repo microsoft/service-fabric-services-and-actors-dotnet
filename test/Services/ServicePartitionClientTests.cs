@@ -49,8 +49,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 retryCount,
                 retryDelay);
 
-            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke);
-            Assert.Equal(retryCount, result.CallCount);
+            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke); // Should indicate a canceled operation.
+            Assert.Equal(retryCount, result.CallCount); // Should cancel when token is signaled.
             Assert.True(result.CancellationTokenSource.Token.IsCancellationRequested, "Cancellation should have occured due to the token.");
         }
 
@@ -74,7 +74,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             sw.Stop();
 
             Assert.True(sw.ElapsedMilliseconds > (long)clientRetryTimeout.TotalMilliseconds - StopwatchPrecisionMs, "Should be longer than the ClientRetryTimeout.");
-            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke);
+            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke); // $"Should indicate a canceled operation. {result.ExceptionFromInvoke}"
             Assert.True(result.CallCount < retryCount, "Should cancel before token is signaled.");
             Assert.False(result.CancellationTokenSource.Token.IsCancellationRequested, "Cancellation should have occured due to the timer.");
         }
@@ -100,7 +100,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             sw.Stop();
 
             Assert.True(sw.ElapsedMilliseconds > (long)clientRetryTimeout.TotalMilliseconds - StopwatchPrecisionMs, "Should be longer than the ClientRetryTimeout.");
-            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke);
+            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke); // $"Should indicate a canceled operation. {result.ExceptionFromInvoke}"
             Assert.True(result.CallCount < retryCount, "Should cancel before token is signaled.");
         }
 
@@ -125,7 +125,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
 
             Assert.True(sw.ElapsedMilliseconds > (long)clientRetryTimeout.TotalMilliseconds - StopwatchPrecisionMs, "Should be longer than the ClientRetryTimeout.");
             Assert.True(sw.ElapsedMilliseconds < (long)retryDelay.TotalMilliseconds, "Should return before the retry delay.");
-            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke);
+            Assert.IsAssignableFrom<OperationCanceledException>(result.ExceptionFromInvoke); // Should indicate a canceled operation.
             Assert.True(result.CallCount < retryCount, "Should cancel before token is signaled.");
             Assert.False(result.CancellationTokenSource.Token.IsCancellationRequested, "Cancellation should have occured due to the timer.");
         }

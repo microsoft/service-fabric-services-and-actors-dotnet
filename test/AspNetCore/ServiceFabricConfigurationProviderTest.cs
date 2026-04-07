@@ -36,14 +36,14 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
 
             var context = new TestCodePackageActivationContext(contextConfig);
             var names = context.GetCodePackageNames();
-            Assert.Single(names);
+            Assert.Single(names); // Only 1 config package
 
             var builder = new ConfigurationBuilder();
             builder.AddServiceFabricConfiguration(context);
             var config = builder.Build();
 
             Assert.Equal("Xiaoxiao", config["Config:Section1:Name"]);
-            Assert.Null(config["Section1:Name"]);
+            Assert.Null(config["Section1:Name"]); // Default behavior shall include the package name in key.
             Assert.Equal("6", config["Config:Section1:Age"]);
             Assert.Null(config["Config:Gender"]);
             Assert.Equal("M", config["Config:Section1:Gender"]);
@@ -196,7 +196,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             builder2.AddServiceFabricConfiguration(context, (options) => options.DecryptValue = true);
 
             Action config2 = () => builder2.Build();
-            Assert.ThrowsAny<Exception>(config2);
+            Assert.ThrowsAny<Exception>(config2); // Exception expected here because DecryptValue will fail here with invalid values.
         }
 
         /// <summary>

@@ -68,12 +68,12 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         {
             this.builder.UseServiceFabricIntegration(this.listener, ServiceFabricIntegrationOptions.None);
             Assert.True(this.servicesConfigured, "services are configured.");
-            Assert.Empty(this.listener.UrlSuffix);
+            Assert.Empty(this.listener.UrlSuffix); // listener is not Configured to use UniqueServiceUrl.
 
             // Call the UseServiceFabricIntegration() again and verify that its dual invocation, doesn't have adverse affect.
             this.builder.UseServiceFabricIntegration(this.listener, ServiceFabricIntegrationOptions.None);
             Assert.True(this.servicesConfigured, "services are configured.");
-            Assert.Empty(this.listener.UrlSuffix);
+            Assert.Empty(this.listener.UrlSuffix); // listener is not Configured to use UniqueServiceUrl.
         }
 
         /// <summary>
@@ -85,12 +85,12 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             // ServiceFabricIntegrationOptions.None doesn't adds middleware and doesn't configures listener to use UrlSuffix.
             this.builder.UseServiceFabricIntegration(this.listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl);
             Assert.True(this.servicesConfigured, "services are configured.");
-            Assert.NotEmpty(this.listener.UrlSuffix);
+            Assert.NotEmpty(this.listener.UrlSuffix); // listener is Configured to use UniqueServiceUrl.
 
             // Call the UseServiceFabricIntegration() again and verify that its dual invocation, doesn't have adverse affect.
             this.builder.UseServiceFabricIntegration(this.listener, ServiceFabricIntegrationOptions.UseUniqueServiceUrl);
             Assert.True(this.servicesConfigured, "services are configured.");
-            Assert.NotEmpty(this.listener.UrlSuffix);
+            Assert.NotEmpty(this.listener.UrlSuffix); // listener is Configured to use UniqueServiceUrl.
         }
 
         private IWebHost BuildFunc(string url, AspNetCoreCommunicationListener listener)

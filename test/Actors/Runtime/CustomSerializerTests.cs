@@ -23,7 +23,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [Fact]
         public void VerifyActorReminderDataSerialization()
         {
-            Assert.Null(ActorReminderDataSerializer.Deserialize(ActorReminderDataSerializer.Serialize(null)));
+            Assert.Null(ActorReminderDataSerializer.Deserialize(ActorReminderDataSerializer.Serialize(null))); // ActorReminderData is null
 
             foreach (var data in GetActorReminderList())
             {
@@ -37,14 +37,14 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
 
                 if (data.State == null)
                 {
-                    Assert.Null(deserializedData.State);
+                    Assert.Null(deserializedData.State); // ActorReminder.State serialization
                 }
                 else
                 {
-                    Assert.True(data.State.SequenceEqual(deserializedData.State));
+                    Assert.True(data.State.SequenceEqual(deserializedData.State)); // ActorReminder.State serialization
                 }
 
-                Assert.Equal(data.LogicalCreationTime, deserializedData.LogicalCreationTime);
+                Assert.Equal(data.LogicalCreationTime, deserializedData.LogicalCreationTime); // ActorReminder.LogicalCreationTime serialization.
             }
         }
 
@@ -54,13 +54,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [Fact]
         public void VerifyReminderCompletedDataSerialization()
         {
-            Assert.Null(ReminderCompletedDataSerializer.Deserialize(ReminderCompletedDataSerializer.Serialize(null)));
+            Assert.Null(ReminderCompletedDataSerializer.Deserialize(ReminderCompletedDataSerializer.Serialize(null))); // Null ReminderCompletedDataSerializer serialization
 
             var data = new ReminderCompletedData(TimeSpan.MinValue, DateTime.MaxValue);
             var deserializedData = ReminderCompletedDataSerializer.Deserialize(ReminderCompletedDataSerializer.Serialize(data));
 
-            Assert.Equal(data.LogicalTime, deserializedData.LogicalTime);
-            Assert.Equal(data.UtcTime, deserializedData.UtcTime);
+            Assert.Equal(data.LogicalTime, deserializedData.LogicalTime); // ReminderCompletedData.LogicalTime.
+            Assert.Equal(data.UtcTime, deserializedData.UtcTime); // ReminderCompletedData.UtcTime.
         }
 
         /// <summary>
@@ -69,12 +69,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [Fact]
         public void VerifyLogicalTimestampSerialization()
         {
-            Assert.Null(LogicalTimestampSerializer.Deserialize(LogicalTimestampSerializer.Serialize(null)));
+            Assert.Null(LogicalTimestampSerializer.Deserialize(LogicalTimestampSerializer.Serialize(null))); // Null LogicalTimestampSerializer serialization
 
             var data = new LogicalTimestamp(TimeSpan.MaxValue);
             var deserializedData = LogicalTimestampSerializer.Deserialize(LogicalTimestampSerializer.Serialize(data));
 
-            Assert.Equal(data.Timestamp, deserializedData.Timestamp);
+            Assert.Equal(data.Timestamp, deserializedData.Timestamp); // LogicalTimestamp.Timestamp serialization.
         }
 
         private static List<ActorReminderData> GetActorReminderList()

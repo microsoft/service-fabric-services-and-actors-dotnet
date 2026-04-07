@@ -157,7 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             public void RemotingMessageEndObserveShortSerializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddTicks(elapsedNanoseconds / 100L));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddNanoseconds(elapsedNanoseconds));
 
                 sut.OnRemotingRequestEnd(requestStartTime);
 
@@ -210,7 +210,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             public void TransportMessageEndObserveShortDeserializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddTicks(elapsedNanoseconds / 100L));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddNanoseconds(elapsedNanoseconds));
 
                 sut.OnCreateTransportMessageEnd(requestStartTime);
 
@@ -230,5 +230,11 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
                     .Set(requestDeserializationTimeCounterWriter);
             }
         }
+    }
+
+    static class DateTimeExtensions
+    {
+        internal static DateTime AddNanoseconds(this DateTime dateTime, long nanoseconds)
+            => dateTime.AddTicks(nanoseconds / 100L);
     }
 }

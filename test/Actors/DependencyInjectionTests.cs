@@ -41,10 +41,10 @@ namespace Microsoft.ServiceFabric.Actors.Tests
 
             ConsoleLogHelper.LogInfo("Verifying Public Actor Members...");
 
-            Assert.Equal(mockActorId, mockActor.Id);
-            Assert.Equal(mockActorService.GetHashCode(), mockActor.ActorService.GetHashCode());
-            Assert.Equal(mockActorService.Context.CodePackageActivationContext.ApplicationName, mockActor.ApplicationName);
-            Assert.Equal(mockActorService.Context.ServiceName, mockActor.ServiceUri);
+            Assert.Equal(mockActorId, mockActor.Id); // Id from Actor should be what was passed while creating the actor
+            Assert.Equal(mockActorService.GetHashCode(), mockActor.ActorService.GetHashCode()); // ActorService from actor should be what was passed while creating Actor.
+            Assert.Equal(mockActorService.Context.CodePackageActivationContext.ApplicationName, mockActor.ApplicationName); // Application Name from Actor should be same as what is coming form service's CodePackageActiviationContext
+            Assert.Equal(mockActorService.Context.ServiceName, mockActor.ServiceUri); // ServiceUri from Actor should be same as what is coming form ServiceContext
 
             ConsoleLogHelper.LogInfo("Verifying Actor State Mockability...");
             await mockActor.VerifyActorStateMockabilityAsync();
@@ -70,43 +70,43 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             {
                 // Try to cover all code path for ActorStateManager to ensure they are mockable.
                 await this.StateManager.AddStateAsync("State1", 10);
-                Assert.Equal(10, await this.StateManager.GetStateAsync<int>("State1"));
+                Assert.Equal(10, await this.StateManager.GetStateAsync<int>("State1")); // 10 was added for State1 using AddStateAsync
 
                 await this.StateManager.GetOrAddStateAsync("State2", 10);
-                Assert.Equal(10, await this.StateManager.GetOrAddStateAsync("State2", 20));
+                Assert.Equal(10, await this.StateManager.GetOrAddStateAsync("State2", 20)); // New value of State2 should not be added by GetOrAddStateAsync as it exists already
 
                 await this.StateManager.AddOrUpdateStateAsync("State3", 10, (s, i) => 20);
-                Assert.Equal(10, await this.StateManager.GetStateAsync<int>("State3"));
+                Assert.Equal(10, await this.StateManager.GetStateAsync<int>("State3")); // 10 was added for State3 using AddOrUpdateStateAsync(add).
 
                 await this.StateManager.AddOrUpdateStateAsync("State3", 10, (s, i) => 20);
-                Assert.Equal(20, await this.StateManager.GetStateAsync<int>("State3"));
+                Assert.Equal(20, await this.StateManager.GetStateAsync<int>("State3")); // 10 was added for State3 with AddOrUpdateStateAsync(update).
 
                 await this.StateManager.SetStateAsync("State3", 30);
-                Assert.Equal(30, await this.StateManager.GetStateAsync<int>("State3"));
+                Assert.Equal(30, await this.StateManager.GetStateAsync<int>("State3")); // 30 was added for State3 using SetStateAsync(update).
 
                 await this.StateManager.SetStateAsync("State4", 10);
-                Assert.Equal(10, await this.StateManager.GetStateAsync<int>("State4"));
+                Assert.Equal(10, await this.StateManager.GetStateAsync<int>("State4")); // 10 was added for State4 using SetStateAsync(add).
 
-                Assert.Equal(4, (await this.StateManager.GetStateNamesAsync()).Count());
+                Assert.Equal(4, (await this.StateManager.GetStateNamesAsync()).Count()); // 4 states have been added (GetStateNamesAsync verification).
 
                 await this.StateManager.RemoveStateAsync("State1");
                 Action action = () => this.StateManager.RemoveStateAsync("State1").GetAwaiter().GetResult();
-                Assert.Throws<KeyNotFoundException>(action);
+                Assert.Throws<KeyNotFoundException>(action); // State1 was removed using RemoveStateAsync (RemoveStateAsync verification)
 
                 action = () => this.StateManager.GetStateAsync<int>("State1").GetAwaiter().GetResult();
-                Assert.Throws<KeyNotFoundException>(action);
+                Assert.Throws<KeyNotFoundException>(action); // State1 was removed using RemoveStateAsync (GetStateAsync verification)
 
-                Assert.False(await this.StateManager.ContainsStateAsync("State1"));
-                Assert.True(await this.StateManager.ContainsStateAsync("State2"));
+                Assert.False(await this.StateManager.ContainsStateAsync("State1")); // State1 has been removed (ContainsStateAsync(State2) verification)
+                Assert.True(await this.StateManager.ContainsStateAsync("State2")); // State2 hasn't been removed (ContainsStateAsync(State2) verification)
 
-                Assert.True(await this.StateManager.TryAddStateAsync("State5", 10));
-                Assert.False(await this.StateManager.TryAddStateAsync("State4", 10));
+                Assert.True(await this.StateManager.TryAddStateAsync("State5", 10)); // State5 is added for first time (TryAddStateAsync(1) verification)
+                Assert.False(await this.StateManager.TryAddStateAsync("State4", 10)); // State4 is being added again (TryAddStateAsync(2) verification)
 
-                Assert.True((await this.StateManager.TryGetStateAsync<int>("State2")).HasValue);
-                Assert.False((await this.StateManager.TryGetStateAsync<int>("State1")).HasValue);
+                Assert.True((await this.StateManager.TryGetStateAsync<int>("State2")).HasValue); // STate2 hasn't been removed (TryGetStateAsync(1) verification)
+                Assert.False((await this.StateManager.TryGetStateAsync<int>("State1")).HasValue); // State1 ahs been removed (TryGetStateAsync(2) verification)
 
-                Assert.True(await this.StateManager.TryRemoveStateAsync("State2"));
-                Assert.False(await this.StateManager.TryRemoveStateAsync("State1"));
+                Assert.True(await this.StateManager.TryRemoveStateAsync("State2")); // State2 hasn't been removed yet (TryRemoveStateAsync(1) verification)
+                Assert.False(await this.StateManager.TryRemoveStateAsync("State1")); // State1 has been removed already (TryRemoveStateAsync(2) verification).
 
                 await this.StateManager.SaveStateAsync();
                 await this.SaveStateAsync();
@@ -116,19 +116,19 @@ namespace Microsoft.ServiceFabric.Actors.Tests
             public async Task VerifyRemiderMockabilityAsync()
             {
                 Action action = () => this.GetReminder("NonExistingReminder");
-                Assert.Throws<ReminderNotFoundException>(action);
+                Assert.Throws<ReminderNotFoundException>(action); // reminder doesn't exist.
 
                 await this.RegisterReminderAsync("MockReminder", null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
                 var reminder = this.GetReminder("MockReminder");
-                Assert.Equal("MockReminder", reminder.Name);
-                Assert.Null(reminder.State);
-                Assert.Equal(TimeSpan.FromSeconds(2), reminder.DueTime);
-                Assert.Equal(TimeSpan.FromSeconds(2), reminder.Period);
+                Assert.Equal("MockReminder", reminder.Name); // Reminder was registered with this name
+                Assert.Null(reminder.State); // Reminder was registered will null state
+                Assert.Equal(TimeSpan.FromSeconds(2), reminder.DueTime); // Reminder was registered with this due time
+                Assert.Equal(TimeSpan.FromSeconds(2), reminder.Period); // Reminder was registered with this period
 
                 await this.UnregisterReminderAsync(reminder);
 
                 action = () => this.GetReminder("MockReminder");
-                Assert.Throws<ReminderNotFoundException>(action);
+                Assert.Throws<ReminderNotFoundException>(action); // reminder was removed and doesn't exist.
             }
 
             public void VerifyTimerMockability()
