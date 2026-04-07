@@ -57,7 +57,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             this.servicesConfigured = false;
 
             var context = TestMocksRepository.GetMockStatelessServiceContext();
-            this.listener = new KestrelCommunicationListener(context, (uri, listen) => this.BuildFunc(uri, listen));
+            this.listener = new KestrelCommunicationListener(context, (uri, listen) => Mock.Of<IHost>());
         }
 
         /// <summary>
@@ -92,8 +92,5 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             this.servicesConfigured.Should().BeTrue("services are configured.");
             this.listener.UrlSuffix.Should().NotBeEmpty("listener is Configured to use UniqueServiceUrl.");
         }
-
-        private IHost BuildFunc(string url, AspNetCoreCommunicationListener listener)
-            => Mock.Of<IHost>();
     }
 }
