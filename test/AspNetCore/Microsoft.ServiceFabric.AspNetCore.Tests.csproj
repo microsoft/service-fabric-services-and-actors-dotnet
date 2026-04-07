@@ -4,7 +4,7 @@
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <PropertyGroup>
-    <!-- Continue IWebHost support until its removed from ASP.NET Core https://aka.ms/aspnet/deprecate/008 -->
+    <!-- Continue IWebHost support until it's removed from ASP.NET Core https://aka.ms/aspnet/deprecate/008 -->
     <NoWarn Condition="'$(TargetFramework)' == 'net10.0'">$(NoWarn);ASPDEPR008</NoWarn>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
