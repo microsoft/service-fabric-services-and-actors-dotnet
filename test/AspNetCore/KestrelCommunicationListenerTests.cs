@@ -17,7 +17,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
     public class KestrelCommunicationListenerTests : AspNetCoreCommunicationListenerTests
     {
         // 1. When no endpointRef is provided:
-        //   a. url given to Func to create IWebHost/IHost should be http://+:0
+        //   a. url given to Func to create IHost should be http://+:0
         //   b. url returned from OpenAsync should be http://IPAddressOrFQDN:0/PartitionId/ReplicaId
         //
         //
@@ -103,14 +103,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
 
         private KestrelCommunicationListener CreateListener(StatelessServiceContext context, string endpointName, string hostType)
         {
-            if (hostType == "WebHost")
-            {
-                return new KestrelCommunicationListener(context, endpointName, (uri, listen) => this.IWebHostBuildFunc(uri, listen));
-            }
-            else
-            {
-                return new KestrelCommunicationListener(context, endpointName, (uri, listen) => this.IHostBuildFunc(uri, listen));
-            }
+            return new KestrelCommunicationListener(context, endpointName, (uri, listen) => this.IHostBuildFunc(uri, listen));
         }
     }
 }

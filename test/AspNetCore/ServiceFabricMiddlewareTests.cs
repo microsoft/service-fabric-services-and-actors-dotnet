@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Fabric;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
@@ -50,7 +49,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
         }
 
         /// <summary>
-        /// Gets strings for the two Host Types - WebHost and GenericHost.
+        /// Gets strings for the Host Type - GenericHost.
         /// </summary>
         public static IEnumerable<object[]> HostTypes
         {
@@ -58,7 +57,6 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             {
                 return new List<object[]>
                 {
-                    new object[] { "WebHost" },
                     new object[] { "GenericHost" },
                 };
             }
@@ -224,18 +222,6 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             this.httpContext.Request.PathBase.ToString().Should().BeEmpty("PathBase after next RequestDelegate has been called should be empty");
         }
 
-        private IWebHost IWebHostBuildFunc(string url, AspNetCoreCommunicationListener listener)
-        {
-            var mockServerAddressFeature = new Mock<IServerAddressesFeature>();
-            mockServerAddressFeature.Setup(y => y.Addresses).Returns(new string[] { url });
-            var featureCollection = new FeatureCollection();
-            featureCollection.Set(mockServerAddressFeature.Object);
-
-            // Create mock IWebHost and set required things used by this test.
-            var mockWebHost = new Mock<IWebHost>();
-            return mockWebHost.Object;
-        }
-
         private IHost IHostBuildFunc(string url, AspNetCoreCommunicationListener listener)
         {
             var mockServerAddressFeature = new Mock<IServerAddressesFeature>();
@@ -261,14 +247,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
 
         private KestrelCommunicationListener CreateListener(StatelessServiceContext context, string hostType)
         {
-            if (hostType == "WebHost")
-            {
-                return new KestrelCommunicationListener(context, (uri, listen) => this.IWebHostBuildFunc(uri, listen));
-            }
-            else
-            {
-                return new KestrelCommunicationListener(context, (uri, listen) => this.IHostBuildFunc(uri, listen));
-            }
+            return new KestrelCommunicationListener(context, (uri, listen) => this.IHostBuildFunc(uri, listen));
         }
     }
 }

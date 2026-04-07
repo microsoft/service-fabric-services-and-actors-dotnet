@@ -7,9 +7,8 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Moq;
 using Xunit;
@@ -94,16 +93,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             this.listener.UrlSuffix.Should().NotBeEmpty("listener is Configured to use UniqueServiceUrl.");
         }
 
-        private IWebHost BuildFunc(string url, AspNetCoreCommunicationListener listener)
-        {
-            var mockServerAddressFeature = new Mock<IServerAddressesFeature>();
-            mockServerAddressFeature.Setup(y => y.Addresses).Returns(new string[] { url });
-            var featureCollection = new FeatureCollection();
-            featureCollection.Set(mockServerAddressFeature.Object);
-
-            // Create mock IWebHost and set required things used by this test.
-            var mockWebHost = new Mock<IWebHost>();
-            return mockWebHost.Object;
-        }
+        private IHost BuildFunc(string url, AspNetCoreCommunicationListener listener)
+            => Mock.Of<IHost>();
     }
 }
