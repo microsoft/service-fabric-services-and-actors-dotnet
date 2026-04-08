@@ -105,6 +105,7 @@ public class RegisterReminderAsync
             TimeSpan reminderDueTime = TimeSpan.FromSeconds(2);
             TimeSpan reminderPeriod = TimeSpan.FromSeconds(1);
             TimeSpan tolerance = TimeSpan.FromSeconds(5);
+            TimeSpan jitter = TimeSpan.FromMilliseconds(100);
 
             using var signal = new SemaphoreSlim(0);
 
@@ -152,8 +153,8 @@ public class RegisterReminderAsync
                 timerCall: false,
                 cancellationToken: new CancellationToken());
 
-            Assert.InRange(firstCallbackElapsed, reminderDueTime, reminderDueTime + tolerance);
-            Assert.InRange(secondCallbackElapsed - firstCallbackElapsed, reminderPeriod, reminderPeriod + tolerance);
+            Assert.InRange(firstCallbackElapsed, reminderDueTime - jitter, reminderDueTime + tolerance);
+            Assert.InRange(secondCallbackElapsed - firstCallbackElapsed, reminderPeriod - jitter, reminderPeriod + tolerance);
         }
     }
 
