@@ -47,7 +47,7 @@ dotnet build -graph --no-restore
 dotnet test -c Release -f net10.0
 ```
 - `-c Release` avoids known failures in the `Debug` configuration of some test projects.
-- `-f net10.0` or `-f net472` reduces test time by limiting them to a specific .NET frameworks.
+- `-f net10.0` or `-f net472` reduces test time by limiting them to a specific .NET framework.
 - You must run tests on all frameworks, without the `-f` switch, to verify all code changes.
 - On Windows, the `net472` tests will fail unless strong name verification of Service Fabric assemblies was disabled by
   `init.cmd` or `eng\SkipStrongName.ps1`.
