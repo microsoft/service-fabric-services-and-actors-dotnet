@@ -39,6 +39,8 @@ dotnet restore
 dotnet build -graph --no-restore
 ```
 - `-graph` eliminates the `MSB3026` warnings from multiple projects trying to copy the same file to the shared build output.
+  Note that it prevents MSBuild from using environment variables as properties and you may have to specify them explicitly
+  instead, i.e. `-c Release` or `-p PublicRelease=true`.
 - `--no-restore` saves a few seconds for every build
 
 
