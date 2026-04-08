@@ -26,11 +26,8 @@
         <PackageVersion Include="FluentAssertions" Version="6.12.0" />
         <PackageVersion Include="Fuzzy" Version="0.1.18" />
         <PackageVersion Include="Inspector" Version="0.1.30" />
-        <PackageVersion Include="Microsoft.AspNetCore.Diagnostics" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
-        <PackageVersion Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.9" /> <!-- Transitive of Microsoft.AspNetCore.Hosting -->
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.9" />
         <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.5" />
