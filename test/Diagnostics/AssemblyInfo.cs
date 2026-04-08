@@ -8,3 +8,7 @@ using Xunit;
 // Run tests sequentially to prevent failures in tests that depend on global state.
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
 [assembly: CaptureConsole]
+
+#if NET
+[assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTraceDllFixture))]
+#endif

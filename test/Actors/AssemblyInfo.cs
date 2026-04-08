@@ -16,4 +16,8 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 
 [assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTelemetryDllFixture))]
 
+#if NET
+[assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTraceDllFixture))]
+#endif
+
 [assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]

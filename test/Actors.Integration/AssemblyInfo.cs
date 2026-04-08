@@ -10,3 +10,7 @@ using Xunit;
 [assembly: CaptureConsole]
 
 [assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTelemetryDllFixture))]
+
+#if NET
+[assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTraceDllFixture))]
+#endif

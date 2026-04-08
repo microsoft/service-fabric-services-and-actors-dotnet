@@ -8,11 +8,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.Tracing;
 using System.IO;
-using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
+using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
@@ -43,8 +43,7 @@ namespace Microsoft.ServiceFabric
             singleton.Value.Dispose();
 
 #if NET
-            // Disable Linux detection in the test instance to allow tests to run without UnstructuredTracePublisher which fails without FabricCommon
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(_ => false);
+            traceDllFixture = new FabricTraceDllFixture();
 #endif
 
             Instance = Type<TEventSource>.New();
@@ -63,7 +62,7 @@ namespace Microsoft.ServiceFabric
 
             // Restore original static state
 #if NET
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(new Func<OSPlatform, bool>(RuntimeInformation.IsOSPlatform));
+            traceDllFixture.Dispose();
 #endif
             singleton.Set(Type<TEventSource>.New());
         }
@@ -185,6 +184,10 @@ namespace Microsoft.ServiceFabric
         #region Implementation
 
         const EventKeywords AllSessions = (EventKeywords)(0xFul << 44);
+
+#if NET
+        readonly FabricTraceDllFixture traceDllFixture;
+#endif
 
         // The EventSource class is expected to have a static, get-only property returning the singleton instance.
         readonly Property<TEventSource> singleton = typeof(TEventSource).Property<TEventSource>();
