@@ -4,11 +4,24 @@
       <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     </PropertyGroup>
 
+    <!--
+      Versions of the transitive dependencies must be specified explicitly when
+      * An implicitly-resolved package version is deprecated or vulnerable.
+      * Different versions of the same package are implicitly resolved by different projects.
+
+      Whenever you're changing packages or their versions make sure the entire graph of dependencies is consistent.
+      * Run `dotnet build -bl` and check the msbuild.binlog in MSBuildStructuredLogViewer for `DoubleWrites`.
+        Double writes are typically produced by different versions of the same package copied to the build output.
+      * Run `dotnet why {package}` to understand what produces different versions of the same package.
+        With multi-level transient dependencies typical for package families like `Microsoft.AspNetCore.*` a second-level
+        transient dependency may produce multiple double writes in third-level package dependencies.
+      * Explicitly specify (pin) version of packages that produce the largest reduction in double writes. In other words,
+        don't pin multiple third-level dependencies if you can pin a single second-level dependency.
+      * Add end-of-line comment to pinned transitive dependencies and explain why it was needed.
+      * Remove transitive pins that are no longer necessary.
+    -->
+
     <!-- Sort packages by name to reduce merge conflicts -->
-
-    <!-- These transitive dependencies are pinned to resolve net462 assembly version conflicts
-    between the Service Fabric beta packages and other direct dependencies. -->
-
     <ItemGroup>
         <PackageVersion Include="FluentAssertions" Version="6.12.0" />
         <PackageVersion Include="Fuzzy" Version="0.1.18" />
@@ -16,6 +29,7 @@
         <PackageVersion Include="Microsoft.AspNetCore.Diagnostics" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.3.9" />
+        <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.9" /> <!-- Transitive of Microsoft.AspNetCore.Hosting -->
         <PackageVersion Include="Microsoft.AspNetCore.Mvc" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.9" />
@@ -38,6 +52,7 @@
         <PackageVersion Include="System.Reflection.Emit" Version="4.7.0" />
         <PackageVersion Include="System.Reflection.Emit.ILGeneration" Version="4.7.0" />
         <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+        <PackageVersion Include="System.ValueTuple" Version="4.6.1" /> <!-- Transitive of Microsoft.Identity.Client -->
         <PackageVersion Include="xunit.v3" Version="3.2.1" />
         <PackageVersion Include="xunit.v3.assert" Version="3.2.1" />
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.1" />
