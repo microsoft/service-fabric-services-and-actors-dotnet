@@ -4,12 +4,7 @@
       <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     </PropertyGroup>
 
-    <!--
-      Transitive pins resolve net462 double-write conflicts.
-      Comment each pin with the source of the conflict.
-      See .github/instructions/package.instructions.md.
-    -->
-
+    <!-- See .github/instructions/package.instructions.md -->
     <!-- Sort packages by name to reduce merge conflicts -->
     <ItemGroup>
         <PackageVersion Include="FluentAssertions" Version="6.12.0" />
