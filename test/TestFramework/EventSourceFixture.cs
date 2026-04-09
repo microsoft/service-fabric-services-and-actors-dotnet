@@ -4,16 +4,18 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Runtime.InteropServices;
-using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 
-namespace Microsoft.ServiceFabric.TestFramework;
+#if NET
+using System.Runtime.InteropServices;
+using Inspector;
+#endif
+
+namespace Microsoft.ServiceFabric;
 
 /// <summary>
-/// Disables <see cref="ServiceFabricEventSource"/> Linux detection to prevent
-/// <c>UnstructuredTracePublisher</c> from P/Invoking into <c>libFabricCommon</c>,
-/// which is unavailable outside of Service Fabric clusters.
+/// Disables <see cref="ServiceFabricEventSource"/> Linux detection to prevent <see cref="UnstructuredTracePublisher"/> 
+/// from loading <c>libFabricCommon.so</c>, which is unavailable outside of Service Fabric clusters.
 /// </summary>
 public class EventSourceFixture : IDisposable
 {

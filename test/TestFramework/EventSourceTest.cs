@@ -12,7 +12,6 @@ using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
-using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
