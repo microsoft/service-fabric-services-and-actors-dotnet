@@ -105,10 +105,7 @@ public class RegisterReminderAsync
             TimeSpan reminderDueTime = TimeSpan.FromSeconds(2);
             TimeSpan reminderPeriod = TimeSpan.FromSeconds(1);
             TimeSpan tolerance = TimeSpan.FromSeconds(5);
-
-            // Timer callbacks can fire slightly before the scheduled time
-            // due to OS clock interrupt resolution (~15ms on Windows).
-            TimeSpan earlyFireTolerance = TimeSpan.FromMilliseconds(100);
+            TimeSpan timerResolution = TimeSpan.FromMilliseconds(15); // https://learn.microsoft.com/dotnet/api/system.threading.timer
 
             using var signal = new SemaphoreSlim(0);
 
@@ -156,8 +153,8 @@ public class RegisterReminderAsync
                 timerCall: false,
                 cancellationToken: new CancellationToken());
 
-            Assert.InRange(firstCallbackElapsed, reminderDueTime - earlyFireTolerance, reminderDueTime + tolerance);
-            Assert.InRange(secondCallbackElapsed - firstCallbackElapsed, reminderPeriod - earlyFireTolerance, reminderPeriod + tolerance);
+            Assert.InRange(firstCallbackElapsed, reminderDueTime - timerResolution, reminderDueTime + tolerance);
+            Assert.InRange(secondCallbackElapsed - firstCallbackElapsed, reminderPeriod - timerResolution, reminderPeriod + tolerance);
         }
     }
 
