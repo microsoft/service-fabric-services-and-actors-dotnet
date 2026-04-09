@@ -55,9 +55,9 @@ namespace Microsoft.ServiceFabric
 
             Instance.Dispose();
 
-            // Restore original static state
-            base.Dispose();
             singleton.Set(Type<TEventSource>.New());
+
+            base.Dispose();
         }
 
         /// <summary>
