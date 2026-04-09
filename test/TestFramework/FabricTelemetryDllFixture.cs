@@ -8,7 +8,7 @@ using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
 using Moq;
 
-namespace Microsoft.ServiceFabric.TestFramework
+namespace Microsoft.ServiceFabric
 {
     public class FabricTelemetryDllFixture : IDisposable
     {

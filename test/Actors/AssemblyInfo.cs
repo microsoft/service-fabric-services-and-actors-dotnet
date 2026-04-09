@@ -4,7 +4,7 @@
 // ------------------------------------------------------------
 
 using System.Runtime.CompilerServices;
-using Microsoft.ServiceFabric.TestFramework;
+using Microsoft.ServiceFabric;
 using Xunit;
 using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 
@@ -16,5 +16,6 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: CaptureConsole]
 
 [assembly: AssemblyFixture(typeof(FabricTelemetryDllFixture))]
+[assembly: AssemblyFixture(typeof(EventSourceFixture))]
 
 [assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]

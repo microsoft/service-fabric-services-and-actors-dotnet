@@ -12,7 +12,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests
     using FluentAssertions;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Microsoft.ServiceFabric.TestFramework;
     using Xunit;
 
     public class DependencyInjectionTests

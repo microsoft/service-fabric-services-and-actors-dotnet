@@ -3,7 +3,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using Microsoft.ServiceFabric.TestFramework;
+using Microsoft.ServiceFabric;
 using Xunit;
 
 // Run tests sequentially to prevent failures in tests that depend on global state.
@@ -11,3 +11,4 @@ using Xunit;
 [assembly: CaptureConsole]
 
 [assembly: AssemblyFixture(typeof(FabricTelemetryDllFixture))]
+[assembly: AssemblyFixture(typeof(EventSourceFixture))]
