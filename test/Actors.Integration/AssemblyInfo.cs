@@ -11,4 +11,3 @@ using Xunit;
 [assembly: CaptureConsole]
 
 [assembly: AssemblyFixture(typeof(FabricTelemetryDllFixture))]
-[assembly: AssemblyFixture(typeof(EventSourceFixture))]
