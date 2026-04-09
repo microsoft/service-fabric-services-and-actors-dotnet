@@ -42,9 +42,7 @@ namespace Microsoft.ServiceFabric
             // Dispose existing singleton instance to allow the test instance emit events
             singleton.Value.Dispose();
 
-#if NET
-            traceDllFixture = new FabricTraceDllFixture();
-#endif
+            eventSourceFixture = new EventSourceFixture();
 
             Instance = Type<TEventSource>.New();
 
@@ -61,9 +59,7 @@ namespace Microsoft.ServiceFabric
             Instance.Dispose();
 
             // Restore original static state
-#if NET
-            traceDllFixture.Dispose();
-#endif
+            eventSourceFixture.Dispose();
             singleton.Set(Type<TEventSource>.New());
         }
 
@@ -185,9 +181,7 @@ namespace Microsoft.ServiceFabric
 
         const EventKeywords AllSessions = (EventKeywords)(0xFul << 44);
 
-#if NET
-        readonly FabricTraceDllFixture traceDllFixture;
-#endif
+        readonly EventSourceFixture eventSourceFixture;
 
         // The EventSource class is expected to have a static, get-only property returning the singleton instance.
         readonly Property<TEventSource> singleton = typeof(TEventSource).Property<TEventSource>();

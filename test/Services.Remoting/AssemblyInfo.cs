@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 
 using System.Runtime.CompilerServices;
+using Microsoft.ServiceFabric.TestFramework;
 using Xunit;
 using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 
@@ -13,10 +14,7 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
 [assembly: CaptureConsole]
 
-[assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTelemetryDllFixture))]
-
-#if NET
-[assembly: AssemblyFixture(typeof(Microsoft.ServiceFabric.TestFramework.FabricTraceDllFixture))]
-#endif
+[assembly: AssemblyFixture(typeof(FabricTelemetryDllFixture))]
+[assembly: AssemblyFixture(typeof(EventSourceFixture))]
 
 [assembly: InternalsVisibleTo(DynamicProxyGenAssembly2)]
