@@ -14,6 +14,7 @@
       package included all three assembly, we can safely combine their code in the Microsoft.ServiceFabric.Client.Http.dll.
     -->
     <RootNamespace>Microsoft.ServiceFabric</RootNamespace>
+    <Description>HTTP client APIs for managing Service Fabric clusters, applications, services, and resources.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>

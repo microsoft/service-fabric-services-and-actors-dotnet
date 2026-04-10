@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Actor Framework for Service Fabric services.</Description>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackageContent</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
