@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
-    <Description>APIs for building reliable stateless and stateful services on Microsoft Service Fabric.</Description>
+    <Description>APIs for building reliable stateless and stateful services on Service Fabric.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
