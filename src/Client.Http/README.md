@@ -26,7 +26,8 @@ Connect to a secured cluster:
 ```csharp
 IServiceFabricClient client = await new ServiceFabricClientBuilder()
     .UseEndpoints(new Uri("https://mycluster.eastus.cloudapp.azure.com:19080"))
-    .UseX509Security(clientCertificate)
+    .UseX509Security(cancellation => Task.FromResult<SecuritySettings>(
+        new X509SecuritySettings(clientCertificate, remoteSecuritySettings)))
     .BuildAsync();
 ```
 

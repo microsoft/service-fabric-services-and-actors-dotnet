@@ -1,7 +1,7 @@
 # Microsoft.ServiceFabric.Services.Remoting
 
-This package provides the remoting framework for [Service Fabric](https://learn.microsoft.com/azure/service-fabric) reliable
-services, enabling type-safe RPC communication between services.
+Remoting framework for [Service Fabric](https://learn.microsoft.com/azure/service-fabric) reliable services, enabling type-safe
+RPC communication between services.
 
 ## Key Types
 

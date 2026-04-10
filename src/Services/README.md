@@ -1,7 +1,6 @@
 # Microsoft.ServiceFabric.Services
 
-This package provides the core programming model for building [Service Fabric](https://learn.microsoft.com/azure/service-fabric)
-reliable services.
+Core programming model for building [Service Fabric](https://learn.microsoft.com/azure/service-fabric) reliable services.
 
 ## Key Types
 

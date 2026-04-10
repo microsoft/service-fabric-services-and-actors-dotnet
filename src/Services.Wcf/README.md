@@ -1,7 +1,7 @@
 # Microsoft.ServiceFabric.Services.Wcf
 
-This package provides WCF-based remoting for [Service Fabric](https://learn.microsoft.com/azure/service-fabric) reliable services,
-replacing the default Fabric transport with WCF communication.
+WCF-based remoting for [Service Fabric](https://learn.microsoft.com/azure/service-fabric) reliable services, replacing the default
+Fabric transport with WCF communication.
 
 > **Note:** This package targets .NET Framework only.
 

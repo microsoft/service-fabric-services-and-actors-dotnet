@@ -5,9 +5,8 @@ configuration packages and automatically reloads when packages are updated.
 
 ## Key Types
 
-- `ServiceFabricConfigurationProvider` — reads Service Fabric XML configuration packages into the ASP.NET Core `IConfiguration`
-  system.
-- `AddServiceFabricConfiguration()` — extension method on `IConfigurationBuilder`.
+- `AddServiceFabricConfiguration()` — extension method on `IConfigurationBuilder` that reads Service Fabric XML configuration
+  packages into the ASP.NET Core `IConfiguration` system.
 
 ## Usage
 
@@ -23,7 +22,7 @@ class MyService : StatelessService
             new ServiceInstanceListener(context =>
                 new KestrelCommunicationListener(context, "ServiceEndpoint", (url, listener) =>
                     Host.CreateDefaultBuilder()
-                        .ConfigureAppConfiguration(config => config.AddServiceFabricConfiguration(context.CodePackageActivationContext, "Config"))
+                        .ConfigureAppConfiguration(config => config.AddServiceFabricConfiguration(context.CodePackageActivationContext))
                         .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>().UseUrls(url))
                         .Build()))
         ];
