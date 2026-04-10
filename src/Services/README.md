@@ -1,6 +1,6 @@
 # Microsoft.ServiceFabric.Services
 
-Core programming model for building [Service Fabric](https://learn.microsoft.com/azure/service-fabric) reliable services.
+Core programming model for building [Service Fabric](https://learn.microsoft.com/azure/service-fabric) Reliable Services.
 
 ## Key Types
 

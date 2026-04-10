@@ -3,7 +3,7 @@
 An ASP.NET Core configuration provider that reads settings from [Service Fabric](https://learn.microsoft.com/azure/service-fabric)
 configuration packages and automatically reloads when packages are updated.
 
-## Key Types
+## Key APIs
 
 - `AddServiceFabricConfiguration()` — extension method on `IConfigurationBuilder` that reads Service Fabric XML configuration
   packages into the ASP.NET Core `IConfiguration` system.

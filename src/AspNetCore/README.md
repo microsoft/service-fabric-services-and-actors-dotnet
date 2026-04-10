@@ -10,8 +10,8 @@ or [Microsoft.ServiceFabric.AspNetCore.HttpSys](https://www.nuget.org/packages/M
 
 - `AspNetCoreCommunicationListener` — abstract base class for building ASP.NET Core communication listeners that integrate
   with Service Fabric endpoint management.
-- `ServiceFabricMiddleware` — middleware that routes requests to the correct service partition and replica.
-- `UseServiceFabricMiddleware()` — extension method on `IApplicationBuilder` for adding the middleware.
+- `ServiceFabricMiddleware` — middleware that rejects requests not intended for the current service replica.
+- `UseServiceFabricMiddleware(string urlSuffix)` — extension method on `IApplicationBuilder` for adding the middleware.
 
 ## Documentation
 

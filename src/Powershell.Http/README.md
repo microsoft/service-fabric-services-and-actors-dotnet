@@ -21,9 +21,9 @@ Connect-SFCluster -ConnectionEndpoint http://localhost:19080
 Get-SFApplication
 
 # Deploy an application
-Copy-SFApplicationPackage -ApplicationPackagePath .\MyAppPkg -ImageStoreConnectionString fabric:ImageStore
-Register-SFApplicationType -ApplicationTypeName MyApp -ApplicationTypeVersion 1.0.0
-New-SFApplication -ApplicationName fabric:/MyApp -ApplicationTypeName MyApp -ApplicationTypeVersion 1.0.0
+Copy-SFApplicationPackage -ApplicationPackagePath .\MyAppPkg
+Register-SFApplicationType -ImageStorePath -ApplicationTypeBuildPath MyAppPkg
+New-SFApplication -Name fabric:/MyApp -TypeName MyApp -TypeVersion 1.0.0
 ```
 
 ## Documentation

@@ -1,6 +1,6 @@
 # Microsoft.ServiceFabric.Services.Remoting
 
-Remoting framework for [Service Fabric](https://learn.microsoft.com/azure/service-fabric) reliable services, enabling type-safe
+Remoting framework for [Service Fabric](https://learn.microsoft.com/azure/service-fabric) Reliable Services, enabling type-safe
 RPC communication between services.
 
 ## Key Types

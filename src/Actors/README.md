@@ -5,7 +5,7 @@ on [Service Fabric](https://learn.microsoft.com/azure/service-fabric).
 
 ## Key Types
 
-- `ActorBase` — base class for actor implementations; provides state management, timers, and reminders.
+- `Actor` — base class for actor implementations; provides state management, timers, and reminders.
 - `IActor` — marker interface for actor service contracts.
 - `ActorService` — the service that hosts and manages actor instances.
 - `ActorId` — unique identity for actors (supports `long`, `Guid`, and `string` keys).
