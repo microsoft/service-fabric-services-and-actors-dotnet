@@ -133,6 +133,7 @@ sure you're building with latest package versions and assemblies.
   to discuss your idea with us first.
 - Join the [service-fabric-write](https://repos.opensource.microsoft.com/orgs/microsoft/teams/service-fabric-write) team.
 - Create a branch called `user/{youraccount}/{youproposal}` in your local clone.
+- Ask Copilot `/review with multiple models` of your changes.
 
 ## External Contributors
 - Find an existing or submit a new [issue](https://github.com/microsoft/service-fabric-dotnet/issues) to discuss your idea with us first.
