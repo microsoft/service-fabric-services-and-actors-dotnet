@@ -1,10 +1,28 @@
-# Code
+# Contributing
 
 ## Clone
 ```
 git clone https://github.com/microsoft/service-fabric-dotnet.git
 cd ./service-fabric-dotnet
 ```
+
+## Project Structure
+
+| Directory             | Purpose                                                |
+|-----------------------|--------------------------------------------------------|
+| `src/`                | Product projects (libraries shipped as NuGet packages) |
+| `src/Constants`       | Compile-time constants used by other projects          |
+| `test/`               | Test projects (xUnit, one per src project)             |
+| `test/TestFramework/` | Shared test utilities                                  |
+| `properties/`         | Shared MSBuild props, signing key                      |
+| `refs/`               | Reference assemblies without NuGet packages            |
+
+Product projects target `net8.0;net462` with the exception of `Client.Http` and `PowerShell.Http` which still target
+`netstandard2.0`. Test projects target `net10.0;net9.0;net8.0;net472`.
+
+The `src/` and `test/` directories contain sub-directories named based on the projects within them. For example, `src/Actors`
+contains `Microsoft.ServiceFabric.Actors.csproj` and `test/Actors` contains `Microsoft.ServiceFabric.Actors.Tests.csproj`.
+We omit the `Microsoft.ServiceFabric` prefix and the `Tests` suffix from directory names.
 
 ## Install pre-requisites
 
@@ -50,11 +68,20 @@ The Remoting tests have known failures in the `Debug` configuration, so we use t
 On Windows, strong name verification must be disabled to avoid `net472` test failures.
 Run `init.cmd` or `eng\SkipStrongName.ps1` if you encounter them.
 
+You can use `-f net472` or `-f net10.0` to speed up verification during development. Run tests on all
+target frameworks before submitting a pull request.
+
 ## Pack
 ```
 dotnet pack
 ```
 NuGet packages and PowerShell modules are produced in the [out/packages](./out/packages) directory.
+
+## Build Conventions
+
+- **Central package management**: All package versions defined in `Directory.Packages.props`
+- **C# version**: `latestMajor` (set in `Directory.Build.props`)
+- **Assembly signing**: Delay-signed with `properties/Key.snk`
 
 ## Integrate
 
@@ -114,6 +141,10 @@ sure you're building with latest package versions and assemblies.
 
 ## All Contributors
 - Create a [draft pull request](https://docs.github.com/articles/creating-a-pull-request).
+- Follow the [git commit conventions](https://cbea.ms/git-commit) to author the pull request title and description.
+  - Title should use the imperative mood and be limited to 72 characters.
+  - Don't include textual tags `[MyFeature]` in the title.
+  - Description should explain _what_ and _why_ vs. _how_.
 - Make sure the validation build completes successfully.
 - Link the pull request from the work item/issue you've created.
 - Publish the pull request and address the Copilot review feedback.

@@ -1,6 +1,6 @@
 ---
 description: "Use when writing or reviewing tests."
-applyTo: "test/**"
+applyTo: "test/**/*.cs"
 ---
 # Test Conventions
 

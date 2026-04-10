@@ -30,14 +30,14 @@ PowerShell modules:
 
 Supported versions of the NuGet packages and PowerShell modules in this repo are available from https://NuGet.org and https://PowerShellGallery.com.
 
-### We don't support custom-built or pre-release versions in production workloads.
+**Custom-built and pre-release versions are not supported in production workloads.**
 
 Supported versions of the operating systems as well as the Service Fabric and .NET runtimes are listed
 [here](https://learn.microsoft.com/azure/service-fabric/service-fabric-versions).
 Detailed notes and download links for past releases are available in the 
 [microsoft/service-fabric](https://github.com/microsoft/service-fabric/tree/master/release_notes) repo.
 
-For for general questions on using Service Fabric to build and run applications, please use
+For general questions on using Service Fabric to build and run applications, please use
 [Stack Overflow](http://stackoverflow.com/questions/tagged/azure-service-fabric) with tag `azure-service-fabric`.
 
 For live-site problems, check out our [TSGs](https://github.com/Azure/Service-Fabric-Troubleshooting-Guides)

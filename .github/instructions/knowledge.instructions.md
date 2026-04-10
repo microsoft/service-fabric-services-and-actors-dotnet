@@ -1,5 +1,6 @@
 ---
 description: "Always use before reasoning about, modifying or reviewing any files in this repo."
+applyTo: "**, **/*.md"
 ---
 
 # Understand Project Context
@@ -19,13 +20,17 @@ After applying any change requested through feedback, check whether the feedback
 
 - Your audience is experienced engineers. Don't restate the obvious.
 - Avoid duplicating information readily available from the source code.
-- Store information in the most specific `.md` files possible. Elevate it to more general `.md` files only when confident it applies to wider scope.
+- Store information in the most specific `.md` files possible. Elevate it to more general `.md` files only when clearly applicable to a broader scope.
 - Store human-readable insights and guidelines in the `CONTRIBUTING.md` files.
   - Place repository-wide content in the `CONTRIBUTING.md` file in the root directory.
-  - When repository contains multiple product projects (as opposed to test or example projects), place project-specific content the project directory.
+  - When repository contains multiple product projects (as opposed to test or example projects), place project-specific content in the project directory.
 - Store instructions applicable across multiple repositories, such as coding style, methodology, etc. in the `.instructions.md` files.
 - Avoid storing information in user-specific `memories`. You're helping teams, not individuals.
 - Keep `.instructions.md` files focused on specific topics.
+- When a language-specific `.instructions.md` file specializes a more general one, preserve the matching section structure so humans can see the relationship.
+- When an `.instructions.md` file grows beyond ~250 lines, split it by topic.
+- Name `.instructions.md` files after the topic they cover, e.g., `moq.instructions.md`.
+- Each `.instructions.md` file should have YAML frontmatter with an `applyTo` pattern scoping it to relevant files.
 - Check `.md` files for accuracy and redundancy during code reviews.
 
 # Ensure Knowledge Available to Agents

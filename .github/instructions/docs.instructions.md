@@ -1,18 +1,35 @@
 ---
-description: "Use when writing or reviewing XML documentation comments on C# types and members."
-applyTo: "**/*.cs"
+description: "Use when writing or reviewing documentation: XML comments on C# types and members, NuGet package descriptions, and package README files."
+applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 ---
 
-# C# documentation guidance
+# Documentation guidance
+
+- Write for an intermediate to advanced C# developer audience.
+- Make documentation as concise as possible without losing information.
+- Change phrasing to drop redundant words, for example `Returns red apples.` over `Returns apples of red color.`
+- Focus on the "why". The "how" should be self-explanatory from the API itself.
+- Always try to simplify APIs before resorting to documenting them.
+
+## NuGet packages
+
+### Description (.csproj)
+
+- Start with what the package provides, not "This package contains...".
+- Keep it to one sentence — NuGet.org truncates long descriptions in search results.
+
+### README.md
+
+- Use the package ID as the heading.
+- Structure: purpose, key types, usage example, documentation links.
+- Keep examples minimal — just enough to show how to get started.
+- Mark internal packages (`*.Internal`) as not intended for direct consumption.
+
+## C# XML comments
 
 - Document public and protected members with [XML comments](https://learn.microsoft.com/dotnet/csharp/language-reference/language-specification/documentation-comments).
 - Document internal members only if they are complex or not self-explanatory.
 - When removing unnecessary XML comments, preserve significant information as regular comments.
-- Always try to simplify APIs before resorting to documenting them.
-- Write documentation for intermediate to advanced C# developer audience.
-- Make documentation as concise as possible without losing information.
-- Change phrasing to drop redundant words, for example `Returns red apples.` over `Returns apples of red color.`
-- Focus documentation on the "why". The "how" should be self-explanatory from the API itself.
 - Use `<summary>` to provide a brief, one sentence, description of what the type or member does. Start the summary with a present-tense, third-person verb.
 - Use `<remarks>` for additional information, such as implementation details, usage notes, etc., only when it is important to the user of the API and doesn't restate the `<summary>`.
 - Use `<see langword="..."/>` for language-specific keywords like `null`, `true`, `false`, `int`, `bool`, etc.
@@ -31,7 +48,7 @@ applyTo: "**/*.cs"
 - For generic overloads, don't add "strongly-typed" or similar qualifiers to distinguish them from non-generic overloads. Let the type parameter references speak for themselves.
 - Prefer short type names in the `cref="..."` references. If the type's namespace is not imported, add a `using` directive rather than using a fully-qualified name.
 
-## Methods
+### Methods
 
 - For methods that return a value, the `<summary>` should start with "Returns" and explain the result rather than how it is obtained.
 - For void methods, the `<summary>` should describe the action the method performs.
@@ -52,11 +69,11 @@ applyTo: "**/*.cs"
 - Use `<typeparam name="...">` to describe type parameters in generic types or methods.
 - Use `<typeparamref name="...">` to reference type parameters in documentation.
 
-## Constructors
+### Constructors
 
 - The summary wording should be "Initializes a new instance of the <see cref="..."/> class (or struct).".
 
-## Properties
+### Properties
 
 - The `<summary>` should start with:
   - "Gets or sets..." for a read-write property.
@@ -68,11 +85,11 @@ applyTo: "**/*.cs"
   - If the property has a default value, add it in a separate sentence, for example, "The default is `<see langword="false" />`".
   - If the value type is Boolean, the wording should be of the form "`<see langword="true" />` if ...; otherwise, `<see langword="false" />`. The default is ...".
 
-## Events
+### Events
 
 - The `<summary>` should start with "Occurs when...".
 
-## Exceptions
+### Exceptions
 
 - Use `<exception cref="...">` to document exceptions thrown by constructors, properties, indexers, methods, operators, and events.
 - Document all exceptions thrown directly by the member.
