@@ -20,7 +20,6 @@
         <PackageVersion Include="Microsoft.Identity.Client" Version="4.83.3" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
         <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.892-beta" />
-        <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.892-beta" />
         <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageVersion Include="Moq" Version="4.20.72" />
         <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
