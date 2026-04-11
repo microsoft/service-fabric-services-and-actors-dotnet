@@ -142,11 +142,15 @@ sure you're building with latest package versions and assemblies.
 
 ## All Contributors
 - Create a [draft pull request](https://docs.github.com/articles/creating-a-pull-request).
-- Follow the [git commit conventions](https://cbea.ms/git-commit) to author the pull request title and description.
+- Follow the [git commit guidelines](https://cbea.ms/git-commit) to author the pull request title and description.
+  - Write for the person reading history of the _target_ branch in the future.
+  - Describe _what_ it changes and _why_, not _how_ it was developed or which prior PRs it addresses.
   - Title should use the imperative mood and be limited to 72 characters.
   - Don't include textual tags `[MyFeature]` in the title.
-  - Description should explain _what_ and _why_ vs. _how_.
 - Make sure the validation build completes successfully.
 - Link the pull request from the work item/issue you've created.
 - Publish the pull request and address the Copilot review feedback.
 - Tag the person you were discussing your proposal to review the PR.
+
+## Maintainers
+- Ask Copilot `/review PR #N with multiple models and post feedback to GitHub`.
