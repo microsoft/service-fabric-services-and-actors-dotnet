@@ -34,9 +34,6 @@ $RuntimeRoot = ValidateDirectoryParameter $RuntimeRoot 'RuntimeRoot'
 [string] $SdkRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 [string[]] $RuntimePackages = @(
     'Microsoft.ServiceFabric'
-    'Microsoft.ServiceFabric.Data'
-    'Microsoft.ServiceFabric.Data.Extensions'
-    'Microsoft.ServiceFabric.Data.Interfaces'
 )
 
 function Main {
@@ -50,18 +47,20 @@ function Main {
 }
 
 function GetRuntimePackageVersion([string] $packagesPath, [string] $packageName) {
-    [System.IO.FileInfo[]] $packages = @(Get-ChildItem $packagesPath -Filter "$packageName.*.nupkg" |
-        Where-Object { $_.Name -notmatch '\.symbols\.' })
+    [regex] $pattern = "^$packageName\.(\d+\.\d+\.\d+-.+)$"
+    [System.IO.FileInfo[]] $packages = @(Get-ChildItem $packagesPath -Filter "*.nupkg" |
+        Where-Object { $_.Name -notmatch '\.symbols\.' } |
+        Where-Object { $_.BaseName -match $pattern })
     if ($packages.Count -eq 0) {
         Write-Error "Package '$packageName' not found in '$packagesPath'."
     }
     if ($packages.Count -gt 1) {
-        Write-Error ("Multiple versions of '$packageName' found in '$packagesPath':`n  " +
-            ($packages.Name -join "`n  ") +
+        Write-Error (
+            "Multiple versions of '$packageName' found in '$packagesPath':`n  " + ($packages.Name -join "`n  ") +
             "`nDo a clean build of the runtime to produce a single version.")
     }
-    if ($packages[0].BaseName -match '^(.+?)\.(\d+\.\d+\.\d+-.+)$') {
-        [string] $version = $Matches[2]
+    if ($packages[0].BaseName -match $pattern) {
+        [string] $version = $Matches[1]
         Write-Host "  $packageName`: $version"
         return $version
     }
@@ -72,7 +71,7 @@ function UpdateRuntimePackageVersions([string] $propsPath, [string] $packagesPat
     [string] $content = Get-Content $propsPath -Raw
     [int] $updated = 0
     Write-Host 'Runtime package versions:'
-    foreach ([string] $id in $RuntimePackages) {
+    foreach ($id in $RuntimePackages) {
         [string] $version = GetRuntimePackageVersion $packagesPath $id
         [string] $pattern = "((?:Include|id)=`"$([regex]::Escape($id))`"\s+(?:V|v)ersion=`")[^`"]*(`")"
         if ($content -match $pattern) {

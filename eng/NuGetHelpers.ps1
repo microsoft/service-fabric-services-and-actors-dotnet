@@ -18,9 +18,9 @@ function GetRuntimePackagesPath([string] $runtimeRoot, [switch] $release) {
 
 function ClearCachedPackages([string[]] $packageNames) {
     [string] $globalPackagesPath = (& dotnet nuget locals global-packages --list) -replace '^.*:\s*', ''
-    foreach ([string] $id in $packageNames) {
+    foreach ($id in $packageNames) {
         [string] $pattern = Join-Path $globalPackagesPath "$($id.ToLowerInvariant())*"
-        foreach ([System.IO.DirectoryInfo] $cachedPath in (Get-ChildItem $pattern -Directory -ErrorAction SilentlyContinue)) {
+        foreach ($cachedPath in (Get-ChildItem $pattern -Directory -ErrorAction SilentlyContinue)) {
             Remove-Item $cachedPath.FullName -Recurse -Force
             Write-Host "Cleared cached package: $($cachedPath.FullName)"
         }

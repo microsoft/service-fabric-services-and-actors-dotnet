@@ -40,6 +40,9 @@ if (-not $env:ROOT) {
     'Microsoft.ServiceFabric.AspNetCore.HttpSys'
     'Microsoft.ServiceFabric.AspNetCore.Kestrel'
     'Microsoft.ServiceFabric.Client.Http'
+    'Microsoft.ServiceFabric.Data'
+    'Microsoft.ServiceFabric.Data.Interfaces'
+    'Microsoft.ServiceFabric.Data.Interfaces.V2'
     'Microsoft.ServiceFabric.Diagnostics.Internal'
     'Microsoft.ServiceFabric.FabricTransport.Internal'
     'Microsoft.ServiceFabric.Powershell.Http'
@@ -94,7 +97,7 @@ function AddCorextPackageSource([string] $configPath, [string] $packagesPath) {
 function UpdateSdkPackageVersions([string] $propsPath, [string] $version) {
     [string] $content = Get-Content $propsPath -Raw
     [int] $updated = 0
-    foreach ([string] $id in $SdkPackages) {
+    foreach ($id in $SdkPackages) {
         # Match both Directory.Packages.props (Include=, Version=) and corext.config (id=, version=) syntax
         [string] $pattern = "((?:Include|id)=`"$([regex]::Escape($id))`"\s+(?:V|v)ersion=`")[^`"]*(`")"
         if ($content -match $pattern) {
