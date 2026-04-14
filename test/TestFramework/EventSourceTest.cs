@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric
     /// <para>This class uses terse names that assume that its instances will be stored in a variable called <c>test</c>.</para>
     /// <para>Disposing instances of this class at the end of each test is required for events to work in subsequent tests.</para>
     /// </remarks>
-    sealed class EventSourceTest<TEventSource> : EventSourceFixture where TEventSource : ServiceFabricEventSource
+    sealed class EventSourceTest<TEventSource> : IDisposable where TEventSource : ServiceFabricEventSource
     {
         /// <summary>
         /// Returns the instance under test.
@@ -49,15 +49,13 @@ namespace Microsoft.ServiceFabric
         /// <summary>
         /// Must be called at the end of each test for events to work in subsequent tests.
         /// </summary>
-        public override void Dispose()
+        public void Dispose()
         {
             listener.Dispose();
 
             Instance.Dispose();
 
             singleton.Set(Type<TEventSource>.New());
-
-            base.Dispose();
         }
 
         /// <summary>

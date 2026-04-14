@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 {
-    public class EventSourceDiagnosticsTest : EventSourceFixture
+    public class EventSourceDiagnosticsTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
