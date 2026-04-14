@@ -20,22 +20,22 @@ namespace Microsoft.ServiceFabric;
 public class EventSourceFixture : IDisposable
 {
 #if NET
-    private readonly Func<OSPlatform, bool> previousIsOSPlatform;
+    readonly Func<OSPlatform, bool> previous;
 #endif
 
     public EventSourceFixture()
     {
 #if NET
-        var isOSPlatformField = typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>();
-        this.previousIsOSPlatform = isOSPlatformField.Get();
-        isOSPlatformField.Set(_ => false);
+        var field = typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>();
+        previous = field.Value;
+        field.Set(_ => false);
 #endif
     }
 
     public virtual void Dispose()
     {
 #if NET
-        typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(this.previousIsOSPlatform);
+        typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(previous);
 #endif
     }
 }
