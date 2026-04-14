@@ -1,6 +1,6 @@
 ---
 description: "Always use before reasoning about, modifying or reviewing any files in this repo."
-applyTo: "**, **/*.md"
+applyTo: "**"
 ---
 
 # Understand Project Context
