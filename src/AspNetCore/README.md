@@ -13,6 +13,21 @@ or [Microsoft.ServiceFabric.AspNetCore.HttpSys](https://www.nuget.org/packages/M
 - `ServiceFabricMiddleware` — middleware that rejects requests not intended for the current service replica.
 - `UseServiceFabricMiddleware(string urlSuffix)` — extension method on `IApplicationBuilder` for adding the middleware.
 
+## Usage
+
+Derive from `AspNetCoreCommunicationListener` to create a custom communication listener:
+
+```csharp
+class MyCommunicationListener : AspNetCoreCommunicationListener
+{
+    public MyCommunicationListener(ServiceContext context, Func<string, AspNetCoreCommunicationListener, IWebHost> build)
+        : base(context, build) { }
+}
+```
+
+For ready-to-use implementations, see `KestrelCommunicationListener` and `HttpSysCommunicationListener`
+in the corresponding packages.
+
 ## Documentation
 
 - [ASP.NET Core in Service Fabric](https://learn.microsoft.com/azure/service-fabric/service-fabric-reliable-services-communication-aspnetcore)
