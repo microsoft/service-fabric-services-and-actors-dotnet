@@ -150,7 +150,10 @@ sure you're building with latest package versions and assemblies.
 - Make sure the validation build completes successfully.
 - Link the pull request from the work item/issue you've created.
 - Publish the pull request and address the Copilot review feedback.
+- Resolve review comment threads after addressing the feedback.
 - Tag the person you were discussing your proposal to review the PR.
 
 ## Maintainers
 - Ask Copilot `/review PR #N with multiple models and post feedback to GitHub`.
+- Re-open comment threads if the feedback was not addressed adequately.
+- Merge the pull request after approving it.
