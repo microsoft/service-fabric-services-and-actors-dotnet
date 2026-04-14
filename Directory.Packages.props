@@ -7,9 +7,8 @@
     <!-- See .github/instructions/package.instructions.md -->
     <!-- Sort packages by name to reduce merge conflicts -->
     <ItemGroup>
-        <PackageVersion Include="FluentAssertions" Version="6.12.0" />
         <PackageVersion Include="Fuzzy" Version="0.1.18" />
-        <PackageVersion Include="Inspector" Version="0.1.30" />
+        <PackageVersion Include="Inspector" Version="0.3.12" />
         <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
         <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.9" /> <!-- Transitive of Microsoft.AspNetCore.Hosting -->
         <PackageVersion Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.3.9" />
@@ -19,7 +18,7 @@
         <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
         <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
         <PackageVersion Include="Microsoft.Identity.Client" Version="4.83.3" />
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
         <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.892-beta" />
         <PackageVersion Include="Microsoft.ServiceFabric.Data" Version="9.0.892-beta" />
         <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
@@ -33,9 +32,9 @@
         <PackageVersion Include="System.Reflection.Emit" Version="4.7.0" />
         <PackageVersion Include="System.Reflection.Emit.ILGeneration" Version="4.7.0" />
         <PackageVersion Include="System.ValueTuple" Version="4.6.1" /> <!-- Transitive of Microsoft.Identity.Client -->
-        <PackageVersion Include="xunit.v3" Version="3.2.1" />
-        <PackageVersion Include="xunit.v3.assert" Version="3.2.1" />
-        <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.1" />
+        <PackageVersion Include="xunit.v3" Version="3.2.2" />
+        <PackageVersion Include="xunit.v3.assert" Version="3.2.2" />
+        <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
         <PackageVersion Include="YamlDotNet" Version="8.1.2" />
     </ItemGroup>
