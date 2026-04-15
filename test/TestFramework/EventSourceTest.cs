@@ -15,10 +15,6 @@ using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
 
-#if NET
-using System.Runtime.InteropServices;
-#endif
-
 namespace Microsoft.ServiceFabric
 {
     /// <summary>
@@ -28,7 +24,7 @@ namespace Microsoft.ServiceFabric
     /// <para>This class uses terse names that assume that its instances will be stored in a variable called <c>test</c>.</para>
     /// <para>Disposing instances of this class at the end of each test is required for events to work in subsequent tests.</para>
     /// </remarks>
-    sealed class EventSourceTest<TEventSource> : IDisposable where TEventSource : ServiceFabricEventSource
+    sealed class EventSourceTest<TEventSource> : EventSourceFixture where TEventSource : ServiceFabricEventSource
     {
         /// <summary>
         /// Returns the instance under test.
@@ -40,19 +36,8 @@ namespace Microsoft.ServiceFabric
         /// </summary>
         internal EventWrittenEventArgs Event { get; private set; }
 
-#if NET
-        readonly Func<OSPlatform, bool> previous;
-#endif
-
         internal EventSourceTest()
         {
-#if NET
-            // Disable Linux detection to prevent ServiceFabricEventSource from loading libFabricCommon.so
-            var field = typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>();
-            previous = field.Value;
-            field.Set(_ => false);
-#endif
-
             // Dispose existing singleton instance to allow the test instance emit events
             singleton.Value.Dispose();
 
@@ -64,7 +49,7 @@ namespace Microsoft.ServiceFabric
         /// <summary>
         /// Must be called at the end of each test for events to work in subsequent tests.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             listener.Dispose();
 
@@ -72,9 +57,7 @@ namespace Microsoft.ServiceFabric
 
             singleton.Set(Type<TEventSource>.New());
 
-#if NET
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(previous);
-#endif
+            base.Dispose();
         }
 
         /// <summary>
