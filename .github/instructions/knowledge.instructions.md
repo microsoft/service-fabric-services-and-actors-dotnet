@@ -27,7 +27,7 @@ This is a required final step, not a background task.
   - Place repository-wide content in the `CONTRIBUTING.md` file in the root directory.
   - When repository contains multiple product projects (as opposed to test or example projects), place project-specific content in the project directory.
 - Store instructions applicable across multiple repositories, such as coding style, methodology, etc. in the `.instructions.md` files.
-- Avoid storing information in user-specific `memories`. You're helping teams, not individuals.
+- Never use memory files (`/memories/`). You're helping teams, not individuals. Store insights in `.instructions.md`, `CONTRIBUTING.md`, and `README.md` files instead.
 - Keep `.instructions.md` files focused on specific topics.
 - When a language-specific `.instructions.md` file specializes a more general one, preserve the matching section structure so humans can see the relationship.
 - When an `.instructions.md` file grows beyond ~250 lines, split it by topic.
