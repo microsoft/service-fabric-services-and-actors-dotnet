@@ -15,6 +15,10 @@ using Microsoft.ServiceFabric.Diagnostics.Tracing.Writer;
 using Moq;
 using Xunit;
 
+#if NET
+using System.Runtime.InteropServices;
+#endif
+
 namespace Microsoft.ServiceFabric
 {
     /// <summary>
@@ -36,8 +40,19 @@ namespace Microsoft.ServiceFabric
         /// </summary>
         internal EventWrittenEventArgs Event { get; private set; }
 
+#if NET
+        readonly Func<OSPlatform, bool> previous;
+#endif
+
         internal EventSourceTest()
         {
+#if NET
+            // Disable Linux detection to prevent ServiceFabricEventSource from loading libFabricCommon.so
+            var field = typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>();
+            previous = field.Value;
+            field.Set(_ => false);
+#endif
+
             // Dispose existing singleton instance to allow the test instance emit events
             singleton.Value.Dispose();
 
@@ -56,6 +71,10 @@ namespace Microsoft.ServiceFabric
             Instance.Dispose();
 
             singleton.Set(Type<TEventSource>.New());
+
+#if NET
+            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(previous);
+#endif
         }
 
         /// <summary>
