@@ -192,9 +192,20 @@ numbers, etc.
 
 ## Post Review to GitHub (Optional)
 
-When requested, post the review as a GitHub PR review with inline comments. The copilot attribution link
-`[:copilot:](https://docs.github.com/copilot/responsible-use/code-review)` must appear at the very beginning of every
-comment and the review body, on the **same line** as the first sentence — no blank line or line break after it.
+When requested, post the review as a GitHub PR review with inline comments.
+
+The copilot attribution link `[:copilot:](https://docs.github.com/copilot/responsible-use/code-review)` must appear in the
+first sentence of every comment and the review body; on the **same line**; no line break after it.
+
+```markdown
+<!-- Correct: attribution and first sentence on the same line -->
+[:copilot:](https://docs.github.com/copilot/responsible-use/code-review) [❌](# "Must fix") The assembly fixture...
+
+<!-- Wrong: attribution on its own line -->
+[:copilot:](https://docs.github.com/copilot/responsible-use/code-review)
+
+[❌](# "Must fix") The assembly fixture...
+```
 
 Use the GitHub MCP tools:
 1. **Create a pending review** — Use `pull_request_review_write` with `method: "create"` (no `event` or `body`).
@@ -208,7 +219,8 @@ Use the GitHub MCP tools:
    - `body`:
       - Include the _Summary_ section of the review
       - Include the _Detailed Assessment_ section only in the initial and the final reviews.
-      - Include in the _Issues_ section **only** the findings that don't have unaddressed threads.
+      - Include in the _Issues_ section **only** findings that were NOT posted as inline comments.
+        Inline comments already create their own threads — repeating them in the body is redundant.
       - When there are unaddressed threads or findings, tag the author and ask them to take a look.
       - When the author is `copilot-swe-agent`, tag `@copilot` instead — that is the handle Copilot responds to.
    - `event`:
