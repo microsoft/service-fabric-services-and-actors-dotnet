@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <RootNamespace>Microsoft.ServiceFabric.Data</RootNamespace>
+    <Description>Extended Reliable Collections interfaces with ordinal string keys, versioned enumeration, and replicator configuration.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
