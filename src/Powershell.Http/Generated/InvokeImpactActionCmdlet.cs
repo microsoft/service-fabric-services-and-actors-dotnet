@@ -13,8 +13,8 @@ namespace Microsoft.ServiceFabric.Powershell.Http
     /// <summary>
     /// Approves or acts on an impact approval object.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "SFImpactAction")]
-    public partial class NewImpactActionCmdlet : CommonCmdletBase
+    [Cmdlet(VerbsLifecycle.Invoke, "SFImpactAction")]
+    public partial class InvokeImpactActionCmdlet : CommonCmdletBase
     {
         /// <summary>
         /// Gets or sets ImpactId. The unique ID (GUID) of the impact approval object to act on.
@@ -23,11 +23,11 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public Guid? ImpactId { get; set; }
 
         /// <summary>
-        /// Gets or sets ImpactActionKind. The action to perform on the impact object. Possible values include: 'Unknown',
+        /// Gets or sets ImpactAction. The action to perform on the impact object. Possible values include: 'Unknown',
         /// 'Approve'
         /// </summary>
         [Parameter(Mandatory = true, ValueFromPipelineByPropertyName = true, Position = 1)]
-        public ImpactActionKind? ImpactActionKind { get; set; }
+        public ImpactActionKind? ImpactAction { get; set; }
 
         /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the
@@ -42,7 +42,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         {
             this.ServiceFabricClient.Cluster.InvokeImpactActionAsync(
                 impactId: this.ImpactId,
-                impactActionKind: this.ImpactActionKind,
+                impactAction: this.ImpactAction,
                 serverTimeout: this.ServerTimeout,
                 cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
 

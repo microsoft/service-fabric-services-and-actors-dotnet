@@ -840,7 +840,7 @@ namespace Microsoft.ServiceFabric.Client
         /// the operation.
         /// </remarks>
         /// <param name ="impactId">The unique ID (GUID) of the impact approval object to act on.</param>
-        /// <param name ="impactActionKind">The action to perform on the impact object. Possible values include: 'Unknown',
+        /// <param name ="impactAction">The action to perform on the impact object. Possible values include: 'Unknown',
         /// 'Approve'</param>
         /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
@@ -855,7 +855,7 @@ namespace Microsoft.ServiceFabric.Client
         /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
         Task InvokeImpactActionAsync(
             Guid? impactId,
-            ImpactActionKind? impactActionKind,
+            ImpactActionKind? impactAction,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken));
 

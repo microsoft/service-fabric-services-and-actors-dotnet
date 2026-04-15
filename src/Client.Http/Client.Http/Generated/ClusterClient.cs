@@ -897,12 +897,12 @@ namespace Microsoft.ServiceFabric.Client.Http
         /// <inheritdoc />
         public Task InvokeImpactActionAsync(
             Guid? impactId,
-            ImpactActionKind? impactActionKind,
+            ImpactActionKind? impactAction,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             impactId.ThrowIfNull(nameof(impactId));
-            impactActionKind.ThrowIfNull(nameof(impactActionKind));
+            impactAction.ThrowIfNull(nameof(impactAction));
             serverTimeout?.ThrowIfOutOfInclusiveRange("serverTimeout", 1, 4294967295);
             var requestId = Guid.NewGuid().ToString();
             var url = "$/InvokeImpactAction";
@@ -910,7 +910,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             
             // Append to queryParams if not null.
             impactId?.AddToQueryParameters(queryParams, $"ImpactId={impactId.ToString()}");
-            impactActionKind?.AddToQueryParameters(queryParams, $"ImpactActionKind={impactActionKind.ToString()}");
+            impactAction?.AddToQueryParameters(queryParams, $"ImpactAction={impactAction.ToString()}");
             serverTimeout?.AddToQueryParameters(queryParams, $"timeout={serverTimeout}");
             queryParams.Add("api-version=11.5");
             url += "?" + string.Join("&", queryParams);
