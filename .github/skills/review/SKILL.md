@@ -124,7 +124,7 @@ Apply these rules in both initial and follow-up reviews.
 3. **Be specific and actionable.** Every comment should tell the author exactly what to change and why. Include
    evidence of how you verified the issue is real.
 4. **Flag severity clearly:**
-   - `[❌](# "Must fix before merge")` — Bugs, security issues, test gaps for behavior changes.
+   - `[❌](# "Must fix")` — Bugs, security issues, test gaps for behavior changes.
    - `[⚠️](# "Should fix")` — Missing validation, inconsistency with established patterns.
    - `[💡](# "Consider changing")` — Readability wins, minor improvements.
 5. **Don't pile on.** If the same issue appears many times, flag it once with a note listing all affected
@@ -140,47 +140,12 @@ Apply these rules in both initial and follow-up reviews.
      than assert.
 9. **Ensure code suggestions are valid.** Any code you suggest must be syntactically correct and complete.
 10. **Label in-scope vs. follow-up.** Distinguish between issues the PR should fix and out-of-scope improvements.
-
-## Multi-Model Review (Optional)
-
-When requested, use the `opus`, `gemini` and `codex` sub-agents to get diverse perspectives. Different models catch different
-classes of issues. If not requested, proceed with a single-model review using Steps 0–3 above.
-
-1. Launch each sub-agent in parallel, giving each the same review prompt: the PR diff, the review rules from this
-   skill, and instructions to produce findings in the severity format defined above.
-2. Wait for all agents to complete, then synthesize: deduplicate findings across models, elevate issues flagged by
-   multiple models (higher confidence), and include unique findings that meet the confidence bar. If a sub-agent has
-   not completed after 10 minutes and you have results from others, proceed without it.
-3. Present a single unified review, noting when an issue was flagged by multiple models.
-
-## Review Output
-
-**Summary**: of your assessment. Include Motivation and Approach for initial reviews.
-```
-**<✅ Looks Good / ⚠️ Needs Human Review / ⚠️ Needs Changes / ❌ Reject>**: <2-3 sentence summary of the overall
-verdict and key points. If "Needs Human Review," state which findings you are uncertain about and what a human
-reviewer should focus on.>
-
-**Motivation**: <1-2 sentences on whether the PR is justified and the problem is real>
-
-**Approach**: <1-2 sentences on whether the change takes the right approach>
-```
-
-**Open Issues**. Repeat for each finding category. Group related findings under a single heading
-```
-### ✅/⚠️/❌ <Category Name> — <Brief description>
-
-<Explanation with specifics. Reference code, line numbers, etc.>
-```
-
-**Test quality** should be assessed as its own finding when tests are part of the PR.
-
-**CI errors** should be reported as its own finding. Include the failed check name and a brief summary of the failure from the logs. When a failure appears to be a flaky test unrelated to the PR, note it in the review and ask the author or a maintainer to re-run the job — the reviewer cannot re-run CI jobs.
-
-Keep the review concise but thorough. Every claim should be backed by evidence from the code.
+11. **Test quality** should be assessed as its own finding when tests are part of the PR.
+12. **CI errors** should be reported as its own finding. Include the failed check name and a brief summary of the failure
+   from the logs. When a failure appears to be a flaky test unrelated to the PR, note it in the review and ask the author
+   or a maintainer to re-run the job — the reviewer cannot re-run CI jobs.
 
 ### Verdict Rules
-
 - **Never give a blanket LGTM when you are unsure.** Use "Needs Human Review" instead.
 - The verdict must reflect the most severe finding. Only use "Looks Good" when all findings are ✅ or 💡 and you are
   confident the change is correct.
@@ -192,24 +157,60 @@ Keep the review concise but thorough. Every claim should be backed by evidence f
 - Devil's advocate check before finalizing. Re-read all ⚠️ findings. For each one, ask: does this represent an
   unresolved concern? If so, the verdict must reflect that tension.
 
+## Multi-Model Review (Optional)
+
+When requested, use the `opus`, `gemini` and `codex` sub-agents to get diverse perspectives. Different models catch different
+classes of issues. If not requested, proceed with a single-model review using Steps 0–4 above.
+
+1. Launch each sub-agent in parallel, giving each the same review prompt: the PR diff, the review rules from this
+   skill, and instructions to produce findings in the severity format defined above.
+2. Wait for all agents to complete, then synthesize: deduplicate findings across models, elevate issues flagged by
+   multiple models (higher confidence), and include unique findings that meet the confidence bar. If a sub-agent has
+   not completed after 10 minutes and you have results from others, proceed without it.
+3. Present a single unified review, noting when an issue was flagged by multiple models.
+
+## Review Output
+
+### Assessment Summary
+
+`**<✅ Looks Good / ⚠️ Needs Human Review / ⚠️ Needs Changes / ❌ Reject>**` followed by a 2-3 sentence summary of the
+overall verdict and key points. If "Needs Human Review," state which findings you are uncertain about and what a human
+reviewer should focus on.
+
+### Detailed Assessment
+
+Include the detailed assessment _only_ in the
+- Initial review to help the human reviewer decide whether investing in the pull request makes sense,
+- Final "Looks Good" review, to reiterate if the pull request still makes sense after additional changes.
+
+Don't repeat the detailed assessment in the follow-up reviews requesting or suggesting changes.
+
+### Issues
+
+Always include open issues. Closed issues should be included only in the final "Looks Good" review. Group related findings under a single heading: `### ✅/⚠️/❌ <Category Name> — <Brief description>`. Include specifics - reference code, line
+numbers, etc.
+
 ## Post Review to GitHub (Optional)
 
-When requested, post the review as a GitHub PR review with inline comments.
-- Start the first sentence of the review body and each comment with `[:copilot:](https://docs.github.com/copilot/responsible-use/code-review)`
-  inline, not on a separate line.
+When requested, post the review as a GitHub PR review with inline comments. The copilot attribution link
+`[:copilot:](https://docs.github.com/copilot/responsible-use/code-review)` must appear at the very beginning of every
+comment and the review body, on the **same line** as the first sentence — no blank line or line break after it.
 
 Use the GitHub MCP tools:
 1. **Create a pending review** — Use `pull_request_review_write` with `method: "create"` (no `event` or `body`).
-2. **Add inline comments** — For each new finding, use `add_comment_to_pending_review` to post a comment on
-   the relevant file and line. Use the severity tooltip links defined above, e.g. `[❌](# "error")`, not bare emojis.
+2. **Add inline comments** — For each _new_ finding, use `add_comment_to_pending_review` to post a comment on
+   the relevant file and line. Use the severity tooltip links defined above, e.g. `[❌](# "Must fix")`, not bare emojis.
 3. **For follow-up reviews, reply to existing threads** before creating a new review:
-   - For verified threads, use `add_reply_to_pull_request_comment` to confirm the fix and thank the author.
+   - For verified threads, use `add_reply_to_pull_request_comment` with a confirmation and a `Thanks!` for the author.
    - For unaddressed threads, reply with what remains, keeping the original severity marker.
    - Create a new pending review only for new findings in updated code.
 4. **Submit the review** — Use `pull_request_review_write` with `method: "submit_pending"`
-   - `body` should contain the _Summary_ and the _Open Issues_. Author of the PR should be tagged
-     at the end and asked to take a look at the active comments. When the author is `copilot-swe-agent`,
-     tag `@copilot` instead — that is the handle Copilot responds to.
+   - `body`:
+      - Include the _Summary_ section of the review
+      - Include the _Detailed Assessment_ section only in the initial and the final reviews.
+      - Include in the _Issues_ section **only** the findings that don't have unaddressed threads.
+      - When there are unaddressed threads or findings, tag the author and ask them to take a look.
+      - When the author is `copilot-swe-agent`, tag `@copilot` instead — that is the handle Copilot responds to.
    - `event`:
      - `REQUEST_CHANGES` — when the review contains merge-blocking findings.
      - `COMMENT` — otherwise, leaving the approval decision to the human reviewer.
