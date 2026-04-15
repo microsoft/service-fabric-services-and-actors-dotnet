@@ -25,6 +25,6 @@ applyTo: "**"
 - Shorten parameter and variable names to the minimum needed to understand them in context.
 - Don't add comments re-stating the information already available from the declaration.
 - Before adding comments, try to make them unnecessary by breaking up the code into multiple functions, classes, etc.
-- Wrap text lines at the first word boundary after 120 characters.
+- Wrap text lines at the first word boundary after column 120. Lines will typically be 121–130 characters.
 - Don't create a container (namespace, folder, section) until you have 3 or more items to justify its overhead.
 
