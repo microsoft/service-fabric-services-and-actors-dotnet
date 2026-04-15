@@ -142,7 +142,7 @@ sure you're building with latest package versions and assemblies.
 
 ## All Contributors
 - Create a [draft pull request](https://docs.github.com/articles/creating-a-pull-request).
-- Follow the [git commit guidelines](https://cbea.ms/git-commit) to author the pull request title and description.
+- Follow the [git commit guidelines](https://cbea.ms/git-commit) to author the PR title and description.
   - Write for the person reading history of the _target_ branch in the future.
   - Describe _what_ it changes and _why_, not _how_ it was developed or which prior PRs it addresses.
   - Title should use the imperative mood and be limited to 72 characters.
