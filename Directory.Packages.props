@@ -1,40 +1,28 @@
 <Project>
-    <PropertyGroup>
-      <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-      <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    </PropertyGroup>
-
-    <!-- See .github/instructions/package.instructions.md -->
-    <!-- Sort packages by name to reduce merge conflicts -->
-    <ItemGroup>
-        <PackageVersion Include="Fuzzy" Version="0.1.18" />
-        <PackageVersion Include="Inspector" Version="0.3.12" />
-        <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
-        <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.9" /> <!-- Transitive of Microsoft.AspNetCore.Hosting -->
-        <PackageVersion Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.3.9" />
-        <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.9" />
-        <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.5" /> <!-- Transitive of xunit -->
-        <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.12" />
-        <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
-        <PackageVersion Include="Microsoft.Identity.Client" Version="4.83.3" />
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
-        <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.997-beta" />
-        <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
-        <PackageVersion Include="Moq" Version="4.20.72" />
-        <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
-        <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
-        <PackageVersion Include="System.Collections.Immutable" Version="10.0.5" /> <!-- Transitive of xunit -->
-        <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="10.0.5" />
-        <PackageVersion Include="System.Memory" Version="4.6.3" /> <!-- Transitive of Microsoft.ServiceFabric -->
-        <PackageVersion Include="System.Reflection.Emit" Version="4.7.0" />
-        <PackageVersion Include="System.Reflection.Emit.ILGeneration" Version="4.7.0" />
-        <PackageVersion Include="System.ValueTuple" Version="4.6.1" /> <!-- Transitive of Microsoft.Identity.Client -->
-        <PackageVersion Include="xunit.v3" Version="3.2.2" />
-        <PackageVersion Include="xunit.v3.assert" Version="3.2.2" />
-        <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2" />
-        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
-        <PackageVersion Include="YamlDotNet" Version="8.1.2" />
-    </ItemGroup>
-  </Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <!-- See .github/instructions/nuget.instructions.md -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.ServiceFabric" Version="12.0.997-beta" />
+    <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="System.Memory" Version="4.6.3" /> <!-- Bug in M.SF->4.5.5 -->
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
+    <PackageVersion Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.9" /> <!-- M.ANC.H->2.3.0 -->
+    <PackageVersion Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.3.9" />
+    <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.9" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.0" /> <!-- M.E.*->4.5.4; M.ANC.S.K.C->4.6.0 -->
+  </ItemGroup>
+  <!-- Client.Http and Powershell.Http target netstandard2.0 -->
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net4')) or '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageVersion Include="Microsoft.Identity.Client" Version="4.83.3" />
+    <PackageVersion Include="PowerShellStandard.Library" Version="5.1.1" />
+    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" /> <!-- M.I.C->6.0.1 -->
+    <PackageVersion Include="YamlDotNet" Version="8.1.2" /> <!-- refs/*.dll->8.1.2 -->
+  </ItemGroup>
+</Project>
