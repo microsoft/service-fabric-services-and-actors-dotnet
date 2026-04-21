@@ -7,9 +7,6 @@
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
-    <PackageReference Include="System.Reflection.Emit.ILGeneration" />
-    <PackageReference Include="System.Reflection.Emit" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
