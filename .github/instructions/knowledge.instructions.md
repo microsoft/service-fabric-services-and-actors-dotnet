@@ -5,8 +5,8 @@ applyTo: "**"
 
 # Understand Project Context
 
-Find and read the `README.md` and `CONTRIBUTING.md` files closest to the files being modified or reviewed.
-Walk up from the file's directory to the repository root, stopping at the first match for each.
+- Find and read the `README.md` and `CONTRIBUTING.md` files closest to the files being modified or reviewed.
+- Walk up from the file's directory to the repository root, stopping at the first match for each.
 
 # Capture Insights from Feedback
 
@@ -34,12 +34,7 @@ This is a required final step, not a background task.
 - Name `.instructions.md` files after the topic they cover, e.g., `moq.instructions.md`.
 - Each `.instructions.md` file should have YAML frontmatter with an `applyTo` pattern scoping it to relevant files.
 - Check `.md` files for accuracy and redundancy during code reviews.
-
-# Ensure Knowledge Available to Agents
-
-Make sure `copilot-instructions.md` contains minimal instructions required for agents to discover the available knowledge.
-- Instructions to checkout submodules checkout, if any.
-- Instructions to read `README.md` and `CONTRIBUTING.md` files.
+- Avoid markdown tables because they are difficult to maintain and read as plain text.
 
 # Checklist
 
