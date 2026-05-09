@@ -21,7 +21,7 @@ Definition of terms:
   Prevent accidental leakage of test-only dependencies into the libraries through the central pinning.
   - Place dependencies shared by _both_ libraries and tests in the repo root.
   - Place library-only dependencies like `Nerdbank.GitVersioning` in the `src` folder.
-  - Place test-only dependencies like `Microsoft.NET.Test.Sdk` in the `test` folder.
+  - Place test-only dependencies like `xunit.v3` in the `test` folder.
   - Make the library- and test-specific files `<Import Project="..\Directory.Packages.props" />` with shared dependencies.
 - **Keep `<PackageVersion/>` and `<PackageReference/>` items sorted**.
   Avoid discrepancies introduced in parallel and reduce merge conflicts.

@@ -23,15 +23,4 @@
     <PublishDir>$(OutputPath)</PublishDir>
   </PropertyGroup>
 
-  <Target Name="UpdateTrxLogFileName" BeforeTargets="VSTest" Condition="'$(VSTestLogger)' == 'trx'" >
-    <PropertyGroup>
-      <!-- 
-        Generate test results file name based on the project name and target framework.
-        The default file name is generated with machine name and timestamp.
-        This is an equivalent of running dotnet test -l "trx;FileName.trx" but
-        works for each test project in a solution.
-      -->
-      <VSTestLogger>trx%3BLogFileName=$(MSBuildProjectName)-$(TargetFramework).trx</VSTestLogger>
-    </PropertyGroup>
-  </Target>
 </Project>

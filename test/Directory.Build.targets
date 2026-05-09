@@ -1,6 +1,0 @@
-<Project>
-  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472' And !$([MSBuild]::IsOSPlatform('Windows'))">
-    <IsTestProject>false</IsTestProject>
-  </PropertyGroup>
-</Project>

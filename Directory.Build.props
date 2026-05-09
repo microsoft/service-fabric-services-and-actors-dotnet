@@ -14,7 +14,7 @@
     -->
     <BaseOutputPath>$(MSBuildThisFileDirectory)bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
-    <VSTestResultsDirectory>$(MSBuildThisFileDirectory)out\tests\</VSTestResultsDirectory>
+    <TestResultsDirectory>$(MSBuildThisFileDirectory)out\tests\</TestResultsDirectory>
     <PackageOutputPath>$(MSBuildThisFileDirectory)out\packages\</PackageOutputPath>
   </PropertyGroup>
 </Project>
