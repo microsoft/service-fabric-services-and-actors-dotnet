@@ -50,6 +50,9 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="isNodeByNodeUpgradeInProgress">Indicates if a node-by-node upgrade is currently being performed on
         /// this node.</param>
         /// <param name="infrastructurePlacementID">PlacementID used by the InfrastructureService.</param>
+        /// <param name="placementProperties">The effective placement properties for the node. Placement properties are
+        /// returned only when IncludePlacementProperties is set to true in the request.
+        /// </param>
         public NodeInfo(
             NodeName name = default(NodeName),
             string ipAddressOrFQDN = default(string),
@@ -71,7 +74,8 @@ namespace Microsoft.ServiceFabric.Common
             DateTime? nodeDownAt = default(DateTime?),
             IEnumerable<string> nodeTags = default(IEnumerable<string>),
             bool? isNodeByNodeUpgradeInProgress = default(bool?),
-            string infrastructurePlacementID = default(string))
+            string infrastructurePlacementID = default(string),
+            IReadOnlyDictionary<string, string> placementProperties = default(IReadOnlyDictionary<string, string>))
         {
             this.Name = name;
             this.IpAddressOrFQDN = ipAddressOrFQDN;
@@ -94,6 +98,7 @@ namespace Microsoft.ServiceFabric.Common
             this.NodeTags = nodeTags;
             this.IsNodeByNodeUpgradeInProgress = isNodeByNodeUpgradeInProgress;
             this.InfrastructurePlacementID = infrastructurePlacementID;
+            this.PlacementProperties = placementProperties;
         }
 
         /// <summary>
@@ -207,5 +212,11 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets placementID used by the InfrastructureService.
         /// </summary>
         public string InfrastructurePlacementID { get; }
+
+        /// <summary>
+        /// Gets the effective placement properties for the node. Placement properties are returned only when
+        /// IncludePlacementProperties is set to true in the request.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> PlacementProperties { get; }
     }
 }

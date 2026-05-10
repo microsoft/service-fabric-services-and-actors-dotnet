@@ -2612,6 +2612,9 @@
                         <maml:name>NodeName</maml:name>
                 </command:parameter>
                 <command:parameter required="false">
+                        <maml:name>IncludePlacementProperties</maml:name>
+                </command:parameter>
+                <command:parameter required="false">
                         <maml:name>ServerTimeout</maml:name>
                 </command:parameter>
                 </command:syntaxItem>
@@ -2622,6 +2625,9 @@
                 </command:parameter>
                 <command:parameter required="false">
                         <maml:name>MaxResults</maml:name>
+                </command:parameter>
+                <command:parameter required="false">
+                        <maml:name>IncludePlacementProperties</maml:name>
                 </command:parameter>
                 <command:parameter required="false">
                         <maml:name>ServerTimeout</maml:name>
@@ -2669,6 +2675,20 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="3">
+                <maml:name>IncludePlacementProperties</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Include the effective placement properties of a node.
+                    If this parameter is false or not specified, placement properties are not returned.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">bool?</command:parameterValue>
+                <dev:type>
+                    <maml:name>bool?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="4">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>

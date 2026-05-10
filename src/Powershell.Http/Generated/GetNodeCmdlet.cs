@@ -41,12 +41,20 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public long? MaxResults { get; set; }
 
         /// <summary>
+        /// Gets or sets IncludePlacementProperties. Include the effective placement properties of a node.
+        /// If this parameter is false or not specified, placement properties are not returned.
+        /// </summary>
+        [Parameter(Mandatory = false, Position = 3, ParameterSetName = "GetNodeInfoList")]
+        [Parameter(Mandatory = false, Position = 3, ParameterSetName = "GetNodeInfo")]
+        public bool? IncludePlacementProperties { get; set; }
+
+        /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 3, ParameterSetName = "GetNodeInfoList")]
-        [Parameter(Mandatory = false, Position = 3, ParameterSetName = "GetNodeInfo")]
+        [Parameter(Mandatory = false, Position = 4, ParameterSetName = "GetNodeInfoList")]
+        [Parameter(Mandatory = false, Position = 4, ParameterSetName = "GetNodeInfo")]
         public long? ServerTimeout { get; set; }
 
         /// <inheritdoc/>
@@ -61,6 +69,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                         continuationToken: continuationToken,
                         nodeStatusFilter: this.NodeStatusFilter,
                         maxResults: this.MaxResults,
+                        includePlacementProperties: this.IncludePlacementProperties,
                         serverTimeout: this.ServerTimeout,
                         cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
 
@@ -85,6 +94,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             {
                 var result = this.ServiceFabricClient.Nodes.GetNodeInfoAsync(
                     nodeName: this.NodeName,
+                    includePlacementProperties: this.IncludePlacementProperties,
                     serverTimeout: this.ServerTimeout,
                     cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
 

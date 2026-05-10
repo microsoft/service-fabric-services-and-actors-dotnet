@@ -33,6 +33,9 @@ namespace Microsoft.ServiceFabric.Client
         /// maximum results if they do not fit in the message as per the max message size restrictions defined in the
         /// configuration. If this parameter is zero or not specified, the paged query includes as many results as possible
         /// that fit in the return message.</param>
+        /// <param name ="includePlacementProperties">Include the effective placement properties of a node.
+        /// If this parameter is false or not specified, placement properties are not returned.
+        /// </param>
         /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.</param>
@@ -48,6 +51,7 @@ namespace Microsoft.ServiceFabric.Client
             ContinuationToken continuationToken = default(ContinuationToken),
             NodeStatusFilter? nodeStatusFilter = NodeStatusFilter.Default,
             long? maxResults = 0,
+            bool? includePlacementProperties = false,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken));
 
@@ -58,6 +62,9 @@ namespace Microsoft.ServiceFabric.Client
         /// The response includes the name, status, ID, health, uptime, and other details about the node.
         /// </remarks>
         /// <param name ="nodeName">The name of the node.</param>
+        /// <param name ="includePlacementProperties">Include the effective placement properties of a node.
+        /// If this parameter is false or not specified, placement properties are not returned.
+        /// </param>
         /// <param name ="serverTimeout">The server timeout for performing the operation in seconds. This timeout specifies the
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.</param>
@@ -71,6 +78,7 @@ namespace Microsoft.ServiceFabric.Client
         /// <exception cref="OperationCanceledException">Thrown when cancellation is requested for the cancellation token.</exception>
         Task<NodeInfo> GetNodeInfoAsync(
             NodeName nodeName,
+            bool? includePlacementProperties = false,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken));
 
