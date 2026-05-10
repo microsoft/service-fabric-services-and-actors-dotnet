@@ -2680,7 +2680,7 @@
                     <maml:para>
                     Include the effective placement properties of a node.
                     If this parameter is false or not specified, placement properties are not returned.
-                    
+
                     </maml:para>
                 </maml:Description>
             <command:parameterValue required="false">bool?</command:parameterValue>
