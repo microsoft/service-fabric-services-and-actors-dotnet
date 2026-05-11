@@ -41,6 +41,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var lastReceivedCopySequenceNumber = default(string);
             var lastAppliedCopySequenceNumber = default(string);
             var remoteReplicatorAcknowledgementStatus = default(RemoteReplicatorAcknowledgementStatus);
+            var remoteInbuildReplicaStatus = default(RemoteInbuildReplicaStatus);
 
             do
             {
@@ -77,6 +78,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     remoteReplicatorAcknowledgementStatus = RemoteReplicatorAcknowledgementStatusConverter.Deserialize(reader);
                 }
+                else if (string.Compare("RemoteInbuildReplicaStatus", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    remoteInbuildReplicaStatus = RemoteInbuildReplicaStatusConverter.Deserialize(reader);
+                }
                 else
                 {
                     reader.SkipPropertyValue();
@@ -92,7 +97,8 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 isInBuild: isInBuild,
                 lastReceivedCopySequenceNumber: lastReceivedCopySequenceNumber,
                 lastAppliedCopySequenceNumber: lastAppliedCopySequenceNumber,
-                remoteReplicatorAcknowledgementStatus: remoteReplicatorAcknowledgementStatus);
+                remoteReplicatorAcknowledgementStatus: remoteReplicatorAcknowledgementStatus,
+                remoteInbuildReplicaStatus: remoteInbuildReplicaStatus);
         }
 
         /// <summary>
@@ -142,6 +148,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.RemoteReplicatorAcknowledgementStatus != null)
             {
                 writer.WriteProperty(obj.RemoteReplicatorAcknowledgementStatus, "RemoteReplicatorAcknowledgementStatus", RemoteReplicatorAcknowledgementStatusConverter.Serialize);
+            }
+
+            if (obj.RemoteInbuildReplicaStatus != null)
+            {
+                writer.WriteProperty(obj.RemoteInbuildReplicaStatus, "RemoteInbuildReplicaStatus", RemoteInbuildReplicaStatusConverter.Serialize);
             }
 
             writer.WriteEndObject();

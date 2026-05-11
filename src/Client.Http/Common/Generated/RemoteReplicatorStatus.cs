@@ -37,6 +37,8 @@ namespace Microsoft.ServiceFabric.Common
         /// </param>
         /// <param name="remoteReplicatorAcknowledgementStatus">Represents the acknowledgment status for the remote secondary
         /// replicator.</param>
+        /// <param name="remoteInbuildReplicaStatus">Represents the build progress of this secondary replica. Present when
+        /// IsInBuild is true.</param>
         public RemoteReplicatorStatus(
             ReplicaId replicaId = default(ReplicaId),
             DateTime? lastAcknowledgementProcessedTimeUtc = default(DateTime?),
@@ -45,7 +47,8 @@ namespace Microsoft.ServiceFabric.Common
             bool? isInBuild = default(bool?),
             string lastReceivedCopySequenceNumber = default(string),
             string lastAppliedCopySequenceNumber = default(string),
-            RemoteReplicatorAcknowledgementStatus remoteReplicatorAcknowledgementStatus = default(RemoteReplicatorAcknowledgementStatus))
+            RemoteReplicatorAcknowledgementStatus remoteReplicatorAcknowledgementStatus = default(RemoteReplicatorAcknowledgementStatus),
+            RemoteInbuildReplicaStatus remoteInbuildReplicaStatus = default(RemoteInbuildReplicaStatus))
         {
             this.ReplicaId = replicaId;
             this.LastAcknowledgementProcessedTimeUtc = lastAcknowledgementProcessedTimeUtc;
@@ -55,6 +58,7 @@ namespace Microsoft.ServiceFabric.Common
             this.LastReceivedCopySequenceNumber = lastReceivedCopySequenceNumber;
             this.LastAppliedCopySequenceNumber = lastAppliedCopySequenceNumber;
             this.RemoteReplicatorAcknowledgementStatus = remoteReplicatorAcknowledgementStatus;
+            this.RemoteInbuildReplicaStatus = remoteInbuildReplicaStatus;
         }
 
         /// <summary>
@@ -100,5 +104,10 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets represents the acknowledgment status for the remote secondary replicator.
         /// </summary>
         public RemoteReplicatorAcknowledgementStatus RemoteReplicatorAcknowledgementStatus { get; }
+
+        /// <summary>
+        /// Gets represents the build progress of this secondary replica. Present when IsInBuild is true.
+        /// </summary>
+        public RemoteInbuildReplicaStatus RemoteInbuildReplicaStatus { get; }
     }
 }
