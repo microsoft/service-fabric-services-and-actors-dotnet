@@ -35,9 +35,9 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         {
             KeyValueStoreProviderCopyDetail obj = null;
             var propName = reader.ReadPropertyName();
-            if (!propName.Equals("ProviderKind", StringComparison.OrdinalIgnoreCase))
+            if (!propName.Equals("Kind", StringComparison.OrdinalIgnoreCase))
             {
-                throw new JsonReaderException($"Incorrect discriminator property name {propName}, Expected discriminator property name is ProviderKind.");
+                throw new JsonReaderException($"Incorrect discriminator property name {propName}, Expected discriminator property name is Kind.");
             }
 
             var propValue = reader.ReadValueAsString();

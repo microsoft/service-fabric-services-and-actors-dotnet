@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Common
 
     /// <summary>
     /// Base type for provider-specific copy details within a key value store replica build.
-    /// The ProviderKind property determines the specific provider subtype (e.g., ESE or TStore).
+    /// The Kind property determines the storage provider (e.g., ESE or TStore) for this copy detail.
     /// Currently only ESE-backed replicas populate provider-specific copy fields.
     /// </summary>
     public abstract partial class KeyValueStoreProviderCopyDetail

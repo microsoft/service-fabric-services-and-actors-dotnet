@@ -10,7 +10,7 @@ namespace Microsoft.ServiceFabric.Common
 
     /// <summary>
     /// Base type for stateful service store-specific copy details during replica build.
-    /// The ReplicaKind property determines the specific kind of copy detail.
+    /// The Kind property determines the replica kind (e.g., KeyValueStore) for this copy detail.
     /// </summary>
     public abstract partial class InbuildReplicaCopyDetail
     {

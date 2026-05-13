@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
         {
             // Required properties are always serialized, optional properties are serialized when not null.
             writer.WriteStartObject();
-            writer.WriteProperty(obj.ReplicaKind, "ReplicaKind", ReplicaKindConverter.Serialize);
+            writer.WriteProperty(obj.ReplicaKind, "Kind", ReplicaKindConverter.Serialize);
             if (obj.ProviderCopyDetail != null)
             {
                 writer.WriteProperty(obj.ProviderCopyDetail, "ProviderCopyDetail", KeyValueStoreProviderCopyDetailConverter.Serialize);
