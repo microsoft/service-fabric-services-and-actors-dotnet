@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Microsoft.ServiceFabric.Data</RootNamespace>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <Import Project="..\..\properties\service_fabric_managed_common.props" />
+  <ItemGroup>
+    <PackageReference Include="Fuzzy" />
+    <PackageReference Include="Inspector" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Data\Microsoft.ServiceFabric.Data.csproj" />
+  </ItemGroup>
+</Project>
