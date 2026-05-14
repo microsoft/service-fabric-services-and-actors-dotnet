@@ -7,6 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Fuzzy" />
     <PackageReference Include="Inspector" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
     <PackageReference Include="Moq" />
     <PackageReference Include="xunit.v3" />
   </ItemGroup>

@@ -18,6 +18,7 @@ env:
   Configuration: Release
   Artifacts: ${{ github.workspace }}/out
   Logs: ${{ github.workspace }}/out/logs
+  Tests: ${{ github.workspace }}/out/tests
 
 jobs:
   build:
@@ -35,7 +36,7 @@ jobs:
           .\eng\SkipStrongName.ps1
           .\eng\UninstallSfSdkFromGac.ps1
       - run: dotnet build -graph -bl:"${{ env.Logs }}/build.binLog" -c ${{ env.Configuration }}
-      - run: dotnet test --no-build -bl:"${{ env.Logs }}/test.binLog" -c ${{ env.Configuration }}
+      - run: dotnet test --no-build -bl:"${{ env.Logs }}/test.binLog" -c ${{ env.Configuration }} -p TestResultsPath=${{ env.Tests }}
       - run: dotnet pack --no-build -bl:"${{ env.Logs }}/pack.binLog" -c ${{ env.Configuration }}
       - uses: actions/upload-artifact@v6
         if: always()

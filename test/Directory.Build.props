@@ -2,9 +2,25 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
     <TargetFrameworks>net10.0;net9.0;net8.0;net472</TargetFrameworks>
-    <!-- Skip net472 tests on Linux -->
-    <IsTestingPlatformApplication Condition="'$(TargetFramework)' == 'net472' and !$([MSBuild]::IsOSPlatform('Windows'))">false</IsTestingPlatformApplication>
-    <!-- Generate test results file name based on the project name and target framework -->
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --results-directory $(TestResultsDirectory) --report-xunit-trx --report-xunit-trx-filename $(MSBuildProjectName)-$(TargetFramework).trx</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+
+  <!-- On Linux -->
+  <PropertyGroup Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+    <!-- Skip net472 tests, they require Mono and Service Fabric native libraries to run -->
+    <IsTestingPlatformApplication Condition="'$(TargetFramework)' == 'net472'">false</IsTestingPlatformApplication>
+    <!-- Place build outputs of test projects in separate folders for reliable parallel execution of tests instrumented for code coverage -->
+    <BaseOutputPath Condition="!$([MSBuild]::IsOSPlatform('Windows'))">$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)</BaseOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' != '' and '$(TestResultsPath)' != ''">
+    <!--
+      Generate the test results and coverage files when the TestResultsPath property is set, typically by the build.yml.
+      We use it as a workaround because the TestingPlatformCommandLineArguments property is always empty during dotnet test.
+      .trx and .coverage files can be opened by Visual Studio.
+    -->
+    <TestResultFileName>$(MSBuildProjectName)-$(TargetFramework)</TestResultFileName>
+    <TestingPlatformCommandLineArguments>--results-directory $(TestResultsPath)</TestingPlatformCommandLineArguments>
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-xunit-trx --report-xunit-trx-filename $(TestResultFileName).trx</TestingPlatformCommandLineArguments>
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --coverage --coverage-output $(TestResultFileName).coverage</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 </Project>

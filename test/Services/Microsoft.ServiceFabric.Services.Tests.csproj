@@ -6,6 +6,7 @@
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Fuzzy" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
     <PackageReference Include="Inspector" />
     <PackageReference Include="Moq" />
     <PackageReference Include="xunit.v3" />

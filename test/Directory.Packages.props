@@ -6,6 +6,8 @@
     <PackageVersion Include="Inspector" Version="0.3.12" />
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" /> <!-- x.v.c->6.0.0; S.T.J->8.0.0 -->
     <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.12" /> <!-- 3.2.2 breaks SemVer: S.C.I 8.0.0->9.0.8 -->
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.0.6" /> <!-- Last version for M.T.P 1.* -->
+    <PackageVersion Include="Microsoft.Testing.Platform" Version="1.9.1" /> <!-- M.T.E.C->1.8.4; x.v.c.m->1.9.1 -->
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="xunit.v3" Version="3.2.2" />
     <PackageVersion Include="xunit.v3.assert" Version="3.2.2" />
@@ -15,5 +17,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" /> <!-- x.v.a->6.0.0; (M.D.T.TE, S.R.M)->8.0.0 -->
     <PackageVersion Include="System.Reflection.Metadata" Version="8.0.1" /> <!-- M.TP.OM->1.6.0; M.D.T.TE->8.0.0; M.ANC.H->8.0.1 -->
+    <PackageVersion Include="System.Text.Encodings.Web" Version="8.0.0" /> <!-- M.E.DM->6.0.1; (M.ANC.H.A, M.ANC.WU, S.T.J)->8.0.0 -->
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" /> <!-- M.E.DM->6.0.11; M.E.L.C->8.0.5 -->
   </ItemGroup>
 </Project>
