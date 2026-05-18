@@ -43,7 +43,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ${{ env.Tests }}/*.cobertura.xml
+          files: "\"${{ env.Tests }}/*.cobertura.xml\""
           flags: ${{ matrix.os }}
           fail_ci_if_error: false
       - name: Upload test results to Codecov
@@ -51,7 +51,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ${{ env.Tests }}/*.junit.xml
+          files: "\"${{ env.Tests }}/*.junit.xml\""
           flags: ${{ matrix.os }}
           report_type: test_results
       - uses: actions/upload-artifact@v6
