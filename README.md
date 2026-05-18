@@ -2,6 +2,9 @@
 
 .NET libraries for building and managing [Service Fabric](https://learn.microsoft.com/azure/service-fabric) services.
 
+[![build](https://github.com/microsoft/service-fabric-dotnet/actions/workflows/build.yml/badge.svg)](https://github.com/microsoft/service-fabric-dotnet/actions/workflows/build.yml)
+[![codecov](https://codecov.io/github/microsoft/service-fabric-dotnet/graph/badge.svg?token=qJxLx7IJcq)](https://codecov.io/github/microsoft/service-fabric-dotnet)
+
 NuGet packages:
  - [Microsoft.ServiceFabric.Actors](https://www.nuget.org/packages/Microsoft.ServiceFabric.Actors)
  - [Microsoft.ServiceFabric.Actors.Wcf](https://www.nuget.org/packages/Microsoft.ServiceFabric.Actors.Wcf)
