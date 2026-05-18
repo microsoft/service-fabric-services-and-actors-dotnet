@@ -16,11 +16,11 @@
     <!--
       Generate the test results and coverage files when the TestResultsPath property is set, typically by the build.yml.
       We use it as a workaround because the TestingPlatformCommandLineArguments property is always empty during dotnet test.
-      .trx and .coverage files can be opened by Visual Studio.
+      JUnit XML is consumed by Codecov; .cobertura.xml is the coverage format Codecov ingests.
     -->
     <TestResultFileName>$(MSBuildProjectName)-$(TargetFramework)</TestResultFileName>
     <TestingPlatformCommandLineArguments>--results-directory $(TestResultsPath)</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-xunit-trx --report-xunit-trx-filename $(TestResultFileName).trx</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --coverage --coverage-output $(TestResultFileName).coverage</TestingPlatformCommandLineArguments>
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-junit --report-junit-filename $(TestResultFileName).junit.xml</TestingPlatformCommandLineArguments>
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --coverage --coverage-output-format cobertura --coverage-output $(TestResultFileName).cobertura.xml</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 </Project>
