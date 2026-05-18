@@ -12,15 +12,22 @@
     <BaseOutputPath Condition="!$([MSBuild]::IsOSPlatform('Windows'))">$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)</BaseOutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' != '' and '$(TestResultsPath)' != ''">
-    <!--
-      Generate the test results and coverage files when the TestResultsPath property is set, typically by the build.yml.
-      We use it as a workaround because the TestingPlatformCommandLineArguments property is always empty during dotnet test.
-      JUnit XML is consumed by Codecov; .cobertura.xml is the coverage format Codecov ingests.
-    -->
+  <PropertyGroup Condition="'$(TargetFramework)' != '' and '$(TestResultsFormat)' != ''">
+    <TestResultsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..\out\tests'))</TestResultsPath>
     <TestResultFileName>$(MSBuildProjectName)-$(TargetFramework)</TestResultFileName>
-    <TestingPlatformCommandLineArguments>--results-directory $(TestResultsPath)</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-junit --report-junit-filename $(TestResultFileName).junit.xml</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --coverage --coverage-output-format cobertura --coverage-output $(TestResultFileName).cobertura.xml</TestingPlatformCommandLineArguments>
+
+    <!-- Prepare command line arguments for the test runner -->
+    <TestArguments>--results-directory $(TestResultsPath)</TestArguments>
+
+    <!-- .trx and .coverage files can be opened by Visual Studio -->
+    <TestArguments Condition="'$(TestResultsFormat)' == 'VS'">$(TestArguments) --report-xunit-trx --report-xunit-trx-filename $(TestResultFileName).trx</TestArguments>
+    <TestArguments Condition="'$(TestResultsFormat)' == 'VS'">$(TestArguments) --coverage --coverage-output $(TestResultFileName).coverage</TestArguments>
+
+    <!-- .junit.xml .cobertura.xml are published by CI builds -->
+    <TestArguments Condition="'$(TestResultsFormat)' == 'CI'">$(TestArguments) --report-junit --report-junit-filename $(TestResultFileName).junit.xml</TestArguments>
+    <TestArguments Condition="'$(TestResultsFormat)' == 'CI'">$(TestArguments) --coverage --coverage-output-format cobertura --coverage-output $(TestResultFileName).cobertura.xml</TestArguments>
+
+    <!-- Provide test arguments to Microsoft.Testing.Platform -->
+    <TestingPlatformCommandLineArguments>$(TestArguments)</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 </Project>
