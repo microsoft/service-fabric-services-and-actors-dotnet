@@ -93,7 +93,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 description.FixedDimensionValues = (IntPtr)fixedValuePtrs;
                 description.Reserved = IntPtr.Zero;
 
-                return fabricMeterProvider.CreateMeter((IntPtr)(&description));
+                return fabricMeterProvider.CreateMeter2((IntPtr)(&description));
             }
             finally
             {

@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
 
                 Mock.Get(fabricMeterProvider)
-                    .Setup(x => x.CreateMeter(It.IsAny<IntPtr>()))
+                    .Setup(x => x.CreateMeter2(It.IsAny<IntPtr>()))
                     .Callback((IntPtr ptr) =>
                     {
                         var desc = Marshal.PtrToStructure<FABRIC_METER_DESCRIPTION>(ptr);
