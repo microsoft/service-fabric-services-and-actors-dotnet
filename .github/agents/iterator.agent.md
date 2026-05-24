@@ -27,6 +27,7 @@ below. You are risk averse, so if you can't follow the process as it's written, 
   - Do not change the prepared review prompt.
 
 3. **Address `❌ Reject` and `⚠️ Should Fix` findings one at a time**.
+  - Don't bundle multiple findings into a single `coder` invocation, even if they apply to the same file.
   - Prepare prompt for the `coder`.
     - Start the prompt with `Address the following finding.`
     - Append a single reported finding from the report. Don't alter the finding in any way.
@@ -34,7 +35,7 @@ below. You are risk averse, so if you can't follow the process as it's written, 
       - don't add any commit instructions.
   - Run the `coder` subagent with the prepared prompt.
   - Wait for it to complete before starting the next.
-  - Don't bundle multiple findings into a single `coder` invocation, even if they apply to the same file.
+  - If the `coder` is refuses to implement the finding, treat it as `❓ Needs Human Review` and continue addressing others.
 
 4. **Save each new finding that `❓ Needs Human Review`**.
   - Append the entire finding from the `reviewer` report to the `{file path}-needs-human-review.md`.
