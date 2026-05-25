@@ -193,17 +193,10 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 "CloseAsync");
 
             await this.CloseCommunicationListenersAsync(cancellationToken);
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "Calling userServiceReplica.OnCloseAsync()");
 
-            await this.userServiceReplica.OnCloseAsync(cancellationToken);
-
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "Completed call to userServiceReplica.OnCloseAsync().");
+            var userServiceReplica_OnCloseAsync = Task.Run(() => UserServiceReplicaOnCloseAsync(cancellationToken), cancellationToken); // we want to tolerate user-side exceptions to perform closing properly
+                                                                                                                                        // so these are propagated in the very end of the method unless a more severe exception has occured
+                                                                                                                                        // in any case, the user-side exception is logged
 
             if (this.stateProviderReplica != null)
             {
@@ -223,6 +216,34 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             }
 
             await this.CancelRunAsync();
+            await userServiceReplica_OnCloseAsync;
+        }
+
+        async Task UserServiceReplicaOnCloseAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Calling to userServiceReplica.OnCloseAsync()");
+
+                await userServiceReplica.OnCloseAsync(cancellationToken);
+
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Completed call to userServiceReplica.OnCloseAsync().");
+            }
+            catch (Exception ex)
+            {
+                ServiceTrace.Source.WriteErrorWithId(TraceType + ServiceHelper.ApiErrorTraceTypeSuffix,
+                    traceId,
+                    "userServiceReplica.OnCloseAsync threw: {0}",
+                    ex.ToString());
+
+                throw;
+            }
         }
 
         void IStatefulServiceReplica.Abort()
