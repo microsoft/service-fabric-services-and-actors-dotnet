@@ -10,5 +10,5 @@ argument-hint: "(type|namespace|project)"
 - Repeat for each target type, **one at a time**.
   - Run the `iterator` subagent with the following prompt.
     > Test <target-type> in <target-project>.
-    > Fixing bugs in <target-type> is out of scope.
+    > Bug fixes, testability improvements in <target-type> are out of scope.
   - Print progress: `[done/total] <target-type> ✓`
