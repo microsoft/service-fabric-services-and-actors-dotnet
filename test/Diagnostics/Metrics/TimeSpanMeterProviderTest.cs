@@ -32,7 +32,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             readonly TimeSpanMeterProvider sut;
             readonly IReadOnlyCollection<string> systemDimensionsNames;
             readonly IReadOnlyCollection<string> systemDimensionsValues;
-            readonly IFabricMeterProvider fabricMeterProvider = new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object;
+            readonly IFabricMeterProvider2 fabricMeterProvider = new Mock<IFabricMeterProvider2>() { DefaultValue = DefaultValue.Mock }.Object;
             readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
 
             // Values captured from FABRIC_METER_DESCRIPTION during CreateMeter call
@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
                 sut = new TimeSpanMeterProvider(serviceContext);
                 systemDimensionsNames = sut.Private().Field<IReadOnlyCollection<string>>().Value;
                 systemDimensionsValues = sut.Protected().Field<IReadOnlyCollection<string>>().Value;
-                sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
+                sut.Field<IFabricMeterProvider2>().Set(fabricMeterProvider);
 
                 Mock.Get(fabricMeterProvider)
                     .Setup(x => x.CreateMeter2(It.IsAny<IntPtr>()))

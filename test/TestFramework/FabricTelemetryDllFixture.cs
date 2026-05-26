@@ -14,14 +14,14 @@ namespace Microsoft.ServiceFabric
     {
         public FabricTelemetryDllFixture()
         {
-            typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(() => new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object);
-            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(() => new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object);
+            typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider2>>().Set(() => new Mock<IFabricMeterProvider2>() { DefaultValue = DefaultValue.Mock }.Object);
+            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider2>>().Set(() => new Mock<IFabricMeterProvider2>() { DefaultValue = DefaultValue.Mock }.Object);
         }
 
         public virtual void Dispose()
         {
-            typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
-            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
+            typeof(MeterProvider<long>).Field<Func<IFabricMeterProvider2>>().Set(NativeTelemetry.FabricCreateMeterProvider);
+            typeof(MeterProvider<TimeSpan>).Field<Func<IFabricMeterProvider2>>().Set(NativeTelemetry.FabricCreateMeterProvider);
         }
     }
 }

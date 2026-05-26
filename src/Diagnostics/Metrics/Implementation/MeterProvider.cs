@@ -15,9 +15,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
     {
         readonly IReadOnlyCollection<string> fixedDimensionNames;
         protected readonly IReadOnlyCollection<string> fixedDimensionValues;
-        IFabricMeterProvider fabricMeterProvider;
+        IFabricMeterProvider2 fabricMeterProvider;
 
-        static Func<IFabricMeterProvider> createFabricMeterProvider = NativeTelemetry.FabricCreateMeterProvider;
+        static Func<IFabricMeterProvider2> createFabricMeterProvider = NativeTelemetry.FabricCreateMeterProvider;
         static Func<object, int> finalReleaseComObject = Utility.FinalReleaseComObject;
 
         protected MeterProvider(ServiceContext serviceContext = null)

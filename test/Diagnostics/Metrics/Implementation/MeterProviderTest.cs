@@ -21,16 +21,16 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         readonly IMeterProvider<int> sut;
 
-        readonly IFabricMeterProvider fabricMeterProvider = Mock.Of<IFabricMeterProvider>();
+        readonly IFabricMeterProvider2 fabricMeterProvider = Mock.Of<IFabricMeterProvider2>();
         readonly ServiceContext serviceContext = fuzzy.ServiceContext();
 
         public MeterProviderTest()
         {
-            typeof(MeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(() => fabricMeterProvider);
+            typeof(MeterProvider<int>).Field<Func<IFabricMeterProvider2>>().Set(() => fabricMeterProvider);
             sut = new Mock<MeterProvider<int>>(serviceContext).Object;
         }
 
-        public virtual void Dispose() => typeof(MeterProvider<int>).Field<Func<IFabricMeterProvider>>().Set(NativeTelemetry.FabricCreateMeterProvider);
+        public virtual void Dispose() => typeof(MeterProvider<int>).Field<Func<IFabricMeterProvider2>>().Set(NativeTelemetry.FabricCreateMeterProvider);
 
         public class Constructor : MeterProviderTest
         {
@@ -89,7 +89,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 sut.Dispose();
 
                 Mock.Get(finalReleaseComObject).Verify(f => f(fabricMeterProvider), Times.Once);
-                Assert.Null(sut.Private().Field<IFabricMeterProvider>().Value);
+                Assert.Null(sut.Private().Field<IFabricMeterProvider2>().Value);
             }
 
             [Fact]
