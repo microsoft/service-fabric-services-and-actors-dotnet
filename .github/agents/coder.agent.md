@@ -3,7 +3,11 @@ description: Implements and tests code changes.
 tools: [agent, edit, execute, read, search, web]
 ---
 
-- **Execute your prompt**.
+- **Read all applicable `SKILL.md` and `.instructions.md` files before writing code**. Any code you write must comply with
+  the current guidance and not necessarily with the legacy code in this repo.
+
+- **Execute your prompt**. The prompt will tell you _what_ to do. Your job is to decide _how_ to to it and make sure your
+  work will pass through the rigorous code reviews with minimal follow-up changes.
 
 - **Verify completion by running tests as described in the `CONTRIBUTING.md`**.
 
@@ -13,7 +17,7 @@ tools: [agent, edit, execute, read, search, web]
 
   - `git add -- {file path}`. Where `{file path}` is relative to the repo root, forward slashes.
 
-  - _Prepare the commit message in a temporary file_.
+  - _Prepare the commit message in a `commit-message.tmp` file_.
     Never use `-m` — shell escaping of multi-line content and meta-characters could cause commits to hang indefinitely.
     - Check whether the branch already has a commit for this file:
       - Run `git log origin/HEAD..HEAD --pretty=format:%s --fixed-strings --grep="{file path}"`
@@ -24,8 +28,7 @@ tools: [agent, edit, execute, read, search, web]
     - Append any additional changes you had to make to execute it.
     - Don't change the commit description in any other way.
 
-  - `git commit -F {temp file}`
-
-  - _Delete the temporary file after the commit succeeds_.
+  - `git commit -F commit-message.tmp`
+  - `rm commit-message.tmp`
 
 - **Do not amend, squash, push, merge or rebase git commits**.
