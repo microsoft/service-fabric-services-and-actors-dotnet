@@ -15,8 +15,9 @@ below. You are risk averse, so if you can't follow the process as it's written, 
 1. **Prepare prompt for the `reviewer`**.
   - Extract a file path to be reviewed from your prompt.
   - Use this prompt template; replace the `{file path}` and `{your prompt}` placeholders.
-    > /review `{file path}`.
-    > Exclude findings already reported in `{file path}-needs-human-review.md`, if it exists.
+    > Execute /review skill with argument `{file path}`.
+    > Avoid contradicting findings previously addressed in `git log origin/HEAD..HEAD -- {file path}`.
+    > Exclude findings previously reported in `{file path}-needs-human-review.md`, if it exists.
     > Note that I'm working on the following request.
     > ```
     > {your prompt}
