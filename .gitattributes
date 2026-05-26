@@ -1,2 +1,5 @@
 # Let Git detect text files, store LF line endings, check out LF endings on Linux and CRLF endings on Windows
 * text=auto
+
+# Shell scripts must keep LF endings on Windows to be executable in WSL
+*.sh text eol=lf
