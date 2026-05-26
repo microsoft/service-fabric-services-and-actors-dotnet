@@ -1,6 +1,6 @@
 ---
 description: "Coordinates iterative coding and review until the code is ready."
-tools: [agent, execute, read, search, vscode, web]
+tools: [agent, execute, read, search, vscode/askQuestions, web]
 ---
 
 You're a _coordinator_ working with the experienced `coder` and `reviewer` agents. They know _how_ to do their job, so don't
