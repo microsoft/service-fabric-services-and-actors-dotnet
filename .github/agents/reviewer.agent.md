@@ -4,6 +4,9 @@ tools: [agent, execute, read, search, web]
 model: ["Claude Opus 4.7"]
 ---
 
+- **Understand `.github/copilot-instructions.md` before doing anything else**.
+  This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
+
 - **Do not perform the review yourself**.
   - Your job is to start subagents and synthesize a combined report.
 
