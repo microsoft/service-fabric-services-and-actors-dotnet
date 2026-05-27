@@ -59,12 +59,16 @@ dotnet test -c Release
 - **Before committing changes, you must run `Release` tests on all frameworks, both Windows and Linux**.
   - _Run all Windows tests `dotnet test -c Release`_.
   - _Run all Linux tests in WSL `wsl -e dotnet test -c Release`_.
+  - _When adding tests **without product changes**, you may reduce the scope test runs to specific tests_.
+  - `dotnet test --project ./test/Diagnostics/Microsoft.ServiceFabric.Diagnostics.Tests.csproj -c Release -- --filter-namespace *Tracing* --filter-class *Trace* --filter-method *Throws*`
+  - _Don't specify `-f`; tests must pass on all target frameworks_.
 - **Note**:
-  - Windows `-f net472` tests will fail assembly strong name verification without `eng\SkipStrongName.ps1`/`init.cmd`.
+  - On Windows, `-f net472` tests will fail assembly strong name verification without `eng\SkipStrongName.ps1`/`init.cmd`.
+  - On Linux, the `net472` tests are automatically excluded.
   - Legacy tests may fail in `-c Debug` configuration.
-- **During initial development, reduce scope of test runs and increase verbosity**.
-  This helps to speed up and troubleshoot test runs, but doesn't replace the full pre-commit verification.
-  `dotnet run --project .\test\Diagnostics\Microsoft.ServiceFabric.Diagnostics.Tests.csproj -f net10.0 -- -reporter verbose -namespace *Tracing* -class *Trace* -method *Throws* -explicit on`
+- **During initial development, reduce scope of test runs and increase verbosity** to speed up and troubleshoot test runs.
+  - _Don't do this for the pre-commit validation described above_.
+  - `dotnet run --project ./test/Diagnostics/Microsoft.ServiceFabric.Diagnostics.Tests.csproj -f net10.0 -- -reporter verbose -namespace *Tracing* -class *Trace* -method *Throws* -explicit on`
 
 ## Pack
 ```
