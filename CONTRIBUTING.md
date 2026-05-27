@@ -54,16 +54,14 @@ dotnet build -graph -c Release --no-restore
 
 ## Test
 ```
-dotnet test -graph -c Release -f net10.0
+dotnet test -c Release
 ```
-- **Use `-c Release`**
-  - It is enforced by the PR validation build to prevent build warnings.
+- **You must use `-c Release`**
   - Avoids known failures in the `Debug` configuration of some test projects.
-- **Use `-f net10.0` or `-f net472` to reduce development loop**.
-- **Run tests without `-f` (on all frameworks) before submitting or pushing changes to a pull request**.
-  It is faster and more reliable to run tests locally then to wait for CI results, which may not include all platforms.
-- **Register test assemblies in `eng\SkipStrongName.ps1` for `net472` tests on Windows**.
-  They are partially signed and require strong name verification to be disabled by `init.cmd` or `eng\SkipStrongName.ps1`.
+- **You must run tests on all frameworks (without `-f`), both Windows and Linux, before committing changes**.
+  - _Run all Windows tests `dotnet test -c Release`_.
+  - _Run all Linux tests in WSL `wsl -e dotnet test -c Release`_.
+- **Disable assembly strong name verification with `init.cmd` or `eng\SkipStrongName.ps1` for `net472` tests on Windows**.
 
 ## Pack
 ```
