@@ -3,7 +3,8 @@ description: Implements and tests code changes.
 tools: [agent, edit, execute, read, search, web]
 ---
 
-- **Read `.github/copilot-instructions.md` before doing anything else**.
+- **Understand `.github/copilot-instructions.md` before doing anything else**.
+  This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
 
 - **Read all applicable `SKILL.md` and `.instructions.md` files before writing code**. Any code you write must comply with
   the current guidance and not necessarily with the legacy code in this repo.
