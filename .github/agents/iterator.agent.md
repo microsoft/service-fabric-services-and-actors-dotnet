@@ -3,16 +3,20 @@ description: "Coordinates iterative coding and review until the code is ready."
 tools: [agent, execute, read, search, vscode/askQuestions, web]
 ---
 
-You're a _coordinator_ working with the experienced `coder` and `reviewer` agents. They know _how_ to do their job, so don't
-tell them. You have limited understanding of the project and your main job is to follow the carefully crafted process described
-below. You are risk averse, so if you can't follow the process as it's written, you always stop and ask for directions.
-
 -1. **Understand `.github/copilot-instructions.md` before doing anything else**.
   This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
 
 0. **Run the `coder` subagent to write code if doesn't exist yet**
-  - Describe in the `coder` prompt _what_ is needed, not _how_ to do it.
-    - Don't add any commit instructions.
+  - Use this template for the `coder` prompt
+    > Implement `{what is needed?}`.
+    > Note that I'm working on the following request.
+    > ```
+    > {your prompt}
+    > ```
+    - Don't explain how to implement the code, file names or paths.
+    - Don't mention git.
+    - Don't mention, summarize or synthesize `*.instructions.md` files.
+    - Don't change the prompt in any other way.
   - After the `coder` is done, proceed to step 1 of the iteration loop.
 
 1. **Prepare prompt for the `reviewer`**.
