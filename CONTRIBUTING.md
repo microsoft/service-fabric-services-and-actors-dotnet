@@ -56,12 +56,15 @@ dotnet build -graph -c Release --no-restore
 ```
 dotnet test -c Release
 ```
-- **You must use `-c Release`**
-  - Avoids known failures in the `Debug` configuration of some test projects.
-- **You must run tests on all frameworks (without `-f`), both Windows and Linux, before committing changes**.
+- **Before committing changes, you must run `Release` tests on all frameworks, both Windows and Linux**.
   - _Run all Windows tests `dotnet test -c Release`_.
   - _Run all Linux tests in WSL `wsl -e dotnet test -c Release`_.
-- **Disable assembly strong name verification with `init.cmd` or `eng\SkipStrongName.ps1` for `net472` tests on Windows**.
+- **Note**:
+  - Windows `-f net472` tests will fail assembly strong name verification without `eng\SkipStrongName.ps1`/`init.cmd`.
+  - Legacy tests may fail in `-c Debug` configuration.
+- **During initial development, reduce scope of test runs and increase verbosity**.
+  This helps to speed up and troubleshoot test runs, but doesn't replace the full pre-commit verification.
+  `dotnet run --project .\test\Diagnostics\Microsoft.ServiceFabric.Diagnostics.Tests.csproj -f net10.0 -- -reporter verbose -namespace *Tracing* -class *Trace* -method *Throws* -explicit on`
 
 ## Pack
 ```
