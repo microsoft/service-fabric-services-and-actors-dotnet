@@ -11,7 +11,7 @@ here unless overridden below.
 
 # -1. (New) Prepare for review
 
-- **Follow `.github/skills/pr-worktree/SKILL.md` to set up a separate worktree for the PR**.
+- **Follow the `.github/skills/worktree/SKILL.md` to set up a separate worktree for the PR**.
 
 # 0. (Before) Start the `reviewer` subagent if not explicitly instructed otherwise
 
