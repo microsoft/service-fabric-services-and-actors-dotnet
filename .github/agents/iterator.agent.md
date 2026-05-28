@@ -7,6 +7,7 @@ tools: [agent, execute, read, search, vscode/askQuestions, web]
   This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
 
 0. **Run the `coder` subagent to write code if doesn't exist yet**
+  - _If the code exists, skip to step 1_. It's `reviewer`'s job to decide if the code is good enough.
   - Use this template for the `coder` prompt
     > Implement `{what is needed?}`.
     > Note that I'm working on the following request.
