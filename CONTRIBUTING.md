@@ -8,10 +8,13 @@ cd ./service-fabric-dotnet
 
 ## Overview
 
-- `src/` — product projects shipped as NuGet packages
-- `test/` — xUnit test projects, one per `src/` project
+- `bin/` - build outputs for internal consumption; tests run from here
+- `out/` - build outputs for external consumption, e.g. packages, test and coverage results
 - `properties/` — shared MSBuild props and the signing key
-- `refs/` — reference assemblies without NuGet packages
+- `refs/` - reference assemblies without NuGet packages
+- `src/` - product projects shipped as NuGet packages
+- `test/` - xUnit test projects, one per `src/` project
+- `tmp/` - temporary, scratch files
 
 Directory names omit the `Microsoft.ServiceFabric` prefix and the `Tests` suffix. For example, `src/Actors` contains
 `Microsoft.ServiceFabric.Actors.csproj` and `test/Actors` contains `Microsoft.ServiceFabric.Actors.Tests.csproj`.
