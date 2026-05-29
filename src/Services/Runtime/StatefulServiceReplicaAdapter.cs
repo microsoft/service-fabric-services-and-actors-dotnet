@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Fabric;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
@@ -98,14 +99,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             var replicator = await this.stateProviderReplica.OpenAsync(openMode, partition, cancellationToken);
 
-            Exception userReplicaEx = null;
+            ExceptionDispatchInfo userReplicaEx = null;
             try
             {
                 await this.userServiceReplica.OnOpenAsync(openMode, cancellationToken);
             }
             catch (Exception ex)
             {
-                userReplicaEx = ex;
+                userReplicaEx = ExceptionDispatchInfo.Capture(ex);
 
                 ServiceTrace.Source.WriteWarningWithId(
                     TraceType,
@@ -117,7 +118,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             if (userReplicaEx != null)
             {
                 await this.stateProviderReplica.CloseAsync(cancellationToken);
-                throw userReplicaEx;
+                userReplicaEx.Throw();
             }
 
             return replicator;
@@ -202,7 +203,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             // Tolerate user-side exceptions so subsequent close steps can complete.
             // The exception is logged immediately and rethrown at the end of CloseAsync
             // unless a more severe exception occurs first.
-            Exception userReplicaEx = null;
+            ExceptionDispatchInfo userReplicaEx = null;
             try
             {
                 await this.userServiceReplica.OnCloseAsync(cancellationToken);
@@ -220,7 +221,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     "Unhandled exception from userServiceReplica.OnCloseAsync() - {0}",
                     ex);
 
-                userReplicaEx = ex;
+                userReplicaEx = ExceptionDispatchInfo.Capture(ex);
             }
 
             if (this.stateProviderReplica != null)
@@ -242,10 +243,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             await this.CancelRunAsync();
 
-            if (userReplicaEx != null)
-            {
-                throw userReplicaEx;
-            }
+            userReplicaEx?.Throw();
         }
 
         void IStatefulServiceReplica.Abort()
