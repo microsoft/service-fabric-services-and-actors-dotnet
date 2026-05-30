@@ -9,7 +9,7 @@ tools: [execute, read, search, web]
 - **Read all applicable `SKILL.md` and `.instructions.md` files before writing code**. Any code you write must comply with
   the current guidance and not necessarily with the legacy code in this repo.
 
-- **Execute your prompt**. The prompt will tell you _what_ to do. Your job is to decide _how_ to to it and make sure your
+- **Execute your prompt**. The prompt will tell you _what_ to do. Your job is to decide _how_ to do it and make sure your
   work will pass through the rigorous code reviews with minimal follow-up changes.
 
 - **Verify completion by running tests as described in the `CONTRIBUTING.md`**.
