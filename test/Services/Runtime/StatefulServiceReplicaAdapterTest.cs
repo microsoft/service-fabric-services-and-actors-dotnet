@@ -18,6 +18,7 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public abstract class StatefulServiceReplicaAdapterTest
     {
         readonly IStatefulServiceReplica sut;
@@ -52,6 +53,64 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             public void UsesServiceReplicaListenerInstantiateToCreateCommunicationListeners()
             {
                 Assert.Equal(ServiceReplicaListener.Instantiate, sut.Field<Func<ServiceReplicaListener, StatefulServiceContext, CommunicationListenerInfo>>().Value);
+            }
+        }
+
+        public sealed class Open : StatefulServiceReplicaAdapterTest
+        {
+            readonly ReplicaOpenMode openMode = fuzzy.Enum<ReplicaOpenMode>();
+            readonly IStatefulServicePartition partition = new Mock<IStatefulServicePartition> { DefaultValue = DefaultValue.Mock }.Object;
+            readonly CancellationToken cancellation = new CancellationToken();
+
+            [Fact]
+            public async Task OpensStateProviderReplica()
+            {
+                // Arrange
+                IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
+
+                // Act
+                await sut.OpenAsync(openMode, partition, cancellation);
+
+                // Assert
+                Mock.Get(stateProviderReplica).Verify(_ => _.OpenAsync(openMode, partition, cancellation));
+            }
+
+            [Fact]
+            public async Task InvokesOnOpenAsyncOnUserServiceReplica()
+            {
+                // Act
+                await sut.OpenAsync(openMode, partition, cancellation);
+
+                // Assert
+                Mock.Get(userServiceReplica).Verify(_ => _.OnOpenAsync(openMode, cancellation));
+            }
+
+            [Fact]
+            public async Task PropagatesExceptionFromUserServiceReplicaOnOpenAsync()
+            {
+                // Arrange
+                var expected = new InvalidOperationException();
+                Mock.Get(userServiceReplica).Setup(_ => _.OnOpenAsync(openMode, cancellation)).ThrowsAsync(expected);
+
+                // Act
+                var actual = await Assert.ThrowsAsync<InvalidOperationException>(() => sut.OpenAsync(openMode, partition, cancellation));
+
+                // Assert
+                Assert.Same(expected, actual);
+            }
+
+            [Fact]
+            public async Task ClosesStateProviderReplicaWhenUserServiceReplicaOnOpenAsyncThrows()
+            {
+                // Arrange
+                IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
+                Mock.Get(userServiceReplica).Setup(_ => _.OnOpenAsync(openMode, cancellation)).ThrowsAsync(new InvalidOperationException());
+
+                // Act
+                await Assert.ThrowsAsync<InvalidOperationException>(() => sut.OpenAsync(openMode, partition, cancellation));
+
+                // Assert
+                Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation));
             }
         }
 
