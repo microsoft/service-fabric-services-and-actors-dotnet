@@ -3,6 +3,9 @@ description: "Always use before reasoning about, modifying or reviewing any file
 applyTo: "**"
 ---
 
+- **Read the `copilot-instructions.md` first**.
+  Instructions in this file are incomplete without them.
+
 # Understand Project Context
 
 - Find and read the `README.md` and `CONTRIBUTING.md` files closest to the files being modified or reviewed.
