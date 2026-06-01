@@ -1,7 +1,10 @@
 ---
-description: "Use when writing or reviewing C# code."
+description: "Guidelines for C# code."
 applyTo: "**/*.cs"
 ---
+
+- **Read the `coding.instructions.md` first**.
+  Instructions in this file are incomplete without them.
 
 # C# Guidelines
 
