@@ -24,15 +24,21 @@ model: ["Claude Opus 4.7"]
     > Independently assess the following findings raised by another reviewer. Do not assume the original finding is correct.
     > For each finding, read the cited code and applicable `.instructions.md` rules, state your reasoning, cite evidence,
     > and conclude with `Agree`, `Disagree` or `Abstain` if you're not confident.
+    > Note that I'm working on the following request.
+    > ```
+    > {your prompt}
+    > ```
   - If your input prompt overrides the location of the the `.instruction.md` files, add it to the cross-check prompt too.
 
 - **Deduplicate findings raised independently by multiple models**.
   - Retain information about models that reported each issue for the cross-check and the final report.
 
-- **Cross-check single-model findings with the other models**.
-  - Don't cross-check `📝 Notes`.
-  - Run subagents of the other two models, in parallel, with the cross-check prompt and the findings to assess.
-    For example, if only `opus` reported a particular finding, ask `gpt` and `gemini` to cross-check it.
+- **Cross-check every finding that lacks unanimous support**.
+  - Don't cross-check `📝 Notes` unless they contradict recommendations from other models.
+  - A finding requires cross-check if **any** of the three models explicitly contradicted or did not report it.
+  - Run, in parallel, subagents of every model that contradicted or did not report the finding, with the cross-check prompt.
+    For example, if `gemini` and `gpt` reported a finding and `opus` did not, ask `opus` to cross-check it.
+  - Record each cross-check verdict verbatim (`Agree`, `Disagree`, `Abstain`) alongside the model name.
 
 - **Incorporate the cross-check feedback**.
   Repeat for every finding that received `Disagree` votes during cross-check:
@@ -42,6 +48,7 @@ model: ["Claude Opus 4.7"]
     - Append the complete original finding and cross-check responses.
     - Don't change the prompt in any other way
   - Run subagents of the models that reported the finding with the prepared prompt.
+  - Record each `Insist`/`Retract` response verbatim.
 
 - **Synthesize the combined report**.
   - Drop findings author decided to `Retract` after the cross-check.
