@@ -32,10 +32,16 @@ tools: [agent, execute, read, search, vscode/askQuestions, web]
     > ```
   - Do not change the reviewer prompt in any other way.
 
-2. **Run the `reviewer` subagent with the prepared prompt**.
+2. **Run the `coder` subagent to implement human decisions**.
+  - Check the `{file path}-needs-human-review.md` for human decisions on previously reported findings.
+  - Run the `coder` subagent as described in step 4 for each finding with the human decision in the file.
+  - Remove addressed findings from the file.
+  - Remove the file once it's empty.
+
+3. **Run the `reviewer` subagent with the prepared prompt**.
   - Do not change the prepared review prompt.
 
-3. **Address `❌ Reject` and `⚠️ Should Fix` findings one at a time**.
+4. **Address `❌ Reject` and `⚠️ Should Fix` findings one at a time**.
   - Don't bundle multiple findings into a single `coder` invocation, even if they apply to the same file.
   - Prepare prompt for the `coder`.
     - Start the prompt with `Address the following finding.`
@@ -46,9 +52,9 @@ tools: [agent, execute, read, search, vscode/askQuestions, web]
   - Wait for it to complete before starting the next.
   - If the `coder` is refuses to implement the finding, treat it as `❓ Needs Human Review` and continue addressing others.
 
-4. **Save each new finding that `❓ Needs Human Review`**.
+5. **Save each new finding that `❓ Needs Human Review`**.
   - Append the entire finding from the `reviewer` report to the `{file path}-needs-human-review.md`.
 
-5. **Repeat from step 2 until `reviewer` produces no new findings**.
+6. **Repeat from step 2 until `reviewer` produces no new findings**.
 
-6. **Return the final review output verbatim**.
+7. **Return the final review output verbatim**.
