@@ -149,6 +149,8 @@ strive to unit test each product type in isolation of its dependencies.
   - _Don't omit the base-class `sut` variable even if it's not applicable to every test_. E.g. tests of overloaded comparison
     operators would need `left` and `right` variables instead of `sut`, however, tests of other methods, like `ToString()`
     and `Equals()` can still use the `sut` variable.
+  - _Remove the base-class `sut` variable if it's assigned but never read_. Don't suppress the IDE0052 warning. For types
+    dominated by constructors, the base class `sut` variable may never be used by tests and doesn't make sense to keep.
 
 - **Create fields for constructor parameters below the `sut` field** to help the reader understand the constructor
   parameters and their types.
