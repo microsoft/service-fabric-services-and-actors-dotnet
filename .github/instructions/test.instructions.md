@@ -1,7 +1,11 @@
 ---
-description: "Use when writing or reviewing tests."
+description: "Guidelines for C# tests."
 applyTo: "test/**/*.cs"
 ---
+
+- **Read the `csharp.instructions.md` first**.
+  Instructions in this file are incomplete without them.
+
 # Testing Guidelines
 
 ## Avoid Integration Tests
