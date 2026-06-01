@@ -1,7 +1,10 @@
 ---
-description: "Use when writing or reviewing PowerShell scripts."
+description: "Guidelines for PowerShell scripts."
 applyTo: "**/*.ps1"
 ---
+
+- **Read the `coding.instructions.md` first**.
+  Instructions in this file are incomplete without them.
 
 # Script structure
 
