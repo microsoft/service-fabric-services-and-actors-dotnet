@@ -440,16 +440,20 @@ strive to unit test each product type in isolation of its dependencies.
 - **Create tests for existing code even if it's stable and unlikely to change**.
   Tests explain and verify that the current implementation, not just that future regressions will be caught.
 - **Don't test what SUT doesn't do**.
-  - Don't test the behavior of SUT's dependencies (other types), only that they are called.
-    Example: if the SUT calls `string.Equals()`, verify that it does, but don't re-verify all of the `string.Equals` semantics.
+  - Don't test the behavior of the target's callees, only that they are called. This applies equally to external callees
+    (members of other types, e.g. `string.Equals()`) and internal callees (other members of the same SUT, e.g. an
+    `Equals(object)` overload calling `Equals(T)`). Each callee is tested separately through its own target.
   - Open-ended "doesn't do X" tests are acceptable only when fixing a specific bug or documenting a key behavior of the SUT.
-- **Test every branch of the target, including branches in other SUT members it invokes**.
-  Other SUT members called by the target are part of the target's implementation, not a separate dependency. The target's
-  tests must cover every branch its SUT callees take, even when those branches also surface in the callees' own tests.
-  - RE: _Don't test what SUT doesn't do_. Verifying the behavior of an _external_ dependency is still out of scope - that
-    dependency is a different type with its own contract and test suite. 
-  - RE: _Omit nested test classes for SUT members without observable behavior_. This rule mandates _branch coverage_,
-    not a separate test class per delegating member.
+- **Cover the target's own branches, not its callees' branches**.
+  Each branch in the target's body gets a test; branches that live in a callee are covered by the callee's tests. When
+  the target delegates to a callee, the target's tests verify that the call happens and that the target's own logic
+  around the call (type-checks, guards, return-value handling) is correct — not that the callee's internal branches
+  produce the right answer.
+  - This intentionally accepts that some regressions (e.g. a future re-implementation that bypasses the callee) will not
+    be caught by the caller's tests. The tradeoff buys smaller, more independent tests and avoids combinatorial
+    duplication between caller and callee test classes.
+  - RE: _Omit nested test classes for SUT members without observable behavior_. A delegating member with its own branches
+    (type-check, guard, transformation of the return value) still needs a nested test class for those branches.
 
 ## Test Quality
 
@@ -498,21 +502,13 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   - Don't write a test whose failure conditions overlap with another test.
   - If one test can never fail without the other also failing, one of these tests duplicates the other. Make them specific
     enough to fail independently or remove.
+  - Re-running a callee's input permutations through its caller is duplication, regardless of whether the callee lives in
+    another type or in the same SUT. A caller test like `Equals_Object.ReturnsFalseWhenFooDiffers` cannot
+    fail unless the corresponding `Equals_T` test also fails — delete the caller variant and trust the callee's tests.
 - **Reduce tests to fewest elements**: 
   - Remove tests that cannot fail independently.
   - Before writing a test for a branch or guard, verify that the branch is reachable independently of the paths already covered.
   - Don't create tests for consistency or structural symmetry. API design principles don't apply to tests.
-- **RE: _Test every branch of the target, including branches in other SUT members it invokes_**.
-  - Overlap between a caller's tests and a callee's tests within the same SUT is not duplication — it is required coverage.
-    The caller's tests prove the caller actually reaches each callee branch through its own code path; deleting them would
-    let a regression that bypasses the callee pass silently. Only re-testing an _external_ dependency is duplication.
-  - "Cannot fail independently" applies across tests of the same target. A caller-target test that exercises a callee branch
-    through the caller is independent of the callee-target test that exercises the same branch directly — they fail for
-    different reasons (broken caller dispatch vs. broken callee logic).
-  - While this duplication and verbosity are required, they may be a symptom of SUT breaking the Single-Responsibility Principle.
-    A common example is the `Equals(object)` and `Equals(T)` methods implemented by the same type, one calling the other, with
-    a separate set of similar tests required for each method. A more factored implementation would delegate both calls to an
-    external `IEqualityComparer<T>` tested separately with only delegation tests required for the `Equals(object)` and `Equals(T)`.
 
 ## Special Cases
 
