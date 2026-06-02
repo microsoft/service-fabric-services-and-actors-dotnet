@@ -14,6 +14,7 @@ This repository requires unique knowledge you don't possess; you won't know what
     Note that I'm working on the following request.
     ---
     {your prompt}
+    ---
     ```
     - Don't explain how to implement the code, file names or paths.
     - Don't mention git.
@@ -31,6 +32,7 @@ This repository requires unique knowledge you don't possess; you won't know what
     Note that I'm working on the following request.
     ---
     {your prompt}
+    ---
     ```
   - Do not change the reviewer prompt in any other way.
 
