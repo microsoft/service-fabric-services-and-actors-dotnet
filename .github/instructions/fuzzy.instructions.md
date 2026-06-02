@@ -28,6 +28,7 @@ applyTo: "test/**/*.cs"
   A fuzzy value picked from a limited set is likely to match the value expected by test regardless of the logic being tested.
   This can produce false negatives and flaky tests.
   - Instead, use xUnit `[Theory]` with `[InlineData]` to cover all possible values.
+  - For nullable `bool` and `enum` values, include `null` values in the `[Theory]` data.
   - Do use fuzzy `bool` and `enum` values when _any_ value is needed rather than hard-coding it.
 
 - **Derive "different" values rather than generating them independently**. When you have a fuzzy value `x` and need a
