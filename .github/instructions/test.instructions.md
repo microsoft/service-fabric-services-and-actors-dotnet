@@ -176,7 +176,8 @@ strive to unit test each product type in isolation of its dependencies.
   - _Make them `public sealed`_ to communicate that they have concrete tests and aren't meant to be further inherited.
   - _Name them after the target being tested_ - e.g. `Foo.Bar()` should have nested test class `FooTest.Bar`.
   - _Make them inherit from the base test class_ to reuse the test fixture from the base test class.
-  - _Order nested test classes alphabetically_ to reduce future merge conflicts.
+  - _Place constructor nested test classes first_ to explain how SUT is created.
+  - _Order remaining nested test classes alphabetically_ to reduce future merge conflicts.
 
 - **Omit nested test classes for SUT members without observable behavior**.
   - _Don't test code storing parameters in `private` fields for other SUT members_. Private storage logic is verified indirectly
