@@ -28,7 +28,7 @@ model: ["Claude Opus 4.7"]
     > ```
     > {your prompt}
     > ```
-  - If your input prompt overrides the location of the the `.instruction.md` files, add it to the cross-check prompt too.
+  - If your input prompt overrides the location of the `.instructions.md` files, add it to the cross-check prompt too.
 
 - **Deduplicate findings raised independently by multiple models**.
   - Retain information about models that reported each issue for the cross-check and the final report.
@@ -43,17 +43,51 @@ model: ["Claude Opus 4.7"]
 - **Incorporate the cross-check feedback**.
   Repeat for every finding that received `Disagree` votes during cross-check:
   - Prepare the feedback prompt
-    > Re-evaluate your previous recommendation taking into account responses from other models.
-    > Respond with `Insist` or `Retract` and include detailed justification.
-    - Append the complete original finding and cross-check responses.
+    ```md
+    Re-evaluate your previous recommendation taking into account responses from other models.
+    ---
+    {Original Finding}
+    {Cross-check Responses}
+    ---
+    Note that I'm working on the following request.
+    ---
+    {your prompt}
+    ---
+    Respond with
+    - `Insist` if you still believe your original proposal should be implemented.
+    - `Retract` if you now believe your original proposal is incorrect or optional.
+    Include detailed justification.
+    ```
     - Don't change the prompt in any other way
-  - Run subagents of the models that reported the finding with the prepared prompt.
+  - Run subagents of the models that reported the finding with the feedback prompt.
   - Record each `Insist`/`Retract` response verbatim.
 
+- **Double-check every finding insisted upon by the author after the cross-check feedback**
+  Repeat for every finding that authors `Insist` on after cross-check.
+  - Prepare the double-check prompt
+    ```md
+    Respond to the finding author insisting on it after you disagreed.
+    ---
+    {Original Finding}
+    {Cross-check Responses}
+    ---
+    Note that I'm working on the following request.
+    ---
+    {your prompt}
+    ---
+    Respond with
+    - `Accept` if you now agree or don't object to implementing author's proposal.
+    - `Reject` if you still believe author's proposal shouldn't be implemented.
+    Include detailed justification.
+    ```
+  - Run subagents of the models that disagreed with the double-check prompt.
+
 - **Synthesize the combined report**.
-  - Drop findings author decided to `Retract` after the cross-check.
-  - Change findings author decided to `Insist` on after the cross-check to `❓ Needs Human Review`.
+  - Drop findings authors decided to `Retract` after the cross-check feedback.
+  - Change findings others decided to `Reject` after the double-check to `❓ Needs Human Review`.
+  - Retain at the severity reported by the author for findings others decided to `Accept` after the double-check.
   - Elevate `💡 Suggestions` reported or supported by multiple models to `⚠️ Should Fix`.
+  - Follow the report format defined in `review/SKILL.md` (Verdict, Detailed Assessment, Issues).
   - Finding format:
     - Prefix the finding title with the severity synthesized by the cross-check.
     - Include complete finding reports from authors, cross-check responses, and authors' response to cross-check.
