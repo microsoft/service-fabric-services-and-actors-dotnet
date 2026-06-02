@@ -1,47 +1,51 @@
 ---
 description: "Coordinates iterative coding and review until the code is ready."
-tools: [agent, execute, read, search, vscode/askQuestions, web]
+tools: [agent, execute, read, search, web]
 ---
 
--1. **Understand `.github/copilot-instructions.md` before doing anything else**.
-  This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
+**Understand `.github/copilot-instructions.md` before doing anything else**.
+This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
 
-0. **Run the `coder` subagent to write code if doesn't exist yet**
-  - _If the code exists, skip to step 1_. It's `reviewer`'s job to decide if the code is good enough.
+1. **Run the `coder` subagent to write code if doesn't exist yet**
+  - _If the code exists, skip to step 2_. It's `reviewer`'s job to decide if the code is good enough.
   - Use this template for the `coder` prompt
-    > Implement `{what is needed?}`.
-    > Note that I'm working on the following request.
-    > ```
-    > {your prompt}
-    > ```
+    ```md
+    Implement `{what is needed?}`.
+    Note that I'm working on the following request.
+    ---
+    {your prompt}
+    ```
     - Don't explain how to implement the code, file names or paths.
     - Don't mention git.
     - Don't mention, summarize or synthesize `*.instructions.md` files.
     - Don't change the prompt in any other way.
-  - After the `coder` is done, proceed to step 1 of the iteration loop.
+  - After the `coder` is done, proceed to step 2 of the iteration loop.
 
-1. **Prepare prompt for the `reviewer`**.
+2. **Prepare prompt for the `reviewer`**.
   - Extract a file path to be reviewed from your prompt.
   - Use this prompt template; replace the `{file path}` and `{your prompt}` placeholders.
-    > Execute /review skill with argument `{file path}`.
-    > Avoid contradicting findings previously addressed in `git log origin/HEAD..HEAD -- {file path}`.
-    > Exclude findings previously reported in `{file path}-needs-human-review.md`, if it exists.
-    > Note that I'm working on the following request.
-    > ```
-    > {your prompt}
-    > ```
+    ```md
+    Execute /review skill with argument `{file path}`.
+    Avoid contradicting findings previously addressed in `git log origin/HEAD..HEAD -- {file path}`.
+    Exclude findings previously reported in `{file path}-needs-human-review.md`, if it exists.
+    Note that I'm working on the following request.
+    ---
+    {your prompt}
+    ```
   - Do not change the reviewer prompt in any other way.
 
-2. **Run the `coder` subagent to implement human decisions**.
-  - Check the `{file path}-needs-human-review.md` for human decisions on previously reported findings.
-  - Run the `coder` subagent as described in step 4 for each finding with the human decision in the file.
-  - Remove addressed findings from the file.
-  - Remove the file once it's empty.
+3. **Run the `coder` subagent to implement human decisions**.
+  - Read `{file path}-needs-human-review.md`.
+  - For each finding that has a human decision:
+    - Extract a single finding, including notes from authors, other models, and human decision.
+    - Run the `coder` subagent as described in step 5 for the finding you extracted.
+    - Remove the addressed finding from the file.
+  - Remove the file if all findings have been removed.
 
-3. **Run the `reviewer` subagent with the prepared prompt**.
+4. **Run the `reviewer` subagent with the prepared prompt**.
   - Do not change the prepared review prompt.
 
-4. **Address `❗ Must Fix` and `⚠️ Should Fix` findings one at a time**.
+5. **Address `❗ Must Fix` and `⚠️ Should Fix` findings one at a time**.
   - Don't bundle multiple findings into a single `coder` invocation, even if they apply to the same file.
   - Prepare prompt for the `coder`.
     - Start the prompt with `Address the following finding.`
@@ -50,11 +54,11 @@ tools: [agent, execute, read, search, vscode/askQuestions, web]
       - don't add any commit instructions.
   - Run the `coder` subagent with the prepared prompt.
   - Wait for it to complete before starting the next.
-  - If the `coder` is refuses to implement the finding, treat it as `❓ Needs Human Review` and continue addressing others.
+  - If the `coder` refuses to implement the finding, save it as described in step 6 and continue addressing others.
 
-5. **Save each new finding that `❓ Needs Human Review`**.
+6. **Save each new finding that `❓ Needs Human Review`**.
   - Append the entire finding from the `reviewer` report to the `{file path}-needs-human-review.md`.
 
-6. **Repeat from step 2 until `reviewer` produces no new findings**.
+7. **Repeat from step 3 (implement human decisions) until step 4 (review) produces no new findings**.
 
-7. **Return the final review output verbatim**.
+8. **Return the final review output verbatim**.
