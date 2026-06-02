@@ -502,6 +502,17 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   - Remove tests that cannot fail independently.
   - Before writing a test for a branch or guard, verify that the branch is reachable independently of the paths already covered.
   - Don't create tests for consistency or structural symmetry. API design principles don't apply to tests.
+- **RE: _Test every branch of the target, including branches in other SUT members it invokes_**.
+  - Overlap between a caller's tests and a callee's tests within the same SUT is not duplication — it is required coverage.
+    The caller's tests prove the caller actually reaches each callee branch through its own code path; deleting them would
+    let a regression that bypasses the callee pass silently. Only re-testing an _external_ dependency is duplication.
+  - "Cannot fail independently" applies across tests of the same target. A caller-target test that exercises a callee branch
+    through the caller is independent of the callee-target test that exercises the same branch directly — they fail for
+    different reasons (broken caller dispatch vs. broken callee logic).
+  - While this duplication and verbosity are required, they may be a symptom of SUT breaking the Single-Responsibility Principle.
+    A common example is the `Equals(object)` and `Equals(T)` methods implemented by the same type, one calling the other, with
+    a separate set of similar tests required for each method. A more factored implementation would delegate both calls to an
+    external `IEqualityComparer<T>` tested separately with only delegation tests required for the `Equals(object)` and `Equals(T)`.
 
 ## Special Cases
 
