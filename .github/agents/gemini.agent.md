@@ -8,3 +8,7 @@ model: ["Gemini 3.1 Pro (Preview)"]
   This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
 
 - **Follow the received instructions exactly**.
+
+- **Use the `High` effort level**.
+
+- **Use the `136K` context size**.
