@@ -41,7 +41,7 @@ tools: [agent, execute, read, search, vscode/askQuestions, web]
 3. **Run the `reviewer` subagent with the prepared prompt**.
   - Do not change the prepared review prompt.
 
-4. **Address `❌ Reject` and `⚠️ Should Fix` findings one at a time**.
+4. **Address `❗ Must Fix` and `⚠️ Should Fix` findings one at a time**.
   - Don't bundle multiple findings into a single `coder` invocation, even if they apply to the same file.
   - Prepare prompt for the `coder`.
     - Start the prompt with `Address the following finding.`
