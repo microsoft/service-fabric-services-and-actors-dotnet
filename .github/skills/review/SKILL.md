@@ -42,13 +42,13 @@ argument-hint: "(class|file|tests for X)"
   - Legacy comments are often stale and incorrect.
 
 - **Determine severity:**
-   - `[❌](# "Must fix")` — Bugs, security issues, test gaps for behavior changes.
+   - `[❗](# "Must fix")` — Bugs, security issues, test gaps for behavior changes.
    - `[⚠️](# "Should fix")` — Missing tests, inconsistency with `*.instructions.md`, established patterns.
    - `[💡](# "Consider changing")` — Readability wins, minor improvements.
    - `[📝](# "Note")` - Similar issues elsewhere, out of scope, FYI, etc.
 
 - **Validate each finding**:
-  - Ensure code suggestions are valid.
+  - Ensure code suggestions build without errors or warnings and pass tests.
   - Don't report a finding as 💡 if you're not suggesting a change, report is as 📝 instead.
 
 - **Every finding must**
@@ -59,7 +59,7 @@ argument-hint: "(class|file|tests for X)"
 # 4. Issue a Verdict
 
 - **Use `✅ Looks Good` when all findings are ✅ and you agree with the approach**.
-- **Use `⚠️ Needs Changes` when any findings are `❌ Must Fix` or `⚠️ Should Fix`**.
+- **Use `⚠️ Needs Changes` when any findings are `❗ Must Fix` or `⚠️ Should Fix`**.
 - **Use `❓ Needs Human Review` when unsure**.
 
 # 5. Generate a Report
@@ -76,5 +76,5 @@ Include the assessment covering the motivation, approach, cost-benefit, and risk
 
 ### Issues
 
-Group related findings under a single heading: `### ✅/❓/⚠️/❌ <Category Name> — <Brief description>`. Include
+Group related findings under a single heading: `### ✅/❓/❗/⚠️/❌ <Category Name> — <Brief description>`. Include
 specifics — reference code, line numbers, etc.
