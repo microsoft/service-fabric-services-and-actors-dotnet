@@ -435,9 +435,12 @@ strive to unit test each product type in isolation of its dependencies.
 
 - **Strive for 100% test coverage of product code is the goal**. This means:
   - Every statement.
-  - Every independently reachable logical branch, e.g. `if`, `switch`, `?:`, `?.`, pattern.
-    A branch is not independently reachable when its guard is redundant — for example, a `HasValue` check before
-    a nullable `==` comparison that already handles `null`.
+  - Every independently reachable logical branch, e.g. `if`, `switch`, `?:`, `?.`, comparison operator, pattern.
+    - A `Nullable<T>` comparison is a single branch and doesn't require separate tests for `null` values.
+      The following function requires two tests - one for true/equality and one for false/inequality.
+      ```csharp
+      bool Equals(int? foo, int? bar) => foo == bar;
+      ```
   - Every `TargetFramework`.
 - **Reject new APIs that don't support this goal**.
 - **Improve existing APIs to reach this goal with SemVer restrictions on backward compatibility**.
