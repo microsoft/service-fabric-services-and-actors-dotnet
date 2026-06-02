@@ -19,6 +19,9 @@ applyTo: "**/*.cs"
   Types should be as immutable as possible. `readonly` helps to communicate and enforce that. While `volatile` doesn't guarantee
   thread safety, it helps to communicate that a field can be modified by multiple threads. Legitimate use of mutable types
   that don't need thread safety is rare, so a field that's neither `readonly` nor `volatile` usually indicates a design problem 
+- **Make types, members and lambdas `static` if possible**.
+  Types that can't be instantiated, members that don't need instance state and lambdas that don't need to capture variables
+  should be static to communicate this explicitly and encourage thread-safety and efficiency.
 - **Make types and members `abstract` or `sealed` if possible**.
   Inheritance is a first-class design consideration and should be communicated as an explicit contract.
 - **Make member visibility specifiers represent the actual member visibility**.
