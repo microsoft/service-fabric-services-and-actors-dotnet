@@ -215,11 +215,9 @@ strive to unit test each product type in isolation of its dependencies.
   - _Add the `new` keyword to the test sub-class_. If SUT overrides `Object` methods like `GetHashCode()` the nested
     test class name `GetHashCode` would conflict with the `GetHashCode()` method of the base test class. The `new` keyword
     resolves the conflict: `public new sealed class GetHashCode: FooTest`.
-
   - _Implement `IDisposable` in test classes explicitly_. If SUT has a `Dispose()` method, the nested test class name `Dispose`
     may conflict with the `Dispose()` method of the test class responsible for test fixture cleanup. Implementing `IDisposable`
     in the test class explicitly resolves the conflict: `void IDisposable.Dispose()`.
-
   - _Add `_` suffix to nested test class name_. When the test base `Dispose()` method is virtual and overridden by the nested
     test sub-classes, adding the `_` suffix to the test name resolves the conflict.
     `public sealed class Dispose_: FooTest`.
@@ -231,16 +229,11 @@ strive to unit test each product type in isolation of its dependencies.
     `explicit operator string(OrdinalString value)` should have nested class `Op_Explicit_OrdinalString_To_String` and
     `implicit operator OrdinalString(string value)` should have nested class `Op_Implicit_String_To_OrdinalString`.
 
-- **Create nested `sut` fields to test interfaces implemented by SUT**. This helps to explain the SUT better in tests and
-  may be the most concise way to implement tests, particularly when a given interface has multiple methods.
-
 - **Create fields for method parameters in the nested test classes** to help the reader understand the method parameters
   and their types. This guidance also applies to C# indexers.
   - _Add a `// Method parameters` comment above them when non-parameter fields appear below_.
     Omit it when the parameter fields are the only fields in the nested class.
   - _Add a blank line below the parameter fields_ to separate them from the rest of the test class.
-  - _When testing an interface method use the interface parameter names_. While the SUT implementation of the interface
-    may use different parameters, it should be tested through the interface, so the interface parameter names apply.
 
 - **Use the exact SUT parameter names for fields** even if their names don't meet current naming guidelines.
   - _Add end-of-line comment to explain field names chosen for consistency with SUT parameters_. E.g. acronyms, abbreviations,
@@ -531,6 +524,37 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   - Don't create tests for consistency or structural symmetry. API design principles don't apply to tests.
 
 ## Special Cases
+
+- **Create nested `sut` fields to test overrides and interfaces implemented by SUT**. This helps to explain the SUT better
+  in tests and makes tests stronger. Example below is compressed to reduce space and meant to illustrate structure and
+  naming, not formatting or comments.
+  ```csharp
+  public class Foo: IEquatable<Foo>
+  {
+     public override bool Equals(object foo);
+     public bool Equals(Foo foo);
+  }
+  public abstract class FooTest
+  {
+      readonly Foo sut = new();
+      public class Equals_Object: FooTest
+      {
+          new readonly object sut; // tests override of Object.Equals(object obj)
+          readonly object obj = new(); // field and test method names are consistent with Object
+          public Equals_Object() => sut = base.sut();
+          [Fact] public void ReturnsFalseWhenObjIsDifferent() => Assert.False(sut.Equals(obj));
+      }
+      public class Equals_Foo: FooTest
+      {
+          new readonly IEquatable<Foo> sut; // tests implementation of IEquatable<T>.Equals(T? other)
+          readonly Foo other = new(); // field and test method names are consistent with IEquatable<T>
+          public Equals_Foo() => sut = base.sut;
+          [Fact] public void ReturnsFalseWhenOtherIsDifferent() => Assert.False(sut.Equals(other));
+      }
+  }
+  ```
+  In the context of rules _Use the exact SUT parameter names for fields_ and _Refer to a SUT parameter by its name_,
+  this means that SUT is narrowed to implementation of a specific API, so that API's parameter names apply.
 
 - **Use `[WindowsOnly("reason")]` from `TestFramework` to skip tests that can't run on Linux**.
 - **Use `[Fact(Explicit = true)] // TODO: {Reason}` to exclude intentionally failing and flaky tests**.
