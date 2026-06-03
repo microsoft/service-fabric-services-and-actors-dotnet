@@ -8,6 +8,11 @@ applyTo: "test/**/*.cs"
 
 # Testing Guidelines
 
+## Terminology
+
+- **SUT** means system under test. In C#, it's a single type type with behavior, typically a `class` or a `struct`.
+- **Target** means _member of the SUT_. In C#, it's a single constructor, method, property or event.
+
 ## Avoid Integration Tests
 
 Integration tests typically don't have the 1:1 equivalency with the product code and tend to drift away over time.
