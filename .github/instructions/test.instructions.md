@@ -461,9 +461,15 @@ strive to unit test each product type in isolation of its dependencies.
   the target delegates to a callee, the target's tests verify that the call happens and that the target's own logic
   around the call (type-checks, guards, return-value handling) is correct — not that the callee's internal branches
   produce the right answer.
-  - This intentionally accepts that some regressions (e.g. a future re-implementation that bypasses the callee) will not
-    be caught by the caller's tests. The tradeoff buys smaller, more independent tests and avoids combinatorial
+  - _This intentionally accepts some regressions_. E.g. a future re-implementation that bypasses the callee will
+    not be caught by the caller's tests. The tradeoff buys smaller, more independent tests and avoids combinatorial
     duplication between caller and callee test classes.
+  - _High-cardinality callee outputs require a single test_. E.g. `int GetHashCode()` calling `System.HashCode.Combine()`
+    needs a single test because `int` is high-cardinality.
+  - _Low-cardinality callee outputs require a separate test per value_. Use [Theory] over the callee's output domain, or
+    add one test per distinct forwarded value. E.g. `bool Equals(T)` calling `Equals()` method of its member requires two
+    tests because `bool` cardinality is limited to `true` and `false` and asserting only on one of them wouldn't be sufficient
+    to prove that the callee was invoked correctly.
   - RE: _Omit nested test classes for SUT members without observable behavior_. A delegating member with its own branches
     (type-check, guard, transformation of the return value) still needs a nested test class for those branches.
 
