@@ -62,16 +62,18 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             readonly CancellationToken cancellation = new CancellationToken();
 
             [Fact]
-            public async Task OpensStateProviderReplica()
+            public async Task ReturnsReplicatorFromStateProviderReplica()
             {
                 // Arrange
                 IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
+                IReplicator expected = Mock.Of<IReplicator>();
+                Mock.Get(stateProviderReplica).Setup(_ => _.OpenAsync(openMode, partition, cancellation)).ReturnsAsync(expected);
 
                 // Act
-                await sut.OpenAsync(openMode, partition, cancellation);
+                IReplicator actual = await sut.OpenAsync(openMode, partition, cancellation);
 
                 // Assert
-                Mock.Get(stateProviderReplica).Verify(_ => _.OpenAsync(openMode, partition, cancellation));
+                Assert.Same(expected, actual);
             }
 
             [Fact]
@@ -81,7 +83,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await sut.OpenAsync(openMode, partition, cancellation);
 
                 // Assert
-                Mock.Get(userServiceReplica).Verify(_ => _.OnOpenAsync(openMode, cancellation));
+                Mock.Get(userServiceReplica).Verify(_ => _.OnOpenAsync(openMode, cancellation), Times.Once);
             }
 
             [Fact]
@@ -109,7 +111,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await Assert.ThrowsAsync<InvalidOperationException>(() => sut.OpenAsync(openMode, partition, cancellation));
 
                 // Assert
-                Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation));
+                Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation), Times.Once);
             }
         }
 
@@ -155,7 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await sut.CloseAsync(cancellation);
 
                 // Assert
-                Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation));
+                Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation), Times.Once);
                 Assert.Null(sut.Field<IStateProviderReplica>().Value);
             }
 
@@ -166,7 +168,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await sut.CloseAsync(cancellation);
 
                 // Assert
-                Mock.Get(userServiceReplica).Verify(_ => _.OnCloseAsync(cancellation));
+                Mock.Get(userServiceReplica).Verify(_ => _.OnCloseAsync(cancellation), Times.Once);
             }
 
             [Fact]
@@ -180,7 +182,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await sut.CloseAsync(cancellation);
 
                 // Assert
-                Mock.Get(listenerInfo.Listener).Verify(_ => _.CloseAsync(cancellation));
+                Mock.Get(listenerInfo.Listener).Verify(_ => _.CloseAsync(cancellation), Times.Once);
                 Assert.Null(sut.Field<IList<CommunicationListenerInfo>>().Value);
             }
 
@@ -209,7 +211,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CloseAsync(cancellation));
 
                 // Assert
-                Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation));
+                Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation), Times.Once);
                 Assert.Null(sut.Field<IStateProviderReplica>().Value);
             }
 
