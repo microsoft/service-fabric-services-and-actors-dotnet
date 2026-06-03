@@ -470,6 +470,8 @@ strive to unit test each product type in isolation of its dependencies.
     add one test per distinct forwarded value. E.g. `bool Equals(T)` calling `Equals()` method of its member requires two
     tests because `bool` cardinality is limited to `true` and `false` and asserting only on one of them wouldn't be sufficient
     to prove that the callee was invoked correctly.
+  - _A contract implemented by a callee doesn't need to be re-tested through the caller_. E.g. if a caller's XML doc states
+    a contract that the callee implements, no separate test is needed for that contract — the caller's branch coverage is sufficient.
   - RE: _Omit nested test classes for SUT members without observable behavior_. A delegating member with its own branches
     (type-check, guard, transformation of the return value) still needs a nested test class for those branches.
 
