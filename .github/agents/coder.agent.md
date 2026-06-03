@@ -1,6 +1,6 @@
 ---
 description: Implements and tests code changes.
-tools: [agent, execute, read, search, web]
+tools: [execute, read, search, web]
 ---
 
 - **Understand `.github/copilot-instructions.md` before doing anything else**.
