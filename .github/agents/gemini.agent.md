@@ -12,3 +12,6 @@ model: ["Gemini 3.1 Pro (Preview)"]
 - **Use the `High` effort level**.
 
 - **Use the `136K` context size**.
+
+- **Avoid your common mistakes**:
+  - _Don't create throwaway code, projects in the repo root_. Follow the `copilot-instructions.md` instead.
