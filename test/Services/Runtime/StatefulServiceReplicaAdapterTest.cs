@@ -230,6 +230,23 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 Assert.True(source.IsCancellationRequested);
                 Assert.Null(sut.Field<CancellationTokenSource>().Value);
             }
+
+            [Fact]
+            public async Task AggregatesExceptionsFromUserServiceReplicaAndStateProviderReplicaWhenBothThrow()
+            {
+                // Arrange
+                var userEx = new InvalidOperationException();
+                var stateEx = new InvalidOperationException();
+                IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
+                Mock.Get(userServiceReplica).Setup(_ => _.OnCloseAsync(cancellation)).ThrowsAsync(userEx);
+                Mock.Get(stateProviderReplica).Setup(_ => _.CloseAsync(cancellation)).ThrowsAsync(stateEx);
+
+                // Act
+                var actual = await Assert.ThrowsAsync<AggregateException>(() => sut.CloseAsync(cancellation));
+
+                // Assert
+                Assert.Equal(new Exception[] { userEx, stateEx }, actual.InnerExceptions);
+            }
         }
     }
 }

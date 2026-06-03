@@ -200,10 +200,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "Calling userServiceReplica.OnCloseAsync()");
 
-            // Tolerate user-side exceptions so subsequent close steps can complete.
-            // The exception is logged immediately and rethrown at the end of CloseAsync
-            // unless a more severe exception occurs first.
-            ExceptionDispatchInfo userReplicaEx = null;
+            // Tolerate exceptions from each close step so subsequent steps can complete.
+            // All collected exceptions are reported together at the end: a single one is
+            // rethrown preserving its stack, multiple are wrapped in an AggregateException
+            // so no failure is lost.
+            var exceptions = new List<Exception>();
             try
             {
                 await this.userServiceReplica.OnCloseAsync(cancellationToken);
@@ -221,7 +222,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                     "Unhandled exception from userServiceReplica.OnCloseAsync() - {0}",
                     ex);
 
-                userReplicaEx = ExceptionDispatchInfo.Capture(ex);
+                exceptions.Add(ex);
             }
 
             if (this.stateProviderReplica != null)
@@ -231,19 +232,52 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "Calling IStateProviderReplica.CloseAsync()");
 
-                await this.stateProviderReplica.CloseAsync(cancellationToken);
+                try
+                {
+                    await this.stateProviderReplica.CloseAsync(cancellationToken);
 
-                ServiceTrace.Source.WriteInfoWithId(
-                    TraceType,
-                    this.traceId,
-                    "Completed call to IStateProviderReplica.CloseAsync.");
+                    ServiceTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        "Completed call to IStateProviderReplica.CloseAsync.");
 
-                this.stateProviderReplica = null;
+                    this.stateProviderReplica = null;
+                }
+                catch (Exception ex)
+                {
+                    ServiceTrace.Source.WriteWarningWithId(
+                        TraceType,
+                        this.traceId,
+                        "Unhandled exception from IStateProviderReplica.CloseAsync() - {0}",
+                        ex);
+
+                    exceptions.Add(ex);
+                }
             }
 
-            await this.CancelRunAsync();
+            try
+            {
+                await this.CancelRunAsync();
+            }
+            catch (Exception ex)
+            {
+                ServiceTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "Unhandled exception from CancelRunAsync() - {0}",
+                    ex);
 
-            userReplicaEx?.Throw();
+                exceptions.Add(ex);
+            }
+
+            if (exceptions.Count == 1)
+            {
+                ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+            }
+            else if (exceptions.Count > 1)
+            {
+                throw new AggregateException(exceptions);
+            }
         }
 
         void IStatefulServiceReplica.Abort()
