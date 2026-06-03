@@ -253,7 +253,7 @@ strive to unit test each product type in isolation of its dependencies.
 - **Test names should form valid English sentences when read together with the class names**.
   For example `TraceTest.Constructor.ThrowsArgumentNullExceptionWhenTypeIsNull`.
   - _Describe the SUT's behavior, not the test mechanics_.
-  - _Refer to a SUT parameter by its name_. E.g. for `Equals(object obj)` write `ReturnsTrueWhenObjIsNull`. Parameter names
+  - _Refer to a SUT parameter by its name_. E.g. for `Equals(object obj)` write `ReturnsFalseWhenObjIsNotEqual`. Parameter names
     like `obj` that violate .NET Framework design guidelines should be rare enough that this shouldn't be a readability problem.
     Note: _Test overrides and interfaces implementations through their declaring APIs_ modifies this rule.
 
@@ -447,26 +447,29 @@ strive to unit test each product type in isolation of its dependencies.
 - **Create tests for existing code even if it's stable and unlikely to change**.
   Tests explain and verify that the current implementation, not just that future regressions will be caught.
 - **Don't test what SUT doesn't do**.
-  - Don't test the behavior of the target's callees, only that they are called. This applies equally to external callees
-    (members of other types, e.g. `string.Equals()`) and internal callees (other members of the same SUT, e.g. an
-    `Equals(object)` overload calling `Equals(T)`). Each callee is tested separately through its own target.
-  - Open-ended "doesn't do X" tests are acceptable only when fixing a specific bug or documenting a key behavior of the SUT.
+  - _Don't test the behavior of the target's callees, only that they are called_. The target is tested to verify it delegates
+    to the callees and each callee is tested as a separate target. This applies equally to members of other types, e.g.
+    `string.Equals()` and other members of the same SUT, e.g. an `Equals(object)` overload calling `Equals(T)`. External
+    callees are assumed to be fully tested outside of this repo.
+  - _Don't test a contract documented by the target but implemented by a callee_. This is a common trap when a target's
+    XML doc re-states a contract implemented by the callee and not the target itself. Don't re-test it through the target.
+  - _This intentionally accepts some regressions_. E.g. a future re-implementation that bypasses the callee will
+    not be caught by the caller's tests. The tradeoff buys smaller, more independent tests and avoids combinatorial
+    duplication between caller and callee test classes.
+  - _When possible, invoke callee via an interface or a delegate and verify the target by mocking the callee_. Unlike
+    early-bound calls, which cannot be tested directly, late-bound calls can be mocked at run-time and tested directly.
+  - _Open-ended "doesn't do X" tests are acceptable only when fixing a specific bug or documenting a key behavior of the SUT_.
 - **Cover the target's own branches, not its callees' branches**.
   Each branch in the target's body gets a test; branches that live in a callee are covered by the callee's tests. When
   the target delegates to a callee, the target's tests verify that the call happens and that the target's own logic
   around the call (type-checks, guards, return-value handling) is correct — not that the callee's internal branches
   produce the right answer.
-  - _This intentionally accepts some regressions_. E.g. a future re-implementation that bypasses the callee will
-    not be caught by the caller's tests. The tradeoff buys smaller, more independent tests and avoids combinatorial
-    duplication between caller and callee test classes.
   - _High-cardinality callee outputs require a single test_. E.g. `int GetHashCode()` calling `System.HashCode.Combine()`
     needs a single test because `int` is high-cardinality.
   - _Low-cardinality callee outputs require a separate test per value_. Use [Theory] over the callee's output domain, or
     add one test per distinct forwarded value. E.g. `bool Equals(T)` calling `Equals()` method of its member requires two
     tests because `bool` cardinality is limited to `true` and `false` and asserting only on one of them wouldn't be sufficient
     to prove that the callee was invoked correctly.
-  - _A contract implemented by a callee doesn't need to be re-tested through the caller_. E.g. if a caller's XML doc states
-    a contract that the callee implements, no separate test is needed for that contract — the caller's branch coverage is sufficient.
   - RE: _Omit nested test classes for SUT members without observable behavior_. A delegating member with its own branches
     (type-check, guard, transformation of the return value) still needs a nested test class for those branches.
 
