@@ -36,9 +36,9 @@ This repository requires unique knowledge you don't possess; you won't know what
     ```
   - Do not change the reviewer prompt in any other way.
 
-3. **Run the `coder` subagent to implement human decisions**.
-  - Read `{file path}-needs-human-review.md`.
-  - For each finding that has a human decision:
+3. **Implement human decisions before reviewing again.**.
+  - Read `{file path}-needs-human-review.md`. It may have been created by past iterations or agent sessions.
+  - For each finding that has a human decision, one at a time:
     - Extract a single finding, including notes from authors, other models, and human decision.
     - Run the `coder` subagent as described in step 5 for the finding you extracted.
     - Remove the addressed finding from the file.
