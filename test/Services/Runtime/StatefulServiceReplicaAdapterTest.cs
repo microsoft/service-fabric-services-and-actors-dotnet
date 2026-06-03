@@ -18,7 +18,6 @@ using Xunit;
 
 namespace Microsoft.ServiceFabric.Services.Runtime
 {
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public abstract class StatefulServiceReplicaAdapterTest
     {
         readonly IStatefulServiceReplica sut;
