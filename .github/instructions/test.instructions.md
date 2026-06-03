@@ -240,6 +240,7 @@ strive to unit test each product type in isolation of its dependencies.
     Hungarian, etc. shouldn't be used but may be needed for consistency with actual SUT names. 
   - _Don't change SUT parameter names when implementing tests_. Parameter name change is build-breaking for code that specifies
     parameter names explicitly; product versioning restrictions apply.
+  - Note: _Test overrides and interfaces implementations through their declaring APIs_ modifies this rule.
 
 - **Place helpers below tests**.
   Helpers are implementation details of the tests and shouldn't interfere with the tests' purpose of serving as executable
@@ -254,6 +255,7 @@ strive to unit test each product type in isolation of its dependencies.
   - _Describe the SUT's behavior, not the test mechanics_.
   - _Refer to a SUT parameter by its name_. E.g. for `Equals(object obj)` write `ReturnsTrueWhenObjIsNull`. Parameter names
     like `obj` that violate .NET Framework design guidelines should be rare enough that this shouldn't be a readability problem.
+    Note: _Test overrides and interfaces implementations through their declaring APIs_ modifies this rule.
 
 - **Each test method should verify a single logical aspect of a single member of the SUT**.
   - Multiple assertions per test method are OK as long as they test the same specific logical aspect of the target.
@@ -525,7 +527,7 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
 
 ## Special Cases
 
-- **Create nested `sut` fields to test overrides and interfaces implemented by SUT**. This helps to explain the SUT better
+- **Test overrides and interfaces implementations through their declaring APIs**. This helps to explain the SUT better
   in tests and makes tests stronger. Example below is compressed to reduce space and meant to illustrate structure and
   naming, not formatting or comments.
   ```csharp
