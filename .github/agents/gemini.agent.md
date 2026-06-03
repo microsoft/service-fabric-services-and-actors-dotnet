@@ -14,4 +14,6 @@ model: ["Gemini 3.1 Pro (Preview)"]
 - **Use the `136K` context size**.
 
 - **Avoid your common mistakes**:
-  - _Don't create throwaway code, projects in the repo root_. Follow the `copilot-instructions.md` instead.
+  - _Place temporary files and directories in the `tmp` directory_.
+    This includes scratchpads, log extracts, repro files, etc. created via shell commands (e.g., `> file`, `Set-Content`, `fs.writeFileSync`).
+    Never write throwaway files to the repo root.
