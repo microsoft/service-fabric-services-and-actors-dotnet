@@ -219,13 +219,15 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             public async Task CancelsRunAsyncEvenWhenUserServiceReplicaOnCloseAsyncThrows()
             {
                 // Arrange
-                sut.Field<CancellationTokenSource>().Set(new CancellationTokenSource());
+                var source = new CancellationTokenSource();
+                sut.Field<CancellationTokenSource>().Set(source);
                 Mock.Get(userServiceReplica).Setup(_ => _.OnCloseAsync(cancellation)).ThrowsAsync(new InvalidOperationException());
 
                 // Act
                 await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CloseAsync(cancellation));
 
                 // Assert
+                Assert.True(source.IsCancellationRequested);
                 Assert.Null(sut.Field<CancellationTokenSource>().Value);
             }
         }
