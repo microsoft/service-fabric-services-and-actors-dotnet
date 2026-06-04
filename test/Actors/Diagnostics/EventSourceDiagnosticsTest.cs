@@ -6,20 +6,18 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Microsoft.ServiceFabric.Diagnostics;
-using Microsoft.ServiceFabric.Diagnostics.Tracing;
 using Microsoft.ServiceFabric.Services.Remoting;
 using Moq;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 {
-    public class EventSourceDiagnosticsTest : IDisposable
+    public class EventSourceDiagnosticsTest
     {
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
@@ -34,8 +32,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
 
         public EventSourceDiagnosticsTest()
         {
-            // Prevent Linux specific code path in ServiceFabricEventSource as it is not a part of tested logic
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set((os) => false);
             eventSource = Mock.Of<ActorFrameworkEventSource>();
             nameBuilder = new ActorMethodFriendlyNameBuilder(typeInfo);
 
@@ -46,12 +42,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Diagnostics
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsPendingMethodCallsEventEnabled()).Returns(true);
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStartEventEnabled()).Returns(true);
             Mock.Get(eventSource).Setup(eventSource => eventSource.IsActorMethodStopEventEnabled()).Returns(true);
-        }
-
-        public void Dispose()
-        {
-            // Restore static field
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(RuntimeInformation.IsOSPlatform);
         }
 
         public class Constructor : EventSourceDiagnosticsTest

@@ -4,13 +4,12 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     sealed class TimeSpanMeter1D : Meter1D, IMeter1D<TimeSpan>
     {
-        internal TimeSpanMeter1D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
+        internal TimeSpanMeter1D(IFabricMeter fabricMeter) : base(fabricMeter) { }
 
         void IMeter1D<TimeSpan>.Record(TimeSpan value, string dimension1Value)
         {

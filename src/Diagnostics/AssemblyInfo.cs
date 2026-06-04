@@ -52,6 +52,16 @@ using static Microsoft.ServiceFabric.Constants.AssemblyInfo;
 [assembly: InternalsVisibleTo("System.Fabric.BackupRestore.Test.Common" + PublicKey)]
 [assembly: InternalsVisibleTo("System.Fabric.BackupRestore.Test.Common" + TestKey)]
 
+// Making internals visible for security subsystem services using Metrics
+[assembly: InternalsVisibleTo("TokenValidationSvc" + PublicKey)]
+[assembly: InternalsVisibleTo("TokenValidationSvc" + TestKey)]
+[assembly: InternalsVisibleTo("TokenValidationService.Test" + PublicKey)]
+[assembly: InternalsVisibleTo("TokenValidationService.Test" + TestKey)]
+[assembly: InternalsVisibleTo("ManagedIdentityTokenService" + PublicKey)]
+[assembly: InternalsVisibleTo("ManagedIdentityTokenService" + TestKey)]
+[assembly: InternalsVisibleTo("System.Fabric.ManagedIdentity.Test" + PublicKey)]
+[assembly: InternalsVisibleTo("System.Fabric.ManagedIdentity.Test" + TestKey)]
+
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Data.Impl" + PublicKey)]
 [assembly: InternalsVisibleTo("Microsoft.ServiceFabric.Data.Impl" + TestKey)]
 [assembly: InternalsVisibleTo("System.Fabric.Common.Test" + PublicKey)]

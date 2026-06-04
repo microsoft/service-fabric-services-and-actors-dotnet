@@ -1,0 +1,33 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;net9.0;net8.0;net472</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- On Linux -->
+  <PropertyGroup Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+    <!-- Skip net472 tests, they require Mono and Service Fabric native libraries to run -->
+    <IsTestingPlatformApplication Condition="'$(TargetFramework)' == 'net472'">false</IsTestingPlatformApplication>
+    <!-- Place build outputs of test projects in separate folders for reliable parallel execution of tests instrumented for code coverage -->
+    <BaseOutputPath Condition="!$([MSBuild]::IsOSPlatform('Windows'))">$(MSBuildThisFileDirectory)bin\$(MSBuildProjectName)</BaseOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' != '' and '$(TestResultsFormat)' != ''">
+    <TestResultsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..\out\tests'))</TestResultsPath>
+    <TestResultFileName>$(MSBuildProjectName)-$(TargetFramework)</TestResultFileName>
+
+    <!-- Prepare command line arguments for the test runner -->
+    <TestArguments>--results-directory $(TestResultsPath)</TestArguments>
+
+    <!-- .trx and .coverage files can be opened by Visual Studio -->
+    <TestArguments Condition="'$(TestResultsFormat)' == 'VS'">$(TestArguments) --report-xunit-trx --report-xunit-trx-filename $(TestResultFileName).trx</TestArguments>
+    <TestArguments Condition="'$(TestResultsFormat)' == 'VS'">$(TestArguments) --coverage --coverage-output $(TestResultFileName).coverage</TestArguments>
+
+    <!-- .junit.xml .cobertura.xml are published by CI builds -->
+    <TestArguments Condition="'$(TestResultsFormat)' == 'CI'">$(TestArguments) --report-junit --report-junit-filename $(TestResultFileName).junit.xml</TestArguments>
+    <TestArguments Condition="'$(TestResultsFormat)' == 'CI'">$(TestArguments) --coverage --coverage-output-format cobertura --coverage-output $(TestResultFileName).cobertura.xml</TestArguments>
+
+    <!-- Provide test arguments to Microsoft.Testing.Platform -->
+    <TestingPlatformCommandLineArguments>$(TestArguments)</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+</Project>

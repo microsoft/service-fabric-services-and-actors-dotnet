@@ -1,0 +1,7 @@
+<Project>
+  <Import Project="..\Directory.Packages.props" />
+  <!-- See .github/instructions/nuget.instructions.md -->
+  <ItemGroup>
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
+  </ItemGroup>
+</Project>

@@ -15,9 +15,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     static partial class NativeTelemetry
     {
-        internal static IFabricMeterProvider FabricCreateMeterProvider()
+        internal static IFabricMeterProvider2 FabricCreateMeterProvider()
         {
-            Marshal.ThrowExceptionForHR(FabricCreateMeterProvider(out IFabricMeterProvider meterProvider));
+            Marshal.ThrowExceptionForHR(FabricCreateMeterProvider(out IFabricMeterProvider2 meterProvider));
             return meterProvider;
         }
 
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 #else
         extern
 #endif
-        HRESULT FabricCreateMeterProvider([MarshalUsing(typeof(UniqueComInterfaceMarshaller<IFabricMeterProvider>))] out IFabricMeterProvider meterProvider);
+        HRESULT FabricCreateMeterProvider([MarshalUsing(typeof(UniqueComInterfaceMarshaller<IFabricMeterProvider2>))] out IFabricMeterProvider2 meterProvider);
 
     }
 }

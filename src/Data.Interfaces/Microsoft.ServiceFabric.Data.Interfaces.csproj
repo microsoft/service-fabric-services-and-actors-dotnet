@@ -2,10 +2,12 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <RootNamespace>Microsoft.ServiceFabric.Data</RootNamespace>
+    <Description>Core abstractions for Service Fabric Reliable Collections — transactional, replicated, persistent data structures.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric" />
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />

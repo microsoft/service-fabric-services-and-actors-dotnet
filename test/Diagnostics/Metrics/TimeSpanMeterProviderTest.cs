@@ -6,11 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Fabric;
-using System.Linq;
+using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
-using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 
@@ -33,65 +32,89 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics
             readonly TimeSpanMeterProvider sut;
             readonly IReadOnlyCollection<string> systemDimensionsNames;
             readonly IReadOnlyCollection<string> systemDimensionsValues;
-            readonly IFabricMeterProvider fabricMeterProvider = new Mock<IFabricMeterProvider>() { DefaultValue = DefaultValue.Mock }.Object;
+            readonly IFabricMeterProvider2 fabricMeterProvider = new Mock<IFabricMeterProvider2>() { DefaultValue = DefaultValue.Mock }.Object;
             readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
+
+            // Values captured from FABRIC_METER_DESCRIPTION during CreateMeter call
+            string actualNamespace;
+            string actualName;
+            string[] actualDimensionNames;
+            string[] actualFixedDimensionValues;
 
             public CreateMeter()
             {
                 sut = new TimeSpanMeterProvider(serviceContext);
                 systemDimensionsNames = sut.Private().Field<IReadOnlyCollection<string>>().Value;
                 systemDimensionsValues = sut.Protected().Field<IReadOnlyCollection<string>>().Value;
-                sut.Field<IFabricMeterProvider>().Set(fabricMeterProvider);
+                sut.Field<IFabricMeterProvider2>().Set(fabricMeterProvider);
 
-                Mock.Get(fabricMeterProvider).Setup(x => x.CreateMeter(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<uint>(), It.IsAny<string[]>())).Returns(fabricMeter);
+                Mock.Get(fabricMeterProvider)
+                    .Setup(x => x.CreateMeter2(It.IsAny<IntPtr>()))
+                    .Callback((IntPtr ptr) =>
+                    {
+                        var desc = Marshal.PtrToStructure<FABRIC_METER_DESCRIPTION>(ptr);
+                        actualNamespace = Marshal.PtrToStringUni(desc.Namespace);
+                        actualName = Marshal.PtrToStringUni(desc.Name);
+                        actualDimensionNames = PtrToStringArray(desc.DimensionNames, (int)desc.TotalDimensionsCount);
+                        actualFixedDimensionValues = PtrToStringArray(desc.FixedDimensionValues, (int)desc.FixedDimensionCount);
+                    })
+                    .Returns(fabricMeter);
+            }
+
+            static string[] PtrToStringArray(IntPtr array, int count)
+            {
+                var result = new string[count];
+                for (int i = 0; i < count; i++)
+                    result[i] = Marshal.PtrToStringUni(Marshal.ReadIntPtr(array, i * IntPtr.Size));
+                return result;
             }
 
             [Fact]
             public void CreatesMeterWithCorrectDimensionsAndMeter()
             {
-                var combinedDimensions = systemDimensionsNames.ToArray();
-
                 IMeter<TimeSpan> meter = sut.CreateMeter(testNamespace, testMetric);
 
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Equal(testNamespace, actualNamespace);
+                Assert.Equal(testMetric, actualName);
+                Assert.Equal(systemDimensionsNames, actualDimensionNames);
+                Assert.Equal(systemDimensionsValues, actualFixedDimensionValues);
                 Assert.Same(fabricMeter, ((TimeSpanMeter)meter).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((TimeSpanMeter)meter).Field<IReadOnlyCollection<string>>().Value);
             }
 
             [Fact]
             public void CreatesMeterWithCorrectDimensionsAndMeter1D()
             {
-                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1 }.ToArray();
-
                 IMeter1D<TimeSpan> meter1D = sut.CreateMeter(testNamespace, testMetric, testDimension1);
 
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Equal(testNamespace, actualNamespace);
+                Assert.Equal(testMetric, actualName);
+                Assert.Equal([.. systemDimensionsNames, testDimension1], actualDimensionNames);
+                Assert.Equal(systemDimensionsValues, actualFixedDimensionValues);
                 Assert.Same(fabricMeter, ((TimeSpanMeter1D)meter1D).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((TimeSpanMeter1D)meter1D).Field<IReadOnlyCollection<string>>().Value);
             }
 
             [Fact]
             public void CreatesMeterWithCorrectDimensionsAndMeter2D()
             {
-                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2 }.ToArray();
-
                 IMeter2D<TimeSpan> meter2D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2);
 
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Equal(testNamespace, actualNamespace);
+                Assert.Equal(testMetric, actualName);
+                Assert.Equal([.. systemDimensionsNames, testDimension1, testDimension2], actualDimensionNames);
+                Assert.Equal(systemDimensionsValues, actualFixedDimensionValues);
                 Assert.Same(fabricMeter, ((TimeSpanMeter2D)meter2D).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((TimeSpanMeter2D)meter2D).Field<IReadOnlyCollection<string>>().Value);
             }
 
             [Fact]
             public void CreatesMeterWithCorrectDimensionsAndMeter3D()
             {
-                var combinedDimensions = new List<string>(systemDimensionsNames) { testDimension1, testDimension2, testDimension3 }.ToArray();
-
                 IMeter3D<TimeSpan> meter3D = sut.CreateMeter(testNamespace, testMetric, testDimension1, testDimension2, testDimension3);
 
-                Mock.Get(fabricMeterProvider).Verify(x => x.CreateMeter(testNamespace, testMetric, (uint)combinedDimensions.Length, It.Is<string[]>(arr => arr.SequenceEqual(combinedDimensions))), Times.Once);
+                Assert.Equal(testNamespace, actualNamespace);
+                Assert.Equal(testMetric, actualName);
+                Assert.Equal([.. systemDimensionsNames, testDimension1, testDimension2, testDimension3], actualDimensionNames);
+                Assert.Equal(systemDimensionsValues, actualFixedDimensionValues);
                 Assert.Same(fabricMeter, ((TimeSpanMeter3D)meter3D).Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensionsValues, ((TimeSpanMeter3D)meter3D).Field<IReadOnlyCollection<string>>().Value);
             }
         }
     }

@@ -5,7 +5,7 @@
     The assembly produced by this project should not be included in any of the NuGet packages.
   -->
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>

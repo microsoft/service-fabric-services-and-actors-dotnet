@@ -11,7 +11,6 @@ using Inspector;
 using Microsoft.ServiceFabric.Actors.Diagnostics;
 using Microsoft.ServiceFabric.Actors.Tests;
 using Microsoft.ServiceFabric.Diagnostics;
-using Microsoft.ServiceFabric.TestFramework;
 using Moq;
 using Xunit;
 

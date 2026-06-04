@@ -10,7 +10,6 @@ using System.Fabric.Health;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Inspector;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -75,7 +74,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Assert.True(changeRoleTask.IsCompleted && !changeRoleTask.IsCanceled && !changeRoleTask.IsFaulted);
-            ((StatefulServiceReplicaAdapter)testServiceReplica).Test_IsRunAsyncTaskRunning().Should().BeTrue();
+            Assert.True(((StatefulServiceReplicaAdapter)testServiceReplica).Test_IsRunAsyncTaskRunning());
 
             await testServiceReplica.CloseAsync(CancellationToken.None);
         }
@@ -240,9 +239,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 1;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened only once(U->P)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).First().Listener.Should().Be(testService.CurrentListener.Object);
+                Assert.Equal(expectedCount, actualCount); // listener has been opened only once(U->P)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Equal(testService.CurrentListener.Object, CommunicationListeners(testServiceReplica).First().Listener);
 
                 testService.CurrentListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
                 testService.CurrentListener.Verify(l => l.CloseAsync(It.IsAny<CancellationToken>()), Times.Never());
@@ -254,9 +253,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 1;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened only once(U->P->S)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).Should().BeNull();
+                Assert.Equal(expectedCount, actualCount); // listener has been opened only once(U->P->S)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Null(CommunicationListeners(testServiceReplica));
 
                 testService.CurrentListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
                 testService.CurrentListener.Verify(l => l.CloseAsync(It.IsAny<CancellationToken>()), Times.Once());
@@ -268,9 +267,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 2;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened twice(U->P->S->P)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).First().Listener.Should().Be(testService.CurrentListener.Object);
+                Assert.Equal(expectedCount, actualCount); // listener has been opened twice(U->P->S->P)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Equal(testService.CurrentListener.Object, CommunicationListeners(testServiceReplica).First().Listener);
     
                 var firstListener = testService.Listeners.First();
                 firstListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
@@ -287,9 +286,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 2;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened twice(U->P->S->P->N)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).Should().BeNull();
+                Assert.Equal(expectedCount, actualCount); // listener has been opened twice(U->P->S->P->N)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Null(CommunicationListeners(testServiceReplica));
 
                 var firstListener = testService.Listeners.First();
 
@@ -330,9 +329,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 1;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened only once(U->P)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).First().Listener.Should().Be(testService.CurrentListener.Object);
+                Assert.Equal(expectedCount, actualCount); // listener has been opened only once(U->P)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Equal(testService.CurrentListener.Object, CommunicationListeners(testServiceReplica).First().Listener);
 
                 testService.CurrentListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
                 testService.CurrentListener.Verify(l => l.CloseAsync(It.IsAny<CancellationToken>()), Times.Never());
@@ -344,9 +343,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 2;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened twice(U->P->S)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).First().Listener.Should().Be(testService.CurrentListener.Object);
+                Assert.Equal(expectedCount, actualCount); // listener has been opened twice(U->P->S)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Equal(testService.CurrentListener.Object, CommunicationListeners(testServiceReplica).First().Listener);
 
                 var firstListener = testService.Listeners[0];
                 firstListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
@@ -363,9 +362,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 3;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened three times(U->P->S->P)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).First().Listener.Should().Be(testService.CurrentListener.Object);
+                Assert.Equal(expectedCount, actualCount); // listener has been opened three times(U->P->S->P)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Equal(testService.CurrentListener.Object, CommunicationListeners(testServiceReplica).First().Listener);
 
                 var firstListener = testService.Listeners[0];
                 firstListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());
@@ -387,9 +386,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
             {
                 const int expectedCount = 3;
                 var actualCount = testService.Listeners.Count;
-                actualCount.Should().Be(expectedCount, "listener has been opened three times(U->P->S->P->N)");
-                testService.Listeners.Last().Should().Be(testService.CurrentListener);
-                CommunicationListeners(testServiceReplica).Should().BeNull();
+                Assert.Equal(expectedCount, actualCount); // listener has been opened three times(U->P->S->P->N)
+                Assert.Equal(testService.CurrentListener, testService.Listeners.Last());
+                Assert.Null(CommunicationListeners(testServiceReplica));
 
                 var firstListener = testService.Listeners[0];
                 firstListener.Verify(l => l.OpenAsync(It.IsAny<CancellationToken>()), Times.Once());

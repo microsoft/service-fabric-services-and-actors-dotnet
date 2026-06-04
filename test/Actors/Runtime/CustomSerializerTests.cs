@@ -8,7 +8,6 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using FluentAssertions;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Xunit;
@@ -24,32 +23,28 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [Fact]
         public void VerifyActorReminderDataSerialization()
         {
-            ActorReminderDataSerializer.Deserialize(ActorReminderDataSerializer.Serialize(null))
-                .Should()
-                .BeNull("ActorReminderData is null");
+            Assert.Null(ActorReminderDataSerializer.Deserialize(ActorReminderDataSerializer.Serialize(null))); // ActorReminderData is null
 
             foreach (var data in GetActorReminderList())
             {
                 var deserializedData =
                     ActorReminderDataSerializer.Deserialize(ActorReminderDataSerializer.Serialize(data));
 
-                deserializedData.ActorId.Should().Be(data.ActorId);
-                deserializedData.Name.Should().Be(data.Name);
-                deserializedData.DueTime.Should().Be(data.DueTime);
-                deserializedData.Period.Should().Be(data.Period);
+                Assert.Equal(data.ActorId, deserializedData.ActorId);
+                Assert.Equal(data.Name, deserializedData.Name);
+                Assert.Equal(data.DueTime, deserializedData.DueTime);
+                Assert.Equal(data.Period, deserializedData.Period);
 
                 if (data.State == null)
                 {
-                    deserializedData.State.Should().BeNull("ActorReminder.State serialization");
+                    Assert.Null(deserializedData.State); // ActorReminder.State serialization
                 }
                 else
                 {
-                    data.State.SequenceEqual(deserializedData.State)
-                        .Should()
-                        .BeTrue("ActorReminder.State serialization");
+                    Assert.True(data.State.SequenceEqual(deserializedData.State)); // ActorReminder.State serialization
                 }
 
-                deserializedData.LogicalCreationTime.Should().Be(data.LogicalCreationTime, "ActorReminder.LogicalCreationTime serialization.");
+                Assert.Equal(data.LogicalCreationTime, deserializedData.LogicalCreationTime); // ActorReminder.LogicalCreationTime serialization.
             }
         }
 
@@ -59,15 +54,13 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [Fact]
         public void VerifyReminderCompletedDataSerialization()
         {
-            ReminderCompletedDataSerializer.Deserialize(ReminderCompletedDataSerializer.Serialize(null))
-                .Should()
-                .BeNull("Null ReminderCompletedDataSerializer serialization");
+            Assert.Null(ReminderCompletedDataSerializer.Deserialize(ReminderCompletedDataSerializer.Serialize(null))); // Null ReminderCompletedDataSerializer serialization
 
             var data = new ReminderCompletedData(TimeSpan.MinValue, DateTime.MaxValue);
             var deserializedData = ReminderCompletedDataSerializer.Deserialize(ReminderCompletedDataSerializer.Serialize(data));
 
-            deserializedData.LogicalTime.Should().Be(data.LogicalTime, "ReminderCompletedData.LogicalTime.");
-            deserializedData.UtcTime.Should().Be(data.UtcTime, "ReminderCompletedData.UtcTime.");
+            Assert.Equal(data.LogicalTime, deserializedData.LogicalTime); // ReminderCompletedData.LogicalTime.
+            Assert.Equal(data.UtcTime, deserializedData.UtcTime); // ReminderCompletedData.UtcTime.
         }
 
         /// <summary>
@@ -76,15 +69,12 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Runtime
         [Fact]
         public void VerifyLogicalTimestampSerialization()
         {
-            LogicalTimestampSerializer.Deserialize(
-                LogicalTimestampSerializer.Serialize(null))
-                    .Should()
-                    .BeNull("Null LogicalTimestampSerializer serialization");
+            Assert.Null(LogicalTimestampSerializer.Deserialize(LogicalTimestampSerializer.Serialize(null))); // Null LogicalTimestampSerializer serialization
 
             var data = new LogicalTimestamp(TimeSpan.MaxValue);
             var deserializedData = LogicalTimestampSerializer.Deserialize(LogicalTimestampSerializer.Serialize(data));
 
-            deserializedData.Timestamp.Should().Be(data.Timestamp, "LogicalTimestamp.Timestamp serialization.");
+            Assert.Equal(data.Timestamp, deserializedData.Timestamp); // LogicalTimestamp.Timestamp serialization.
         }
 
         private static List<ActorReminderData> GetActorReminderList()

@@ -5,7 +5,6 @@
 
 using System;
 using System.Fabric;
-using FluentAssertions;
 using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Xunit;
 
@@ -97,7 +96,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
                         TestMocksRepository.GetMockStatelessServiceContext(),
                         null,
                         hostType);
-            action.Should().Throw<ArgumentException>();
+            Assert.Throws<ArgumentException>(action);
 
             action =
                 () =>
@@ -105,7 +104,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
                         TestMocksRepository.GetMockStatelessServiceContext(),
                         string.Empty,
                         hostType);
-            action.Should().Throw<ArgumentException>();
+            Assert.Throws<ArgumentException>(action);
         }
 
         private HttpSysCommunicationListener CreateListener(StatelessServiceContext context, string endpointName, string hostType)

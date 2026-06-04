@@ -5,7 +5,6 @@
 
 using System;
 using System.Fabric.Common;
-using FluentAssertions.Extensions;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Diagnostic;
@@ -158,7 +157,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             public void RemotingMessageEndObserveShortSerializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddNanoseconds(elapsedNanoseconds));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddTicks(elapsedNanoseconds / 100L));
 
                 sut.OnRemotingRequestEnd(requestStartTime);
 
@@ -211,7 +210,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.Tests.V2.Diagnostic
             public void TransportMessageEndObserveShortDeserializationTime(long elapsedNanoseconds, long trackedElapsedMilliseconds)
             {
                 DateTime requestStartTime = DateTime.UtcNow;
-                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddNanoseconds(elapsedNanoseconds));
+                Mock.Get(clock).Setup(x => x.UtcNow).Returns(requestStartTime.AddTicks(elapsedNanoseconds / 100L));
 
                 sut.OnCreateTransportMessageEnd(requestStartTime);
 

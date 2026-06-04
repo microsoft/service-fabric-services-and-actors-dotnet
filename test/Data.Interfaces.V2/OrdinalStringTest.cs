@@ -1,264 +1,179 @@
-﻿// ------------------------------------------------------------
-// Copyright (c) Microsoft Corporation.  All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
 
+using System;
+using Fuzzy;
 using Xunit;
 
-namespace Microsoft.ServiceFabric.Data
+namespace Microsoft.ServiceFabric.Data;
+
+public abstract class OrdinalStringTest
 {
-    public class OrdinalStringTest
+    readonly OrdinalString sut;
+
+    // Constructor parameters
+    readonly string value = fuzzy.String();
+
+    // Test fixture
+    static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
+    static readonly string precomposed = "caf\u00e9";
+    static readonly string decomposed = "cafe\u0301";
+
+    OrdinalStringTest() =>
+        sut = new OrdinalString(value);
+
+    public new sealed class ToString : OrdinalStringTest
     {
         [Fact]
-        public void ToString_OrdinalString_ReturnsSameString()
+        public void ReturnsValueGivenToConstructor() =>
+            Assert.Same(value, sut.ToString());
+    }
+
+    public sealed class ImplicitConversion : OrdinalStringTest
+    {
+        [Fact]
+        public void CreatesOrdinalStringWithSameValue()
         {
-            string expected = "café";
-            var sut = new OrdinalString(expected);
-            string actual = sut.ToString();
-            Assert.Same(expected, actual);
+            OrdinalString result = value;
+            Assert.Same(value, result.ToString());
         }
+    }
+
+    public sealed class ExplicitConversion : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsValueGivenToConstructor() =>
+            Assert.Same(value, (string)sut);
+    }
+
+    public new sealed class Equals : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsTrueForEqualOrdinalString() =>
+            Assert.True(sut.Equals(new OrdinalString(value)));
 
         [Fact]
-        public void ImplicitConversionToOrdinalString_String_ReturnsEqualOrdinalString()
-        {
-            var expected = new OrdinalString("café");
-            string sut = "café";
-            OrdinalString actual = sut;
-            Assert.Same(expected.ToString(), actual.ToString());
-        }
+        public void ReturnsFalseForOrdinallyDifferentOrdinalString() =>
+            Assert.False(new OrdinalString(precomposed).Equals(new OrdinalString(decomposed)));
 
         [Fact]
-        public void ExplicitConversionToString_OrdinalString_ReturnsSameString()
-        {
-            string expected = "café";
-            var sut = new OrdinalString(expected);
-            var actual = (string)sut;
-
-            Assert.Same(expected, actual);
-        }
+        public void ReturnsTrueForEqualBoxedOrdinalString() =>
+            Assert.True(sut.Equals((object)new OrdinalString(value)));
 
         [Fact]
-        public void StaticEquals_DifferentValues_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.False(OrdinalString.Equals(left, right));
-        }
+        public void ReturnsFalseForOrdinallyDifferentBoxedOrdinalString() =>
+            Assert.False(new OrdinalString(precomposed).Equals((object)new OrdinalString(decomposed)));
 
         [Fact]
-        public void StaticEquals_EqualValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.True(OrdinalString.Equals(left, right));
-        }
+        public void ReturnsFalseForNull() =>
+            Assert.False(sut.Equals(default(object)));
+    }
+
+    public sealed class EqualityOperator : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsTrueForEqualValues() =>
+            Assert.True(new OrdinalString(value) == sut);
 
         [Fact]
-        public void Equals_DifferentValues_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.False(left.Equals(right));
-        }
+        public void ReturnsFalseForOrdinallyDifferentValues() =>
+            Assert.False(new OrdinalString(precomposed) == new OrdinalString(decomposed));
+    }
+
+    public sealed class InequalityOperator : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsTrueForOrdinallyDifferentValues() =>
+            Assert.True(new OrdinalString(precomposed) != new OrdinalString(decomposed));
 
         [Fact]
-        public void Equals_EqualValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.True(left.Equals(right));
-        }
+        public void ReturnsFalseForEqualValues() =>
+            Assert.False(new OrdinalString(value) != sut);
+    }
+
+    public new sealed class GetHashCode : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsSameHashCodeForEqualValues() =>
+            Assert.Equal(sut.GetHashCode(), new OrdinalString(value).GetHashCode());
 
         [Fact]
-        public void ObjectEquals_OneNonOrdinalStringType_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            object right = default;
-            Assert.False(left.Equals(right));
-        }
+        public void ReturnsDifferentHashCodeForOrdinallyDifferentValues() =>
+            Assert.NotEqual(new OrdinalString(precomposed).GetHashCode(), new OrdinalString(decomposed).GetHashCode());
+    }
+
+    public sealed class CompareTo : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsZeroForEqualValues() =>
+            Assert.Equal(0, sut.CompareTo(new OrdinalString(value)));
 
         [Fact]
-        public void ObjectEquals_DifferentValuesObjectType_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            object right = new OrdinalString("cafe\u0301");
-            Assert.False(left.Equals(right));
-        }
+        public void ReturnsPositiveWhenLeftIsGreater() =>
+            Assert.True(new OrdinalString(precomposed).CompareTo(new OrdinalString(decomposed)) > 0);
 
         [Fact]
-        public void ObjectEquals_EqualValueObjectType_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            object right = new OrdinalString("café");
-            Assert.True(left.Equals(right));
-        }
+        public void ReturnsNegativeWhenLeftIsSmaller() =>
+            Assert.True(new OrdinalString(decomposed).CompareTo(new OrdinalString(precomposed)) < 0);
+    }
+
+    public sealed class GreaterThanOperator : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsTrueWhenLeftIsGreater() =>
+            Assert.True(new OrdinalString(precomposed) > new OrdinalString(decomposed));
 
         [Fact]
-        public void EqualsOperator_DifferentValues_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.False(left == right);
-        }
+        public void ReturnsFalseWhenLeftIsSmaller() =>
+            Assert.False(new OrdinalString(decomposed) > new OrdinalString(precomposed));
 
         [Fact]
-        public void EqualsOperator_EqualValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.True(left == right);
-        }
+        public void ReturnsFalseForEqualValues() =>
+            Assert.False(new OrdinalString(value) > sut);
+    }
+
+    public sealed class LessThanOperator : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsTrueWhenLeftIsSmaller() =>
+            Assert.True(new OrdinalString(decomposed) < new OrdinalString(precomposed));
 
         [Fact]
-        public void NotEqualsOperator_DifferentValues_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.True(left != right);
-        }
+        public void ReturnsFalseWhenLeftIsGreater() =>
+            Assert.False(new OrdinalString(precomposed) < new OrdinalString(decomposed));
 
         [Fact]
-        public void NotEqualsOperator_EqualValue_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.False(left != right);
-        }
+        public void ReturnsFalseForEqualValues() =>
+            Assert.False(new OrdinalString(value) < sut);
+    }
+
+    public sealed class GreaterThanOrEqualOperator : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsTrueWhenLeftIsGreater() =>
+            Assert.True(new OrdinalString(precomposed) >= new OrdinalString(decomposed));
 
         [Fact]
-        public void GetHashCode_DifferentValues_ReturnsDifferentHashCode()
-        {
-            var left = new OrdinalString("café");
-            string right = "cafe\u0301";
-            Assert.NotEqual(left.GetHashCode(), right.GetHashCode());
-        }
+        public void ReturnsFalseWhenLeftIsSmaller() =>
+            Assert.False(new OrdinalString(decomposed) >= new OrdinalString(precomposed));
 
         [Fact]
-        public void GetHashCode_EqualValue_ReturnsEqualHashCode()
-        {
-            var left = new OrdinalString("café");
-            string right = "café";
-            Assert.Equal(left.GetHashCode(), right.GetHashCode());
-        }
+        public void ReturnsTrueForEqualValues() =>
+            Assert.True(new OrdinalString(value) >= sut);
+    }
+
+    public sealed class LessThanOrEqualOperator : OrdinalStringTest
+    {
+        [Fact]
+        public void ReturnsTrueWhenLeftIsSmaller() =>
+            Assert.True(new OrdinalString(decomposed) <= new OrdinalString(precomposed));
 
         [Fact]
-        public void CompareTo_LargerLeftValue_ReturnsPostive()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.True(left.CompareTo(right) > 0);
-        }
+        public void ReturnsFalseWhenLeftIsGreater() =>
+            Assert.False(new OrdinalString(precomposed) <= new OrdinalString(decomposed));
 
         [Fact]
-        public void CompareTo_LargerRightValue_ReturnsNegative()
-        {
-            var left = new OrdinalString("cafe\u0301");
-            var right = new OrdinalString("café");
-            Assert.True(left.CompareTo(right) < 0);
-        }
-
-        [Fact]
-        public void CompareTo_EqualValue_ReturnsZero()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.True(left.CompareTo(right) == 0);
-        }
-
-        [Fact]
-        public void GreaterThanOperator_LargerLeftValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.True(left > right);
-        }
-
-        [Fact]
-        public void GreaterThanOperator_LargerRightValue_ReturnsFalse()
-        {
-            var left = new OrdinalString("cafe\u0301");
-            var right = new OrdinalString("café");
-            Assert.False(left > right);
-        }
-
-        [Fact]
-        public void GreaterThanOperator_EqualValue_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.False(left > right);
-        }
-
-        [Fact]
-        public void GreaterThanOrEqualOperator_LargerLeftValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.True(left >= right);
-        }
-
-        [Fact]
-        public void GreaterThanOrEqualOperator_LargerRightValue_ReturnsFalse()
-        {
-            var left = new OrdinalString("cafe\u0301");
-            var right = new OrdinalString("café");
-            Assert.False(left >= right);
-        }
-
-        [Fact]
-        public void GreaterThanOrEqualOperator_EqualValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.True(left >= right);
-        }
-
-        [Fact]
-        public void LessThanOperator_LargerLeftValue_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.False(left < right);
-        }
-
-        [Fact]
-        public void LessThanOperator_LargerRightValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("cafe\u0301");
-            var right = new OrdinalString("café");
-            Assert.True(left < right);
-        }
-
-        [Fact]
-        public void LessThanOperator_EqualValue_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.False(left < right);
-        }
-
-        [Fact]
-        public void LessThanOrEqualOperator_LargerLeftValue_ReturnsFalse()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("cafe\u0301");
-            Assert.False(left <= right);
-        }
-
-        [Fact]
-        public void LessThanOrEqualOperator_LargerRightValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("cafe\u0301");
-            var right = new OrdinalString("café");
-            Assert.True(left <= right);
-        }
-
-        [Fact]
-        public void LessThanOrEqualOperator_EqualValue_ReturnsTrue()
-        {
-            var left = new OrdinalString("café");
-            var right = new OrdinalString("café");
-            Assert.True(left <= right);
-        }
+        public void ReturnsTrueForEqualValues() =>
+            Assert.True(new OrdinalString(value) <= sut);
     }
 }
