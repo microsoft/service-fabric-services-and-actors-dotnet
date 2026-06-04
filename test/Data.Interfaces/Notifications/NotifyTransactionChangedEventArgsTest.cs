@@ -2,6 +2,7 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 
 using System;
+using Inspector;
 using Moq;
 using Xunit;
 
@@ -9,24 +10,21 @@ namespace Microsoft.ServiceFabric.Data.Notifications;
 
 public abstract class NotifyTransactionChangedEventArgsTest
 {
-    readonly NotifyTransactionChangedEventArgs sut;
     readonly ITransaction transaction = Mock.Of<ITransaction>();
-    readonly NotifyTransactionChangedAction action = (NotifyTransactionChangedAction)1;
-
-    NotifyTransactionChangedEventArgsTest() =>
-        sut = new NotifyTransactionChangedEventArgs(transaction, action);
 
     public sealed class Constructor : NotifyTransactionChangedEventArgsTest
     {
-        [Fact]
-        public void InitializesProperties()
+        [Theory, InlineData(NotifyTransactionChangedAction.Commit)] // single-item enum
+        public void InitializesProperties(NotifyTransactionChangedAction action)
         {
+            NotifyTransactionChangedEventArgs sut = new(transaction, action);
+
             Assert.Same(transaction, sut.Transaction);
             Assert.Equal(action, sut.Action);
         }
 
-        [Fact(Explicit = true)] // TODO: SUT bug. Constructor doesn't validate; consumers dereferencing Transaction will NRE.
-        public void ThrowsArgumentNullExceptionWhenTransactionIsNull()
+        [Theory(Explicit = true), InlineData(NotifyTransactionChangedAction.Commit)] // TODO: SUT bug. Constructor doesn't validate; consumers dereferencing Transaction will NRE.
+        public void ThrowsArgumentNullExceptionWhenTransactionIsNull(NotifyTransactionChangedAction action)
         {
             // The constructor stores the transaction argument verbatim without a null check, so passing null
             // succeeds here and the NullReferenceException only surfaces later when a consumer dereferences
