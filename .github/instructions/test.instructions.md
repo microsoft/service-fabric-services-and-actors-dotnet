@@ -411,7 +411,7 @@ strive to unit test each product type in isolation of its dependencies.
     Missing argument validation is a bug in SUT.
 
 - **Use strongest xUnit assertions available**.
-  - _Prefer `Assert.Same` over `Assert.Equal`_.
+  - _Prefer `Assert.Same` over `Assert.Equal`_ when asserting on unique test instances that neither SUT nor test logic replace.
   - _Prefer Collection/String/Span/Etc. `Assert` methods over `Assert.True`_.
 
 - **Minimize cross-member dependencies in assertions**. Each other-member call inside an assertion couples the target's
