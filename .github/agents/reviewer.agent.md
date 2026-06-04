@@ -76,7 +76,8 @@ model: ["Claude Opus 4.7"]
     {your prompt}
     ---
     Respond with
-    - `Accept` if you now agree or don't object to implementing author's proposal.
+    - `Agree` if you now agree with the finding.
+    - `Accept` if you accept it as an alternative solution for a problem that could be solved either way.
     - `Reject` if you still believe author's proposal shouldn't be implemented.
     Include detailed justification.
     ```
@@ -86,7 +87,7 @@ model: ["Claude Opus 4.7"]
   - Drop findings authors decided to `Retract` after the cross-check feedback.
   - Change findings others decided to `Reject` after the double-check to `❓ Needs Human Review`.
   - Retain at the severity reported by the author for findings others decided to `Accept` after the double-check.
-  - Elevate `💡 Suggestions` reported or supported by multiple models to `⚠️ Should Fix`.
+  - Elevate `💡 Suggestions` reported or voted `Agree` by multiple models to `⚠️ Should Fix`.
   - Follow the report format defined in `review/SKILL.md` (Verdict, Detailed Assessment, Issues).
   - Finding format:
     - Prefix the finding title with the severity synthesized by the cross-check.
