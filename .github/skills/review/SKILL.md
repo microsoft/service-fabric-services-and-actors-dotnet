@@ -48,6 +48,7 @@ argument-hint: "(class|file|tests for X)"
    - `[📝](# "Note")` - Similar issues elsewhere, out of scope, FYI, etc.
 
 - **Validate each finding**:
+  - Don't contradict `*.instructions.md`.
   - Ensure code suggestions build without errors or warnings and pass tests.
   - Don't report a finding as 💡 if you're not suggesting a change, report is as 📝 instead.
 
