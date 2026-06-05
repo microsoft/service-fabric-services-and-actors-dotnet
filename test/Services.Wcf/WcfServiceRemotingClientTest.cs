@@ -114,6 +114,36 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 Assert.IsType<ServiceException>(innerException);
                 Assert.Equal(errorMessage, innerException.Message);
             }
+
+            [Fact]
+            public async Task DoesNotDoubleWrapAggregateException()
+            {
+                IEnumerable<V2.Runtime.IExceptionConvertor> runtimeExceptionConvertors = new List<V2.Runtime.IExceptionConvertor>
+                {
+                    new V2.Runtime.SystemExceptionConvertor(),
+                };
+
+                var exceptionSerializer = new ExceptionSerializer(
+                    runtimeExceptionConvertors,
+                    new WcfRemotingListenerSettings());
+
+                // The remote side throws AggregateException directly (e.g. from Task.Wait).
+                RemoteException2 remoteException = exceptionSerializer.BuildRemoteException(
+                    new AggregateException(new NotImplementedException(errorMessage)));
+
+                var faultException = new FaultException<RemoteException2>(remoteException);
+
+                IServiceRemotingRequestMessage requestMessageMock = Mock.Of<IServiceRemotingRequestMessage>();
+
+                Mock.Get(requestMessageMock)
+                    .Setup(m => m.GetHeader())
+                    .Throws(faultException);
+
+                AggregateException exception = await Assert.ThrowsAsync<AggregateException>(() => sut.RequestResponseAsync(requestMessageMock));
+                Exception innerException = Assert.Single(exception.InnerExceptions);
+                Assert.IsType<NotImplementedException>(innerException);
+                Assert.Equal(errorMessage, innerException.Message);
+            }
         }
 
         internal class CustomConvertorRuntime : ExceptionConvertorBase
