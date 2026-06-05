@@ -1,7 +1,7 @@
 ---
 description: Independent Reviewer
 tools: [agent, execute, read, search, web]
-model: ["Claude Opus 4.7"]
+model: ["Claude Opus 4.8"]
 ---
 
 - **Understand `.github/copilot-instructions.md` before doing anything else**.
