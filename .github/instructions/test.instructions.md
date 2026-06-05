@@ -241,8 +241,6 @@ strive to unit test each product type in isolation of its dependencies.
   - _Add a blank line below the parameter fields_ to separate them from the rest of the test class.
 
 - **Use the exact SUT parameter names for fields** even if their names don't meet current naming guidelines.
-  - _Add end-of-line comment to explain field names chosen for consistency with SUT parameters_. E.g. acronyms, abbreviations,
-    Hungarian, etc. shouldn't be used but may be needed for consistency with actual SUT names. 
   - _Don't change SUT parameter names when implementing tests_. Parameter name change is build-breaking for code that specifies
     parameter names explicitly; product versioning restrictions apply.
   - Note: _Test overrides and interfaces implementations through their declaring APIs_ modifies this rule.
@@ -423,10 +421,8 @@ strive to unit test each product type in isolation of its dependencies.
 
 - **Test exception properties**. Exceptions of common types are expected to provide additional details in properties. 
   ```csharp
-  using Inspector;
-
-  var actual = Assert.Throws<ArgumentNullException>(() => action());
-  Assert.Equal(sut.Constructor().Parameter<string>().Name, actual.ParamName);
+  var actual = Assert.Throws<ArgumentNullException>(() => action(parameter));
+  Assert.Equal(nameof(parameter), actual.ParamName);
   ```
 
 - **Use discard variables when exception properties aren't tested intentionally**.
