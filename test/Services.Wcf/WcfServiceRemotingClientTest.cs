@@ -46,7 +46,7 @@ namespace Microsoft.ServiceFabric.Services.Remoting.V2.Wcf.Client
                 );
         }
 
-        public sealed class RequestResnposeAsync : WcfServiceRemotingClientTest
+        public sealed class RequestResponseAsync : WcfServiceRemotingClientTest
         {
             [Fact]
             public async Task ThrowsActualExceptionForKnownExceptions()
