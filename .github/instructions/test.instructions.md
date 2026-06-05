@@ -590,9 +590,13 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
 - **Don't fix problems documented by explicit tests when putting SUT under test**.
   Combining SUT changes with the initial implementation of the test suite increases the risk of breaking it without adequate
   test coverage.
-- **Don't use `Assert.IsAssignableFrom<T>()` or `Assert.IsType<T>()`**.
-  Compiler verification of inheritance is sufficient in most cases; it shouldn't be tested separately. To test SUT's
-  inherited APIs, use type casting instead.
+- **Don't use `Assert.IsAssignableFrom<T>()` or `Assert.IsType<T>()`**. On their own, these're unnecessary.
+  - SUT inheritance can be verified by compiler and shouldn't be tested separately. 
+  - When type information cannot be verified by compiler, additional asserts are needed on state or behavior of the expected
+    type. Use type casting instead.
+- **Don't use `Assert.NotNull()`**. On its own, it's unnecessary.
+  - Without additional asserts on the state or behavior of the instance that shouldn't be null, `Assert.NotNull()` is insufficient.
+  - Let additional asserts accessing the instance that shouldn't be null throw `NullReferenceException` if it is.
 - **Use `ITextContext.CancellationToken` when a pass-through `CancellationToken` parameter is needed**.
   Xunit provides a unique `CancellationToken` in `TextContext.Current`. When the target doesn't implement its own cancellation
   logic and simply passes the `CancellationToken` to dependencies, using the Xunit-provided token eliminates the need to
