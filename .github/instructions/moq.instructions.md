@@ -54,6 +54,18 @@ _ = dep.Setup(_ => _.DoAsync(arg)).Returns(expected);
 dep.Verify(_ => _.DoAsync(It.IsAny<string>()), Times.Once);
 ```
 
+## Prefer mocks when testing APIs that depend on abstractions even if concrete implementations are sufficient
+
+This rules out the possibility of SUT having a hidden dependency on a concrete implementation. It also eliminates the potential
+confusion for someone scanning the API and misinterpreting concrete types used in tests as actual dependencies. Example
+was compressed for size and not meant to demonstrate comments or formatting.
+```csharp
+class SUT(Stream stream) { public Stream stream;}
+Stream expected = Mock.Of<Stream>(); // ✅ Mock<Stream>, ❌ not MemoryStream.
+SUT sut = new(expected);
+Assert.Same(expected, sut.stream);
+```
+
 ## Make test failures readable
 
 When using `.Verify()`, always run the failing test first and make sure the failure message is understandable enough
