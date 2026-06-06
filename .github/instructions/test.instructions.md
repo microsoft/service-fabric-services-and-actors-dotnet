@@ -572,9 +572,12 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
     - `{Reason}` should be `SUT bug. {brief explanation}`.
     - Name the test for the expected post-fix behavior (e.g. `IsSymmetric`), not for the bug.
     - The _Don't test what SUT doesn't do_ rule doesn't apply to unfixed bug tests.
-  - **Create explicit tests to demonstrate SUT testability limitations**.
+  - **Create explicit tests impossible to implement due to SUT testability limitations**.
     - Include `// TODO: SUT testability limitation. {brief explanation}`.
     - Have them `throw new NotImplementedException()`.
+    - RE _Each test method should verify a single logical aspect of a single member of the SUT_: the name of the not-implemented
+      explicit test explains what needs to be tested (a single logical aspect of a single member), while the TODO comment explains
+      why it is not currently possible.
   - **Make flaky tests explicit to unblock CI**. Include `// TODO: Flaky test. {brief explanation}`
   - **Keep the `// TODO: {Reason}` short and single-line**.
     It will be displayed in the _Task List_ in _Visual Studio_.
