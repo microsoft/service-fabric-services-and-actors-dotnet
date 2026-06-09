@@ -28,7 +28,7 @@ argument-hint: "(type|namespace|project)"
   - _Run the `iterator` subagent_; use this prompt:
     ```md
     Ensure `{target-type}` has complete, accurate, compiler-verified XML documentation comments for all public members.
-    API, functional, code style changes are out of scope. Bugs should be documented by TODO comments instead.
+    API, functional, code style changes are out of scope.
     ```
   - _`{iterator-output}` should be `✅ Looks Good` or `❓ Needs Human Review`_.
   - _Don't pause for `iterator` responses that need human review_. User will review them later.
