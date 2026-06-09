@@ -13,12 +13,6 @@ applyTo: "test/**/*.cs"
 - **SUT** means system under test. In C#, it's a single type type with behavior, typically a `class` or a `struct`.
 - **Target** means _member of the SUT_. In C#, it's a single constructor, method, property or event.
 
-## Avoid Integration Tests
-
-Integration tests typically don't have the 1:1 equivalency with the product code and tend to drift away over time.
-They are also often fragile, producing flakey results and difficult to modify over time. Instead of integration tests,
-strive to unit test each product type in isolation of its dependencies.
-
 ## Test Projects
 
 - **`test` sub-folders containing test projects should have the same names as the `src` sub-folders**.
@@ -605,3 +599,24 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   readonly CancellationToken cancellation = TestContext.Current.CancellationToken;
   sut.CloseAsync(cancellation);
   ```
+
+## Integration Tests
+
+- **Avoid integration tests**
+  Integration tests typically don't have the 1:1 equivalency with the product code and tend to drift away over time.
+  They are also often fragile, producing flakey results and difficult to modify over time. Instead of integration tests,
+  strive to unit test each product type in isolation of its dependencies.
+
+- **Don't commit test files, create them in code instead**
+  When a test requires a file, generate it like any other test input in code. Don't hard-code it by committing it.
+
+- **Generate unique paths for test files, if possible**
+  When SUT accepts file names or paths, generate unique file or directory names to avoid sharing test fixture between tests.
+  This is not possible when SUT expects files or paths with well-known names.
+
+- **Delete unique test files and directories at the end of each test** to avoid disk usage bloat.
+
+- **Delete well-known files and directories at the start and the end of each test** to reduce the risk of tests failing
+  when reusing the test fixture left over by previous tests.
+  
+- **Prefer test class constructor and `IDisposable.Dispose` for file cleanup over `try/finally` in individual tests**
