@@ -58,8 +58,22 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 
 ### Methods
 
-- For methods that return a value, the `<summary>` should start with "Returns" and explain the result rather than how it is obtained.
-- For void methods, the `<summary>` should describe the action the method performs.
+- Use `<summary>` to describe _what_ the method does, not _how_ it is implemented.
+  - For methods that return a value
+    - Use template `{what it does} and returns {what it returns}`. E.g. `Foo.TryParse(string s, out Foo result)` summary should be
+      ```xml
+      Tries to parse <paramref name="s"/> into a <see cref="Foo"/> <paramref name="result"/> and returns <see langword="true"/>
+      if it was successfully parsed; otherwise returns <see langword="false"/>.
+      ```
+    - For methods where action and result are logically the same, use template `Returns {what it returns}`.
+      E.g. `Foo.Parse(string s)` summary should be
+      ```xml
+      Returns a <see cref="Foo"/> object parsed from the string representation in <paramref name="s"/>.
+      ```
+  - For methods returning `Task` or `Task<T>`:
+    - Start `<summary>` with `Asynchronously`, followed by _a present-tense, third-person verb_ as described above.
+    - Don't describe non-generic `Task` results - such methods are asynchronous `void` equivalents.
+    - Describe `T` instead of `Task<T>` results - such methods are asynchronous value-returning equivalents.
 - Use `<returns>` to describe what the method returns, but only if it's not redundant.
   - Remove `<returns>` if it restates documented-elsewhere or self-evident information. This is an optional element.
   - Try improving the method name and return type before documenting it.
