@@ -401,6 +401,11 @@ applyTo: "test/**/*.cs"
 - **Test argument validation logic** - it's part of SUT's API.
   - _Create explicit tests for missing argument validation_ that can cause `NullReferenceException`, etc. in consuming members.
     Missing argument validation is a bug in SUT.
+  - _Test `null`, empty, etc. as distinct inputs when validation rejects more than one_. A guard like `string.IsNullOrEmpty(x)`
+    collapses several conventionally-distinct inputs into a single branch. Test each rejected category - `null`, `""`, and
+    whitespace for `IsNullOrWhiteSpace` - with a `[Theory, InlineData(null), InlineData("")]`. This proves the right guard
+    was invoked and rules out easy common mistakes, such as missing the empty-string check when testing only with `null`,
+    or missing the `null` check when testing only with `string.Empty`.
 
 - **Use strongest xUnit assertions available**.
   - _Prefer `Assert.Same` over `Assert.Equal`_ when asserting on unique test instances that neither SUT nor test logic replace.
@@ -518,6 +523,7 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   - Re-running a callee's input permutations through its caller is duplication, regardless of whether the callee lives in
     another type or in the same SUT. A caller test like `Equals_Object.ReturnsFalseWhenFooDiffers` cannot
     fail unless the corresponding `Equals_T` test also fails — delete the caller variant and trust the callee's tests.
+    Exception: distinct argument-validation categories (`null`, empty, whitespace) are covered per _Test argument validation logic_.
 - **Reduce tests to fewest elements**: 
   - Remove tests that cannot fail independently.
   - Before writing a test for a branch or guard, verify that the branch is reachable independently of the paths already covered.
