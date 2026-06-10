@@ -2245,6 +2245,162 @@
     </command:command>
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
             <command:details>
+                <command:name>Clear-SFImpactObjects</command:name>
+                <command:verb>Clear</command:verb>
+                <command:noun>ImpactObjects</command:noun>
+                <maml:description>
+                    <maml:para>Removes stuck impact approval objects from the Failover Manager.</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
+            <maml:description>
+                <maml:para>Removes impact approval objects from the Failover Manager that match the specified
+                filters. This is a DRI mitigation tool.
+                
+                Impact approval objects track operations that require safety approval before proceeding
+                (e.g., node deactivations, upgrades). When an impact object gets stuck and blocks
+                further operations, this API can clear it to unblock the system.
+                
+                All filter parameters are optional. If no filters are specified, all impact objects
+                are removed.
+                </maml:para>
+            </maml:description>
+            <command:parameters>
+            <command:parameter required="false" position="0">
+                <maml:name>IdFilter</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Only clear the impact object with this specific ID.
+                    Use an empty GUID (00000000-0000-0000-0000-000000000000) to match all impact objects.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">Guid?</command:parameterValue>
+                <dev:type>
+                    <maml:name>Guid?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="1">
+                <maml:name>TypeFilter</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Only clear impact objects of this type (e.g., NodeDeactivation, ApplicationUpgrade). Possible values include: 'Unknown', 'NodeDeactivation', 'ApplicationUpgrade', 'FabricUpgrade', 'Partition'
+                    
+                    The category of operation that created the impact approval object.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">ImpactType?</command:parameterValue>
+                <dev:type>
+                    <maml:name>ImpactType?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="2">
+                <maml:name>StatusFilter</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Only clear impact objects with this approval status (e.g., WaitingForApproval, Approved). Possible values include: 'None', 'Nominal', 'WaitingForApproval', 'Approved'
+                    
+                    The current approval state of an impact object in the Failover Manager.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">ImpactApprovalStatus?</command:parameterValue>
+                <dev:type>
+                    <maml:name>ImpactApprovalStatus?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="3">
+                <maml:name>OperationFilter</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Only clear impact objects of this operation kind (e.g., Restart, Remove, Add). Possible values include: 'Unknown', 'Restart', 'Remove', 'Add'
+                    
+                    The type of operation associated with the impacted instances (e.g., restart, removal, or addition of an impacted instance).
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">ImpactOperationKind?</command:parameterValue>
+                <dev:type>
+                    <maml:name>ImpactOperationKind?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="4">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
+    </command:command>
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+            <command:details>
+                <command:name>Invoke-SFImpactAction</command:name>
+                <command:verb>Invoke</command:verb>
+                <command:noun>ImpactAction</command:noun>
+                <maml:description>
+                    <maml:para>Approves or acts on an impact approval object.</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
+            <maml:description>
+                <maml:para>Performs an action (such as approval) on an impact approval object in the
+                Failover Manager. This is a DRI mitigation tool.
+                
+                When an operation is waiting for impact approval (e.g., a node deactivation
+                or upgrade needs safety sign-off), this API can approve it to unblock
+                the operation.
+                </maml:para>
+            </maml:description>
+            <command:parameters>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="0">
+                <maml:name>ImpactId</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The unique ID (GUID) of the impact approval object to act on.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">Guid?</command:parameterValue>
+                <dev:type>
+                    <maml:name>Guid?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="1">
+                <maml:name>ImpactAction</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The action to perform on the impact object. Possible values include: 'Unknown', 'Approve'
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">ImpactActionKind?</command:parameterValue>
+                <dev:type>
+                    <maml:name>ImpactActionKind?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="2">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
+    </command:command>
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+            <command:details>
                 <command:name>Validate-SFClusterUpgrade</command:name>
                 <command:verb>Validate</command:verb>
                 <command:noun>ClusterUpgrade</command:noun>
@@ -10045,6 +10201,94 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="5">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
+    </command:command>
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+            <command:details>
+                <command:name>Complete-SFSelfReconfiguration</command:name>
+                <command:verb>Complete</command:verb>
+                <command:noun>SelfReconfiguration</command:noun>
+                <maml:description>
+                    <maml:para>Forces completion of a stuck self-reconfiguration on a partition.</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
+            <maml:description>
+                <maml:para>Forces the Failover Manager to complete a self-reconfiguration that is stuck
+                and not making forward progress. This is a DRI mitigation tool.
+                
+                Self-reconfiguring services manage their own replica configuration. When a
+                reconfiguration gets stuck (e.g., the service never reports completion), all
+                operations requiring reconfiguration on that partition (node repair, deactivation,
+                replica moves) are blocked indefinitely. This API unblocks them by forcing
+                completion of the pending reconfiguration.
+                
+                Only activation-state reconfigurations are supported (replica coming up/going down).
+                Role-transition reconfigurations (Primary/Secondary swap) are not supported.
+                </maml:para>
+            </maml:description>
+            <command:parameters>
+            <command:parameter required="true" position="0">
+                <maml:name>PartitionId</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The partition ID of the service with the stuck reconfiguration.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">Guid?</command:parameterValue>
+                <dev:type>
+                    <maml:name>Guid?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="true" position="1">
+                <maml:name>RequestSequenceNumber</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The sequence number from the reconfiguration request. This value must match ReportId.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="true" position="2">
+                <maml:name>RequestGenerationNumber</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The generation number from the reconfiguration request. Identifies which generation of the request to complete.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="true" position="3">
+                <maml:name>ReportId</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The reconfiguration report sequence number. This value must match RequestSequenceNumber.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="4">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>

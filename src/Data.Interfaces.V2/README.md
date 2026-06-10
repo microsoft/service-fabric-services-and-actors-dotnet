@@ -7,7 +7,10 @@ string keys, versioned key/value enumeration, advanced dictionary operations, an
 
 - `OrdinalString` — a `string` wrapper that uses ordinal comparison for `IComparable<T>` and `IEquatable<T>`. Use instead
   of `string` as a Reliable Dictionary key to avoid data corruption and unexpected enumeration results caused by the default
-  culture-sensitive string comparison.
+  culture-sensitive string comparison. For `default(OrdinalString)`, `==` and `Equals` treat two defaults as equal and
+  member access on the underlying value throws `NullReferenceException` matching `default(string)` semantics.
+  `GetHashCode` currently also throws `NullReferenceException`, which violates the `Equals`/`GetHashCode` contract
+  and is a known bug.
 - `IReliableDictionary3<TKey, TValue>` — **(Beta)** extends `IReliableDictionary2` with versioned key/value enumeration.
 - `IReliableDictionary4<TKey, TValue>` — **(Beta)** extends `IReliableDictionary3` with key removal without disk reads.
 - `VersionedKeyValuePair<TKey, TValue>` — a key/value pair tagged with a sequence number for change tracking.

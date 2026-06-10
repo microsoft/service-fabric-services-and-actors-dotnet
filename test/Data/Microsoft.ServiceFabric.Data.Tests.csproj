@@ -13,6 +13,6 @@
     <PackageReference Include="xunit.v3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Data.Interfaces.V2\Microsoft.ServiceFabric.Data.Interfaces.V2.csproj" />
+    <ProjectReference Include="..\..\src\Data\Microsoft.ServiceFabric.Data.csproj" />
   </ItemGroup>
 </Project>

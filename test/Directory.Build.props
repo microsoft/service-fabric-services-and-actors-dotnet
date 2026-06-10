@@ -4,6 +4,15 @@
     <TargetFrameworks>net10.0;net9.0;net8.0;net472</TargetFrameworks>
   </PropertyGroup>
 
+  <!-- When building outside of VS or Code -->
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' != 'true'">
+    <!--
+      Disable detection of unused using directives. It requires generation of documentation XML files, which would force
+      redundant comments for test classes and methods. Detection still works in the IDEs.
+    -->
+    <NoWarn>$(NoWarn);IDE0005</NoWarn>
+  </PropertyGroup>
+
   <!-- On Linux -->
   <PropertyGroup Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
     <!-- Skip net472 tests, they require Mono and Service Fabric native libraries to run -->

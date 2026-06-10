@@ -31,6 +31,8 @@
     <Project Path="test/Actors/Microsoft.ServiceFabric.Actors.Tests.csproj" />
     <Project Path="test/AspNetCore/Microsoft.ServiceFabric.AspNetCore.Tests.csproj" />
     <Project Path="test/Data.Interfaces.V2/Microsoft.ServiceFabric.Data.Interfaces.V2.Tests.csproj" />
+    <Project Path="test/Data.Interfaces/Microsoft.ServiceFabric.Data.Interfaces.Tests.csproj" />
+    <Project Path="test/Data/Microsoft.ServiceFabric.Data.Tests.csproj" />
     <Project Path="test/Diagnostics/Microsoft.ServiceFabric.Diagnostics.Tests.csproj" />
     <Project Path="test/FabricTransport/Microsoft.ServiceFabric.FabricTransport.Tests.csproj" />
     <Project Path="test/Services.Remoting/Microsoft.ServiceFabric.Services.Remoting.Tests.csproj" />
