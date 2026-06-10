@@ -55,6 +55,9 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
   - Never use `<para>` in single-paragraph sections.
 - For generic overloads, don't add "strongly-typed" or similar qualifiers to distinguish them from non-generic overloads. Let the type parameter references speak for themselves.
 - Prefer short type names in the `cref="..."` references. If the type's namespace is not imported, add a `using` directive rather than using a fully-qualified name.
+- _Prefer `<see cref="..."/>` over plain text when referring to domain concepts with first-class abstractions_.
+  E.g. `Sets the specified <see cref="Transaction"/> as the ambient transaction`. The first reference becomes a hyperlink
+  users can follow, while the subsequent mentions remain plain text to keep the docs easy to read.
 
 ### Methods
 
