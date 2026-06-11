@@ -10,6 +10,9 @@ applyTo: "**/*.cs"
 
 - Follow [.NET Framework Design Guidelines](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/) unless overridden by the rules below.
 - Pay attention to the `file_header_template` setting in `.editorconfig`; existing files may have legacy headers that differ from the template.
+- Don't suppress compiler, analyzer or style warnings in code - fix them instead.
+  `.instructions.md` files must be consistent with the `.editorconfig`, but some rules may be interpreted differently by
+  the C# tooling. When this happens, accept tooling's interpretation.
 
 ## Make the code as informative and intuitive as possible
 
@@ -44,17 +47,21 @@ applyTo: "**/*.cs"
       void IDisposable.Dispose() {}
   }
   ```
-- **Specify variable type explicitly. Use `var` to prevent duplication of the variable type in the initialization expression**.
-  This helps the reader understand the code without having to lookup the actual type.
+- **Specify variable type explicitly unless it's obvious**. This helps the reader understand the code without having to
+  lookup the actual type.
+  - Prefer target-typed `new()` expressions - they are more readable and compact than the older `var` syntax.
+  - Use `var` to prevent duplication of the variable type in the initialization expression.
 
   ❌ Instead of this:
   ```csharp
   var foo = Environment.GetEnvironmentVariable("foo");
+  var bar = new Bar();
   DateTime today = DateTime.Today;
   ```
   ✅ Do this:
   ```csharp
   string? foo = Environment.GetEnvironmentVariable("foo");
+  Bar bar = new();
   var today = DateTime.Today;
   ```
 
