@@ -22,6 +22,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
     public abstract class StatefulServiceReplicaAdapterTest
     {
         readonly IStatefulServiceReplica sut;
+        readonly IStateProviderReplica stateProviderReplica;
+        readonly CancellationToken cancellation = TestContext.Current.CancellationToken;
 
         // Constructor parameters
         readonly StatefulServiceContext context = fuzzy.StatefulServiceContext();
@@ -30,8 +32,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        protected StatefulServiceReplicaAdapterTest() =>
+        protected StatefulServiceReplicaAdapterTest()
+        {
             sut = new StatefulServiceReplicaAdapter(context, userServiceReplica);
+            stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
+        }
 
         public sealed class Constructor : StatefulServiceReplicaAdapterTest
         {
@@ -60,30 +65,23 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         {
             readonly ReplicaOpenMode openMode = fuzzy.Enum<ReplicaOpenMode>();
             readonly IStatefulServicePartition partition = new Mock<IStatefulServicePartition> { DefaultValue = DefaultValue.Mock }.Object;
-            readonly CancellationToken cancellation = TestContext.Current.CancellationToken;
 
             [Fact]
             public async Task ReturnsReplicatorFromStateProviderReplica()
             {
-                // Arrange
-                IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
                 IReplicator expected = Mock.Of<IReplicator>();
                 Mock.Get(stateProviderReplica).Setup(_ => _.OpenAsync(openMode, partition, cancellation)).ReturnsAsync(expected);
 
-                // Act
                 IReplicator actual = await sut.OpenAsync(openMode, partition, cancellation);
 
-                // Assert
                 Assert.Same(expected, actual);
             }
 
             [Fact]
             public async Task InvokesOnOpenAsyncOnUserServiceReplica()
             {
-                // Act
                 await sut.OpenAsync(openMode, partition, cancellation);
 
-                // Assert
                 Mock.Get(userServiceReplica).Verify(_ => _.OnOpenAsync(openMode, cancellation), Times.Once);
                 Mock.Get(userServiceReplica).Verify(_ => _.OnOpenAsync(It.IsAny<ReplicaOpenMode>(), It.IsAny<CancellationToken>()), Times.Once);
             }
@@ -91,28 +89,21 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             [Fact]
             public async Task PropagatesExceptionFromUserServiceReplicaOnOpenAsync()
             {
-                // Arrange
                 var expected = new InvalidOperationException();
                 Mock.Get(userServiceReplica).Setup(_ => _.OnOpenAsync(openMode, cancellation)).ThrowsAsync(expected);
 
-                // Act
                 var actual = await Assert.ThrowsAsync<InvalidOperationException>(() => sut.OpenAsync(openMode, partition, cancellation));
 
-                // Assert
                 Assert.Same(expected, actual);
             }
 
             [Fact]
             public async Task ClosesStateProviderReplicaWhenUserServiceReplicaOnOpenAsyncThrows()
             {
-                // Arrange
-                IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
                 Mock.Get(userServiceReplica).Setup(_ => _.OnOpenAsync(openMode, cancellation)).ThrowsAsync(new InvalidOperationException());
 
-                // Act
                 await Assert.ThrowsAsync<InvalidOperationException>(() => sut.OpenAsync(openMode, partition, cancellation));
 
-                // Assert
                 Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation), Times.Once);
                 Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(It.IsAny<CancellationToken>()), Times.Once);
             }
@@ -120,12 +111,9 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         public sealed class ChangeRole : StatefulServiceReplicaAdapterTest
         {
-            readonly CancellationToken cancellation = TestContext.Current.CancellationToken;
-
             [Fact]
             public async Task ToPrimaryCreatesAndOpensCommunicationListeners()
             {
-                // Arrange
                 IEnumerable<ServiceReplicaListener> replicaListeners = fuzzy.Array(fuzzy.ServiceReplicaListener);
                 Mock.Get(userServiceReplica).Setup(_ => _.CreateServiceReplicaListeners()).Returns(replicaListeners);
 
@@ -136,10 +124,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
                 sut.Field<Func<ServiceReplicaListener, StatefulServiceContext, CommunicationListenerInfo>>().Set(createCommunicationListener.Object);
 
-                // Act
                 await sut.ChangeRoleAsync(ReplicaRole.Primary, cancellation);
 
-                // Assert
                 IList<CommunicationListenerInfo> expected = communicationListeners.Values.ToList();
                 var actual = sut.Field<IList<CommunicationListenerInfo>>().Value;
                 Assert.Equal(expected, actual);
@@ -148,18 +134,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
         public sealed class Close : StatefulServiceReplicaAdapterTest
         {
-            readonly CancellationToken cancellation = TestContext.Current.CancellationToken;
-
             [Fact]
             public async Task ClosesStateProviderReplica()
             {
-                // Arrange
-                IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
-
-                // Act
                 await sut.CloseAsync(cancellation);
 
-                // Assert
                 Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation), Times.Once);
                 Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(It.IsAny<CancellationToken>()), Times.Once);
                 Assert.Null(sut.Field<IStateProviderReplica>().Value);
@@ -168,10 +147,8 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             [Fact]
             public async Task InvokesOnCloseAsyncOnUserServiceReplica()
             {
-                // Act
                 await sut.CloseAsync(cancellation);
 
-                // Assert
                 Mock.Get(userServiceReplica).Verify(_ => _.OnCloseAsync(cancellation), Times.Once);
                 Mock.Get(userServiceReplica).Verify(_ => _.OnCloseAsync(It.IsAny<CancellationToken>()), Times.Once);
             }
@@ -179,14 +156,11 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             [Fact]
             public async Task ClosesCommunicationListeners()
             {
-                // Arrange
                 CommunicationListenerInfo listenerInfo = fuzzy.CommunicationListenerInfo();
                 sut.Field<IList<CommunicationListenerInfo>>().Set(new List<CommunicationListenerInfo> { listenerInfo });
 
-                // Act
                 await sut.CloseAsync(cancellation);
 
-                // Assert
                 Mock.Get(listenerInfo.Listener).Verify(_ => _.CloseAsync(cancellation), Times.Once);
                 Mock.Get(listenerInfo.Listener).Verify(_ => _.CloseAsync(It.IsAny<CancellationToken>()), Times.Once);
                 Assert.Null(sut.Field<IList<CommunicationListenerInfo>>().Value);
@@ -195,28 +169,21 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             [Fact]
             public async Task PropagatesExceptionFromUserServiceReplicaOnCloseAsync()
             {
-                // Arrange
                 var expected = new InvalidOperationException();
                 Mock.Get(userServiceReplica).Setup(_ => _.OnCloseAsync(cancellation)).ThrowsAsync(expected);
 
-                // Act
                 var actual = await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CloseAsync(cancellation));
 
-                // Assert
                 Assert.Same(expected, actual);
             }
 
             [Fact]
             public async Task ClosesStateProviderReplicaEvenWhenUserServiceReplicaOnCloseAsyncThrows()
             {
-                // Arrange
-                IStateProviderReplica stateProviderReplica = sut.Field<IStateProviderReplica>().Value;
                 Mock.Get(userServiceReplica).Setup(_ => _.OnCloseAsync(cancellation)).ThrowsAsync(new InvalidOperationException());
 
-                // Act
                 await Assert.ThrowsAsync<InvalidOperationException>(() => sut.CloseAsync(cancellation));
 
-                // Assert
                 Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(cancellation), Times.Once);
                 Mock.Get(stateProviderReplica).Verify(_ => _.CloseAsync(It.IsAny<CancellationToken>()), Times.Once);
                 Assert.Null(sut.Field<IStateProviderReplica>().Value);
@@ -225,52 +192,42 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             [Fact]
             public async Task CancelsRunAsyncEvenWhenUserServiceReplicaOnCloseAsyncThrows()
             {
-                // Arrange
                 var adapter = new Mock<StatefulServiceReplicaAdapter>(context, userServiceReplica) { CallBase = true };
                 Mock.Get(userServiceReplica).Setup(_ => _.OnCloseAsync(cancellation)).ThrowsAsync(new InvalidOperationException());
                 IStatefulServiceReplica ssReplica = adapter.Object;
 
-                // Act
                 await Assert.ThrowsAsync<InvalidOperationException>(() => ssReplica.CloseAsync(cancellation));
 
-                // Assert
                 adapter.Protected().Verify("CancelRunAsync", Times.Once());
             }
 
             [Fact]
             public async Task AggregatesExceptionsFromAllStepsWhenAllThrow()
             {
-                // Arrange
                 var userEx = new InvalidOperationException();
                 var stateEx = new InvalidOperationException();
                 var runEx = new InvalidOperationException();
                 var adapter = new Mock<StatefulServiceReplicaAdapter>(context, userServiceReplica) { CallBase = true };
-                IStateProviderReplica stateProviderReplica = adapter.Object.Field<IStateProviderReplica>().Value;
                 Mock.Get(userServiceReplica).Setup(_ => _.OnCloseAsync(cancellation)).ThrowsAsync(userEx);
                 Mock.Get(stateProviderReplica).Setup(_ => _.CloseAsync(cancellation)).ThrowsAsync(stateEx);
                 adapter.Protected().Setup<Task>("CancelRunAsync").ThrowsAsync(runEx);
                 IStatefulServiceReplica ssReplica = adapter.Object;
 
-                // Act
                 var actual = await Assert.ThrowsAsync<AggregateException>(() => ssReplica.CloseAsync(cancellation));
 
-                // Assert
                 Assert.Equal(new Exception[] { userEx, stateEx, runEx }, actual.InnerExceptions);
             }
 
             [Fact]
             public async Task PropagatesExceptionFromCancelRunAsync()
             {
-                // Arrange
                 var runEx = new InvalidOperationException();
                 var adapter = new Mock<StatefulServiceReplicaAdapter>(context, userServiceReplica) { CallBase = true };
                 adapter.Protected().Setup<Task>("CancelRunAsync").ThrowsAsync(runEx);
                 IStatefulServiceReplica ssReplica = adapter.Object;
 
-                // Act
                 var actual = await Assert.ThrowsAsync<InvalidOperationException>(() => ssReplica.CloseAsync(cancellation));
 
-                // Assert
                 Assert.Same(runEx, actual);
             }
         }
