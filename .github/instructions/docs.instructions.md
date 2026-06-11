@@ -35,7 +35,7 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 - Document internal members only if they are complex or not self-explanatory.
 - Verify XML comments by building the project before committing changes.
 - When removing unnecessary XML comments, preserve significant information as regular comments.
-- Use `<summary>` to provide a brief, one sentence, description of what the type or member does. Start the summary with a present-tense, third-person verb.
+- Use `<summary>` to provide a brief description of what the type or member does. Start the summary with a present-tense, third-person verb.
 - Use `<remarks>` for additional information, such as usage notes relevant to consumers.
   - Remove `<remarks>` if it restates documented-elsewhere or self-evident information. This is an optional element.
   - Don't document implementation details of the API not relevant to consumers of the library.
