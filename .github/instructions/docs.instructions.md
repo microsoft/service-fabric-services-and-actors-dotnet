@@ -132,5 +132,7 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 - Use `<exception cref="...">` to document exceptions thrown by constructors, properties, indexers, methods, operators, and events.
 - Document all exceptions thrown directly by the member.
 - For exceptions thrown by nested members, document only the exceptions users are most likely to encounter.
+- Don't document exceptions without evidence they're are actually thrown. Symmetry with other APIs is irrelevant and doesn't
+  justify lack of evidence.
 - Describe the condition under which it's thrown.
   - Omit "Thrown if ..." or "If ..." at the beginning of the sentence.
