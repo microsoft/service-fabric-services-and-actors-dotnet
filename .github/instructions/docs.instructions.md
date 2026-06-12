@@ -54,7 +54,13 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 - Use `<para>` when multiple paragraphs are needed to make a documentation section readable.
   - Never use `<para>` in single-paragraph sections.
 - For generic overloads, don't add "strongly-typed" or similar qualifiers to distinguish them from non-generic overloads. Let the type parameter references speak for themselves.
-- Prefer short type names in the `cref="..."` references. If the type's namespace is not imported, add a `using` directive rather than using a fully-qualified name.
+- _Prefer short type names in the `cref="..."` references_. 
+  - Avoid fully-qualified references, e.g. `<seealso cref="Fully.Qualified.Foo"/>`.
+  - If the type's namespace is not imported, add a `using` directive, e.g. `using Fully.Qualified; /// <seealso cref="Foo"/>`
+  - If the type name appears in multiple imported namespaces, but used only from one, add an alias to disambiguate, e.g.
+    `using Foo = Fully.Qualified.Foo; /// <seealso cref="Foo"/>`.
+  - If the type is an open generic and cannot be aliased, use the shortest qualification needed to disambiguate, e.g.
+    `using Fully; /// <seealso cref="Qualified.Foo{T}"/>`
 - _Prefer `<see cref="..."/>` over plain text when referring to domain concepts with first-class abstractions_.
   E.g. `Sets the specified <see cref="Transaction"/> as the ambient transaction`. The first reference becomes a hyperlink
   users can follow, while the subsequent mentions remain plain text to keep the docs easy to read.
