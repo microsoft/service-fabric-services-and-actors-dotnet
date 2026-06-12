@@ -27,8 +27,10 @@ This repository requires unique knowledge you don't possess; you won't know what
   - Use this prompt template; replace the `{file path}` and `{your prompt}` placeholders.
     ```md
     Execute /review skill with argument `{file path}`.
-    Avoid contradicting findings previously addressed in `git log origin/HEAD..HEAD -- {file path}`.
-    Exclude findings previously reported in `{file path}-needs-human-review.md`, if it exists.
+    - _Avoid contradicting findings resolved by prior commits in `git log origin/HEAD..HEAD -- {file path}`_.
+      A contradicting finding must be described in detail in a commit messages. A code change alone is not a contradiction.
+    - _Exclude findings previously reported in `{file path}-needs-human-review.md`, if it exists_.
+
     Note that I'm working on the following request.
     ---
     {your prompt}
