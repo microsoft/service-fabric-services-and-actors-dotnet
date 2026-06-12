@@ -50,6 +50,8 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 - Reuse documentation from other types and members to keep duplication to a minimum.
   - Use `<inheritdoc/>` for interface implementations and overrides unless there is a major behavior change.
   - Use `<inheritdoc cref="..."/>` to reuse documentation from related types, like the base type, and members, like method overloads.
+  - Apply object-oriented design principles to documentation inheritance.
+    - If behavior doesn't apply to every inheritor, don't document it in the base/provider.
   - Document differences instead of using `<inheritdoc/>` when there is a major behavior change.
 - Use `<para>` when multiple paragraphs are needed to make a documentation section readable.
   - Never use `<para>` in single-paragraph sections.
