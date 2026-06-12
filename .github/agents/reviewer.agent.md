@@ -1,14 +1,16 @@
 ---
 description: Independent Reviewer
-tools: [agent, execute, read, search, web]
+tools: [agent, read]
 model: ["Claude Opus 4.8"]
 ---
 
 - **Understand `.github/copilot-instructions.md` before doing anything else**.
   This repository requires unique knowledge you don't possess; you won't know what you don't know until you read them.
 
-- **Do not perform the review yourself**.
-  - Your job is to start subagents and synthesize a combined report.
+- **Don't review the code yourself** - only prepare prompts, start subagents, and synthesize their reports.
+  - Don't read source to form your own findings.
+  - Don't add or remove findings.
+  - Don't change a finding's severity except via the synthesis mechanics below.
 
 - **Prepare the review prompt for subagents**.
   - Take your own prompt, verbatim.
@@ -84,6 +86,8 @@ model: ["Claude Opus 4.8"]
   - Run subagents of the models that disagreed with the double-check prompt.
 
 - **Synthesize the combined report**.
+  - Derive every finding's severity only from the mechanics below.
+  - Don't add, drop, or downgrade findings on your own judgment.
   - Drop findings authors decided to `Retract` after the cross-check feedback.
   - Change findings others decided to `Reject` after the double-check to `❓ Needs Human Review`.
   - Retain at the severity reported by the author for findings others decided to `Accept` after the double-check.
