@@ -12,6 +12,11 @@ tools: [execute, read, search, web]
 - **Execute your prompt**. The prompt will tell you _what_ to do. Your job is to decide _how_ to do it and make sure your
   work will pass through the rigorous code reviews with minimal follow-up changes.
 
+- **End every text file you write with a single trailing newline** - `.editorconfig` sets `insert_final_newline = true`.
+  Removing the trailing newline is a common mistake requiring unnecessary rounds of reviews and fixes.
+  - _After writing a file, confirm its last byte is a line feed_.
+    `$b=[IO.File]::ReadAllBytes($path); $b[-1]` must print `10` (this holds for both LF and CRLF endings).
+
 - **Verify completion by running tests as described in the `CONTRIBUTING.md`**.
 
 - **Commit each file you modified**.
