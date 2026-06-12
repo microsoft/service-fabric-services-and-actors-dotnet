@@ -47,23 +47,15 @@ applyTo: "**/*.cs"
       void IDisposable.Dispose() {}
   }
   ```
-- **Specify variable type explicitly unless it's obvious**. This helps the reader understand the code without having to
-  lookup the actual type.
-  - Prefer target-typed `new()` expressions - they are more readable and compact than the older `var` syntax.
-  - Use `var` to prevent duplication of the variable type in the initialization expression.
+- **Specify variable type explicitly unless it's obvious**. This helps the reader understand the code without having to lookup the type.
+  Instead of ❌`var foo = Environment.GetEnvironmentVariable("foo");` do ✅`string? foo = Environment.GetEnvironmentVariable("foo");`.
+  - _Use `var` to prevent duplication of the variable type in the initialization expression_.
+    Instead of ❌`DateTime today = DateTime.Today;` do ✅`var today = DateTime.Today;`
+  - _Prefer explicitly-typed variables with target-typed `new()` expressions_ over the more verbose `var` syntax.
+    Instead of ❌`var bar = new Bar();` do ✅`Bar bar = new();`
 
-  ❌ Instead of this:
-  ```csharp
-  var foo = Environment.GetEnvironmentVariable("foo");
-  var bar = new Bar();
-  DateTime today = DateTime.Today;
-  ```
-  ✅ Do this:
-  ```csharp
-  string? foo = Environment.GetEnvironmentVariable("foo");
-  Bar bar = new();
-  var today = DateTime.Today;
-  ```
+- **Don't use target-typed `new()` expressions when the type is not apparent** and requires reader to look it up elsewhere,
+  such as when initializing a field declared separately. Instead of ❌`baz = new();` do ✅`baz = new Baz();`
 
 ## Make the code as concise as possible
 
