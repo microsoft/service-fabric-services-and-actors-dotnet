@@ -505,6 +505,9 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
 ### [SOLID](https://en.wikipedia.org/wiki/SOLID)
 - **Single Responsibility**: Each test verifies one logical condition or behavior. When the product code has independent
   `if` branches, each branch gets its own test — not a single test that checks them all at once.
+- **Single Responsibility**: Each test verifies one logical condition, behavior, or cohesive scenario.
+  - Consolidate independent `if` branches into a single test if they execute together in the most common scenario.
+  - Test each alternate or edge case (e.g., specific `null` checks, independent error handling) separately to preserve mutation coverage.
 - **Open/Closed**: The test suite should be open for extension (adding a test for a new property) without modifying
   existing tests.
 - **Liskov Substitution**: Test the SUT through its public interface or base type when that's how consumers use it.
