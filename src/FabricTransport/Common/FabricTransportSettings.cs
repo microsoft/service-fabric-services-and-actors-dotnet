@@ -126,7 +126,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
         ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
         ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
         ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="SecurityCredentials"/> value.
+        ///     4. SecurityCredentialsType - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
+        ///        Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
+        ///        CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
+        ///        CertificateRemoteThumbprints, CertificateIssuerThumbprints, CertificateFindValuebySecondary, and CertificateApplicationIssuerStore/ entries.
         ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
         ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
         ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
@@ -213,7 +216,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
         ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
         ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
         ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="SecurityCredentials"/> value.
+        ///     4. SecurityCredentialsType - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
+        ///        Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
+        ///        CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
+        ///        CertificateRemoteThumbprints, CertificateIssuerThumbprints, CertificateFindValuebySecondary, and CertificateApplicationIssuerStore/ entries.
         ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
         ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
         ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
