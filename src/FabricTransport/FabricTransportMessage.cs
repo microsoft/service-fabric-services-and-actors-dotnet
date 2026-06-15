@@ -97,7 +97,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Returns the stream containing the received header bytes.
+        /// Returns the <see cref="Stream"/> containing the received header bytes.
         /// </summary>
         public Stream GetRecievedStream()
         {
