@@ -90,7 +90,6 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRequestHeader"/> class for a received header.
         /// </summary>
-        /// <param name="recievedHeaderStream">The stream containing the received header bytes.</param>
         public FabricTransportRequestHeader(Stream recievedHeaderStream)
         {
             this.recievedHeaderStream = recievedHeaderStream;
