@@ -84,31 +84,19 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Gets or sets the maximum size for a message that can be received on a channel configured with this setting.
         /// </summary>
-        /// <value>Maximum size of the message in bytes.
-        /// </value>
-        /// <remarks>
-        /// Default Value for MaxMessageSize used is 4194304 bytes
-        /// </remarks>
+        /// <value>The default is 4194304 bytes.</value>
         public long MaxMessageSize { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum size of a queue that stores messages while they are processed for an endpoint configured with this setting.
         /// </summary>
-        /// <value> Max Size for a Queue that receives messages from the channel 
-        /// </value>
-        /// <remarks>
-        /// Default value is 10,000 messages</remarks>
+        /// <value>The default is 10,000 messages.</value>
         public long MaxQueueSize { get; set; }
 
-        ///<summary>
+        /// <summary>
         /// Gets or sets the maximum number of messages actively serviced at one time.
         /// </summary>
-        /// <value>
-        ///MaxConcurrentCalls is the upper limit of active messages in the service.
-        /// </value>
-        /// <remarks>
-        ///Default value for the MaxConcurrentCalls is 0 which indicates that the setting is not enabled. This implies that all the messages are active and are processed simultaneously.
-        /// </remarks>
+        /// <value>The default is 0, which processes all messages simultaneously.</value>
         public long MaxConcurrentCalls { get; set; }
 
         /// <summary>
