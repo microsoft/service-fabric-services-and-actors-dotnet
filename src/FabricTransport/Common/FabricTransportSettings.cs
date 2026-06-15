@@ -217,8 +217,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         ///  If not specified , it will first try to load from default Config Package"Config" , if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
         ///  <param name="configPackageName"> Name of the configuration package. If its null or empty,it will check for file in filePath</param>
         /// <param name="settings">When this method returns it sets the <see cref="FabricTransportSettings"/> settings if load from Config succeeded. If fails ,its sets settings to null/> </param>
-        /// <returns><see cref="bool"/> specifies whether the settings get loaded successfully from Config.
-        /// It returns true when load from Config succeeded, else return false. </returns>
+        /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
         ///     
