@@ -118,7 +118,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <param name="sectionName">The name of the section within the configuration file.</param>
         /// <param name="filepath"> The full path of the file where the settings will be loaded from. 
         ///  If not specified, it will first try to load from default Config Package "Config", if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
-        ///  <param name="configPackageName"> The name of the configuration package. If it's null or empty, it will check for file in <paramref name="filepath"/></param>
+        ///  <param name="configPackageName"> The name of the configuration package. If it's <see langword="null"/> or empty, it will check for file in <paramref name="filepath"/></param>
         /// <returns>The settings loaded from the specified configuration section.</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
@@ -207,7 +207,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <param name="sectionName">The name of the section within the configuration file. Returns <see langword="false"/> if the section is not found.</param>
         /// <param name="filepath"> The full path of the file where the settings will be loaded from. 
         ///  If not specified, it will first try to load from default Config Package "Config", if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
-        ///  <param name="configPackageName"> The name of the configuration package. If it's null or empty, it will check for file in <paramref name="filepath"/></param>
+        ///  <param name="configPackageName"> The name of the configuration package. If it's <see langword="null"/> or empty, it will check for file in <paramref name="filepath"/></param>
         /// <param name="settings">When this method returns, contains the <see cref="FabricTransportSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
         /// <remarks>
