@@ -38,7 +38,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             ContinuationToken continuationToken = default(ContinuationToken),
             NodeStatusFilter? nodeStatusFilter = NodeStatusFilter.Default,
             long? maxResults = 0,
-            bool? includePlacementProperties = false,
+            int? nodeQueryOptions = 0,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -52,7 +52,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             continuationToken?.AddToQueryParameters(queryParams, $"ContinuationToken={continuationToken.ToString()}");
             nodeStatusFilter?.AddToQueryParameters(queryParams, $"NodeStatusFilter={nodeStatusFilter.ToString()}");
             maxResults?.AddToQueryParameters(queryParams, $"MaxResults={maxResults}");
-            includePlacementProperties?.AddToQueryParameters(queryParams, $"IncludePlacementProperties={includePlacementProperties}");
+            nodeQueryOptions?.AddToQueryParameters(queryParams, $"NodeQueryOptions={nodeQueryOptions}");
             serverTimeout?.AddToQueryParameters(queryParams, $"timeout={serverTimeout}");
             queryParams.Add("api-version=6.3");
             url += "?" + string.Join("&", queryParams);
@@ -72,7 +72,7 @@ namespace Microsoft.ServiceFabric.Client.Http
         /// <inheritdoc />
         public Task<NodeInfo> GetNodeInfoAsync(
             NodeName nodeName,
-            bool? includePlacementProperties = false,
+            int? nodeQueryOptions = 0,
             long? serverTimeout = 60,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.Client.Http
             var queryParams = new List<string>();
             
             // Append to queryParams if not null.
-            includePlacementProperties?.AddToQueryParameters(queryParams, $"IncludePlacementProperties={includePlacementProperties}");
+            nodeQueryOptions?.AddToQueryParameters(queryParams, $"NodeQueryOptions={nodeQueryOptions}");
             serverTimeout?.AddToQueryParameters(queryParams, $"timeout={serverTimeout}");
             queryParams.Add("api-version=6.0");
             url += "?" + string.Join("&", queryParams);

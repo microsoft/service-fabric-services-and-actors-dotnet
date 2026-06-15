@@ -41,12 +41,20 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public long? MaxResults { get; set; }
 
         /// <summary>
-        /// Gets or sets IncludePlacementProperties. Include the effective placement properties of a node.
-        /// If this parameter is false or not specified, placement properties are not returned.
+        /// Gets or sets NodeQueryOptions. Specifies the optional per-node fields to populate on each node returned by the
+        /// query.
+        /// The value is a flag-based enumeration, so the value could be a combination of these values obtained using the
+        /// bitwise 'OR' operator.
+        /// If this parameter is zero or not specified, no optional fields are populated and the response shape is unchanged.
+        /// 
+        /// - None - Does not populate any optional per-node fields. The value is 0.
+        /// - PlacementProperties - Populates the PlacementProperties field on each node with its effective placement
+        /// properties (the NodeType-level properties merged with the per-node properties from the InfrastructureManifest). The
+        /// value is 1.
         /// </summary>
         [Parameter(Mandatory = false, Position = 3, ParameterSetName = "GetNodeInfoList")]
         [Parameter(Mandatory = false, Position = 3, ParameterSetName = "GetNodeInfo")]
-        public bool? IncludePlacementProperties { get; set; }
+        public int? NodeQueryOptions { get; set; }
 
         /// <summary>
         /// Gets or sets ServerTimeout. The server timeout for performing the operation in seconds. This timeout specifies the
@@ -69,7 +77,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                         continuationToken: continuationToken,
                         nodeStatusFilter: this.NodeStatusFilter,
                         maxResults: this.MaxResults,
-                        includePlacementProperties: this.IncludePlacementProperties,
+                        nodeQueryOptions: this.NodeQueryOptions,
                         serverTimeout: this.ServerTimeout,
                         cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
 
@@ -94,7 +102,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
             {
                 var result = this.ServiceFabricClient.Nodes.GetNodeInfoAsync(
                     nodeName: this.NodeName,
-                    includePlacementProperties: this.IncludePlacementProperties,
+                    nodeQueryOptions: this.NodeQueryOptions,
                     serverTimeout: this.ServerTimeout,
                     cancellationToken: this.CancellationToken).GetAwaiter().GetResult();
 

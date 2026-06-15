@@ -51,7 +51,7 @@ namespace Microsoft.ServiceFabric.Common
         /// this node.</param>
         /// <param name="infrastructurePlacementID">PlacementID used by the InfrastructureService.</param>
         /// <param name="placementProperties">The effective placement properties for the node. Placement properties are
-        /// returned only when IncludePlacementProperties is set to true in the request.
+        /// returned only when the PlacementProperties flag (value 1) is set on the NodeQueryOptions parameter in the request.
         /// </param>
         public NodeInfo(
             NodeName name = default(NodeName),
@@ -214,8 +214,8 @@ namespace Microsoft.ServiceFabric.Common
         public string InfrastructurePlacementID { get; }
 
         /// <summary>
-        /// Gets the effective placement properties for the node. Placement properties are returned only when
-        /// IncludePlacementProperties is set to true in the request.
+        /// Gets the effective placement properties for the node. Placement properties are returned only when the
+        /// PlacementProperties flag (value 1) is set on the NodeQueryOptions parameter in the request.
         /// </summary>
         public IReadOnlyDictionary<string, string> PlacementProperties { get; }
     }
