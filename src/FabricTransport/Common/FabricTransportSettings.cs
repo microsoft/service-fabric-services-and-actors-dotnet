@@ -204,7 +204,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
         /// It will first try to load config using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, then try to load from <paramref name="filepath"/>.
         /// </summary>
-        /// <param name="sectionName">The name of the section within the configuration file. If not found section in configuration file, it return false</param>
+        /// <param name="sectionName">The name of the section within the configuration file. Returns <see langword="false"/> if the section is not found.</param>
         /// <param name="filepath"> The full path of the file where the settings will be loaded from. 
         ///  If not specified, it will first try to load from default Config Package "Config", if not found then load from Settings "ClientExeName.Settings.xml" present in Client Exe directory. </param>
         ///  <param name="configPackageName"> The name of the configuration package. If it's null or empty, it will check for file in <paramref name="filepath"/></param>
