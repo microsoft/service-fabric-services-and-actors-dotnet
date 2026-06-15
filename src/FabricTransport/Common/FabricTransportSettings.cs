@@ -48,7 +48,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         internal static readonly TimeSpan DefaultKeepAliveTimeout = TimeSpan.Zero;
 
         /// <summary>
-        /// Creates a new FabricTransportSettings with default Values.
+        /// Initializes a new instance of the <see cref="FabricTransportSettings"/> class.
         /// </summary>
         public FabricTransportSettings()
         {
