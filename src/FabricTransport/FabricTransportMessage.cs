@@ -41,7 +41,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Returns the <see cref="FabricTransportRequestBody"/> of the message.
+        /// Returns the <see cref="FabricTransportRequestBody"/> of the message, or <see langword="null"/> if the message has no body.
         /// </summary>
         public FabricTransportRequestBody GetBody()
         {
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Returns the <see cref="FabricTransportRequestHeader"/> of the message.
+        /// Returns the <see cref="FabricTransportRequestHeader"/> of the message, or <see langword="null"/> if the message has no header.
         /// </summary>
         public FabricTransportRequestHeader GetHeader()
         {
