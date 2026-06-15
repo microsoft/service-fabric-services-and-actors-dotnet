@@ -121,7 +121,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         ///  <param name="configPackageName"> The name of the configuration package. If it's <see langword="null"/> or empty, it will check for file in <paramref name="filepath"/></param>
         /// <returns>The settings loaded from the specified configuration section.</returns>
         /// <remarks>
-        /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
+        /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
         ///     
         ///     1. MaxQueueSize - <see cref="MaxQueueSize"/> value in long.
         ///     2. MaxMessageSize - <see cref="MaxMessageSize"/> value in bytes.
@@ -211,7 +211,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <param name="settings">When this method returns, contains the <see cref="FabricTransportSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
         /// <remarks>
-        /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
+        /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
         ///     
         ///     1. MaxQueueSize - <see cref="MaxQueueSize"/> value in long.
         ///     2. MaxMessageSize - <see cref="MaxMessageSize"/> value in bytes.
