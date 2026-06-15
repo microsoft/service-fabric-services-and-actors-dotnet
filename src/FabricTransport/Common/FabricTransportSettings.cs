@@ -149,6 +149,11 @@ namespace Microsoft.ServiceFabric.FabricTransport
         ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
         ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
         /// </remarks>
+        /// <exception cref="ArgumentException">
+        /// <paramref name="configPackageName"/> is specified but the configuration package is not found,
+        /// <paramref name="filepath"/> is specified but the configuration file is not found, or
+        /// the section named <paramref name="sectionName"/> is not found in the configuration.
+        /// </exception>
         public static FabricTransportSettings LoadFrom(
             string sectionName,
             string filepath = null,
