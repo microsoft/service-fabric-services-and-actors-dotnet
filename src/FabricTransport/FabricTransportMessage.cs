@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// Initializes a new instance of the <see cref="FabricTransportRequestHeader"/> class for an outgoing header.
         /// </summary>
         /// <param name="requestHeaderBuffer">The serialized header bytes to send.</param>
-        /// <param name="disposeAction">The action that releases <paramref name="requestHeaderBuffer"/> when the header is disposed.</param>
+        /// <param name="disposeAction">A callback that releases <paramref name="requestHeaderBuffer"/> when the header is disposed.</param>
         public FabricTransportRequestHeader(ArraySegment<byte> requestHeaderBuffer, Action disposeAction)
         {
             this.requestHeaderBuffer = requestHeaderBuffer;
