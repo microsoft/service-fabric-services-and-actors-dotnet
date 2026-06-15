@@ -65,23 +65,20 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// Gets or sets the operation timeout that governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
         ///  This timeout also applies when sending reply messages from a callback contract method.
         /// </summary>
-        /// <value>OperationTimeout as <see cref="System.TimeSpan"/></value>
-        /// <remarks>Default Value for Operation Timeout is set as 5 mins</remarks>
+        /// <value>The default is 5 minutes.</value>
         public TimeSpan OperationTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the keep-alive timeout that configures the TCP keep-alive option.
         /// </summary>
-        /// <value>KeepAliveTimeout as <see cref="System.TimeSpan"/></value>
-        /// <remarks>Default Value for KeepAliveTimeout Timeout is set as TimeSpan.Zero. which indicates we disable the tcp keepalive option.
-        /// If you are using loadbalancer , you may need to configure this in order to avoid  the loadbalancer to close the connection after certain time </remarks>
+        /// <value>The default is <see cref="TimeSpan.Zero"/>, which disables the TCP keep-alive option.</value>
+        /// <remarks>When using a load balancer, you may need to configure this to prevent the load balancer from closing the connection after a period of inactivity.</remarks>
         public TimeSpan KeepAliveTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the connect timeout that specifies the maximum time allowed for the connection to be established successfully.
         /// </summary>
-        /// <value>ConnectTimeout as <see cref="System.TimeSpan"/></value>
-        /// <remarks>Default Value for ConnectTimeout Timeout is set as 5 seconds.</remarks>
+        /// <value>The default is 5 seconds.</value>
         public TimeSpan ConnectTimeout { get; set; }
 
         /// <summary>
@@ -117,13 +114,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Gets or sets the security credentials for securing the communication.
         /// </summary>
-        /// <value>SecurityCredentials as  <see cref=" System.Fabric.SecurityCredentials"/>
-        /// </value>
+        /// <value>The default is <see cref="NoneSecurityCredentials"/>.</value>
         /// <remarks>
-        /// Default Value for SecurityCredentials is None
-        /// SecurityCredential can be of type x509SecurityCredentail <seealso cref="System.Fabric.X509Credentials"/>or
-        ///  WindowsCredentials <seealso cref="System.Fabric.WindowsCredentials"/>
-        ///</remarks>
+        /// The credentials can be of type <see cref="X509Credentials"/> or <see cref="WindowsCredentials"/>.
+        /// </remarks>
         public SecurityCredentials SecurityCredentials { get; set; }
 
         internal FabricServiceConfigSection ConfigSection { get; private set; }
