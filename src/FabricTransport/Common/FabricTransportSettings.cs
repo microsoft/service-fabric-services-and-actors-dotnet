@@ -62,7 +62,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Operation Timeout  which governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
+        /// Gets or sets the operation timeout that governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
         ///  This timeout also applies when sending reply messages from a callback contract method.
         /// </summary>
         /// <value>OperationTimeout as <see cref="System.TimeSpan"/></value>
@@ -70,7 +70,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         public TimeSpan OperationTimeout { get; set; }
 
         /// <summary>
-        /// KeepAliveTimeout is provides a way to configure  Tcp keep-alive option.
+        /// Gets or sets the keep-alive timeout that configures the TCP keep-alive option.
         /// </summary>
         /// <value>KeepAliveTimeout as <see cref="System.TimeSpan"/></value>
         /// <remarks>Default Value for KeepAliveTimeout Timeout is set as TimeSpan.Zero. which indicates we disable the tcp keepalive option.
@@ -78,14 +78,14 @@ namespace Microsoft.ServiceFabric.FabricTransport
         public TimeSpan KeepAliveTimeout { get; set; }
 
         /// <summary>
-        /// Connect timeout specifies the maximum time allowed for the connection to be established successfully.
+        /// Gets or sets the connect timeout that specifies the maximum time allowed for the connection to be established successfully.
         /// </summary>
         /// <value>ConnectTimeout as <see cref="System.TimeSpan"/></value>
         /// <remarks>Default Value for ConnectTimeout Timeout is set as 5 seconds.</remarks>
         public TimeSpan ConnectTimeout { get; set; }
 
         /// <summary>
-        /// MaxMessageSize represents  the maximum size for a message that can be received on a channel configured with this setting.
+        /// Gets or sets the maximum size for a message that can be received on a channel configured with this setting.
         /// </summary>
         /// <value>Maximum size of the message in bytes.
         /// </value>
@@ -95,7 +95,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         public long MaxMessageSize { get; set; }
 
         /// <summary>
-        /// The maximum size, of a queue that stores messages while they are processed for an endpoint configured with this setting. 
+        /// Gets or sets the maximum size of a queue that stores messages while they are processed for an endpoint configured with this setting.
         /// </summary>
         /// <value> Max Size for a Queue that receives messages from the channel 
         /// </value>
@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         public long MaxQueueSize { get; set; }
 
         ///<summary>
-        ///MaxConcurrentCalls represents maximum number of messages actively service processes at one time.
+        /// Gets or sets the maximum number of messages actively serviced at one time.
         /// </summary>
         /// <value>
         ///MaxConcurrentCalls is the upper limit of active messages in the service.
@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         public long MaxConcurrentCalls { get; set; }
 
         /// <summary>
-        /// Security credentials for securing the communication 
+        /// Gets or sets the security credentials for securing the communication.
         /// </summary>
         /// <value>SecurityCredentials as  <see cref=" System.Fabric.SecurityCredentials"/>
         /// </value>
