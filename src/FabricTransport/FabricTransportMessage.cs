@@ -121,27 +121,44 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private readonly Action disposeAction;
         private readonly Stream recievedStream;
 
+        /// <summary>
+        /// Returns the serialized body buffers to send.
+        /// </summary>
         public IEnumerable<ArraySegment<byte>> GetBodyBuffers()
         {
             return this.sendBuffers;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportRequestBody"/> class for an outgoing body.
+        /// </summary>
+        /// <param name="sendBuffers">The serialized body buffers to send.</param>
+        /// <param name="disposeAction">A callback that releases <paramref name="sendBuffers"/> when the body is disposed.</param>
         public FabricTransportRequestBody(IEnumerable<ArraySegment<byte>> sendBuffers, Action disposeAction)
         {
             this.sendBuffers = sendBuffers;
             this.disposeAction = disposeAction;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportRequestBody"/> class for a received body.
+        /// </summary>
         public FabricTransportRequestBody(Stream recievedStream)
         {
             this.recievedStream = recievedStream;
         }
 
+        /// <summary>
+        /// Returns the <see cref="Stream"/> containing the received body bytes.
+        /// </summary>
         public Stream GetRecievedStream()
         {
             return this.recievedStream;
         }
 
+        /// <summary>
+        /// Releases the resources held by the outgoing body buffers.
+        /// </summary>
         public void Dispose()
         {
             if (this.disposeAction != null)
