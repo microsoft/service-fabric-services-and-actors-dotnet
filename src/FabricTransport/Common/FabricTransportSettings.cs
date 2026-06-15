@@ -123,9 +123,9 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
         ///     
-        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.
+        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/> value in long.
+        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/> value in bytes.
+        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/> value in long.
         ///     4. SecurityCredentialsType - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
         ///        Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
         ///        CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
@@ -213,9 +213,9 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
         ///     
-        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/>value in long.
+        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/> value in long.
+        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/> value in bytes.
+        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/> value in long.
         ///     4. SecurityCredentialsType - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
         ///        Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
         ///        CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
