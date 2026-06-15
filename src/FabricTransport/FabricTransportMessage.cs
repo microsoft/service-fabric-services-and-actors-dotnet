@@ -56,9 +56,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
             return this.requestHeader;
         }
 
-        /// <summary>
-        /// Releases the native message and the resources held by the message header and body.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (this.nativeInterfaceRoot != null)
