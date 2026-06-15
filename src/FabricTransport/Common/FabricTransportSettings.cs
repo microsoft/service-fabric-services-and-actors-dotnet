@@ -15,7 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Microsoft.ServiceFabric.FabricTransport
 {
     /// <summary>
-    /// Settings that configures the  FabricTransport communication.
+    /// Configures the FabricTransport communication.
     /// </summary>
     internal class FabricTransportSettings
     {
