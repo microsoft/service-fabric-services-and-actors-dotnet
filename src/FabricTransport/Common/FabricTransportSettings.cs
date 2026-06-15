@@ -196,7 +196,8 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Try to load the FabricTransport settings from a sectionName specified in the configuration file.
+        /// Tries to load the FabricTransport settings from a sectionName specified in the configuration file and returns
+        /// <see langword="true"/> if the settings were loaded successfully; otherwise returns <see langword="false"/>.
         /// Configuration File can be specified using the filePath or using the name of the configuration package specified in the service manifest .
         /// It will first try to load config using configPackageName . if configPackageName is not specified then try to load  from filePath.
         /// </summary>
