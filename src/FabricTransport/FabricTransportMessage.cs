@@ -30,9 +30,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class backed by a native message.
         /// </summary>
-        /// <param name="requestHeader">The header of the message.</param>
-        /// <param name="requestBody">The body of the message.</param>
-        /// <param name="nativeInterfaceRoot">The native message whose COM object is released when this message is disposed.</param>
+        // Disposing this message releases the COM object of nativeInterfaceRoot.
         public FabricTransportMessage(FabricTransportRequestHeader requestHeader,
             FabricTransportRequestBody requestBody,
             IFabricTransportMessage nativeInterfaceRoot)
