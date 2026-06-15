@@ -17,6 +17,11 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private readonly FabricTransportRequestBody requestBody;
         private readonly IFabricTransportMessage nativeInterfaceRoot;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class.
+        /// </summary>
+        /// <param name="requestHeader">The header of the message.</param>
+        /// <param name="requestBody">The body of the message.</param>
         public FabricTransportMessage(FabricTransportRequestHeader requestHeader, FabricTransportRequestBody requestBody)
         {
             this.requestHeader = requestHeader;
@@ -24,6 +29,12 @@ namespace Microsoft.ServiceFabric.FabricTransport
             this.nativeInterfaceRoot = null;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class backed by a native message.
+        /// </summary>
+        /// <param name="requestHeader">The header of the message.</param>
+        /// <param name="requestBody">The body of the message.</param>
+        /// <param name="nativeInterfaceRoot">The native message whose COM object is released when this message is disposed.</param>
         public FabricTransportMessage(FabricTransportRequestHeader requestHeader,
             FabricTransportRequestBody requestBody,
             IFabricTransportMessage nativeInterfaceRoot)
@@ -33,16 +44,25 @@ namespace Microsoft.ServiceFabric.FabricTransport
             this.nativeInterfaceRoot = nativeInterfaceRoot;
         }
 
+        /// <summary>
+        /// Returns the <see cref="FabricTransportRequestBody"/> of the message.
+        /// </summary>
         public FabricTransportRequestBody GetBody()
         {
             return this.requestBody;
         }
 
+        /// <summary>
+        /// Returns the <see cref="FabricTransportRequestHeader"/> of the message.
+        /// </summary>
         public FabricTransportRequestHeader GetHeader()
         {
             return this.requestHeader;
         }
 
+        /// <summary>
+        /// Releases the native message and the resources held by the message header and body.
+        /// </summary>
         public void Dispose()
         {
             if (this.nativeInterfaceRoot != null)
