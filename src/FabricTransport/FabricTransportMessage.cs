@@ -20,8 +20,6 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class.
         /// </summary>
-        /// <param name="requestHeader">The header of the message.</param>
-        /// <param name="requestBody">The body of the message.</param>
         public FabricTransportMessage(FabricTransportRequestHeader requestHeader, FabricTransportRequestBody requestBody)
         {
             this.requestHeader = requestHeader;
