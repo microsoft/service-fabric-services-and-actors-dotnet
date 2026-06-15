@@ -68,27 +68,45 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private readonly ArraySegment<byte> requestHeaderBuffer;
         private readonly Action disposeAction;
 
+        /// <summary>
+        /// Returns the serialized header bytes to send.
+        /// </summary>
         public ArraySegment<byte> GetSendBuffer()
         {
             return this.requestHeaderBuffer;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportRequestHeader"/> class for an outgoing header.
+        /// </summary>
+        /// <param name="requestHeaderBuffer">The serialized header bytes to send.</param>
+        /// <param name="disposeAction">The action that releases <paramref name="requestHeaderBuffer"/> when the header is disposed.</param>
         public FabricTransportRequestHeader(ArraySegment<byte> requestHeaderBuffer, Action disposeAction)
         {
             this.requestHeaderBuffer = requestHeaderBuffer;
             this.disposeAction = disposeAction;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportRequestHeader"/> class for a received header.
+        /// </summary>
+        /// <param name="recievedHeaderStream">The stream containing the received header bytes.</param>
         public FabricTransportRequestHeader(Stream recievedHeaderStream)
         {
             this.recievedHeaderStream = recievedHeaderStream;
         }
 
+        /// <summary>
+        /// Returns the stream containing the received header bytes.
+        /// </summary>
         public Stream GetRecievedStream()
         {
             return this.recievedHeaderStream;
         }
 
+        /// <summary>
+        /// Releases the resources held by the outgoing header buffer.
+        /// </summary>
         public void Dispose()
         {
             if (this.disposeAction != null)
