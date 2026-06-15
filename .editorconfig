@@ -6,14 +6,11 @@ root = true
 # All files
 [*]
 indent_style = space
-end_of_line = crlf
-end_of_file = crlf
+insert_final_newline = true
 
 # Code files
 [*.{cs,csx,vb,vbx}]
 indent_size = 4
-insert_final_newline = true
-charset = utf-8
 
 # Xml files
 [*.{xml,csproj,props,targets,config,resx}]
@@ -23,17 +20,16 @@ indent_size = 2
 [*.json]
 indent_size = 2
 
-# Shell scripts
-[*.sh]
-end_of_line = lf
-
 ###############################
 # C# Coding Conventions       #
 ###############################
 [*.{cs}]
 
+file_header_template = Copyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the MIT License (MIT). See License.txt in the repo root for license information.
+
 # Namespaces
 csharp_style_namespace_declarations = file_scoped:warning # Reduce space wasted on the left
+dotnet_style_namespace_match_folder = true:warning
 
 # Organize usings
 csharp_using_directive_placement = outside_namespace:warning # Inside, they can be "simplified" by dropping prefixes and become unreadable
@@ -50,12 +46,69 @@ dotnet_style_qualification_for_event = false:warning
 dotnet_style_predefined_type_for_locals_parameters_members = true:warning
 dotnet_style_predefined_type_for_member_access = true:warning
 
+# Reduce noise
+csharp_prefer_simple_using_statement = true:warning
+csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
+csharp_style_inlined_variable_declaration = true:warning
+csharp_style_prefer_index_operator = true:warning
+csharp_style_prefer_range_operator = true:warning
+csharp_style_prefer_switch_expression = true:warning
+dotnet_style_prefer_auto_properties = true:warning
+dotnet_style_prefer_compound_assignment = true:warning
+dotnet_style_prefer_conditional_expression_over_assignment = true:warning
+dotnet_style_prefer_conditional_expression_over_return = true:warning
+dotnet_style_prefer_simplified_boolean_expressions = true:warning
+dotnet_style_prefer_simplified_interpolation = true:warning
+csharp_style_prefer_null_check_over_type_check = true:warning
+csharp_style_prefer_implicitly_typed_lambda_expression = true:warning
+csharp_style_prefer_simple_property_accessors = true:warning
+csharp_style_conditional_delegate_call = true:warning
+
+# Reveal intent
+csharp_style_unused_value_expression_statement_preference = discard_variable:warning
+csharp_style_unused_value_assignment_preference = discard_variable:warning
+csharp_prefer_static_local_function = true:warning
+csharp_prefer_static_anonymous_function = true:warning
+dotnet_style_prefer_foreach_explicit_cast_in_source = when_strongly_typed:warning
+csharp_style_prefer_readonly_struct = true:warning
+csharp_style_prefer_readonly_struct_member = true:warning
+csharp_style_prefer_unbound_generic_type_in_nameof = true:warning
+
+# Remove unnecessary code
+csharp_style_prefer_method_group_conversion = true:warning # Remove unnecessary lambda expression
+csharp_style_prefer_primary_constructors = true:warning
+dotnet_code_quality_unused_parameters = non_public:warning
+dotnet_diagnostic.IDE0001.severity = warning # Simplify name
+dotnet_diagnostic.IDE0002.severity = warning # Simplify member access
+dotnet_diagnostic.IDE0004.severity = warning # Remove Unnecessary Cast
+dotnet_diagnostic.IDE0005.severity = warning # Using directive is unnecessary
+dotnet_diagnostic.IDE0051.severity = warning # Remove unused private member
+dotnet_diagnostic.IDE0052.severity = warning # Remove unread private member
+dotnet_diagnostic.IDE0070.severity = warning # Use System.HashCode.Combine
+dotnet_diagnostic.IDE0072.severity = warning # Add missing cases to switch expression
+dotnet_diagnostic.IDE0073.severity = warning # Add file header
+dotnet_diagnostic.IDE0076.severity = warning # Remove invalid global SuppressMessageAttribute
+dotnet_diagnostic.IDE0077.severity = warning # Avoid legacy format target in global SuppressMessageAttribute
+dotnet_diagnostic.IDE0079.severity = warning # Remove unnecessary suppression
+dotnet_diagnostic.IDE0080.severity = warning # Remove unnecessary suppression operator
+dotnet_diagnostic.IDE0082.severity = warning # Convert typeof to nameof
+dotnet_diagnostic.IDE0100.severity = warning # Remove unnecessary equality operator
+dotnet_diagnostic.IDE0110.severity = warning # Remove unnecessary discard
+dotnet_diagnostic.IDE0120.severity = warning # Simplify LINQ expression
+dotnet_diagnostic.IDE0121.severity = warning # Simplify LINQ type check and cast
+dotnet_diagnostic.IDE0240.severity = warning # Nullable directive is redundant
+dotnet_diagnostic.IDE0241.severity = warning # Nullable directive is unnecessary
+dotnet_diagnostic.IDE0280.severity = warning # Use 'nameof'
+dotnet_diagnostic.IDE0370.severity = warning # Remove unnecessary suppression
+dotnet_diagnostic.IDE0380.severity = warning # Remove unnecessary 'unsafe' modifier
+
 # Expression-level preferences
-dotnet_style_object_initializer = true:none
-dotnet_style_collection_initializer = true:none
+dotnet_style_object_initializer = true:warning
+dotnet_style_collection_initializer = true:warning
+dotnet_style_prefer_collection_expression = when_types_loosely_match:warning
 dotnet_style_explicit_tuple_names = true:suggestion
-dotnet_style_null_propagation = false:error
-dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_null_propagation = true:warning
+dotnet_style_coalesce_expression = true:warning
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:none
 dotnet_style_require_accessibility_modifiers = omit_if_default:warning # Don't re-state the obvious
 dotnet_prefer_inferred_tuple_names = true:suggestion
@@ -75,17 +128,16 @@ csharp_style_expression_bodied_methods = true:warning
 csharp_style_expression_bodied_operators = true:warning
 csharp_style_expression_bodied_properties = true:warning
 
-# Pattern matching
+# Pattern matching needs to be better understood
+csharp_style_prefer_pattern_matching = true:suggestion
 csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
 csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
-csharp_style_inlined_variable_declaration = true:suggestion
+csharp_style_prefer_not_pattern = true:suggestion
 
 # Null-checking preferences
 csharp_style_throw_expression = false:none
-csharp_style_conditional_delegate_call = false:none
 
-# Expression-level preferences
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:warning
 
 # New line preferences
 csharp_new_line_before_open_brace = all
@@ -108,16 +160,10 @@ csharp_space_between_method_call_parameter_list_parentheses = false
 csharp_space_between_method_declaration_parameter_list_parentheses = false
 csharp_space_between_parentheses = false
 
-# Use explicit variable type with implicit constructor syntax
-csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
-
 # Use var only when the appears explicitly in the initialization statement and it's not a constructor
 csharp_style_var_when_type_is_apparent = true:warning
-csharp_style_var_for_built_in_types = false:warning
+csharp_style_var_for_built_in_types = false:suggestion # Allow var for arrays like var a = new byte[42];
 csharp_style_var_elsewhere = false:suggestion # Allow var with generics, i.e. var e = Assert.Throws<T>()
-
-# Avoid unnecessary braces and try to simplify the code to improve readability instead
-csharp_prefer_braces = multiple_lines:suggestion
 
 csharp_style_deconstructed_variable_declaration = true:suggestion
 csharp_prefer_simple_default_expression = true:suggestion

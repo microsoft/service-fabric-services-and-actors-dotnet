@@ -5,7 +5,6 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Xunit;
 
 namespace Microsoft.ServiceFabric.Actors.Runtime
@@ -16,17 +15,17 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
         public void VerifyBasicUsage()
         {
             var gchandle = new IdleObjectGcHandle(1);
-            gchandle.TryUse(false).Should().BeTrue();
-            gchandle.TryUse(true).Should().BeTrue();
-            gchandle.TryCollect().Should().BeFalse();
+            Assert.True(gchandle.TryUse(false));
+            Assert.True(gchandle.TryUse(true));
+            Assert.False(gchandle.TryCollect());
             gchandle.Unuse(false);
-            gchandle.TryCollect().Should().BeFalse();
+            Assert.False(gchandle.TryCollect());
             gchandle.Unuse(true);
-            gchandle.TryCollect().Should().BeFalse();
-            gchandle.TryUse(false).Should().BeTrue();
+            Assert.False(gchandle.TryCollect());
+            Assert.True(gchandle.TryUse(false));
             gchandle.Unuse(false);
-            gchandle.TryCollect().Should().BeFalse();
-            gchandle.TryCollect().Should().BeTrue();
+            Assert.False(gchandle.TryCollect());
+            Assert.True(gchandle.TryCollect());
         }
 
         [Theory]
@@ -44,7 +43,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // 6. Then perform interleaved TryCollect N times, which should always result in false for TryCollect as its counting to maxIdleTicks.
             // 7. Final call to TryCollect must return true.
             var gchandle = new IdleObjectGcHandle(n);
-            gchandle.TryUse(false).Should().BeTrue();
+            Assert.True(gchandle.TryUse(false));
             var tasks = new List<Task>();
 
             for (var i = 0; i < n; i++)
@@ -72,7 +71,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             }
 
             await Task.WhenAll(tasks.ToArray());
-            gchandle.TryCollect().Should().BeTrue();
+            Assert.True(gchandle.TryCollect());
         }
 
         [Theory]
@@ -94,7 +93,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             // 10. Then perform TryCollect 1 times, which should result in false for TryCollect as its counting towards GC.
             // 11. Final call to TryCollect must return true.
             var gchandle = new IdleObjectGcHandle(n);
-            gchandle.TryUse(false).Should().BeTrue();
+            Assert.True(gchandle.TryUse(false));
             var tasks = new List<Task>();
 
             for (var i = 0; i < n; i++)
@@ -126,7 +125,7 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
 
             await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
-            gchandle.TryUse(true).Should().BeTrue();
+            Assert.True(gchandle.TryUse(true));
 
             for (var i = 0; i < n; i++)
             {
@@ -136,13 +135,13 @@ namespace Microsoft.ServiceFabric.Actors.Runtime
             await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
             gchandle.Unuse(true);
-            gchandle.TryCollect().Should().BeFalse();
+            Assert.False(gchandle.TryCollect());
 
             await Task.WhenAll(tasks.ToArray());
             tasks.Clear();
 
-            gchandle.TryCollect().Should().BeTrue();
-            gchandle.IsGarbageCollected.Should().BeTrue();
+            Assert.True(gchandle.TryCollect());
+            Assert.True(gchandle.IsGarbageCollected);
         }
     }
 }

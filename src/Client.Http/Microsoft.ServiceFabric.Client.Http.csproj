@@ -14,12 +14,14 @@
       package included all three assembly, we can safely combine their code in the Microsoft.ServiceFabric.Client.Http.dll.
     -->
     <RootNamespace>Microsoft.ServiceFabric</RootNamespace>
+    <Description>HTTP client APIs for managing Service Fabric clusters, applications, services, and resources.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
   <ItemGroup>

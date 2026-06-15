@@ -9,7 +9,6 @@ using System.Fabric;
 using System.Fabric.Health;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Moq;
@@ -40,7 +39,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             }
 
             Assert.True(openTask.IsCompleted && !openTask.IsCanceled && !openTask.IsFaulted);
-            ((StatelessServiceInstanceAdapter)testServiceReplica).Test_IsRunAsyncTaskRunning().Should().BeTrue();
+            Assert.True(((StatelessServiceInstanceAdapter)testServiceReplica).Test_IsRunAsyncTaskRunning());
 
             await testServiceReplica.CloseAsync(CancellationToken.None);
         }
@@ -127,7 +126,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 },
                 TestContext.Current.CancellationToken);
 
-            (await tcs.Task).Should().BeTrue();
+            Assert.True(await tcs.Task);
 
             // This will throw if RunAsync exception propagates out
             await testServiceReplica.CloseAsync(CancellationToken.None);

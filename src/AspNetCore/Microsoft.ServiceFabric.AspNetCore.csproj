@@ -3,13 +3,13 @@
     <RootNamespace>Microsoft.ServiceFabric.Services.Communication.AspNetCore</RootNamespace>
     <TargetFrameworks>net462;net8.0</TargetFrameworks>
     <PackageId>$(AssemblyName).Abstractions</PackageId>
+    <Description>Base types for hosting ASP.NET Core applications on Service Fabric.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
-  <ItemGroup Condition="'$(TargetFramework)' != 'net462'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <PackageReference Include="Microsoft.AspNetCore.Hosting"/>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)' != 'net462'" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Condition="'$(TargetFramework)' == 'net462'"/>
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Constants\Microsoft.ServiceFabric.Constants.csproj" PrivateAssets="All" />

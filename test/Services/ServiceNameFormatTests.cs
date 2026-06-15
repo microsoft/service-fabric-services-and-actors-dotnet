@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Services.Tests
 {
-    using FluentAssertions;
     using Xunit;
 
     /// <summary>
@@ -26,7 +25,7 @@ namespace Microsoft.ServiceFabric.Services.Tests
             var result = ServiceNameFormat.GetEndpointName(typeof(object));
 
             // Assert
-            result.Should().Be(serviceName);
+            Assert.Equal(serviceName, result);
         }
     }
 }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Fabric;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Data;
@@ -98,14 +99,14 @@ namespace Microsoft.ServiceFabric.Services.Runtime
 
             var replicator = await this.stateProviderReplica.OpenAsync(openMode, partition, cancellationToken);
 
-            Exception userReplicaEx = null;
+            ExceptionDispatchInfo userReplicaEx = null;
             try
             {
                 await this.userServiceReplica.OnOpenAsync(openMode, cancellationToken);
             }
             catch (Exception ex)
             {
-                userReplicaEx = ex;
+                userReplicaEx = ExceptionDispatchInfo.Capture(ex);
 
                 ServiceTrace.Source.WriteWarningWithId(
                     TraceType,
@@ -117,7 +118,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
             if (userReplicaEx != null)
             {
                 await this.stateProviderReplica.CloseAsync(cancellationToken);
-                throw userReplicaEx;
+                userReplicaEx.Throw();
             }
 
             return replicator;
@@ -193,17 +194,36 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 "CloseAsync");
 
             await this.CloseCommunicationListenersAsync(cancellationToken);
+
             ServiceTrace.Source.WriteInfoWithId(
                 TraceType,
                 this.traceId,
                 "Calling userServiceReplica.OnCloseAsync()");
 
-            await this.userServiceReplica.OnCloseAsync(cancellationToken);
+            // Tolerate exceptions from each close step so subsequent steps can complete.
+            // All collected exceptions are reported together at the end: a single one is
+            // rethrown preserving its stack, multiple are wrapped in an AggregateException
+            // so no failure is lost.
+            var exceptions = new List<Exception>();
+            try
+            {
+                await this.userServiceReplica.OnCloseAsync(cancellationToken);
 
-            ServiceTrace.Source.WriteInfoWithId(
-                TraceType,
-                this.traceId,
-                "Completed call to userServiceReplica.OnCloseAsync().");
+                ServiceTrace.Source.WriteInfoWithId(
+                    TraceType,
+                    this.traceId,
+                    "Completed call to userServiceReplica.OnCloseAsync().");
+            }
+            catch (Exception ex)
+            {
+                ServiceTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "Unhandled exception from userServiceReplica.OnCloseAsync() - {0}",
+                    ex);
+
+                exceptions.Add(ex);
+            }
 
             if (this.stateProviderReplica != null)
             {
@@ -212,17 +232,52 @@ namespace Microsoft.ServiceFabric.Services.Runtime
                 this.traceId,
                 "Calling IStateProviderReplica.CloseAsync()");
 
-                await this.stateProviderReplica.CloseAsync(cancellationToken);
+                try
+                {
+                    await this.stateProviderReplica.CloseAsync(cancellationToken);
 
-                ServiceTrace.Source.WriteInfoWithId(
-                    TraceType,
-                    this.traceId,
-                    "Completed call to IStateProviderReplica.CloseAsync.");
+                    ServiceTrace.Source.WriteInfoWithId(
+                        TraceType,
+                        this.traceId,
+                        "Completed call to IStateProviderReplica.CloseAsync.");
 
-                this.stateProviderReplica = null;
+                    this.stateProviderReplica = null;
+                }
+                catch (Exception ex)
+                {
+                    ServiceTrace.Source.WriteWarningWithId(
+                        TraceType,
+                        this.traceId,
+                        "Unhandled exception from IStateProviderReplica.CloseAsync() - {0}",
+                        ex);
+
+                    exceptions.Add(ex);
+                }
             }
 
-            await this.CancelRunAsync();
+            try
+            {
+                await this.CancelRunAsync();
+            }
+            catch (Exception ex)
+            {
+                ServiceTrace.Source.WriteWarningWithId(
+                    TraceType,
+                    this.traceId,
+                    "Unhandled exception from CancelRunAsync() - {0}",
+                    ex);
+
+                exceptions.Add(ex);
+            }
+
+            if (exceptions.Count == 1)
+            {
+                ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+            }
+            else if (exceptions.Count > 1)
+            {
+                throw new AggregateException(exceptions);
+            }
         }
 
         void IStatefulServiceReplica.Abort()
@@ -355,7 +410,7 @@ namespace Microsoft.ServiceFabric.Services.Runtime
         /// 3) When replica is being aborted.
         ///
         /// </summary>
-        private async Task CancelRunAsync()
+        protected virtual async Task CancelRunAsync()
         {
             if (this.runAsynCancellationTokenSource != null &&
                 this.runAsynCancellationTokenSource.IsCancellationRequested == false)

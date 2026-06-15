@@ -4,9 +4,7 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric.Interop;
-using System.Linq;
 using System.Reflection;
 using Fuzzy;
 using Inspector;
@@ -23,14 +21,13 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
-        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
         readonly long value = fuzzy.Int64();
 
         protected string[] actualDimensions;
 
         public MeterTest()
         {
-            sut = new Mock<Meter>(fabricMeter, systemDimensions).Object;
+            sut = new Mock<Meter>(fabricMeter).Object;
 
             // capture strings emitted to IFabricMeter.Record for assertion in tests
             Mock.Get(fabricMeter)
@@ -43,31 +40,14 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             [Fact]
             public void ThrowsArgumentNullExceptionWhenFabricMeterIsNull()
             {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter>(null, systemDimensions).Object);
-                Assert.IsType<ArgumentNullException>(exception.InnerException);
+                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter>(null).Object);
+                _ = Assert.IsType<ArgumentNullException>(exception.InnerException);
             }
 
             [Fact]
-            public void ThrowsArgumentNullExceptionWhenSystemDimensionsAreNull()
-            {
-                var exception = Assert.Throws<TargetInvocationException>(() => new Mock<Meter>(fabricMeter, null).Object);
-                Assert.IsType<ArgumentNullException>(exception.InnerException);
-            }
-
-            [Fact]
-            public void SetsAllFieldsWhenSystemDimensionsAreEmpty()
-            {
-                Meter meter = new Mock<Meter>(fabricMeter, Array.Empty<string>()).Object;
-
-                Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Equal(Array.Empty<string>(), meter.Field<IReadOnlyCollection<string>>().Value);
-            }
-
-            [Fact]
-            public void SetsAllFields()
+            public void SetsFabricMeterField()
             {
                 Assert.Same(fabricMeter, sut.Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensions, sut.Field<IReadOnlyCollection<string>>().Value);
             }
         }
 
@@ -78,9 +58,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             public Record() => sutMethod = sut.Protected().Method<Action<long>>();
 
             [Fact]
-            public void CallsFabricMeterWithCombinedDimensions()
+            public void CallsFabricMeterWithNoDimensions()
             {
-                string[] expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = [];
 
                 sutMethod.Invoke(value);
 
@@ -139,9 +119,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
                 Assert.Throws<ArgumentOutOfRangeException>(() => sutMethod.Invoke(value, fuzzy.Int32().Minimum(4), dimension1Value, dimension2Value, dimension3Value));
 
             [Fact]
-            public void CallsNativeMeterRecordWithZeroCustomDimensionsAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithZeroCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.ToArray();
+                string[] expectedArray = [];
 
                 sutMethod.Invoke(value, 0, dimension1Value, dimension2Value, dimension3Value);
 
@@ -150,9 +130,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsNativeMeterRecordWithOnCustomDimensionAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithOneCustomDimension()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value }).ToArray();
+                string[] expectedArray = [dimension1Value];
 
                 sutMethod.Invoke(value, 1, dimension1Value, dimension2Value, dimension3Value);
 
@@ -161,9 +141,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsNativeMeterRecordWithTwoCustomDimensionsAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithTwoCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value }).ToArray();
+                string[] expectedArray = [dimension1Value, dimension2Value];
 
                 sutMethod.Invoke(value, 2, dimension1Value, dimension2Value, dimension3Value);
 
@@ -172,9 +152,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsNativeMeterRecordWithThreeCustomDimensionsAndAllSystemDimensions()
+            public void CallsNativeMeterRecordWithThreeCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value, dimension2Value, dimension3Value }).ToArray();
+                string[] expectedArray = [dimension1Value, dimension2Value, dimension3Value];
 
                 sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value);
 
@@ -188,7 +168,7 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 sut.Dispose();
 
-                Assert.Throws<ObjectDisposedException>(() => sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value));
+                _ = Assert.Throws<ObjectDisposedException>(() => sutMethod.Invoke(value, 3, dimension1Value, dimension2Value, dimension3Value));
             }
         }
     }

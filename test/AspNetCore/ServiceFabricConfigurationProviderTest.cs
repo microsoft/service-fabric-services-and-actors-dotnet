@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.ServiceFabric.AspNetCore.Configuration;
@@ -37,18 +36,18 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
 
             var context = new TestCodePackageActivationContext(contextConfig);
             var names = context.GetCodePackageNames();
-            names.Count.Should().Be(1, "Only 1 config package");
+            Assert.Single(names); // Only 1 config package
 
             var builder = new ConfigurationBuilder();
             builder.AddServiceFabricConfiguration(context);
             var config = builder.Build();
 
-            config["Config:Section1:Name"].Should().Be("Xiaoxiao");
-            config["Section1:Name"].Should().BeNull("Default behavior shall include the package name in key.");
-            config["Config:Section1:Age"].Should().Be("6");
-            config["Config:Gender"].Should().Be(null);
-            config["Config:Section1:Gender"].Should().Be("M");
-            config["Config:Section2:Gender"].Should().Be("F");
+            Assert.Equal("Xiaoxiao", config["Config:Section1:Name"]);
+            Assert.Null(config["Section1:Name"]); // Default behavior shall include the package name in key.
+            Assert.Equal("6", config["Config:Section1:Age"]);
+            Assert.Null(config["Config:Gender"]);
+            Assert.Equal("M", config["Config:Section1:Gender"]);
+            Assert.Equal("F", config["Config:Section2:Gender"]);
 
             // basic validate to bind to a class directly
             // Note, in asp.net core 2.1 you could use the more simple ConfigurationBinder.Get<T> binds and returns the specified type instance directly.
@@ -56,9 +55,9 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             var person = new Person();
             config.GetSection("Config:Section1").Bind(person);
 
-            person.Name.Should().Be("Xiaoxiao");
-            person.Age.Should().Be(6);
-            person.Gender.Should().Be("M");
+            Assert.Equal("Xiaoxiao", person.Name);
+            Assert.Equal(6, person.Age);
+            Assert.Equal("M", person.Gender);
         }
 
         /// <summary>
@@ -80,9 +79,9 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             builder.AddServiceFabricConfiguration(context);
             var config = builder.Build();
 
-            config["Config:Section1:Name"].Should().Be("Xiaoxiao");
-            config["Config:Section1:Age"].Should().Be("6");
-            config["Config:Section1:Gender"].Should().Be("M");
+            Assert.Equal("Xiaoxiao", config["Config:Section1:Name"]);
+            Assert.Equal("6", config["Config:Section1:Age"]);
+            Assert.Equal("M", config["Config:Section1:Gender"]);
 
             // trigger config update
             context.TriggerConfigurationPackageModifiedEvent(
@@ -94,9 +93,9 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             }).Build(),
                 "Config");
 
-            config["Config:Section1:Name"].Should().Be("Lele");
-            config["Config:Section1:Age"].Should().Be("3");
-            config["Config:Section1:Gender"].Should().Be("M");
+            Assert.Equal("Lele", config["Config:Section1:Name"]);
+            Assert.Equal("3", config["Config:Section1:Age"]);
+            Assert.Equal("M", config["Config:Section1:Gender"]);
         }
 
         /// <summary>
@@ -112,7 +111,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             builder.AddServiceFabricConfiguration(context);
             var config = builder.Build();
 
-            config.GetChildren().Should().BeEmpty();
+            Assert.Empty(config.GetChildren());
         }
 
         /// <summary>
@@ -142,13 +141,13 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             builder.AddServiceFabricConfiguration(context);
             var config = builder.Build() as ConfigurationRoot;
 
-            config["Config1:SameSection:Name"].Should().Be("Xiaoxiao");
-            config["Config1:Section1:Age"].Should().Be("6");
-            config["Config1:Section1:Gender"].Should().Be("M");
+            Assert.Equal("Xiaoxiao", config["Config1:SameSection:Name"]);
+            Assert.Equal("6", config["Config1:Section1:Age"]);
+            Assert.Equal("M", config["Config1:Section1:Gender"]);
 
-            config["Config2:SameSection:Name"].Should().Be("Lele");
-            config["Config2:Section2:Age"].Should().Be("3");
-            config["Config2:Section2:Gender"].Should().Be("M");
+            Assert.Equal("Lele", config["Config2:SameSection:Name"]);
+            Assert.Equal("3", config["Config2:Section2:Age"]);
+            Assert.Equal("M", config["Config2:Section2:Gender"]);
 
             // Case 2: ServiceFabricConfigurationProvider only loads configuration from the ConfigPackage it is mapped to
             //  (and does not load from other ConfigPackages) when a config update event is triggered
@@ -161,13 +160,13 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             }).Build(),
                 "Config1");
 
-            config["Config1:SameSection:Name"].Should().Be("Jill");
-            config["Config1:Section1:Age"].Should().Be("30");
-            config["Config1:Section1:Gender"].Should().Be("F");
+            Assert.Equal("Jill", config["Config1:SameSection:Name"]);
+            Assert.Equal("30", config["Config1:Section1:Age"]);
+            Assert.Equal("F", config["Config1:Section1:Gender"]);
 
-            config["Config2:SameSection:Name"].Should().Be("Lele");
-            config["Config2:Section2:Age"].Should().Be("3");
-            config["Config2:Section2:Gender"].Should().Be("M");
+            Assert.Equal("Lele", config["Config2:SameSection:Name"]);
+            Assert.Equal("3", config["Config2:Section2:Age"]);
+            Assert.Equal("M", config["Config2:Section2:Gender"]);
         }
 
         /// <summary>
@@ -189,7 +188,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             builder.AddServiceFabricConfiguration(context);
             var config = builder.Build();
 
-            config["Config:SecuritySection:SecuritySSN"].Should().Be("EncryptedValue");
+            Assert.Equal("EncryptedValue", config["Config:SecuritySection:SecuritySSN"]);
 
             var builder2 = new ConfigurationBuilder();
 
@@ -197,7 +196,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             builder2.AddServiceFabricConfiguration(context, (options) => options.DecryptValue = true);
 
             Action config2 = () => builder2.Build();
-            config2.Should().Throw<Exception>("Exception expected here because DecryptValue will fail here with invalid values.");
+            Assert.ThrowsAny<Exception>(config2); // Exception expected here because DecryptValue will fail here with invalid values.
         }
 
         /// <summary>
@@ -243,10 +242,10 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
                 });
 
             var config = builder.Build();
-            config["Section1:Name"].Should().Be("Xiaoxiao");
-            config["Section1:Age"].Should().Be("6");
-            this.sectionCount.Should().Be(1);
-            this.valueCount.Should().Be(2);
+            Assert.Equal("Xiaoxiao", config["Section1:Name"]);
+            Assert.Equal("6", config["Section1:Age"]);
+            Assert.Equal(1, this.sectionCount);
+            Assert.Equal(2, this.valueCount);
 
             this.valueCount = 0;
             this.sectionCount = 0;
@@ -258,9 +257,9 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
                 { "Section1:Name", "Lele" },
             }).Build(), "Config");
 
-            config["Section1:Name"].Should().Be("Lele");
-            this.sectionCount.Should().Be(1);
-            this.valueCount.Should().Be(1);
+            Assert.Equal("Lele", config["Section1:Name"]);
+            Assert.Equal(1, this.sectionCount);
+            Assert.Equal(1, this.valueCount);
         }
 
         internal class Person

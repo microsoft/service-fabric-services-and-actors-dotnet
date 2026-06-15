@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Fabric;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -89,8 +88,8 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             this.httpContext.Request.Path = this.listener.UrlSuffix + "xyz";
             await middleware.Invoke(this.httpContext);
 
-            this.httpContext.Response.StatusCode.Should().Be(StatusCodes.Status410Gone, "status code should be 410 when path base is different from url suffix.");
-            nextCalled.Should().BeFalse("next RequestDelegate is not called by middleware.");
+            Assert.Equal(StatusCodes.Status410Gone, this.httpContext.Response.StatusCode); // status code should be 410 when path base is different from url suffix.
+            Assert.False(nextCalled, "next RequestDelegate is not called by middleware.");
         }
 
         /// <summary>
@@ -178,7 +177,7 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
             Console.WriteLine("Before Invoke: HttpRequest.PathBase: " + this.httpContext.Request.PathBase);
             middleware.Invoke(this.httpContext).GetAwaiter().GetResult();
 
-            nextCalled.Should().BeTrue("next RequestDelegate is called by middleware");
+            Assert.True(nextCalled, "next RequestDelegate is called by middleware");
         }
 
         /// <summary>
@@ -215,13 +214,13 @@ namespace Microsoft.ServiceFabric.AspNetCore.Tests
 
             middleware.Invoke(this.httpContext).GetAwaiter().GetResult();
 
-            nextCalled.Should().BeTrue("next RequestDelegate is called by middleware");
-            pathBaseInNext.ToString().Should().Be(this.listener.UrlSuffix, "pathBase for next RequestDelegate is changed by middleware.");
-            pathInNext.ToString().Should().Be(requestPathSuffix, "Path for next RequestDelegate is changed by middleware.");
+            Assert.True(nextCalled, "next RequestDelegate is called by middleware");
+            Assert.Equal(this.listener.UrlSuffix, pathBaseInNext.ToString()); // pathBase for next RequestDelegate is changed by middleware.
+            Assert.Equal(requestPathSuffix, pathInNext.ToString()); // Path for next RequestDelegate is changed by middleware.
 
             // Verify Path and PathBase again when returned from next delegate.
-            this.httpContext.Request.Path.ToString().Should().Be(requestPath, "Path after next RequestDelegate has been called should be the original requestPath");
-            this.httpContext.Request.PathBase.ToString().Should().BeEmpty("PathBase after next RequestDelegate has been called should be empty");
+            Assert.Equal(requestPath, this.httpContext.Request.Path.ToString()); // Path after next RequestDelegate has been called should be the original requestPath
+            Assert.Empty(this.httpContext.Request.PathBase.ToString()); // PathBase after next RequestDelegate has been called should be empty
         }
 
         private IWebHost IWebHostBuildFunc(string url, AspNetCoreCommunicationListener listener)

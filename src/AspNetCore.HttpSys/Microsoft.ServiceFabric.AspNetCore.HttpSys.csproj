@@ -2,16 +2,14 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ServiceFabric.Services.Communication.AspNetCore</RootNamespace>
     <TargetFrameworks>net462;net8.0</TargetFrameworks>
+    <Description>HTTP.sys-based communication listener for ASP.NET Core applications on Service Fabric.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)' != 'net462'" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" Condition="'$(TargetFramework)' == 'net462'" />
     <PackageReference Include="Microsoft.ServiceFabric" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'net462'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-    <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys"/>
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AspNetCore\Microsoft.ServiceFabric.AspNetCore.csproj" />

@@ -18,34 +18,55 @@ env:
   Configuration: Release
   Artifacts: ${{ github.workspace }}/out
   Logs: ${{ github.workspace }}/out/logs
+  Tests: ${{ github.workspace }}/out/tests
 
 jobs:
-  test-windows:
-    runs-on: windows-latest
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
-      - run: .\SkipStrongName.ps1
-      - run: .\UninstallSfSdkFromGac.ps1
-      - run: dotnet build -bl:"$env:Logs/build.binLog"
-      - run: dotnet test --no-build --logger trx -bl:"$env:Logs/test.binLog"
-      - run: dotnet pack --no-build -bl:"$env:Logs/pack.binLog"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Setup Windows environment
+        if: runner.os == 'Windows'
+        run: |
+          .\eng\SkipStrongName.ps1
+          .\eng\UninstallSfSdkFromGac.ps1
+      - run: dotnet build -graph -bl:"${{ env.Logs }}/build.binLog" -c ${{ env.Configuration }}
+      - run: dotnet test --no-build -bl:"${{ env.Logs }}/test.binLog" -c ${{ env.Configuration }} -p TestResultsFormat=CI
+      - run: dotnet pack --no-build -bl:"${{ env.Logs }}/pack.binLog" -c ${{ env.Configuration }}
+      - name: Locate Codecov input files (workaround for files glob not working on Windows)
+        if: always()
+        id: test
+        shell: pwsh
+        run: |
+          $coverage = (Get-ChildItem '${{ env.Tests }}/*.cobertura.xml' | ForEach-Object FullName) -join ','
+          $results  = (Get-ChildItem '${{ env.Tests }}/*.junit.xml'     | ForEach-Object FullName) -join ','
+          "coverage=$coverage" >> $env:GITHUB_OUTPUT
+          "results=$results"   >> $env:GITHUB_OUTPUT
+      - name: Upload coverage to Codecov
+        if: always() && steps.test.outputs.coverage != ''
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ steps.test.outputs.coverage }}
+          disable_search: true
+          flags: ${{ matrix.os }}
+          fail_ci_if_error: false
+      - name: Upload test results to Codecov
+        if: always() && steps.test.outputs.results != ''
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ steps.test.outputs.results }}
+          disable_search: true
+          flags: ${{ matrix.os }}
+          report_type: test_results
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: test-windows
-          path: ${{ env.Artifacts }}
-
-  test-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - run: dotnet build -bl:"$Logs/build.binLog"
-      - run: dotnet test --no-build --logger trx --framework net8.0 -bl:"$Logs/test-net8.binLog"
-      - run: dotnet test --no-build --logger trx --framework net9.0 -bl:"$Logs/test-net9.binLog"
-      - run: dotnet test --no-build --logger trx --framework net10.0 -bl:"$Logs/test-net10.binLog"
-      - run: dotnet pack --no-build -bl:"$Logs/pack.binLog"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-linux
+          name: build-${{ matrix.os }}
           path: ${{ env.Artifacts }}

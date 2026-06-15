@@ -11,14 +11,24 @@ using System.Runtime.InteropServices.Marshalling;
 using GeneratedComInterfaceAttribute = System.Runtime.InteropServices.ComImportAttribute;
 #endif
 
-namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
+namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation;
+
+[GeneratedComInterface]
+[Guid("89462876-f11e-41c6-bd99-c933b46c5e66")]
+[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+partial interface IFabricMeterProvider2
 {
-    [GeneratedComInterface]
-    [Guid("15AD37D2-F641-4188-824B-0D68CB4F6C17")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    partial interface IFabricMeterProvider
-    {
-        [return: MarshalUsing(typeof(UniqueComInterfaceMarshaller<IFabricMeter>))]
-        IFabricMeter CreateMeter([MarshalAs(UnmanagedType.LPWStr)] string metricNamespace, [MarshalAs(UnmanagedType.LPWStr)] string name, uint count, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] string[] dimensionNames);
-    }
+    #region IFabricMeterProvider
+
+    [return: MarshalUsing(typeof(UniqueComInterfaceMarshaller<IFabricMeter>))]
+    IFabricMeter CreateMeter(IntPtr metricNamespace, IntPtr name, uint count, IntPtr dimensionNames);
+
+    #endregion
+
+    #region IFabricMeterProvider2
+
+    [return: MarshalUsing(typeof(UniqueComInterfaceMarshaller<IFabricMeter>))]
+    IFabricMeter CreateMeter2(IntPtr meterDescription);
+
+    #endregion
 }

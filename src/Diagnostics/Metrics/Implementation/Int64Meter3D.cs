@@ -3,13 +3,11 @@
 // Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
 // ------------------------------------------------------------
 
-using System.Collections.Generic;
-
 namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     sealed class Int64Meter3D : Meter3D, IMeter3D<long>
     {
-        internal Int64Meter3D(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues) : base(fabricMeter, systemDimensionValues) { }
+        internal Int64Meter3D(IFabricMeter fabricMeter) : base(fabricMeter) { }
 
         void IMeter3D<long>.Record(long value, string dimension1Value, string dimension2Value, string dimension3Value)
         {

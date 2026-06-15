@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0;net9.0;net8.0;net472</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <!-- TODO Fix https://aka.ms/aspnet/deprecate/008 and remove -->
-    <WarningsNotAsErrors>ASPDEPR008</WarningsNotAsErrors>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
+  <PropertyGroup>
+    <!-- Continue IWebHost support until it's removed from ASP.NET Core https://aka.ms/aspnet/deprecate/008 -->
+    <NoWarn Condition="'$(TargetFramework)' == 'net10.0'">$(NoWarn);ASPDEPR008</NoWarn>
+  </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
@@ -13,10 +14,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentAssertions"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
     <PackageReference Include="Moq"/>
-    <PackageReference Include="xunit.runner.visualstudio"/>
     <PackageReference Include="xunit.v3"/>
   </ItemGroup>
   <ItemGroup>

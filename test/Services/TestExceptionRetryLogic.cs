@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Services.Tests
 {
-    using FluentAssertions;
     using Xunit;
 
     /// <summary>
@@ -28,8 +27,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 maxRetryCount,
                 ref lastSeenExceptionId,
                 ref retryCount);
-            shouldRetry.Should().Be(false);
-            retryCount.Should().Be(0);
+            Assert.False(shouldRetry);
+            Assert.Equal(0, retryCount);
         }
 
         /// <summary>
@@ -49,9 +48,9 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 maxRetryCount,
                 ref lastSeenExceptionId,
                 ref retryCount);
-            shouldRetry.Should().Be(true);
-            retryCount.Should().Be(1);
-            lastSeenExceptionId.Should().Be(currentExceptionId);
+            Assert.True(shouldRetry);
+            Assert.Equal(1, retryCount);
+            Assert.Equal(currentExceptionId, lastSeenExceptionId);
 
             // second time it should not
             var shouldRetrySecondTime = Communication.Client.Utility.ShouldRetryOperation(
@@ -59,8 +58,8 @@ namespace Microsoft.ServiceFabric.Services.Tests
                 maxRetryCount,
                 ref lastSeenExceptionId,
                 ref retryCount);
-            shouldRetrySecondTime.Should().Be(false);
-            retryCount.Should().Be(1);
+            Assert.False(shouldRetrySecondTime);
+            Assert.Equal(1, retryCount);
         }
     }
 }
