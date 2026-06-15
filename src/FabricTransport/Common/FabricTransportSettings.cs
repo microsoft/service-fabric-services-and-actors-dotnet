@@ -111,7 +111,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         internal FabricServiceConfigSection ConfigSection { get; private set; }
 
         /// <summary>
-        /// Loads the FabricTransport settings from a sectionName specified in the configuration file 
+        /// Returns the <see cref="FabricTransportSettings"/> loaded from a sectionName specified in the configuration file 
         /// Configuration File can be specified using the filePath or using the name of the configuration package specified in the service manifest .
         /// It will first try to load config using configPackageName . if configPackageName is not specified then try to load  from filePath.
         /// </summary>
