@@ -50,6 +50,12 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 - Reuse documentation from other types and members to keep duplication to a minimum.
   - Use `<inheritdoc/>` for interface implementations and overrides unless there is a major behavior change.
   - Use `<inheritdoc cref="..."/>` to reuse documentation from related types, like the base type, and members, like method overloads.
+  - When referenced documentation cannot be reused in its entirety:
+    - Use `<inheritdoc cref="..." path="/summary"/>` to reuse `<summary>`.
+    - Use `<inheritdoc cref="..." path="/remarks"/>` to reuse `<remarks>`.
+    - Use `<inheritdoc cref="..." path="/param[@name='{name}']"/>` to reuse `<param name="{name}">`.
+    - Use `<inheritdoc cref="..." path="/typeparam[@name='{name}']"/>` to reuse `<typeparam name="{name}">`
+    - Use `<inheritdoc cref="..." path="/exception[@cref='T:{FullName}']"/>` to reuse `<exception cref="{Name}">`.
   - Apply object-oriented design principles to documentation inheritance.
     - If behavior doesn't apply to every inheritor, don't document it in the base/provider.
   - Document differences instead of using `<inheritdoc/>` when there is a major behavior change.
@@ -94,7 +100,10 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 
 ### Parameters
 
-- Use `<param name="...">` to describe method parameters, but only if they're not redundant.
+- Remove `<param>` elements that restate information evident from the parameter types and names.
+  This is an optional element, but if one parameter is needs docs, C# compiler requires them for all parameters.
+- Improve parameter types and names before documenting them.
+- Use `<param name="...">` to describe method parameters.
   - The description should be a noun phrase that doesn't specify the data type.
   - Begin with an introductory article.
   - If the parameter is a flag enum, start the description with "A bitwise combination of the enumeration values that specifies...".
@@ -102,9 +111,6 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
   - If the parameter is a Boolean, the wording should be of the form "`<see langword="true" />` to ...; otherwise, `<see langword="false" />`.".
   - If the parameter is an "out" parameter, the wording should be of the form
     `When this method returns, contains .... This parameter is treated as uninitialized.`.
-- Try improving parameter types and names before documenting them.
-- Remove all `<param>` elements if they restate information evident from parameter types and names.
-  This is an optional element, but if one parameter is documented, all must be documented as well.
 - Use `<paramref name="...">` to reference parameter names in documentation.
 
 ### Type Parameters
