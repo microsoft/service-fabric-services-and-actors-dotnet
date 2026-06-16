@@ -42,7 +42,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// <summary>
         /// Sends <paramref name="requestBody"/> to the client without waiting for a reply.
         /// </summary>
-        /// <param name="requestBody">The message to send to the client.</param>
         public void OneWayMessage(FabricTransportMessage requestBody)
         {
             NativeFabricTransport.IFabricTransportMessage message = new NativeFabricTransportMessage(requestBody);
