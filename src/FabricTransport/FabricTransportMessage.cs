@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private readonly Action disposeAction;
 
         /// <summary>
-        /// Returns the serialized header bytes to send.
+        /// Returns the serialized header bytes to send for an outgoing header, or the default <see cref="ArraySegment{T}"/> for a received header.
         /// </summary>
         public ArraySegment<byte> GetSendBuffer()
         {
@@ -109,7 +109,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Returns the <see cref="Stream"/> containing the received header bytes.
+        /// Returns the <see cref="Stream"/> containing the received header bytes for a received header, or <see langword="null"/> for an outgoing header.
         /// </summary>
         public Stream GetRecievedStream()
         {
