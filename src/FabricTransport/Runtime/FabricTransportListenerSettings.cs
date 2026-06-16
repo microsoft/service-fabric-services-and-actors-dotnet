@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         private static readonly string DefaultPackageName = "Config";
 
         /// <summary>
-        /// Creates a new instance of FabricTransportListenerSettings and initializes properties with default Values.
+        /// Initializes a new instance of the <see cref="FabricTransportListenerSettings"/> class.
         /// </summary>
         public FabricTransportListenerSettings()
         {
@@ -28,33 +28,20 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// EndpointResourceName is name of the endpoint resource specified in ServiceManifest .This is used to obtain the port number on which to
-        /// service will listen. 
+        /// Gets or sets the name of the endpoint resource specified in the service manifest, used to obtain the port on which the service listens.
         /// </summary>
-        /// <value>
-        /// EndpointResourceName is  name of the  endpoint resource defined in the service manifest.
-        /// </value>
-        /// <remarks>
-        /// Default value of EndpointResourceName  is "ServiceEndpoint" </remarks>
+        /// <value>The default is <c>ServiceEndpoint</c>.</value>
         public string EndpointResourceName { get; set; }
 
         /// <summary>
-        /// Loads the FabricTransport settings from a section specified in the service settings configuration file - settings.xml 
+        /// Returns the <see cref="FabricTransportListenerSettings"/> loaded from the section named <paramref name="sectionName"/> specified in the configuration package.
         /// </summary>
-        /// <param name="sectionName">Name of the section within the configuration file. if not found , it throws ArgumentException.</param>
-        /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it throws ArgumentException. 
-        /// If not specified, default name is "Config"</param>
-        /// <returns>FabricTransportListenerSettings</returns>
-        /// <remarks>
-        /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
-        ///     
-        ///     1. MaxQueueSize - <see cref="FabricTransportSettings.MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="FabricTransportSettings.MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="FabricTransportSettings.MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="FabricTransportSettings.SecurityCredentials"/> value.
-        ///     5. OperationTimeoutInSeconds - <see cref="FabricTransportSettings.OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="FabricTransportSettings.KeepAliveTimeout"/> value in seconds.
-        /// </remarks>
+        /// <param name="sectionName">The name of the section within the configuration file.</param>
+        /// <param name="configPackageName">The name of the configuration package. If not specified, the default name <c>Config</c> is used.</param>
+        /// <inheritdoc cref="FabricTransportSettings.LoadFrom(string, string, string)" path="/remarks"/>
+        /// <exception cref="ArgumentException">
+        /// The configuration package is not found, or the section named <paramref name="sectionName"/> is not found in the configuration.
+        /// </exception>
         public static FabricTransportListenerSettings LoadFrom(string sectionName, string configPackageName = null)
         {
             var settings = new FabricTransportListenerSettings();
@@ -90,24 +77,14 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 
 
         /// <summary>
-        /// Try to load the FabricTransport settings from a section specified in the service settings configuration file - settings.xml 
+        /// Tries to load the <see cref="FabricTransportListenerSettings"/> from the section named <paramref name="sectionName"/> specified in the configuration package into <paramref name="listenerSettings"/> and returns
+        /// <see langword="true"/> if it was successfully loaded; otherwise returns <see langword="false"/>.
         /// </summary>
-        /// <param name="sectionName">Name of the section within the configuration file. if not found , it return false</param>
-        /// <param name="configPackageName"> Name of the configuration package. if not found Settings.xml in the configuration package path, it return false. 
-        /// If not specified, default name is "Config"</param>
-        /// <param name="listenerSettings">When this method returns it sets the <see cref="FabricTransportListenerSettings"/> listenersettings if load from Config succeeded. If fails ,its sets listenerSettings to null/> </param>
-        /// <returns> <see cref="bool"/> specifies whether the settings get loaded successfully from Config.
-        /// It returns true when load from Config succeeded, else return false.</returns>
-        /// <remarks>
-        /// The following are the parameter names that should be provided in the configuration file,to be recognizable by service fabric to load the transport settings.
-        ///     
-        ///     1. MaxQueueSize - <see cref="FabricTransportSettings.MaxQueueSize"/>value in long.
-        ///     2. MaxMessageSize - <see cref="FabricTransportSettings.MaxMessageSize"/>value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="FabricTransportSettings.MaxConcurrentCalls"/>value in long.
-        ///     4. SecurityCredentials - <see cref="FabricTransportSettings.SecurityCredentials"/> value.
-        ///     5. OperationTimeoutInSeconds - <see cref="FabricTransportSettings.OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="FabricTransportSettings.KeepAliveTimeout"/> value in seconds.
-        /// </remarks>
+        /// <param name="sectionName">The name of the section within the configuration file. Returns <see langword="false"/> if the section is not found.</param>
+        /// <param name="listenerSettings">When this method returns, contains the <see cref="FabricTransportListenerSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
+        /// <param name="configPackageName">The name of the configuration package. If not specified, the default name <c>Config</c> is used.</param>
+        /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
+        /// <inheritdoc cref="FabricTransportSettings.LoadFrom(string, string, string)" path="/remarks"/>
         public static bool TryLoadFrom(string sectionName, out FabricTransportListenerSettings listenerSettings,
             string configPackageName = null)
         {
