@@ -119,7 +119,6 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
         /// If not specified, it will first try to load from the default configuration package <c>Config</c>, and if not found, from the <c>ClientExeName.Settings.xml</c> settings file in the client executable directory.</param>
         /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
-        /// <returns>The settings loaded from the specified configuration section.</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
         /// <list type="number">
