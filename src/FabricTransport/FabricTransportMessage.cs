@@ -11,6 +11,10 @@ using static Microsoft.ServiceFabric.FabricTransport.NativeFabricTransport;
 
 namespace Microsoft.ServiceFabric.FabricTransport
 {
+    /// <summary>
+    /// Represents a Service Fabric transport message composed of an optional <see cref="FabricTransportRequestHeader"/> and
+    /// <see cref="FabricTransportRequestBody"/>, either built to send for an outgoing message or received and backed by a native message.
+    /// </summary>
     internal class FabricTransportMessage : IDisposable
     {
         private readonly FabricTransportRequestHeader requestHeader;
