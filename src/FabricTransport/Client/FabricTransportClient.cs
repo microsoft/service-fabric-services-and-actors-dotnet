@@ -72,6 +72,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         /// Asynchronously opens the connection to the service endpoint.
         /// </summary>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <exception cref="FabricCannotConnectException">The client cannot connect to the service endpoint.</exception>
         /// <exception cref="FabricConnectionDeniedException">The client connects without security to a secured service endpoint.</exception>
         /// <exception cref="TimeoutException">The connection is not established within the configured connect timeout.</exception>
         public async Task OpenAsync(CancellationToken cancellationToken)
@@ -104,6 +105,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         /// </summary>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <remarks>The <paramref name="cancellationToken"/> is accepted for signature consistency but is not currently observed.</remarks>
+        /// <exception cref="FabricCannotConnectException">The client cannot connect to the service endpoint.</exception>
         /// <exception cref="FabricConnectionDeniedException">The client connects without security to a secured service endpoint.</exception>
         /// <exception cref="TimeoutException">The connection is not closed within the configured connect timeout.</exception>
         public async Task CloseAsync(CancellationToken cancellationToken)
@@ -138,6 +140,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         /// <param name="timeout">The maximum time to wait for the reply.</param>
         /// <param name="requestId">The identifier correlating the request with its reply, or <see cref="Guid.Empty"/> to let the transport assign one.</param>
         /// <returns>The reply received from the service.</returns>
+        /// <exception cref="FabricCannotConnectException">The client cannot connect to the service endpoint.</exception>
         /// <exception cref="FabricConnectionDeniedException">The client connects without security to a secured service endpoint.</exception>
         /// <exception cref="TimeoutException">The reply is not received within <paramref name="timeout"/>.</exception>
         public async Task<FabricTransportMessage> RequestResponseAsync(FabricTransportMessage requestMessage,
