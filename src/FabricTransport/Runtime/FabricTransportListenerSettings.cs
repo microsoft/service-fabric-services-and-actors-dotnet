@@ -80,7 +80,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// Tries to load the <see cref="FabricTransportListenerSettings"/> from the section named <paramref name="sectionName"/> specified in the configuration package into <paramref name="listenerSettings"/> and returns
         /// <see langword="true"/> if it was successfully loaded; otherwise returns <see langword="false"/>.
         /// </summary>
-        /// <param name="sectionName">The name of the section within the configuration file. Returns <see langword="false"/> if the section is not found.</param>
+        /// <param name="sectionName">The name of the section within the configuration file.</param>
         /// <param name="listenerSettings">When this method returns, contains the <see cref="FabricTransportListenerSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <param name="configPackageName">The name of the configuration package. If not specified, the default name <c>Config</c> is used.</param>
         /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
