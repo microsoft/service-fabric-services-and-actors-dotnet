@@ -37,7 +37,8 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// Returns the <see cref="FabricTransportCallbackClient"/> used to send messages back to the client that sent the request.
+        /// Returns the <see cref="FabricTransportCallbackClient"/> used to send messages back to the client that sent the request,
+        /// or <see langword="null"/> if no callback channel is registered for the client.
         /// </summary>
         public FabricTransportCallbackClient GetCallbackClient()
 
