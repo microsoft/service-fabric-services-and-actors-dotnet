@@ -63,7 +63,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
 
         /// <summary>
         /// Gets or sets the operation timeout that governs the whole process of sending a message, including receiving a reply message for a request/reply service operation.
-        ///  This timeout also applies when sending reply messages from a callback contract method.
+        /// This timeout also applies when sending reply messages from a callback contract method.
         /// </summary>
         /// <value>The default is 5 minutes.</value>
         public TimeSpan OperationTimeout { get; set; }
