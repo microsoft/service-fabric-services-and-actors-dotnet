@@ -113,7 +113,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Returns the <see cref="FabricTransportSettings"/> loaded from the section named <paramref name="sectionName"/> specified in the configuration file.
         /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
-        /// It will first try to load config using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, then try to load from <paramref name="filepath"/>.
+        /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file.</param>
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
@@ -203,7 +203,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// Tries to load the <see cref="FabricTransportSettings"/> from the section named <paramref name="sectionName"/> specified in the configuration file into <paramref name="settings"/> and returns
         /// <see langword="true"/> if it was successfully loaded; otherwise returns <see langword="false"/>.
         /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
-        /// It will first try to load config using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, then try to load from <paramref name="filepath"/>.
+        /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file. Returns <see langword="false"/> if the section is not found.</param>
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
