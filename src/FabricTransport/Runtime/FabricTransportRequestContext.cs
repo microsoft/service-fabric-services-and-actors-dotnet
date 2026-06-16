@@ -7,23 +7,36 @@ using System;
 
 namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
+    /// <summary>
+    /// Captures the per-request context on the service side, exposing the requesting client's identity and its
+    /// callback channel.
+    /// </summary>
     internal class FabricTransportRequestContext
     {
         private readonly string clientId;
         private readonly Func<string, FabricTransportCallbackClient> callback;
         private FabricTransportCallbackClient callbackClient;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FabricTransportRequestContext"/> class.
+        /// </summary>
         public FabricTransportRequestContext(string clientId, Func<string, FabricTransportCallbackClient> getCallBack)
         {
             this.clientId = clientId;
             this.callback = getCallBack;
         }
 
+        /// <summary>
+        /// Gets the identifier of the client that sent the request.
+        /// </summary>
         public string ClientId
         {
             get { return this.clientId; }
         }
 
+        /// <summary>
+        /// Returns the <see cref="FabricTransportCallbackClient"/> used to send messages back to the client that sent the request.
+        /// </summary>
         public FabricTransportCallbackClient GetCallbackClient()
 
         {
