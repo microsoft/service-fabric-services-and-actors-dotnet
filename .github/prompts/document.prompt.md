@@ -27,8 +27,8 @@ argument-hint: "(type|namespace|project)"
   - _Print start note_: `[{types-finished + 1}/{total-types}] Documenting {target-type} ...`
   - _Run the `iterator` subagent_; use this prompt:
     ```md
-    Ensure `{target-type}` has complete, accurate, compiler-verified XML documentation comments for all public members.
-    API, functional, code style changes are out of scope.
+    Ensure `{target-type}` has complete, accurate, compiler-verified XML documentation comments, including the type itself
+    and all of its accessible members. API, functional, code style changes are out of scope.
     ```
   - _`{iterator-output}` should be `✅ Looks Good` or `❓ Needs Human Review`_.
   - _Don't pause for `iterator` responses that need human review_. User will review them later.
