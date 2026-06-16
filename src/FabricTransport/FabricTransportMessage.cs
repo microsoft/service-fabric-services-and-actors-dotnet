@@ -162,7 +162,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Returns the <see cref="Stream"/> containing the received body bytes.
+        /// Returns the <see cref="Stream"/> containing the received body bytes for a received body, or <see langword="null"/> for an outgoing body.
         /// </summary>
         public Stream GetRecievedStream()
         {
