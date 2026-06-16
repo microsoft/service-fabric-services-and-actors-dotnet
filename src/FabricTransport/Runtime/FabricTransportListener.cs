@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// </summary>
         /// <param name="transportSettings">The settings that configure the listener and its timeouts.</param>
         /// <param name="listenerAddress">The address on which the listener accepts client connections.</param>
-        /// <param name="serviceImplementation">The handler that processes incoming request messages.</param>
+        /// <param name="serviceImplementation">The handler that processes incoming request-response and one-way messages.</param>
         /// <param name="remotingConnectionHandler">The handler that tracks client callback channels for pushing one-way messages back to clients.</param>
         public FabricTransportListener(
             FabricTransportSettings transportSettings,
