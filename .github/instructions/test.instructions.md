@@ -399,8 +399,10 @@ applyTo: "test/**/*.cs"
   for API details.
 
 - **Test argument validation logic** - it's part of SUT's API.
-  - _Create explicit tests for missing argument validation_ that can cause `NullReferenceException`, etc. in consuming members.
-    Missing argument validation is a bug in SUT.
+  - _Create explicit tests for missing argument validation_ that can cause `NullReferenceException`, etc. in the consuming
+    members of SUT - missing argument validation is a bug in SUT. See the additional rules for more:
+    - _Don't test what SUT doesn't do_
+    - _Don't create explicit tests for unfixed bugs in callee code_.
   - _Test `null`, empty, etc. as distinct inputs when validation rejects more than one_. A guard like `string.IsNullOrEmpty(x)`
     collapses several conventionally-distinct inputs into a single branch. Test each rejected category - `null`, `""`, and
     whitespace for `IsNullOrWhiteSpace` - with a `[Theory, InlineData(null), InlineData("")]`. This proves the right guard
@@ -530,7 +532,7 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
 - **Reduce tests to fewest elements**: 
   - Remove tests that cannot fail independently.
   - Before writing a test for a branch or guard, verify that the branch is reachable independently of the paths already covered.
-  - Don't create tests for consistency or structural symmetry. API design principles don't apply to tests.
+  - Don't create tests for consistency, parity or structural symmetry. API design principles don't apply to tests.
 
 ## Special Cases
 
@@ -574,7 +576,10 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   - **Create explicit tests to demonstrate unfixed SUT bugs**.
     - `{Reason}` should be `SUT bug. {brief explanation}`.
     - Name the test for the expected post-fix behavior (e.g. `IsSymmetric`), not for the bug.
-    - The _Don't test what SUT doesn't do_ rule doesn't apply to unfixed bug tests.
+    - The _Don't test what SUT doesn't do_ rule doesn't apply to bugs caused by code missing from SUT.
+  - **Don't create explicit tests for unfixed bugs in callee code** - the _Don't test what SUT doesn't do_ rule still applies
+    to callee bugs. E.g. SUT passing an argument to a callee that dereferences it without a `null` guard, is a bug in the
+    callee. It's out of scope for SUT and should have an explicit test in the callee's test suite instead.
   - **Create explicit tests impossible to implement due to SUT testability limitations**.
     - Include `// TODO: SUT testability limitation. {brief explanation}`.
     - Have them `throw new NotImplementedException()`.
