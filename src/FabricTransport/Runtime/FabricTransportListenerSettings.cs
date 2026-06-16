@@ -11,7 +11,7 @@ using System.Globalization;
 namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     /// <summary>
-    ///Settings that configures the  FabricTransport Listener.
+    /// Configures the FabricTransport listener.
     /// </summary>
     internal class FabricTransportListenerSettings : FabricTransportSettings
     {
