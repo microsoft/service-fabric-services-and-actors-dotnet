@@ -145,7 +145,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRequestBody"/> class for an outgoing body.
         /// </summary>
-        /// <param name="sendBuffers">The serialized body buffers to send.</param>
+        /// <param name="sendBuffers">The serialized body buffers to send, or an empty collection when there are no body bytes.</param>
         /// <param name="disposeAction">A callback that releases <paramref name="sendBuffers"/> when the body is disposed.</param>
         public FabricTransportRequestBody(IEnumerable<ArraySegment<byte>> sendBuffers, Action disposeAction)
         {
