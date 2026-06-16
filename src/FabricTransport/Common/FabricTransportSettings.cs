@@ -123,9 +123,9 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
         /// <list type="number">
-        ///     <item><c>MaxQueueSize</c> - <see cref="MaxQueueSize"/> value in long.</item>
+        ///     <item><c>MaxQueueSize</c> - <see cref="MaxQueueSize"/> as a <see langword="long"/> value.</item>
         ///     <item><c>MaxMessageSize</c> - <see cref="MaxMessageSize"/> value in bytes.</item>
-        ///     <item><c>MaxConcurrentCalls</c> - <see cref="MaxConcurrentCalls"/> value in long.</item>
+        ///     <item><c>MaxConcurrentCalls</c> - <see cref="MaxConcurrentCalls"/> as a <see langword="long"/> value.</item>
         ///     <item><c>SecurityCredentialsType</c> - One of <c>None</c>, <c>X509</c>, or <c>Windows</c> that selects the <see cref="SecurityCredentials"/> type.
         ///         <c>Windows</c> credentials additionally read <c>RemoteSecurityPrincipalName</c>. <c>X509</c> credentials additionally read <c>CertificateFindType</c>,
         ///         <c>CertificateFindValue</c>, <c>CertificateProtectionLevel</c>, <c>CertificateStoreLocation</c>, <c>CertificateStoreName</c>, <c>CertificateRemoteCommonNames</c>,
