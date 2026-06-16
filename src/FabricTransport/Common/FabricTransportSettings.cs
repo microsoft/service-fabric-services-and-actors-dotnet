@@ -210,20 +210,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for file in <paramref name="filepath"/>.</param>
         /// <param name="settings">When this method returns, contains the <see cref="FabricTransportSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
-        /// <remarks>
-        /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
-        ///     
-        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/> value in long.
-        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/> value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/> value in long.
-        ///     4. SecurityCredentialsType - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
-        ///        Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
-        ///        CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
-        ///        CertificateRemoteThumbprints, CertificateIssuerThumbprints, CertificateFindValuebySecondary, and CertificateApplicationIssuerStore/ entries.
-        ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
-        ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
-        /// </remarks>
+        /// <inheritdoc cref="LoadFrom(string, string, string)" path="/remarks"/>
         public static bool TryLoadFrom(string sectionName, out FabricTransportSettings settings, string filepath = null,
             string configPackageName = null)
         {
