@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         bool disposed;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FabricTransportCallbackClient"/> class wrapping the native callback channel of a connected client.
+        /// Initializes a new instance of the <see cref="FabricTransportCallbackClient"/> class.
         /// </summary>
         /// <param name="nativeClientConnection">The native connection that identifies the client and carries messages back to it.</param>
         public FabricTransportCallbackClient(
