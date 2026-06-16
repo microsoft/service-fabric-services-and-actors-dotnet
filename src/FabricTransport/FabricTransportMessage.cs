@@ -132,6 +132,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
     }
 
+    /// <summary>
+    /// Represents the body of a <see cref="FabricTransportMessage"/>, carried either as serialized buffers to send for an
+    /// outgoing message or as a stream of received bytes for a received message.
+    /// </summary>
     internal class FabricTransportRequestBody
     {
         private readonly IEnumerable<ArraySegment<byte>> sendBuffers;
