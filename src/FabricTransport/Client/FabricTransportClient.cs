@@ -139,7 +139,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         /// <param name="requestMessage">The message to send to the service.</param>
         /// <param name="timeout">The maximum time to wait for the reply.</param>
         /// <param name="requestId">The identifier correlating the request with its reply, or <see cref="Guid.Empty"/> to let the transport assign one.</param>
-        /// <returns>The reply received from the service.</returns>
         /// <exception cref="FabricCannotConnectException">The client cannot connect to the service endpoint.</exception>
         /// <exception cref="FabricConnectionDeniedException">The client connects without security to a secured service endpoint.</exception>
         /// <exception cref="TimeoutException">The reply is not received within <paramref name="timeout"/>.</exception>
