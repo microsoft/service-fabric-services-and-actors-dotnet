@@ -64,7 +64,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         public bool IsValid { get; set; }
 
         /// <summary>
-        /// Gets the address of the service endpoint this client is connected to.
+        /// Gets the address of the service endpoint this client connects to.
         /// </summary>
         public string ConnectionAddress { get; private set; }
 
