@@ -24,7 +24,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         private IFabricTransportClient2 nativeClient;
 
         /// <summary>
-        /// The settings that configure this client's connection and timeouts.
+        /// Stores the settings that configure this client's connection and timeouts.
         /// </summary>
         protected FabricTransportSettings settings;
 
