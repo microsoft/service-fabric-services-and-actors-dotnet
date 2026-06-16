@@ -122,17 +122,18 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <returns>The settings loaded from the specified configuration section.</returns>
         /// <remarks>
         /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
-        ///     
-        ///     1. MaxQueueSize - <see cref="MaxQueueSize"/> value in long.
-        ///     2. MaxMessageSize - <see cref="MaxMessageSize"/> value in bytes.
-        ///     3. MaxConcurrentCalls - <see cref="MaxConcurrentCalls"/> value in long.
-        ///     4. SecurityCredentialsType - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
-        ///        Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
-        ///        CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
-        ///        CertificateRemoteThumbprints, CertificateIssuerThumbprints, CertificateFindValuebySecondary, and CertificateApplicationIssuerStore/ entries.
-        ///     5. OperationTimeoutInSeconds - <see cref="OperationTimeout"/> value in seconds.
-        ///     6. KeepAliveTimeoutInSeconds - <see cref="KeepAliveTimeout"/> value in seconds.
-        ///     7. ConnectTimeoutInMilliseconds - <see cref="ConnectTimeout"/> value in milliseconds.
+        /// <list type="number">
+        ///     <item><c>MaxQueueSize</c> - <see cref="MaxQueueSize"/> value in long.</item>
+        ///     <item><c>MaxMessageSize</c> - <see cref="MaxMessageSize"/> value in bytes.</item>
+        ///     <item><c>MaxConcurrentCalls</c> - <see cref="MaxConcurrentCalls"/> value in long.</item>
+        ///     <item><c>SecurityCredentialsType</c> - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
+        ///         Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
+        ///         CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
+        ///         CertificateRemoteThumbprints, CertificateIssuerThumbprints, CertificateFindValuebySecondary, and CertificateApplicationIssuerStore/ entries.</item>
+        ///     <item><c>OperationTimeoutInSeconds</c> - <see cref="OperationTimeout"/> value in seconds.</item>
+        ///     <item><c>KeepAliveTimeoutInSeconds</c> - <see cref="KeepAliveTimeout"/> value in seconds.</item>
+        ///     <item><c>ConnectTimeoutInMilliseconds</c> - <see cref="ConnectTimeout"/> value in milliseconds.</item>
+        /// </list>
         /// </remarks>
         /// <exception cref="ArgumentException">
         /// <paramref name="configPackageName"/> is specified but the configuration package is not found,
