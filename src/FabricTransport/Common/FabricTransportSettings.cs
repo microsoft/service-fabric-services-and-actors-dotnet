@@ -126,10 +126,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
         ///     <item><c>MaxQueueSize</c> - <see cref="MaxQueueSize"/> value in long.</item>
         ///     <item><c>MaxMessageSize</c> - <see cref="MaxMessageSize"/> value in bytes.</item>
         ///     <item><c>MaxConcurrentCalls</c> - <see cref="MaxConcurrentCalls"/> value in long.</item>
-        ///     <item><c>SecurityCredentialsType</c> - One of None, X509, or Windows that selects the <see cref="SecurityCredentials"/> type.
-        ///         Windows credentials additionally read RemoteSecurityPrincipalName. X509 credentials additionally read CertificateFindType,
-        ///         CertificateFindValue, CertificateProtectionLevel, CertificateStoreLocation, CertificateStoreName, CertificateRemoteCommonNames,
-        ///         CertificateRemoteThumbprints, CertificateIssuerThumbprints, CertificateFindValuebySecondary, and CertificateApplicationIssuerStore/ entries.</item>
+        ///     <item><c>SecurityCredentialsType</c> - One of <c>None</c>, <c>X509</c>, or <c>Windows</c> that selects the <see cref="SecurityCredentials"/> type.
+        ///         <c>Windows</c> credentials additionally read <c>RemoteSecurityPrincipalName</c>. <c>X509</c> credentials additionally read <c>CertificateFindType</c>,
+        ///         <c>CertificateFindValue</c>, <c>CertificateProtectionLevel</c>, <c>CertificateStoreLocation</c>, <c>CertificateStoreName</c>, <c>CertificateRemoteCommonNames</c>,
+        ///         <c>CertificateRemoteThumbprints</c>, <c>CertificateIssuerThumbprints</c>, <c>CertificateFindValuebySecondary</c>, and <c>CertificateApplicationIssuerStore/</c> entries.</item>
         ///     <item><c>OperationTimeoutInSeconds</c> - <see cref="OperationTimeout"/> value in seconds.</item>
         ///     <item><c>KeepAliveTimeoutInSeconds</c> - <see cref="KeepAliveTimeout"/> value in seconds.</item>
         ///     <item><c>ConnectTimeoutInMilliseconds</c> - <see cref="ConnectTimeout"/> value in milliseconds.</item>
