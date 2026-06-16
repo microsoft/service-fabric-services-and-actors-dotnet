@@ -20,6 +20,8 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRequestContext"/> class.
         /// </summary>
+        /// <param name="clientId">The identifier of the client that sent the request.</param>
+        /// <param name="getCallBack">A factory invoked with <paramref name="clientId"/> to resolve the client's <see cref="FabricTransportCallbackClient"/>.</param>
         public FabricTransportRequestContext(string clientId, Func<string, FabricTransportCallbackClient> getCallBack)
         {
             this.clientId = clientId;
