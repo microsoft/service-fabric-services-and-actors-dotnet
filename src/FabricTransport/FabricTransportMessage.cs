@@ -135,7 +135,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private readonly Stream recievedStream;
 
         /// <summary>
-        /// Returns the serialized body buffers to send.
+        /// Returns the serialized body buffers to send for an outgoing body, or <see langword="null"/> for a received body.
         /// </summary>
         public IEnumerable<ArraySegment<byte>> GetBodyBuffers()
         {
