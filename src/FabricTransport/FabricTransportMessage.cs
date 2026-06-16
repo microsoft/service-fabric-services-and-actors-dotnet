@@ -77,7 +77,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
 
     /// <summary>
     /// Represents the header of a <see cref="FabricTransportMessage"/>, carried either as serialized bytes to send for an
-    /// outgoing message or as a stream of received bytes for an incoming message.
+    /// outgoing message or as a stream of received bytes for a received message.
     /// </summary>
     internal class FabricTransportRequestHeader
     {
