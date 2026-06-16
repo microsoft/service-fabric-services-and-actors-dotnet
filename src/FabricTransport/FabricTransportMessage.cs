@@ -82,7 +82,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private readonly Action disposeAction;
 
         /// <summary>
-        /// Returns the serialized header bytes to send for an outgoing header, or the default <see cref="ArraySegment{T}"/> for a received header.
+        /// Returns the serialized header bytes to send for an outgoing header, or the default <see cref="ArraySegment{T}"/> when there are no outgoing bytes or for a received header.
         /// </summary>
         public ArraySegment<byte> GetSendBuffer()
         {
@@ -92,7 +92,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Initializes a new instance of the <see cref="FabricTransportRequestHeader"/> class for an outgoing header.
         /// </summary>
-        /// <param name="requestHeaderBuffer">The serialized header bytes to send.</param>
+        /// <param name="requestHeaderBuffer">The serialized header bytes to send, or the default <see cref="ArraySegment{T}"/> when there are no header bytes.</param>
         /// <param name="disposeAction">A callback that releases <paramref name="requestHeaderBuffer"/> when the header is disposed.</param>
         public FabricTransportRequestHeader(ArraySegment<byte> requestHeaderBuffer, Action disposeAction)
         {
