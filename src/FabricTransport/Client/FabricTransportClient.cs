@@ -29,7 +29,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         protected FabricTransportSettings settings;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FabricTransportClient"/> class connected to <paramref name="connectionAddress"/>.
+        /// Initializes a new instance of the <see cref="FabricTransportClient"/> class targeting the service endpoint at <paramref name="connectionAddress"/>.
         /// </summary>
         /// <param name="transportSettings">The settings that configure the connection and its timeouts.</param>
         /// <param name="connectionAddress">The address of the service endpoint to connect to.</param>
