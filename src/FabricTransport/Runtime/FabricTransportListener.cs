@@ -20,7 +20,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         private NativeFabricTransport.IFabricTransportListener nativeListner;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FabricTransportListener"/> class listening at <paramref name="listenerAddress"/>.
+        /// Initializes a new instance of the <see cref="FabricTransportListener"/> class.
         /// </summary>
         /// <param name="transportSettings">The settings that configure the listener and its timeouts.</param>
         /// <param name="listenerAddress">The address on which the listener accepts client connections.</param>
