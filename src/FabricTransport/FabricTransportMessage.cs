@@ -18,7 +18,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         private readonly IFabricTransportMessage nativeInterfaceRoot;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class.
+        /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class for an outgoing message.
         /// </summary>
         public FabricTransportMessage(FabricTransportRequestHeader requestHeader, FabricTransportRequestBody requestBody)
         {
@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class backed by a native message.
+        /// Initializes a new instance of the <see cref="FabricTransportMessage"/> class for a received message backed by a native message.
         /// </summary>
         public FabricTransportMessage(FabricTransportRequestHeader requestHeader,
             FabricTransportRequestBody requestBody,
