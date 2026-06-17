@@ -115,7 +115,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
         /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
         /// </summary>
-        /// <param name="sectionName">The name of the section within the configuration file.</param>
+        /// <param name="sectionName">The name of the section within the configuration file. If <see langword="null"/>, the default <c>TransportSettings</c> section is used.</param>
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
         /// If not specified, it will first try to load from the default configuration package <c>Config</c>, and if not found, from the <c>ClientExeName.Settings.xml</c> settings file in the client executable directory.</param>
         /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
@@ -204,7 +204,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
         /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
         /// </summary>
-        /// <param name="sectionName">The name of the section within the configuration file. Returns <see langword="false"/> if the section is not found.</param>
+        /// <param name="sectionName">The name of the section within the configuration file. If <see langword="null"/>, the default <c>TransportSettings</c> section is used. Returns <see langword="false"/> if the section is not found.</param>
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
         /// If not specified, it will first try to load from the default configuration package <c>Config</c>, and if not found, from the <c>ClientExeName.Settings.xml</c> settings file in the client executable directory.</param>
         /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
