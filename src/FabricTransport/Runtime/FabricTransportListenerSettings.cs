@@ -100,7 +100,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// <param name="sectionName">The name of the section within the configuration file.</param>
         /// <param name="listenerSettings">When this method returns, contains the <see cref="FabricTransportListenerSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <param name="configPackageName">The name of the configuration package. If not specified, the default name <c>Config</c> is used.</param>
-        /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
         /// <inheritdoc path="/remarks" cref="LoadFrom(string, string)"/>
         public static bool TryLoadFrom(string sectionName, out FabricTransportListenerSettings listenerSettings,
             string configPackageName = null)
