@@ -36,6 +36,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         /// <param name="eventHandler">The handler notified when the connection is established or lost.</param>
         /// <param name="contract">The handler that processes one-way callback messages pushed from the service.</param>
         /// <param name="messageMessageDisposer">The disposer that releases native resources of received messages.</param>
+        /// <exception cref="FabricInvalidAddressException">
+        /// <paramref name="connectionAddress"/> is not a valid FabricTransport endpoint address.
+        /// </exception>
         public FabricTransportClient(
             FabricTransportSettings transportSettings,
             string connectionAddress,
