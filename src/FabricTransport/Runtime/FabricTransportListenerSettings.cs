@@ -145,10 +145,9 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         }
 
         /// <summary>
-        /// FabricTransportListenerSettings returns the default Settings .Loads the configuration file from default Config Package"Config" .
-        ///</summary>
-        /// <param name="sectionName">Name of the section within the configuration file. If not found section in configuration file, it will return the default Settings</param>
-        /// <returns></returns>
+        /// Returns the <see cref="FabricTransportListenerSettings"/> loaded from the section named <paramref name="sectionName"/> specified in the configuration package, or the default settings if the section cannot be loaded.
+        /// </summary>
+        /// <param name="sectionName">The name of the section within the configuration file.</param>
         internal new static FabricTransportListenerSettings GetDefault(string sectionName = DefaultSectionName)
         {
             FabricTransportListenerSettings listenerSettings = null;
