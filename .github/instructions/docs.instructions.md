@@ -50,13 +50,18 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
 - Reuse documentation from other types and members to keep duplication to a minimum.
   - Use `<inheritdoc/>` for interface implementations and overrides unless there is a major behavior change.
   - Use `<inheritdoc cref="..."/>` to reuse documentation from related types, like the base type, and members, like method overloads.
-  - When referenced documentation cannot be reused in its entirety:
-    - Use `<inheritdoc cref="..." path="/summary"/>` to reuse `<summary>`.
-    - Use `<inheritdoc cref="..." path="/remarks"/>` to reuse `<remarks>`.
-    - Use `<inheritdoc cref="..." path="/param[@name='{name}']"/>` to reuse `<param name="{name}">`.
-    - Use `<inheritdoc cref="..." path="/typeparam[@name='{name}']"/>` to reuse `<typeparam name="{name}">`
-    - Use `<inheritdoc cref="..." path="/exception[@cref='T:{FullName}']"/>` to reuse `<exception cref="{Name}">`.
-  - Apply object-oriented design principles to documentation inheritance.
+  - When referenced documentation cannot be reused in its entirety, specify `path`.
+    - Place `path` before `cref` to make `<inheritdoc>` more readable when mixed with regular elements.
+    - Use `<inheritdoc path="/summary" cref="..."/>` to reuse `<summary>`.
+    - Use `<inheritdoc path="/remarks" cref="..."/>` to reuse `<remarks>`.
+    - Use `<inheritdoc path="/param[@name='{name}']" cref="..."/>` to reuse `<param name="{name}">`.
+    - Use `<inheritdoc path="/typeparam[@name='{name}']" cref="..."/>` to reuse `<typeparam name="{name}">`
+    - Use `<inheritdoc path="/exception[@cref='T:{FullName}']" cref="..."/>` to reuse `<exception cref="{Name}">`.
+  - Apply object-oriented design to documentation inheritance:
+    - Reuse more generic documentation, e.g.
+      - Document base classes and reuse their docs in derived classes.
+      - Document interfaces and reuse their docs in implementors.
+      - Document methods with the most parameters and reuse their docs in overloads/extensions that reduce the parameter set.
     - If behavior doesn't apply to every inheritor, don't document it in the base/provider.
   - Document differences instead of using `<inheritdoc/>` when there is a major behavior change.
 - Use `<para>` when multiple paragraphs are needed to make a documentation section readable.
