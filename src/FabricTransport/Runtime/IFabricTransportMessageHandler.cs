@@ -21,7 +21,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
             FabricTransportMessage fabricTransportMessage);
 
         /// <summary>
-        /// Processes the one-way message in <paramref name="requesTransportMessage"/> received on the connection
+        /// Processes the received one-way message on the connection
         /// described by <paramref name="requestContext"/>. No reply is sent back to the client.
         /// </summary>
         void HandleOneWay(FabricTransportRequestContext requestContext, FabricTransportMessage requesTransportMessage);
