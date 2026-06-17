@@ -104,7 +104,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// </summary>
         /// <value>The default is <see cref="NoneSecurityCredentials"/>.</value>
         /// <remarks>
-        /// The credentials can be of type <see cref="X509Credentials"/> or <see cref="WindowsCredentials"/>.
+        /// The credentials can be of type <see cref="X509Credentials"/>, <see cref="WindowsCredentials"/>, or, to disable security, <see cref="NoneSecurityCredentials"/> (the default).
         /// </remarks>
         public SecurityCredentials SecurityCredentials { get; set; }
 
