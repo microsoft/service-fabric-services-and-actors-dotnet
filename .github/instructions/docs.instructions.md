@@ -54,9 +54,12 @@ applyTo: "{**/*.cs,src/**/README.md,src/**/*.csproj}"
     - Place `path` before `cref` to make `<inheritdoc>` more readable when mixed with regular elements.
     - Use `<inheritdoc path="/summary" cref="..."/>` to reuse `<summary>`.
     - Use `<inheritdoc path="/remarks" cref="..."/>` to reuse `<remarks>`.
-    - Use `<inheritdoc path="/param[@name='{name}']" cref="..."/>` to reuse `<param name="{name}">`.
-    - Use `<inheritdoc path="/typeparam[@name='{name}']" cref="..."/>` to reuse `<typeparam name="{name}">`
-    - Use `<inheritdoc path="/exception[@cref='T:{FullName}']" cref="..."/>` to reuse `<exception cref="{Name}">`.
+    - Use `<inheritdoc path="/param']" cref="..."/>` to reuse all `<param>` elements.
+    - Use `<inheritdoc path="/param[@name='{name}']" cref="..."/>` to reuse a specific `<param name="{name}">`.
+    - Use `<inheritdoc path="/typeparam" cref="..."/>` to reuse all `<typeparam>` elements.
+    - Use `<inheritdoc path="/typeparam[@name='{name}']" cref="..."/>` to reuse a specific `<typeparam name="{name}">`
+    - Use `<inheritdoc path="/exception']" cref="..."/>` to reuse all `<exception>` elements.
+    - Use `<inheritdoc path="/exception[@cref='T:{FullName}']" cref="..."/>` to reuse a specific `<exception cref="{Name}">`.
   - Apply object-oriented design to documentation inheritance:
     - Reuse more generic documentation, e.g.
       - Document base classes and reuse their docs in derived classes.
