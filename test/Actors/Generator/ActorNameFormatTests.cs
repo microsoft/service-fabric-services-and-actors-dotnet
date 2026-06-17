@@ -5,7 +5,6 @@
 
 namespace Microsoft.ServiceFabric.Actors.Tests.Generator
 {
-    using FluentAssertions;
     using Microsoft.ServiceFabric.Actors.Generator;
     using Xunit;
 
@@ -27,7 +26,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
             var result = ActorNameFormat.GetFabricServiceName(typeof(object));
 
             // Assert
-            result.Should().Be(serviceName);
+            Assert.Equal(serviceName, result);
         }
 
         /// <summary>
@@ -43,7 +42,7 @@ namespace Microsoft.ServiceFabric.Actors.Tests.Generator
             var result = ActorNameFormat.GetFabricServiceName(typeof(object), serviceName);
 
             // Assert
-            result.Should().Be(serviceName);
+            Assert.Equal(serviceName, result);
         }
     }
 }

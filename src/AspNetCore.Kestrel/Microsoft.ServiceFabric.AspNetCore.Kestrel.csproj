@@ -2,6 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.ServiceFabric.Services.Communication.AspNetCore</RootNamespace>
     <TargetFrameworks>net462;net8.0</TargetFrameworks>
+    <Description>Kestrel-based communication listener for ASP.NET Core applications on Service Fabric.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>

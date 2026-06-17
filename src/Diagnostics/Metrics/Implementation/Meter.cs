@@ -4,7 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Fabric.Interop;
 using System.Runtime.InteropServices;
 
@@ -12,15 +11,12 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 {
     abstract class Meter : IDisposable
     {
-        protected readonly IReadOnlyCollection<string> systemDimensionValues;
-
         IFabricMeter fabricMeter;
 
         static Func<object, int> finalReleaseComObject = Utility.FinalReleaseComObject;
 
-        internal Meter(IFabricMeter fabricMeter, IReadOnlyCollection<string> systemDimensionValues)
+        internal Meter(IFabricMeter fabricMeter)
         {
-            this.systemDimensionValues = systemDimensionValues ?? throw new ArgumentNullException(nameof(systemDimensionValues));
             this.fabricMeter = fabricMeter ?? throw new ArgumentNullException(nameof(fabricMeter));
         }
 
@@ -39,51 +35,41 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         bool IsDisposed() => fabricMeter == null;
 
-        protected unsafe void RecordViaNative(long value, int customDimensionCount, string dimension1Value, string dimension2Value, string dimension3Value)
+        protected unsafe void RecordViaNative(long value, int variableDimensionCount, string dimension1Value, string dimension2Value, string dimension3Value)
         {
             if (IsDisposed())
                 throw new ObjectDisposedException(nameof(Meter));
-            if (customDimensionCount < 0 || customDimensionCount > 3)
-                throw new ArgumentOutOfRangeException(nameof(customDimensionCount));
+            if (variableDimensionCount < 0 || variableDimensionCount > 3)
+                throw new ArgumentOutOfRangeException(nameof(variableDimensionCount));
 
-            int dimensionCount = systemDimensionValues.Count + customDimensionCount;
-
-            GCHandle* dimensionPins = stackalloc GCHandle[dimensionCount];
-            IntPtr* dimensionValuesPointers = stackalloc IntPtr[dimensionCount];
+            GCHandle* dimensionPins = stackalloc GCHandle[variableDimensionCount];
+            IntPtr* dimensionValuesPointers = stackalloc IntPtr[variableDimensionCount];
 
             try
             {
                 int i = 0;
-                foreach (string systemDimensionValue in systemDimensionValues)
-                {
-                    dimensionPins[i++] = GCHandle.Alloc(systemDimensionValue, GCHandleType.Pinned);
-                }
 
-                if (customDimensionCount > 0)
+                if (variableDimensionCount > 0)
                     dimensionPins[i++] = GCHandle.Alloc(dimension1Value, GCHandleType.Pinned);
 
-                if (customDimensionCount > 1)
+                if (variableDimensionCount > 1)
                     dimensionPins[i++] = GCHandle.Alloc(dimension2Value, GCHandleType.Pinned);
 
-                if (customDimensionCount > 2)
+                if (variableDimensionCount > 2)
                     dimensionPins[i++] = GCHandle.Alloc(dimension3Value, GCHandleType.Pinned);
 
 
-                for (i = 0; i < dimensionCount; i++)
+                for (i = 0; i < variableDimensionCount; i++)
                 {
                     // for strings, AddrOfPinnedObject() returns a pointer to the first character - https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.gchandle.addrofpinnedobject
                     dimensionValuesPointers[i] = dimensionPins[i].AddrOfPinnedObject();
                 }
 
-                fabricMeter.Record(value, (uint)dimensionCount, (IntPtr)dimensionValuesPointers);
+                fabricMeter.Record(value, (uint)variableDimensionCount, (IntPtr)dimensionValuesPointers);
             }
             finally
             {
-                for (int i = 0; i < dimensionCount; i++)
-                {
-                    if (dimensionPins[i].IsAllocated)
-                        dimensionPins[i].Free();
-                }
+                Interop.Free(dimensionPins, variableDimensionCount);
             }
         }
     }

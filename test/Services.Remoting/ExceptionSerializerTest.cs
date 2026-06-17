@@ -10,7 +10,6 @@ using Microsoft.ServiceFabric.Services.Communication;
 using Microsoft.ServiceFabric.Services.Remoting.FabricTransport.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2;
 using Microsoft.ServiceFabric.Services.Remoting.V2.Runtime;
-using FluentAssertions;
 using Fuzzy;
 using Inspector;
 using Xunit;

@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.Tracing;
 using System.IO;
-using System.Runtime.InteropServices;
 using Fuzzy;
 using Inspector;
 using Microsoft.ServiceFabric.Diagnostics.Tracing;
@@ -25,7 +24,7 @@ namespace Microsoft.ServiceFabric
     /// <para>This class uses terse names that assume that its instances will be stored in a variable called <c>test</c>.</para>
     /// <para>Disposing instances of this class at the end of each test is required for events to work in subsequent tests.</para>
     /// </remarks>
-    sealed class EventSourceTest<TEventSource> : IDisposable where TEventSource : ServiceFabricEventSource
+    sealed class EventSourceTest<TEventSource> : EventSourceFixture where TEventSource : ServiceFabricEventSource
     {
         /// <summary>
         /// Returns the instance under test.
@@ -42,11 +41,6 @@ namespace Microsoft.ServiceFabric
             // Dispose existing singleton instance to allow the test instance emit events
             singleton.Value.Dispose();
 
-#if NET
-            // Disable Linux detection in the test instance to allow tests to run without UnstructuredTracePublisher which fails without FabricCommon
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(_ => false);
-#endif
-
             Instance = Type<TEventSource>.New();
 
             listener.EventWritten += (object sender, EventWrittenEventArgs args) => Event = args;
@@ -55,17 +49,15 @@ namespace Microsoft.ServiceFabric
         /// <summary>
         /// Must be called at the end of each test for events to work in subsequent tests.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             listener.Dispose();
 
             Instance.Dispose();
 
-            // Restore original static state
-#if NET
-            typeof(ServiceFabricEventSource).Field<Func<OSPlatform, bool>>().Set(new Func<OSPlatform, bool>(RuntimeInformation.IsOSPlatform));
-#endif
             singleton.Set(Type<TEventSource>.New());
+
+            base.Dispose();
         }
 
         /// <summary>

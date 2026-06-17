@@ -17,6 +17,7 @@
     <NoWarn>$(NoWarn);NU5128</NoWarn> <!-- Disable warnings about mismatch between target frameworks and folder names -->
     <!-- Don't generate a symbols package. ADO feeds don't support them and the internal pipeline publishes symbols directly from bin. -->
     <IncludeSymbols>false</IncludeSymbols>
+    <Description>PowerShell module for managing Service Fabric clusters, applications, and services over HTTP.</Description>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />
   <ItemGroup>

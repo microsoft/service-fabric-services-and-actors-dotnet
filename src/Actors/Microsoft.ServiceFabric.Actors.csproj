@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Reliable Actors framework for building lightweight, single-threaded stateful objects on Service Fabric.</Description>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackageContent</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
   <Import Project="..\..\properties\service_fabric_managed_common.props" />

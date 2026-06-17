@@ -4,8 +4,6 @@
 // ------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Fuzzy;
 using Inspector;
 using Moq;
@@ -19,12 +17,11 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
 
         // Constructor parameters
         readonly IFabricMeter fabricMeter = Mock.Of<IFabricMeter>();
-        readonly List<string> systemDimensions = fuzzy.List(() => fuzzy.String());
 
         // Test fixture
         static readonly IFuzz fuzzy = new RandomFuzz(Environment.TickCount);
 
-        public Int64Meter1DTest() => sut = new Int64Meter1D(fabricMeter, systemDimensions);
+        public Int64Meter1DTest() => sut = new Int64Meter1D(fabricMeter);
 
         public class Class : Int64Meter1DTest
         {
@@ -33,7 +30,6 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             {
                 var meter = (Meter)sut;
                 Assert.Same(fabricMeter, meter.Field<IFabricMeter>().Value);
-                Assert.Equal(systemDimensions, meter.Field<IReadOnlyCollection<string>>().Value);
             }
         }
 
@@ -53,9 +49,9 @@ namespace Microsoft.ServiceFabric.Diagnostics.Metrics.Implementation
             }
 
             [Fact]
-            public void CallsFabricMeterWithCombinedDimensions()
+            public void CallsFabricMeterWithCustomDimensions()
             {
-                string[] expectedArray = systemDimensions.Concat(new[] { dimension1Value }).ToArray();
+                string[] expectedArray = [dimension1Value];
 
                 sut.Record(value, dimension1Value);
 

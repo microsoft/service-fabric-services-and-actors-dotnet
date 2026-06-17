@@ -3,7 +3,7 @@ $assemblies = "Microsoft.ServiceFabric.Data.Interfaces",
 
 if (-not $env:DevEnvDir)
 {
-    & "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -SkipAutomaticLocation
+    & "${env:ProgramFiles}\Microsoft Visual Studio\18\Enterprise\Common7\Tools\Launch-VsDevShell.ps1" -SkipAutomaticLocation
 }
 
 foreach ($assembly in $assemblies)
