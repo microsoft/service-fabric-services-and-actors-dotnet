@@ -44,6 +44,7 @@ namespace Microsoft.ServiceFabric.Common
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
+        /// - NotificationTags - Indicates the NotificationTags property is set. The value is 4194304.
         /// </param>
         /// <param name="placementConstraints">The placement constraints as a string. Placement constraints are boolean
         /// expressions on node properties and allow for restricting a service to particular nodes based on the service
@@ -60,6 +61,8 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceDnsName">The DNS name of the service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
+        /// <param name="notificationTags">List of notification tags for this service. Specifying this property replaces the
+        /// existing notification tags. Specifying an empty list clears existing notification tags.</param>
         /// <param name="repartitionDescription">The repartition description as an object.</param>
         /// <param name="instanceCount">The instance count.</param>
         /// <param name="minInstanceCount">MinInstanceCount is the minimum number of instances that must be up to meet the
@@ -107,6 +110,7 @@ namespace Microsoft.ServiceFabric.Common
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             string serviceDnsName = default(string),
             ServiceTags serviceTags = default(ServiceTags),
+            IEnumerable<string> notificationTags = default(IEnumerable<string>),
             RepartitionSchemeDescription repartitionDescription = default(RepartitionSchemeDescription),
             int? instanceCount = default(int?),
             int? minInstanceCount = default(int?),
@@ -125,6 +129,7 @@ namespace Microsoft.ServiceFabric.Common
                 scalingPolicies,
                 serviceDnsName,
                 serviceTags,
+                notificationTags,
                 repartitionDescription)
         {
             instanceCount?.ThrowIfLessThan("instanceCount", -1);

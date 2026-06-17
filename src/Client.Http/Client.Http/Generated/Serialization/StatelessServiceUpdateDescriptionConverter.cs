@@ -42,6 +42,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var scalingPolicies = default(IEnumerable<ScalingPolicyDescription>);
             var serviceDnsName = default(string);
             var serviceTags = default(ServiceTags);
+            var notificationTags = default(IEnumerable<string>);
             var repartitionDescription = default(RepartitionSchemeDescription);
             var instanceCount = default(int?);
             var minInstanceCount = default(int?);
@@ -89,6 +90,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     serviceTags = ServiceTagsConverter.Deserialize(reader);
                 }
+                else if (string.Compare("NotificationTags", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    notificationTags = reader.ReadList(JsonReaderExtensions.ReadValueAsString);
+                }
                 else if (string.Compare("RepartitionDescription", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     repartitionDescription = RepartitionSchemeDescriptionConverter.Deserialize(reader);
@@ -134,6 +139,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 scalingPolicies: scalingPolicies,
                 serviceDnsName: serviceDnsName,
                 serviceTags: serviceTags,
+                notificationTags: notificationTags,
                 repartitionDescription: repartitionDescription,
                 instanceCount: instanceCount,
                 minInstanceCount: minInstanceCount,
@@ -192,6 +198,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.ServiceTags != null)
             {
                 writer.WriteProperty(obj.ServiceTags, "ServiceTags", ServiceTagsConverter.Serialize);
+            }
+
+            if (obj.NotificationTags != null)
+            {
+                writer.WriteEnumerableProperty(obj.NotificationTags, "NotificationTags", (w, v) => writer.WriteStringValue(v));
             }
 
             if (obj.RepartitionDescription != null)

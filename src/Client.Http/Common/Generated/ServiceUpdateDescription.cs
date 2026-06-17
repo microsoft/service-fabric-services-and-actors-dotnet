@@ -45,6 +45,7 @@ namespace Microsoft.ServiceFabric.Common
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
+        /// - NotificationTags - Indicates the NotificationTags property is set. The value is 4194304.
         /// </param>
         /// <param name="placementConstraints">The placement constraints as a string. Placement constraints are boolean
         /// expressions on node properties and allow for restricting a service to particular nodes based on the service
@@ -61,6 +62,8 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceDnsName">The DNS name of the service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
+        /// <param name="notificationTags">List of notification tags for this service. Specifying this property replaces the
+        /// existing notification tags. Specifying an empty list clears existing notification tags.</param>
         /// <param name="repartitionDescription">The repartition description as an object.</param>
         protected ServiceUpdateDescription(
             ServiceKind? serviceKind,
@@ -73,6 +76,7 @@ namespace Microsoft.ServiceFabric.Common
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             string serviceDnsName = default(string),
             ServiceTags serviceTags = default(ServiceTags),
+            IEnumerable<string> notificationTags = default(IEnumerable<string>),
             RepartitionSchemeDescription repartitionDescription = default(RepartitionSchemeDescription))
         {
             serviceKind.ThrowIfNull(nameof(serviceKind));
@@ -86,6 +90,7 @@ namespace Microsoft.ServiceFabric.Common
             this.ScalingPolicies = scalingPolicies;
             this.ServiceDnsName = serviceDnsName;
             this.ServiceTags = serviceTags;
+            this.NotificationTags = notificationTags;
             this.RepartitionDescription = repartitionDescription;
         }
 
@@ -118,6 +123,7 @@ namespace Microsoft.ServiceFabric.Common
         /// - ServiceDnsName - Indicates the ServiceDnsName property is set. The value is 131072.
         /// - ServiceTags TagsRequiredToPlace - Indicates the TagsRequiredToPlace property is set. The value is 1048576.
         /// - ServiceTags TagsRequiredToRun - Indicates the TagsRequiredToRun property is set. The value is 2097152.
+        /// - NotificationTags - Indicates the NotificationTags property is set. The value is 4194304.
         /// </summary>
         public string Flags { get; }
 
@@ -164,6 +170,12 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets service tags collections for placement and running of the service.
         /// </summary>
         public ServiceTags ServiceTags { get; }
+
+        /// <summary>
+        /// Gets list of notification tags for this service. Specifying this property replaces the existing notification tags.
+        /// Specifying an empty list clears existing notification tags.
+        /// </summary>
+        public IEnumerable<string> NotificationTags { get; }
 
         /// <summary>
         /// Gets the repartition description as an object.
