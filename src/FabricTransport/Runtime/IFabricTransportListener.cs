@@ -22,7 +22,8 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         Task<string> OpenAsync(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Asynchronously closes the listener, stopping it from accepting new connections.
+        /// Asynchronously closes the listener, stopping it from accepting new connections and gracefully closing open
+        /// connections.
         /// </summary>
         Task CloseAsync(CancellationToken cancellationToken);
 
