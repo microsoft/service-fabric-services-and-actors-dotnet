@@ -84,7 +84,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Gets or sets the maximum size for a message that can be received on a channel configured with this setting.
         /// </summary>
-        /// <value>The default is 4194304 bytes.</value>
+        /// <value>The default is 4,194,304 bytes.</value>
         public long MaxMessageSize { get; set; }
 
         /// <summary>
