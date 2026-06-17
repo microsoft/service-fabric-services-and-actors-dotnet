@@ -205,10 +205,10 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <see langword="true"/> if it was successfully loaded; otherwise returns <see langword="false"/>.
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file. If <see langword="null"/>, the default <c>TransportSettings</c> section is used. Returns <see langword="false"/> if the section is not found.</param>
+        /// <param name="settings">When this method returns, contains the <see cref="FabricTransportSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
         /// If not specified, it will first try to load from the default configuration package <c>Config</c>, and if not found, from the <c>ClientExeName.Settings.xml</c> settings file in the client executable directory.</param>
         /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
-        /// <param name="settings">When this method returns, contains the <see cref="FabricTransportSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
         /// <inheritdoc path="/remarks" cref="LoadFrom(string, string, string)"/>
         public static bool TryLoadFrom(string sectionName, out FabricTransportSettings settings, string filepath = null,
