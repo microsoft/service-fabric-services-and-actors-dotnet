@@ -38,7 +38,21 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file.</param>
         /// <param name="configPackageName">The name of the configuration package. If not specified, the default name <c>Config</c> is used.</param>
-        /// <inheritdoc cref="FabricTransportSettings.LoadFrom(string, string, string)" path="/remarks"/>
+        /// <remarks>
+        /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
+        /// <list type="number">
+        ///     <item><c>MaxQueueSize</c> - <see cref="FabricTransportSettings.MaxQueueSize"/> as a <see langword="long"/> value.</item>
+        ///     <item><c>MaxMessageSize</c> - <see cref="FabricTransportSettings.MaxMessageSize"/> value in bytes.</item>
+        ///     <item><c>MaxConcurrentCalls</c> - <see cref="FabricTransportSettings.MaxConcurrentCalls"/> as a <see langword="long"/> value.</item>
+        ///     <item><c>SecurityCredentialsType</c> - One of <c>None</c>, <c>X509</c>, or <c>Windows</c> that selects the <see cref="SecurityCredentials"/> type.
+        ///         <c>Windows</c> credentials additionally read <c>RemoteSecurityPrincipalName</c>. <c>X509</c> credentials additionally read <c>CertificateFindType</c>,
+        ///         <c>CertificateFindValue</c>, <c>CertificateProtectionLevel</c>, <c>CertificateStoreLocation</c>, <c>CertificateStoreName</c>, <c>CertificateRemoteCommonNames</c>,
+        ///         <c>CertificateRemoteThumbprints</c>, <c>CertificateIssuerThumbprints</c>, <c>CertificateFindValuebySecondary</c>, and <c>CertificateApplicationIssuerStore/</c> entries.</item>
+        ///     <item><c>OperationTimeoutInSeconds</c> - <see cref="FabricTransportSettings.OperationTimeout"/> value in seconds.</item>
+        ///     <item><c>KeepAliveTimeoutInSeconds</c> - <see cref="FabricTransportSettings.KeepAliveTimeout"/> value in seconds.</item>
+        ///     <item><c>ConnectTimeoutInMilliseconds</c> - <see cref="FabricTransportSettings.ConnectTimeout"/> value in milliseconds.</item>
+        /// </list>
+        /// </remarks>
         /// <exception cref="ArgumentException">
         /// The configuration package is not found, or the section named <paramref name="sectionName"/> is not found in the configuration.
         /// </exception>
@@ -84,7 +98,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// <param name="listenerSettings">When this method returns, contains the <see cref="FabricTransportListenerSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <param name="configPackageName">The name of the configuration package. If not specified, the default name <c>Config</c> is used.</param>
         /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
-        /// <inheritdoc cref="FabricTransportSettings.LoadFrom(string, string, string)" path="/remarks"/>
+        /// <inheritdoc path="/remarks" cref="LoadFrom(string, string)"/>
         public static bool TryLoadFrom(string sectionName, out FabricTransportListenerSettings listenerSettings,
             string configPackageName = null)
         {
