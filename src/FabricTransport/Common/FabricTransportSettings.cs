@@ -138,8 +138,15 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// </remarks>
         /// <exception cref="ArgumentException">
         /// <paramref name="configPackageName"/> is specified but the configuration package is not found,
-        /// <paramref name="filepath"/> is specified but the configuration file is not found, or
-        /// the section named <paramref name="sectionName"/> is not found in the configuration.
+        /// <paramref name="filepath"/> is specified but the configuration file is not found,
+        /// the section named <paramref name="sectionName"/> is not found in the configuration, or
+        /// a configuration value cannot be parsed into its target enumeration type.
+        /// </exception>
+        /// <exception cref="FormatException">
+        /// A numeric configuration value is not in a format recognized by its target type.
+        /// </exception>
+        /// <exception cref="OverflowException">
+        /// A numeric configuration value is outside the range of its target type.
         /// </exception>
         public static FabricTransportSettings LoadFrom(
             string sectionName,
