@@ -180,7 +180,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         /// <summary>
         /// Sends <paramref name="message"/> to the service without waiting for a reply.
         /// </summary>
-        /// <param name="message">The message to send to the service.</param>
         public virtual void SendOneWay(FabricTransportMessage message)
         {
             IFabricTransportMessage nativeMessage =
