@@ -62,11 +62,6 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
         }
 
         /// <summary>
-        /// Gets or sets a value that indicates whether this client is still valid for reuse.
-        /// </summary>
-        public bool IsValid { get; set; }
-
-        /// <summary>
         /// Gets the address of the service endpoint this client connects to.
         /// </summary>
         public string ConnectionAddress { get; private set; }
