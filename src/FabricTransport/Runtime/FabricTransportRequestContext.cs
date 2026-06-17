@@ -8,8 +8,8 @@ using System;
 namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     /// <summary>
-    /// Captures the per-request context on the service side, exposing the requesting client's identity and its
-    /// callback channel.
+    /// Represents the per-request, service-side context that exposes the requesting client's identity and its callback
+    /// channel.
     /// </summary>
     internal class FabricTransportRequestContext
     {
