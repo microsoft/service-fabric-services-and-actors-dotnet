@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     /// <summary>
-    /// Defines the interface that must be implemented by the ServiceRemotingListener to receive messages from the
-    /// remoting transport.
+    /// Processes messages received from the native fabric transport and produces the replies to send back.
     /// </summary>
     interface IFabricTransportMessageHandler : IDisposable
     {
