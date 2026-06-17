@@ -156,7 +156,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// <summary>
         /// Returns the <see cref="FabricTransportListenerSettings"/> loaded from the section named <paramref name="sectionName"/> specified in the configuration package, or the default settings if the section cannot be loaded.
         /// </summary>
-        /// <param name="sectionName">The name of the section within the configuration file.</param>
+        /// <param name="sectionName">The name of the section within the configuration file. If not specified, the default <c>TransportSettings</c> section is used.</param>
         internal new static FabricTransportListenerSettings GetDefault(string sectionName = DefaultSectionName)
         {
             FabricTransportListenerSettings listenerSettings = null;
