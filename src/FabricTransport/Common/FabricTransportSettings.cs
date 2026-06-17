@@ -112,14 +112,15 @@ namespace Microsoft.ServiceFabric.FabricTransport
 
         /// <summary>
         /// Returns the <see cref="FabricTransportSettings"/> loaded from the section named <paramref name="sectionName"/> specified in the configuration file.
-        /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
-        /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file. If <see langword="null"/>, the default <c>TransportSettings</c> section is used.</param>
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
         /// If not specified, it will first try to load from the default configuration package <c>Config</c>, and if not found, from the <c>ClientExeName.Settings.xml</c> settings file in the client executable directory.</param>
         /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
         /// <remarks>
+        /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
+        /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
+        /// <para>
         /// The following are the parameter names that should be provided in the configuration file, to be recognizable by Service Fabric to load the transport settings.
         /// <list type="number">
         ///     <item><c>MaxQueueSize</c> - <see cref="MaxQueueSize"/> as a <see langword="long"/> value.</item>
@@ -133,6 +134,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         ///     <item><c>KeepAliveTimeoutInSeconds</c> - <see cref="KeepAliveTimeout"/> value in seconds.</item>
         ///     <item><c>ConnectTimeoutInMilliseconds</c> - <see cref="ConnectTimeout"/> value in milliseconds.</item>
         /// </list>
+        /// </para>
         /// </remarks>
         /// <exception cref="ArgumentException">
         /// <paramref name="configPackageName"/> is specified but the configuration package is not found,
@@ -201,8 +203,6 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <summary>
         /// Tries to load the <see cref="FabricTransportSettings"/> from the section named <paramref name="sectionName"/> specified in the configuration file into <paramref name="settings"/> and returns
         /// <see langword="true"/> if it was successfully loaded; otherwise returns <see langword="false"/>.
-        /// The configuration file can be specified using <paramref name="filepath"/> or the name of the configuration package specified in the service manifest.
-        /// It first tries to load the configuration using <paramref name="configPackageName"/>. If <paramref name="configPackageName"/> is not specified, it then tries to load from <paramref name="filepath"/>.
         /// </summary>
         /// <param name="sectionName">The name of the section within the configuration file. If <see langword="null"/>, the default <c>TransportSettings</c> section is used. Returns <see langword="false"/> if the section is not found.</param>
         /// <param name="filepath">The full path of the file where the settings will be loaded from.
