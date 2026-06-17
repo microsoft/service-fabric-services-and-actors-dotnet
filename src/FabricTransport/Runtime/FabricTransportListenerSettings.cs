@@ -16,7 +16,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
     internal class FabricTransportListenerSettings : FabricTransportSettings
     {
         /// <summary>
-        /// The default name of the endpoint resource, used when <see cref="EndpointResourceName"/> is not specified.
+        /// Specifies the default name of the endpoint resource, used when <see cref="EndpointResourceName"/> is not specified.
         /// </summary>
         internal const string DefaultEndpointResourceName = "ServiceEndpoint";
         private static readonly string Tracetype = "FabricTransportListenerSettings";
