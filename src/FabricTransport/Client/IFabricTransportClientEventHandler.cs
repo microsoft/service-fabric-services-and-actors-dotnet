@@ -11,12 +11,12 @@ namespace Microsoft.ServiceFabric.FabricTransport.Client
     internal interface IFabricTransportClientEventHandler
     {
         /// <summary>
-        /// Notifies that the client has established a connection to the service endpoint.
+        /// Notifies the handler that the client has established a connection to the service endpoint.
         /// </summary>
         void OnConnected();
 
         /// <summary>
-        /// Notifies that the client has lost its connection to the service endpoint.
+        /// Notifies the handler that the client has lost its connection to the service endpoint.
         /// </summary>
         void OnDisconnected();
     }
