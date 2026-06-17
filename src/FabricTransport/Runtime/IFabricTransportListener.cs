@@ -28,7 +28,7 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         Task CloseAsync(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Aborts the listener immediately without gracefully closing open connections.
+        /// Aborts the listener immediately without gracefully closing open connections, unlike <see cref="CloseAsync"/>.
         /// </summary>
         void Abort();
     }
