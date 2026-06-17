@@ -210,7 +210,7 @@ namespace Microsoft.ServiceFabric.FabricTransport
         /// <param name="configPackageName">The name of the configuration package. If it's <see langword="null"/> or empty, it will check for the file in <paramref name="filepath"/>.</param>
         /// <param name="settings">When this method returns, contains the <see cref="FabricTransportSettings"/> loaded from configuration if the load succeeded, or <see langword="null"/> if it failed. This parameter is treated as uninitialized.</param>
         /// <returns><see langword="true"/> if the settings were loaded successfully from configuration; otherwise, <see langword="false"/>.</returns>
-        /// <inheritdoc cref="LoadFrom(string, string, string)" path="/remarks"/>
+        /// <inheritdoc path="/remarks" cref="LoadFrom(string, string, string)"/>
         public static bool TryLoadFrom(string sectionName, out FabricTransportSettings settings, string filepath = null,
             string configPackageName = null)
         {
