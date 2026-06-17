@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     /// <summary>
-    /// Processes messages received from the native fabric transport and produces the replies to send back.
+    /// Processes messages received from the native fabric transport.
     /// </summary>
     interface IFabricTransportMessageHandler : IDisposable
     {
