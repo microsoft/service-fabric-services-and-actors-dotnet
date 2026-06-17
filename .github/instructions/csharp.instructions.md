@@ -21,7 +21,7 @@ applyTo: "**/*.cs"
 - **Make types and members `readonly` or `volatile` if possible**.
   Types should be as immutable as possible. `readonly` helps to communicate and enforce that. While `volatile` doesn't guarantee
   thread safety, it helps to communicate that a field can be modified by multiple threads. Legitimate use of mutable types
-  that don't need thread safety is rare, so a field that's neither `readonly` nor `volatile` usually indicates a design problem 
+  that don't need thread safety is rare, so a field that's neither `readonly` nor `volatile` usually indicates a design problem.
 - **Make types, members and lambdas `static` if possible**.
   Types that can't be instantiated, members that don't need instance state and lambdas that don't need to capture variables
   should be static to communicate this explicitly and encourage thread-safety and efficiency.
@@ -61,7 +61,7 @@ applyTo: "**/*.cs"
 
 - **Use file-scoped namespaces instead of `{}`-scoped classic syntax**.
   - Example: `namespace Microsoft.ServiceFabric.Services;`.
-  - If a C# files contains multiple namespaces, split it instead.
+  - If a C# file contains multiple namespaces, split it instead.
   - Add a blank line after the namespace declaration.
 - **Use simple using statements instead of `{}`-scoped classic syntax**.
   E.g. `using StreamReader reader = File.OpenText(filePath);`. If a method requires scoped using statements, split it instead.
@@ -107,7 +107,7 @@ applyTo: "**/*.cs"
   ```
 
 - **Don't allow low-level exceptions; throw the most specific `ArgumentException` descendant instead**.
-  Member access (`arg.M()`, `arg.X`), indexing (`arg[i]`), null-forgiving (`arg!`), downcast (`(T)arg`), `await arg`, and 
+  Member access (`arg.M()`, `arg.X`), indexing (`arg[i]`), null-forgiving (`arg!`), downcast (`(T)arg`), `await arg`, and
   similar operations dereference the argument and shouldn't throw the low-level `NullReferenceException`, `InvalidCastException`,
   `IndexOutOfRangeException`, etc. `this` arguments in extension methods are not exempt.
   ```csharp
@@ -115,19 +115,40 @@ applyTo: "**/*.cs"
   static void Correct(this IFoo foo) => (foo ?? throw new ArgumentNullException(nameof(foo))).Bar(); // ✅ ArgumentNullException
   ```
 
-- **Don't validate pass-through arguments**.
-  They should be validated by the code accessing them, making the additional validation redundant.
+- **Don't re-implement pass-through argument validation**.
+  They should be validated by the callee accessing them, making the additional validation by the caller redundant.
   ```csharp
-  void Receive(string value) => if (value is null) throw new ArgumentNullException(nameof(value)); // Accessed after validation
-  void Wrong(string value) => Receive(value ?? throw new ArgumentNullException(nameof(value)));    // ❌ Wrong
-  void Correct(string value) => Receive(value);                                                    // ✅ Correct
+  void Receive(string value) { if (value is null) throw new ArgumentNullException(nameof(value)); } // Accessed after validation
+  void Wrong(string value) => Receive(value ?? throw new ArgumentNullException(nameof(value)));     // ❌ Wrong
+  void Correct(string value) => Receive(value);                                                     // ✅ Correct
   ```
   Redundant validation is acceptable when the pass-through argument is received and handed-off on different threads that
   don't share call context. This helps to Fail Fast and simplify debugging of what would otherwise be a truncated call stack.
   ```csharp
-  void Receive(string value) => if (value is null) throw new ArgumentNullException(nameof(value)); // Truncated call stack
-  void Callback(object? state) => Receive((string)value);                                          // Accessed on a different thread
+  void Receive(string value) { if (value is null) throw new ArgumentNullException(nameof(value)); } // Truncated call stack
+  void Callback(object? state) => Receive((string)state);                                           // Accessed on a different thread
   void Correct(string value) => new Timer(Callback, value ?? throw new ArgumentNullException(nameof(value)), 0, Timeout.Infinite); // ✅ Correct
+  ```
+
+- **Don't re-implement pass-through `IDisposable` idempotency**.
+  Idempotency should be implemented by the callee holding unmanaged resources, most often represented by `IntPtr` handles.
+  Re-implementing idempotency in callers holding only `IDisposable` instances is redundant.
+  ```csharp
+  class Foo: SafeHandle { // SafeHandle implements IDisposable idempotency
+    protected override bool ReleaseHandle() => NativeMethods.CloseHandle(handle);
+  }
+  class Wrong: IDisposable {
+    Foo foo = new(); // ❌ Forces mutability on consumers
+    void IDisposable.Dispose()
+    {
+      foo?.Dispose(); // ❌ Unnecessary conditional logic
+      foo = null;     // ❌ Requires additional tests
+    }
+  }
+  class Correct: IDisposable {
+    readonly Foo foo = new();                    // ✅ Immutable
+    void IDisposable.Dispose() => foo.Dispose(); // ✅ Unconditional
+  }
   ```
 
 ## Reduce potential merge conflicts
