@@ -168,6 +168,11 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
             return listenerSettings;
         }
 
+        /// <summary>
+        /// Returns the <see cref="FabricTransportListenerAddress"/> for the listener of the service replica or instance described by <paramref name="serviceContext"/>.
+        /// </summary>
+        /// <param name="serviceContext">The context of the service replica or instance that hosts the listener.</param>
+        /// <returns>A <see cref="FabricTransportListenerAddress"/> unique to the replica or instance, combining its listen address with the port of the configured endpoint resource.</returns>
         internal FabricTransportListenerAddress GetListenerAddress(ServiceContext serviceContext)
         {
             var replicaId = serviceContext.ReplicaOrInstanceId;
