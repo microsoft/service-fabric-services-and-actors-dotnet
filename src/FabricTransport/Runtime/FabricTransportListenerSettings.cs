@@ -57,7 +57,14 @@ namespace Microsoft.ServiceFabric.FabricTransport.Runtime
         /// </list>
         /// </remarks>
         /// <exception cref="ArgumentException">
-        /// The configuration package is not found, or the section named <paramref name="sectionName"/> is not found in the configuration.
+        /// The configuration package is not found, the section named <paramref name="sectionName"/> is not found in the configuration, or
+        /// a configuration value cannot be parsed into its target enumeration type.
+        /// </exception>
+        /// <exception cref="FormatException">
+        /// A numeric configuration value is not in a format recognized by its target type.
+        /// </exception>
+        /// <exception cref="OverflowException">
+        /// A numeric configuration value is outside the range of its target type.
         /// </exception>
         public static FabricTransportListenerSettings LoadFrom(string sectionName, string configPackageName = null)
         {
