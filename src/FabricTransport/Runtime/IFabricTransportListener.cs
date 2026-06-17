@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Microsoft.ServiceFabric.FabricTransport.Runtime
 {
     /// <summary>
-    /// Defines the transport listener that accepts incoming remoting connections from clients and routes their messages
+    /// Defines a transport listener that accepts incoming remoting connections from clients and routes their messages
     /// to an <see cref="IFabricTransportMessageHandler"/>.
     /// </summary>
     interface IFabricTransportListener : IDisposable
