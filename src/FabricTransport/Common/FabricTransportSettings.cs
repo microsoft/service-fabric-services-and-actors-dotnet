@@ -272,11 +272,6 @@ namespace Microsoft.ServiceFabric.FabricTransport
             }
         }
 
-        /// <summary>
-        /// FabricTransportSettings returns the default Settings .Loads the configuration file from default Config Package"Config" , if not found then try to load from  default config file "ClientExeName.Settings.xml"  from Client Exe directory.
-        ///</summary>
-        /// <param name="sectionName">Name of the section within the configuration file. If not found section in configuration file, it will return the default Settings</param>
-        /// <returns></returns>
         internal static FabricTransportSettings GetDefault(string sectionName = DefaultSectionName)
         {
             FabricTransportSettings settings = null;
