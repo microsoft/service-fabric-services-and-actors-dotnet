@@ -151,6 +151,22 @@ applyTo: "**/*.cs"
   }
   ```
 
+- **Don't re-implement pass-through `IDisposable` exception contract**.
+  `IDisposable` implementations shouldn't throw exceptions when releasing _unmanaged_, e.g. `IntPtr` resources; implementations
+  holding only _managed_ resources, however, shouldn't re-implement that contract. This is a defensive programming anti-pattern
+  that only marginally reduces resource leaks. However, it requires complex exception aggregation and creates a combinatorial
+  testing problem.
+  ```csharp
+  class Wrong: IDisposable { // ❌ Lossy, as shown here, or overly complex exception handling
+    readonly IDisposable foo = new Foo(), bar = new Bar();
+    void IDisposable.Dispose() { try { foo.Dispose(); } finally { bar.Dispose(); } }
+  }
+  class Correct: IDisposable { // ✅ Preserves unexpected exceptions; accepts the risk of foo.Dispose() throwing
+    readonly IDisposable foo = new Foo(), bar = new Bar();
+    void IDisposable.Dispose() { foo.Dispose(); bar.Dispose(); }
+  }
+  ```
+
 ## Reduce potential merge conflicts
 
 - Keep package, project and assembly references in separate groups, sorted alphabetically in the project and solution files.
