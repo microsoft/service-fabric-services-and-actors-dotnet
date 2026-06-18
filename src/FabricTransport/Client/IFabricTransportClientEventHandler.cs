@@ -5,9 +5,19 @@
 
 namespace Microsoft.ServiceFabric.FabricTransport.Client
 {
+    /// <summary>
+    /// Receives notifications about the connection state of a <see cref="FabricTransportClient"/>.
+    /// </summary>
     internal interface IFabricTransportClientEventHandler
     {
+        /// <summary>
+        /// Notifies the handler that the client has established a connection to the service endpoint.
+        /// </summary>
         void OnConnected();
+
+        /// <summary>
+        /// Notifies the handler that the client has lost its connection to the service endpoint.
+        /// </summary>
         void OnDisconnected();
     }
 }
