@@ -238,7 +238,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// explicitly enabled before any replicas or instances are placed. The value is 1.
         /// </summary>
         [Parameter(Mandatory = false, Position = 26)]
-        public int? ServiceOptions { get; set; } = 0;
+        public int? ServiceOptions { get; set; }
 
         /// <summary>
         /// Gets or sets Flags. Flags indicating whether other properties are set. Each of the associated properties

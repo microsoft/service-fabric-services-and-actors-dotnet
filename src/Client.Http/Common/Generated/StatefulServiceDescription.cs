@@ -105,7 +105,7 @@ namespace Microsoft.ServiceFabric.Common
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             ServiceTags serviceTags = default(ServiceTags),
-            int? serviceOptions = 0,
+            int? serviceOptions = default(int?),
             int? flags = default(int?),
             long? replicaRestartWaitDurationSeconds = default(long?),
             long? quorumLossWaitDurationSeconds = default(long?),

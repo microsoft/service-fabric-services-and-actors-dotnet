@@ -71,7 +71,7 @@ namespace Microsoft.ServiceFabric.Common
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             ServiceTags serviceTags = default(ServiceTags),
-            int? serviceOptions = 0)
+            int? serviceOptions = default(int?))
         {
             serviceName.ThrowIfNull(nameof(serviceName));
             serviceTypeName.ThrowIfNull(nameof(serviceTypeName));
