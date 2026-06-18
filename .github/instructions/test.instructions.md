@@ -621,8 +621,9 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   They are also often fragile, producing flakey results and difficult to modify over time. Instead of integration tests,
   strive to unit test each product type in isolation of its dependencies.
 
-- **Don't commit test files, create them in code instead**
-  When a test requires a file, generate it like any other test input in code. Don't hard-code it by committing it.
+- **Don't hard-code/commit test files, generate them on-the-fly in tests**
+  - Generate test file contents with appropriate `Fuzzy` values.
+  - Replace existing hard-coded/committed test files with file-generation logic.
 
 - **Generate unique paths for test files, if possible**
   When SUT accepts file names or paths, generate unique file or directory names to avoid sharing test fixture between tests.
