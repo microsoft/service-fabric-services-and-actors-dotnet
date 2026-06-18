@@ -49,14 +49,6 @@ namespace Microsoft.ServiceFabric.Common
         /// Service Fabric cluster.</param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
-        /// <param name="serviceOptions">Flags that specify options applied to the service when it is created. This is a
-        /// flag-based enumeration, so the value can be a combination of the values below
-        /// obtained using the bitwise 'OR' operator.
-        /// 
-        /// - None - No service options are specified. The value is 0.
-        /// - InitiallyDisabled - The service is created in a disabled state and must be
-        /// explicitly enabled before any replicas or instances are placed. The value is 1.
-        /// </param>
         /// <param name="flags">Flags indicating whether other properties are set. Each of the associated properties
         /// corresponds to a flag, specified below, which, if set, indicate that the property is specified.
         /// This property can be a combination of those flags obtained using bitwise 'OR' operator.
@@ -86,6 +78,14 @@ namespace Microsoft.ServiceFabric.Common
         /// <param name="auxiliaryReplicaCount">The auxiliary replica count as a number. To use Auxiliary replicas, the
         /// following must be true: AuxiliaryReplicaCount &lt; (TargetReplicaSetSize+1)/2 and TargetReplicaSetSize >=3.</param>
         /// <param name="serviceSensitivityDescription">Defines default levels of replica sensitivity of this service.</param>
+        /// <param name="serviceOptions">Flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </param>
         public StatefulServiceDescription(
             ServiceName serviceName,
             string serviceTypeName,
@@ -105,7 +105,6 @@ namespace Microsoft.ServiceFabric.Common
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             ServiceTags serviceTags = default(ServiceTags),
-            int? serviceOptions = default(int?),
             int? flags = default(int?),
             long? replicaRestartWaitDurationSeconds = default(long?),
             long? quorumLossWaitDurationSeconds = default(long?),
@@ -114,7 +113,8 @@ namespace Microsoft.ServiceFabric.Common
             bool? dropSourceReplicaOnMove = default(bool?),
             ReplicaLifecycleDescription replicaLifecycleDescription = default(ReplicaLifecycleDescription),
             int? auxiliaryReplicaCount = default(int?),
-            ServiceSensitivityDescription serviceSensitivityDescription = default(ServiceSensitivityDescription))
+            ServiceSensitivityDescription serviceSensitivityDescription = default(ServiceSensitivityDescription),
+            int? serviceOptions = default(int?))
             : base(
                 serviceName,
                 serviceTypeName,
@@ -131,8 +131,7 @@ namespace Microsoft.ServiceFabric.Common
                 servicePackageActivationMode,
                 serviceDnsName,
                 scalingPolicies,
-                serviceTags,
-                serviceOptions)
+                serviceTags)
         {
             targetReplicaSetSize.ThrowIfNull(nameof(targetReplicaSetSize));
             minReplicaSetSize.ThrowIfNull(nameof(minReplicaSetSize));
@@ -156,6 +155,7 @@ namespace Microsoft.ServiceFabric.Common
             this.ReplicaLifecycleDescription = replicaLifecycleDescription;
             this.AuxiliaryReplicaCount = auxiliaryReplicaCount;
             this.ServiceSensitivityDescription = serviceSensitivityDescription;
+            this.ServiceOptions = serviceOptions;
         }
 
         /// <summary>
@@ -231,5 +231,16 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets defines default levels of replica sensitivity of this service.
         /// </summary>
         public ServiceSensitivityDescription ServiceSensitivityDescription { get; }
+
+        /// <summary>
+        /// Gets flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </summary>
+        public int? ServiceOptions { get; }
     }
 }
