@@ -46,6 +46,14 @@ namespace Microsoft.ServiceFabric.Common
         /// Service Fabric cluster.</param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
+        /// <param name="serviceOptions">Flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </param>
         protected ServiceDescription(
             ServiceName serviceName,
             string serviceTypeName,
@@ -62,7 +70,8 @@ namespace Microsoft.ServiceFabric.Common
             ServicePackageActivationMode? servicePackageActivationMode = default(ServicePackageActivationMode?),
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
-            ServiceTags serviceTags = default(ServiceTags))
+            ServiceTags serviceTags = default(ServiceTags),
+            int? serviceOptions = 0)
         {
             serviceName.ThrowIfNull(nameof(serviceName));
             serviceTypeName.ThrowIfNull(nameof(serviceTypeName));
@@ -84,6 +93,7 @@ namespace Microsoft.ServiceFabric.Common
             this.ServiceDnsName = serviceDnsName;
             this.ScalingPolicies = scalingPolicies;
             this.ServiceTags = serviceTags;
+            this.ServiceOptions = serviceOptions;
         }
 
         /// <summary>
@@ -169,6 +179,17 @@ namespace Microsoft.ServiceFabric.Common
         /// Gets service tags collections for placement and running of the service.
         /// </summary>
         public ServiceTags ServiceTags { get; }
+
+        /// <summary>
+        /// Gets flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </summary>
+        public int? ServiceOptions { get; }
 
         /// <summary>
         /// Gets the kind of service (Stateless or Stateful).

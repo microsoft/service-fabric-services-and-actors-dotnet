@@ -229,6 +229,18 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         public IEnumerable<string> TagsRequiredToRun { get; set; }
 
         /// <summary>
+        /// Gets or sets ServiceOptions. Flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </summary>
+        [Parameter(Mandatory = false, Position = 26)]
+        public int? ServiceOptions { get; set; } = 0;
+
+        /// <summary>
         /// Gets or sets Flags. Flags indicating whether other properties are set. Each of the associated properties
         /// corresponds to a flag, specified below, which, if set, indicate that the property is specified.
         /// This property can be a combination of those flags obtained using bitwise 'OR' operator.
@@ -242,48 +254,48 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// - ServicePlacementTimeLimit - Indicates the ServicePlacementTimeLimit property is set. The value is 8.
         /// - DropSourceReplicaOnMove - Indicates the DropSourceReplicaOnMove property is set. The value is 16.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 26, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 26, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 26, ParameterSetName = "_UniformInt64Range__Stateful_")]
-        [Parameter(Mandatory = false, Position = 26, ParameterSetName = "_Named__Stateless_")]
-        [Parameter(Mandatory = false, Position = 26, ParameterSetName = "_Singleton__Stateless_")]
-        [Parameter(Mandatory = false, Position = 26, ParameterSetName = "_UniformInt64Range__Stateless_")]
+        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_Named__Stateless_")]
+        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_Singleton__Stateless_")]
+        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_UniformInt64Range__Stateless_")]
         public int? Flags { get; set; }
 
         /// <summary>
         /// Gets or sets ReplicaRestartWaitDurationSeconds. The duration, in seconds, between when a replica goes down and when
         /// a new replica is created.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 27, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 28, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 28, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 28, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public long? ReplicaRestartWaitDurationSeconds { get; set; }
 
         /// <summary>
         /// Gets or sets QuorumLossWaitDurationSeconds. The maximum duration, in seconds, for which a partition is allowed to
         /// be in a state of quorum loss.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 28, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 28, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 28, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 29, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 29, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 29, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public long? QuorumLossWaitDurationSeconds { get; set; }
 
         /// <summary>
         /// Gets or sets StandByReplicaKeepDurationSeconds. Defines how long StandBy replicas should be maintained before being
         /// removed.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 29, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 29, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 29, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 30, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 30, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 30, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public long? StandByReplicaKeepDurationSeconds { get; set; }
 
         /// <summary>
         /// Gets or sets ServicePlacementTimeLimitSeconds. The duration for which replicas can stay InBuild before reporting
         /// that build is stuck.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 30, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 30, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 30, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 31, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 31, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 31, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public long? ServicePlacementTimeLimitSeconds { get; set; }
 
         /// <summary>
@@ -291,34 +303,34 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// has not finished build. If desired behavior is to drop it as soon as possible the value of this property is true,
         /// if not it is false.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 31, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 31, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 31, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public bool? DropSourceReplicaOnMove { get; set; }
 
         /// <summary>
         /// Gets or sets ReplicaLifecycleDescription. Defines how replicas of this service will behave during their lifecycle.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 32, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 33, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 33, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 33, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public ReplicaLifecycleDescription ReplicaLifecycleDescription { get; set; }
 
         /// <summary>
         /// Gets or sets AuxiliaryReplicaCount. The auxiliary replica count as a number. To use Auxiliary replicas, the
         /// following must be true: AuxiliaryReplicaCount &lt; (TargetReplicaSetSize+1)/2 and TargetReplicaSetSize >=3.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 33, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 33, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 33, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 34, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 34, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 34, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public int? AuxiliaryReplicaCount { get; set; }
 
         /// <summary>
         /// Gets or sets ServiceSensitivityDescription. Defines default levels of replica sensitivity of this service.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 34, ParameterSetName = "_Named__Stateful_")]
-        [Parameter(Mandatory = false, Position = 34, ParameterSetName = "_Singleton__Stateful_")]
-        [Parameter(Mandatory = false, Position = 34, ParameterSetName = "_UniformInt64Range__Stateful_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Named__Stateful_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Singleton__Stateful_")]
+        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_UniformInt64Range__Stateful_")]
         public ServiceSensitivityDescription ServiceSensitivityDescription { get; set; }
 
         /// <summary>
@@ -328,9 +340,9 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// Note, if InstanceCount is set to -1, during MinInstanceCount computation -1 is first converted into the number of
         /// nodes on which the instances are allowed to be placed according to the placement constraints on the service.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Named__Stateless_")]
-        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_Singleton__Stateless_")]
-        [Parameter(Mandatory = false, Position = 35, ParameterSetName = "_UniformInt64Range__Stateless_")]
+        [Parameter(Mandatory = false, Position = 36, ParameterSetName = "_Named__Stateless_")]
+        [Parameter(Mandatory = false, Position = 36, ParameterSetName = "_Singleton__Stateless_")]
+        [Parameter(Mandatory = false, Position = 36, ParameterSetName = "_UniformInt64Range__Stateless_")]
         public int? MinInstanceCount { get; set; }
 
         /// <summary>
@@ -341,9 +353,9 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// number of nodes on which the instances are allowed to be placed according to the placement constraints on the
         /// service.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 36, ParameterSetName = "_Named__Stateless_")]
-        [Parameter(Mandatory = false, Position = 36, ParameterSetName = "_Singleton__Stateless_")]
-        [Parameter(Mandatory = false, Position = 36, ParameterSetName = "_UniformInt64Range__Stateless_")]
+        [Parameter(Mandatory = false, Position = 37, ParameterSetName = "_Named__Stateless_")]
+        [Parameter(Mandatory = false, Position = 37, ParameterSetName = "_Singleton__Stateless_")]
+        [Parameter(Mandatory = false, Position = 37, ParameterSetName = "_UniformInt64Range__Stateless_")]
         public int? MinInstancePercentage { get; set; }
 
         /// <summary>
@@ -362,18 +374,18 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// Note, the default value of InstanceCloseDelayDuration is 0, which indicates that there won't be any delay or
         /// removal of the endpoint prior to closing the instance.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 37, ParameterSetName = "_Named__Stateless_")]
-        [Parameter(Mandatory = false, Position = 37, ParameterSetName = "_Singleton__Stateless_")]
-        [Parameter(Mandatory = false, Position = 37, ParameterSetName = "_UniformInt64Range__Stateless_")]
+        [Parameter(Mandatory = false, Position = 38, ParameterSetName = "_Named__Stateless_")]
+        [Parameter(Mandatory = false, Position = 38, ParameterSetName = "_Singleton__Stateless_")]
+        [Parameter(Mandatory = false, Position = 38, ParameterSetName = "_UniformInt64Range__Stateless_")]
         public long? InstanceCloseDelayDurationSeconds { get; set; }
 
         /// <summary>
         /// Gets or sets InstanceLifecycleDescription. Defines how instances of this service will behave during their
         /// lifecycle.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 38, ParameterSetName = "_Named__Stateless_")]
-        [Parameter(Mandatory = false, Position = 38, ParameterSetName = "_Singleton__Stateless_")]
-        [Parameter(Mandatory = false, Position = 38, ParameterSetName = "_UniformInt64Range__Stateless_")]
+        [Parameter(Mandatory = false, Position = 39, ParameterSetName = "_Named__Stateless_")]
+        [Parameter(Mandatory = false, Position = 39, ParameterSetName = "_Singleton__Stateless_")]
+        [Parameter(Mandatory = false, Position = 39, ParameterSetName = "_UniformInt64Range__Stateless_")]
         public InstanceLifecycleDescription InstanceLifecycleDescription { get; set; }
 
         /// <summary>
@@ -384,9 +396,9 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// The default value is 0, which indicates that when stateless instance goes down, Service Fabric will immediately
         /// start building its replacement.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 39, ParameterSetName = "_Named__Stateless_")]
-        [Parameter(Mandatory = false, Position = 39, ParameterSetName = "_Singleton__Stateless_")]
-        [Parameter(Mandatory = false, Position = 39, ParameterSetName = "_UniformInt64Range__Stateless_")]
+        [Parameter(Mandatory = false, Position = 40, ParameterSetName = "_Named__Stateless_")]
+        [Parameter(Mandatory = false, Position = 40, ParameterSetName = "_Singleton__Stateless_")]
+        [Parameter(Mandatory = false, Position = 40, ParameterSetName = "_UniformInt64Range__Stateless_")]
         public long? InstanceRestartWaitDurationSeconds { get; set; }
 
         /// <summary>
@@ -394,7 +406,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
         /// time duration that the client is willing to wait for the requested operation to complete. The default value for
         /// this parameter is 60 seconds.
         /// </summary>
-        [Parameter(Mandatory = false, Position = 40)]
+        [Parameter(Mandatory = false, Position = 41)]
         public long? ServerTimeout { get; set; }
 
         /// <inheritdoc/>
@@ -446,6 +458,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
                     serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
+                    serviceOptions: this.ServiceOptions,
                     flags: this.Flags,
                     replicaRestartWaitDurationSeconds: this.ReplicaRestartWaitDurationSeconds,
                     quorumLossWaitDurationSeconds: this.QuorumLossWaitDurationSeconds,
@@ -475,6 +488,7 @@ namespace Microsoft.ServiceFabric.Powershell.Http
                     serviceDnsName: this.ServiceDnsName,
                     scalingPolicies: this.ScalingPolicies,
                     serviceTags: serviceTags, // Hand-coded to avoid compiler errors in generated code
+                    serviceOptions: this.ServiceOptions,
                     minInstanceCount: this.MinInstanceCount,
                     minInstancePercentage: this.MinInstancePercentage,
                     flags: this.Flags,

@@ -7354,6 +7354,25 @@
                 </dev:type>
             </command:parameter>
             <command:parameter required="false" position="24">
+                <maml:name>ServiceOptions</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Flags that specify options applied to the service when it is created. This is a
+                    flag-based enumeration, so the value can be a combination of the values below
+                    obtained using the bitwise 'OR' operator.
+                    
+                    - None - No service options are specified. The value is 0.
+                    - InitiallyDisabled - The service is created in a disabled state and must be
+                      explicitly enabled before any replicas or instances are placed. The value is 1.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">int?</command:parameterValue>
+                <dev:type>
+                    <maml:name>int?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="25">
                 <maml:name>Flags</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7375,7 +7394,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="25">
+            <command:parameter required="false" position="26">
                 <maml:name>ReplicaRestartWaitDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7387,7 +7406,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="26">
+            <command:parameter required="false" position="27">
                 <maml:name>QuorumLossWaitDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7399,7 +7418,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="27">
+            <command:parameter required="false" position="28">
                 <maml:name>StandByReplicaKeepDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7411,7 +7430,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="28">
+            <command:parameter required="false" position="29">
                 <maml:name>ServicePlacementTimeLimitSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7423,7 +7442,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="29">
+            <command:parameter required="false" position="30">
                 <maml:name>DropSourceReplicaOnMove</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7435,7 +7454,7 @@
                     <maml:name>bool?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="30">
+            <command:parameter required="false" position="31">
                 <maml:name>ReplicaLifecycleDescription</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7447,7 +7466,7 @@
                     <maml:name>ReplicaLifecycleDescription</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="31">
+            <command:parameter required="false" position="32">
                 <maml:name>AuxiliaryReplicaCount</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7459,7 +7478,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="32">
+            <command:parameter required="false" position="33">
                 <maml:name>ServiceSensitivityDescription</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7471,7 +7490,7 @@
                     <maml:name>ServiceSensitivityDescription</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="33">
+            <command:parameter required="false" position="34">
                 <maml:name>MinInstanceCount</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7486,7 +7505,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="34">
+            <command:parameter required="false" position="35">
                 <maml:name>MinInstancePercentage</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7501,7 +7520,7 @@
                     <maml:name>int?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="35">
+            <command:parameter required="false" position="36">
                 <maml:name>InstanceCloseDelayDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7521,7 +7540,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="36">
+            <command:parameter required="false" position="37">
                 <maml:name>InstanceLifecycleDescription</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7533,7 +7552,7 @@
                     <maml:name>InstanceLifecycleDescription</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="37">
+            <command:parameter required="false" position="38">
                 <maml:name>InstanceRestartWaitDurationSeconds</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -7548,7 +7567,7 @@
                     <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
-            <command:parameter required="false" position="38">
+            <command:parameter required="false" position="39">
                 <maml:name>ServerTimeout</maml:name>
                 <maml:Description>
                     <maml:para>
@@ -9008,6 +9027,126 @@
             <command:parameterValue required="false">bool?</command:parameterValue>
                 <dev:type>
                     <maml:name>bool?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
+    </command:command>
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+            <command:details>
+                <command:name>Disable-SFService</command:name>
+                <command:verb>Disable</command:verb>
+                <command:noun>Service</command:noun>
+                <maml:description>
+                    <maml:para>Disables a Service Fabric service.</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
+            <maml:description>
+                <maml:para>Disables a Service Fabric service. When you disable a service, Service Fabric marks it as Disabling, schedules replica removal, and returns immediately. The service transitions to Disabled asynchronously after all replicas are removed. Poll the service status to confirm completion.
+                
+                Both stateful and stateless services are supported. System services such as the Failover Manager, Cluster Manager, and Naming Service cannot be disabled.
+                
+                This operation requires the `AllowDisableEnableService` configuration flag to be set to `true` in the FailoverManager section of the cluster configuration.
+                </maml:para>
+            </maml:description>
+            <command:parameters>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="0">
+                <maml:name>ServiceId</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The identity of the service. This ID is typically the full name of the service without the 'fabric:' URI scheme.
+                    Starting from version 6.0, hierarchical names are delimited with the "~" character.
+                    For example, if the service name is "fabric:/myapp/app1/svc1", the service identity would be "myapp~app1~svc1" in 6.0+ and "myapp/app1/svc1" in previous versions.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">string</command:parameterValue>
+                <dev:type>
+                    <maml:name>string</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="1">
+                <maml:name>DisableServiceFlag</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Specifies the behavior when disabling a service. The only supported value is 'RemoveData', which removes the service replicas and data when the service is disabled. Possible values include: 'RemoveData'
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">DisableServiceFlag?</command:parameterValue>
+                <dev:type>
+                    <maml:name>DisableServiceFlag?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="2">
+                <maml:name>ForceDisable</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    Indicates whether the service should be force-disabled, bypassing graceful replica shutdown. Force-disabling a stateful service can leave persisted state on disk that is not properly cleaned up, because replicas are terminated without a graceful shutdown.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">bool?</command:parameterValue>
+                <dev:type>
+                    <maml:name>bool?</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="3">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
+                </dev:type>
+            </command:parameter>
+            </command:parameters>
+    </command:command>
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+            <command:details>
+                <command:name>Enable-SFService</command:name>
+                <command:verb>Enable</command:verb>
+                <command:noun>Service</command:noun>
+                <maml:description>
+                    <maml:para>Enables a previously disabled Service Fabric service.</maml:para>
+                </maml:description>
+            </command:details>
+            <command:syntax>
+            </command:syntax>
+            <maml:description>
+                <maml:para>Enables a previously disabled Service Fabric service. When you enable a service, Service Fabric builds replicas and instances according to the service's current configuration (target replica set size, instance count, placement constraints, and so on).
+                
+                This operation requires the `AllowDisableEnableService` configuration flag to be set to `true` in the FailoverManager section of the cluster configuration.
+                </maml:para>
+            </maml:description>
+            <command:parameters>
+            <command:parameter required="true" pipelineInput="True(ByPropertyName)" position="0">
+                <maml:name>ServiceId</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The identity of the service. This ID is typically the full name of the service without the 'fabric:' URI scheme.
+                    Starting from version 6.0, hierarchical names are delimited with the "~" character.
+                    For example, if the service name is "fabric:/myapp/app1/svc1", the service identity would be "myapp~app1~svc1" in 6.0+ and "myapp/app1/svc1" in previous versions.
+                    
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="true">string</command:parameterValue>
+                <dev:type>
+                    <maml:name>string</maml:name>
+                </dev:type>
+            </command:parameter>
+            <command:parameter required="false" position="1">
+                <maml:name>ServerTimeout</maml:name>
+                <maml:Description>
+                    <maml:para>
+                    The server timeout for performing the operation in seconds. This timeout specifies the time duration that the client is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+                    </maml:para>
+                </maml:Description>
+            <command:parameterValue required="false">long?</command:parameterValue>
+                <dev:type>
+                    <maml:name>long?</maml:name>
                 </dev:type>
             </command:parameter>
             </command:parameters>

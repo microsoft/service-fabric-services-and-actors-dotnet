@@ -48,6 +48,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var serviceDnsName = default(string);
             var scalingPolicies = default(IEnumerable<ScalingPolicyDescription>);
             var serviceTags = default(ServiceTags);
+            var serviceOptions = default(int?);
             var instanceCount = default(int?);
             var minInstanceCount = default(int?);
             var minInstancePercentage = default(int?);
@@ -119,6 +120,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     serviceTags = ServiceTagsConverter.Deserialize(reader);
                 }
+                else if (string.Compare("ServiceOptions", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    serviceOptions = reader.ReadValueAsInt();
+                }
                 else if (string.Compare("InstanceCount", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     instanceCount = reader.ReadValueAsInt();
@@ -170,6 +175,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 serviceDnsName: serviceDnsName,
                 scalingPolicies: scalingPolicies,
                 serviceTags: serviceTags,
+                serviceOptions: serviceOptions,
                 instanceCount: instanceCount,
                 minInstanceCount: minInstanceCount,
                 minInstancePercentage: minInstancePercentage,
@@ -243,6 +249,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.ServiceTags != null)
             {
                 writer.WriteProperty(obj.ServiceTags, "ServiceTags", ServiceTagsConverter.Serialize);
+            }
+
+            if (obj.ServiceOptions != null)
+            {
+                writer.WriteProperty(obj.ServiceOptions, "ServiceOptions", JsonWriterExtensions.WriteIntValue);
             }
 
             if (obj.MinInstanceCount != null)

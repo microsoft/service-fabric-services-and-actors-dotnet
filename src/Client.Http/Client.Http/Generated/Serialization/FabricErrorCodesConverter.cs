@@ -366,6 +366,30 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             {
                 obj = FabricErrorCodes.FABRIC_E_CERTIFICATE_NOT_FOUND;
             }
+            else if (string.Compare(value, "FABRIC_E_SERVICE_ALREADY_IN_REQUESTED_STATE", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = FabricErrorCodes.FABRIC_E_SERVICE_ALREADY_IN_REQUESTED_STATE;
+            }
+            else if (string.Compare(value, "FABRIC_E_SERVICE_DISABLE_IN_PROGRESS", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = FabricErrorCodes.FABRIC_E_SERVICE_DISABLE_IN_PROGRESS;
+            }
+            else if (string.Compare(value, "FABRIC_E_DISABLE_ENABLE_SERVICE_FEATURE_DISABLED", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = FabricErrorCodes.FABRIC_E_DISABLE_ENABLE_SERVICE_FEATURE_DISABLED;
+            }
+            else if (string.Compare(value, "FABRIC_E_MAX_ALLOWED_DISABLED_SERVICES_REACHED", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = FabricErrorCodes.FABRIC_E_MAX_ALLOWED_DISABLED_SERVICES_REACHED;
+            }
+            else if (string.Compare(value, "FABRIC_E_SERVICE_DISABLED", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = FabricErrorCodes.FABRIC_E_SERVICE_DISABLED;
+            }
+            else if (string.Compare(value, "FABRIC_E_OPERATION_FAILED_SERVICE_PURGED", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                obj = FabricErrorCodes.FABRIC_E_OPERATION_FAILED_SERVICE_PURGED;
+            }
 
             return obj;
         }
@@ -633,6 +657,24 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                     break;
                 case FabricErrorCodes.FABRIC_E_CERTIFICATE_NOT_FOUND:
                     writer.WriteStringValue("FABRIC_E_CERTIFICATE_NOT_FOUND");
+                    break;
+                case FabricErrorCodes.FABRIC_E_SERVICE_ALREADY_IN_REQUESTED_STATE:
+                    writer.WriteStringValue("FABRIC_E_SERVICE_ALREADY_IN_REQUESTED_STATE");
+                    break;
+                case FabricErrorCodes.FABRIC_E_SERVICE_DISABLE_IN_PROGRESS:
+                    writer.WriteStringValue("FABRIC_E_SERVICE_DISABLE_IN_PROGRESS");
+                    break;
+                case FabricErrorCodes.FABRIC_E_DISABLE_ENABLE_SERVICE_FEATURE_DISABLED:
+                    writer.WriteStringValue("FABRIC_E_DISABLE_ENABLE_SERVICE_FEATURE_DISABLED");
+                    break;
+                case FabricErrorCodes.FABRIC_E_MAX_ALLOWED_DISABLED_SERVICES_REACHED:
+                    writer.WriteStringValue("FABRIC_E_MAX_ALLOWED_DISABLED_SERVICES_REACHED");
+                    break;
+                case FabricErrorCodes.FABRIC_E_SERVICE_DISABLED:
+                    writer.WriteStringValue("FABRIC_E_SERVICE_DISABLED");
+                    break;
+                case FabricErrorCodes.FABRIC_E_OPERATION_FAILED_SERVICE_PURGED:
+                    writer.WriteStringValue("FABRIC_E_OPERATION_FAILED_SERVICE_PURGED");
                     break;
                 default:
                     throw new ArgumentException($"Invalid value {value.ToString()} for enum type FabricErrorCodes");

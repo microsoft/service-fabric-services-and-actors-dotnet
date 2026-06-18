@@ -559,5 +559,69 @@ namespace Microsoft.ServiceFabric.Client.Http
 
             return this.httpClient.SendAsync(RequestFunc, url, requestId, cancellationToken);
         }
+
+        /// <inheritdoc />
+        public Task DisableServiceAsync(
+            string serviceId,
+            DisableServiceFlag? disableServiceFlag = DisableServiceFlag.RemoveData,
+            bool? forceDisable = default(bool?),
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            serviceId.ThrowIfNull(nameof(serviceId));
+            serverTimeout?.ThrowIfOutOfInclusiveRange("serverTimeout", 1, 4294967295);
+            var requestId = Guid.NewGuid().ToString();
+            var url = "Services/{serviceId}/$/Disable";
+            url = url.Replace("{serviceId}", serviceId);
+            var queryParams = new List<string>();
+            
+            // Append to queryParams if not null.
+            disableServiceFlag?.AddToQueryParameters(queryParams, $"DisableServiceFlag={disableServiceFlag.ToString()}");
+            forceDisable?.AddToQueryParameters(queryParams, $"ForceDisable={forceDisable}");
+            serverTimeout?.AddToQueryParameters(queryParams, $"timeout={serverTimeout}");
+            queryParams.Add("api-version=11.5");
+            url += "?" + string.Join("&", queryParams);
+            
+            HttpRequestMessage RequestFunc()
+            {
+                var request = new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Post,
+                };
+                return request;
+            }
+
+            return this.httpClient.SendAsync(RequestFunc, url, requestId, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task EnableServiceAsync(
+            string serviceId,
+            long? serverTimeout = 60,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            serviceId.ThrowIfNull(nameof(serviceId));
+            serverTimeout?.ThrowIfOutOfInclusiveRange("serverTimeout", 1, 4294967295);
+            var requestId = Guid.NewGuid().ToString();
+            var url = "Services/{serviceId}/$/Enable";
+            url = url.Replace("{serviceId}", serviceId);
+            var queryParams = new List<string>();
+            
+            // Append to queryParams if not null.
+            serverTimeout?.AddToQueryParameters(queryParams, $"timeout={serverTimeout}");
+            queryParams.Add("api-version=11.5");
+            url += "?" + string.Join("&", queryParams);
+            
+            HttpRequestMessage RequestFunc()
+            {
+                var request = new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Post,
+                };
+                return request;
+            }
+
+            return this.httpClient.SendAsync(RequestFunc, url, requestId, cancellationToken);
+        }
     }
 }

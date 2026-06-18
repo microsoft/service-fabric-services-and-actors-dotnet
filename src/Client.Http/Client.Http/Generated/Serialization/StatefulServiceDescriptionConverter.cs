@@ -48,6 +48,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             var serviceDnsName = default(string);
             var scalingPolicies = default(IEnumerable<ScalingPolicyDescription>);
             var serviceTags = default(ServiceTags);
+            var serviceOptions = default(int?);
             var targetReplicaSetSize = default(int?);
             var minReplicaSetSize = default(int?);
             var hasPersistedState = default(bool?);
@@ -124,6 +125,10 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 {
                     serviceTags = ServiceTagsConverter.Deserialize(reader);
                 }
+                else if (string.Compare("ServiceOptions", propName, StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    serviceOptions = reader.ReadValueAsInt();
+                }
                 else if (string.Compare("TargetReplicaSetSize", propName, StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     targetReplicaSetSize = reader.ReadValueAsInt();
@@ -195,6 +200,7 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
                 serviceDnsName: serviceDnsName,
                 scalingPolicies: scalingPolicies,
                 serviceTags: serviceTags,
+                serviceOptions: serviceOptions,
                 targetReplicaSetSize: targetReplicaSetSize,
                 minReplicaSetSize: minReplicaSetSize,
                 hasPersistedState: hasPersistedState,
@@ -275,6 +281,11 @@ namespace Microsoft.ServiceFabric.Client.Http.Serialization
             if (obj.ServiceTags != null)
             {
                 writer.WriteProperty(obj.ServiceTags, "ServiceTags", ServiceTagsConverter.Serialize);
+            }
+
+            if (obj.ServiceOptions != null)
+            {
+                writer.WriteProperty(obj.ServiceOptions, "ServiceOptions", JsonWriterExtensions.WriteIntValue);
             }
 
             if (obj.Flags != null)

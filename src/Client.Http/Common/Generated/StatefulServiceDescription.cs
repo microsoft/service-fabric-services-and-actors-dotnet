@@ -49,6 +49,14 @@ namespace Microsoft.ServiceFabric.Common
         /// Service Fabric cluster.</param>
         /// <param name="scalingPolicies">Scaling policies for this service.</param>
         /// <param name="serviceTags">Service tags collections for placement and running of the service.</param>
+        /// <param name="serviceOptions">Flags that specify options applied to the service when it is created. This is a
+        /// flag-based enumeration, so the value can be a combination of the values below
+        /// obtained using the bitwise 'OR' operator.
+        /// 
+        /// - None - No service options are specified. The value is 0.
+        /// - InitiallyDisabled - The service is created in a disabled state and must be
+        /// explicitly enabled before any replicas or instances are placed. The value is 1.
+        /// </param>
         /// <param name="flags">Flags indicating whether other properties are set. Each of the associated properties
         /// corresponds to a flag, specified below, which, if set, indicate that the property is specified.
         /// This property can be a combination of those flags obtained using bitwise 'OR' operator.
@@ -97,6 +105,7 @@ namespace Microsoft.ServiceFabric.Common
             string serviceDnsName = default(string),
             IEnumerable<ScalingPolicyDescription> scalingPolicies = default(IEnumerable<ScalingPolicyDescription>),
             ServiceTags serviceTags = default(ServiceTags),
+            int? serviceOptions = 0,
             int? flags = default(int?),
             long? replicaRestartWaitDurationSeconds = default(long?),
             long? quorumLossWaitDurationSeconds = default(long?),
@@ -122,7 +131,8 @@ namespace Microsoft.ServiceFabric.Common
                 servicePackageActivationMode,
                 serviceDnsName,
                 scalingPolicies,
-                serviceTags)
+                serviceTags,
+                serviceOptions)
         {
             targetReplicaSetSize.ThrowIfNull(nameof(targetReplicaSetSize));
             minReplicaSetSize.ThrowIfNull(nameof(minReplicaSetSize));
