@@ -592,6 +592,8 @@ Use it both to evaluate individual tests and to find gaps in the test suite.
   - **Include detailed explanation of the exclusion in the body of the test method**.
     - Add comments to explain _why_ the test code demonstrates a problem.
     - Use `Assert` messages, when available.
+  - **Remove explicit tests when their `{Reason}` is no longer valid**, such as when a missing logic previously documented
+    as a bug is now unnecessary based on latest `*.instructions.md` or docs.
 - **Consider fixing problems documented by explicit tests when changing SUT**.
   Any change in SUT should evaluate fixing the problems already documented by the existing tests.
 - **Don't fix problems documented by explicit tests when putting SUT under test**.
