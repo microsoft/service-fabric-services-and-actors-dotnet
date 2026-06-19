@@ -37,5 +37,5 @@ the user how to do this.
 ```pwsh
 Pop-Location
 git worktree remove $worktree
-git branch -D $branch
+git branch -d $branch
 ```
