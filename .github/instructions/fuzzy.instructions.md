@@ -39,6 +39,15 @@ applyTo: "test/**/*.cs"
   - For numbers, use `x + fuzzy.SByte().Between(1, 5)`
   - For dates and timestamps, use `x + fuzzy.TimeSpan().Seconds()`
 
+- **Don't hard-code number of elements when generating serialized collections**.
+  Hard-coding number of elements, typically to a small number of elements, like 2, can hide bugs in the product code due
+  to hard-coded expectations. Use fuzzy collections, like `fuzzy.Array(...)`, and synthesize serialized representation required
+  by the test, such as a coma-separated list.
+  ```csharp
+  string wrong = $"{fuzzy.Int32()},{fuzzy.Int32()}"; // ❌ 2 elements
+  var correct = string.Join(",", fuzzy.Array(fuzzy.Int32).Select(_ => _.ToString())); // ✅ Fuzzy number of elements
+  ```
+
 - Report unexpected `Fuzzy` errors to the user.
   - Ask them to submit an issue to the `olegsych/fuzzy` repo on GitHub.
   - When implementing workarounds, add TODO comments with the explanation, package version and GitHub issue link.
